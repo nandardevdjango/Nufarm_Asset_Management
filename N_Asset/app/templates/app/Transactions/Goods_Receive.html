@@ -3,6 +3,12 @@
             <form action="." method="post" class="form-horizontal" enctype="multipart/form-data" style="background-color:transparent;font-size: 1em;" id="frm-NA-Entry-Goods_Receive" onsubmit="return false;">
                 {% csrf_token %}
                 <div class="NA-Entry-div-row">
+                    <div class="NA-Entry-inlinve-div">
+                        <label for="refno" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">RefNO</label>
+                        {{ form.RefNO}}
+                    </div>                   
+                </div>
+                <div class="NA-Entry-div-row">
                     <label for="fk_goods" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Goods Desc</label>
                     {{ form.fk_goods }}
                     <div class="input-group" style="display:inline-flex;">

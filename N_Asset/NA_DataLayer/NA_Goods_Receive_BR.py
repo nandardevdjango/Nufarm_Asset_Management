@@ -23,13 +23,15 @@ class NA_BR_Goods_Receive(models.Manager):
 			colKey ==  """emp1.receivedby"""
 		elif columnKey == 'pr_by':
 			colKey = """Emp2.pr_by"""
+		elif columnKey == 'refno':
+			colKey = """ngr.refno"""
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Receive_Manager"
 		cur.execute(Query)		
 		#CREATE TEMPORARY TABLE IF NOT EXISTS  temp_table ( INDEX(col_2) ) ENGINE=MyISAM AS (SELECT col_1, coll_2, coll_3  FROM mytable)
-		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,g.goodsname as goods,\
+		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
 	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),'ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
 	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee WHERE InActive = 0 AND InActive IS NOT NULL) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
@@ -55,9 +57,10 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.close()
 		return (result,totalRecords)
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-
+	def getRefNO(searchRefNO):
+		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('brandname').distinct()
 	def getData(self,IDApp):
-		Query = """SELECT ngr.IDapp,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS FK_goods, goodsname as goods_desc,\
+		Query = """SELECT ngr.IDapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS FK_goods, goodsname as goods_desc,\
 	    ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fK_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
 	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
@@ -102,15 +105,15 @@ class NA_BR_Goods_Receive(models.Manager):
 
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
-				Params = {'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
+				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
 							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions']}
 				if Status == StatusForm.Input:
 					#insert data transaction
-					Query = """INSERT INTO n_a_goods_receive (FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions) \
-							VALUES (%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s)"""
+					Query = """INSERT INTO n_a_goods_receive (RefNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions) \
+							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s)"""
 					Params.update(CreatedBy=Data['createdby']) 
 				elif Status == StatusForm.Edit:
-					Query = """UPDATE n_a_goods_receive SET DateReceived = %(DateReceived)s,FK_Suplier= %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s,FK_ReceivedBy=%(FK_ReceivedBy)s,\
+					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier= %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s,FK_ReceivedBy=%(FK_ReceivedBy)s,\
 					FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
 					if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
 						Query = Query + """,TotalReceived = %(TotalReceived)s """
