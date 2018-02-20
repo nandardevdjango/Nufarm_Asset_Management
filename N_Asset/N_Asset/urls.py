@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^contact$', app.views.contact, name='contact'),
     url(r'^about', app.views.about, name='about'),
 
-    #User's URL
+    ##User's URL
     url(r'^login/$', NA_User_View.login_view, name='login'),
     url(r'^register/$', NA_User_View.NA_User_Register, name='NA_User_Register'),
     url(r'^profile/(?P<username>\w+)/edit/$', NA_User_View.user_profile, name='user_profile'),
@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^NA_EmailData/searchBiodata/$', NA_EmailData_View.searchBiodata, name='NA_EmailData_searchBiodata'),
     url(r'^NA_Email/retriveBio/$', NA_EmailData_View.NA_Email_retriveBio, name='NA_Email_retriveBio'),
 
-    #Log Event
+    ##Log Event
     url(r'^NA_LogEvent/$', NA_LogEvent_View.NA_LogEvent_data, name='NA_LogEvent'),
     url(r'^NA_LogEvent/desc/$', NA_LogEvent_View.LogDescriptions, name='NA_LogEvent_descriptions'),
 

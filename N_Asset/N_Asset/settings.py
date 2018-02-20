@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     #'django.middleware.cache.UpdateCacheMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -152,8 +152,8 @@ MEDIA_URL = os.path.join(BASE_DIR, 'app/static/NA_User_Image/img/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 
-from django.core.urlresolvers import reverse_lazy
-LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
+#from django.core.urlresolvers import reverse_lazy
+#LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 
 # django-debug-toolbar
 
