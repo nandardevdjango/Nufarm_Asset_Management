@@ -548,17 +548,18 @@
 		function createDummyRowData(intLength) {
 		    var DummyData = [];
 		    for (var i = 0; i < intLength; i++) {
-		        //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-		        var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '' }
-		        DummyData.push(rowData);
-		    }
+		    	//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
+		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '' }
+		    	DummyData.push(rowData);
+		    };
+		    return DummyData;
 		};
 		function CreateGridDetail() {
 			//grid detail 
 			//JQGrid Item Detail
 			var HasRef = NA.common.getElementID('hasRefData').value;
 			hasRef = HasRef.valueOf();
-			var AllowEdit = (!hasRef) && (!win.status !== 'Open')
+			var AllowEdit = (!hasRef) && (win.status !== 'Open')
 			var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 			gridTbl.jqGrid({

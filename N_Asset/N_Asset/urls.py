@@ -79,7 +79,7 @@ urlpatterns = [
 	url(r'^NA_Acc_FA/ShowEntry/$',NA_Acc_Fa_View.EntryAcc, name='NA_Acc_Entry'),
     url(r'NA_Acc_FA/getData/$',NA_Acc_Fa_View.NA_AccGetData),
     url(r'NA_Acc_FA/SearchGoods/$',NA_Acc_Fa_View.searchGoods),
-	url(r'^NA_Acc_FA/getGoods/$',NA_Acc_Fa_View.getGoods_data),
+	#url(r'^NA_Acc_FA/getGoods/$',NA_Acc_Fa_View.getGoods_data),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', admin.site.urls),
 ]
@@ -88,8 +88,8 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+#if settings.DEBUG:
+#    import debug_toolbar
+#    urlpatterns += [
+#        url(r'^__debug__/', include(debug_toolbar.urls)),
+#    ]

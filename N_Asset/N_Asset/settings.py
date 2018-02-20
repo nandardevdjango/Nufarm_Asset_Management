@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'N_Asset.wsgi.application'
 DATABASES = {
       'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'NA_MS',
+        'NAME': 'na_m_s',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

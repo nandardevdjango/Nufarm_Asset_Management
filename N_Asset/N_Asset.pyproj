@@ -12,8 +12,7 @@
     <ProjectGuid>4b410ecb-5c2d-4d98-bcca-daec4bcc5d33</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>manage.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -37,9 +36,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\models.py" />
-    <Compile Include="app\NA_Views\NA_Acc_Fa_View.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="app\NA_Views\NA_Acc_Fa_View.py" />
     <Compile Include="app\NA_Views\NA_EmailData_View.py">
       <SubType>Code</SubType>
     </Compile>
