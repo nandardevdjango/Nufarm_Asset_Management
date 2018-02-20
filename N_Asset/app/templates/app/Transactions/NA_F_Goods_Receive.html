@@ -4,8 +4,6 @@
 <li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
 {% endfor %}
 
-t>
-
 {% endblock %}
 
 {% block javascriptAndUI %}
@@ -141,9 +139,10 @@ t>
 						url: url,
 						mtype: "GET",
 						datatype: "json",//#column IDapp  no	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
-						colNames: ['idapp', 'NO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received','Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp','RefNO', 'NO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
                             { name: 'idapp', key: true, hidden: true, align: 'left' },
+                            { name: 'refno', width: 80, align: 'left', sortable: true, editable: false, },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
                             { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
                             { name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
@@ -223,6 +222,8 @@ t>
 			//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 			var elidapp = NA.common.getElementID('id_idapp'),
 				idapp = elidapp.value;
+			var elRefNO = NA.common.getElementID('id_RefNO'),
+                RefNO = elRefNO.value;
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
 				idapp_fk_goods = elidapp_fk_goods.value;
 			var elfk_goods = NA.common.getElementID('id_fk_goods'),
@@ -257,10 +258,12 @@ t>
 				hasRefData = NA.common.getElementID('id_hasRefData').value;
 			var eldescBySystem = NA.common.getElementID('id_descbysystem'),
 				descbysystem = eldescBySystem.value;
+		
 			return {
 				idapp:idapp,
 				idapp_fk_goods: idapp_fk_goods,
 				fk_goods: fk_goods,
+                refno:RefNO,
 				goods_desc:goods_desc,
 				datereceived: datereceived,
 				fk_suplier: fk_suplier,
@@ -523,7 +526,7 @@ t>
 		//		}
 		//	}
 		//};
-		function fetcBrands(elem, cmName) {
+		function fetcBrands(elem) {
 			//$("#id_brandname").autocomplete({ source: "SearchBrand/", minLength: 1, });
 			$(elem).autocomplete({
 				//source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
@@ -533,21 +536,41 @@ t>
 				minLength: 0
 			});
 		};
+		function fetchRefNo(elem) {
+		    $(elem).autocomplete({
+		        //source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
+		        source: "getRefNO/",
+		        minLength: 1,
+		        delay: 0,
+		        minLength: 0
+		    });
+		}
+		function createDummyRowData(intLength) {
+		    var DummyData = [];
+		    for (var i = 0; i < intLength; i++) {
+		        //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
+		        var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '' }
+		        DummyData.push(rowData);
+		    }
+		};
 		function CreateGridDetail() {
-
 			//grid detail 
 			//JQGrid Item Detail
 			var HasRef = NA.common.getElementID('hasRefData').value;
-
 			hasRef = HasRef.valueOf();
 			var AllowEdit = (!hasRef) && (!win.status !== 'Open')
 			var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 			gridTbl.jqGrid({
 				data: (function () {
-					if (win.status === 'Open' || win.status === 'Edit') {
-						return JSON.parse(initializeForm.dataForGridDetail);
-					}
+				    if (win.status === 'Open' || win.status === 'Edit') {
+				        return JSON.parse(initializeForm.dataForGridDetail);
+				    }
+				    else {
+				        var elTotalReceived = NA.common.getElementID('id_totalreceived');
+				        var dummyData = createDummyRowData(elTotalReceived.value);
+				        return dummyData;
+				    }
 				})(),
 				datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
 				colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'],
@@ -1147,6 +1170,8 @@ t>
                         			            }
                         			        }
                         			    });
+                                        //Auto Complete RefNO
+                        			    $("#id_RefNO").autocomplete({ source: "getRefNO/", minLength: 1, });
                         			    //============blur event================================
                         			    NA.NAEvent.addHandler(item, 'blur', function (event) {
                         			        if (this.value === '') {

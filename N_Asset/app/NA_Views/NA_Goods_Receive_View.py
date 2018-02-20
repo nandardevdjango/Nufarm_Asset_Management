@@ -25,6 +25,7 @@ def NA_Goods_Receive(request):
 	assert isinstance(request,HttpRequest)
 	#buat nama-name column, key sama 
 	populate_combo = []
+	populate_combo.append({'label':'RefNO','columnName':'RefNO','dataType':'varchar'})
 	populate_combo.append({'label':'Goods Descriptions','columnName':'goods','dataType':'varchar'})
 	populate_combo.append({'label':'Date Received','columnName':'datereceived','dataType':'datetime'})
 	populate_combo.append({'label':'Suplier Name','columnName':'suplier','dataType':'varchar'})
@@ -59,16 +60,31 @@ def NA_Goods_Receive_Search(request):
 	#column IDapp 	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
 	i = 0;
 	for row in dataRows:
-		datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i+1,row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
+		datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i+1,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
 			row['pr_by'],row['totalpurchase'],row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 		rows.append(datarow)
 	results = {"page": int(request.GET.get('page', '1')),"total": totalRecord/int( request.GET.get('page', '1')) ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
-	
+
+def getRefNO(request):
+	if(request.is_ajax()):
+		IvalueKey =  request.GET.get('term')
+		dataRows = NAGoodsReceive.objects.getRefNO(IvalueKey)
+		results = []
+		for datarow in dataRows:
+			JsonResult = {}
+			JsonResult['id'] = datarow['refno']
+			JsonResult['label'] = datarow['refno']
+			JsonResult['value'] = datarow['refno']
+			results.append(JsonResult)
+		data = json.dumps(results,cls=DjangoJSONEncoder)
+		return HttpResponse(data, content_type='application/json')
+	else:
+		return HttpResponse(content='',content_type='application/json')	
 def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
-	return {'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
+	return {'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'hasRefData':form.cleaned_data['hasRefData'],
 		 'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'descriptions':form.cleaned_data['descriptions'],'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
 def HasExists(request):
@@ -138,8 +154,8 @@ def ShowEntry_Receive(request):
 			IDApp = data['idapp']
 			#Ndata = goods.objects.getData(IDApp)[0]
 			Ndata = NAGoodsReceive.objects.getData(IDApp)[0]	
-			#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-			NAData = {'idapp':idapp,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
+			#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+			NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
 					'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
 					'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem}
 			NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder)) 
@@ -337,7 +353,8 @@ def getBrandForDetailEntry(request):
 	return HttpResponse(data, content_type='application/json')
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	
+	RefNO = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;',
+																						 'autocomplete':False,'placeholder': 'RefNO','data-value':'RefNO','tittle':'Ref NO is required'}))
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':1,
                                    'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
@@ -383,6 +400,7 @@ class NA_Goods_Receive_Form(forms.Form):
 	#	exclude = ('createdby','createddate','modifiedby','modifieddate')
 	def clean(self):#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
 		cleaned_data = super(NA_Goods_Receive_Form,self).clean()
+		RefNO =  self.cleaned_data.get('refno')
 		fk_goods = self.cleaned_data.get('fk_goods')
 		datereceived = self.cleaned_data.get('datereceived')
 		fk_suplier = self.cleaned_data.get('fk_suplier')

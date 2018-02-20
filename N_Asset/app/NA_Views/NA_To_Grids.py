@@ -1,4 +1,4 @@
-﻿from jqgrid import JqGrid
+﻿from .jqgrid import JqGrid
 from NA_Models.models import Employee, NASuplier
 
 class EmployeeGrid(JqGrid):

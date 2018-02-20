@@ -43,6 +43,7 @@
     <Compile Include="app\NA_Views\NA_EmailData_View.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\NA_Goods_Receive_View.py" />
     <Compile Include="app\NA_Views\NA_Goods_View.py">
       <SubType>Code</SubType>
     </Compile>
@@ -63,12 +64,14 @@
     <Compile Include="app\__init__.py" />
     <Compile Include="manage.py" />
     <Compile Include="NA_DataLayer\admin.py" />
+    <Compile Include="app\NA_Views\jqgrid.py" />
     <Compile Include="NA_DataLayer\NA_Acc_FA.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_Goods_BR.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
     <Compile Include="NA_DataLayer\NA_Suplier.py">
       <SubType>Code</SubType>
     </Compile>
@@ -127,6 +130,7 @@
     <Folder Include="N_Asset\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AlterTable.sql" />
     <Content Include="app\static\app\content\Dialog.css" />
     <Content Include="app\static\app\content\jquery-ui.min.css" />
     <Content Include="app\static\app\content\MainLayouts.css" />
