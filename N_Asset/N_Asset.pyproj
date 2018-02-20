@@ -118,6 +118,7 @@
     <Folder Include="app\templates\app\MasterData\" />
     <Folder Include="app\templates\app\NA_User\" />
     <Folder Include="app\templates\app\Search\" />
+    <Folder Include="app\templates\app\Transactions\" />
     <Folder Include="app\templates\app\UserControl\" />
     <Folder Include="NA_DataLayer\" />
     <Folder Include="NA_DataLayer\NA_User\" />
@@ -182,6 +183,8 @@
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
+    <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
     <Content Include="app\templates\app\UserControl\customFilter.html" />
     <Content Include="NA_DataLayer\common.py" />
     <Content Include="requirements.txt" />
