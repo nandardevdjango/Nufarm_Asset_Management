@@ -1355,8 +1355,11 @@
 
                         			    //======================event handler BUTTONS Search================================================                        		
                         			    var txtSearch = null, containerMessage = null; var gridTbl = null, gridPager = null;
-                        			    NA.NAEvent.addHandler(btnFindGoods, 'click', function (event) {
-                        			        //create bootstrapDialog                        				
+                        			    var x = 0;
+                        			    NA.NAEvent.addHandler(btnFindGoods, 'click', function (evt) {
+                        			        //create bootstrapDialog   
+                        			        //x += 1;
+                        			        //console.log(x);
                         			        BootstrapDialog.show({
 
                         			            //message: (function () {
@@ -1475,17 +1478,6 @@
                         			                    del: false,
                         			                    refresh: false
                         			                });
-                        			                restyleBoostrapDialog();
-                        			                var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_FK_Goods');
-                        			                gbox.style.width = '432px';
-                        			                var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_FK_Goods');
-                        			                gview.style.width = '432px';
-
-                        			                var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_FK_Goods_Pager_right');
-                        			                tdInfo.style.width = '110px';
-                        			                var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_FK_Goods_Pager');
-                        			                pager.style.width = '430px';
-
                         			            },
                         			            closable: false,
                         			            animate: false,
@@ -1524,8 +1516,19 @@
                         			                }
                         			            }]
                         			        });
-                        			    });
-                        			    NA.NAEvent.addHandler(btnFindSuplier, 'click', function (event) {
+                        			        restyleBoostrapDialog();
+                        			        var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_FK_Goods');
+                        			        gbox.style.width = '432px';
+                        			        var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_FK_Goods');
+                        			        gview.style.width = '432px';
+
+                        			        var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_FK_Goods_Pager_right');
+                        			        tdInfo.style.width = '110px';
+                        			        var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_FK_Goods_Pager');
+                        			        pager.style.width = '430px';
+                        			        evt.stopImmediatePropagation();
+                        			    });                        			 
+                        			    NA.NAEvent.addHandler(btnFindSuplier, 'click', function (evt) {
                         			        //create bootstrapDialog
                         			        BootstrapDialog.show({
                         			            draggable: true,
@@ -1674,9 +1677,9 @@
                         			        tdInfo.style.width = '110px';
                         			        var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
                         			        pager.style.width = '430px';
-
+                        			        evt.stopImmediatePropagation();
                         			    });
-                        			    NA.NAEvent.addHandler(btnFindPRBy, 'click', function (event) {
+                        			    NA.NAEvent.addHandler(btnFindPRBy, 'click', function (evt) {
                         			        //create bootstrapDialog
                         			        BootstrapDialog.show({
                         			            draggable: true,
@@ -1825,8 +1828,9 @@
                         			        tdInfo.style.width = '110px';
                         			        var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
                         			        pager.style.width = '430px';
+                        			        evt.stopImmediatePropagation();
                         			    });
-                        			    NA.NAEvent.addHandler(btnFindReceivedBy, 'click', function (event) {
+                        			    NA.NAEvent.addHandler(btnFindReceivedBy, 'click', function (evt) {
                         			        //create bootstrapDialog
                         			        BootstrapDialog.show({
                         			            draggable: true,
@@ -1974,6 +1978,7 @@
                         			        tdInfo.style.width = '110px';
                         			        var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_receivedby_Pager');
                         			        pager.style.width = '430px';
+                        			        evt.stopImmediatePropagation();
                         			    });
 
                         			    NA.NAEvent.addHandler(btnAddDetail, 'click', function (e) {
