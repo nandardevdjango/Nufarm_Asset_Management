@@ -1730,6 +1730,7 @@ NA.common.dialog = {
 };
 NA.common.mesage = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
+    _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
     _savingSucces: 'Data Saved Succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
     _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',
@@ -1741,6 +1742,11 @@ Object.defineProperties(NA.common.mesage, {
     confirmDelete: {
         get: function () {
             return this._confirmDelete;
+        }
+    },
+    clearData: {
+        get: function () {
+            return this._clearData;
         }
     },
     savingSucces: {
@@ -1774,7 +1780,41 @@ Object.defineProperties(NA.common.mesage, {
         }
     }
 });
-//=========================AJAX NAJS,(belum di test) =============================================
+//=========================AJAX NAJS,(sudah test) =============================================
+NA.common.AJAX = {
+    XHR: {},
+    Xsettings: {
+        data: {},
+        dataType: 'application/json',//content yang di kirim ke server jika post default nya application/json
+        url: '',
+        MIMEType: 'text/html',//method overrides the MIME type returned by the server,default 'text/html',override responsetype
+        timeOut: 2000000
+    },
+};
+NA.common.AJAX.createXHR = function () {
+    if (typeof XMLHttpRequest != "undefined") {
+        this.XHR = new XMLHttpRequest();
+    } else if (typeof ActiveXObject != "undefined") {
+        if (typeof arguments.callee.activeXString != "string") {
+            var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0",
+                            "MSXML2.XMLHttp"],
+                i, len;
+            for (i = 0, len = versions.length; i < len; i++) {
+                try {
+                    var xhr = new ActiveXObject(versions[i]);
+                    arguments.callee.activeXString = versions[i];
+                    return xhr;
+                } catch (ex) {
+                    //skip
+                }
+            }
+        }
+        this.XHR = new ActiveXObject(arguments.callee.activeXString);
+    } else {
+        throw new Error("No XHR object available.");
+    }
+    return this.XHR;
+};
 Object.defineProperty(NA.common.AJAX, 'settings', {
     get: function () {
         return this.Xsettings || {}

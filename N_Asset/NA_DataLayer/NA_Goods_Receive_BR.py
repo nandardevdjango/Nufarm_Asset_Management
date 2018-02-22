@@ -66,6 +66,14 @@ class NA_BR_Goods_Receive(models.Manager):
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %s"""
 		return self.raw(Query,[IDApp])
+	def getDetailData(self,fkApp,idapp_fk_goods,serialnumber):
+		#GET idapp_fk_goods
+		Query = """SELECT grd.*,HasRef = CONVERT((EXISTS(SELECT serialnumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber)  \
+												OR EXISTS(SELECT serialnumber FROM n_a_goods_lending WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber) \
+												OR EXISTS(SELECT serialnumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber) \
+											    OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber)),BIT) \
+				FROM n_a_goods_receve_detail AS grd WHERE grd.FKApp = %(FKApp)s"""
+		return self.raw(Query,{'fkApp':fkApp,'FK_Goods':idapp_fk_goods}) 
 	def hasExists(self,itemcode,datereceived,totalPurchase):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(itemcode__iexact=itemcode) & Q(datereceived__icontains=datereceived)).exists()#Q(member=p1) | Q(member=p2)
 	def hasReference(self,Data,mustCloseConnection):
@@ -95,6 +103,22 @@ class NA_BR_Goods_Receive(models.Manager):
 				hasRef = cur.rowcount >0
 		if mustCloseConnSection:
 			cur.close()
+		return hasRef
+	def hasRefDetail(self,data):
+		self.__class__.c = connection.cursor()
+		cur = self.__class__.c
+		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND SerialNumber = %s) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber = %s)"""
+		TParams =  [data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
+		cur.execute(Query,TParams)
+		hasRef = cur.rowcount >0	
+		if not hasRef:
+			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND TypeApp = %s) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND TypeApp = %s)"""
+			TParams =  [data.idapp_fk_goods, data.datereceived,data.typeapp,data.idapp_fk_goods, data.datereceived,data.typeapp]
+			cur.execute(Query,TParams)
+			hasRef = cur.rowcount >0
+		cur.close()
 		return hasRef
 	def SaveData(self,Data,Status=StatusForm.Input):
 		self.__class__.c = connection.cursor()

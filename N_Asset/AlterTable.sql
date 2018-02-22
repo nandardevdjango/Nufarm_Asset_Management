@@ -145,9 +145,9 @@ ALTER TABLE n_a_goods_receive_detail
 
 --
 -- AUTO_INCREMENT for table n_a_goods_receive_detail
---
+--*/
 ALTER TABLE n_a_goods_receive_detail
-  MODIFY IDApp int(32) NOT NULL AUTO_INCREMENT;
+MODIFY IDApp int(32) NOT NULL AUTO_INCREMENT;
 ALTER TABLE n_a_goods_receive_detail CHANGE warranty warranty DECIMAL(6,2) NOT NULL DEFAULT '0';
 
 ALTER TABLE n_a_goods_outwards CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
@@ -155,6 +155,22 @@ ALTER TABLE n_a_goods_outwards add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/
 ALTER TABLE n_a_goods_outwards add TypeApp VARCHAR(32) NOT NULL; 
 
 ALTER TABLE n_a_goods_Lending add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
-ALTER TABLE n_a_goods_Lending add TypeApp VARCHAR(32) NOT NULL;  */
-
+ALTER TABLE n_a_goods_Lending add TypeApp VARCHAR(32) NOT NULL;  
+ALTER TABLE n_a_goods_lending CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_goods_receive ADD REFNO VARCHAR(50) DEFAULT 'N/A';
+
+ALTER TABLE n_a_goods_return CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_goods_return add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
+ALTER TABLE n_a_goods_return add TypeApp VARCHAR(32) NOT NULL; 
+
+ALTER TABLE n_a_disposal CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_disposal add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
+ALTER TABLE n_a_disposal add TypeApp VARCHAR(32) NOT NULL; 
+
+ALTER TABLE n_a_maintenance CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_maintenance add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
+ALTER TABLE n_a_maintenance add TypeApp VARCHAR(32) NOT NULL; 
+
+ALTER TABLE n_a_acc_fa CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_acc_fa add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
+ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL; 

@@ -549,7 +549,7 @@
 		    var DummyData = [];
 		    for (var i = 0; i < intLength; i++) {
 		    	//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '' }
+		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
 		    	DummyData.push(rowData);
 		    };
 		    return DummyData;
@@ -574,7 +574,7 @@
 				    }
 				})(),
 				datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
-				colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'],
+				colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate','HasRef'],
 				colModel: [
 					{ name: 'idapp', hidden: true },
 					{ name: 'fk_appp', hidden: true },
@@ -595,18 +595,6 @@
 								if ($(this).val() != '') { return 'Choose if exists'; }
 							})(), title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control'
 						},
-						//edittype: 'select',
-						//formatter: 'select',
-						//editoptions: {
-						//	value: (function () {
-						//		if (win.status === 'Open' || win.status === 'Edit') {
-						//			return localSelectBrands(initializeForm.dataForGridDetail);
-						//		}
-						//		else {
-
-						//		}
-						//	})(),
-						//}
 					},
 					{
 						name: 'priceperunit', width: 90, sortable: true, align: 'right',
@@ -722,6 +710,9 @@
 						},
 						formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
 					},
+                    {
+                        name: 'hasref', hidden: true
+                    }
 				],
 				cellEdit: true,
 				viewrecords: true,
@@ -737,28 +728,72 @@
 				sortname: "brandname",
 				sortorder: "asc",
 				multiSort: true,
-				//shrinkToFit: false,
 				iconSet: "fontAwesome",
-				//forceFit: true,
-				//toolbar: true,
 				scrollrows: true,
-				//hidegrid: true,
-				//caption: "Transactions ---Find goods",
+				caption: "Detail goods Receive",
 				pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 			});
-			gridTbl.navGrid(gridPager,{
-				edit:false,add:false,del:false,search:false
-			}).navButtonAdd(gridPager,{
-				caption:"Clear Or Reset", buttonimg:""
-					//var datarow = {name1: value1, name2: value2', ...};
-					//var su=jQuery("#grid_id").addRowData("X",datarow,"last");
-					//if(su) { jQuery("#grid_id").setSelection('X') }; }, position:"last"
-			}).navButtonAdd(gridPager,{
-				caption:"Validate", buttonimg:""
-					//var datarow = {name1: value1, name2: value2', ...};
-					//var su=jQuery("#grid_id").addRowData("X",datarow,"last");
-					//if(su) { jQuery("#grid_id").setSelection('X') }; }, position:"last"
-			});
+			var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
+			gridTbl.setSelection(top_rowid, false);
+			var btnCancel = NA.common.getElementID('btnCancelDetail');
+			btnCancel.style.display = 'block';
+
+			if (win.status != 'Open') {
+			    gridTbl.navGrid(gridPager, {
+			        edit: false, add: false, del: false, search: false
+			    }).navButtonAdd(grdPager, {
+			        caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
+			            return BootstrapDialog.confirm({
+			                title: NA.common.mesage.confirmInfo,
+			                message: NA.common.mesage.clearData,
+			                type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+			                animate: false,
+			                closable: false, // <-- Default value is false
+			                draggable: true, // <-- Default value is false
+			                btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
+			                btnOKLabel: 'Yes.', // <-- Default value is 'OK',
+			                btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
+			                callback: function (result) {
+			                    // result will be true if button was click, while it will be false if users close the dialog directly.
+			                    if (result) {
+			                        gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
+			                    }
+			                }
+			            });
+			        },
+			    }).navButtonAdd(grdPager, {
+			        caption: "Validate", buttonimg: "", onClickButton: function () {
+			            var rows = gridTbl.getDataIDs();
+                        //columns = ['idapp', 'fkapp', 'no', 'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty', 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'hasref']
+
+			            //jika rownumbers:true, multiselect:true or subGrid:true ,jquery ada tambahan 3 column pertama rn,cb,subgrid
+			            //columnname harus di cek apakah ada di  gridTbl[0].p.colModel
+			            var columnNames = gridTbl.jqGrid('getGridParam', 'colNames');
+
+			            for (i = 0; i < rows.length; i++) {
+			                var row = gridTbl.getRowData(rows[i]);
+			                var rowID = '';
+			                if ($(row).hasClass('jqgrow')) {
+			                    rowID = row.cells['idapp'].closest("tr").attr("id")
+			                }			                
+			                //check brandname harus ada
+			                var brandname = row['brandname'];
+			                if (brandname.length < 1) {
+
+			                    rowID['brandname'].focus();
+			                    return false;
+			                }
+			                //typeapp dan serialnumber harus ada
+                            
+			              //  row.colname1; row.colname2;
+			            }
+                        ////method getRowData
+			            //var rowData = gridTbl.getRowData(rowId);
+                        ////method for getAllrows In Jquery grid
+			            //var allRowsInGrid = $('#list4').jqGrid('getGridParam', 'data');
+			        },
+			    });
+			}
 			//assign delete key event
 			gridTbl.on("keyup", "tr", function (e) {
 				//var rowid = parseInt($(this).attr("id"));
@@ -777,14 +812,9 @@
 
 					}
 					var rowId = grid.jqGrid('getGridParam', 'selrow');
-					gridTbl.delRowData(rowId);
-					//check referenced data
+					gridTbl.delRowData(rowId);					//check referenced data
 
 				}
-				var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
-				gridTbl.setSelection(top_rowid, false);
-				var btnCancel = NA.common.getElementID('btnCancelDetail');
-				btnCancel.style.display = 'block';
 				//$('#jqGrid_NA_F_Goods_Receive_Detail')				
 			});
 			//gridTbl.navGrid(gridPager,{
@@ -1998,6 +2028,7 @@
                         			        	return BootstrapDialog.alert({
                         			        		title: NA.common.mesage.titleInfo,
                         			        		message: 'Please enter total receve',
+                        			        		size: BootstrapDialog.SIZE_SMALL,
                         			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
                         			        		closable: false, // <-- Default value is false
                         			        		draggable: true, // <-- Default value is false
@@ -2012,6 +2043,7 @@
                         			        	return BootstrapDialog.alert({
                         			        		title: NA.common.mesage.titleInfo,
                         			        		message: 'Please enter total purchase',
+                        			        		size: BootstrapDialog.SIZE_SMALL,
                         			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
                         			        		closable: false, // <-- Default value is false
                         			        		draggable: true, // <-- Default value is false
@@ -2025,7 +2057,8 @@
                         			        if (parseInt(elTotalReceived) <= 0 || parseInt(elTotalPurchase.value) <= 0)
                         			        {
                         			        	return BootstrapDialog.alert({
-                        			        		title: NA.common.mesage.itleInfo,
+                        			        	    title: NA.common.mesage.itleInfo,
+                        			        	    size: BootstrapDialog.SIZE_SMALL,
                         			        		message: 'total purchased / Received is not allowed to be null or zero or negative ',
                         			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
                         			        		closable: false, // <-- Default value is false
@@ -2044,7 +2077,8 @@
                         			        }
                         			        if (parseInt(elTotalReceived.value) > parseInt(elTotalPurchase.value)) {
                         			        	return BootstrapDialog.alert({
-                        			        		title: NA.common.mesage.titleInfo,
+                        			        	    title: NA.common.mesage.titleInfo,
+                        			        	    size: BootstrapDialog.SIZE_SMALL,
                         			        		message: 'Total Received is more than total purchased',
                         			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
                         			        		closable: false, // <-- Default value is false
@@ -2063,8 +2097,9 @@
                         			    NA.NAEvent.addHandler(btnCancelDetail, 'click', function (e) {
                         			        //NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
                         			    });
+
                         			    //assign delete key event
-                        			    var gridTbl = gridTbl || $('#jqGrid_NA_F_Goods_Receive_fk_receivedby');
+                        			    //var gridTbl = gridTbl || $('#jqGrid_NA_F_Goods_Receive_fk_receivedby');
                         			    //gridTbl.on("keyup", "tr", deletegridDetail);
 
                         		}//hanya untuk status Add/Edit                  	    

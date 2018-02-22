@@ -158,16 +158,32 @@ def ShowEntry_Receive(request):
 			NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
 					'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
 					'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem}
-			NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder)) 
+			NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
+			NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata.idapp_fk_goods)
+			rows = []			
+			i = 0;
+			#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
+			for row in NADetailRows:
+				datarow = {"id" :i+1, "cell" :[row[i]['idapp'],row[i]['fkapp'], i+1,row[i]['brandname'],row[i]['priceperunit'],row[i]['typeapp'],row[i]['serialnumber'],row[i]['warranty'],row[i]['endofwarranty'], \
+				row[i]['createdby'],row[i]['createddate'],row[i]['modifiedby'],row[i]['modifieddate'],row[i]['HasRef']]}
+				rows.append(datarow)
+			dataForGridDetail = {"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
+			#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 			form = NA_Goods_Receive_Form(data=NAData)
 			form.fields['status'].widget.attrs = {'value':status}
 			if hasRefData:
 				form.fields['totalreceived'].disabled = True
 			form.fields['hasRefData'].widget.attrs = {'value': str2bool(hasRefData)} 
 			return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
-def HasRef(request):
+def HasRefDetail(request):	
+	data = request.POST.get('data')
+	data = json.loads(data)	
 	result = False
-	try:		
+	try:
+		result = NAGoodsReceive.objects.hasRefDetail({idapp:data['idapp_fk_goods'],
+												datereceived:data['datereceived'], 
+												typeapp:data['typeapp'],
+												serialnumber:data['serialnumber']},False)				
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
