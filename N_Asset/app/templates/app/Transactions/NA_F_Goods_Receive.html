@@ -767,20 +767,25 @@
 					//var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
 					//btnDelete.click();
 					//return false;
-					if(win.status === 'Open'){
+					if (win.status === 'Open') {
 						NA.NAEvent.preventDefault(e);
 						return false;
 					}
-					if(win.status === 'Edit'){
+					if (win.status === 'Edit') {
 						//check reference
 						var NAAjax = NA.common.AJAX;
-						
+
 					}
 					var rowId = grid.jqGrid('getGridParam', 'selrow');
 					gridTbl.delRowData(rowId);
 					//check referenced data
-				
+
 				}
+				var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
+				gridTbl.setSelection(top_rowid, false);
+				var btnCancel = NA.common.getElementID('btnCancelDetail');
+				btnCancel.style.display = 'block';
+				//$('#jqGrid_NA_F_Goods_Receive_Detail')				
 			});
 			//gridTbl.navGrid(gridPager,{
 			//    edit:false,add:false,del:false,search:false
@@ -1155,7 +1160,6 @@
                         			}
                         		};
 
-
                         		if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit                                   
                         			//simpan original data di initializeForm
                         			var originalData = JSON.stringify(getValuesForm());
@@ -1163,155 +1167,157 @@
                         			initializeForm = NA.common.getElementID('id_initializeForm');
                         			initializeForm.Value = originalData;                        		
                         			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
-                        			    var valPlaceHolder = item.dataset.value;
-                        			    NA.NAEvent.addHandler(item, 'focus', function (event) {
-                        			        if (this.value === '') {
-                        			            if (this.getAttribute('placeholder') === valPlaceHolder) {
-                        			                this.setAttribute('placeholder', '');
-                        			            }
-                        			        }
-                        			    });
-                                        //Auto Complete RefNO
-                        			    $("#id_RefNO").autocomplete({ source: "getRefNO/", minLength: 1, });
-                        			    //============blur event================================
-                        			    NA.NAEvent.addHandler(item, 'blur', function (event) {
-                        			        if (this.value === '') {
-                        			            if (this.getAttribute('placeholder') === '') {
-                        			                this.setAttribute('placeholder', valPlaceHolder);
-                        			            }
-                        			        }
-                        			    });
-                        			    var NAAjax = NA.common.AJAX;
-                        			    NA.NAEvent.addHandler(item, 'keydown', function (event) {
-                        			        if (event.keyCode === 13) {//kalau menekan tombol enter
-                        			            switch (this.id) {
-                        			                case 'id_fk_goods': {
-                        			                    //prevent default
-                        			                    NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    //get data ke database by itemCode
-                        			                    //jika ada tampilkan data di form goods_desc
-                        			                    NAAjax.GET('getGoods/?' + win.encodeURIComponent('itemcode') + '=' + win.encodeURIComponent(event.target.value),
+                        				var valPlaceHolder = item.dataset.value;
+                        				NA.NAEvent.addHandler(item, 'focus', function (event) {
+                        					if (this.value === '') {
+                        						if (this.getAttribute('placeholder') === valPlaceHolder) {
+                        							this.setAttribute('placeholder', '');
+                        						}
+                        					}
+                        				});
+                        				//============blur event================================
+                        				NA.NAEvent.addHandler(item, 'blur', function (event) {
+                        					if (this.value === '') {
+                        						if (this.getAttribute('placeholder') === '') {
+                        							this.setAttribute('placeholder', valPlaceHolder);
+                        						}
+                        					}
+                        				});
+                        			});
+                        				//Auto Complete RefNO
+                        				$("#id_RefNO").autocomplete({ source: "getRefNO/", minLength: 1, });
+                        				
+                        				var NAAjax = NA.common.AJAX;
+                        				NA.NAEvent.addHandler(item, 'keydown', function (event) {
+                        					if (event.keyCode === 13) {//kalau menekan tombol enter
+                        						switch (this.id) {
+                        							case 'id_fk_goods': {
+                        								//prevent default
+                        								NA.NAEvent.preventDefault(event);//prevent from submit
+                        								//get data ke database by itemCode
+                        								//jika ada tampilkan data di form goods_desc
+                        								NAAjax.GET('getGoods/?' + win.encodeURIComponent('itemcode') + '=' + win.encodeURIComponent(event.target.value),
 															'application/json',//overrideMimeType returned by the server
 															function (e) { window.document.body.style.cursor = 'wait'; },
 															null,//nggak usah di isi bila tidak perlu
 															function (e) {//function executed after data has been returned by server(XHR.onload)
-															    var data = JSON.parse(this.responseText);
-															    if (data) {
-															        var txtGoods = NA.common.getElementID('id_goods_desc');
-															        txtGoods.value = data['goods'] || '';
-															    }
+																var data = JSON.parse(this.responseText);
+																if (data) {
+																	var txtGoods = NA.common.getElementID('id_goods_desc');
+																	txtGoods.value = data['goods'] || '';
+																}
 															}, null, function (e) {//function untuk ajax error
-															    throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+																throw new Error(this.responseText + '\nStatus code :' + this.statusText);
 															}, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
 															null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 															);
-                        			                    break;
-                        			                }
-                        			                case 'id_fk_suplier': {
+                        								break;
+                        							}
+                        							case 'id_fk_suplier': {
 
-                        			                    //jika ada tampilkan data di form supliername
-                        			                    NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    NAAjax.GET('getSuplier/?' + win.encodeURIComponent('supliercode') + '=' + win.encodeURIComponent(event.target.value),
+                        								//jika ada tampilkan data di form supliername
+                        								NA.NAEvent.preventDefault(event);//prevent from submit
+                        								NAAjax.GET('getSuplier/?' + win.encodeURIComponent('supliercode') + '=' + win.encodeURIComponent(event.target.value),
 															'application/json',//overrideMimeType returned by the server
 															function () { window.document.body.style.cursor = 'wait'; },
 															null,//nggak usah di isi bila tidak perlu
 															function (e) {//function executed after data has been returned by server(XHR.onload)
-															    var data = JSON.parse(this.responseText);
-															    if (data) {
-															        var txtsuplier = NA.common.getElementID('id_supliername');
-															        txtsuplier.value = data['supliername'] || '';
-															    }
+																var data = JSON.parse(this.responseText);
+																if (data) {
+																	var txtsuplier = NA.common.getElementID('id_supliername');
+																	txtsuplier.value = data['supliername'] || '';
+																}
 															}, null, function (e) {//function untuk ajax error
-															    throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+																throw new Error(this.responseText + '\nStatus code :' + this.statusText);
 															}, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
 															null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 															);
-                        			                    break;
-                        			                }
-                        			                case 'id_fk_receivedby': {
-                        			                    NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    //jika ada tampilkan data di form employee_Received	NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    NAAjax.GET('getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value),
+                        								break;
+                        							}
+                        							case 'id_fk_receivedby': {
+                        								NA.NAEvent.preventDefault(event);//prevent from submit
+                        								//jika ada tampilkan data di form employee_Received	NA.NAEvent.preventDefault(event);//prevent from submit
+                        								NAAjax.GET('getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value),
 															'application/json',//overrideMimeType returned by the server
 															function () { window.document.body.style.cursor = 'wait'; },
 															null,//nggak usah di isi bila tidak perlu
 															function () {//function executed after data has been returned by server(XHR.onload)
-															    var data = JSON.parse(this.responseText);
-															    if (data) {
-															        var txtreceivedby = NA.common.getElementID('id_employee_received');
-															        txtreceivedby.value = data['employee_name'] || '';
-															    }
+																var data = JSON.parse(this.responseText);
+																if (data) {
+																	var txtreceivedby = NA.common.getElementID('id_employee_received');
+																	txtreceivedby.value = data['employee_name'] || '';
+																}
 															}, null, function () {//function untuk ajax error
-															    throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+																throw new Error(this.responseText + '\nStatus code :' + this.statusText);
 															}, function () {
-															    if (this.status == 404)
-															        throw new Error(this.responseText, 'replied 404')
-															    window.document.body.style.cursor = 'default';
+																if (this.status == 404)
+																	throw new Error(this.responseText, 'replied 404')
+																window.document.body.style.cursor = 'default';
 															},//function ajax complete
 															null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 															);
-                        			                    break;
-                        			                }
-                        			                case 'id_fk_p_r_by': {
-                        			                    NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    //jika ada tampilkan data di form employee_Received	NA.NAEvent.preventDefault(event);//prevent from submit
-                        			                    NAAjax.GET('getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value),
+                        								break;
+                        							}
+                        							case 'id_fk_p_r_by': {
+                        								NA.NAEvent.preventDefault(event);//prevent from submit
+                        								//jika ada tampilkan data di form employee_Received	NA.NAEvent.preventDefault(event);//prevent from submit
+                        								NAAjax.GET('getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value),
 															'application/json',//overrideMimeType returned by the server
 															function () { window.document.body.style.cursor = 'wait'; },
 															null,//nggak usah di isi bila tidak perlu
 															function () {//function executed after data has been returned by server(XHR.onload)
-															    var data = JSON.parse(this.responseText);
-															    if (data) {
-															        var txtp_r_by = NA.common.getElementID('id_employee_pr');
-															        txtp_r_by.value = data['employee_name'] || '';
-															    }
+																var data = JSON.parse(this.responseText);
+																if (data) {
+																	var txtp_r_by = NA.common.getElementID('id_employee_pr');
+																	txtp_r_by.value = data['employee_name'] || '';
+																}
 															}, null, function () {//function untuk ajax error
-															    throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+																throw new Error(this.responseText + '\nStatus code :' + this.statusText);
 															}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
 															null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 															);
-                        			                    break;
-                        			                }
-                        			            }
-                        			        }
-                        			        return false;
-                        			    });
-                        			    //====================id_datereceived===========================
-                        			    //set JQueryDatePicker
-                        			    $('#id_datereceived').datepicker({
-                        			        dateFormat: 'dd/mm/yy',
-                        			        changeMonth: true,
-                        			        changeYear: true,
-                        			        minDate: (function (g) {
-                        			            if (g.status === 'Edit') {
-                        			                var elDateReceived = JSON.Parse(originalData),
+                        								break;
+                        							}
+                        						}
+                        					}
+                        					return false;
+                        				});
+                        				//====================id_datereceived===========================
+                        				//set JQueryDatePicker
+                        				$('#id_datereceived').datepicker({
+                        					dateFormat: 'dd/mm/yy',
+                        					changeMonth: true,
+                        					changeYear: true,
+                        					minDate: (function (g) {
+                        						if (g.status === 'Edit') {
+                        							var elDateReceived = JSON.Parse(originalData),
                                                     valDateReceived = new Date(ElDateReceived.datereceived);
-                        			                return valDateReceived.getDate();
-                        			            }
-                        			            else { return null; }
-                        			            //get date datereceived
-                        			        })(window),
-                        			        maxDate: 'today',
-                        			    });
-                        			    //setting Custom Validity
-                        			    var elm = NA.common.doc.querySelector('#id_datereceived');
-                        			    NA.NAEvent.addHandler(elm, 'input', function (event) {
-                        			        var elpat = this.getAttribute('patern');
-                        			        var patern = new RegExp(elpat, 'i');
-                        			        var valuePat = this.value;
-                        			        if (valuePat === null || valuePat === '') {
-                        			            valuePat = this.textcontent;
-                        			        }
-                        			        if (!patern.test(valuePat)) {
-                        			            this.setCustomValidity('Invalid date value');
-                        			            this.validity.valid = false;
-                        			        }
-                        			        else {
-                        			            this.setCustomValidity(''); //clearkan error custom validity
-                        			        }
-                        			    });
-                        			    //=====================end id_datereceived==========================================
-
+                        							return valDateReceived.getDate();
+                        						}
+                        						else { return null; }
+                        						//get date datereceived
+                        					})(window),
+                        					maxDate: 'today',
+                        				});
+                        				//setting Custom Validity
+                        				var elm = NA.common.doc.querySelector('#id_datereceived');
+                        				NA.NAEvent.addHandler(elm, 'input', function (event) {
+                        					var elpat = this.getAttribute('patern');
+                        					var patern = new RegExp(elpat, 'i');
+                        					var valuePat = this.value;
+                        					if (valuePat === null || valuePat === '') {
+                        						valuePat = this.textcontent;
+                        					}
+                        					if (!patern.test(valuePat)) {
+                        						this.setCustomValidity('Invalid date value');
+                        						this.validity.valid = false;
+                        					}
+                        					else {
+                        						this.setCustomValidity(''); //clearkan error custom validity
+                        					}
+                        				});
+                        				//=====================end id_datereceived==========================================
+                        		
                         			    Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="number"]'), function (item) {
                         			        //protect total receive tidak boleh lebih besar dari total purchase
                         			        //value total purchase tidak boleh kurang dari 0
@@ -1323,14 +1329,16 @@
                         			            if (!/^\d*$/.test(text)) {
                         			                NA.NAEvent.preventDefault(e);
                         			            }
+                        			            NA.NAEvent.stopPropagation(evt);
                         			        });
                         			        NA.NAEvent.addHandler(item, 'keydown', function (e) {
                         			            if (!NA.common.numberInput(e)) {
                         			                e.returnValue = false;
                         			                NA.NAEvent.preventDefault(e);
                         			            }
+                        			            NA.NAEvent.stopPropagation(evt);
                         			        });
-                        			        NA.NAEvent.addHandler(item, 'input', function (event) {
+                        			        NA.NAEvent.addHandler(item, 'input', function (evt) {
                         			            if (item.id === 'id_totalpurchase') {
                         			                if (parseInt(item.value) <= 0) {
                         			                    this.setCustomValidity('total purchase is not allowed to be null or zero or negative');
@@ -1350,6 +1358,7 @@
                         			                    this.setCustomValidity('');
                         			                }
                         			            }
+                        			            NA.NAEvent.stopPropagation(evt);
                         			        });
                         			    });
 
@@ -1983,21 +1992,81 @@
 
                         			    NA.NAEvent.addHandler(btnAddDetail, 'click', function (e) {
                         			        //check totalReveive
-                        			        var elTotalReceived = NA.common.getElementID('id_totalreceived');
-                        			        if (elTotalReceived.value == '') {
-                        			            BootstrapDialog.alert('Please define');
+                        			    	var elTotalReceived = NA.common.getElementID('id_totalreceived');
+                        			    	var elTotalPurchase = NA.common.getElementID('id_totalpurchase');										
+                        			        if (elTotalReceived.value === '') {
+                        			        	return BootstrapDialog.alert({
+                        			        		title: NA.common.mesage.titleInfo,
+                        			        		message: 'Please enter total receve',
+                        			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                        			        		closable: false, // <-- Default value is false
+                        			        		draggable: true, // <-- Default value is false
+                        			        		buttonLabel: 'OK', // <-- Default value is 'OK',
+                        			        		callback: function (result) {
+                        			        			// result will be true if button was click, while it will be false if users close the dialog directly.
+                        			        			elTotalReceived.focus();
+                        			        		}
+                        			        	});
                         			        }
+                        			        if (elTotalPurchase.value === '') {
+                        			        	return BootstrapDialog.alert({
+                        			        		title: NA.common.mesage.titleInfo,
+                        			        		message: 'Please enter total purchase',
+                        			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                        			        		closable: false, // <-- Default value is false
+                        			        		draggable: true, // <-- Default value is false
+                        			        		buttonLabel: 'OK', // <-- Default value is 'OK',
+                        			        		callback: function (result) {
+                        			        			// result will be true if button was click, while it will be false if users close the dialog directly.
+                        			        			elTotalPurchase.focus();
+                        			        		}
+                        			        	});
+                        			        }
+                        			        if (parseInt(elTotalReceived) <= 0 || parseInt(elTotalPurchase.value) <= 0)
+                        			        {
+                        			        	return BootstrapDialog.alert({
+                        			        		title: NA.common.mesage.itleInfo,
+                        			        		message: 'total purchased / Received is not allowed to be null or zero or negative ',
+                        			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                        			        		closable: false, // <-- Default value is false
+                        			        		draggable: true, // <-- Default value is false
+                        			        		buttonLabel: 'OK', // <-- Default value is 'OK',
+                        			        		callback: function (result) {
+                        			        			// result will be true if button was click, while it will be false if users close the dialog directly.
+                        			        			if (parseInt(elTotalReceived) <= 0) {
+                        			        				elTotalReceived.focus();
+                        			        			}
+                        			        			else if (parseInt(elTotalPurchase.value) <= 0) {
+                        			        				elTotalPurchase.focus();
+                        			        			}
+                        			        		}
+                        			        	});
+                        			        }
+                        			        if (parseInt(elTotalReceived.value) > parseInt(elTotalPurchase.value)) {
+                        			        	return BootstrapDialog.alert({
+                        			        		title: NA.common.mesage.titleInfo,
+                        			        		message: 'Total Received is more than total purchased',
+                        			        		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                        			        		closable: false, // <-- Default value is false
+                        			        		draggable: true, // <-- Default value is false
+                        			        		buttonLabel: 'OK', // <-- Default value is 'OK',
+                        			        		callback: function (result) {
+                        			        			// result will be true if button was click, while it will be false if users close the dialog directly.
+                        			        			elTotalReceived.focus();
+                        			        		}
+                        			        	});
+                        			        }
+                        			        win.document.body.style.cursor = 'wait';
+                        			        CreateGridDetail();
+                        			        win.document.body.style.cursor = 'default';
                         			    });
-
                         			    NA.NAEvent.addHandler(btnCancelDetail, 'click', function (e) {
-
                         			        //NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
                         			    });
                         			    //assign delete key event
                         			    var gridTbl = gridTbl || $('#jqGrid_NA_F_Goods_Receive_fk_receivedby');
                         			    //gridTbl.on("keyup", "tr", deletegridDetail);
 
-                        			});
                         		}//hanya untuk status Add/Edit                  	    
                         	}
                         	NA.NAEvent.preventDefault(event);

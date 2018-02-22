@@ -337,21 +337,55 @@ NA.client = function () {
 
 NA.common = {
     doc: window.document,
-    //============check validity Entry Form=======================
-    //InitFormValidation : function(formID,eventObject){
-    //    var controls = this.doc.querySelectorAll(formID + ' :input:visible[required,patern,min,max,maxlength,type="text"]')
-    //    Array.prototype.forEach.call(control, function (ctrl) {
-    //        NA.NAEvent.addHandler(ctrl, 'input', function (event) {
-    //            if (!this.validity.valid) {
-    //                this.setCustomValidity('Please enter a valid data');                   
-    //            }
-    //            else {
-    //                this.setCustomValidity('');
-    //            }
-    //        });
-    //    });
-    //},
+    //============Validate Input Number========================
+    numberInput: function (evt) {
+        var e = NA.NAEvent.getEvent(evt);
+        var key = e.keyCode || e.which;
 
+        if (!e.shiftKey && !e.altKey && !e.ctrlKey &&
+            // numbers   
+        key >= 48 && key <= 57 ||
+            // Numeric keypad
+        key >= 96 && key <= 105 ||
+            // Backspace and Tab and Enter
+        key == 8 || key == 9 || key == 13 ||
+            // Home and End
+        key == 35 || key == 36 ||
+            // left and right arrows
+        key == 37 || key == 39 ||
+            // Del and Ins
+        key == 46 || key == 45) {
+            // input is VALID
+            return true;
+        }
+        else {
+            // input is INVALID  
+            key = String.fromCharCode(key);
+            var regex = /[0-9]/;
+            if (!regex.test(key)) {
+                return false;
+            }
+        }
+    },
+    //============CROSS BROWSER Keyboard event====================
+    triggerKeyboardEvent: function (el, keyCode) {
+        var keyboardEvent = document.createEvent("KeyboardEvent");
+        var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+        keyboardEvent[initMethod](
+                           "keydown",
+                            false,      // bubbles oOooOOo0
+                            true,      // cancelable   
+                            window,    // view
+                            false,     // ctrlKeyArg
+                            false,     // altKeyArg
+                            false,     // shiftKeyArg
+                            false,     // metaKeyArg
+                            keyCode,
+                            0          // charCode   
+        );
+        el.dispatchEvent(keyboardEvent);
+    },
+    //===========cross browser get Element ByID =====================
     //===========cross browser get Element ByID =====================
     getElementID: function (id) {
         if (this.doc.getElementById) {
@@ -450,6 +484,7 @@ NA.common = {
         return url;
     },
     //================== CONVERT Object to Array ====================
+    //================== CONVERT Object to Array ====================
     objectToArray: function (obj) {
         var _arr = [];
 
@@ -457,6 +492,10 @@ NA.common = {
             _arr.push([key, obj[key]]);
         }
         return _arr;
+    },
+    isObjectEmpty: function (obj) {//function ini untuk mengecek apakah object bernilai {}, jika object ada key/method/isinya maka return false
+        for (var x in obj) { if (obj.hasOwnProperty(x)) return false; }
+        return true;
     },
 
     //===============Partial Text Selection=====================
@@ -1689,41 +1728,53 @@ NA.common.dialog = {
         }
     }(),
 };
-//=========================AJAX NAJS,(belum di test) =============================================
-NA.common.AJAX = {
-    XHR: {},
-    Xsettings: {
-        data: {},
-        dataType: 'application/json',//content yang di kirim ke server jika post default nya application/json
-        url: '',
-        MIMEType: 'text/html',//method overrides the MIME type returned by the server,default 'text/html',override responsetype
-        timeOut: 2000000
-    },
+NA.common.mesage = {
+    _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
+    _savingSucces: 'Data Saved Succesfuly.',
+    _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
+    _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',
+    _existsData: 'Data has exists',
+    _titleInfo: 'Information',
+    _confirmInfo: 'Confirmation'
 };
-NA.common.AJAX.createXHR = function () {
-    if (typeof XMLHttpRequest != "undefined") {
-        this.XHR = new XMLHttpRequest();
-    } else if (typeof ActiveXObject != "undefined") {
-        if (typeof arguments.callee.activeXString != "string") {
-            var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0",
-                            "MSXML2.XMLHttp"],
-                i, len;
-            for (i = 0, len = versions.length; i < len; i++) {
-                try {
-                    var xhr = new ActiveXObject(versions[i]);
-                    arguments.callee.activeXString = versions[i];
-                    return xhr;
-                } catch (ex) {
-                    //skip
-                }
-            }
+Object.defineProperties(NA.common.mesage, {
+    confirmDelete: {
+        get: function () {
+            return this._confirmDelete;
         }
-        this.XHR = new ActiveXObject(arguments.callee.activeXString);
-    } else {
-        throw new Error("No XHR object available.");
+    },
+    savingSucces: {
+        get: function () {
+            return this._savingSucces;
+        }
+    },
+    dataHasChanged: {
+        get: function () {
+            return this._dataHasChanged;
+        }
+    },
+    refreshData: {
+        get: function () {
+            return this._refreshData;
+        }
+    },
+    existsData: {
+        get: function () {
+            return this._existsData;
+        }
+    },
+    titleInfo: {
+        get: function () {
+            return this._titleInfo;
+        }
+    },
+    confirmInfo: {
+        get: function () {
+            return this._confirmInfo;
+        }
     }
-    return this.XHR;
-};
+});
+//=========================AJAX NAJS,(belum di test) =============================================
 Object.defineProperty(NA.common.AJAX, 'settings', {
     get: function () {
         return this.Xsettings || {}
