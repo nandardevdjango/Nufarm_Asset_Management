@@ -776,15 +776,90 @@
 			                if ($(row).hasClass('jqgrow')) {
 			                    rowID = row.cells['idapp'].closest("tr").attr("id")
 			                }			                
-			                //check brandname harus ada
+			            	//check brandname harus ada
+							//type sama serialnumber harus ada
 			                var brandname = row['brandname'];
 			                if (brandname.length < 1) {
-
-			                    rowID['brandname'].focus();
-			                    return false;
+			                	BootstrapDialog.alert({
+			                		title: NA.common.mesage.titleInfo,
+			                		size: BootstrapDialog.SIZE_SMALL,
+			                		message: 'Please enter brand name',
+			                		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+			                		closable: false, // <-- Default value is false
+			                		draggable: true, // <-- Default value is false
+			                		buttonLabel: 'OK', // <-- Default value is 'OK',
+			                		callback: function (result) {
+			                			// result will be true if button was click, while it will be false if users close the dialog directly.
+			                			rowID['brandname'].focus();
+			                		}
+			                	});
+			                	return false;
 			                }
-			                //typeapp dan serialnumber harus ada
-                            
+			                var typeapp = row['typeapp'], serialnumber = row['serialnumber'];
+			                if (typeapp === '' || typeapp.length <= 1) {
+			                	BootstrapDialog.alert({
+			                		title: NA.common.mesage.titleInfo,
+			                		size: BootstrapDialog.SIZE_SMALL,
+			                		message: 'Please enter type',
+			                		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+			                		closable: false, // <-- Default value is false
+			                		draggable: true, // <-- Default value is false
+			                		buttonLabel: 'OK', // <-- Default value is 'OK',
+			                		callback: function (result) {
+			                			// result will be true if button was click, while it will be false if users close the dialog directly.
+			                			rowID['typeapp'].focus();
+			                		}
+			                	});
+			                	return false;
+			                }
+			                if(serialnumber === '' || serialnumber.length <= 3){
+			                	BootstrapDialog.alert({
+			                		title: NA.common.mesage.titleInfo,
+			                		size: BootstrapDialog.SIZE_SMALL,
+			                		message: 'Please enter serialnumber',
+			                		type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+			                		closable: false, // <-- Default value is false
+			                		draggable: true, // <-- Default value is false
+			                		buttonLabel: 'OK', // <-- Default value is 'OK',
+			                		callback: function (result) {
+			                			// result will be true if button was click, while it will be false if users close the dialog directly.
+			                			rowID['serialnumber'].focus();
+			                		}
+			                	});
+			                	return false;
+			                }
+			            	//isi column yang tidak di isi secara default
+			            	// first change the cell in the visible part of grid
+			                var priceperunit = row['priceperunit'];
+			                if (typeof priceperunit == 'undefined') {
+			                	priceperunit = 0
+			                }
+			                else if (parseFloat(priceperunit) <= 0) {
+			                	priceperunit = 0
+			                }
+			                else if (priceperunit.toString() === '') {
+			                	priceperunit = 0
+			                }
+			                gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
+			            	// now change the internal local data
+			                gridTbl.jqGrid('getLocalRow', rowID).myColumn = priceperunit;
+
+			                var warranty = row['warranty'];
+			                if (typeof warranty == 'undefined') {
+			                	warranty = 0
+			                }
+			                else if (parseFloat(warranty) <= 0) {
+			                	warranty = 0
+			                }
+			                else if (warranty.toString() === '') {
+			                	warranty = 0
+			                }
+			                var endofwarranty = row['endofwarranty'];
+			                gridTbl.jqGrid('setCell', rowID, 'priceperunit', warranty);
+			            	// now change the internal local data
+			                gridTbl.jqGrid('getLocalRow', rowID).myColumn = warranty;
+			            	// now change the internal local data
+
 			              //  row.colname1; row.colname2;
 			            }
                         ////method getRowData
