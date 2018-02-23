@@ -169,6 +169,7 @@ def ShowEntry_Receive(request):
 				rows.append(datarow)
 			dataForGridDetail = {"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 			#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+			NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
 			form = NA_Goods_Receive_Form(data=NAData)
 			form.fields['status'].widget.attrs = {'value':status}
 			if hasRefData:
