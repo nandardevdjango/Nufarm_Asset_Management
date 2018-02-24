@@ -554,12 +554,140 @@
 		    };
 		    return DummyData;
 		};
+		function ValidateGridDetail() {
+			var rows = gridTbl.getDataIDs();
+			//columns = ['idapp', 'fkapp', 'no', 'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty', 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'hasref']
+
+			//jika rownumbers:true, multiselect:true or subGrid:true ,jquery ada tambahan 3 column pertama rn,cb,subgrid
+			//columnname harus di cek apakah ada di  gridTbl[0].p.colModel
+			var columnNames = gridTbl.jqGrid('getGridParam', 'colNames');
+
+			for (i = 0; i < rows.length; i++) {
+				var row = gridTbl.getRowData(rows[i]);
+				var rowID = '';
+				if ($(row).hasClass('jqgrow')) {
+					rowID = row.cells['idapp'].closest("tr").attr("id")
+				}
+				//check brandname harus ada
+				//type sama serialnumber harus ada
+				var brandname = row['brandname'];
+				if (brandname.length < 1) {
+					BootstrapDialog.alert({
+						title: NA.common.mesage.titleInfo,
+						size: BootstrapDialog.SIZE_SMALL,
+						message: 'Please enter brand name',
+						type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+						closable: false, // <-- Default value is false
+						draggable: true, // <-- Default value is false
+						buttonLabel: 'OK', // <-- Default value is 'OK',
+						callback: function (result) {
+							// result will be true if button was click, while it will be false if users close the dialog directly.
+							gridTbl.editRow(rowID, true);
+							rowID['brandname'].focus();
+						}
+					});
+					return false;
+				}
+				var typeapp = row['typeapp'], serialnumber = row['serialnumber'];
+				if (typeapp === '' || typeapp.length <= 1) {
+					BootstrapDialog.alert({
+						title: NA.common.mesage.titleInfo,
+						size: BootstrapDialog.SIZE_SMALL,
+						message: 'Please enter type',
+						type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+						closable: false, // <-- Default value is false
+						draggable: true, // <-- Default value is false
+						buttonLabel: 'OK', // <-- Default value is 'OK',
+						callback: function (result) {
+							// result will be true if button was click, while it will be false if users close the dialog directly.
+							rowID['typeapp'].focus();
+						}
+					});
+					return false;
+				}
+				if (serialnumber === '' || serialnumber.length <= 3) {
+					BootstrapDialog.alert({
+						title: NA.common.mesage.titleInfo,
+						size: BootstrapDialog.SIZE_SMALL,
+						message: 'Please enter serialnumber',
+						type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+						closable: false, // <-- Default value is false
+						draggable: true, // <-- Default value is false
+						buttonLabel: 'OK', // <-- Default value is 'OK',
+						callback: function (result) {
+							// result will be true if button was click, while it will be false if users close the dialog directly.
+							rowID['serialnumber'].focus();
+						}
+					});
+					return false;
+				}
+				//isi column yang tidak di isi secara default
+				// first change the cell in the visible part of grid
+				var priceperunit = row['priceperunit'];
+				if (typeof priceperunit == 'undefined') {
+					priceperunit = 0
+				}
+				else if (priceperunit.toString() === '') {
+					priceperunit = 0
+				}
+				else if (parseFloat(priceperunit) <= 0) {
+					priceperunit = 0
+				}
+				gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
+				var warranty = row['warranty'];
+				if (typeof warranty == 'undefined') {
+					warranty = 0
+				}
+				else if (warranty.toString() === '') {
+					warranty = 0
+				}
+				else if (parseFloat(warranty) <= 0) {
+					warranty = 0
+				}
+				gridTbl.jqGrid('setCell', rowID, 'warranty', warranty);
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).warranty = warranty;
+
+				var endofwarranty = row['endofwarranty'];
+				if (typeof endofwarranty == 'undefined') {
+					endofwarranty = null;
+				}
+				else if (endofwarranty.toString() === '') {
+					endofwarranty = null;
+				}
+				endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
+				gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
+
+				if (win.status === 'Add') {
+					gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
+					// now change the internal local data
+					gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
+				}
+				else if (win.status === 'Edit') {
+					gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Priviledge.UserName);
+					// now change the internal local data
+					gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Priviledge.UserName;
+					// now change the internal local data
+				}
+				//  row.colname1; row.colname2;
+			}
+			////method getRowData
+			//var rowData = gridTbl.getRowData(rowId);
+			////method for getAllrows In Jquery grid
+			//var allRowsInGrid = $('#list4').jqGrid('getGridParam', 'data');
+		};
 		function CreateGridDetail() {
 		    //grid detail 
 		    //JQGrid Item Detail
-		    var HasRef = NA.common.getElementID('hasRefData').value;
-		    hasRef = HasRef.valueOf();
-		    var AllowEdit = (!hasRef) && (win.status !== 'Open')
+		    //var HasRef = NA.common.getElementID('hasRefData').value;
+		    //hasRef = HasRef.valueOf();
+			//var AllowEdit = (!hasRef) && (win.status !== 'Open')
+			var AllowEdit = win.status !== 'Open';
+
 		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 		    gridTbl.jqGrid({
@@ -769,10 +897,14 @@
 		        viewrecords: true,
 		        height: '150px',
 		        rowNum: (function () {
-		            if (win.status === 'Open' || win.status === 'Edit') {
-		                var c = JSON.parse(initializeForm.dataForGridDetail);
-		                return c.length;
-		            }
+		        	if (win.status === 'Open' || win.status === 'Edit') {
+		        		var c = JSON.parse(initializeForm.dataForGridDetail);
+		        		return c.length;
+		        	}
+		        	else {
+		        		var elTotalReceived = NA.common.getElementID('id_totalreceived');
+		        		return parseInt(elTotalReceived.value);
+		        	}
 		        })(),
 		        cmTemplate: { autoResizable: true, editable: true },
 		        autoResizing: { compact: true, resetWidthOrg: true },
@@ -784,37 +916,45 @@
 		        caption: "Detail goods Receive",
 		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 		    });
-		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
-		    gridTbl.setSelection(top_rowid, false);
-		    var btnCancel = NA.common.getElementID('btnCancelDetail');
-		    btnCancel.style.display = 'block';
+	
 
-		    if (win.status != 'Open') {
-		        gridTbl.navGrid(gridPager, {
-		            edit: false, add: false, del: false, search: false
-		        }).navButtonAdd(grdPager, {
-		            caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
-		                return BootstrapDialog.confirm({
-		                    title: NA.common.mesage.confirmInfo,
-		                    message: NA.common.mesage.clearData,
-		                    type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-		                    animate: false,
-		                    closable: false, // <-- Default value is false
-		                    draggable: true, // <-- Default value is false
-		                    btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-		                    btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-		                    btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-		                    callback: function (result) {
-		                        // result will be true if button was click, while it will be false if users close the dialog directly.
-		                        if (result) {
-		                            gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
-		                        }
-		                    }
-		                });
-		            },
-		        }).navButtonAdd(grdPager, {
-		            caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
-		        });
+		    switch (win.status) {
+		    	case 'Add': {
+		    		gridTbl.navGrid(gridPager, {
+		    			edit: false, add: false, del: false, search: false
+		    		}).navButtonAdd(grdPager, {
+		    			caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
+		    				return BootstrapDialog.confirm({
+		    					title: NA.common.mesage.confirmInfo,
+		    					message: NA.common.mesage.clearData,
+		    					type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+		    					animate: false,
+		    					closable: false, // <-- Default value is false
+		    					draggable: true, // <-- Default value is false
+		    					btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
+		    					btnOKLabel: 'Yes.', // <-- Default value is 'OK',
+		    					btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
+		    					callback: function (result) {
+		    						// result will be true if button was click, while it will be false if users close the dialog directly.
+		    						if (result) {
+		    							gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
+		    						}
+		    					}
+		    				});
+		    			},
+		    		}).navButtonAdd(grdPager, {
+		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
+		    		});
+		    		break;
+		    	}
+		    	case 'Edit': {
+		    		gridTbl.navGrid(gridPager, {
+		    			edit: false, add: false, del: false, search: false
+		    		}).navButtonAdd(grdPager, {
+		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
+		    		});
+		    		break;
+		    	}
 		    }
 		    //assigned collumn Editable with condition
 		    var orgRowActions = $.fn.fmatter.rowactions;
@@ -849,6 +989,10 @@
 		        }
 		        return result;
 		    }
+		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
+		    gridTbl.setSelection(top_rowid, false);
+		    var btnCancel = NA.common.getElementID('btnCancelDetail');
+		    btnCancel.style.display = 'block';
 		    //assign delete key event
 		    gridTbl.on("keyup", "tr", function (e) {
 		        //var rowid = parseInt($(this).attr("id"));
@@ -872,133 +1016,14 @@
 		        }
 		        //$('#jqGrid_NA_F_Goods_Receive_Detail')				
 		    });
-		    function ValidateGridDetail() {
-		        var rows = gridTbl.getDataIDs();
-		        //columns = ['idapp', 'fkapp', 'no', 'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty', 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'hasref']
-
-		        //jika rownumbers:true, multiselect:true or subGrid:true ,jquery ada tambahan 3 column pertama rn,cb,subgrid
-		        //columnname harus di cek apakah ada di  gridTbl[0].p.colModel
-		        var columnNames = gridTbl.jqGrid('getGridParam', 'colNames');
-
-		        for (i = 0; i < rows.length; i++) {
-		            var row = gridTbl.getRowData(rows[i]);
-		            var rowID = '';
-		            if ($(row).hasClass('jqgrow')) {
-		                rowID = row.cells['idapp'].closest("tr").attr("id")
-		            }
-		            //check brandname harus ada
-		            //type sama serialnumber harus ada
-		            var brandname = row['brandname'];
-		            if (brandname.length < 1) {
-		                BootstrapDialog.alert({
-		                    title: NA.common.mesage.titleInfo,
-		                    size: BootstrapDialog.SIZE_SMALL,
-		                    message: 'Please enter brand name',
-		                    type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-		                    closable: false, // <-- Default value is false
-		                    draggable: true, // <-- Default value is false
-		                    buttonLabel: 'OK', // <-- Default value is 'OK',
-		                    callback: function (result) {
-		                        // result will be true if button was click, while it will be false if users close the dialog directly.
-		                        gridTbl.editRow(rowID, true);
-		                        rowID['brandname'].focus();
-		                    }
-		                });
-		                return false;
-		            }
-		            var typeapp = row['typeapp'], serialnumber = row['serialnumber'];
-		            if (typeapp === '' || typeapp.length <= 1) {
-		                BootstrapDialog.alert({
-		                    title: NA.common.mesage.titleInfo,
-		                    size: BootstrapDialog.SIZE_SMALL,
-		                    message: 'Please enter type',
-		                    type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-		                    closable: false, // <-- Default value is false
-		                    draggable: true, // <-- Default value is false
-		                    buttonLabel: 'OK', // <-- Default value is 'OK',
-		                    callback: function (result) {
-		                        // result will be true if button was click, while it will be false if users close the dialog directly.
-		                        rowID['typeapp'].focus();
-		                    }
-		                });
-		                return false;
-		            }
-		            if (serialnumber === '' || serialnumber.length <= 3) {
-		                BootstrapDialog.alert({
-		                    title: NA.common.mesage.titleInfo,
-		                    size: BootstrapDialog.SIZE_SMALL,
-		                    message: 'Please enter serialnumber',
-		                    type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-		                    closable: false, // <-- Default value is false
-		                    draggable: true, // <-- Default value is false
-		                    buttonLabel: 'OK', // <-- Default value is 'OK',
-		                    callback: function (result) {
-		                        // result will be true if button was click, while it will be false if users close the dialog directly.
-		                        rowID['serialnumber'].focus();
-		                    }
-		                });
-		                return false;
-		            }
-		            //isi column yang tidak di isi secara default
-		            // first change the cell in the visible part of grid
-		            var priceperunit = row['priceperunit'];
-		            if (typeof priceperunit == 'undefined') {
-		                priceperunit = 0
-		            }
-		            else if (priceperunit.toString() === '') {
-		                priceperunit = 0
-		            }
-		            else if (parseFloat(priceperunit) <= 0) {
-		                priceperunit = 0
-		            }
-		            gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
-		            // now change the internal local data
-		            gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
-		            var warranty = row['warranty'];
-		            if (typeof warranty == 'undefined') {
-		                warranty = 0
-		            }
-		            else if (warranty.toString() === '') {
-		                warranty = 0
-		            }
-		            else if (parseFloat(warranty) <= 0) {
-		                warranty = 0
-		            }
-		            gridTbl.jqGrid('setCell', rowID, 'warranty', warranty);
-		            // now change the internal local data
-		            gridTbl.jqGrid('getLocalRow', rowID).warranty = warranty;
-
-		            var endofwarranty = row['endofwarranty'];
-		            if (typeof endofwarranty == 'undefined') {
-		                endofwarranty = null;
-		            }
-		            else if (endofwarranty.toString() === '') {
-		                endofwarranty = null;
-		            }
-		            endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
-		            gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
-		            // now change the internal local data
-		            gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
-
-		            if (win.status === 'Add') {
-		                gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
-		                // now change the internal local data
-		                gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
-		            }
-		            else if (win.status === 'Edit') {
-		                gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Priviledge.UserName);
-		                // now change the internal local data
-		                gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Priviledge.UserName;
-		                // now change the internal local data
-		            }
-		            //  row.colname1; row.colname2;
-		        }
-		        ////method getRowData
-		        //var rowData = gridTbl.getRowData(rowId);
-		        ////method for getAllrows In Jquery grid
-		        //var allRowsInGrid = $('#list4').jqGrid('getGridParam', 'data');
-		    };
+			//hidupkan btnCancel;;
+		    var btnCancel = NA.common.getElementID('btnCancelDetail');
+		    btnCancel.style.display = 'block';
+			//matikan btnAddDetail
+		    var btnAddDetail = NA.common.getElementID('btnAddDetail');
+		    btnAddDetail.style.display = 'none';
 		};
+
 		//========================END GROUP FUNCTION DECLARATION===================================
         
 		//=======================GROUP FUNCTION EVENT=============================================
@@ -2254,10 +2279,24 @@
                         			        }
                         			        win.document.body.style.cursor = 'wait';
                         			        CreateGridDetail();
+                        			        //var btncancelDetail = NA.common.getElementID('btnCancelDetail');
+											//btncancelDetail.
                         			        win.document.body.style.cursor = 'default';
                         			    });
                         			    NA.NAEvent.addHandler(btnCancelDetail, 'click', function (e) {
-                        			        //NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
+                        			    	//NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
+                        			    	var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                        			    	gridDetail.jqGrid('clearGridData');
+                        			    	//var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
+											
+                        			    	var btnClearOrReset = $('#jqGrid_NA_F_Goods_Receive_Detail button[title="Clear Or Reset"]');
+                        			    	if (btnClearOrReset) {
+                        			    		btnClearOrReset.remove();
+                        			    	}
+                        			    	var btnValidate = $('#jqGrid_NA_F_Goods_Receive_Detail button[title="Validate"]');
+                        			    	if (btnValidate) {
+                        			    		btnValidate.remove();
+                        			    	}
                         			    });
 
                         			    //assign delete key event
