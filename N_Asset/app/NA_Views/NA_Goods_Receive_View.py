@@ -191,6 +191,7 @@ def HasRefDetail(request):
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 	result = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)
 def Delete(request):
+	result = ''
 	try:
 		#result=NAGoodsReceive.objects.delete(
 		IDApp = request.POST.get('idapp')
@@ -198,6 +199,15 @@ def Delete(request):
 		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata.idapp_fk_goods,'datereceived':Ndata.datereceived}
 		result = NAGoodsReceive.objects.delete(Data)
 		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json') 
+	except :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def deleteDetail(request):
+	Iidapp = Request.POST.get('idapp')
+	result = ''
+	try:
+		result = NAGoodsReceive.objects.deleteDetail(Iidapp)
+		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json') 
 	except :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -370,7 +380,7 @@ def getBrandForDetailEntry(request):
 	return HttpResponse(data, content_type='application/json')
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	RefNO = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;',
+	RefNO = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;',
 																						 'autocomplete':False,'placeholder': 'RefNO','data-value':'RefNO','tittle':'Ref NO is required'}))
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':1,

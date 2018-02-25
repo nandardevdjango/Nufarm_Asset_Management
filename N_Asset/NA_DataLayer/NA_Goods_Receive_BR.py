@@ -161,10 +161,18 @@ class NA_BR_Goods_Receive(models.Manager):
 							 VALUES (%(FK_goods)s,%(TotalQty)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,now(),%(CreatedBy)s)"""
 					Params = {'FK_goods':Data['idapp_fk_goods'], 'TotalQty':Data['totalreceived'],'TIsNew':Data['totalreceived'],'TotalReceived':Data['totalreceived'], 'Createdby':Data['createdby']}
 				cur.execute(Query,Params)
+				cur.close()
 		except Exception as e:
 			cur.close()								
 			return repr(e)	
 		return 'success'
+	def deleteDetail(self,idappDetail):
+		self.__class__.c = connection.cursor()
+		cur = self.__class__.c
+		Query = """DELETE FROM na_goods_receive_detail WHERE IDApp = %s"""
+		cur.execute(Query,Params)
+		cur.close()						
+		return 'success'	
 	def delete(self,Data):
 		try:
 			if self.__class__.c is None:
