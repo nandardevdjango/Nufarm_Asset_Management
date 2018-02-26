@@ -57,8 +57,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.close()
 		return (result,totalRecords)
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-	def getRefNO(searchRefNO):
-		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('brandname').distinct()
+	def getRefNO(self,searchRefNO):
+		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('refno').distinct()
 	def getData(self,IDApp):
 		Query = """SELECT ngr.IDapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS FK_goods, goodsname as goods_desc,\
 	    ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fK_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \

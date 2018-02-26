@@ -87,11 +87,11 @@
 						message = messageErr.message;
 					}
 					if (message) {
-						alert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
+					    ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
 					}
 
 				} catch (e) {
-					alert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
+				    ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
 				}
 				window.document.body.style.cursor = 'defautl'; return false;
 			},
@@ -197,7 +197,7 @@
 					});
 
 				} catch (e) {
-					alert(e.message);
+				    ShowAlert(e.message);
 					console.log(e);
 					document.body.style.cursor = 'default';
 				};
@@ -311,11 +311,11 @@
 					message = messageErr.message;
 				}
 				if (message) {
-					alert('An error occurred: ' + message);
+				    ShowAlert('An error occurred: ' + message);
 				}
 				document.body.style.cursor = 'default';
 			} catch (e) {
-				alert('An error occurred: ' + e + '\n' + e.message);
+				ShowAlert('An error occurred: ' + e + '\n' + e.message);
 				document.body.style.cursor = 'default';
 			}
 			return false;
@@ -358,6 +358,7 @@
 										    message: NA.common.mesage.dataHasChanged,
 										    type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 										    animate: false,
+                                            size:BootstrapDialog.SIZE_SMALL,
 										    closable: false, // <-- Default value is false
 										    draggable: true, // <-- Default value is false
 										    btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
@@ -402,6 +403,7 @@
 							return BootstrapDialog.confirm({
 								title: NA.common.mesage.titleInfo,
 								message: NA.common.mesage.dataHasChanged,
+								size: BootstrapDialog.SIZE_SMALL,
 								type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
                                 animate:false,
 								closable: false, // <-- Default value is false
@@ -535,16 +537,7 @@
 				delay: 0,
 				minLength: 0
 			});
-		};
-		function fetchRefNo(elem) {
-		    $(elem).autocomplete({
-		        //source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
-		        source: "getRefNO/",
-		        minLength: 1,
-		        delay: 0,
-		        minLength: 0
-		    });
-		};
+		};	
 		function createDummyRowData(intLength) {
 		    var DummyData = [];
 		    for (var i = 0; i < intLength; i++) {
@@ -927,6 +920,7 @@
 		    				return BootstrapDialog.confirm({
 		    					title: NA.common.mesage.confirmInfo,
 		    					message: NA.common.mesage.clearData,
+		    					size: BootstrapDialog.SIZE_SMALL,
 		    					type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 		    					animate: false,
 		    					closable: false, // <-- Default value is false
@@ -1092,7 +1086,41 @@
 		    var btnAddDetail = NA.common.getElementID('btnAddDetail');
 		    btnAddDetail.style.display = 'none';
 		};
+		function showConfirmation(message,title) {
+		   return BootstrapDialog.confirm({
+		        title: title|| NA.common.mesage.titleInfo,
+		        message: message,
+		        type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+		        size: BootstrapDialog.SIZE_SMALL,
+		        animate: false,
+		        closable: false, // <-- Default value is false
+		        draggable: true, // <-- Default value is false
+		        btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
+		        btnOKLabel: 'Yes.', // <-- Default value is 'OK',
+		        btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
+		        callback: function (result) {
+		            // result will be true if button was click, while it will be false if users close the dialog directly.
+		            if (result) { return true; }
+		            else { return false;}
+		        }
+		    });
+		}
 
+		function ShowAlert(message) {
+		   return BootstrapDialog.alert({
+		        title: NA.common.mesage.titleInfo,
+		        message: title,
+		        size: BootstrapDialog.SIZE_SMALL,
+		        type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+		        closable: false, // <-- Default value is false
+		        draggable: true, // <-- Default value is false
+		        buttonLabel: 'OK', // <-- Default value is 'OK',
+		        callback: function (result) {
+		            // result will be true if button was click, while it will be false if users close the dialog directly.
+		            return true;
+		        }
+		    });
+		}
 		//========================END GROUP FUNCTION DECLARATION===================================
         
 		//=======================GROUP FUNCTION EVENT=============================================
@@ -1266,6 +1294,7 @@
 					title: NA.common.mesage.titleInfo,
 					message: NA.common.mesage.confirmDelete,
 					type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+					size: BootstrapDialog.SIZE_SMALL,
 					animate: false,
 					closable: false, // <-- Default value is false
 					draggable: true, // <-- Default value is false
@@ -1327,10 +1356,10 @@
 								console.log(e);
 								window.document.body.style.cursor = 'default';
 								if (JSON.parse(e.message)) {
-									alert(e.name + ': ' + JSON.parse(e.message));
+								    ShowAlert(e.name + ': ' + JSON.parse(e.message));
 								}
 								else {
-									alert(e);
+								    ShowAlert(e);
 								}
 							}
 						}
@@ -1342,7 +1371,7 @@
 			}
 			else {
 				document.body.style.cursor = 'default';
-				alert('Please select data you want to delete');
+				ShowAlert('Please select data you want to delete');
 			}
 			return false;
 		});
@@ -1388,7 +1417,7 @@
 		            if (target.innerText.trim() !== 'Add') {
 		                var idapp = getGridCellValue(grid,'idapp');
 		                if (typeof idapp == 'undefined' || idapp === '') {
-		                    alert('Please select data to edit');
+		                    ShowAlert('Please select data to edit');
 		                    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
 		                    if (dialog) {
 		                        NA.common.dialog.closeDialog(dialog);
@@ -1472,6 +1501,7 @@
                                     });
                                     //Auto Complete RefNO
                                     $("#id_RefNO").autocomplete({ source: "getRefNO/", minLength: 1, });
+                                    NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                                        
                                         NA.NAEvent.addHandler(item, 'keydown', function (event) {
@@ -1619,14 +1649,14 @@
                                             if (!/^\d*$/.test(text)) {
                                                 NA.NAEvent.preventDefault(e);
                                             }
-                                            NA.NAEvent.stopPropagation(evt);
+                                            NA.NAEvent.stopPropagation(e);
                                         });
                                         NA.NAEvent.addHandler(item, 'keydown', function (e) {
                                             if (!NA.common.numberInput(e)) {
                                                 e.returnValue = false;
                                                 NA.NAEvent.preventDefault(e);
                                             }
-                                            NA.NAEvent.stopPropagation(evt);
+                                            NA.NAEvent.stopPropagation(e);
                                         });
                                         NA.NAEvent.addHandler(item, 'input', function (evt) {
                                             if (item.id === 'id_totalpurchase') {
@@ -1734,7 +1764,7 @@
                                                         { name: 'idapp', key: true, hidden: true, align: 'left' },
                                                         { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
                                                         { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
-                                                        { name: 'goods', index: 'goods', width: 290, sortable: true, editable: false, align: 'left', },
+                                                        { name: 'goods', index: 'goods', width: 310, sortable: true, editable: false, align: 'left', },
                                                     ],
                                                     ondblClickRow: function (rowId) {
                                                         //fire button OK
@@ -1748,7 +1778,7 @@
                                                         var error_msg = xhr.responseText
                                                         var msg = "Some errors occurred during processing:"
                                                         msg += '\n\n' + error_msg
-                                                        alert(msg)
+                                                        ShowAlert(msg)
                                                     },
                                                     cellEdit: false,
                                                     viewrecords: true,
@@ -1903,7 +1933,7 @@
                                                         var error_msg = xhr.responseText
                                                         var msg = "Some errors occurred during processing:"
                                                         msg += '\n\n' + error_msg
-                                                        alert(msg)
+                                                        ShowAlert(msg)
                                                     },
                                                     cellEdit: false,
                                                     viewrecords: true,
@@ -2390,7 +2420,7 @@
 		            NA.common.dialog.closeDialog(dialog);
 		        }				
 				if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
-				alert(e);
+				ShowAlert(e);
 			}
 		};
 	})();
