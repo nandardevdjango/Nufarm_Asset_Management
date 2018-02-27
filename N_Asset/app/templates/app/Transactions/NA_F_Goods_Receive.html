@@ -683,6 +683,8 @@
 
 		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
+		    var widthTable = NA.common.getElementID('id_descriptions').style.width;
+		    gridTbl.css({'overflow':'auto'});
 		    gridTbl.jqGrid({
 		        data: (function () {
 		            if (win.status === 'Open' || win.status === 'Edit') {
@@ -712,9 +714,9 @@
 					    editoptions: {
 					        dataInit: function (elem) {
 					            fetcBrands.call(this, elem, "brandname");
-					        }, placeholder: (function () {
-					            if ($(this).val() != '') { return 'Choose if exists'; }
-					        })(), title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control'
+					        }, placeholder: function () {
+					            if ($(elem).val() != '') { return 'Choose if exists'; }
+					        }, title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control'
 					    },
 					},
 					{
@@ -737,7 +739,7 @@
 					    editable: AllowEdit,
 					    cellEdit: AllowEdit,
 					    edittype: 'text',
-					    editrules: { required: (function () { return NA.priviledge.IsAdmin; })() },
+					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })() },
 					    editoptions: { class: 'NA-Form-Control' },
 					    autoResizing: { minColWidth: 80, },
 					},
@@ -746,7 +748,7 @@
 					    editable: AllowEdit,
 					    cellEdit: AllowEdit,
 					    edittype: 'text',
-					    editrules: { required: (function () { return NA.priviledge.IsAdmin; })(), },
+					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), },
 					    editoptions: { defaultValue: 'N/A', class: 'NA-Form-Control' },
 					    autoResizing: { minColWidth: 100, },
 					},
@@ -756,7 +758,7 @@
 					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    template: 'number',
-					    editrules: { required: (function () { return NA.priviledge.IsAdmin; })(), integer: false, },
+					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), integer: false, },
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
 					        defaultValue: 1, class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
@@ -830,7 +832,7 @@
 					    },
 					},
 					{
-					    name: 'createdby', width: l00, align: 'left',
+					    name: 'createdby', width: 100, align: 'left',
 					    hidden: (function () {
 					        return (win.status === 'Open')
 					    })(),
@@ -838,13 +840,13 @@
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
-					        defaultValue: (function () { return NA.priviledge.UserName; })(),
+					        defaultValue: (function () { return NA.Priviledge.UserName; })(),
 					        class: 'NA-Form-Control',
 					    },
 
 					},
 					{
-					    name: 'createddate', width: l00, align: 'left',
+					    name: 'createddate', width: 100, align: 'left',
 					    hidden: (function () {
 					        return (win.status === 'Open')
 					    })(),
@@ -859,20 +861,20 @@
 					{
 					    name: 'modifiedby',
 					    hidden: (function () {
-					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.priviledge.IsAdmin === true))
+					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
 					    })(),
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
-					        defaultValue: (function () { return NA.priviledge.UserName; })(),
+					        defaultValue: (function () { return NA.Priviledge.UserName; })(),
 					        class: 'NA-Form-Control',
 					    },
 					},
 					{
-					    name: 'modifieddate', width: l00, align: 'left',
+					    name: 'modifieddate', width: 100, align: 'left',
 					    hidden: (function () {
-					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.priviledge.IsAdmin === true))
+					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
 					    })(),
 					    editable: false,
 					    cellEdit: false,
@@ -907,6 +909,8 @@
 		        iconSet: "fontAwesome",
 		        scrollrows: true,
 		        caption: "Detail goods Receive",
+		        //width: parseInt(widthTable.replace('px','')),
+		        //shrinkToFit:true,
 		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 		    });
 	
@@ -915,28 +919,13 @@
 		    	case 'Add': {
 		    		gridTbl.navGrid(gridPager, {
 		    			edit: false, add: false, del: false, search: false
-		    		}).navButtonAdd(grdPager, {
-		    			caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
-		    				return BootstrapDialog.confirm({
-		    					title: NA.common.mesage.confirmInfo,
-		    					message: NA.common.mesage.clearData,
-		    					size: BootstrapDialog.SIZE_SMALL,
-		    					type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-		    					animate: false,
-		    					closable: false, // <-- Default value is false
-		    					draggable: true, // <-- Default value is false
-		    					btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-		    					btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-		    					btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-		    					callback: function (result) {
-		    						// result will be true if button was click, while it will be false if users close the dialog directly.
-		    						if (result) {
-		    							gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
-		    						}
-		    					}
-		    				});
+		    		}).navButtonAdd(gridPager, {
+		    		    caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
+		    		        if (showConfirmation(NA.common.mesage.clearData, NA.common.mesage.confirmInfo) === true) {
+		    		            gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
+		    		        }		    				
 		    			},
-		    		}).navButtonAdd(grdPager, {
+		    		}).navButtonAdd(gridPager, {
 		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
 		    		});
 		    		break;
@@ -944,7 +933,7 @@
 		    	case 'Edit': {
 		    		gridTbl.navGrid(gridPager, {
 		    			edit: false, add: false, del: false, search: false
-		    		}).navButtonAdd(grdPager, {
+		    		}).navButtonAdd(gridPager, {
 		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
 		    		});
 		    		break;
@@ -1004,19 +993,7 @@
                                     break;
                                 }
                                 case 'Edit': {
-                                    BootstrapDialog.alert({
-                                        title: NA.common.mesage.titleInfo,
-                                        size: BootstrapDialog.SIZE_SMALL,
-                                        message: NA.common.mesage.canNotDelete,
-                                        type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                        closable: false, // <-- Default value is false
-                                        draggable: true, // <-- Default value is false
-                                        buttonLabel: 'OK', // <-- Default value is 'OK',
-                                        callback: function (result) {
-                                            // result will be true if button was click, while it will be false if users close the dialog directly.                                        
-                                            return false;
-                                        }
-                                    });
+                                    ShowAlert(NA.common.mesage.canNotDelete);
                                     NA.NAEvent.preventDefault(e);
                                     return false;
                                     break;
@@ -1029,51 +1006,28 @@
                         }
                         else {
                             if (win.status === 'edit') {
-                                BootstrapDialog.confirm({
-                                    title: NA.common.mesage.titleInfo,
-                                    message: NA.common.mesage.confirmDelete,
-                                    type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                    size: BootstrapDialog.SIZE_SMALL,
-                                    animate: false,
-                                    closable: false, // <-- Default value is false
-                                    draggable: true, // <-- Default value is false
-                                    btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-                                    btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-                                    btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-                                    callback: function (result) {
-                                        var NAAjax = NA.common.AJAX;
-                                        var NRowid = rowId;
-                                        var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                                        NAAjax.POST('deleteDetail/', { 'idapp': idapp }, 'application/json', 'application/json',
-                                       null, null, function () {
-                                           //rubah totalreceived -1;
-                                           var textStatus = JSON.parse(this.responseText);
-                                           if (textStatus === 'success') {
-                                               var eltreceived = NA.common.getElementID('id_total_received'),
-                                                                                valTrec = eltreceived.value;
-                                               valTrec = valTrec - 1;
-                                               eltreceived.value = valTrec;
-                                               gridTbl.delRowData(NRowid);
-                                           }
-                                           else {
-                                               BootstrapDialog.alert({
-                                                   title: NA.common.mesage.titleError,
-                                                   size: BootstrapDialog.SIZE_SMALL,
-                                                   message: textStatus,
-                                                   type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                                   closable: false, // <-- Default value is false
-                                                   draggable: true, // <-- Default value is false
-                                                   buttonLabel: 'OK', // <-- Default value is 'OK',
-                                                   callback: function (result) {
-                                                       // result will be true if button was click, while it will be false if users close the dialog directly.                                        
-                                                       return false;
-                                                   }
-                                               });
-                                           }
-                                       }, null, function () {
-                                       }, function () { win.document.body.style.cursor = 'default'; })
-                                    }
-                                });
+                                if (showConfirmation(NA.common.mesage.confirmDelete, NA.common.mesage.confirmInfo) === true) {
+                                    var NAAjax = NA.common.AJAX;
+                                    var NRowid = rowId;
+                                    var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+                                    NAAjax.POST('deleteDetail/', { 'idapp': idapp }, 'application/json', 'application/json',
+                                   null, null, function () {
+                                       //rubah totalreceived -1;
+                                       var textStatus = JSON.parse(this.responseText);
+                                       if (textStatus === 'success') {
+                                           var eltreceived = NA.common.getElementID('id_total_received'),
+                                                                            valTrec = eltreceived.value;
+                                           valTrec = valTrec - 1;
+                                           eltreceived.value = valTrec;
+                                           gridTbl.delRowData(NRowid);
+                                       }
+                                       else {
+                                           ShowAlert(textStatus, NA.common.mesage.titleError);
+                                           return false;
+                                       }
+                                   }, null, function () {
+                                   }, function () { win.document.body.style.cursor = 'default'; })
+                                }
                             }
                         }
                     }       
@@ -1106,10 +1060,10 @@
 		    });
 		}
 
-		function ShowAlert(message) {
+		function ShowAlert(message,title) {
 		   return BootstrapDialog.alert({
-		        title: NA.common.mesage.titleInfo,
-		        message: title,
+		       title: title||NA.common.mesage.titleInfo,
+		        message: message,
 		        size: BootstrapDialog.SIZE_SMALL,
 		        type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 		        closable: false, // <-- Default value is false
@@ -1614,7 +1568,6 @@
                                                 valDateReceived = new Date(elDateReceived.datereceived);
                                                 return valDateReceived.getDate();
                                             }
-                                            else { return 0; }
                                             //get date datereceived
                                         })(window),
                                         maxDate: 'today',
@@ -1696,7 +1649,7 @@
                                             //	//create header div for searching
                                             //	//create div for main container                        					
                                             draggable: true,
-                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            type: BootstrapDialog.TYPE_INFO,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             message: function (dialogRef) {
                                                 var placeHolder = 'Enter goods desc to search for';
@@ -1858,7 +1811,7 @@
                                         //create bootstrapDialog
                                         BootstrapDialog.show({
                                             draggable: true,
-                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            type: BootstrapDialog.TYPE_INFO,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             message: function (dialogRef) {
                                                 var placeHolder = 'Enter Suplier name to search for';
@@ -1919,7 +1872,7 @@
                                                     colModel: [
                                                         { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
                                                         { name: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
-                                                        { name: 'supliername', index: 'supliername', width: 290, sortable: true, editable: false, align: 'left', },
+                                                        { name: 'supliername', index: 'supliername', width: 300, sortable: true, editable: false, align: 'left', },
                                                     ],
                                                     ondblClickRow: function (rowId) {
                                                         //fire button OK
@@ -2009,7 +1962,7 @@
                                         //create bootstrapDialog
                                         BootstrapDialog.show({
                                             draggable: true,
-                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            type: BootstrapDialog.TYPE_INFO,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             message: function (dialogRef) {
                                                 var placeHolder = 'Enter Employee who PRs to search for';
@@ -2033,7 +1986,7 @@
                                                     if (e.keyCode === 13) {
                                                         win.document.body.style.cursor = 'wait';
                                                         //cari data ke database
-                                                        var url = 'Searchbyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                        var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
 
                                                         if (gridTbl) {
                                                             gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
@@ -2160,7 +2113,7 @@
                                         //create bootstrapDialog
                                         BootstrapDialog.show({
                                             draggable: true,
-                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            type: BootstrapDialog.TYPE_INFO,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             message: function (dialogRef) {
                                                 var placeHolder = 'Enter Employee who Received goods to search for';
@@ -2209,8 +2162,8 @@
                                             onshown: function (dialogRef) {
                                                 var txtSearch = NA.common.getElementID('txtsearch_fk_receivedby');
                                                 //loads Data into JqueryGrid
-                                                var gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_receivedby');
-                                                var gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_receivedby_Pager');
+                                                gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_receivedby');
+                                                gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_receivedby_Pager');
                                                 var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                                                 gridTbl.jqGrid({
                                                     url: urlPR,
@@ -2312,70 +2265,27 @@
                                         var elTotalReceived = NA.common.getElementID('id_totalreceived');
                                         var elTotalPurchase = NA.common.getElementID('id_totalpurchase');										
                                         if (elTotalReceived.value === '') {
-                                            return BootstrapDialog.alert({
-                                                title: NA.common.mesage.titleInfo,
-                                                message: 'Please enter total receve',
-                                                size: BootstrapDialog.SIZE_SMALL,
-                                                type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                                closable: false, // <-- Default value is false
-                                                draggable: true, // <-- Default value is false
-                                                buttonLabel: 'OK', // <-- Default value is 'OK',
-                                                callback: function (result) {
-                                                    // result will be true if button was click, while it will be false if users close the dialog directly.
-                                                    elTotalReceived.focus();
-                                                }
-                                            });
+                                            ShowAlert('Please enter total receve');
+                                            elTotalReceived.focus(); return false;
                                         }
                                         if (elTotalPurchase.value === '') {
-                                            return BootstrapDialog.alert({
-                                                title: NA.common.mesage.titleInfo,
-                                                message: 'Please enter total purchase',
-                                                size: BootstrapDialog.SIZE_SMALL,
-                                                type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                                closable: false, // <-- Default value is false
-                                                draggable: true, // <-- Default value is false
-                                                buttonLabel: 'OK', // <-- Default value is 'OK',
-                                                callback: function (result) {
-                                                    // result will be true if button was click, while it will be false if users close the dialog directly.
-                                                    elTotalPurchase.focus();
-                                                }
-                                            });
+                                            ShowAlert('Please enter total purchase');
+                                            elTotalPurchase.focus();return false;                                            
                                         }
                                         if (parseInt(elTotalReceived) <= 0 || parseInt(elTotalPurchase.value) <= 0)
                                         {
-                                            return BootstrapDialog.alert({
-                                                title: NA.common.mesage.itleInfo,
-                                                size: BootstrapDialog.SIZE_SMALL,
-                                                message: 'total purchased / Received is not allowed to be null or zero or negative ',
-                                                type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                                closable: false, // <-- Default value is false
-                                                draggable: true, // <-- Default value is false
-                                                buttonLabel: 'OK', // <-- Default value is 'OK',
-                                                callback: function (result) {
-                                                    // result will be true if button was click, while it will be false if users close the dialog directly.
-                                                    if (parseInt(elTotalReceived) <= 0) {
-                                                        elTotalReceived.focus();
-                                                    }
-                                                    else if (parseInt(elTotalPurchase.value) <= 0) {
-                                                        elTotalPurchase.focus();
-                                                    }
-                                                }
-                                            });
+                                            ShowAlert('total purchased / Received is not allowed to be null or zero or negative');
+                                            if (parseInt(elTotalReceived) <= 0) {
+                                                elTotalReceived.focus();
+                                            }
+                                            else if (parseInt(elTotalPurchase.value) <= 0) {
+                                                elTotalPurchase.focus();
+                                            }
+                                            return false;
                                         }
                                         if (parseInt(elTotalReceived.value) > parseInt(elTotalPurchase.value)) {
-                                            return BootstrapDialog.alert({
-                                                title: NA.common.mesage.titleInfo,
-                                                size: BootstrapDialog.SIZE_SMALL,
-                                                message: 'Total Received is more than total purchased',
-                                                type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                                closable: false, // <-- Default value is false
-                                                draggable: true, // <-- Default value is false
-                                                buttonLabel: 'OK', // <-- Default value is 'OK',
-                                                callback: function (result) {
-                                                    // result will be true if button was click, while it will be false if users close the dialog directly.
-                                                    elTotalReceived.focus();
-                                                }
-                                            });
+                                            ShowAlert('Total Received is more than total purchased');
+                                            elTotalPurchase.focus(); return false;
                                         }
                                         win.document.body.style.cursor = 'wait';
                                         CreateGridDetail();
