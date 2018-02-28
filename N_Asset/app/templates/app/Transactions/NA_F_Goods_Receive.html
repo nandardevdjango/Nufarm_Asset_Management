@@ -683,8 +683,16 @@
 
 		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
-		    var widthTable = NA.common.getElementID('id_descriptions').style.width;
-		    gridTbl.css({'overflow':'auto'});
+		    var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
+		    var BSDialogContent = NA.common.doc.querySelector('div.maindialogContent');
+		    widthTable = win.getComputedStyle(BSDialogContent).width;
+		    gridTbl.css({ 'overflow': 'auto' });
+		    var contaionerDialog = NA.common.doc.querySelector('div.containerDialog');
+
+		    //var parentGrid = NA.common.doc.querySelector('div.NA-Entry-div-row>#gbox_jqGrid_NA_F_Goods_Receive_Detail');
+			//parentGrid.style.maxHeight = 
+		    var viewportSize = NA.common.dialog.getViewportSize();
+		    contaionerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
 		    gridTbl.jqGrid({
 		        data: (function () {
 		            if (win.status === 'Open' || win.status === 'Edit') {
@@ -909,8 +917,8 @@
 		        iconSet: "fontAwesome",
 		        scrollrows: true,
 		        caption: "Detail goods Receive",
-		        //width: parseInt(widthTable.replace('px','')),
-		        //shrinkToFit:true,
+		        width: parseInt(widthTable.replace('px','')),
+		        shrinkToFit:false,
 		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 		    });
 	
