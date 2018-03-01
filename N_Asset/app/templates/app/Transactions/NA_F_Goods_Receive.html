@@ -696,7 +696,8 @@
 			//parentGrid.style.maxHeight = 
 		    var viewportSize = NA.common.dialog.getViewportSize();
 		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
-		    containerDialog.style.overflow = 'auto';
+		    containerDialog.style.overflowY = 'auto';
+		    containerDialog.style.overflowX = 'hidden';
 		    containerDialog.style.top = '0';
 	
 		    gridTbl.jqGrid({
@@ -936,12 +937,16 @@
 		    var hbdiv = parseFloat((win.getComputedStyle(bdiv).height).replace('px', ''));
 		    hbdiv = hbdiv * 0.75;
 		    bdiv.style.maxHeight = hbdiv.toString() + 'px';
-		    bdiv.style.overflow = 'auto';
 		    var listElem = NA.common.doc.querySelectorAll('div.NA-Entry-div-row');//return list Element
 		    Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-		    	item.style.marginRight = '20px';
+		    	item.style.marginRight = '10px';
 		    });
-
+		    var bottomDialog = NA.common.doc.querySelector('div.bottomDialogContent');
+		    bottomDialog.style.marginRight = '10px';
+		    var hr = NA.common.doc.querySelector('#frm-NA-Entry-Goods_Receive hr');
+		    hr.style.marginRight = '10px';
+		    var bottomDialogRigth = NA.common.doc.querySelector('div.bottomDialogContent > .dialogButtonRightOther');
+		    bottomDialogRigth.style.marginRight = '20px';
 		    switch (win.status) {
 		    	case 'Add': {
 		    		gridTbl.navGrid(gridPager, {
@@ -999,7 +1004,7 @@
 		        }
 		        return result;
 		    }
-		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr:first').getAttribute('id');
+		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
 		    gridTbl.setSelection(top_rowid, false);
 		    //assign delete key event
 		    gridTbl.on("keyup", "tr", function (e) {
@@ -1062,7 +1067,7 @@
 		    });
 			//hidupkan btnCancel;;
 		    var btnCancel = NA.common.getElementID('btnCancelDetail');
-		    btnCancel.style.display = 'block';
+		    btnCancel.style.cssText = 'display: block;left: 81%;right: 0;position: relative;';
 			//matikan btnAddDetail
 		    var btnAddDetail = NA.common.getElementID('btnAddDetail');
 		    btnAddDetail.style.display = 'none';
@@ -2323,7 +2328,7 @@
                                     });
                                     NA.NAEvent.addHandler(btnCancelDetail, 'click', function (e) {
                                         //NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
-                                        var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                                        var gridDetail = $('#gbox_jqGrid_NA_F_Goods_Receive_Detail');
                                         gridDetail.jqGrid('clearGridData');
                                         //var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 											
@@ -2335,6 +2340,26 @@
                                         if (btnValidate) {
                                             btnValidate.remove();
                                         }
+                                        gridDetail.remove();
+                                        //var gridpager = $('#jqGrid_NA_F_Goods_Receive_Detail_pager');
+                                        //gridpager.remove();
+                                        //recreate table
+                                        NA.common.doc.createElement('table');
+
+                                       var ngridTbl = NA.common.doc.createElement('table');
+                                       ngridTbl.id = 'jqGrid_NA_F_Goods_Receive_Detail';
+                                        var ngridPager = NA.common.doc.createElement('div');
+                                        ngridPager.id = 'jqGrid_NA_F_Goods_Receive_Detail_pager';
+                                        var divTable = NA.common.getElementID('divTable');
+                                        divTable.appendChild(ngridTbl);
+                                        divTable.appendChild(ngridPager);
+
+                                        var btnCancel = e.target;
+                                        btnCancel.style.cssText = 'display: none;left: 80%;right: 0;position: relative;';
+                                        //matikan btnAddDetail
+                                        var btnAddDetail = NA.common.getElementID('btnAddDetail');
+                                        btnAddDetail.style.cssText = 'display: block;left: 75%;right: 0;position: relative;';
+
                                         e.stopImmediatePropagation();
                                     });
                                     //assign delete key event
