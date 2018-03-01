@@ -547,7 +547,7 @@
 		    };
 		    return DummyData;
 		};
-		function ValidateGridDetail() {
+		function ValidateGridDetail(gridTbl) {
 			var rows = gridTbl.getDataIDs();
 			//columns = ['idapp', 'fkapp', 'no', 'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty', 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'hasref']
 
@@ -557,10 +557,8 @@
 
 			for (i = 0; i < rows.length; i++) {
 				var row = gridTbl.getRowData(rows[i]);
-				var rowID = '';
-				if ($(row).hasClass('jqgrow')) {
-					rowID = row.cells['idapp'].closest("tr").attr("id")
-				}
+				var rowID = rows[i];
+				
 				//check brandname harus ada
 				//type sama serialnumber harus ada
 				var brandname = row['brandname'];
@@ -575,8 +573,8 @@
 						buttonLabel: 'OK', // <-- Default value is 'OK',
 						callback: function (result) {
 							// result will be true if button was click, while it will be false if users close the dialog directly.
-							gridTbl.editRow(rowID, true);
-							rowID['brandname'].focus();
+							gridTbl.editRow(rowID, true); //function edit row adalah dispatch event dari row clicked
+							$('tr#' + rowID + '[aria-describedby*="' + brandname + '"]').focus();
 						}
 					});
 					return false;
@@ -593,7 +591,8 @@
 						buttonLabel: 'OK', // <-- Default value is 'OK',
 						callback: function (result) {
 							// result will be true if button was click, while it will be false if users close the dialog directly.
-							rowID['typeapp'].focus();
+							gridTbl.editRow(rowID, true);
+							$('tr#' + rowID + '[aria-describedby*="' + typeapp + '"]').focus();
 						}
 					});
 					return false;
@@ -609,7 +608,8 @@
 						buttonLabel: 'OK', // <-- Default value is 'OK',
 						callback: function (result) {
 							// result will be true if button was click, while it will be false if users close the dialog directly.
-							rowID['serialnumber'].focus();
+							gridTbl.editRow(rowID, true);
+							$('tr#' + rowID + '[aria-describedby*="' + serialnumber + '"]').focus();
 						}
 					});
 					return false;
@@ -672,6 +672,9 @@
 			//var rowData = gridTbl.getRowData(rowId);
 			////method for getAllrows In Jquery grid
 			//var allRowsInGrid = $('#list4').jqGrid('getGridParam', 'data');
+			win.document.body.style.cursor = 'default';
+			return true;
+
 		};
 		function CreateGridDetail() {
 		    //grid detail 
@@ -684,15 +687,18 @@
 		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
 			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 		    var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
-		    var BSDialogContent = NA.common.doc.querySelector('div.maindialogContent');
-		    widthTable = win.getComputedStyle(BSDialogContent).width;
+		    var txtdescriptions = NA.common.doc.querySelector('#id_descriptions');
+		    widthTable = win.getComputedStyle(txtdescriptions).width;
 		    gridTbl.css({ 'overflow': 'auto' });
-		    var contaionerDialog = NA.common.doc.querySelector('div.containerDialog');
+		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
 
 		    //var parentGrid = NA.common.doc.querySelector('div.NA-Entry-div-row>#gbox_jqGrid_NA_F_Goods_Receive_Detail');
 			//parentGrid.style.maxHeight = 
 		    var viewportSize = NA.common.dialog.getViewportSize();
-		    contaionerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+		    containerDialog.style.overflow = 'auto';
+		    containerDialog.style.top = '0';
+	
 		    gridTbl.jqGrid({
 		        data: (function () {
 		            if (win.status === 'Open' || win.status === 'Edit') {
@@ -723,7 +729,7 @@
 					        dataInit: function (elem) {
 					            fetcBrands.call(this, elem, "brandname");
 					        }, placeholder: function () {
-					            if ($(elem).val() != '') { return 'Choose if exists'; }
+					            if ($(this).val() == '') { return 'Choose if exists'; }
 					        }, title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control'
 					    },
 					},
@@ -841,9 +847,10 @@
 					},
 					{
 					    name: 'createdby', width: 100, align: 'left',
-					    hidden: (function () {
-					        return (win.status === 'Open')
-					    })(),
+					    hidden: //(function () {
+					        //return (win.status === 'Open')
+					    //})()
+						true,
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
@@ -855,9 +862,10 @@
 					},
 					{
 					    name: 'createddate', width: 100, align: 'left',
-					    hidden: (function () {
-					        return (win.status === 'Open')
-					    })(),
+					    hidden: //(function () {
+					        //return (win.status === 'Open')
+					    //})()
+						true,
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
@@ -868,9 +876,10 @@
 					},
 					{
 					    name: 'modifiedby',
-					    hidden: (function () {
-					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
-					    })(),
+					    hidden: //(function () {
+					        //return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
+			//		    })()
+						true,
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
@@ -881,9 +890,10 @@
 					},
 					{
 					    name: 'modifieddate', width: 100, align: 'left',
-					    hidden: (function () {
-					        return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
-					    })(),
+					    hidden: //(function () {
+					       // return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
+					    //})(),
+						true,
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
@@ -922,6 +932,15 @@
 		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 		    });
 	
+		    var bdiv = NA.common.doc.querySelector('#gview_jqGrid_NA_F_Goods_Receive_Detail div.ui-jqgrid-bdiv');
+		    var hbdiv = parseFloat((win.getComputedStyle(bdiv).height).replace('px', ''));
+		    hbdiv = hbdiv * 0.75;
+		    bdiv.style.maxHeight = hbdiv.toString() + 'px';
+		    bdiv.style.overflow = 'auto';
+		    var listElem = NA.common.doc.querySelectorAll('div.NA-Entry-div-row');//return list Element
+		    Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+		    	item.style.marginRight = '20px';
+		    });
 
 		    switch (win.status) {
 		    	case 'Add': {
@@ -934,7 +953,7 @@
 		    		        }		    				
 		    			},
 		    		}).navButtonAdd(gridPager, {
-		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
+		    			caption: "Validate", buttonimg: "", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
 		    		});
 		    		break;
 		    	}
@@ -942,7 +961,7 @@
 		    		gridTbl.navGrid(gridPager, {
 		    			edit: false, add: false, del: false, search: false
 		    		}).navButtonAdd(gridPager, {
-		    			caption: "Validate", buttonimg: "", onClickButton: ValidateGridDetail(),
+		    			caption: "Validate", buttonimg: "", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
 		    		});
 		    		break;
 		    	}
