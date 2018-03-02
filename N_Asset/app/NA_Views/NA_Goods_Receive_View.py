@@ -354,27 +354,27 @@ def SearchEmployeebyform(request):
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+#def getBrandForDetailEntry(request):
+#	IvalueKey =  request.GET.get('term')
+#	NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
+#	results = []
+#	for brandrow in BrandRows:
+#		JsonResult = {}
+#		JsonResult['id'] = brandrow['brandname']
+#		JsonResult['label'] = brandrow['brandname']
+#		JsonResult['value'] = brandrow['brandname']
+#		results.append(JsonResult)
+#	data = json.dumps(results,cls=DjangoJSONEncoder)
+#	return HttpResponse(data, content_type='application/json')
 def getBrandForDetailEntry(request):
 	IvalueKey =  request.GET.get('term')
-	NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
+	BrandRows = NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
 	results = []
 	for brandrow in BrandRows:
 		JsonResult = {}
-		JsonResult['id'] = brandrow['brandname']
-		JsonResult['label'] = brandrow['brandname']
-		JsonResult['value'] = brandrow['brandname']
-		results.append(JsonResult)
-	data = json.dumps(results,cls=DjangoJSONEncoder)
-	return HttpResponse(data, content_type='application/json')
-def getBrandForDetailEntry(request):
-	IvalueKey =  request.GET.get('term')
-	NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
-	results = []
-	for brandrow in BrandRows:
-		JsonResult = {}
-		JsonResult['id'] = brandrow['brandname']
-		JsonResult['label'] = brandrow['brandname']
-		JsonResult['value'] = brandrow['brandname']
+		JsonResult['id'] = brandrow['BrandName']
+		JsonResult['label'] = brandrow['BrandName']
+		JsonResult['value'] = brandrow['BrandName']
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')

@@ -190,12 +190,13 @@ class NA_BR_Goods_Receive(models.Manager):
 				return repr(e)
 	def getBrandsForDetail(self,searchText):
 		#ambil data di receive_goods_detail,union dengan brandname di table goods
-		Query = """SELECT DISCTINCT(BrandName) FROM n_a_goods WHREE BrandName LIKE '%{0!s}%' \
+		Query = "SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE '%{0!s}%' \
 				   UNION \
-				   SELECT DISTINCT(BrandName) FROM n_a_goods_detail WHERE BrandName LIKE '%{1!s}%'"""
+				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE '%{1!s}%'"""
+		Query.format(searchText,searchText)
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
-		cur.execute(Query,[searchText,searchText])
+		cur.execute(Query.format(searchText,searchText))
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data

@@ -711,6 +711,9 @@
 		                return dummyData;
 		            }
 		        })(),
+		        processing:true,
+		        loadonce: true,
+		        cellsubmit: 'clientArray',
 		        datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
 		        colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef'],
 		        colModel: [
@@ -789,8 +792,42 @@
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
 					        class: 'NA-Form-Control',
+					        dataInit: function (elem, options) {
+					            // we need get the value before changing the type
+					            //var orgValue = $(elem).val(), newformat,
+                                //    cm = $(this).jqGrid("getColProp", options.name);
+
+					            //$(elem).attr("type", "date");
+					            //if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
+					                $(elem).attr("type", "text"); // !!! important to make saving works correctly
+					                //$(elem).datepicker({
+					                //    dateFormat: 'dd/mm/yy',
+					                //    autoSize: true,
+					                //    changeYear: true,
+					                //    changeMonth: true,
+					                //    showWeek: true,
+					                //    minDate: (function (g) {
+					                //        if (g.status === 'Edit') {
+					                //            var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
+					                //            return new Date(EndOfWarranty);
+					                //        }
+					                //        else { return 0; }
+					                //        //get date datereceived
+					                //    })(win),
+					                //    maxDate: 'today',
+					                //});
+					            //} else {
+					            //    // convert date to ISO
+					            //    if (orgValue !== "") {
+					            //        newformat = cm.formatoptions != null && cm.formatoptions.newformat ?
+                                //            cm.formatoptions.newformat :
+                                //            $(this).jqGrid("getGridRes", "formatter.date.newformat");
+					            //        $(elem).val($.jgrid.parseDate.call(this, newformat, orgValue, "Y-m-d"));
+					            //    }
+					            //}
+					        },
 					    },
-					    datefmt: 'd F Y',
+					    datefmt: 'dd/mm/yy',
 					    editrules: {
 					        date: true, minValue: 0
 					    },
@@ -810,41 +847,7 @@
 					    //        maxDate: 'today',
 					    //    });
 					    //},
-					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' },
-					    dataInit: function (elem, options) {
-					        // we need get the value before changing the type
-					        var orgValue = $(elem).val(), newformat,
-                                cm = $(this).jqGrid("getColProp", options.name);
-
-					        $(elem).attr("type", "date");
-					        if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
-					            $(elem).attr("type", "text"); // !!! important to make saving works correctly
-					            $(elem).datepicker({
-					                dateFormat: 'dd/mm/yy',
-					                autoSize: true,
-					                changeYear: true,
-					                changeMonth: true,
-					                showWeek: true,
-					                minDate: (function (g) {
-					                    if (g.status === 'Edit') {
-					                        var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
-					                        return new Date(EndOfWarranty);
-					                    }
-					                    else { return 0; }
-					                    //get date datereceived
-					                })(win),
-					                maxDate: 'today',
-					            });
-					        } else {
-					            // convert date to ISO
-					            if (orgValue !== "") {
-					                newformat = cm.formatoptions != null && cm.formatoptions.newformat ?
-                                        cm.formatoptions.newformat :
-                                        $(this).jqGrid("getGridRes", "formatter.date.newformat");
-					                $(elem).val($.jgrid.parseDate.call(this, newformat, orgValue, "Y-m-d"));
-					            }
-					        }
-					    },
+					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' },					   
 					},
 					{
 					    name: 'createdby', width: 100, align: 'left',
