@@ -684,8 +684,8 @@
 			//var AllowEdit = (!hasRef) && (win.status !== 'Open')
 			var AllowEdit = win.status !== 'Open';
 
-		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail'),
-			gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
+			var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
+			var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 		    var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
 		    var txtdescriptions = NA.common.doc.querySelector('#id_descriptions');
 		    widthTable = win.getComputedStyle(txtdescriptions).width;
@@ -793,30 +793,32 @@
 					    editoptions: {
 					        class: 'NA-Form-Control',
 					        dataInit: function (elem, options) {
-					            // we need get the value before changing the type
-					            //var orgValue = $(elem).val(), newformat,
-                                //    cm = $(this).jqGrid("getColProp", options.name);
+					        //     we need get the value before changing the type
+					        //    var orgValue = $(elem).val(), newformat,
+                            //        cm = $(this).jqGrid("getColProp", options.name);
 
 					            //$(elem).attr("type", "date");
-					            //if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
-					                $(elem).attr("type", "text"); // !!! important to make saving works correctly
-					                //$(elem).datepicker({
-					                //    dateFormat: 'dd/mm/yy',
-					                //    autoSize: true,
-					                //    changeYear: true,
-					                //    changeMonth: true,
-					                //    showWeek: true,
-					                //    minDate: (function (g) {
-					                //        if (g.status === 'Edit') {
-					                //            var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
-					                //            return new Date(EndOfWarranty);
-					                //        }
-					                //        else { return 0; }
-					                //        //get date datereceived
-					                //    })(win),
-					                //    maxDate: 'today',
-					                //});
-					            //} else {
+
+					        //    if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
+					        //        $(elem).attr("type", "text"); // !!! important to make saving works correctly
+					                $(elem).datepicker({
+					                    dateFormat: 'dd/mm/yy',
+					                    autoSize: true,
+					                    changeYear: true,
+					                    changeMonth: true,
+					                    showWeek: true,
+					                    minDate: (function (g) {
+					                        if (g.status === 'Edit') {
+					                            var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
+					                            return new Date(EndOfWarranty);
+					                        }
+					                        //else { return 0; }
+					                        //get date datereceived
+					                    })(win),
+					                    maxDate: 'today',
+					                });
+					        //    }
+					            //else {
 					            //    // convert date to ISO
 					            //    if (orgValue !== "") {
 					            //        newformat = cm.formatoptions != null && cm.formatoptions.newformat ?
@@ -825,11 +827,12 @@
 					            //        $(elem).val($.jgrid.parseDate.call(this, newformat, orgValue, "Y-m-d"));
 					            //    }
 					            //}
+					            //$(elem).text($(this).val().length == 0 ? "" : ($.datepicker.formatDate('dd/mm/yy', new Date($(this).val()))))
 					        },
 					    },
-					    datefmt: 'dd/mm/yy',
+					    //datefmt: 'dd/mm/yy',
 					    editrules: {
-					        date: true, minValue: 0
+					        date: true, minValue: 0,required: false
 					    },
 					    //dataInit: function (elem) {
 					    //    $(elem).datepicker({
@@ -847,7 +850,7 @@
 					    //        maxDate: 'today',
 					    //    });
 					    //},
-					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' },					   
+					    formatter: 'date', formatoptions: { srcformat: 'd/m/Y', newformat: 'd/m/Y' }
 					},
 					{
 					    name: 'createdby', width: 100, align: 'left',
@@ -923,6 +926,13 @@
 		        		return parseInt(elTotalReceived.value);
 		        	}
 		        })(),
+		        //navOptions: {
+		        //    refresh: false,
+		        //    del: false,
+		        //    search: false,
+		        //    alertcap: "Alert",
+		        //    alerttext: "Please select a row to edit."
+		        //},
 		        cmTemplate: { autoResizable: true, editable: true },
 		        autoResizing: { compact: true, resetWidthOrg: true },
 		        sortname: "brandname",
@@ -932,7 +942,8 @@
 		        scrollrows: true,
 		        caption: "Detail goods Receive",
 		        width: parseInt(widthTable.replace('px','')),
-		        shrinkToFit:false,
+		        shrinkToFit: false,
+		        //viewPagerButtons: false,
 		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
 		    });
 	
@@ -952,17 +963,22 @@
 		    bottomDialogRigth.style.marginRight = '20px';
 		    switch (win.status) {
 		    	case 'Add': {
-		    		gridTbl.navGrid(gridPager, {
-		    			edit: false, add: false, del: false, search: false
-		    		}).navButtonAdd(gridPager, {
-		    		    caption: "Clear Or Reset", buttonimg: "", onClickButton: function () {
-		    		        if (showConfirmation(NA.common.mesage.clearData, NA.common.mesage.confirmInfo) === true) {
-		    		            gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
-		    		        }		    				
-		    			},
-		    		}).navButtonAdd(gridPager, {
-		    			caption: "Validate", buttonimg: "", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
-		    		});
+		    	    //$('#jqGrid_NA_F_Goods_Receive_Detail').jqGrid('navGrid').jqGrid('navButtonAdd', {
+		    	    //    caption: "Clear Or Reset", //buttonicon: "ui-icon-extlink",
+		    	    //    onClickButton: function () {
+		    	    //        if (showConfirmation(NA.common.mesage.clearData, NA.common.mesage.confirmInfo) === true) {
+		    	    //            gridTbl.setGridParam({ datatype: 'local' }).trigger("reloadGrid", [{ page: 1, }]);
+		    	    //        }
+		    	    //    },
+		    	    //});
+		    	    jQuery("#jqGrid_NA_F_Goods_Receive_Detail").navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+		    	        edit: false, add: false, del: false, search: false, refresh:false,
+		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+		    	        caption: "", buttonicon: 'fa-undo', onClickButton: function () {},
+		    	        position:"last"
+		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+		    	        caption: "Validate", buttonicon: "fa-retweet", onClickButton: function (id) { alert("Deleting Row:" + id) }, position: "last"
+		    	        });
 		    		break;
 		    	}
 		    	case 'Edit': {
@@ -2332,6 +2348,7 @@
                                     NA.NAEvent.addHandler(btnCancelDetail, 'click', function (e) {
                                         //NA.NAEvent.removeHandler(gridTbl, 'keyup', deletegridDetail);
                                         var gridDetail = $('#gbox_jqGrid_NA_F_Goods_Receive_Detail');
+                                        var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
                                         gridDetail.jqGrid('clearGridData');
                                         //var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 											
@@ -2343,6 +2360,7 @@
                                         if (btnValidate) {
                                             btnValidate.remove();
                                         }
+                                        gridPager.remove();
                                         gridDetail.remove();
                                         //var gridpager = $('#jqGrid_NA_F_Goods_Receive_Detail_pager');
                                         //gridpager.remove();
@@ -2352,7 +2370,7 @@
                                        var ngridTbl = NA.common.doc.createElement('table');
                                        ngridTbl.id = 'jqGrid_NA_F_Goods_Receive_Detail';
                                         var ngridPager = NA.common.doc.createElement('div');
-                                        ngridPager.id = 'jqGrid_NA_F_Goods_Receive_Detail_pager';
+                                        ngridPager.id = 'jqGrid_NA_F_Goods_Receive_Detail_Pager';
                                         var divTable = NA.common.getElementID('divTable');
                                         divTable.appendChild(ngridTbl);
                                         divTable.appendChild(ngridPager);
