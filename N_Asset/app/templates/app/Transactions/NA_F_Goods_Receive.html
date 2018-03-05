@@ -699,7 +699,7 @@
 		    containerDialog.style.overflowY = 'auto';
 		    containerDialog.style.overflowX = 'hidden';
 		    containerDialog.style.top = '0';
-	
+		    var NValEndOfWarranty = null;
 		    gridTbl.jqGrid({
 		        data: (function () {
 		            if (win.status === 'Open' || win.status === 'Edit') {
@@ -712,8 +712,7 @@
 		            }
 		        })(),
 		        processing:true,
-		        loadonce: true,
-		        cellsubmit: 'clientArray',
+		        loadonce: true,		       
 		        datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
 		        colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef'],
 		        colModel: [
@@ -783,7 +782,7 @@
 					        step: 'any', tittle: 'Please enter valid value',
 					    },
 					    formatter: 'number',
-					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
+					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },					   
 					},
 					{
 					    name: 'endofwarranty', width: 100, align: 'left',
@@ -807,15 +806,18 @@
 					                    changeYear: true,
 					                    changeMonth: true,
 					                    showWeek: true,
-					                    minDate: (function (g) {
+					                    minDate: function () {
+					                        var dtReceived = $('#id_datereceived').val(), FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
 					                        if (g.status === 'Edit') {
 					                            var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
 					                            return new Date(EndOfWarranty);
 					                        }
-					                        //else { return 0; }
+					                        else { return $.datepicker.parseDate('dd/mm/yy', dtReceived) }
 					                        //get date datereceived
-					                    })(win),
-					                    maxDate: 'today',
+					                    },
+					                    maxDate: function () {
+					                        return NValEndOfWarranty || NA.common.addMonths(dtReceived,60);
+					                    }
 					                });
 					        //    }
 					            //else {
@@ -926,13 +928,35 @@
 		        		return parseInt(elTotalReceived.value);
 		        	}
 		        })(),
-		        //navOptions: {
-		        //    refresh: false,
-		        //    del: false,
-		        //    search: false,
-		        //    alertcap: "Alert",
-		        //    alerttext: "Please select a row to edit."
-		        //},
+		        cellsubmit: 'clientArray',
+		        afterSaveCell: function (rowid, cellname, value, iRow, iCol) {
+		            // first change the cell in the visible part of grid
+		            //(2.3 % 1).toFixed(4).substring(2) = "3000" if you need it without the 0
+		            //check modulus value
+		            if (cellname === 'warranty') {
+		                var modVal = (value % 1).toFixed(2).substring(2);
+		                var intVal = parseInt(value - modVal);
+		                var dtReceived = $('#id_datereceived').val();
+		                if (dtReceived === '') {
+		                    ShowAlert('Please enter date received first', NA.common.mesage.titleInfo);
+		                    NA.common.getElementID('id_datereceived').focus();
+		                    return false;
+		                }
+		                FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+		                dtReceived = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate());
+
+		                var NM = dtReceived.getMonth();
+		                NM = NM + modVal + (intVal * 12);
+		                NValEndOfWarranty = NM;
+		                var NVal = NA.common.addMonths(dtReceived, NM);
+		                //set grid cell
+		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty', NVal);
+
+		                // now change the internal local data
+		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NVal;
+		                return true;
+		            }		            
+		        },
 		        cmTemplate: { autoResizable: true, editable: true },
 		        autoResizing: { compact: true, resetWidthOrg: true },
 		        sortname: "brandname",
@@ -974,22 +998,35 @@
 		    	    jQuery("#jqGrid_NA_F_Goods_Receive_Detail").navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    	        edit: false, add: false, del: false, search: false, refresh:false,
 		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-		    	        caption: "", buttonicon: 'fa-undo', onClickButton: function () {},
+		    	        caption: "  Reset", buttonicon: 'fa-undo', onClickButton: function () {},
 		    	        position:"last"
 		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-		    	        caption: "Validate", buttonicon: "fa-retweet", onClickButton: function (id) { alert("Deleting Row:" + id) }, position: "last"
-		    	        });
+		    	        caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (id) { alert("Deleting Row:" + id) }, position: "last"
+		    	    });
+		    	    var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
+		    	    elDivF.removeAttribute('class');
+		    	    elDivF.setAttribute('class', 'fa');
+		    	    elDivF.classList.add('fa-undo');
+
+		    	    var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
+		    	    elDivS.removeAttribute('class');		    	    
+		    	    elDivS.setAttribute('class', 'fa');
+		    	    elDivS.classList.add('fa-retweet');
 		    		break;
 		    	}
 		    	case 'Edit': {
 		    		gridTbl.navGrid(gridPager, {
 		    			edit: false, add: false, del: false, search: false
 		    		}).navButtonAdd(gridPager, {
-		    			caption: "Validate", buttonimg: "", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
+		    		    caption: "  Validate",  buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
 		    		});
+		    		var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
+		    		elDivF.setAttribute('class', 'fa fa-undo');
 		    		break;
 		    	}
 		    }
+		    //SET Icon Validate dan rfresh
+		     
 		    //assigned collumn Editable with condition
 		    var orgRowActions = $.fn.fmatter.rowactions;
 		    $.fn.fmatter.rowactions = function (rid, gid, act, pos) {

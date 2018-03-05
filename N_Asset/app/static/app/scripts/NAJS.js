@@ -498,15 +498,16 @@ NA.common = {
         return true;
     },
 
-    //===============Partial Text Selection=====================
-    //textbox.value = “Hello world!"
-    ////select all text
-    //textbox.setSelectionRange(0, textbox.value.length); //"Hello world!"
-    ////select first three characters
-    //textbox.setSelectionRange(0, 3); //"Hel"
-    ////select characters 4 through 6
-    //textbox.setSelectionRange(4, 7); //"o w"
-
+    //=================calculate months with date ============================
+    addMonths: function (date, months) {
+        var result = new Date(date),
+            expectedMonth = ((date.getMonth() + months) % 12 + 12) % 12;
+        result.setMonth(result.getMonth() + months);
+        if (result.getMonth() !== expectedMonth) {
+            result.setDate(0);
+        }
+        return result;
+    },
     //=======================FORM SERIALIZATION==========================
     serializeForm: function (form) {
         var parts = [],
