@@ -443,7 +443,7 @@
 			document.body.style.cursor = 'default';
 			return true;
 		};
-		function formatDate(date) {
+		function GetServerFormatDate(date) {
 		    var d = new Date(date),
                 month = '' + (d.getMonth() + 1),
                 day = '' + d.getDate(),
@@ -454,6 +454,31 @@
 
 		    return [year, month, day].join('-');
 		};
+		//function formattedDate(d) {
+		//    let month = String(d.getMonth() + 1);
+		//    let day = String(d.getDate());
+		//    const year = String(d.getFullYear());
+
+		//    if (month.length < 2) month = '0' + month;
+		//    if (day.length < 2) day = '0' + day;
+
+		//    return '${day}/${month}/${year}';
+	    //}
+		function formatDate(theDate) {
+		    var date = new Date(),
+              year = date.getFullYear(),
+              month = (date.getMonth() + 1).toString(),
+              formatedMonth = (month.length === 1) ? ("0" + month) : month,
+              day = date.getDate().toString(),
+              formatedDay = (day.length === 1) ? ("0" + day) : day;
+              //hour = date.getHours().toString(),
+              //formatedHour = (hour.length === 1) ? ("0" + hour) : hour,
+              //minute = date.getMinutes().toString(),
+              //formatedMinute = (minute.length === 1) ? ("0" + minute) : minute,
+              //second = date.getSeconds().toString(),
+              //formatedSecond = (second.length === 1) ? ("0" + second) : second;
+		    return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
+		};
 		function submitForm() {
 			//var valuesForm = JSON.stringify(getValuesForm());
 			var valuesForm = getValuesForm();
@@ -463,7 +488,7 @@
 				return el[0].getAttribute("value");
 			})();
 			var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
-			CDate = formatDate(FDate);
+			CDate = GetServerFormatDate(FDate);
 
 			valuesForm['datereceived'] = CDate;
 			var NAAjax = NA.common.AJAX;
@@ -790,7 +815,7 @@
 					         class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
 					        step: 'any', tittle: 'Year warranty',
 					        placeholder: function () {
-					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, ',', '.'); }
+					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, 2, '.'); }
 					        }
 					    },
 					    formatter: 'number',
@@ -811,26 +836,33 @@
 					            //$(elem).attr("type", "date");
 
 					        //    if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
-					        //        $(elem).attr("type", "text"); // !!! important to make saving works correctly
-					                $(elem).datepicker({
-					                    dateFormat: 'dd/mm/yy',
-					                    autoSize: true,
-					                    changeYear: true,
-					                    changeMonth: true,
-					                    showWeek: true,
-					                    minDate: function () {
-					                        var dtReceived = $('#id_datereceived').val(), FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-					                        if (g.status === 'Edit') {
-					                            var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
-					                            return new Date(EndOfWarranty);
-					                        }
-					                        else { return $.datepicker.parseDate('dd/mm/yy', dtReceived) }
-					                        //get date datereceived
-					                    },
-					                    maxDate: function () {
-					                        return NValEndOfWarranty || NA.common.addMonths(dtReceived,60);
-					                    }
+					            //        $(elem).attr("type", "text"); // !!! important to make saving works correctly
+					            var dtReceived = $('#id_datereceived').val();
+					            if (dtReceived === '') {
+					                ShowAlert('Please enter date received first', NA.common.mesage.titleInfo, function () {
+					                    NA.common.getElementID('id_datereceived').focus();
+					                    $(elem).val('');
+					                    return false;
 					                });
+					            }					          
+					            $(elem).datepicker({
+					                dateFormat: 'dd/mm/yy',
+					                autoSize: true,
+					                changeYear: true,
+					                changeMonth: true,
+					                showWeek: true,
+					                minDate: (function (g, dtrec) {
+					                    if (g.status === 'Edit') {
+					                        var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
+					                        return new Date(EndOfWarranty);
+					                    }
+					                    else {
+					                        return $.datepicker.parseDate('dd/mm/yy', dtrec)
+					                    }
+					                    //get date datereceived
+					                })(win, dtReceived),
+					                maxDate: NValEndOfWarranty || NA.common.addMonths(dtReceived, 60),
+					            });
 					        //    }
 					            //else {
 					            //    // convert date to ISO
@@ -946,25 +978,24 @@
 		            //(2.3 % 1).toFixed(4).substring(2) = "3000" if you need it without the 0
 		            //check modulus value
 		            if (cellname === 'warranty') {
-		                var modVal = (value % 1).toFixed(2).substring(2);
+		                var modVal = (value % 1).toFixed(2);
 		                var intVal = parseInt(value - modVal);
 		                var dtReceived = $('#id_datereceived').val();
 		                if (dtReceived === '') {
 		                	ShowAlert('Please enter date received first', NA.common.mesage.titleInfo, function () {
-		                		NA.common.getElementID('id_datereceived').focus();
-		                	
+		                		NA.common.getElementID('id_datereceived').focus();		                	
 		                	});		                   
 		                    return false;
 		                }
 		                FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
 		                dtReceived = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate());
-
+		                var NmodVal = parseFloat(modVal) * 12;
 		                var NM = dtReceived.getMonth();
-		                NM = NM + modVal + (intVal * 12);
+		                NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
 		                NValEndOfWarranty = NM;
 		                var NVal = NA.common.addMonths(dtReceived, NM);
 		                //set grid cell
-		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty', NVal);
+		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty',formatDate(NVal));
 
 		                // now change the internal local data
 		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NVal;
@@ -1145,10 +1176,13 @@
 		function showConfirmation(message,title) {
 		   return BootstrapDialog.confirm({
 		        title: title|| NA.common.mesage.titleInfo,
-		        message: message,
+		        message: message,		      
 		        type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 		        size: BootstrapDialog.SIZE_SMALL,
 		        animate: false,
+		        cssClass: 'login-dialog',
+		        closeByBackdrop: false,
+		        closeByKeyboard: false,
 		        closable: false, // <-- Default value is false
 		        draggable: true, // <-- Default value is false
 		        btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
@@ -1158,7 +1192,11 @@
 		            // result will be true if button was click, while it will be false if users close the dialog directly.
 		            if (result) { return true; }
 		            else { return false;}
-		        }
+		        },
+		       onshown:function(dialogRef){
+		           var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+		           divHeader.style.backgroundColor = 'green';
+		       }
 		    });
 		}
 
@@ -1167,7 +1205,10 @@
 		       title: title||NA.common.mesage.titleInfo,
 		        message: message,
 		        size: BootstrapDialog.SIZE_SMALL,
-		        //animate:false,
+		       //animate:false,
+		        cssClass: 'login-dialog',
+		        closeByBackdrop: false,
+		        closeByKeyboard: false,
 		        type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 		        closable: false, // <-- Default value is false
 		        draggable: true, // <-- Default value is false
@@ -1180,6 +1221,10 @@
 		        		}
 		        		return true;
 		        	}
+		        },
+		        onshown: function (dialogRef) {
+		            var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+		            divHeader.style.backgroundColor = 'green';
 		        }
 		    });
 		}
@@ -2403,6 +2448,19 @@
                                         CreateGridDetail();
                                         //var btncancelDetail = NA.common.getElementID('btnCancelDetail');
                                         //btncancelDetail.
+                                        //Set readonly untuk element findGroods
+                                        btnFindGoods.setAttribute('disabled', true);
+                                        var txtid_fk_goods = NA.common.getElementID('id_fk_goods');
+                                        txtid_fk_goods.setAttribute('readonly', true);
+                                        
+                                        var txtgoodsDesc = NA.common.getElementID('id_goods_desc');
+                                        txtgoodsDesc.setAttribute('readonly', true);
+
+                                        var txtTPurchase = NA.common.getElementID('id_totalpurchase');
+                                        txtTPurchase.setAttribute('readonly', true);
+                                        var txtTreceived = NA.common.getElementID('id_totalreceived');
+                                        txtTreceived.setAttribute('readonly', true);
+
                                         win.document.body.style.cursor = 'default';
                                         e.stopImmediatePropagation();
                                     });
@@ -2441,6 +2499,18 @@
                                         //matikan btnAddDetail
                                         var btnAddDetail = NA.common.getElementID('btnAddDetail');
                                         btnAddDetail.style.cssText = 'display: block;left: 75%;right: 0;position: relative;';
+
+                                        btnFindGoods.removeAttribute('disabled');
+                                        var txtid_fk_goods = NA.common.getElementID('id_fk_goods');
+                                        txtid_fk_goods.removeAttribute('readonly');
+
+                                        var txtgoodsDesc = NA.common.getElementID('id_goods_desc');
+                                        txtgoodsDesc.removeAttribute('readonly');
+
+                                        var txtTPurchase = NA.common.getElementID('id_totalpurchase');
+                                        txtTPurchase.removeAttribute('readonly');
+                                        var txtTreceived = NA.common.getElementID('id_totalreceived');
+                                        txtTreceived.removeAttribute('readonly');
 
                                         e.stopImmediatePropagation();
                                     });

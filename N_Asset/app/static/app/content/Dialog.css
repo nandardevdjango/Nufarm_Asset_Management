@@ -210,3 +210,10 @@ div.dialogButtonEntry>a.btn-link{
 .ui-datepicker {
     background: rgba(255, 255, 255, 0.85);  
 }
+.login-dialog .modal-dialog {
+    width: 300px;
+}
+.bootstrap-dialog-title{
+    font-size:medium;
+      color:ghostwhite;
+}

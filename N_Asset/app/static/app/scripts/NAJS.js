@@ -500,8 +500,8 @@ NA.common = {
 
     //=================calculate months with date ============================
     addMonths: function (date, months) {
-        var result = new Date(date),
-            expectedMonth = ((date.getMonth() + months) % 12 + 12) % 12;
+        var result = new Date(date);
+        var expectedMonth = ((result.getMonth() + months) % 12 + 12) % 12;
         result.setMonth(result.getMonth() + months);
         if (result.getMonth() !== expectedMonth) {
             result.setDate(0);
@@ -514,7 +514,7 @@ NA.common = {
 
         var parts = num.toFixed(decimals).split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands_sep);
-
+        if (num <= 0 || num === '0') { return String(num) + dec_point + '00';   }
         return parts.join(dec_point);
     },
     //=======================FORM SERIALIZATION==========================
