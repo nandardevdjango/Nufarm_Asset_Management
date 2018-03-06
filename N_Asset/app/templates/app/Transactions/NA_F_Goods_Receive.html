@@ -542,7 +542,7 @@
 		    var DummyData = [];
 		    for (var i = 0; i < intLength; i++) {
 		    	//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': 0, 'typeapp': '', 'serialnumber': '', 'warranty': 0, 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
+		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
 		    	DummyData.push(rowData);
 		    };
 		    return DummyData;
@@ -732,7 +732,7 @@
 					        dataInit: function (elem) {
 					            fetcBrands.call(this, elem, "brandname");
 					        }, placeholder: function () {
-					            if ($(this).val() == '') { return 'Choose if exists'; }
+					            if ($(this).val() === '') { return 'Choose if exists'; }
 					        }, title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control'
 					    },
 					},
@@ -745,8 +745,11 @@
 					    editrules: { required: false, integer: false, },
 					    autoResizing: { minColWidth: 140, },
 					    editoptions: {
-					        defaultValue: 0, class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
+					         class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
 					        step: 'any', tittle: 'Please enter valid value',
+					        placeholder: function () {
+					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, ',', '.'); }
+					        }
 					    },
 					    formatter: 'number',
 					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
@@ -757,7 +760,11 @@
 					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })() },
-					    editoptions: { class: 'NA-Form-Control' },
+					    editoptions: {
+					    	class: 'NA-Form-Control', placeholder: function () {
+					    		if ($(this).val() === '') { return 'type of brand'; }
+					    	}
+					    },
 					    autoResizing: { minColWidth: 80, },
 					},
 					{
@@ -766,7 +773,9 @@
 					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), },
-					    editoptions: { defaultValue: 'N/A', class: 'NA-Form-Control' },
+					    editoptions: { defaultValue: 'N/A', class: 'NA-Form-Control' , placeholder: function () {
+					    	if ($(this).val() === '') { return 'serial number/Service tag'; }
+					    }},
 					    autoResizing: { minColWidth: 100, },
 					},
 					{
@@ -778,8 +787,11 @@
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), integer: false, },
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
-					        defaultValue: 1, class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
-					        step: 'any', tittle: 'Please enter valid value',
+					         class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
+					        step: 'any', tittle: 'Year warranty',
+					        placeholder: function () {
+					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, ',', '.'); }
+					        }
 					    },
 					    formatter: 'number',
 					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },					   
@@ -938,8 +950,10 @@
 		                var intVal = parseInt(value - modVal);
 		                var dtReceived = $('#id_datereceived').val();
 		                if (dtReceived === '') {
-		                    ShowAlert('Please enter date received first', NA.common.mesage.titleInfo);
-		                    NA.common.getElementID('id_datereceived').focus();
+		                	ShowAlert('Please enter date received first', NA.common.mesage.titleInfo, function () {
+		                		NA.common.getElementID('id_datereceived').focus();
+		                	
+		                	});		                   
 		                    return false;
 		                }
 		                FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
@@ -998,7 +1012,7 @@
 		    	    jQuery("#jqGrid_NA_F_Goods_Receive_Detail").navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    	        edit: false, add: false, del: false, search: false, refresh:false,
 		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-		    	        caption: "  Reset", buttonicon: 'fa-undo', onClickButton: function () {},
+		    	        caption: "  Reset ||  ", buttonicon: 'fa-undo', onClickButton: function () {},
 		    	        position:"last"
 		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    	        caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (id) { alert("Deleting Row:" + id) }, position: "last"
@@ -1148,18 +1162,24 @@
 		    });
 		}
 
-		function ShowAlert(message,title) {
+		function ShowAlert(message,title,callbackFunc) {
 		   return BootstrapDialog.alert({
 		       title: title||NA.common.mesage.titleInfo,
 		        message: message,
 		        size: BootstrapDialog.SIZE_SMALL,
+		        //animate:false,
 		        type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
 		        closable: false, // <-- Default value is false
 		        draggable: true, // <-- Default value is false
 		        buttonLabel: 'OK', // <-- Default value is 'OK',
 		        callback: function (result) {
-		            // result will be true if button was click, while it will be false if users close the dialog directly.
-		            return true;
+		        	// result will be true if button was click, while it will be false if users close the dialog directly.
+		        	if (result) {
+		        		if (callbackFunc) {
+		        			callbackFunc();
+		        		}
+		        		return true;
+		        	}
 		        }
 		    });
 		}
@@ -1658,8 +1678,12 @@
                                             }
                                             //get date datereceived
                                         })(window),
-                                        maxDate: 'today',
+                                        maxDate: 1,
+                                        showButtonPanel: true,
+                                        closeText: "Close",
+                                        currentText: 'Now',
                                     });
+                                    $(document).off('mousedown', $.datepicker._checkExternalClick);
                                     //setting Custom Validity
                                     var elm = NA.common.doc.querySelector('#id_datereceived');
                                     NA.NAEvent.addHandler(elm, 'input', function (event) {
