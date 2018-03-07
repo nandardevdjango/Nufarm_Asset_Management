@@ -353,37 +353,19 @@
 								function () {
 									if (this.status === '200') {
 										var confirmText = JSON.parse(this.responseText);
-										return BootstrapDialog.confirm({
-										    title: NA.common.mesage.titleInfo,
-										    message: NA.common.mesage.dataHasChanged,
-										    type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-										    animate: false,
-                                            size:BootstrapDialog.SIZE_SMALL,
-										    closable: false, // <-- Default value is false
-										    draggable: true, // <-- Default value is false
-										    btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-										    btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-										    btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-										    callback: function (result) {
-										        // result will be true if button was click, while it will be false if users close the dialog directly.
-										        if (result) {
-										            if (!frmEntry.checkValidity()) {
-										                var inputbtn = NA.common.getElementID('inputButton');
-										                inputbtn.click();
-										            }
-										            else {
-										                if (submitForm()) {
-										                	//clear kan semua data
-										                	//reset menjadi seperti original value
-															
-										                	//for (var member in myObject) delete myObject[member]
-										                }
-										            }
-										        }
-										        else {
-										        	return false;
-										        }
-										    }
+										return showConfirmation(confirm, NA.common.mesage.confirmInfo, function () {
+											if (!frmEntry.checkValidity()) {
+												var inputbtn = NA.common.getElementID('inputButton');
+												inputbtn.click();
+											}
+											else {
+												if (submitForm()) {
+													//clear kan semua data
+													//reset menjadi seperti original value
+
+													//for (var member in myObject) delete myObject[member]
+												}
+											}
 										});
 									}
 								}, null, function () { XhrError(this); throw new Error('') },
@@ -400,35 +382,23 @@
 						var originalData = JSON.parse(initializeForm.Value);
 						var valuesForm = getValuesForm();
 						if (NA.common.detectInputChanges(originalData, valuesForm)) {
-							return BootstrapDialog.confirm({
-								title: NA.common.mesage.titleInfo,
-								message: NA.common.mesage.dataHasChanged,
-								size: BootstrapDialog.SIZE_SMALL,
-								type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-                                animate:false,
-								closable: false, // <-- Default value is false
-								draggable: true, // <-- Default value is false
-								btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-								btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-								btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-								callback: function (result) {
-									// result will be true if button was click, while it will be false if users close the dialog directly.
-									if (result) {
-										if (!frmEntry.checkValidity()) {
-											var inputbtn = NA.common.getElementID('inputButton');
-											inputbtn.click();
-										}
-										else {
-											if (submitForm()) {
-												NA.common.dialog.closeDialog(dialog);
-											}
-										}
-									}
-									else {
-										NA.common.dialog.closeDialog(dialog);
-									}
+							return showConfirmation(NA.common.mesage.dataHasChanged, NA.common.mesage.confirmInfo,
+							function () {
+								if (!frmEntry.checkValidity()) {
+									var inputbtn = NA.common.getElementID('inputButton');
+									inputbtn.click();
 								}
-							});											
+								else {
+									if (submitForm()) {
+										NA.common.dialog.closeDialog(dialog);
+										document.body.style.cursor = 'default';
+									}
+									document.body.style.cursor = 'default';
+								}
+							}, function () {
+								NA.common.dialog.closeDialog(dialog);
+								document.body.style.cursor = 'default';
+							});
 						}
 						else {
 							NA.common.dialog.closeDialog(dialog);
@@ -1000,7 +970,17 @@
 		                // now change the internal local data
 		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NVal;
 		                return true;
-		            }		            
+		            }
+		        },
+		        onSelectRow: function (id) {
+		        	if (id && id !== lastSel) {
+		        		grid.jqGrid('restoreRow', lastSel);
+		        		var cm = grid.jqGrid('getColProp', 'Name');
+		        		cm.editable = false;
+		        		grid.jqGrid('editRow', id, true, null, null, 'clientArray');
+		        		cm.editable = true;
+		        		lastSel = id;
+		        	}
 		        },
 		        cmTemplate: { autoResizable: true, editable: true },
 		        autoResizing: { compact: true, resetWidthOrg: true },
@@ -1073,38 +1053,38 @@
 		    //SET Icon Validate dan rfresh
 		     
 		    //assigned collumn Editable with condition
-		    var orgRowActions = $.fn.fmatter.rowactions;
-		    $.fn.fmatter.rowactions = function (rid, gid, act, pos) {
-		        var $grid = $("#" + $.jgrid.jqID(gid)),
-                    rowData = $grid.jqGrid("getLocalRow", rid),
-                    isNonEditable = false,
-                    result;
-		        // we can test any condition and change
-		        // editable property of any column
-		        var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
-		        var AllowEdit = (!hasRef) && (window.status !== 'Open')
-		        if (act === "edit" && AllowEdit) {
-		            //'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
-		            $grid.jqGrid("setColProp", "brandname", { editable: false });
-		            $grid.jqGrid("setColProp", "priceperunit", { editable: false });
-		            $grid.jqGrid("setColProp", "typeapp", { editable: false });
-		            $grid.jqGrid("setColProp", "serialnumber", { editable: false });
-		            $grid.jqGrid("setColProp", "warranty", { editable: false });
-		            $grid.jqGrid("setColProp", "endofwarranty", { editable: false });
-		            isNonEditable = true;
-		        }
-		        result = orgRowActions.call(this, rid, gid, act, pos);
-		        if (isNonEditable && AllowEdit) {
-		            // reset the setting to original state
-		            $grid.jqGrid("setColProp", "brandname", { editable: true });
-		            $grid.jqGrid("setColProp", "priceperunit", { editable: true });
-		            $grid.jqGrid("setColProp", "typeapp", { editable: true });
-		            $grid.jqGrid("setColProp", "serialnumber", { editable: true });
-		            $grid.jqGrid("setColProp", "warranty", { editable: true });
-		            $grid.jqGrid("setColProp", "endofwarranty", { editable: true });
-		        }
-		        return result;
-		    }
+		    //var orgRowActions = $.fn.fmatter.rowactions;
+		    //$.fn.fmatter.rowactions = function (rid, gid, act, pos) {
+		    //    var $grid = $("#" + $.jgrid.jqID(gid)),
+            //        rowData = $grid.jqGrid("getLocalRow", rid),
+            //        isNonEditable = false,
+            //        result;
+		    //    // we can test any condition and change
+		    //    // editable property of any column
+		    //    var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
+		    //    var AllowEdit = (!hasRef) && (window.status !== 'Open')
+		    //    if (act === "edit" && AllowEdit) {
+		    //        //'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
+		    //        $grid.jqGrid("setColProp", "brandname", { editable: false });
+		    //        $grid.jqGrid("setColProp", "priceperunit", { editable: false });
+		    //        $grid.jqGrid("setColProp", "typeapp", { editable: false });
+		    //        $grid.jqGrid("setColProp", "serialnumber", { editable: false });
+		    //        $grid.jqGrid("setColProp", "warranty", { editable: false });
+		    //        $grid.jqGrid("setColProp", "endofwarranty", { editable: false });
+		    //        isNonEditable = true;
+		    //    }
+		    //    result = orgRowActions.call(this, rid, gid, act, pos);
+		    //    if (isNonEditable && AllowEdit) {
+		    //        // reset the setting to original state
+		    //        $grid.jqGrid("setColProp", "brandname", { editable: true });
+		    //        $grid.jqGrid("setColProp", "priceperunit", { editable: true });
+		    //        $grid.jqGrid("setColProp", "typeapp", { editable: true });
+		    //        $grid.jqGrid("setColProp", "serialnumber", { editable: true });
+		    //        $grid.jqGrid("setColProp", "warranty", { editable: true });
+		    //        $grid.jqGrid("setColProp", "endofwarranty", { editable: true });
+		    //    }
+		    //    return result;
+		    //}
 		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
 		    gridTbl.setSelection(top_rowid, false);
 		    //assign delete key event
@@ -1173,7 +1153,7 @@
 		    var btnAddDetail = NA.common.getElementID('btnAddDetail');
 		    btnAddDetail.style.display = 'none';
 		};
-		function showConfirmation(message,title) {
+		function showConfirmation(message, title, callbackYess,calBackNO) {
 		   return BootstrapDialog.confirm({
 		        title: title|| NA.common.mesage.titleInfo,
 		        message: message,		      
@@ -1190,8 +1170,16 @@
 		        btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
 		        callback: function (result) {
 		            // result will be true if button was click, while it will be false if users close the dialog directly.
-		            if (result) { return true; }
-		            else { return false;}
+		        	if (result) {
+		        		if (callbackYess) {
+		        			callbackYess();
+		        		}
+		        	}
+		        	else {
+		        		if (calBackNO) {
+		        			calBackNO();
+		        		}
+		        	}
 		        },
 		       onshown:function(dialogRef){
 		           var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
