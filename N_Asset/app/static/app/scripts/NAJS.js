@@ -1747,19 +1747,19 @@ NA.common.dialog = {
         }
     }(),
 };
-NA.common.mesage = {
+NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
     _canNotDelete: 'Can not delete data\Data has child-referenced',
     _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
     _savingSucces: 'Data Saved Succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
     _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',
-    _existsData: 'Data has exists',
+    _existsData: 'Data has existed',
     _titleInfo: 'Information',
     _confirmInfo: 'Confirmation',
     _titleError: 'Unhandled system exception due to the following occurs'
 };
-Object.defineProperties(NA.common.mesage, {
+Object.defineProperties(NA.common.message, {
     confirmDelete: {
         get: function () {
             return this._confirmDelete;
