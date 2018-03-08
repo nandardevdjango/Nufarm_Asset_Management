@@ -435,7 +435,7 @@
 		//    return '${day}/${month}/${year}';
 	    //}
 		function formatDate(theDate) {
-		    var date = new Date(),
+		    var date = new Date(theDate),
               year = date.getFullYear(),
               month = (date.getMonth() + 1).toString(),
               formatedMonth = (month.length === 1) ? ("0" + month) : month,
@@ -499,7 +499,12 @@
 			//});
 			return false;
 		};
-
+		function EraseElHidden() {
+			var UlHiddenAuto = NA.common.doc.querySelector('ul.ui-menu.ui-widget.ui-widget-content.ui-autocomplete.ui-front');
+			var divAutoComplete = NA.common.doc.querySelector('div.ui-helper-hidden-accessible');
+			if (UlHiddenAuto) { UlHiddenAuto.parentNode.removeChild(UlHiddenAuto); }
+			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
+		};
 		//atur tampilan form searching entry
 		function restyleBoostrapDialog() {
 			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
@@ -574,6 +579,12 @@
 					});
 					return false;
 				}
+				//SET UPPER CASE FOR All Data
+				gridTbl.jqGrid('setCell', rowID, 'brandname', brandname.toString().toUpperCase());
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).brandname = brandname.toString().toUpperCase();
+
+
 				var typeapp = row['typeapp'], serialnumber = row['serialnumber'];
 				if (typeapp === '' || typeapp.length <= 1) {
 					BootstrapDialog.alert({
@@ -592,6 +603,11 @@
 					});
 					return false;
 				}
+				//SET UPPER CASE FOR All Data
+				gridTbl.jqGrid('setCell', rowID, 'typeapp', typeapp.toString().toUpperCase());
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase()
+
 				if (serialnumber === '' || serialnumber.length <= 3) {
 					BootstrapDialog.alert({
 						title: NA.common.mesage.titleInfo,
@@ -609,8 +625,13 @@
 					});
 					return false;
 				}
+				//SET UPPER CASE FOR All Data
+				gridTbl.jqGrid('setCell', rowID, 'serialnumber', typeapp.toString().toUpperCase());
+				// now change the internal local data
+				gridTbl.jqGrid('getLocalRow', rowID).serialnumber = typeapp.toString().toUpperCase()
 				//isi column yang tidak di isi secara default
 				// first change the cell in the visible part of grid
+
 				var priceperunit = row['priceperunit'];
 				if (typeof priceperunit == 'undefined') {
 					priceperunit = 0
@@ -741,11 +762,13 @@
 					    autoResizing: { minColWidth: 140, },
 					    editoptions: {
 					         class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
-					        step: 'any', tittle: 'Please enter valid value',
+					         //step: 'any',
+					         tittle: 'Please enter valid value',
 					        placeholder: function () {
-					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, ',', '.'); }
+					        	if ($(this).val() <= 0 || $(this).val() === '' || $(this).val() <= 0) { return NA.common.FormatNumber(0, 2, '.'); }
 					        }
 					    },
+					    defaultValue: '',
 					    formatter: 'number',
 					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
 					},
@@ -788,6 +811,7 @@
 					        	if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, 2, '.'); }
 					        }
 					    },
+					    defaultValue: '',
 					    formatter: 'number',
 					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },					   
 					},
@@ -807,14 +831,18 @@
 
 					        //    if ((typeof Modernizr !== "undefined" && !Modernizr.inputtypes.date) || $(elem).prop("type") !== "date") {
 					            //        $(elem).attr("type", "text"); // !!! important to make saving works correctly
-					            var dtReceived = $('#id_datereceived').val();
+					        	var dtReceived = $('#id_datereceived').val(), MaxMonth = 60;
 					            if (dtReceived === '') {
 					                ShowAlert('Please enter date received first', NA.common.mesage.titleInfo, function () {
 					                    NA.common.getElementID('id_datereceived').focus();
 					                    $(elem).val('');
 					                    return false;
 					                });
-					            }					          
+					            }
+					            var economiclife = NA.common.getElementID('id_economiclife').value;
+					            if (economiclife !== '') {
+					            	maxMonth = parseInt(economiclife);
+					            }
 					            $(elem).datepicker({
 					                dateFormat: 'dd/mm/yy',
 					                autoSize: true,
@@ -831,7 +859,7 @@
 					                    }
 					                    //get date datereceived
 					                })(win, dtReceived),
-					                maxDate: NValEndOfWarranty || NA.common.addMonths(dtReceived, 60),
+					                maxDate: NA.common.addMonths(dtReceived, maxMonth),
 					            });
 					        //    }
 					            //else {
@@ -963,25 +991,59 @@
 		                    return false;
 		                }
 		                FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-		                //dtReceived = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate());
+		               
 		                //var NmodVal = parseFloat(modVal) * 12;
 		                //var NM = dtReceived.getMonth();
 		                //NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
-		                NewVal = (intVal * 365) + (parseFloat(modVal) * 365)
-		                NValEndOfWarranty = NewVal;
-		                var NVal = NA.common.addMonths(FDate, NewVal);
+		                NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+		                
+		                var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+		                NValEndOfWarranty = NDate;
+		                //var NVal = FDate.getDate(
 		                //set grid cell
-		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty',formatDate(NVal));
-
+		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty', formatDate(NDate));
 		                // now change the internal local data
-		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NVal;
+		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NDate;
 		                return true;
 		            }
+		
+		        },
+		        afterEditCell: function (rowid, cellname, value, iRow, iCol) {
+		        	// Get a handle to the actual input field
+		        	var inputControl = jQuery('#' + (iRow) + '_' + cellname);
+		        	// Listen for enter (and shift-enter)
+		        	inputControl.bind("keydown", function (e) {
+		        		if (e.keyCode === 13) {  // Enter key:
+		        			var increment = e.shiftKey ? -1 : 1;
+		        			var rowData = gridTbl.getRowData(rowid);
+		        			var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
+		        			// Do not go out of bounds
+		        			var lastRowInd = gridTbl.jqGrid("getGridParam", "reccount")
+		        			if (iRow + increment == 0) {
+		        				if (cellname === 'endofwarranty') {
+		        					if (!hasRef) {
+		        						gridTbl.jqGrid("editCell", iRow + increment, iCol, true); return;
+		        					}
+		        				}
+		        			}
+		        			else if (iRow + increment == lastRowInd + 1) {
+		        				if (cellname === 'endofwarranty') {
+		        					return;
+		        				}
+		        			}
+		        			else if (cellname === 'endofwarranty') {
+		        				if (!hasRef) {
+		        					gridTbl.jqGrid("editCell", iRow + increment, iCol, true); return;
+		        				}
+		        			}// we could re-edit current cell or wrap
+		        			gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
+		        		}
+		        	}); // End keydown binding
 		        },
 		        beforeSelectRow: function (id) {
 		            if (win.status === 'Edit' && AllowEdit) {
 		                var rowData = gridTbl.getRowData(id);
-		                var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1;
+		                var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
 		                if (hasref) {
 		                    gridTbl.jqGrid("setColProp", "brandname", { editable: false });
 		                    gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
@@ -1105,7 +1167,8 @@
 		    //    return result;
 		    //}
 		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
-		    gridTbl.setSelection(top_rowid, false);
+		    gridTbl.setSelection(top_rowid, false);		
+		    gridTbl.jqGrid('editCell', 1, 3, true);
 		    //assign delete key event
 		    gridTbl.on("keyup", "tr", function (e) {
 		        //var rowid = parseInt($(this).attr("id"));
@@ -1259,7 +1322,7 @@
 		    //}
 		    var dtpicker = NA.common.getElementID('ui-datepicker-div');
 		    dtpicker.parentNode.removeChild(dtpicker);
-
+		    EraseElHidden();
 		};
 		//========================END GROUP FUNCTION DECLARATION===================================
         
@@ -1761,7 +1824,7 @@
                                         closeText: "Close",
                                         currentText: 'Now',
                                     });
-                                    $(document).off('mousedown', $.datepicker._checkExternalClick);
+                                    //$(document).off('mousedown', $.datepicker._checkExternalClick);
                                     //setting Custom Validity
                                     var elm = NA.common.doc.querySelector('#id_datereceived');
                                     NA.NAEvent.addHandler(elm, 'input', function (event) {
@@ -1978,8 +2041,11 @@
                                                         txtgoodsDesc.value = goods_Desc;
                                                         txtgoodsDesc.attributes['placeholder'] = '';
                                                         //simpan IDAppFKGoods di elementHidden
-                                                        var elemIDApp = NA.common.getElementID('id_idapp_fk_goods');
+                                                        var elemIDApp = NA.common.getElementID('id_idapp_fk_goods');												
                                                         elemIDApp.value = idapp;
+                                                        var eleconomiclife = NA.common.getElementID('id_economiclife');
+                                                        eleconomiclife.value = rowData['economiclife'];
+
                                                         dialogRef.close();
                                                     }
                                                 }

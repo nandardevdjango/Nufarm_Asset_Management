@@ -508,6 +508,15 @@ NA.common = {
         }
         return result;
     },
+    //addDate: function (date, dates) {
+    //    var result = new Date(date);
+    //    var expectedDate = ((result.getDate() + dates) % 12 + 12) % 12;
+    //    result.setMonth(result.getMonth() + months);
+    //    if (result.getMonth() !== expectedMonth) {
+    //        result.setDate(0);
+    //    }
+    //    return result;
+    //},
     FormatNumber : function(num,decimals, dec_point, thousands_sep) {
         dec_point = typeof dec_point !== 'undefined' ? dec_point : '.';
         thousands_sep = typeof thousands_sep !== 'undefined' ? thousands_sep : ',';

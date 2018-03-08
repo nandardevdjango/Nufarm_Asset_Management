@@ -157,7 +157,7 @@ def ShowEntry_Receive(request):
 			#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 			NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
 					'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
-					'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem}
+					'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem,'economiclife':Ndata.economiclife}
 			NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
 			NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata.idapp_fk_goods)
 			rows = []			
@@ -412,7 +412,8 @@ class NA_Goods_Receive_Form(forms.Form):
 	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput())
 	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput())
 	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput())
-	status = forms.CharField(widget=forms.HiddenInput())
+	status = forms.CharField(widget=forms.HiddenInput(),required=False)
+	economiclife = forms.CharField(widget=forms.HiddenInput())
 		#initializeForm = forms.CharField(widget=forms.HiddenInput(attrs={'value':{'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False}}),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
