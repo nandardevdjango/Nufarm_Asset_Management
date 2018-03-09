@@ -74,8 +74,9 @@ class NA_BR_Goods_Receive(models.Manager):
 											    OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber)),BIT) \
 				FROM n_a_goods_receve_detail AS grd WHERE grd.FKApp = %(FKApp)s"""
 		return self.raw(Query,{'fkApp':fkApp,'FK_Goods':idapp_fk_goods}) 
-	def hasExists(self,itemcode,datereceived,totalPurchase):
-		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(itemcode__iexact=itemcode) & Q(datereceived__icontains=datereceived)).exists()#Q(member=p1) | Q(member=p2)
+	def hasExists(self,idapp_fk_goods,datereceived,totalPurchase):
+		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
+		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods__iexact=idapp_fk_goods) & Q(datereceived__icontains=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
 	def hasReference(self,Data,mustCloseConnection):
 		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new	
 		self.__class__.c = connection.cursor()

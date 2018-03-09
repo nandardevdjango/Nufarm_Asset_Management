@@ -89,16 +89,20 @@ def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, tota
 		 'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'descriptions':form.cleaned_data['descriptions'],'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
 @ensure_csrf_cookie
 def HasExists(request):
-	authentication_classes = []
-	data = request.body
-	data = json.loads(data)
-	FK_goods = data['fk_goods']
-	totalpurchase = data['totalpurchase']
-	datereceived = data['datereceived']
-	if NAGoodsReceive.objects.hasExists(FK_goods,datereceived,totalpurchase):
-		result = 'success'
-		statuscode = 200
-	return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+	try:
+		authentication_classes = []
+		data = request.body
+		data = json.loads(data)
+		idapp_fk_goods = data['idapp_fk_goods']
+		totalpurchase = data['totalpurchase']
+		datereceived = data['datereceived']
+		if NAGoodsReceive.objects.hasExists(idapp_fk_goods,datereceived,totalpurchase):
+			statuscode = 200
+			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")
 @ensure_csrf_cookie

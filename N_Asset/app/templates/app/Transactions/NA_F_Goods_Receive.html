@@ -342,8 +342,8 @@
 						}
 						else {
 							//check existing
-							var elfk_goods = NA.common.getElementID('id_fk_goods'),
-								fk_goods = elfk_goods.value;
+							var elfk_goods = NA.common.getElementID('id_idapp_fk_goods'),
+								idapp_fk_goods = elfk_goods.value;
 							var eldatereceived = NA.common.getElementID('id_datereceived'),
 								datereceived = eldatereceived.value.toString().trim();
 							var eltotalpurchase = NA.common.getElementID('id_totalpurchase'),
@@ -355,7 +355,7 @@
 							var NAAjax = NA.common.AJAX;
 							//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
 							NAAjax.POST('HasExists/',
-								JSON.stringify({ 'fk_goods': fk_goods, 'datereceived': datereceived, 'totalpurchase': totalPurchase}),
+								JSON.stringify({ 'idapp_fk_goods': idapp_fk_goods, 'datereceived': datereceived, 'totalpurchase': totalPurchase }),
 								'application/x-www-form-urlencoded', 'application/json',
 								function () {
 									window.document.body.style.cursor = 'wait';
@@ -379,9 +379,9 @@
 										});
 									}
 									else {
-										XhrError(this); throw new Error('');
+										XhrError(this); 
 									}
-								}, null, function () { XhrError(this); throw new Error('');},
+								}, null, function () { XhrError(this); },
 								function () { document.body.style.cursor = 'default'; }, null
 							);
 						}
@@ -510,11 +510,11 @@
 						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
 					}
 					else {//error berarti
-						XhrError(this); document.body.style.cursor = 'default'; throw new Error('')
+						XhrError(this); document.body.style.cursor = 'default'; 
 					}
 					document.body.style.cursor = 'default';
 				}, null,
-				function(e){XhrError(this);throw new Error('')},
+				function(e){XhrError(this);},
 				function (e) {
 					window.document.body.style.cursor = 'default';
 				});
@@ -597,7 +597,8 @@
 			//jika rownumbers:true, multiselect:true or subGrid:true ,jquery ada tambahan 3 column pertama rn,cb,subgrid
 			//columnname harus di cek apakah ada di  gridTbl[0].p.colModel
 			var columnNames = gridTbl.jqGrid('getGridParam', 'colNames');
-
+		    //check existing serialnumber
+			var seriaNumbers = [];
 			for (i = 0; i < rows.length; i++) {
 				var row = gridTbl.getRowData(rows[i]);
 				var rowID = rows[i];				
@@ -623,6 +624,13 @@
 				    $('tr#' + rowID + '[aria-describedby*="' + serialnumber + '"]').focus();
 				    return false;
 				}
+				serialnumber = serialnumber.toString().toUpperCase();
+				if (seriaNumbers.indexOf(serialnumber) > -1) {
+				    ShowAlert('you enter double serial number'); win.document.body.style.cursor = 'default'
+				    return false;
+				}
+				seriaNumbers.push(serialnumber);
+
 				var priceperunit = row['priceperunit'];
 				if (typeof priceperunit == 'undefined') {
 					priceperunit = 0
@@ -660,11 +668,11 @@
 				    //SET UPPER CASE FOR All Data
 				    gridTbl.jqGrid('setCell', rowID, 'typeapp', typeapp.toString().toUpperCase());
 				    // now change the internal local data
-				    gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase()
+				    gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase();		
 
 				    gridTbl.jqGrid('setCell', rowID, 'serialnumber', serialnumber.toString().toUpperCase());
 				    // now change the internal local data
-				    gridTbl.jqGrid('getLocalRow', rowID).serialnumber = serialnumber.toString().toUpperCase()
+				    gridTbl.jqGrid('getLocalRow', rowID).serialnumber = serialnumber.toString().toUpperCase();
 				    gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
 				    // now change the internal local data
 				    gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
@@ -1034,6 +1042,23 @@
 		        			gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
 		        		}
 		        	}); // End keydown binding
+		            //check doubel data serial number
+                    var seriaNumbers = [];
+		        	var rows = gridTbl.getDataIDs();
+		        	for (i = 0; i < rows.length; i++) {
+		        	    var row = gridTbl.getRowData(rows[i]);
+		        	    var serialNumber = row['serialnumber'];
+		        	    if (serialNumber === '') { continue; }
+		        	    serialNumber = serialNumber.toString().toUpperCase();
+		        	     if (seriaNumbers.indexOf(serialNumber) > -1) {
+		        	         ShowAlert('you enter double serial number');
+		        	         //restoreCell
+		        	         gridTbl.jqGrid('restoreCell', iRow, iCol, true);
+		        	         win.document.body.style.cursor = 'default' 
+		        	         return false;
+		        	     }
+		        	     seriaNumbers.push(serialNumber);
+		        	}		        	
 		        },
 		        beforeSelectRow: function (id) {
 		            if (win.status === 'Edit' && AllowEdit) {
