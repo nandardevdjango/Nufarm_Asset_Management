@@ -87,10 +87,14 @@ def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, tota
 	return {'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'hasRefData':form.cleaned_data['hasRefData'],
 		 'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'descriptions':form.cleaned_data['descriptions'],'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
+@ensure_csrf_cookie
 def HasExists(request):
-	FK_goods = request.POST.get('fk_goods')
-	totalpurchase = request.POST.get('totalpurchase')
-	datereceived = request.POST.get('datereceived')
+	authentication_classes = []
+	data = request.body
+	data = json.loads(data)
+	FK_goods = data['fk_goods']
+	totalpurchase = data['totalpurchase']
+	datereceived = data['datereceived']
 	if NAGoodsReceive.objects.hasExists(FK_goods,datereceived,totalpurchase):
 		result = 'success'
 		statuscode = 200

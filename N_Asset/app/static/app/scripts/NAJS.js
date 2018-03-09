@@ -1875,6 +1875,7 @@ NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBe
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
+    this.XHR.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
     //==============================================================
     //XHR.setRequestHeader('Accept :' + XdataType);
     if (OnBeforeSend) { OnBeforeSend.call(this.XHR); }

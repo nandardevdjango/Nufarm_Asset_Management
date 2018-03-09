@@ -306,11 +306,18 @@
 				if (contentype === 'application/json') {
 					messageErr = JSON.parse(xhr.responseText);
 				}
+
 				var message = xhr.responseText;
 				if (messageErr) {
 					message = messageErr.message;
+					if (message) {
+						ShowAlert('An error occurred: ' + message);
+					}
+					else {
+						ShowAlert('An error occurred: ' + messageErr);
+					}
 				}
-				if (message) {
+				else if (message) {
 				    ShowAlert('An error occurred: ' + message);
 				}
 				document.body.style.cursor = 'default';
@@ -341,12 +348,15 @@
 								datereceived = eldatereceived.value.toString().trim();
 							var eltotalpurchase = NA.common.getElementID('id_totalpurchase'),
 								totalPurchase = eltotalpurchase.value;
+							var token = (function () {
+								var el = document.getElementsByName("csrfmiddlewaretoken");
+								return el[0].getAttribute("value");
+							})();
 							var NAAjax = NA.common.AJAX;
 							//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
 							NAAjax.POST('HasExists/',
-								{ 'fk_goods': fk_goods, 'datereceived': datereceived, 'totalpurchase': totalPurchase },
-								'application/json',
-								'application/json',
+								JSON.stringify({ 'fk_goods': fk_goods, 'datereceived': datereceived, 'totalpurchase': totalPurchase}),
+								'application/x-www-form-urlencoded', 'application/json',
 								function () {
 									window.document.body.style.cursor = 'wait';
 								}, null,
@@ -368,7 +378,10 @@
 											}
 										});
 									}
-								}, null, function () { XhrError(this); throw new Error('') },
+									else {
+										XhrError(this); throw new Error('');
+									}
+								}, null, function () { XhrError(this); throw new Error('');},
 								function () { document.body.style.cursor = 'default'; }, null
 							);
 						}
@@ -457,6 +470,26 @@
 				var el = document.getElementsByName("csrfmiddlewaretoken");
 				return el[0].getAttribute("value");
 			})();
+			var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+			var data = gridDetail.jqGrid('getGridParam', 'data');
+			
+			//"[{"idapp":"","fkapp":"","no":1,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00001","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false},
+			//{"idapp":"","fkapp":"","no":2,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00002","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false}]"
+			var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
+			if (data) {
+				if (data.length > 0) {
+					var ValidData = ValidateGridDetail(gridDetail);
+					if (!ValidData) {
+						return false;
+					}
+				}
+				data = eldataForGridDetail.value || [];
+			}
+			else {
+				data = eldataForGridDetail.value||[];
+			}
+			data = JSON.stringify(data);
+			valuesForm['dataForGridDetail'] = data;
 			var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 
@@ -629,9 +662,9 @@
 				    // now change the internal local data
 				    gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase()
 
-				    gridTbl.jqGrid('setCell', rowID, 'serialnumber', typeapp.toString().toUpperCase());
+				    gridTbl.jqGrid('setCell', rowID, 'serialnumber', serialnumber.toString().toUpperCase());
 				    // now change the internal local data
-				    gridTbl.jqGrid('getLocalRow', rowID).serialnumber = typeapp.toString().toUpperCase()
+				    gridTbl.jqGrid('getLocalRow', rowID).serialnumber = serialnumber.toString().toUpperCase()
 				    gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
 				    // now change the internal local data
 				    gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
@@ -1242,7 +1275,7 @@
 		   return BootstrapDialog.alert({
 		       title: title||NA.common.message.titleInfo,
 		        message: message,
-		        size: BootstrapDialog.SIZE_SMALL,
+		        size: (message.length > 200)?BootstrapDialog.SIZE_NORMAL: BootstrapDialog.SIZE_SMALL,
 		       //animate:false,
 		        cssClass: 'login-dialog',
 		        closeByBackdrop: false,
