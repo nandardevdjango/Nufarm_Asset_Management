@@ -76,7 +76,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		return self.raw(Query,{'fkApp':fkApp,'FK_Goods':idapp_fk_goods}) 
 	def hasExists(self,idapp_fk_goods,datereceived,totalPurchase):
 		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
-		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods__iexact=idapp_fk_goods) & Q(datereceived__icontains=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
+		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods=idapp_fk_goods) & Q(datereceived=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
 	def hasReference(self,Data,mustCloseConnection):
 		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new	
 		self.__class__.c = connection.cursor()
@@ -131,17 +131,19 @@ class NA_BR_Goods_Receive(models.Manager):
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
 				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
-							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions']}
+							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions'],'descbysystem':Data['descbysystem']}
 				if Status == StatusForm.Input:
 					#insert data transaction
-					Query = """INSERT INTO n_a_goods_receive (RefNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions) \
-							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s)"""
+					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
+							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s),%(descbysystem)%"""
 					Params.update(CreatedBy=Data['createdby']) 
 				elif Status == StatusForm.Edit:
-					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier= %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s,FK_ReceivedBy=%(FK_ReceivedBy)s,\
-					FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
+					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
+
+					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
+								FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
 					if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
-						Query = Query + """,TotalReceived = %(TotalReceived)s """
+						Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
 						Params.update(Qty=Data['totalreceived'])
 					Query = Query + """ WHERE IDApp = %(IDApp)s"""
 					Params.update(ModifiedBy=Data['createdBy']) 
@@ -150,6 +152,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE idapp_FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
+			
 				if cur.rowcount >0:
 					if not hasRef:#jika sudah ada transaksi,stock tidak bisa di edit
 						Query= """UPDATE n_a_stock SET TIsNew = TIsNew + %s,TGoods_Received = TGoods_Received + %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""

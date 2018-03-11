@@ -222,7 +222,7 @@
 			//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 			var elidapp = NA.common.getElementID('id_idapp'),
 				idapp = elidapp.value;
-			var elRefNO = NA.common.getElementID('id_RefNO'),
+			var elRefNO = NA.common.getElementID('id_refno'),
                 RefNO = elRefNO.value;
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
 				idapp_fk_goods = elidapp_fk_goods.value;
@@ -258,7 +258,7 @@
 				hasRefData = NA.common.getElementID('id_hasRefData').value;
 			var eldescBySystem = NA.common.getElementID('id_descbysystem'),
 				descbysystem = eldescBySystem.value;
-		
+			var createdby = NA.Priviledge.UserName, modifiedby = NA.Priviledge.UserName;
 			return {
 				idapp:idapp,
 				idapp_fk_goods: idapp_fk_goods,
@@ -279,7 +279,9 @@
 				descriptions: descriptions,
 				status: status,
 				hasRef: hasRefData,
-				descbysystem : descbysystem
+				descbysystem: descbysystem,
+				createdby: createdby,
+                modifiedby:modifiedby
 			};
 		};
 		function getGridCellValue(thegrid,CeltoGet) {
@@ -355,28 +357,47 @@
 							var NAAjax = NA.common.AJAX;
 							//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
 							NAAjax.POST('HasExists/',
-								JSON.stringify({ 'idapp_fk_goods': idapp_fk_goods, 'datereceived': datereceived, 'totalpurchase': totalPurchase }),
+								JSON.stringify({ 'idapp_fk_goods': idapp_fk_goods, 'datereceived': GetServerFormatDate($.datepicker.parseDate('dd/mm/yy',datereceived)), 'totalpurchase': totalPurchase }),
 								'application/x-www-form-urlencoded', 'application/json',
 								function () {
 									window.document.body.style.cursor = 'wait';
 								}, null,
 								function () {
-									if (this.status === '200') {
-										var confirmText = JSON.parse(this.responseText);
-										return showConfirmation(confirm, NA.common.message.confirmInfo, function () {
-											if (!frmEntry.checkValidity()) {
-												var inputbtn = NA.common.getElementID('inputButton');
-												inputbtn.click();
-											}
-											else {
-												if (submitForm()) {
-													//clear kan semua data
-													//reset menjadi seperti original value
+									if (this.status === 200) {
+									    var confirmText = JSON.parse(this.responseText);
+									    if (confirmText) {
+									        confirmText = confirmText.message;
+									        if (!confirmText) {
+									            ShowAlert('unknown error', 'uncaught error'); throw Error('');
+									        }                                            
+									    }
+									    else {
+									        XhrError(this); throw Error('');
+									    }
+									    if (confirmText === 'OK') {
+									        if (submitForm()) {
+									            //clear kan semua data
+									            //reset menjadi seperti original value
 
-													//for (var member in myObject) delete myObject[member]
-												}
-											}
-										});
+									            //for (var member in myObject) delete myObject[member]
+									        }
+									    }
+									    else {
+									        return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
+									            if (!frmEntry.checkValidity()) {
+									                var inputbtn = NA.common.getElementID('inputButton');
+									                inputbtn.click();
+									            }
+									            else {
+									                if (submitForm()) {
+									                    //clear kan semua data
+									                    //reset menjadi seperti original value
+
+									                    //for (var member in myObject) delete myObject[member]
+									                }
+									            }
+									        });
+									    }										
 									}
 									else {
 										XhrError(this); 
@@ -426,8 +447,8 @@
 			document.body.style.cursor = 'default';
 			return true;
 		};
-		function GetServerFormatDate(date) {
-		    var d = new Date(date),
+		function GetServerFormatDate(formatedDateString) {//dd/mm/yy
+		    var d = new Date(formatedDateString),
                 month = '' + (d.getMonth() + 1),
                 day = '' + d.getDate(),
                 year = d.getFullYear();
@@ -477,13 +498,14 @@
 			//{"idapp":"","fkapp":"","no":2,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00002","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false}]"
 			var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
 			if (data) {
-				if (data.length > 0) {
-					var ValidData = ValidateGridDetail(gridDetail);
-					if (!ValidData) {
-						return false;
-					}
-				}
-				data = eldataForGridDetail.value || [];
+			    if (data.length > 0) {
+			        var ValidData = ValidateGridDetail(gridDetail);
+			        if (!ValidData) {
+			            return false;
+			        }
+			    } else {
+			        data = eldataForGridDetail.value || [];
+			    }				
 			}
 			else {
 				data = eldataForGridDetail.value||[];
@@ -686,7 +708,7 @@
 				    gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
 
 				    if (win.status === 'Add') {
-				        gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
+				        gridTbl.jqGrid('setCell', rowID, 'createdby',NA.Priviledge.UserName );
 				        // now change the internal local data
 				        gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
 				    }

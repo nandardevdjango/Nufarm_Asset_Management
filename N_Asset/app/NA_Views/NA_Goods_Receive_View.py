@@ -89,16 +89,18 @@ def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, tota
 		 'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'descriptions':form.cleaned_data['descriptions'],'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
 @ensure_csrf_cookie
 def HasExists(request):
-	try:
+	try:#check if exists the same data to prevent users double input,parameter data to check FK_goods,datereceived,totalpurchase
 		authentication_classes = []
 		data = request.body
 		data = json.loads(data)
 		idapp_fk_goods = data['idapp_fk_goods']
 		totalpurchase = data['totalpurchase']
 		datereceived = data['datereceived']
+		statuscode = 200;
 		if NAGoodsReceive.objects.hasExists(idapp_fk_goods,datereceived,totalpurchase):
 			statuscode = 200
 			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -128,7 +130,17 @@ def ShowEntry_Receive(request):
 				#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
 				form.clean()					
 				data = getCurrentDataModel(request,form)	
-				#check if exists the same data to prevent users double input,parameter data to check FK_goods,datereceived,totalpurchase				
+				desc = '('
+				dataDetail = list(data.get('dataForGridDetail'));
+				#dataDetail = object_list
+				if dataDetail.count > 0:
+					#build descriptions
+					for i in range(dataDetail.count):
+						desc += 'Brand : ' + dataDetail[i]['brandname'] + ', SN : ' + dataDetail[i]['brandname']
+						if i < dataDetail.count:
+							desc += ', '
+				desc += ')'
+				data.update(descbysystem=desc)
 				result = NAGoodsReceive.objects.SaveData(data,StatusForm.Input)
 				if result != 'success':
 					statuscode = 500
@@ -388,7 +400,7 @@ def getBrandForDetailEntry(request):
 	return HttpResponse(data, content_type='application/json')
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	RefNO = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,
+	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,
 																						 'placeholder': 'RefNO','data-value':'RefNO','tittle':'Ref NO is required'}))
 	datereceived = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter Date Received','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
@@ -421,7 +433,7 @@ class NA_Goods_Receive_Form(forms.Form):
 	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput())
 	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput())
 	status = forms.CharField(widget=forms.HiddenInput(),required=False)
-	economiclife = forms.CharField(widget=forms.HiddenInput())
+	economiclife = forms.CharField(widget=forms.HiddenInput(),required=False)
 		#initializeForm = forms.CharField(widget=forms.HiddenInput(attrs={'value':{'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False}}),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)

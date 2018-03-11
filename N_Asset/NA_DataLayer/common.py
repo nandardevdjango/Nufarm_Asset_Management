@@ -194,6 +194,7 @@ class query:
 			dict(zip(columns, row))
 			for row in cursor.fetchall()
 		]
+	#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
 class commonFunct:
 	def str2bool(v):
 		return v.lower() in ("yes", "true", "t", "1")
