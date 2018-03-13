@@ -195,6 +195,11 @@ class query:
 			for row in cursor.fetchall()
 		]
 	#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
+	Query = """SELECT ngr.FK_goods,ngd.TypeApp,ngd.serialnumber,receive = 1,outwards = 0,lending = 0,return = 0,maentenance = 0 FROM FROM na_goods_receive ngr INNER JOIN ngd ON ngr.IDApp = ngd.FKApp \
+			UNION """
+#	SELECT rows_changed
+#FROM information_schema.table_statistics
+#WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
 class commonFunct:
 	def str2bool(v):
 		return v.lower() in ("yes", "true", "t", "1")
