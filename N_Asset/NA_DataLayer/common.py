@@ -195,8 +195,32 @@ class query:
 			for row in cursor.fetchall()
 		]
 	#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
-	Query = """SELECT ngr.FK_goods,ngd.TypeApp,ngd.serialnumber,receive = 1,outwards = 0,lending = 0,return = 0,maentenance = 0 FROM FROM na_goods_receive ngr INNER JOIN ngd ON ngr.IDApp = ngd.FKApp \
-			UNION """
+	#untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used) 
+	#maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
+
+	#TIsNew diperoleh Total goods receive detail - Count group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost
+	#buat query union untuk mendapatkan barang mana saja yang sudah masuk barang bekas
+	Query = """SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards \
+			UNION \
+			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_Lending \
+			UNION \
+			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_return \
+			UNION \
+			SELECT FK_Goods,TypeApp,SerialNumber FROM na_maintenance \
+			UNION \
+			SELECT FK_Goods,TypeApp,SerialNumber FROM na_disposal \
+			UNION
+			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost """
+
+	#Query = """SELECT ngr.FK_goods,ngd.TypeApp,ngd.serialnumber,isReceive = 1,IsOutwards = 0,IsLending = 0,IsReturn = 0,IsMaintenance = 0,IsDisposal = 0,IsLost = 0 FROM na_goods_receive ngr INNER JOIN ngd ON ngr.IDApp = ngd.FKApp \
+	#		UNION \
+	#		SELECT FK_goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 1,IsLending = 0,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_goods_outwards \
+	#		UNION \
+	#		SELECT FK_Goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 0,IsLending = 1,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_goods_Lending \
+	#		UNION \
+	#		SELECT FK_Goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 0,IsLending = 1,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_maintenance \
+	#		UNION \
+	#		SELECT """
 #	SELECT rows_changed
 #FROM information_schema.table_statistics
 #WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
