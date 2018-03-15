@@ -146,6 +146,47 @@ ALTER TABLE n_a_goods_receive_detail
 --
 -- AUTO_INCREMENT for table n_a_goods_receive_detail
 --*/
+--=================perbaikan n_a_goods_return==================
+DROP TABLE IF EXISTS n_a_goods_return;
+
+CREATE TABLE n_a_goods_return (
+  IDApp int(11) NOT NULL,
+  FK_Goods varchar(30) NOT NULL,
+  DateReturn datetime(6) NOT NULL,
+  Conditions varchar(1) NOT NULL,--layak,kurang layak,tidak layak(rusak total)(w=worth,M-minus/kurang layak,B=broken/rusak)
+  FK_FromEmployee varchar(50) DEFAULT NULL,
+  FK_Goods_Outwards int(11) DEFAULT NULL, --apakah dari fk_goods_outwords (pengeluaran barang inventaris), jika iya isi foreign key nya
+  FK_UsedEmployee varchar(50) DEFAULT NULL,--bekas siapa sebelumnya
+  FK_Goods_Lend int(11) DEFAULT NULL,--PERBAIKAN DI SINI apakah dari peminjaman jika iya isi foreign key nya
+  IsCompleted tinyint(1) NOT NULL,--PERBAIKAN DI SINI
+  MinusDesc varchar(150) DEFAULT NULL,--PERBAIKAN DI SINI 
+  Descriptions varchar(200) DEFAULT NULL,
+  CreatedDate datetime NOT NULL,
+  CreatedBy varchar(100) NOT NULL,
+  ModifiedDate datetime DEFAULT NULL,
+  ModifiedBy varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+----=====================Perbaiki n_a_disposal =========================
+DROP TABLE IF EXISTS n_a_disposal;
+CREATE TABLE n_a_disposal (
+  IDApp int(11) NOT NULL,
+  FK_Goods int(11) DEFAULT NULL,
+  DateDisposal date NOT NULL,
+  IsHasValue tinyint(1) DEFAULT NULL,
+  IsSold tinyint(1) DEFAULT NULL,
+  SellingPrice decimal(30,4) DEFAULT NULL,
+  FK_Responsible_Person int(11) DEFAULT NULL,--PERBAIKAN DI SINI 
+  FK_Acc_FA int(11) DEFAULT NULL,--PERBAIKAN DI SINI
+  FK_Stock int(11) DEFAULT NULL,
+  BookValue decimal(10,4) NOT NULL,
+  Descriptions varchar(200) DEFAULT NULL,
+  CreatedDate datetime DEFAULT NULL,
+  CreatedBy varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+  
 ALTER TABLE n_a_goods_receive_detail
 MODIFY IDApp int(32) NOT NULL AUTO_INCREMENT;
 ALTER TABLE n_a_goods_receive_detail CHANGE warranty warranty DECIMAL(6,2) NOT NULL DEFAULT '0';
@@ -153,6 +194,24 @@ ALTER TABLE n_a_goods_receive_detail CHANGE warranty warranty DECIMAL(6,2) NOT N
 ALTER TABLE n_a_goods_outwards CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_goods_outwards add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_goods_outwards add TypeApp VARCHAR(32) NOT NULL; 
+
+CREATE TABLE `n_a_goods_lending` (
+  `IDApp` int(11) NOT NULL,
+  `FK_Goods` varchar(30) NOT NULL,
+  `FK_Employee` varchar(50) NOT NULL,
+  `DateLending` date DEFAULT NULL,
+  `Qty` int(11) NOT NULL,
+  `FK_Stock` varchar(50) NOT NULL,
+  `FK_Responsible_Person` varchar(50) DEFAULT NULL,
+  `BenefitOf` varchar(150) DEFAULT NULL,
+  `FK_Sender` varchar(50) DEFAULT NULL,
+  `Status` varchar(10) DEFAULT NULL,
+  `CreatedDate` datetime DEFAULT NULL,
+  `CreatedBy` varchar(50) DEFAULT NULL,
+  `ModifiedDate` datetime DEFAULT NULL,
+  `ModifiedBy` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 ALTER TABLE n_a_goods_Lending add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_goods_Lending add TypeApp VARCHAR(32) NOT NULL;  
@@ -167,10 +226,39 @@ ALTER TABLE n_a_disposal CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_disposal add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_disposal add TypeApp VARCHAR(32) NOT NULL; 
 
+ALTER TABLE n_a_goods_return
+  ADD PRIMARY KEY (IDApp);
+ALTER TABLE n_a_goods_return
+  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE n_a_disposal
+  ADD PRIMARY KEY (IDApp);
+ALTER TABLE n_a_disposal
+  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
+  
+CREATE TABLE IF NOT EXISTS n_a_maintenance (
+  IDApp int(11) NOT NULL,
+  RequestDate date DEFAULT NULL,
+  StartDate date NOT NULL,
+  IsStillGuarantee tinyint(1) NOT NULL,
+  Expense decimal(30,4) NOT NULL,--PERBAIKAN DI SINI 
+  MaintenanceBy varchar(100) NOT NULL,
+  PersonalName varchar(100) DEFAULT NULL,
+  EndDate date DEFAULT NULL,
+  FK_Goods int(11) NOT NULL,
+  IsSucced int(11) DEFAULT NULL,
+  Descriptions varchar(200) DEFAULT NULL,
+  CreatedDate datetime NOT NULL,
+  CreatedBy varchar(100) NOT NULL,
+  ModifiedDate datetime DEFAULT NULL,
+  ModifiedBy varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 ALTER TABLE n_a_maintenance CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_maintenance add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_maintenance add TypeApp VARCHAR(32) NOT NULL; 
-
+ALTER TABLE n_a_maintenance MODIFY Expense MODIFY Expense DECIMAL(30,4) NULL,
 ALTER TABLE n_a_acc_fa CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_acc_fa add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL; 
+

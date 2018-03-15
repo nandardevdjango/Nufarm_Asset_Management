@@ -1,6 +1,7 @@
 ﻿from enum import Enum
 from datetime import date
 from datetime import datetime
+from django.db import connection
 class CriteriaSearch(Enum):
 	Equal = 1
 	BeginWith = 2
@@ -194,36 +195,54 @@ class query:
 			dict(zip(columns, row))
 			for row in cursor.fetchall()
 		]
-	#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
-	#untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used) 
-	#maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
 
-	#TIsNew diperoleh Total goods receive detail - Count group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost
-	#buat query union untuk mendapatkan barang mana saja yang sudah masuk barang bekas
-	Query = """SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards \
-			UNION \
-			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_Lending \
-			UNION \
-			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_return \
-			UNION \
-			SELECT FK_Goods,TypeApp,SerialNumber FROM na_maintenance \
-			UNION \
-			SELECT FK_Goods,TypeApp,SerialNumber FROM na_disposal \
-			UNION
-			SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost """
-
-	#Query = """SELECT ngr.FK_goods,ngd.TypeApp,ngd.serialnumber,isReceive = 1,IsOutwards = 0,IsLending = 0,IsReturn = 0,IsMaintenance = 0,IsDisposal = 0,IsLost = 0 FROM na_goods_receive ngr INNER JOIN ngd ON ngr.IDApp = ngd.FKApp \
-	#		UNION \
-	#		SELECT FK_goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 1,IsLending = 0,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_goods_outwards \
-	#		UNION \
-	#		SELECT FK_Goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 0,IsLending = 1,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_goods_Lending \
-	#		UNION \
-	#		SELECT FK_Goods,TypeApp,SerialNumber,IsReceive = 0,IsOutwards = 0,IsLending = 1,IsReturn = 0,IsMaintenance,IsDisposal = 0,IsLost = 0 FROM na_maintenance \
-	#		UNION \
-	#		SELECT """
-#	SELECT rows_changed
-#FROM information_schema.table_statistics
-#WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
 class commonFunct:
 	def str2bool(v):
 		return v.lower() in ("yes", "true", "t", "1")
+
+		#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
+	#untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used) 
+	#maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
+
+	#TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
+	#buat query union untuk mendapatkan barang mana saja yang sudah di pakai
+	def getTotalGoods(FKGoods):
+
+		totalUsed = 0;totalReceived =0;totalReturn = 0;totalRenew = 0;totalMaintenance = 0;totalLending = 0;
+		cur = connection.cursor()
+		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used"
+		cur.execute(Query)		
+		Query = """"CREATE TEMPORARY TABLE T_Goods_Used \
+				(--PRIMARY KEY my_pkey (SerialNumber),
+					INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS(SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards WHERE FK_goods = %(FK_Goods)s \
+				UNION \
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_Lending WHERE FK_goods = %(FK_Goods)s  \
+				UNION \
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_return WHERE FK_goods = %(FK_Goods)s\
+				UNION \
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_maintenance WHERE FK_goods = %(FK_Goods)s\
+				UNION \
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_disposal WHERE FK_goods = %(FK_Goods)s\
+				UNION
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s"""
+		cur.execute(Query,{'FK_Goods':FKGoods})
+	
+		#get totalused and totalReceived
+		Query = """SELECT Rec.Total AS totalReceived,Rec.Total - Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive INNER JOIN n_a_goods_receive_detail ngd \
+					ON ngr.FK_goods = ngd.FKApp GROUP BY ngr.FK_Goods WHERE ngr.FK_goods = %(FK_Goods)s)T_Receive INNER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM T_Goods_Used GROUP BY  FK_Goods)T_Used \
+					ON Rec.FK_Goods = Used.FK_Goods """
+		row = cur.execute(Query)
+		totalUsed = int(row['TotalUsed'])
+		totalReceived = int(row['totalReceived'])
+		#totalReturn 
+		Query = """SELECT COUNT(FK_Goods) FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s"""
+		cur.execute(Query,{'FK_Goods':FKGoods})
+		totalReturn = int(cur.fetchone())
+
+		#totalRenew
+		#TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
+
+		#dengan status
+		#query = """SELECT COUNT
+#FROM information_schema.table_statistics
+#WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
