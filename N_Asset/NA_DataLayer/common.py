@@ -200,16 +200,18 @@ class commonFunct:
 	def str2bool(v):
 		return v.lower() in ("yes", "true", "t", "1")
 
-		#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,T_GoodsLending
+		#	#buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,TotalSpare
 	#untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used) 
 	#maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
 
 	#TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
 	#buat query union untuk mendapatkan barang mana saja yang sudah di pakai
-	def getTotalGoods(FKGoods):
+	def getTotalGoods(FKGoods,cur):
 
-		totalUsed = 0;totalReceived =0;totalReturn = 0;totalRenew = 0;totalMaintenance = 0;totalLending = 0;
-		cur = connection.cursor()
+		totalUsed = 0;totalReceived =0;totalReturn = 0;totalRenew = 0;totalMaintenance = 0;TotalSpare = 0;
+		if(cur is None):
+			cur = connection.cursor()
+
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used"
 		cur.execute(Query)		
 		Query = """"CREATE TEMPORARY TABLE T_Goods_Used \
@@ -235,13 +237,36 @@ class commonFunct:
 		totalUsed = int(row['TotalUsed'])
 		totalReceived = int(row['totalReceived'])
 		#totalReturn 
-		Query = """SELECT COUNT(FK_Goods) FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s"""
+		Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
 		cur.execute(Query,{'FK_Goods':FKGoods})
 		totalReturn = int(cur.fetchone())
 
 		#totalRenew
 		#TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
+		Query = """SELECT COUNT(mt.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1 \
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)\
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp) \
+					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp) \
+					AND mt.FK_Goods = %(FK_Goods)s)C """
+		cur.execute(Query,{'FK_Goods':FKGoods})
+		totalRenew = int(cur.fetchone())
+		#TMaintenance
+		#TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
+		Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
+		cur.execute(Query,{'FK_Goods':FKGoods})
+		totalMaintenance = int(cur.fetchone())
 
+		#TotalSpare
+		#TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
+		Query = """SELECT COUNT(FK_goods) FROM (SELECT DISCTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' \
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0) \
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp) \
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """ 
+		cur.execute(Query,{'FK_Goods':FKGoods})
+		TotalSpare = int(cur.fetchone())
+		
+		cur.close();
+					  
 		#dengan status
 		#query = """SELECT COUNT
 #FROM information_schema.table_statistics
