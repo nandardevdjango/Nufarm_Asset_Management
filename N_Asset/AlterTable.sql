@@ -256,8 +256,8 @@ ALTER TABLE n_a_goods_Lending add FK_Maintenance INT(11) UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 
 --============perbaikan stock==================
-ALTER TABLE n_a_goods_stock CHANGE T_Goods_Lending T_Goods_Spare tinyint(5) UNSIGNED NOT NULL;--PERBAIKAN DI SINI 
-
+ALTER TABLE n_a_stock CHANGE TotalQty T_Goods_Spare tinyint(5) UNSIGNED NOT NULL;--PERBAIKAN DI SINI 
+ALTER TABLE n_a_stock DROP COLUMN IF EXISTS T_Goods_Lending;--PERBAIKAN DI SINI
 ALTER TABLE n_a_goods_lending
   ADD PRIMARY KEY (IDApp);
 ALTER TABLE n_a_goods_lending

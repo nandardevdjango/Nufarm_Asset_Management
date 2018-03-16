@@ -207,8 +207,19 @@ class commonFunct:
 	#TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
 	#buat query union untuk mendapatkan barang mana saja yang sudah di pakai
 	def getTotalGoods(FKGoods,cur):
-
-		totalUsed = 0;totalReceived =0;totalReturn = 0;totalRenew = 0;totalMaintenance = 0;TotalSpare = 0;
+		"""FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
+		:param int FKGoods: idapp_fk_goods
+		:param object cur: cursor active
+		totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare dalam bentuk tuples
+		totalNew adalah total barang yang baru yang belum pernah di pakai
+		totalUsed adalah total barang yang sudah di keluarkan/terpakai
+		totalReceived adalah total barang yang di terima
+		totalReturn adalah total barang yang di kembalikan pakai query count distinct
+		totalRenew adalah ketersedian barang yang sudah di maintain/perbaiki dan bisa di ambil untuk baik di pinjam atau inventaris
+		totalMaintenance adalah total barang yang sedang di perbaiki 
+		totalSpare adalah total cadangan barang yang akan di pakai untuk peminjaman barang
+		totalSpare akan terjadi bila ada transaksi di n_a_goods_lending dan status sudah R(returned)"""
+		totalNew = 0;totalUsed = 0;totalReceived =0;totalReturn = 0;totalRenew = 0;totalMaintenance = 0;TotalSpare = 0;
 		if(cur is None):
 			cur = connection.cursor()
 
@@ -230,12 +241,14 @@ class commonFunct:
 		cur.execute(Query,{'FK_Goods':FKGoods})
 	
 		#get totalused and totalReceived
-		Query = """SELECT Rec.Total AS totalReceived,Rec.Total - Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive INNER JOIN n_a_goods_receive_detail ngd \
+		Query = """SELECT Rec.Total AS totalReceived,Rec.Total - Used.Total AS TotalNew,Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive INNER JOIN n_a_goods_receive_detail ngd \
 					ON ngr.FK_goods = ngd.FKApp GROUP BY ngr.FK_Goods WHERE ngr.FK_goods = %(FK_Goods)s)T_Receive INNER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM T_Goods_Used GROUP BY  FK_Goods)T_Used \
 					ON Rec.FK_Goods = Used.FK_Goods """
 		row = cur.execute(Query)
-		totalUsed = int(row['TotalUsed'])
+		totalNew = int(row['TotalNew'])
 		totalReceived = int(row['totalReceived'])
+		totalUsed = int(row['TotalUsed'])	
+		
 		#totalReturn 
 		Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
 		cur.execute(Query,{'FK_Goods':FKGoods})
@@ -254,7 +267,7 @@ class commonFunct:
 		#TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
 		Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
 		cur.execute(Query,{'FK_Goods':FKGoods})
-		totalMaintenance = int(cur.fetchone())
+		totalMaintenance = int(cur.fetchone())		
 
 		#TotalSpare
 		#TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
@@ -266,7 +279,7 @@ class commonFunct:
 		TotalSpare = int(cur.fetchone())
 		
 		cur.close();
-					  
+		return(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare)		  
 		#dengan status
 		#query = """SELECT COUNT
 #FROM information_schema.table_statistics

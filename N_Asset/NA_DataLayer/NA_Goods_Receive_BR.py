@@ -86,7 +86,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		results = [item	for item in cur.fetchall()]		
 		if len(results) > 0:
 			strResult = ','.join(['%']*len(results))# "%s, %s, %s, ... %s"
-			Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND SerialNumber  IN ({0})) \
+			Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s AND Qty >= 1 AND SerialNumber  IN ({0})) \
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber  IN ({1}) )".format(strResult,strResult)
 		TParams =  [Data.idapp_fk_goods, Data.datereceived,results,Data.idapp_fk_goods, Data.datereceived,results]
 		cur.execute(Query,TParams)
@@ -97,8 +97,8 @@ class NA_BR_Goods_Receive(models.Manager):
 			results = [item	for item in cur.fetchall()]	
 			if len(results) > 0:
 				strResult = ','.join(['%']*len(results))# "%s, %s, %s, ... %s"
-				Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND TypeApp IN ({0})) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND TypeApp IN ({1}) )".format(strResult,strResult)
+				Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND DateLending >= %s AND Qty >= 1 AND TypeApp IN ({0})) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s  AND Qty >= 1 AND TypeApp IN ({1}) )".format(strResult,strResult)
 				TParams =  [Data.idapp_fk_goods, Data.datereceived,results,Data.idapp_fk_goods, Data.datereceived,results]
 				cur.execute(Query,TParams)
 				hasRef = cur.rowcount >0
@@ -114,8 +114,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.execute(Query,TParams)
 		hasRef = cur.rowcount >0	
 		if not hasRef:
-			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND TypeApp = %s) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND TypeApp = %s)"""
+			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s AND Qty >= 1 AND TypeApp = %s) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND Qty >= 1 AND TypeApp = %s)"""
 			TParams =  [data.idapp_fk_goods, data.datereceived,data.typeapp,data.idapp_fk_goods, data.datereceived,data.typeapp]
 			cur.execute(Query,TParams)
 			hasRef = cur.rowcount >0
@@ -125,21 +125,38 @@ class NA_BR_Goods_Receive(models.Manager):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		try:
-			hasRef = commonFunct.str2bool(str(Data['hasRefData']))			
+			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
+			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur)#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+			totalNew = totalNew + int(Data['totalreceived'])
+			totalReceived = totalReceived + int(Data['totalReceived'])
 			with transaction.atomic():
-
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
 				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
 							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions'],'descbysystem':Data['descbysystem']}
+				dataDetail = list(Data.get('dataForGridDetail'));
+					#dataDetail = object_list
 				if Status == StatusForm.Input:
 					#insert data transaction
 					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
 							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s),%(descbysystem)%"""
 					Params.update(CreatedBy=Data['createdby']) 
+					cur.execute(Query,Params)
+					#get primary key
+					cur.execute('SELECT last_insert_id()')
+					FKApp = cursor.fetchone()
+					#Insert Detail
+					
+					if dataDetail.count > 0:
+						#tambahkan detail pada FK_App
+						for i in range(dataDetail.count):
+							dataDetails[i]['FK_App'] = FKApp
+						details = [tuple(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
+						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
+									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
+						cur.executemany(query,details)
 				elif Status == StatusForm.Edit:
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
-
 					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
 								FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
 					if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
@@ -148,22 +165,27 @@ class NA_BR_Goods_Receive(models.Manager):
 					Query = Query + """ WHERE IDApp = %(IDApp)s"""
 					Params.update(ModifiedBy=Data['createdBy']) 
 					Params.update(IDApp=Data['idapp'])
-				cur.execute(Query,Params)
+					cur.execute(Query,Params)
+					if dataDetail.count > 0:
+						Query = """UPDATE n_a_goods_receive_detail SET BrandName=[value-3],PricePerUnit=[value-4],TypeApp=[value-5],SerialNumber=[value-6],warranty=[value-7],EndOfWarranty=[value-8],CreatedBy=[value-9],CreatedDate=[value-10],ModifiedBy=[value-11],ModifiedDate=[value-12] WHERE 1"""
+			
+
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE idapp_FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
-			
 				if cur.rowcount >0:
 					if not hasRef:#jika sudah ada transaksi,stock tidak bisa di edit
-						Query= """UPDATE n_a_stock SET TIsNew = TIsNew + %s,TGoods_Received = TGoods_Received + %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
-						Params = [Data['totalreceived'],Data['totalreceived'],Data['totalreceived'],Data['createdby'],Data['idapp_fk_goods']]
+						#Transaksi ke table n_a_goods_receive akan berimbas ke table n_a_stockk tisnew dan tgoodsreceive
+						#Ambil data TisNew,T_Goods_Receive	
+						Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
+						Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
 					else:
 						cur.close()	
 						return 'success'
 				else:
-					Query = """INSERT INTO n_a_stock(FK_Goods, TotalQty, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
-							 VALUES (%(FK_goods)s,%(TotalQty)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,now(),%(CreatedBy)s)"""
-					Params = {'FK_goods':Data['idapp_fk_goods'], 'TotalQty':Data['totalreceived'],'TIsNew':Data['totalreceived'],'TotalReceived':Data['totalreceived'], 'Createdby':Data['createdby']}
+					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
+							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,now(),%(CreatedBy)s)"""
+					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'Createdby':Data['createdby']}
 				cur.execute(Query,Params)
 				cur.close()
 		except Exception as e:

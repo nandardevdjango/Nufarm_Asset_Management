@@ -492,23 +492,45 @@
 				return el[0].getAttribute("value");
 			})();
 			var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
-			var data = gridDetail.jqGrid('getGridParam', 'data');
+			var data =[] 
 			
 			//"[{"idapp":"","fkapp":"","no":1,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00001","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false},
 			//{"idapp":"","fkapp":"","no":2,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00002","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false}]"
 			var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
-			if (data) {
-			    if (data.length > 0) {
-			        var ValidData = ValidateGridDetail(gridDetail);
-			        if (!ValidData) {
-			            return false;
-			        }
-			    } else {
-			        data = eldataForGridDetail.value || [];
-			    }				
+			if (win.status === 'Add') {
+				data = gridDetail.jqGrid('getGridParam', 'data');
+			}
+			else if (win.status === 'Edit') {
+				data = eldataForGridDetail.value || [];
+			}			
+			if (data.length > 0) {
+				var ValidData = ValidateGridDetail(gridDetail);
+				if (!ValidData) {
+					if (win.status === 'Add') {
+						ShowAlert('Please enter detail data', NA.common.message.titleInfo);
+					}
+					return false;
+				}
 			}
 			else {
-				data = eldataForGridDetail.value||[];
+				ShowAlert('Please enter detail data', NA.common.message.titleInfo);
+				return false;
+			}
+			
+			//data untuk bisa nginsert ke database mesti (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedBy, CreatedDate)
+			if (win.status === 'Add') {
+				//"[{"idapp":"","fkapp":"","no":1,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00001","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false},
+				//remove column idapp,no,modifiedby,modifieddate
+				for (var i = 0; i < data.length; i++) {
+					delete data[i]['idapp'];
+					delete data[i]['no'];
+					delete data[i]['createddate']
+					delete data[i]['modifiedby'];
+					delete data[i]['modifieddate'];
+				}
+			}
+			else if (win.status === 'Edit') {
+				delete data[i]['no'];
 			}
 			data = JSON.stringify(data);
 			valuesForm['dataForGridDetail'] = data;
