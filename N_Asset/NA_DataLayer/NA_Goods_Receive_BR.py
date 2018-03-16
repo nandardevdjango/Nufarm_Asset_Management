@@ -7,6 +7,7 @@ from django.core import exceptions
 from decimal import Decimal, DecimalException
 from django.db.models import F
 from django.db.models import Q
+from decimal import Decimal
 from NA_DataLayer.common import commonFunct
 class NA_BR_Goods_Receive(models.Manager):
 	c = None
@@ -150,7 +151,7 @@ class NA_BR_Goods_Receive(models.Manager):
 					if dataDetail.count > 0:
 						#tambahkan detail pada FK_App
 						for i in range(dataDetail.count):
-							dataDetails[i]['FK_App'] = FKApp
+							dataDetail[i]['FK_App'] = FKApp
 						details = [tuple(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
 									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
@@ -167,21 +168,34 @@ class NA_BR_Goods_Receive(models.Manager):
 					Params.update(IDApp=Data['idapp'])
 					cur.execute(Query,Params)
 					if dataDetail.count > 0:
-						Query = """UPDATE n_a_goods_receive_detail SET BrandName=[value-3],PricePerUnit=[value-4],TypeApp=[value-5],SerialNumber=[value-6],warranty=[value-7],EndOfWarranty=[value-8],CreatedBy=[value-9],CreatedDate=[value-10],ModifiedBy=[value-11],ModifiedDate=[value-12] WHERE 1"""
-			
-
+						for i in range(dataDetail.count):
+							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
+							Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
+							recCount = cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
+							if recCount > 0:
+								#data sudah ada
+								#check hasrefDetail jika data sudah ada reference data anak
+								hasRefDetail = commonFunct.str2bool(dataDetail[i]['HasRef'])
+								if not hasRefDetail:
+									ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':Data['serialnumber']}
+									hasRefDetail = self.hasRefDetail(ParDetails)
+								if not hasRefDetail:
+									Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber),\
+												warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
+									cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
+													'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['waranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
+							else:
+								Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
+										VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
+								cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['waranty'],dataDetail[i]['endofwarranty'],'createdby'])	
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE idapp_FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
 				if cur.rowcount >0:
-					if not hasRef:#jika sudah ada transaksi,stock tidak bisa di edit
-						#Transaksi ke table n_a_goods_receive akan berimbas ke table n_a_stockk tisnew dan tgoodsreceive
-						#Ambil data TisNew,T_Goods_Receive	
-						Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
-						Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
-					else:
-						cur.close()	
-						return 'success'
+					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
+					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
+					cur.close()	
+					return 'success'
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
 							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,now(),%(CreatedBy)s)"""

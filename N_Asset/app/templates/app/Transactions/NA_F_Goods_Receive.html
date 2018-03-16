@@ -527,6 +527,7 @@
 					delete data[i]['createddate']
 					delete data[i]['modifiedby'];
 					delete data[i]['modifieddate'];
+					delete data[i]['HasRef'];
 				}
 			}
 			else if (win.status === 'Edit') {
@@ -616,7 +617,16 @@
 			});
 		};	
 		function createDummyRowData(intLength) {
-		    var DummyData = [];
+		    //check datarows di jqgrid
+            var DummyData = [];
+            //var rowIDS = gridTbl.getDataIDs();//rowIDS.length tidak boleh melebihi intLength
+		    //if (rowIDS.length > 0) {
+		    //    for (i = 0; i < rowIDS.length; i++) {
+		    //        var row = gridTbl.getRowData(rows[i]);
+
+		    //    }
+		    //}		
+
 		    for (var i = 0; i < intLength; i++) {
 		    	//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
 		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
@@ -1175,6 +1185,24 @@
 		    	        caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (e) {
 		    	            return ValidateGridDetail(gridTbl);
 		    	        }, position: "last"
+		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+		    	        caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
+
+		    	            //add row data position in last row
+		    	            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+		    	            var totalReceived = item.value || 0;
+		    	            if (recCount >= parseInt(totalReceived)) {
+		    	                ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
+		    	                return false;
+		    	            }
+		    	            var rowData = { 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
+		    	            gridTbl.jqGrid.addRowData(recCount + 1, rowData, 'last');
+		    	            var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
+		    	            gridTbl.setSelection(last_rowid, false);
+		    	            gridTbl.jqGrid.editCell(recCount + 1, 3, true);
+		    	            return true;
+
+		    	        }, position: "last"
 		    	    });
 		    	    var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
 		    	    elDivF.removeAttribute('class');
@@ -1185,6 +1213,12 @@
 		    	    elDivS.removeAttribute('class');		    	    
 		    	    elDivS.setAttribute('class', 'fa');
 		    	    elDivS.classList.add('fa-retweet');
+
+		    	    var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(3) div.ui-pg-div>span');
+		    	    elDivAdd.removeAttribute('class');
+		    	    elDivAdd.setAttribute('class', 'fa');
+		    	    elDivAdd.classList.add('fa-plus');
+
 		    		break;
 		    	}
 		    	case 'Edit': {
@@ -1192,11 +1226,33 @@
 		    			edit: false, add: false, del: false, search: false
 		    		}).navButtonAdd(gridPager, {
 		    		    caption: "  Validate",  buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
+		    		}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+		    		    caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
+
+		    		        //add row data position in last row
+		    		        var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+		    		        var totalReceived = item.value || 0;
+		    		        if (recCount >= parseInt(totalReceived)) {
+		    		            ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);                          
+		    		            return false;
+		    		        }
+		    		        var rowData = { 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
+		    		        gridTbl.jqGrid.addRowData(recCount + 1, rowData, 'last');
+		    		        var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
+		    		        gridTbl.setSelection(last_rowid, false);
+		    		        gridTbl.jqGrid.editCell(recCount + 1, 3, true);
+		    		        return true;
+		    		    }, position: "last"
 		    		});
-		    		var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
+		    		var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
 		    		elDivS.removeAttribute('class');
 		    		elDivS.setAttribute('class', 'fa');
 		    		elDivS.classList.add('fa-retweet');
+
+		    		var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
+		    		elDivAdd.removeAttribute('class');
+		    		elDivAdd.setAttribute('class', 'fa');
+		    		elDivAdd.classList.add('fa-plus');
 		    		break;
 		    	}
 		    }
@@ -1263,7 +1319,7 @@
                                     break;
                                 }
                                 case 'Add': {
-                                    gridTbl.restoreRow(rowId);
+                                    //gridTbl.restoreRow(rowId);
                                     break;
                                 }
                             }
@@ -1278,7 +1334,7 @@
                                    null, null, function () {
                                        //rubah totalreceived -1;
                                        var textStatus = JSON.parse(this.responseText);
-                                       if (textStatus === 'success') {
+                                       if (textStatus.message === 'success') {
                                            var eltreceived = NA.common.getElementID('id_total_received'),
                                                                             valTrec = eltreceived.value;
                                            valTrec = valTrec - 1;
@@ -1340,7 +1396,7 @@
 		    });
 		}
 
-		function ShowAlert(message,title,callbackFunc) {
+		function ShowAlert(message,title,callbackFunc,calbackOnHide) {
 		   return BootstrapDialog.alert({
 		       title: title||NA.common.message.titleInfo,
 		        message: message,
@@ -1365,6 +1421,11 @@
 		        onshown: function (dialogRef) {
 		            var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
 		            divHeader.style.backgroundColor = 'green';
+		        },
+		        onhidden: function (dialogRef) {
+		            if (calbackOnHide) {
+		                calbackOnHide();
+		            }
 		        }
 		    });
 		}
@@ -1927,7 +1988,31 @@
                                             NA.NAEvent.stopPropagation(e);
                                         });
                                         NA.NAEvent.addHandler(item, 'keydown', function (e) {
-                                            if (!NA.common.numberInput(e)) {
+                                            if (item.getAttribute("disabled")) {
+                                                e.returnValue = false;
+                                                NA.NAEvent.preventDefault(e);
+                                                return false;
+                                            }
+                                            if (item.id === 'id_totalreceived') {
+                                                if (e.keyCode === 13) {
+                                                    //check apakah grid sedang di buka dan ada rowsnya
+                                                    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                                                    var reccount = thegrid.jqGrid('getGridParam', 'reccount');
+                                                    var totalReceived = item.value||0;
+                                                    if (reccount > parseInt(totalReceived)) {
+                                                        //prevent Default
+                                                        NA.NAEvent.preventDefault(e);
+                                                        ShowAlert('total item in table > total received', NA.common.message.titleError, calbackOnHide = function () {
+                                                            item.focus(); 
+                                                        }); return false;                                                      
+                                                    }
+                                                    //var rowIDS = 
+                                                    //fire btnAddClick                                             
+                                                    btnAddDetail.click();
+                                                    e.stopImmediatePropagation(); return false;
+                                                }
+                                            }                                  
+                                            else if (!NA.common.numberInput(e)) {
                                                 e.returnValue = false;
                                                 NA.NAEvent.preventDefault(e);
                                             }
@@ -2590,7 +2675,7 @@
                                         var elTotalReceived = NA.common.getElementID('id_totalreceived');
                                         var elTotalPurchase = NA.common.getElementID('id_totalpurchase');										
                                         if (elTotalReceived.value === '') {
-                                            ShowAlert('Please enter total receve');
+                                            ShowAlert('Please enter total receive');
                                             elTotalReceived.focus(); return false;
                                         }
                                         if (elTotalPurchase.value === '') {
