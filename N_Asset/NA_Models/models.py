@@ -105,7 +105,7 @@ class NASuplier(models.Model):
 
 class NAAccFa(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.ForeignKey('goods',db_column='FK_Goods', related_name='AccFA_goods',to_field='idapp')  # Field name made lowercase.
+    fk_goods = models.ForeignKey('goods',db_column='FK_Goods', related_name='AccFA_goods',to_field='idapp',on_delete=None)  # Field name made lowercase.
     year = models.DecimalField(db_column='Year', max_digits=10, decimal_places=2)  # Field name made lowercase.
     startdate = models.DateField(db_column='StartDate')  # Field name made lowercase.
     depr_expense = models.DecimalField(db_column='Depr_Expense', max_digits=30, decimal_places=4, blank=True, null=True)  # Field name made lowercase.
@@ -235,13 +235,13 @@ class NAGoodsOutwards(models.Model):
 
 class NAGoodsReceive(models.Model):
 	idapp = models.AutoField(db_column='IDApp', primary_key=True)
-	idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods')
+	idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods',on_delete=None)
 	datereceived = models.DateTimeField(db_column='DateReceived')
-	fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier')
+	fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier',on_delete=None)
 	totalpurchase = models.SmallIntegerField(db_column='TotalPurchase')
 	totalreceived = models.SmallIntegerField(db_column='TotalReceived')
-	idapp_fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy')  # Field name made lowercase.
-	idapp_fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by')
+	idapp_fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy',on_delete=None)  # Field name made lowercase.
+	idapp_fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by',on_delete=None)
 	createddate = models.DateTimeField(db_column='CreatedDate')
 	createdby = models.CharField(db_column='Createdby', max_length=50)
 	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)

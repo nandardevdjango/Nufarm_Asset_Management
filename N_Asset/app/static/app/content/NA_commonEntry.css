@@ -125,6 +125,10 @@ table.ui-datepicker-calendar{
 ul[id*="ui-id-"]{
     background-image:linear-gradient(linear-gradient(48deg,#E0E0E0,#FEFFFD,#8FBC8F)) !important;
 }
+table.ui-datepicker-calendar tr td:first-child span.ui-state-default {
+color: red;
+font-weight: bold;
+}
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }

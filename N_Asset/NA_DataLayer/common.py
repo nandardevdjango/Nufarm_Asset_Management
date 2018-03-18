@@ -226,8 +226,7 @@ class commonFunct:
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used"
 		cur.execute(Query)		
 		Query = """"CREATE TEMPORARY TABLE T_Goods_Used \
-				(--PRIMARY KEY my_pkey (SerialNumber),
-					INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS(SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards WHERE FK_goods = %(FK_Goods)s \
+				(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS(SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards WHERE FK_goods = %(FK_Goods)s \
 				UNION \
 				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_Lending WHERE FK_goods = %(FK_Goods)s  \
 				UNION \
@@ -237,7 +236,7 @@ class commonFunct:
 				UNION \
 				SELECT FK_Goods,TypeApp,SerialNumber FROM na_disposal WHERE FK_goods = %(FK_Goods)s\
 				UNION
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s"""
+				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s )"""
 		cur.execute(Query,{'FK_Goods':FKGoods})
 	
 		#get totalused and totalReceived

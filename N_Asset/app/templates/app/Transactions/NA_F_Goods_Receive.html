@@ -308,11 +308,18 @@
 				if (contentype === 'application/json') {
 					messageErr = JSON.parse(xhr.responseText);
 				}
-
 				var message = xhr.responseText;
-				if (messageErr) {
-					message = messageErr.message;
-					if (message) {
+				if (messageErr) {				   
+				    message = messageErr.message;
+				    if (message.indexOf('!DOCTYPE html') > 0 || xhr.status >= 500) {
+				        //error bawaan dari python django
+				        //redirect to error web
+				        //untuk sekarang tampilkan saja error codenya saja
+				        ShowAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+				        document.body.style.cursor = 'default';
+				        return false;
+				    }
+					else if (message) {
 						ShowAlert('An error occurred: ' + message);
 					}
 					else {
@@ -533,7 +540,7 @@
 			else if (win.status === 'Edit') {
 				delete data[i]['no'];
 			}
-			data = JSON.stringify(data);
+			//data = JSON.stringify(data);
 			valuesForm['dataForGridDetail'] = data;
 			var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
@@ -613,7 +620,7 @@
 				source: "getBrandForDetailEntry/",
 				minLength: 1,
 				delay: 0,
-				minLength: 0
+				//minLength: 0
 			});
 		};	
 		function createDummyRowData(intLength) {
@@ -821,7 +828,7 @@
 					    autoResizing: { minColWidth: 140, },
 					    editoptions: {
 					         class: 'NA-Form-Control', patern: '^[0-9]+([\.,][0-9]+)?$',
-					         //step: 'any',
+					         step: 'any',
 					         tittle: 'Please enter valid value',
 					        placeholder: function () {
 					        	if ($(this).val() <= 0 || $(this).val() === '' || $(this).val() <= 0) { return NA.common.FormatNumber(0, 2, '.'); }
@@ -908,6 +915,7 @@
 					                changeYear: true,
 					                changeMonth: true,
 					                showWeek: true,
+					                beforeShowDay: $.datepicker.noWeekends,
 					                minDate: (function (g, dtrec) {
 					                    if (g.status === 'Edit') {
 					                        var EndOfWarranty = getGridCellValue(gridTbl, 'endofwarranty');
@@ -1190,7 +1198,7 @@
 
 		    	            //add row data position in last row
 		    	            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-		    	            var totalReceived = item.value || 0;
+		    	            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
 		    	            if (recCount >= parseInt(totalReceived)) {
 		    	                ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
 		    	                return false;
@@ -1228,7 +1236,6 @@
 		    		    caption: "  Validate",  buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
 		    		}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    		    caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
-
 		    		        //add row data position in last row
 		    		        var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
 		    		        var totalReceived = item.value || 0;
@@ -1291,6 +1298,11 @@
 		    //    }
 		    //    return result;
 		    //}
+		    //set button pagerStyle td tengahnya jadi 200px;
+		    var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
+		    if ($midTd) {
+		        $midTd.css('width', 200);
+		    }
 		    var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
 		    gridTbl.setSelection(top_rowid, false);		
 		    gridTbl.jqGrid('editCell', 1, 3, true);
@@ -1753,7 +1765,8 @@
 		                    ShowAlert('Please select data to edit');
 		                    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
 		                    if (dialog) {
-		                     closeJQueryDialog();   NA.common.dialog.closeDialog(dialog); 
+		                        //closeJQueryDialog();
+		                        NA.common.dialog.closeDialog(dialog);
 		                    }
 		                    if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
 		                    return false;
@@ -1833,7 +1846,7 @@
 
                                     });
                                     //Auto Complete RefNO
-                                    $("#id_RefNO").autocomplete({ source: "getRefNO/", minLength: 1, });
+                                    $("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                                     NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                                        
@@ -1941,6 +1954,7 @@
                                         dateFormat: 'dd/mm/yy',
                                         changeMonth: true,
                                         changeYear: true,
+                                        beforeShowDay: $.datepicker.noWeekends,
                                         minDate: (function (g) {
                                             if (g.status === 'Edit') {
                                                 var elDateReceived = JSON.Parse(originalData),
@@ -2784,7 +2798,8 @@
 		        BootstrapDialog.closeAll();
 		        dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
 		        if (dialog) {
-		          closeJQueryDialog();  NA.common.dialog.closeDialog(dialog); 
+		            closeJQueryDialog();
+		            NA.common.dialog.closeDialog(dialog);
 		        }				
 				if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
 				ShowAlert(e);

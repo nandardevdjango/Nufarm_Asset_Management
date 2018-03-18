@@ -85,7 +85,7 @@ def getRefNO(request):
 		return HttpResponse(content='',content_type='application/json')	
 def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
 	return {'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
-		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'hasRefData':form.cleaned_data['hasRefData'],
+		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'hasRefData':form.cleaned_data['hasRefData'],'dataForGridDetail'
 		 'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'descriptions':form.cleaned_data['descriptions'],'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
 @ensure_csrf_cookie
 def HasExists(request):
@@ -128,16 +128,17 @@ def ShowEntry_Receive(request):
 			if form.is_valid():
 				#save data
 				#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
-				form.clean()					
+				form.clean()
+				dataDetail = list(data.get('dataForGridDetail'));				
 				data = getCurrentDataModel(request,form)	
-				desc = '('
-				dataDetail = list(data.get('dataForGridDetail'));
+				desc = '('				
 				#dataDetail = object_list
-				if dataDetail.count > 0:
+				if len(dataDetail) > 0:
+					detCount = len(dataDetail)
 					#build descriptions
-					for i in range(dataDetail.count):
-						desc += 'Brand : ' + dataDetail[i]['brandname'] + ', SN : ' + dataDetail[i]['brandname']
-						if i < dataDetail.count:
+					for i in range(detCount):
+						desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
+						if i <detCount:
 							desc += ', '
 				desc += ')'
 				data.update(descbysystem=desc)
