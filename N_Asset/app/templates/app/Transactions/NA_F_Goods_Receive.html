@@ -542,7 +542,7 @@
 				delete data[i]['no'];
 			}
 			//data = JSON.stringify(data);
-			valuesForm['dataForGridDetail'] = data;
+			valuesForm['dataForGridDetail'] = JSON.stringify(data);
 			var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 

@@ -129,7 +129,7 @@ class NA_BR_Goods_Receive(models.Manager):
 			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
 			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
 			totalNew = totalNew + int(Data['totalreceived'])
-			totalReceived = totalReceived + int(Data['totalReceived'])
+			totalReceived = totalReceived + int(Data['totalreceived'])
 			with transaction.atomic():
 				#sum kan total Receive
 				#Query = """SELECT SUM(T

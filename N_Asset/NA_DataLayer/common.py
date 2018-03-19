@@ -275,7 +275,7 @@ class commonFunct:
 		cur.execute(Query,{'FK_Goods':FKGoods})
 		if cur.rowcount >0:
 			row = cur.fetchone()
-			totalMaintenance = int(cur.fetchone())
+			totalMaintenance =int(row[0])
 		#TotalSpare
 		#TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
 		Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
@@ -285,7 +285,7 @@ class commonFunct:
 		cur.execute(Query,{'FK_Goods':FKGoods})
 		if cur.rowcount >0:
 			row = cur.fetchone()
-			TotalSpare = int(cur.fetchone())		
+			TotalSpare = int(row[0])		
 		#drop table temporary
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
 		cur.execute(Query)
