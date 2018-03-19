@@ -206,7 +206,7 @@ class commonFunct:
 
 	#TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
 	#buat query union untuk mendapatkan barang mana saja yang sudah di pakai
-	def getTotalGoods(FKGoods,cur):
+	def getTotalGoods(FKGoods,cur,username):
 		"""FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
 		:param int FKGoods: idapp_fk_goods
 		:param object cur: cursor active
@@ -223,60 +223,72 @@ class commonFunct:
 		if(cur is None):
 			cur = connection.cursor()
 
-		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used"
-		cur.execute(Query)		
-		Query = """"CREATE TEMPORARY TABLE T_Goods_Used \
-				(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS(SELECT FK_goods,TypeApp,SerialNumber na_goods_outwards WHERE FK_goods = %(FK_Goods)s \
-				UNION \
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_Lending WHERE FK_goods = %(FK_Goods)s  \
-				UNION \
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_return WHERE FK_goods = %(FK_Goods)s\
-				UNION \
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_maintenance WHERE FK_goods = %(FK_Goods)s\
-				UNION \
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_disposal WHERE FK_goods = %(FK_Goods)s\
-				UNION
-				SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s )"""
+		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
+		cur.execute(Query)
+	
+		Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_"""  + username + """
+				   (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+				    (SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
+					UNION 	
+					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
+					UNION 	
+					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
+					UNION 	
+					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
+					UNION 	
+					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """			
+		#		UNION
+		#		SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s )"""
 		cur.execute(Query,{'FK_Goods':FKGoods})
 	
 		#get totalused and totalReceived
-		Query = """SELECT Rec.Total AS totalReceived,Rec.Total - Used.Total AS TotalNew,Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive INNER JOIN n_a_goods_receive_detail ngd \
-					ON ngr.FK_goods = ngd.FKApp GROUP BY ngr.FK_Goods WHERE ngr.FK_goods = %(FK_Goods)s)T_Receive INNER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM T_Goods_Used GROUP BY  FK_Goods)T_Used \
-					ON Rec.FK_Goods = Used.FK_Goods """
-		row = cur.execute(Query)
-		totalNew = int(row['TotalNew'])
-		totalReceived = int(row['totalReceived'])
-		totalUsed = int(row['TotalUsed'])	
+		Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - T_Used.Total AS TotalNew,T_Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
+					ON ngr.FK_goods = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec INNER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
+					ON Rec.FK_Goods = T_Used.FK_Goods """
+		row = cur.execute(Query,{'FK_Goods':FKGoods})
+		if cur.rowcount >0:
+			totalNew = int(row['TotalNew'])
+			totalReceived = int(row['TotalReceived'])
+			totalUsed = int(row['TotalUsed'])	
 		
 		#totalReturn 
 		Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
 		cur.execute(Query,{'FK_Goods':FKGoods})
-		totalReturn = int(cur.fetchone())
+		if cur.rowcount >0:
+			row = cur.fetchone()
+			totalReturn = int(row[0])
 
 		#totalRenew
 		#TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
-		Query = """SELECT COUNT(mt.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1 \
-					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)\
-					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp) \
-					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp) \
+		Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1 
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp) 
+					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp) 
 					AND mt.FK_Goods = %(FK_Goods)s)C """
 		cur.execute(Query,{'FK_Goods':FKGoods})
-		totalRenew = int(cur.fetchone())
+		if cur.rowcount >0:
+			row = cur.fetchone()
+			totalRenew = int(row[0])
 		#TMaintenance
 		#TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
 		Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
 		cur.execute(Query,{'FK_Goods':FKGoods})
-		totalMaintenance = int(cur.fetchone())		
-
+		if cur.rowcount >0:
+			row = cur.fetchone()
+			totalMaintenance = int(cur.fetchone())
 		#TotalSpare
 		#TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
-		Query = """SELECT COUNT(FK_goods) FROM (SELECT DISCTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' \
-					AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0) \
-					AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp) \
+		Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0) 
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp) 
 					AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """ 
 		cur.execute(Query,{'FK_Goods':FKGoods})
-		TotalSpare = int(cur.fetchone())
-		
+		if cur.rowcount >0:
+			row = cur.fetchone()
+			TotalSpare = int(cur.fetchone())		
+		#drop table temporary
+		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
+		cur.execute(Query)
 		cur.close();
 		return(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare)		  
 		#dengan status

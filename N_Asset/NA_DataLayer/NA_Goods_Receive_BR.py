@@ -127,7 +127,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur = self.__class__.c
 		try:
 			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
-			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur)#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
 			totalNew = totalNew + int(Data['totalreceived'])
 			totalReceived = totalReceived + int(Data['totalReceived'])
 			with transaction.atomic():
@@ -136,6 +136,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
 							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions'],'descbysystem':Data['descbysystem']}
 				dataDetail = list(Data.get('dataForGridDetail'));
+				detCount = len(dataDetail)
 					#dataDetail = object_list
 				if Status == StatusForm.Input:
 					#insert data transaction
@@ -148,9 +149,9 @@ class NA_BR_Goods_Receive(models.Manager):
 					FKApp = cursor.fetchone()
 					#Insert Detail
 					
-					if dataDetail.count > 0:
+					if detCount > 0:
 						#tambahkan detail pada FK_App
-						for i in range(dataDetail.count):
+						for i in range(detCount):
 							dataDetail[i]['FK_App'] = FKApp
 						details = [tuple(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
@@ -167,11 +168,12 @@ class NA_BR_Goods_Receive(models.Manager):
 					Params.update(ModifiedBy=Data['createdBy']) 
 					Params.update(IDApp=Data['idapp'])
 					cur.execute(Query,Params)
-					if dataDetail.count > 0:
-						for i in range(dataDetail.count):
+					if detCount > 0:
+						for i in range(detCount):
 							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
 							Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
-							recCount = cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
+							cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
+							recCount = cur.rowcount
 							if recCount > 0:
 								#data sudah ada
 								#check hasrefDetail jika data sudah ada reference data anak
