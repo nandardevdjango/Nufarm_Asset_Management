@@ -235,6 +235,7 @@ def deleteDetail(request):
 	Iidapp = Request.POST.get('idapp')
 	result = ''
 	try:
+		#get data
 		result = NAGoodsReceive.objects.deleteDetail(Iidapp)
 		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json') 
 	except :

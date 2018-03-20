@@ -222,24 +222,35 @@ class NA_BR_Goods_Receive(models.Manager):
 	def deleteDetail(self,idappDetail):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
-		Query = """DELETE FROM na_goods_receive_detail WHERE IDApp = %s"""
-		cur.execute(Query,Params)
+		#cek reference detail
+		#[data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
+		Query = """SELECT ngr.IDApp AS idapp_fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
+					ON ngd.FK_App = ngr.IDApp WHERE ngd.idapp = %s"""
+		cur.execute(Query,idappDetail)
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			Params = {'idapp_fk_goods':row['idapp_fk_goods'], 'datereceived':row['datereceived'],'typeapp':row['typeapp'],'serialnumber':row['serialnumber']}
+			if self.hasRefDetail(Params):
+				cur.close()
+				return 'Can not delete data\Data has child-referenced'
+
+			Query = """DELETE FROM na_goods_receive_detail WHERE IDApp = %s"""
+			cur.execute(Query,Params)
 		cur.close()						
 		return 'success'	
 	def delete(self,Data):
 		try:
-			if self.__class__.c is None:
-			 self.__class__.c = connection.cursor()
+			self.__class__.c = connection.cursor()
+			cur = self.__class__.c
 			if not self.hasReference(Data,False):
-				self.__class__.c.execute('Delete FROM n_a_goods_receive WHERE IDApp = %s')
-				self.__class__.c.close()
+				cur.execute('Delete FROM n_a_goods_receive WHERE IDApp = %s',Data['idapp'])
+				cur.close()
 				return 'success'
 			else:
-				self.__class__.c.close()
-				raise exceptions('data has lost')	
+				cur.close()
+				return 'Can not delete data\Data has child-referenced'
 		except Exception as e:
-				if self.__class__.c is not None:
-					self.__class__.c.close()
+				cur.close()
 				return repr(e)
 	def getBrandsForDetail(self,searchText):
 		#ambil data di receive_goods_detail,union dengan brandname di table goods

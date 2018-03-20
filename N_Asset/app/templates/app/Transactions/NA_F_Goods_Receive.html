@@ -341,10 +341,36 @@
 			}
 			return false;
 		};
+		function clearEntry() {
+		    var oInit = NA.common.getElementID('id_initializeForm').value;
+		    var originalData = JSON.parse(oInit);
+
+		    var elidapp = NA.common.getElementID('id_idapp'); elidapp.value = originalData.idapp;
+		    var elRefNO = NA.common.getElementID('id_refno'); elRefNO.value = originalData.refno;
+		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');elidapp_fk_goods.value = originalData.idapp_fk_goods;
+		    var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.value = originalData.idapp_fk_goods;
+		    var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.value = originalData.goods_desc;
+		    var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.value = originalData.datereceived;
+		    var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.value = originalData.fk_suplier;
+		    var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.value = originalData.supliername;
+		    var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.value = originalData.totalpurchase;
+		    var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.value = totalreceived;
+		    var elidapp_fk_p_r_by = NA.common.getElementID('id_idapp_fk_p_r_by'); elidapp_fk_p_r_by.value = originalData.idapp_fk_p_r_by;
+		    var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.value = originalData.fk_p_r_by;
+		    var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.value = originalData.employee_pr;
+		    var elidapp_fk_receivedby = NA.common.getElementID('id_idapp_fk_receivedby'); elidapp_fk_receivedby.value = originalData.idapp_fk_receivedby;
+		    var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.value = originalData.fk_receivedby;
+		    var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.value = originalData.employee_received;
+		    var eldescriptions = NA.common.getElementID('id_descriptions'); eldescriptions.value = originalData.descriptions;
+		    NA.common.getElementID('id_status').value = 'Add';
+		    NA.common.getElementID('id_hasRefData').value = originalData.hasRef;
+		    NA.common.getElementID('id_descbysystem').value = originalData.descbysystem;
+		    win.forms[i].reset();
+		}
 		function ExecuteHandler(TextElement) {
 			try {
 
-				if (window.document.body.style.cursor != 'wait') { window.document.body.style.cursor = 'wait'; }
+				if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
 				var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
 				var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Receive');
 				switch (TextElement) {
@@ -387,34 +413,46 @@
 									        XhrError(this); throw Error('');
 									    }
 									    if (confirmText === 'OK') {
+									        win.document.body.style.cursor = 'wait';
 									    	if (submitForm()) {
-									    		if (win.status === 'Add') {
-									    			//clear kan semua data
-									    			//focus langsung ke REFNO
-									    			//reset menjadi seperti original value
-									    		}
-									    		else {//status == edit
-									    			closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
-									    		}
+									    	    if (win.status === 'Add') {
+									    	        //clear kan semua data
+									    	        clearEntry();
+									    	        //focus langsung ke REFNO
+									    	        var elRefNO = NA.common.getElementID('id_refno');
+									    	        elRefNO.focus();
+									    	    }
+									    	    else {//status == edit
+									    	        closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+									    	    }
 									    		if (grid) {
 									    			win.document.body.style.cursor = 'wait';
-									    			grid.trigger("reloadGrid", [{ page: curPage }]);
+									    			grid.trigger("reloadGrid", [{ page: 1 }]);
 									    			win.document.body.style.cursor = 'default';
 									    		}
 									    	}
 									    }
 									    else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
 									        return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
-									        	if (submitForm()) {
-									        		//clear kan semua data
-									        		//focus langsung ke REFNO
-									        		//reset menjadi seperti original value
-									        		if (grid) {
-									        			win.document.body.style.cursor = 'wait';
-									        			grid.trigger("reloadGrid", [{ page: curPage }]);
-									        			win.document.body.style.cursor = 'default';
-									        		}
-									        	}
+									            win.document.body.style.cursor = 'wait';
+									            if (submitForm()) {
+									                if (win.status === 'Add') {
+									                    //clear kan semua data
+									                    clearEntry();
+									                    //focus langsung ke REFNO
+									                    var elRefNO = NA.common.getElementID('id_refno');
+									                    elRefNO.focus();
+									                }
+									                else {//status == edit
+									                    closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+									                }
+									                if (grid) {
+									                    win.document.body.style.cursor = 'wait';
+									                    grid.trigger("reloadGrid", [{ page: 1 }]);
+
+									                }
+									                win.document.body.style.cursor = 'default';
+									            }
 									        });
 									    }										
 									}
@@ -446,21 +484,21 @@
 										closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
 										if (grid) {
 											win.document.body.style.cursor = 'wait';
-											grid.trigger("reloadGrid", [{ page: curPage }]);
+											grid.trigger("reloadGrid", [{ page: 1 }]);
 										}
 									}
 
 								}
-								document.body.style.cursor = 'default';
+								win.document.body.style.cursor = 'default';
 							}, function () {
 							    closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
-								document.body.style.cursor = 'default';
+							    win.document.body.style.cursor = 'default';
 							});
 						}
 						else {
 						     closeJQueryDialog();NA.common.dialog.closeDialog(dialog);
 						}						
-						document.body.style.cursor = 'default';
+						win.document.body.style.cursor = 'default';
 						break;
 					}
 				};
@@ -615,16 +653,6 @@
 			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
-
-		//var localSelectBrands = function (data) {
-		//	var retval = {};
-		//	if (!NA.common.isObjectEmpty(data)) {
-
-		//		for (var i = 0; i < data.length; i++) {
-		//			retval[i] = data.brandname;
-		//		}
-		//	}
-		//};
 		function fetcBrands(elem) {
 			//$("#id_brandname").autocomplete({ source: "SearchBrand/", minLength: 1, });
 			$(elem).autocomplete({
@@ -958,7 +986,7 @@
 					    //        maxDate: 'today',
 					    //    });
 					    //},
-					    formatter: 'date', formatoptions: { srcformat: 'd/m/Y', newformat: 'd/m/Y' }
+					    formatter: 'date', formatoptions: { srcformat: 'Y/m/d', newformat: 'd/m/Y' }
 					},
 					{
 					    name: 'createdby', width: 100, align: 'left',
@@ -1064,9 +1092,10 @@
 		                NValEndOfWarranty = NDate;
 		                //var NVal = FDate.getDate(
 		                //set grid cell
-		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty', formatDate(NDate));
+		                var dtStr = formatDate(NDate)
+		                gridTbl.jqGrid('setCell', rowid, 'endofwarranty',dtStr );
 		                // now change the internal local data
-		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = NDate;
+		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
 		                return true;
 		            }
 		
@@ -1357,7 +1386,7 @@
 									   		gridTbl.delRowData(NRowid);
 									   	}
 									   	else {
-									   		ShowAlert(textStatus, NA.common.message.titleError);
+									   		ShowAlert(textStatus.message, NA.common.message.titleError);
 									   		return false;
 									   	}
 									   }, null, function () {
@@ -1686,7 +1715,7 @@
 									ShowAlert(textStatus, NA.common.message.titleInfo);
 								}
 							}, null,
-							function () { throw new error(this.responseText + '\nStatus code :' + this.statusText); },
+							function () { XhrError(this); },
 							function () { window.document.body.style.cursor = 'default'; },
 							null);
 						//$.post(url, {}, function (data, textStatus, jqXHR) {
@@ -1727,13 +1756,12 @@
 				NA.NAEvent.addHandler(item, 'click', function (event) {
 					NA.NAEvent.preventDefault(event);
 					if (window.status !== 'Open') {
-						ExecuteHandler(event.target.innerText);
+					    ExecuteHandler(event.target.innerText);
 					}
-					//var curPage = grid.getGridParam('page')
-					//grid.trigger("reloadGrid", [{ page: 1 }]);
 					if (event) {
 						NA.NAEvent.stopPropagation(event);
-					} document.body.style.cursor = 'default';
+					}
+					win.document.body.style.cursor = 'default';
 					return false;
 				});
 			});
@@ -1743,6 +1771,7 @@
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}
+
 				document.body.style.cursor = 'default';
 				return false;
 			});
@@ -1859,8 +1888,7 @@
                                     //Auto Complete RefNO
                                     $("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                                     NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
-                                    Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
-                                       
+                                    Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {                                       
                                         NA.NAEvent.addHandler(item, 'keydown', function (event) {
                                             if (event.keyCode === 13) {//kalau menekan tombol enter
                                                 var NAAjax = NA.common.AJAX;
@@ -2043,7 +2071,7 @@
                                             }
                                             NA.NAEvent.stopPropagation(e);
                                         });
-                                        NA.NAEvent.addHandler(item, 'input', function (evt) {
+                                        NA.NAEvent.addHandler(item, 'input', function (evt) {                                         
                                             if (item.id === 'id_totalpurchase') {
                                                 if (parseInt(item.value) <= 0) {
                                                     this.setCustomValidity('total purchase is not allowed to be null or zero or negative');
