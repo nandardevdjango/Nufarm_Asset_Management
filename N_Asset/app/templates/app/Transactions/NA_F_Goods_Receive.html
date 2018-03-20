@@ -139,11 +139,11 @@
 						url: url,
 						mtype: "GET",
 						datatype: "json",//#column IDapp  no	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
-						colNames: ['idapp','RefNO', 'NO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received','Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO','RefNO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
-                            { name: 'idapp', key: true, hidden: true, align: 'left' },
-                            { name: 'refno', width: 80, align: 'left', sortable: true, editable: false, },
+                            { name: 'idapp', key: true, hidden: true, align: 'left' },                            
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+							{ name: 'refno', width: 80, align: 'left', sortable: true, editable: false, },
                             { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
                             { name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
@@ -387,27 +387,34 @@
 									        XhrError(this); throw Error('');
 									    }
 									    if (confirmText === 'OK') {
-									        if (submitForm()) {
-									            //clear kan semua data
-									            //reset menjadi seperti original value
-
-									            //for (var member in myObject) delete myObject[member]
-									        }
+									    	if (submitForm()) {
+									    		if (win.status === 'Add') {
+									    			//clear kan semua data
+									    			//focus langsung ke REFNO
+									    			//reset menjadi seperti original value
+									    		}
+									    		else {//status == edit
+									    			closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+									    		}
+									    		if (grid) {
+									    			win.document.body.style.cursor = 'wait';
+									    			grid.trigger("reloadGrid", [{ page: curPage }]);
+									    			win.document.body.style.cursor = 'default';
+									    		}
+									    	}
 									    }
-									    else {
+									    else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
 									        return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
-									            if (!frmEntry.checkValidity()) {
-									                var inputbtn = NA.common.getElementID('inputButton');
-									                inputbtn.click();
-									            }
-									            else {
-									                if (submitForm()) {
-									                    //clear kan semua data
-									                    //reset menjadi seperti original value
-
-									                    //for (var member in myObject) delete myObject[member]
-									                }
-									            }
+									        	if (submitForm()) {
+									        		//clear kan semua data
+									        		//focus langsung ke REFNO
+									        		//reset menjadi seperti original value
+									        		if (grid) {
+									        			win.document.body.style.cursor = 'wait';
+									        			grid.trigger("reloadGrid", [{ page: curPage }]);
+									        			win.document.body.style.cursor = 'default';
+									        		}
+									        	}
 									        });
 									    }										
 									}
@@ -436,11 +443,15 @@
 								}
 								else {
 									if (submitForm()) {
-									   closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); 
-										document.body.style.cursor = 'default';
+										closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+										if (grid) {
+											win.document.body.style.cursor = 'wait';
+											grid.trigger("reloadGrid", [{ page: curPage }]);
+										}
 									}
-									document.body.style.cursor = 'default';
+
 								}
+								document.body.style.cursor = 'default';
 							}, function () {
 							    closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
 								document.body.style.cursor = 'default';
@@ -546,7 +557,8 @@
 			var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 
-			valuesForm['datereceived'] = CDate;
+			valuesForm['datereceived'] = CDate, SuccesTrans = false;
+			
 			var NAAjax = NA.common.AJAX;
 			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
 			NAAjax.POST('ShowEntry_Receive', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
@@ -555,15 +567,14 @@
 				},
 				null,
 				function (e) {
-					if (this.statusText == "success") {
-						if (grid) {
-							grid.trigger("reloadGrid", [{ page: 1 }])
-							return true;
-						}
+					var Data = JSON.parse(this.responseText);
+
+					if (Data.message === "success") {
+						SuccesTrans = true;
 						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
 					}
 					else {//error berarti
-						XhrError(this); document.body.style.cursor = 'default'; 
+						XhrError(this); document.body.style.cursor = 'default';
 					}
 					document.body.style.cursor = 'default';
 				}, null,
@@ -583,7 +594,7 @@
 			//		return false;
 			//	}
 			//});
-			return false;
+			return SuccesTrans;
 		};
 		function EraseElHidden() {
 			var UlHiddenAuto = NA.common.doc.querySelector('ul.ui-menu.ui-widget.ui-widget-content.ui-autocomplete.ui-front');
@@ -1625,86 +1636,72 @@
 		//=========================================================================================     
 
 		NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
+			win.document.body.style.cursor = 'wait';
 			var idapp = getGridCellValue(grid,'idapp');
 			if (idapp) {
 				NA.NAEvent.preventDefault(event);
-			 	return BootstrapDialog.confirm({
-					title: NA.common.message.titleInfo,
-					message: NA.common.message.confirmDelete,
-					type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
-					size: BootstrapDialog.SIZE_SMALL,
-					animate: false,
-					closable: false, // <-- Default value is false
-					draggable: true, // <-- Default value is false
-					btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
-					btnOKLabel: 'Yes.', // <-- Default value is 'OK',
-					btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
-					callback: function (result) {
-						// result will be true if button was click, while it will be false if users close the dialog directly.
-						if (result) {
-							try {
-								//delete data di server 
-								var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
-								var NAAjax = NA.common.AJAX;
-								NAAjax.POST(url,
-									{ 'idapp': idapp },
-									'application/json',
-									'application/json',
-									null, null,
-									function () {
-										var textStatus = JSON.parse(this.responseText);
-										if (textStatus === 'success') {
-											var rowNum = grid.getGridParam('rowNum'),
-											allRecords = grid.getGridParam('records'),
-											totalPages = parseInt((allRecords / rowNum) + 1),
-											curPage = grid.getGridParam('page'),
-											rowId = grid.jqGrid('getGridParam', 'selrow'),
-											curRecount = grid.jqGrid('getGridParam', 'reccount');
-											mustReload = true;
-											if (parseInt(curRecount) === 1) {
-												if (totalPages > 1) {
-													curPage--;
-												}
-												else {
-													mustReload = false;
-													grid.delRowData(rowId);
-												}
-											}
-											else if (parseInt(totalPages) === 1) {
-												mustReload = false;
-												grid.delRowData(rowId);
-											}
-											else if (parseInt(curRecount) > 1) {
-												mustReload = false;
-												grid.delRowData(rowId);
-											}
-											if (mustReload) {
-												window.document.body.style.cursor = 'wait';
-												grid.trigger("reloadGrid", [{ page: curPage }]);
-											}
+				showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+					try {
+						//delete data di server 
+						var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
+						var NAAjax = NA.common.AJAX;
+						NAAjax.POST(url,
+							{ 'idapp': idapp },
+							'application/json',
+							'application/json',
+							null, null,
+							function () {
+								var textStatus = JSON.parse(this.responseText);
+								if (textStatus === 'success') {
+									var rowNum = grid.getGridParam('rowNum'),
+									allRecords = grid.getGridParam('records'),
+									totalPages = parseInt((allRecords / rowNum) + 1),
+									curPage = grid.getGridParam('page'),
+									rowId = grid.jqGrid('getGridParam', 'selrow'),
+									curRecount = grid.jqGrid('getGridParam', 'reccount');
+									mustReload = true;
+									if (parseInt(curRecount) === 1) {
+										if (totalPages > 1) {
+											curPage--;
 										}
-									}, null,
-									function () { throw new error(this.responseText + '\nStatus code :' + this.statusText); },
-									function () { window.document.body.style.cursor = 'default'; },
-									null);
-								//$.post(url, {}, function (data, textStatus, jqXHR) {
-								NA.NAEvent.stopPropagation(event);
-								//});
-							} catch (e) {
-								console.log(e);
-								window.document.body.style.cursor = 'default';
-								if (JSON.parse(e.message)) {
-								    ShowAlert(e.name + ': ' + JSON.parse(e.message));
+										else {
+											mustReload = false;
+											grid.delRowData(rowId);
+										}
+									}
+									else if (parseInt(totalPages) === 1) {
+										mustReload = false;
+										grid.delRowData(rowId);
+									}
+									else if (parseInt(curRecount) > 1) {
+										mustReload = false;
+										grid.delRowData(rowId);
+									}
+									if (mustReload) {
+										window.document.body.style.cursor = 'wait';
+										grid.trigger("reloadGrid", [{ page: curPage }]);
+									}
 								}
-								else {
-								    ShowAlert(e);
+								else if (this.status == 203) {
+									ShowAlert(textStatus, NA.common.message.titleInfo);
 								}
-							}
+							}, null,
+							function () { throw new error(this.responseText + '\nStatus code :' + this.statusText); },
+							function () { window.document.body.style.cursor = 'default'; },
+							null);
+						//$.post(url, {}, function (data, textStatus, jqXHR) {
+						NA.NAEvent.stopPropagation(event);
+						//});
+					} catch (e) {
+						console.log(e);
+						if (JSON.parse(e.message)) {
+							ShowAlert(e.name + ': ' + JSON.parse(e.message));
 						}
 						else {
-							return false;
+							ShowAlert(e);
 						}
 					}
+					win.document.body.style.cursor = 'wait';
 				});
 			}
 			else {

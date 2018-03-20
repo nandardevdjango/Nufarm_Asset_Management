@@ -1951,15 +1951,15 @@ Object.defineProperties(NA.Priviledge, {
         set: function (newValue) { this._rolCode = newValue; },
     },
     UserName: {
-        get: function () { this._userName; },
+        get: function () { return this._userName; },
         set: function (newValue) { this._userName = newValue; },
     },
     password: {
-        get: function () { this._password; },
+        get: function () { return this._password; },
         set: function (newValue) { this._password = newValue; },
     },
     IsAdmin: {
-        get: function () { this._isAdmin; },
+        get: function () { return this._isAdmin; },
         set: function (newValue) { this._isAdmin = newValue; },
     }
 });

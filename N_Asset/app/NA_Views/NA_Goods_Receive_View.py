@@ -216,12 +216,18 @@ def HasRefDetail(request):
 def Delete(request):
 	result = ''
 	try:
+		statuscode = 200
 		#result=NAGoodsReceive.objects.delete(
 		IDApp = request.POST.get('idapp')
 		Ndata = NAGoodsReceive.objects.getData(IDApp)[0]
 		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata.idapp_fk_goods,'datereceived':Ndata.datereceived}
-		result = NAGoodsReceive.objects.delete(Data)
-		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json') 
+		#check reference data
+		if NAGoodsReceive.objects.hasRefDetail(NAData):
+			result = 'Can not delete data\Data has child-referenced '
+			statuscode = 203
+		else:
+			result = NAGoodsReceive.objects.delete(Data)
+		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

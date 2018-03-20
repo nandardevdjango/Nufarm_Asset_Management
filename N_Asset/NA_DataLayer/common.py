@@ -206,7 +206,7 @@ class commonFunct:
 
 	#TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
 	#buat query union untuk mendapatkan barang mana saja yang sudah di pakai
-	def getTotalGoods(FKGoods,cur,username):
+	def getTotalGoods(FKGoods,cur,username,closeCursor=False):
 		"""FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
 		:param int FKGoods: idapp_fk_goods
 		:param object cur: cursor active
@@ -289,7 +289,8 @@ class commonFunct:
 		#drop table temporary
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
 		cur.execute(Query)
-		cur.close();
+		if closeCursor:
+			cur.close();
 		return(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare)		  
 		#dengan status
 		#query = """SELECT COUNT

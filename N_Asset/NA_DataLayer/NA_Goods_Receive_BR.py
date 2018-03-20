@@ -33,7 +33,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.execute(Query)		
 		#CREATE TEMPORARY TABLE IF NOT EXISTS  temp_table ( INDEX(col_2) ) ENGINE=MyISAM AS (SELECT col_1, coll_2, coll_3  FROM mytable)
 		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
-	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),'ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
+	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
 	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee WHERE InActive = 0 AND InActive IS NOT NULL) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"
@@ -91,7 +91,8 @@ class NA_BR_Goods_Receive(models.Manager):
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber  IN ({1}) )".format(strResult,strResult)
 		TParams =  [Data.idapp_fk_goods, Data.datereceived,results,Data.idapp_fk_goods, Data.datereceived,results]
 		cur.execute(Query,TParams)
-		hasRef = cur.rowcount >0
+		row = cur.fetchone()
+		hasRef = commonFunct.str2bool(str(row[0]))
 		if not hasRef:
 			Query ="""SELECT DISTINCT(TypeApp) AS TypeApp FROM n_a_goods_receive_detail WHERE FKApp = %s AND TypeApp IS NOT NULL"""
 			cur.execute(Query,[Data.idapp])
@@ -102,7 +103,8 @@ class NA_BR_Goods_Receive(models.Manager):
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s  AND Qty >= 1 AND TypeApp IN ({1}) )".format(strResult,strResult)
 				TParams =  [Data.idapp_fk_goods, Data.datereceived,results,Data.idapp_fk_goods, Data.datereceived,results]
 				cur.execute(Query,TParams)
-				hasRef = cur.rowcount >0
+				row = cur.fetchone()
+				hasRef = commonFunct.str2bool(str(row[0]))
 		if mustCloseConnSection:
 			cur.close()
 		return hasRef
@@ -141,22 +143,27 @@ class NA_BR_Goods_Receive(models.Manager):
 				if Status == StatusForm.Input:
 					#insert data transaction
 					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
-							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s),%(descbysystem)%"""
+							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s,%(descbysystem)s)"""
 					Params.update(CreatedBy=Data['createdby']) 
 					cur.execute(Query,Params)
 					#get primary key
 					cur.execute('SELECT last_insert_id()')
-					FKApp = cursor.fetchone()
+					row = cur.fetchone()
+					FKApp = row[0]
 					#Insert Detail
 					
 					if detCount > 0:
 						#tambahkan detail pada FK_App
+						details = []
+						detail = []
 						for i in range(detCount):
-							dataDetail[i]['FK_App'] = FKApp
-						details = [tuple(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
+							dataDetail[i]['fkapp'] = str(FKApp)
+							details.append(tuple(dataDetail[i].values()))
+						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
+						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
 									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
-						cur.executemany(query,details)
+						cur.executemany(Query,details)
 				elif Status == StatusForm.Edit:
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
 					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
@@ -173,8 +180,9 @@ class NA_BR_Goods_Receive(models.Manager):
 							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
 							Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
 							cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
-							recCount = cur.rowcount
-							if recCount > 0:
+							row = cur.fetchone()
+							HasRows = commonFunct.str2bool(str(row[0]))
+							if HasRows:
 								#data sudah ada
 								#check hasrefDetail jika data sudah ada reference data anak
 								hasRefDetail = commonFunct.str2bool(dataDetail[i]['HasRef'])
@@ -191,16 +199,19 @@ class NA_BR_Goods_Receive(models.Manager):
 										VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
 								cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['waranty'],dataDetail[i]['endofwarranty'],'createdby'])	
 				#update NA_stock
-				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE idapp_FK_goods = %(idapp_FK_goods)s)"""
+				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
-				if cur.rowcount >0:
+				row = cur.fetchone()
+				HasRows = commonFunct.str2bool(str(row[0]))
+				if HasRows:
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
 					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
+					cur.execute(Query,Params)
 					cur.close()	
 					return 'success'
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
-							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,now(),%(CreatedBy)s)"""
+							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
 					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'Createdby':Data['createdby']}
 				cur.execute(Query,Params)
 				cur.close()
