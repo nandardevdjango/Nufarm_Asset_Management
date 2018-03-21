@@ -211,8 +211,8 @@ class NA_BR_Goods_Receive(models.Manager):
 					return 'success'
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
-							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew),0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
-					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'Createdby':Data['createdby']}
+							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew)s,0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
+					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'CreatedBy':Data['createdby']}
 				cur.execute(Query,Params)
 				cur.close()
 		except Exception as e:

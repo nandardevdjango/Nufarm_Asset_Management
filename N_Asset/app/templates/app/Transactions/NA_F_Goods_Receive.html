@@ -108,6 +108,7 @@
         txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         status = status || win.status, csrftoken = function () { return NA.CookieUtil.get('csrftoken'); }, initializeForm = '',
+        TypeApps = [],
         //settings btn sesuai user access
         //anggap saja sekarang admin
         btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
@@ -343,6 +344,7 @@
 		};
 		function clearEntry() {
 		    var oInit = NA.common.getElementID('id_initializeForm').value;
+            //if (oInit){
 		    var originalData = JSON.parse(oInit);
 
 		    var elidapp = NA.common.getElementID('id_idapp'); elidapp.value = originalData.idapp;
@@ -469,8 +471,8 @@
 					case 'Close': {
 						//check if data has changed with javascrispt
 						initializeForm = NA.common.getElementID('id_initializeForm');
-						if (status === 'Open' || initializeForm.Value == '') { closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); return false; }
-						var originalData = JSON.parse(initializeForm.Value);
+						if (status === 'Open') { closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); return false; }
+						var originalData = JSON.parse(initializeForm.value);
 						var valuesForm = getValuesForm();
 						if (NA.common.detectInputChanges(originalData, valuesForm)) {
 							return showConfirmation(NA.common.message.dataHasChanged, NA.common.message.confirmInfo,
@@ -781,10 +783,10 @@
 				    // now change the internal local data
 				    gridTbl.jqGrid('getLocalRow', rowID).warranty = warranty;
 
-				    endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
-				    //gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
-				    // now change the internal local data
-				    gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
+				    //endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
+				    ////gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
+				    //// now change the internal local data
+				    //gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
 
 				    if (win.status === 'Add') {
 				        gridTbl.jqGrid('setCell', rowID, 'createdby',NA.Priviledge.UserName );
@@ -878,6 +880,11 @@
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })() },
 					    editoptions: {
+					        dataInit: function (elem) {
+					            $(elem).autocomplete({
+                                    source:TypeApps,
+					            });
+					        },
 					    	class: 'NA-Form-Control', placeholder: function () {
 					    		if ($(this).val() === '') { return 'type of brand'; }
 					    	}
@@ -986,7 +993,7 @@
 					    //        maxDate: 'today',
 					    //    });
 					    //},
-					    formatter: 'date', formatoptions: { srcformat: 'Y/m/d', newformat: 'd/m/Y' }
+					    formatter: 'date'//, formatoptions: { srcformat: 'Y/m/d', newformat: 'd-m-Y' }
 					},
 					{
 					    name: 'createdby', width: 100, align: 'left',
@@ -1073,7 +1080,7 @@
 		                //    intDigit = parseInt(modVal.toString().replace('0,', ''));//integer dari decimal 0.20 = 20
 		                //}
 		               
-		                var intVal = parseInt(value - modVal);
+		                var intVal = Math.round(value) - Math.round(modVal);
 		                var dtReceived = $('#id_datereceived').val();
 		                if (dtReceived === '') {
 		                	ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
@@ -1098,7 +1105,14 @@
 		                gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
 		                return true;
 		            }
-		
+		            else if (cellname === 'typeapp') {
+		                if (TypeApps.indexOf(value) <= -1) {
+		                    TypeApps.push(value);
+		                }
+		            }
+		            else if (cellname === 'serialnumber') {
+                        //check ke database
+		            }
 		        },
 		        afterEditCell: function (rowid, cellname, value, iRow, iCol) {
 		        	// Get a handle to the actual input field
@@ -1866,7 +1880,7 @@
                                     originalData = JSON.stringify(getValuesForm());
                                     //$('#id_initializeForm').val(originalData);
                                     initializeForm = NA.common.getElementID('id_initializeForm');
-                                    initializeForm.Value = originalData;                        		
+                                    initializeForm.value = originalData;                        		
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
                                         var valPlaceHolder = item.dataset.value;
                                         NA.NAEvent.addHandler(item, 'focus', function (event) {

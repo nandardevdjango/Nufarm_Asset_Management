@@ -140,7 +140,7 @@ def ShowEntry_Receive(request):
 					#build descriptions
 					for i in range(detCount):
 						desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
-						if i <detCount:
+						if i <detCount -1:
 							desc += ', '
 				desc += ')'
 				data.update(descbysystem=desc)
