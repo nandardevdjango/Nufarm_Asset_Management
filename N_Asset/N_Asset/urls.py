@@ -72,6 +72,7 @@ urlpatterns = [
 	#url(r'^NA_Goods_Receive/HasRef/$',NA_Goods_Receive_View.HasRef,name='HasRef'),
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
+	url(r'^NA_Goods_Receive/HasExistSN/$',NA_Goods_Receive_View.ExistSerialNO,name='ExistSerialNO'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

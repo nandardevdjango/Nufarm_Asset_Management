@@ -68,6 +68,21 @@ def NA_Goods_Receive_Search(request):
 		rows.append(datarow)
 	results = {"page": int(request.GET.get('page', '1')),"total": totalRecord/int( request.GET.get('page', '1')) ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+def ExistSerialNO(request):
+	authentication_classes = []
+	statuscode = 200
+	data = None
+	data = request.body
+	data = json.loads(data)
+	SN = data['serialnumber']
+	result = ''
+	try:
+		result = NAGoodsReceive.objects.hasEsitsSN(SN)
+		result = str2bool(result)
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+	return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
 def getRefNO(request):
 	if(request.is_ajax()):
@@ -116,89 +131,94 @@ def ShowEntry_Receive(request):
 	initializationForm={}
 	statuscode = 200
 	data = None
-	if request.POST:
-		data = request.body
-		data = json.loads(data)
-		status = data['status']
-	else:
-		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
-		#set initilization
-	if status == 'Add':		
+	try:
 		if request.POST:
-			form = NA_Goods_Receive_Form(data)
-			statuscode = 200
-			if form.is_valid():
-				#save data
-				#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
-				form.clean()
-				dataDetail = list(json.loads(data.get('dataForGridDetail')));				
-				data = getCurrentDataModel(request,form)	
-				desc = '('				
-				#dataDetail = object_list
-				if len(dataDetail) > 0:
-					detCount = len(dataDetail)
-					#build descriptions
-					for i in range(detCount):
-						desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
-						if i <detCount -1:
-							desc += ', '
-				desc += ')'
-				data.update(descbysystem=desc)
-				result = NAGoodsReceive.objects.SaveData(data,StatusForm.Input)
-				if result != 'success':
-					statuscode = 500
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-			else: 
-				return HttpResponse(json.dumps({'message':'invalid form data'}),status = 400, content_type='application/json')
-		else:				
-			form = NA_Goods_Receive_Form(initial=initializationForm)
-			form.fields['status'].widget.attrs = {'value':status}	
-			form.fields['hasRefData'].widget.attrs = {'value': False}
-			return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
-	elif status == 'Edit' or status == "Open":	
-		hasRefData = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)	
-		if request.POST:
-			form = NA_Goods_Receive_Form(data)
-			if form.is_valid():
-				form.clean()
-				#save data
-				data = getCurrentDataModel(request,form);
-				data.update(idapp=data['idapp'])
-				data.update(hasRefData=hasRefData)
-				result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
-				if result != 'success':
-					statuscode = 500
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-				#check itemCode
-				#if scorm.objects.filter(Header__id=qp.id).exists()				
-				#return HttpResponse('success', 'text/plain')
+			data = request.body
+			data = json.loads(data)
+			status = data['status']
 		else:
-			#get data from database
-			IDApp = data['idapp']
-			#Ndata = goods.objects.getData(IDApp)[0]
-			Ndata = NAGoodsReceive.objects.getData(IDApp)[0]	
-			#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-			NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
-					'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
-					'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem,'economiclife':Ndata.economiclife}
-			NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
-			NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata.idapp_fk_goods)
-			rows = []			
-			i = 0;
-			#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-			for row in NADetailRows:
-				datarow = {"id" :i+1, "cell" :[row[i]['idapp'],row[i]['fkapp'], i+1,row[i]['brandname'],row[i]['priceperunit'],row[i]['typeapp'],row[i]['serialnumber'],row[i]['warranty'],row[i]['endofwarranty'], \
-				row[i]['createdby'],row[i]['createddate'],row[i]['modifiedby'],row[i]['modifieddate'],row[i]['HasRef']]}
-				rows.append(datarow)
-			dataForGridDetail = {"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
-			#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
-			NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
-			form = NA_Goods_Receive_Form(data=NAData)
-			form.fields['status'].widget.attrs = {'value':status}
-			if hasRefData:
-				form.fields['totalreceived'].disabled = True
-			form.fields['hasRefData'].widget.attrs = {'value': str2bool(hasRefData)} 
-			return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
+			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
+			#set initilization
+		if status == 'Add':		
+			if request.POST:
+				form = NA_Goods_Receive_Form(data)
+				statuscode = 200
+				if form.is_valid():
+					#save data
+					#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
+					form.clean()
+					dataDetail = list(json.loads(data.get('dataForGridDetail')));				
+					data = getCurrentDataModel(request,form)	
+					desc = '('				
+					#dataDetail = object_list
+					if len(dataDetail) > 0:
+						detCount = len(dataDetail)
+						#build descriptions
+						for i in range(detCount):
+							desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
+							if i <detCount -1:
+								desc += ', '
+					desc += ')'
+					data.update(descbysystem=desc)
+					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Input)
+				if result != 'success':
+					statuscode = 500
+					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				else: 
+					return HttpResponse(json.dumps({'message':'invalid form data'}),status = 400, content_type='application/json')
+			else:				
+				form = NA_Goods_Receive_Form(initial=initializationForm)
+				form.fields['status'].widget.attrs = {'value':status}	
+				form.fields['hasRefData'].widget.attrs = {'value': False}
+				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
+		elif status == 'Edit' or status == "Open":			
+			if request.POST:
+				hasRefData = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)	
+				form = NA_Goods_Receive_Form(data)
+				if form.is_valid():
+					form.clean()
+					#save data
+					data = getCurrentDataModel(request,form);
+					data.update(idapp=data['idapp'])
+					data.update(hasRefData=hasRefData)
+					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
+					if result != 'success':
+						statuscode = 500
+					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+					#check itemCode
+					#if scorm.objects.filter(Header__id=qp.id).exists()				
+					#return HttpResponse('success', 'text/plain')
+			else:
+				#get data from database
+				IDApp = request.GET.get('idapp')
+				#Ndata = goods.objects.getData(IDApp)[0]
+				Ndata = NAGoodsReceive.objects.getData(IDApp)[0]	
+				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+				NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods_desc,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
+						'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
+						'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem,'economiclife':Ndata.economiclife}
+				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
+				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata.idapp_fk_goods)
+				rows = []			
+				i = 0;
+				#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
+				for row in NADetailRows:
+					datarow = {"id" :i+1, "cell" :[row[i]['idapp'],row[i]['fkapp'], i+1,row[i]['brandname'],row[i]['priceperunit'],row[i]['typeapp'],row[i]['serialnumber'],row[i]['warranty'],row[i]['endofwarranty'], \
+					row[i]['createdby'],row[i]['createddate'],row[i]['modifiedby'],row[i]['modifieddate'],row[i]['HasRef']]}
+					rows.append(datarow)
+				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
+				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+				NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
+				form = NA_Goods_Receive_Form(data=NAData)
+				form.fields['status'].widget.attrs = {'value':status}
+				if hasRefData:
+					form.fields['totalreceived'].disabled = True
+				form.fields['hasRefData'].widget.attrs = {'value': str2bool(hasRefData)} 
+				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+	
 def HasRefDetail(request):	
 	data = request.POST.get('data')
 	data = json.loads(data)	
@@ -439,9 +459,9 @@ class NA_Goods_Receive_Form(forms.Form):
 	employee_received = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'Employee who Receives','data-value':'Employee who Receives','tittle':'Employee who Receives is required'}))
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','tabindex':8,'style':'max-width: 520px;width: 444px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods received (remark)','data-value':'descriptions about goods received (remark)'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
-	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput())
-	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput())
-	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput())
+	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	status = forms.CharField(widget=forms.HiddenInput(),required=False)
 	economiclife = forms.CharField(widget=forms.HiddenInput(),required=False)
 		#initializeForm = forms.CharField(widget=forms.HiddenInput(attrs={'value':{'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False}}),required=False)
