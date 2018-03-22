@@ -61,20 +61,20 @@ class NA_BR_Goods_Receive(models.Manager):
 	def getRefNO(self,searchRefNO):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('refno').distinct()
 	def getData(self,IDApp):
-		Query = """SELECT ngr.IDapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS FK_goods, goodsname as goods_desc,g.economiclife, \
+		Query = """SELECT  1 as id,ngr.IDapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS FK_goods, goodsname as goods_desc,g.economiclife, \
 	    ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fK_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
 	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %s"""
 		return self.raw(Query,[IDApp])
-	def getDetailData(self,fkApp,idapp_fk_goods,serialnumber):
+	def getDetailData(self,fkApp,idapp_fk_goods):
 		#GET idapp_fk_goods
-		Query = """SELECT grd.*,HasRef = CONVERT((EXISTS(SELECT serialnumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber)  \
-												OR EXISTS(SELECT serialnumber FROM n_a_goods_lending WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber) \
-												OR EXISTS(SELECT serialnumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber) \
-											    OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s, AND SerialNumber = grd.SerialNumber)),BIT) \
-				FROM n_a_goods_receve_detail AS grd WHERE grd.FKApp = %(FKApp)s ORDER By grd.IDApp ASC """
-		return self.raw(Query,{'fkApp':fkApp,'FK_Goods':idapp_fk_goods})
+		Query = """SELECT 1 as id, grd.*, CONVERT((EXISTS(SELECT serialnumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)  \
+												OR EXISTS(SELECT serialnumber FROM n_a_goods_lending WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
+												OR EXISTS(SELECT serialnumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
+											    OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)),INT)  AS HasRef \
+				FROM n_a_goods_receive_detail AS grd WHERE grd.FK_App = %(FKApp)s ORDER By grd.IDApp ASC """
+		return self.raw(Query,{'FKApp':fkApp,'FK_Goods':idapp_fk_goods})
 	def hasEsitsSN(self,SN):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c

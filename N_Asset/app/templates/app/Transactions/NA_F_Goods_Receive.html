@@ -107,7 +107,7 @@
         grid = $("#jqGrid_NA_F_Goods_Receive"),
         txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
-        status = status || win.status, csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
+        csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
         TypeApps = [],
         //settings btn sesuai user access
         //anggap saja sekarang admin
@@ -255,7 +255,7 @@
 				employee_received = elemployee_received.value;
 			var eldescriptions = NA.common.getElementID('id_descriptions'),
 				descriptions = eldescriptions.value;
-			var status = window.status||NA.common.getElementID('id_status').value,
+			var status = win.status||NA.common.getElementID('id_status').value,
 				hasRefData = NA.common.getElementID('id_hasRefData').value;
 			var eldescBySystem = NA.common.getElementID('id_descbysystem'),
 				descbysystem = eldescBySystem.value;
@@ -487,7 +487,7 @@
 					case 'Close': {
 						//check if data has changed with javascrispt
 						//initializeForm = NA.common.getElementID('id_initializeForm');
-						if (status === 'Open') { closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); return false; }
+					    if (win.status === 'Open') { closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); win.document.body.style.cursor = 'default'; return false; }
 						var valuesForm = getValuesForm();
 						if (NA.common.detectInputChanges(JSON.parse(originalData), valuesForm)) {
 							return showConfirmation(NA.common.message.dataHasChanged, NA.common.message.confirmInfo,
@@ -522,7 +522,7 @@
 			} catch (e) {
 				return false;
 			}
-			document.body.style.cursor = 'default';
+			win.document.body.style.cursor = 'default';
 			return true;
 		};
 		function GetServerFormatDate(formatedDateString) {//dd/mm/yy
@@ -1136,7 +1136,7 @@
 								if (this.status === 200) {
 									var result = JSON.parse(this.responseText);
 									if (result) {
-										return ShowAlert('Serial Number has exists', NA.common.message.existsData, function () {
+										return ShowAlert('Serial Number has existed', NA.common.message.existsData, function () {
 											gridTbl.setSelection(rowid, false);
 											win.document.body.style.cursor = 'default';
 										});
@@ -1146,7 +1146,6 @@
 							function () {//onerror
 								win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
 							});
-
 		        	}
 		        },
 		        afterEditCell: function (rowid, cellname, value, iRow, iCol) {
@@ -1547,6 +1546,34 @@
 		    }
 		    EraseElHidden();
 		};
+
+		function setDisabledControls() {
+		    var elRefNO = NA.common.getElementID('id_refno'); elRefNO.setAttribute('readonly', true);	
+		    var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
+		    var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
+		    var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('readonly', true);
+		    var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.setAttribute('readonly', true);
+		    var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.setAttribute('readonly', true);
+		    var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
+		    var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.setAttribute('readonly', true);
+		    var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.setAttribute('readonly', true);
+		    var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.setAttribute('readonly', true);
+		    var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.setAttribute('readonly', true);
+		    var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.setAttribute('readonly', true);
+		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
+		    gridTbl.jqGrid("setColProp", "brandname", { editable: false });
+		    gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
+		    gridTbl.jqGrid("setColProp", "typeapp", { editable: false });
+		    gridTbl.jqGrid("setColProp", "serialnumber", { editable: false });
+		    gridTbl.jqGrid("setColProp", "warranty", { editable: false });
+		    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
+		    btnFindGoods.setAttribute('disabled', true);
+		    btnFindSuplier.setAttribute('disabled', true);
+		    btnFindPRBy.setAttribute('disabled', true);
+		    btnFindReceivedBy.setAttribute('disabled', true);
+		    btnAddDetail.setAttribute('disabled', true);
+		    btnCancelDetail.setAttribute('disabled', true);
+		}
 		//========================END GROUP FUNCTION DECLARATION===================================
         
 		//=======================GROUP FUNCTION EVENT=============================================
@@ -1693,7 +1720,8 @@
 			SearchData.setValue('');
 			LoadData(1);
 			window.document.body.style.cursor = 'default';
-		};		
+		};
+
 		//=======================END GROUP FUNCTION EVENT========================================
 
 		//=======================GROUP ASSINGED HANDLER ========================================= 
@@ -1804,7 +1832,7 @@
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 				NA.NAEvent.addHandler(item, 'click', function (event) {
 					NA.NAEvent.preventDefault(event);
-					if (window.status !== 'Open') {
+					if (win.status !== 'Open') {
 					    ExecuteHandler(event.target.innerText);
 					}
 					if (event) {
@@ -1829,16 +1857,23 @@
 		        	var idapp = 0;
 		        	if (target.innerText.trim() !== 'Add') {
 		        		idapp = getGridCellValue(grid, 'idapp');
-		                if (typeof idapp == 'undefined' || idapp === '') {
-		                    ShowAlert('Please select data to edit');
-		                    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
-		                    if (dialog) {
-		                        //closeJQueryDialog();
-		                        NA.common.dialog.closeDialog(dialog);
-		                    }
-		                    if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
-		                    return false;
-		                }
+		        		if (typeof idapp == 'undefined' || idapp === '') {
+		        		    ShowAlert('Please select data to edit');
+		        		    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+		        		    if (dialog) {
+		        		        //closeJQueryDialog();
+		        		        NA.common.dialog.closeDialog(dialog);
+		        		    }
+		        		    if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
+		        		    return false;
+		        		}
+		        		else if (target.innerText.trim() === 'Open') {
+		        		    Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+		        		        if (!item.hasAttribute('disabled')) {
+		        		            item.setAttribute('disabled', true);
+		        		        }
+		        		    });
+		        		}
 		            }
 		            $('div.maindialogContent').load("ShowEntry_Receive?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) +
                         '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data                    
@@ -1855,9 +1890,7 @@
                                     btnAddDetail = NA.common.getElementID('btnAddDetail'),
                                     btnCancelDetail = NA.common.getElementID('btnCancelDetail');
                                 //======================end BUTTONS Search================================================
-
-                                status = status || win.status || target.innerText.trim();
-                                switch (status) {
+                                switch (win.status) {
                                 	case 'Add': {
                                 		Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
                                 			if (item.hasAttribute('disabled')) {
@@ -1892,25 +1925,20 @@
 										btnCancelDetail.parentNode.removeChild(btnCancelDetail);
                                 		break;
                                 	}
-                                	case 'Open': {
-                                		Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
-                                			if (!item.hasAttribute('disabled')) {
-                                				item.setAttribute('disabled', true);
-                                			}//remove attribute disable untuk button OK dan cancel bila statusnya Add
-                                		});
-                                		btnFindGoods.setAttribute('disabled', true);
-                                		btnFindSuplier.setAttribute('disabled', true);
-                                		btnFindPRBy.setAttribute('disabled', true);
-                                		btnFindReceivedBy.setAttribute('disabled', true);
-                                		btnAddDetail.setAttribute('disabled', true);
-                                		btnCancelDetail.setAttribute('disabled', true);
+                                	case 'Open': {                                	
                                 		//bind data to grid detail
-                                		//display full 
+                                		CreateGridDetail()
+                                	    //setDisabledcontrol
+                                		setDisabledControls();
+                                	    //remove btnAddDetail
+                                	    //remove btnCancellDetail
+                                		btnAddDetail.parentNode.removeChild(btnAddDetail);
+                                		btnCancelDetail.parentNode.removeChild(btnCancelDetail);
                                 		break;
                                 	}
                                 };
 
-                                if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit                                   
+                                if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit                                   
                                     //simpan original data di initializeForm
                                      originalData = JSON.stringify(getValuesForm());
                                     //$('#id_initializeForm').val(originalData);
@@ -1939,6 +1967,11 @@
                                     NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {                                       
                                         NA.NAEvent.addHandler(item, 'keydown', function (event) {
+                                            if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                                                NA.NAEvent.preventDefault(event);//prevent from submit
+                                                event.stopImmediatePropagation();
+                                                return false;
+                                            }
                                             if (event.keyCode === 13) {//kalau menekan tombol enter
                                                 var NAAjax = NA.common.AJAX;
                                                 switch (this.id) {
@@ -2084,15 +2117,19 @@
                                         var elTotalReceived = NA.common.getElementID('id_totalreceived'),
                                             elTotalPurchase = NA.common.getElementID('id_totalpurchase');
                                         NA.NAEvent.addHandler(item, 'paste', function (e) {
+                                            if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                                                NA.NAEvent.preventDefault(e);
+                                                return false;
+                                            }
                                             if (!/^\d*$/.test(text)) {
                                                 NA.NAEvent.preventDefault(e);
                                             }
                                             NA.NAEvent.stopPropagation(e);
                                         });
                                         NA.NAEvent.addHandler(item, 'keydown', function (e) {
-                                            if (item.getAttribute("disabled")) {
-                                                e.returnValue = false;
+                                            if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                                                 NA.NAEvent.preventDefault(e);
+                                                NA.NAEvent.stopPropagation(e);
                                                 return false;
                                             }
                                             if (item.id === 'id_totalreceived') {
@@ -2115,12 +2152,11 @@
                                                 }
                                             }                                  
                                             else if (!NA.common.numberInput(e)) {
-                                                e.returnValue = false;
                                                 NA.NAEvent.preventDefault(e);
                                             }
                                             NA.NAEvent.stopPropagation(e);
                                         });
-                                        NA.NAEvent.addHandler(item, 'input', function (evt) {                                         
+                                        NA.NAEvent.addHandler(item, 'input', function (evt) {
                                             if (item.id === 'id_totalpurchase') {
                                                 if (parseInt(item.value) <= 0) {
                                                     this.setCustomValidity('total purchase is not allowed to be null or zero or negative');
