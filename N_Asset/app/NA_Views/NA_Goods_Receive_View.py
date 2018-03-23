@@ -131,6 +131,7 @@ def ShowEntry_Receive(request):
 	initializationForm={}
 	statuscode = 200
 	data = None
+	hasRefData = False
 	try:
 		if request.POST:
 			data = request.body
@@ -171,7 +172,8 @@ def ShowEntry_Receive(request):
 				form.fields['status'].widget.attrs = {'value':status}	
 				form.fields['hasRefData'].widget.attrs = {'value': False}
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
-		elif status == 'Edit' or status == "Open":			
+		elif status == 'Edit' or status == "Open":	
+					
 			if request.POST:
 				hasRefData = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)	
 				form = NA_Goods_Receive_Form(data)
@@ -192,19 +194,20 @@ def ShowEntry_Receive(request):
 				#get data from database
 				IDApp = request.GET.get('idapp')
 				#Ndata = goods.objects.getData(IDApp)[0]
-				Ndata = NAGoodsReceive.objects.getData(IDApp)[0]	
+				Ndata = NAGoodsReceive.objects.getData(IDApp)
+				Ndata = Ndata[0]
 				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-				NAData = {'idapp':idapp,'refno':Ndata.refno,'idapp_fk_goods':Ndata.idapp_fk_goods,'fk_goods':Ndata.fk_goods,'goods_desc':Ndata.goods_desc,'datereceived':Ndata.datereceived,'fk_suplier':Ndata.fk_suplier,'supliername':Ndata.supliername,
-						'totalpurchase':Ndata.totalpurchase,'totalreceived':Ndata.totalreceived,'idapp_fk_received':Ndata.idapp_fk_received,'fk_receivedby':Ndata.fk_receivedby,'employee_received':Ndata.employee_received,
-						'idapp_fk_p_r_by':Ndata.idapp_fk_p_r_by,'fk_p_r_by':Ndata.idapp_fk_p_r_by,'employee_pr':Ndata.employee_pr,'descriptions':Ndata.descriptions,'descbysystem':Ndata.descbysystem,'economiclife':Ndata.economiclife}
+				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_suplier':Ndata['fk_suplier'],'supliername':Ndata['supliername'],
+						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_received':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
+						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['idapp_fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
-				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata.idapp_fk_goods)
+				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
 				rows = []			
 				i = 0;
 				#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
 				for row in NADetailRows:
-					datarow = {"id" :i+1, "cell" :[row[i]['idapp'],row[i]['fkapp'], i+1,row[i]['brandname'],row[i]['priceperunit'],row[i]['typeapp'],row[i]['serialnumber'],row[i]['warranty'],row[i]['endofwarranty'], \
-					row[i]['createdby'],row[i]['createddate'],row[i]['modifiedby'],row[i]['modifieddate'],row[i]['HasRef']]}
+					datarow = {"id" :i+1, "cell" :[row['IDApp'],row['FK_App'], i+1,row['BrandName'],row['PricePerUnit'],row['TypeApp'],row['SerialNumber'],row['warranty'],row['EndOfWarranty'], \
+					row['CreatedBy'],row['CreatedDate'],row['ModifiedBy'],row['ModifiedDate'],row['HasRef']]}
 					rows.append(datarow)
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
