@@ -1567,6 +1567,12 @@
 		    gridTbl.jqGrid("setColProp", "serialnumber", { editable: false });
 		    gridTbl.jqGrid("setColProp", "warranty", { editable: false });
 		    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
+		    var btnFindGoods = NA.common.getElementID('FE_fk_goods'),
+                                   btnFindSuplier = NA.common.getElementID('FE_fk_suplier'),
+                                   btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
+                                   btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
+                                   btnAddDetail = NA.common.getElementID('btnAddDetail'),
+                                   btnCancelDetail = NA.common.getElementID('btnCancelDetail');
 		    btnFindGoods.setAttribute('disabled', true);
 		    btnFindSuplier.setAttribute('disabled', true);
 		    btnFindPRBy.setAttribute('disabled', true);

@@ -193,9 +193,11 @@ def ShowEntry_Receive(request):
 			else:
 				#get data from database
 				IDApp = request.GET.get('idapp')
+
 				#Ndata = goods.objects.getData(IDApp)[0]
 				Ndata = NAGoodsReceive.objects.getData(IDApp)
 				Ndata = Ndata[0]
+				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':Ndata['idapp'],'idapp_fk_goods':Ndata['idapp_fk_goods'], 'datereceived':Ndata['datereceived']},False)
 				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_suplier':Ndata['fk_suplier'],'supliername':Ndata['supliername'],
 						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_received':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
@@ -205,9 +207,12 @@ def ShowEntry_Receive(request):
 				rows = []			
 				i = 0;
 				#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
+				#var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
+		  #  	DummyData.push(rowData);
 				for row in NADetailRows:
-					datarow = {"id" :i+1, "cell" :[row['IDApp'],row['FK_App'], i+1,row['BrandName'],row['PricePerUnit'],row['TypeApp'],row['SerialNumber'],row['warranty'],row['EndOfWarranty'], \
-					row['CreatedBy'],row['CreatedDate'],row['ModifiedBy'],row['ModifiedDate'],row['HasRef']]}
+					datarow = {'idapp':row['IDApp'],'.fkapp':row['FK_App'], 'no':i+1,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
+						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['warranty'],'endofwarranty':row['EndOfWarranty'], \
+						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef']))}
 					rows.append(datarow)
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -216,7 +221,7 @@ def ShowEntry_Receive(request):
 				form.fields['status'].widget.attrs = {'value':status}
 				if hasRefData:
 					form.fields['totalreceived'].disabled = True
-				form.fields['hasRefData'].widget.attrs = {'value': str2bool(hasRefData)} 
+				form.fields['hasRefData'].widget.attrs = {'value': hasRefData} 
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
 	except Exception as e:
 		result = repr(e)

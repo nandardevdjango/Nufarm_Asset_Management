@@ -275,6 +275,8 @@ ALTER TABLE n_a_goods_outwards CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NUL
 ALTER TABLE n_a_goods_outwards add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_goods_outwards add TypeApp VARCHAR(32) NOT NULL; 
 ALTER TABLE n_a_goods_outwards add FK_Lending INT(11) UNSIGNED NULL;--PERBAIKAN DI SINI 
+ALTER TABLE n_a_goods_outwards DROP column IF EXISTS 'NEW';--PERBAIKAN DI SINI 
+ALTER TABLE n_a_goods_outwards ADD IsNew TINYINT(1) NOT NULL DEFAULT 0;--PERBAIKAN DI SINI 
 
 
 ALTER TABLE n_a_acc_fa CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
