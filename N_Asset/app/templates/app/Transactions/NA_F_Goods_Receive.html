@@ -1200,7 +1200,7 @@
 		            if (win.status === 'Edit' && AllowEdit) {
 		                var rowData = gridTbl.getRowData(id);
 		                var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
-		                if (hasref) {
+		                if (hasRef) {
 		                    gridTbl.jqGrid("setColProp", "brandname", { editable: false });
 		                    gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
 		                    gridTbl.jqGrid("setColProp", "typeapp", { editable: false });
@@ -1230,7 +1230,13 @@
 		        width: parseInt(widthTable.replace('px','')),
 		        shrinkToFit: false,
 		        //viewPagerButtons: false,
-		        pager: "#jqGrid_NA_F_Goods_Receive_Detail_Pager"
+		        pager: (function () {
+		        	if (win.status !== 'Open') {
+		        		return "#jqGrid_NA_F_Goods_Receive_Detail_Pager";
+		        	} else {
+		        		return null;
+		        	}
+		        })()
 		    });
 	
 		    var bdiv = NA.common.doc.querySelector('#gview_jqGrid_NA_F_Goods_Receive_Detail div.ui-jqgrid-bdiv');
@@ -1560,6 +1566,7 @@
 		    var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.setAttribute('readonly', true);
 		    var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.setAttribute('readonly', true);
 		    var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.setAttribute('readonly', true);
+		    var elDesc = NA.common.getElementID('id_descriptions'); elDesc.setAttribute('readonly', true);
 		    var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
 		    gridTbl.jqGrid("setColProp", "brandname", { editable: false });
 		    gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
@@ -1945,11 +1952,7 @@
                                 };
 
                                 if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit                                   
-                                    //simpan original data di initializeForm
-                                     originalData = JSON.stringify(getValuesForm());
-                                    //$('#id_initializeForm').val(originalData);
-                                    initializeForm = NA.common.getElementID('id_initializeForm');
-                                    initializeForm.value = originalData;                        		
+                                              		
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
                                         var valPlaceHolder = item.dataset.value;
                                         NA.NAEvent.addHandler(item, 'focus', function (event) {
@@ -2075,7 +2078,8 @@
                                         });
                                     });
                             
-                                    //====================id_datereceived===========================
+                                	//====================id_datereceived===========================
+                                    originalData = JSON.stringify(getValuesForm());
                                     //set JQueryDatePicker
                                     $('#id_datereceived').datepicker({
                                         dateFormat: 'dd/mm/yy',
@@ -2084,9 +2088,11 @@
                                         beforeShowDay: $.datepicker.noWeekends,
                                         minDate: (function (g) {
                                             if (g.status === 'Edit') {
-                                            	var eloriginalData = JSON.Parse(originalData),
+                                            	var eloriginalData = JSON.parse(originalData),
+													hasRef = eloriginalData['hasRefData'];
+                                            	if (hasRef) { return 1;}
                                                 valDateReceived = new Date(eloriginalData.datereceived);
-                                                return valDateReceived.getDate();
+                                            	return valDateReceived;
                                             }
                                             //get date datereceived
                                         })(window),
@@ -2113,6 +2119,20 @@
                                             this.setCustomValidity(''); //clearkan error custom validity
                                         }
                                     });
+									
+                                    if (win.status !== 'Add') {
+                                    	var eloriginalData = JSON.parse(originalData),
+                                        valDateReceived = new Date(eloriginalData.datereceived);
+                                    	$("#id_datereceived").datepicker("setDate", valDateReceived);
+                                    }
+                                    originalData = JSON.stringify(getValuesForm());
+
+                                	//simpan original data di initializeForm
+                                
+									 // eldatereceived.value.toString().trim();
+                                	//$('#id_initializeForm').val(originalData);
+                                    initializeForm = NA.common.getElementID('id_initializeForm');
+                                    initializeForm.value = originalData;
                                     //=====================end id_datereceived==========================================
                         		
                                     Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="number"]'), function (item) {
