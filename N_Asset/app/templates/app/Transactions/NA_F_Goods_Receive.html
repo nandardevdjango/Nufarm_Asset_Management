@@ -687,8 +687,7 @@
 		    //        var row = gridTbl.getRowData(rows[i]);
 
 		    //    }
-		    //}		
-
+		    //}
 		    for (var i = 0; i < intLength; i++) {
 		    	//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
 		    	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
@@ -1146,6 +1145,23 @@
 							function () {//onerror
 								win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
 							});
+		        	    //check doubel data serial number
+		        			var seriaNumbers = [];
+		        			var rows = gridTbl.getDataIDs();
+		        			for (i = 0; i < rows.length; i++) {
+		        			    var row = gridTbl.getRowData(rows[i]);
+		        			    var serialNumber = row['serialnumber'];
+		        			    if (serialNumber === '') { continue; }
+		        			    serialNumber = serialNumber.toString().toUpperCase();
+		        			    if (seriaNumbers.indexOf(serialNumber) > -1) {
+		        			        ShowAlert('you enter double serial number');
+		        			        //restoreCell
+		        			        gridTbl.jqGrid('restoreCell', iRow, iCol, true);
+		        			        win.document.body.style.cursor = 'default'
+		        			        return false;
+		        			    }
+		        			    seriaNumbers.push(serialNumber);
+		        			}
 		        	}
 		        },
 		        afterEditCell: function (rowid, cellname, value, iRow, iCol) {
@@ -1178,23 +1194,7 @@
 		        			gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
 		        		}
 		        	}); // End keydown binding
-		            //check doubel data serial number
-                    var seriaNumbers = [];
-		        	var rows = gridTbl.getDataIDs();
-		        	for (i = 0; i < rows.length; i++) {
-		        	    var row = gridTbl.getRowData(rows[i]);
-		        	    var serialNumber = row['serialnumber'];
-		        	    if (serialNumber === '') { continue; }
-		        	    serialNumber = serialNumber.toString().toUpperCase();
-		        	     if (seriaNumbers.indexOf(serialNumber) > -1) {
-		        	         ShowAlert('you enter double serial number');
-		        	         //restoreCell
-		        	         gridTbl.jqGrid('restoreCell', iRow, iCol, true);
-		        	         win.document.body.style.cursor = 'default' 
-		        	         return false;
-		        	     }
-		        	     seriaNumbers.push(serialNumber);
-		        	}		        	
+		           	
 		        },
 		        beforeSelectRow: function (id) {
 		            if (win.status === 'Edit' && AllowEdit) {
@@ -1311,8 +1311,8 @@
 		    	}
 		    	case 'Edit': {
 		    	    gridTbl.navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-		    			edit: false, add: false, del: false, search: false
-		    		}).navButtonAdd(gridPager, {
+		    			edit: false, add: false, del: false, search: false,refresh:false
+		    	    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    		    caption: "  Validate",  buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
 		    		}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
 		    		    caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
@@ -2957,6 +2957,45 @@
 				ShowAlert(e);
 			}
 		};
+ //===================trace event=================
+	//var types = ["testEventOne", "testEventTwo"
+    //          , "testEventThree", "testEventFour", "testEventFive"];
+
+	//var events = function (evt, ns) {
+	//    return $.map(evt, function (v, k) {
+	//        return v + ns
+	//    })
+	//};
+
+	//var ns = ".event_namespace", log = [];
+
+	//$(window).on(events(types, ns).join(" "), function (e) {
+	//    console.log(e.type, e.namespace);
+	//});
+
+	//$("select").on("change", function (e) {
+	//    $(window).trigger(e.target.value + ns)
+	//});
+
+	//$(window, document, "*").on("event", function (e, ns, type) {
+	//    log.push([ns, type]);
+	//    $("#log").html("type, namespace: " + log.slice(-1)
+    //                   + "<br> total <i>" + ns + "</i> events: "
+    //                   + log.length)
+	//});
+
+	//$.each([window, document, $("*")], function (k, v) {
+	//    if ($._data(v, "events") !== undefined) {
+	//        $.each($._data(v, "events"), function (key, val) {
+	//            if (val[0].namespace === ns.slice(-(ns.length - 1))) {
+	//                $(v).on(key + ns, function (e) {
+	//                    $(e.target).trigger("event", [e.namespace, e.type])
+	//                })
+	//            }
+	//        })
+	//    }
+	//});
 	})();
+   
 </script>
 {% endblock %}
