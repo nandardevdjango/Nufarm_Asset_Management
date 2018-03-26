@@ -824,7 +824,7 @@
 		};
 		function CreateGridDetail() {
 			var AllowEdit = win.status !== 'Open';
-
+			var lastsel = 0
 			var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
 			var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 		    var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
@@ -854,7 +854,6 @@
 					    //addrowdata ref http://www.trirand.com/blog/?page_id=393/help/add-empty-row
 					    name: 'brandname', width: 140, align: 'left', sortable: true,
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    editrules: { required: true },
 					    autoResizing: { minColWidth: 140, },
 					    edittype: 'text',
@@ -869,7 +868,6 @@
 					{
 					    name: 'priceperunit', width: 90, sortable: true, align: 'right',
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    template: 'number',
 					    editrules: { required: false, integer: false, },
@@ -889,7 +887,6 @@
 					{
 					    name: 'typeapp', width: 80, align: 'left',
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })() },
 					    editoptions: {
@@ -907,7 +904,6 @@
 					{
 					    name: 'serialnumber', width: 100, align: 'left',
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), },
 					    editoptions: { defaultValue: 'N/A', class: 'NA-Form-Control' , placeholder: function () {
@@ -918,7 +914,6 @@
 					{
 					    name: 'warranty', width: 100, align: 'left',
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    edittype: 'text',
 					    template: 'number',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), integer: false, },
@@ -937,7 +932,6 @@
 					{
 					    name: 'endofwarranty', width: 100, align: 'left',
 					    editable: AllowEdit,
-					    cellEdit: AllowEdit,
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
 					        class: 'NA-Form-Control',
@@ -1219,7 +1213,16 @@
 		                gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
 		            }
 		        },
-		        cmTemplate: { autoResizable: true, editable: true },
+		        onSelectRow: function(id) {
+		        	if (win.status === 'Edit') {
+		        		if (id && id !== lastsel){
+		        			gridTbl.jqGrid('restoreRow', lastsel);
+		        			gridTbl.jqGrid('editRow', id, true);
+		        			lastsel=id;
+		        		}
+		        	}	        	
+		        },
+		        //cmTemplate: { autoResizable: true, editable: true },
 		        autoResizing: { compact: true, resetWidthOrg: true },
 		        sortname: "brandname",
 		        sortorder: "asc",
@@ -1961,6 +1964,7 @@
                                                     this.setAttribute('placeholder', '');
                                                 }
                                             }
+                                            NA.NAEvent.stopPropagation(event);
                                         });
                                         //============blur event================================
                                         NA.NAEvent.addHandler(item, 'blur', function (event) {
@@ -1969,6 +1973,7 @@
                                                     this.setAttribute('placeholder', valPlaceHolder);
                                                 }
                                             }
+                                            NA.NAEvent.stopPropagation(event);
                                         });
                                     });
                                     //Auto Complete RefNO

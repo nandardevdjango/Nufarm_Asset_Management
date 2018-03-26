@@ -88,7 +88,7 @@ class NA_BR_Goods_Receive(models.Manager):
 	def hasEsitsSN(self,SN):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
-		Query = """SELECT EXISTS(SELECT SerialNumber FROM n_a_goods_receive_detail WHERE serialnumber = %s"""
+		Query = """SELECT EXISTS(SELECT SerialNumber FROM n_a_goods_receive_detail WHERE serialnumber = %s)"""
 		cur.execute(Query,[SN])
 		row = cur.fetchone()
 		cur.close()

@@ -71,7 +71,6 @@ def NA_Goods_Receive_Search(request):
 def ExistSerialNO(request):
 	authentication_classes = []
 	statuscode = 200
-	data = None
 	data = request.body
 	data = json.loads(data)
 	SN = data['serialnumber']
