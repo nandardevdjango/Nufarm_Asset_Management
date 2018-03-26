@@ -213,6 +213,7 @@ def ShowEntry_Receive(request):
 						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['warranty'],'endofwarranty':row['EndOfWarranty'], \
 						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef']))}
 					rows.append(datarow)
+					i = i+1
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 				NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))

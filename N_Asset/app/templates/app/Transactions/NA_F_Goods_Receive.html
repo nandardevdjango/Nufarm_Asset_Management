@@ -824,7 +824,7 @@
 		};
 		function CreateGridDetail() {
 			var AllowEdit = win.status !== 'Open';
-			var lastsel = 0
+			var lastsel 
 			var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
 			var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
 		    var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
@@ -832,7 +832,7 @@
 		    widthTable = win.getComputedStyle(txtdescriptions).width;
 		    gridTbl.css({ 'overflow': 'auto' });
 		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
-
+            
 		    var viewportSize = NA.common.dialog.getViewportSize();
 		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
 		    containerDialog.style.overflowY = 'auto';
@@ -1062,7 +1062,7 @@
                         name: 'hasref', hidden: true
                     }
 		        ],
-		        cellEdit: true,
+                cellEdit:(win.status === 'Add'),
 		        viewrecords: true,
 		        height: '150px',
 		        rowNum: (function () {
@@ -1158,6 +1158,9 @@
 		        			}
 		        	}
 		        },
+		        inlineEditing: {
+		            keys: true
+		        },
 		        afterEditCell: function (rowid, cellname, value, iRow, iCol) {
 		        	// Get a handle to the actual input field
 		        	var inputControl = jQuery('#' + (iRow) + '_' + cellname);
@@ -1202,6 +1205,26 @@
 		                    gridTbl.jqGrid("setColProp", "warranty", { editable: false });
 		                    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
 		                }
+		                else {
+		                    //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
+		                    gridTbl.jqGrid("setColProp", "brandname", { editable: true });
+		                    gridTbl.jqGrid("setColProp", "priceperunit", { editable: true });
+		                    gridTbl.jqGrid("setColProp", "typeapp", { editable: true });
+		                    gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
+		                    gridTbl.jqGrid("setColProp", "warranty", { editable: true });
+		                    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
+		                    //var $self = $(this), i,
+                            //   // savedRows array is not empty if some row is in inline editing mode
+                            //   savedRows = $self.jqGrid("getGridParam", "savedRow");
+		                    //for (i = 0; i < savedRows.length; i++) {
+		                    //    if (savedRows[0]['id'] !== id) {
+		                    //        // save currently editing row
+		                    //        // one can replace saveRow to restoreRow in the next line
+		                    //        $self.jqGrid("saveRow", savedRows[i]['id']);
+		                    //    }
+		                    //}
+		                    //return savedRows.length === 0;
+		                }
 		            }
 		            else if (win.status === 'Add' && AllowEdit) {
 		                //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
@@ -1211,18 +1234,38 @@
 		                gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
 		                gridTbl.jqGrid("setColProp", "warranty", { editable: true });
 		                gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
+		                //var $self = $(this), i,
+                        //   // savedRows array is not empty if some row is in inline editing mode
+                        //   savedRows = $self.jqGrid("getGridParam", "savedRow");
+		                //for (i = 0; i < savedRows.length; i++) {
+		                //    if (savedRows[0]['id'] !== id) {
+		                //        // save currently editing row
+		                //        // one can replace saveRow to restoreRow in the next line
+		                //        $self.jqGrid("saveRow", savedRows[i]['id']);
+		                //    }
+		                //}
+		                //return savedRows.length === 0;
 		            }
 		        },
-		        onSelectRow: function(id) {
-		        	if (win.status === 'Edit') {
-		        		if (id && id !== lastsel){
+		        onSelectRow: function (id) {
+
+		        	if (AllowEdit) {
+		        	    if (id && id !== lastsel) {
 		        			gridTbl.jqGrid('restoreRow', lastsel);
 		        			gridTbl.jqGrid('editRow', id, true);
-		        			lastsel=id;
-		        		}
+		        			lastsel = id;
+		        	    }
+
 		        	}	        	
 		        },
-		        //cmTemplate: { autoResizable: true, editable: true },
+		        //afterSetRow: function (options) {
+		        //    var item = $(this).jqGrid("getLocalRow", options.rowid);
+		        //    if (item != null) {
+		        //        item.dirty = true;
+		        //    }
+		        //},
+		        singleSelectClickMode: "selectonly", // prevent unselect once selected rows
+		        cmTemplate: { autoResizable: true},
 		        autoResizing: { compact: true, resetWidthOrg: true },
 		        sortname: "brandname",
 		        sortorder: "asc",
