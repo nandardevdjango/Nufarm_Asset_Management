@@ -101,6 +101,9 @@ class NA_BR_Goods_Receive(models.Manager):
 		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new	
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
+		if self.__class__.c is None:
+			self.__class__.c = connection.cursor()
+		cur = self.__class__.c
 		Query ="""SELECT DISTINCT(SerialNumber) AS SerialNumber FROM n_a_goods_receive_detail WHERE FK_App = %s AND SerialNumber IS NOT NULL"""
 		cur.execute(Query,[Data['idapp']])
 		results = [item	for item in cur.fetchall()]		
@@ -125,7 +128,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur = self.__class__.c
 		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND SerialNumber = %s) \
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber = %s)"""
-		TParams =  [data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
+		TParams =  [data['idapp_fk_goods'], data['datereceived'],data['serialnumber'],data['idapp_fk_goods'], data['datereceived'],data['serialnumber']]
 		cur.execute(Query,TParams)
 		hasRef = cur.rowcount >0	
 		if not hasRef:
@@ -254,16 +257,30 @@ class NA_BR_Goods_Receive(models.Manager):
 		try:
 			self.__class__.c = connection.cursor()
 			cur = self.__class__.c
-			if not self.hasReference(Data,False):
-				cur.execute('Delete FROM n_a_goods_receive WHERE IDApp = %s',Data['idapp'])
-				cur.close()
-				return 'success'
-			else:
-				cur.close()
-				return 'Can not delete data\Data has child-referenced'
+			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['deletedby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
+			row = {};treceived = 0
+			cur.execute("""SELECT COUNT(IDApp) FROM n_a_goods_receive_detail WHERE FK_App = %s""",[Data['idapp']])
+			if cur.rowcount >0:
+				row = cur.fetchone()
+				treceived = int(row[0])
+			with transaction.atomic():
+				if not self.hasReference(Data,False):		
+					cur.execute("""Delete FROM n_a_goods_receive_detail WHERE FK_App = %s""",[Data['idapp']])
+					cur.execute("""Delete FROM n_a_goods_receive WHERE IDApp = %s""",[Data['idapp']])
+					#update stock
+					totalNew = totalNew - treceived
+					totalReceived = totalReceived - treceived
+					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
+					Params = [totalNew,totalReceived,Data['deletedby'],[Data['idapp']]]
+					cur.execute(Query,Params)
+					cur.close()	
+					return 'success'
+				else:
+					cur.close()
+					return 'Can not delete data\Data has child-referenced'
 		except Exception as e:
-				cur.close()
-				return repr(e)
+			cur.close()
+			return repr(e)
 	def getBrandsForDetail(self,searchText):
 		#ambil data di receive_goods_detail,union dengan brandname di table goods
 		Query = "SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE '%{0!s}%' \

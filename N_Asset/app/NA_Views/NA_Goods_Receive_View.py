@@ -246,17 +246,16 @@ def Delete(request):
 	try:
 		statuscode = 200
 		#result=NAGoodsReceive.objects.delete(
-		IDApp = request.POST.get('idapp')
+		data = request.body
+		data = json.loads(data)
+
+		IDApp = data['idapp']
 		Ndata = NAGoodsReceive.objects.getData(IDApp)[0]
-		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata.idapp_fk_goods,'datereceived':Ndata.datereceived}
+		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata['idapp_fk_goods'],'datereceived':Ndata['datereceived'],'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
 		#check reference data
-		if NAGoodsReceive.objects.hasRefDetail(NAData):
-			result = 'Can not delete data\Data has child-referenced '
-			statuscode = 203
-		else:
-			result = NAGoodsReceive.objects.delete(Data)
-		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
-	except :
+		result = NAGoodsReceive.objects.delete(NAData)
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def deleteDetail(request):
@@ -266,7 +265,7 @@ def deleteDetail(request):
 		#get data
 		result = NAGoodsReceive.objects.deleteDetail(Iidapp)
 		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json') 
-	except :
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getGoods(request):
