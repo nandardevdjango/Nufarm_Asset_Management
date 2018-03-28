@@ -97,15 +97,16 @@ class NA_BR_Goods_Receive(models.Manager):
 	def hasExists(self,idapp_fk_goods,datereceived,totalPurchase):
 		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods=idapp_fk_goods) & Q(datereceived=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
-	def hasReference(self,Data,mustCloseConnection):
-		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new	
-		self.__class__.c = connection.cursor()
-		cur = self.__class__.c
-		if self.__class__.c is None:
-			self.__class__.c = connection.cursor()
-		cur = self.__class__.c
+	def hasReference(self,Data,Ccur):
+		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new
+		cur = None	
+		if Ccur is None:
+			cur = connection.cursor()
+		else :
+			cur = Ccur
 		Query ="""SELECT DISTINCT(SerialNumber) AS SerialNumber FROM n_a_goods_receive_detail WHERE FK_App = %s AND SerialNumber IS NOT NULL"""
 		cur.execute(Query,[Data['idapp']])
+		hasRef = False
 		results = [item	for item in cur.fetchall()]		
 		if len(results) > 0:
 			strResult = ''
@@ -116,12 +117,10 @@ class NA_BR_Goods_Receive(models.Manager):
 			#strResult = ','.join(results[i][0]*len(results))
 			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND  DateLending >= %s AND Qty >= 1 AND SerialNumber  IN ('{0}')) \
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber  IN ('{1}') )""".format(strResult,strResult)
-		TParams =  [Data['idapp_fk_goods'], Data['datereceived'],Data['idapp_fk_goods'], Data['datereceived']]
-		cur.execute(Query,TParams)
-		row = cur.fetchone()
-		hasRef = commonFunct.str2bool(str(row[0]))		
-		if mustCloseConnection:
-			cur.close()
+			TParams =  [Data['idapp_fk_goods'], Data['datereceived'],Data['idapp_fk_goods'], Data['datereceived']]
+			cur.execute(Query,TParams)
+			row = cur.fetchone()
+			hasRef = commonFunct.str2bool(str(row[0]))		
 		return hasRef
 	def hasRefDetail(self,data):
 		self.__class__.c = connection.cursor()
@@ -264,7 +263,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				row = cur.fetchone()
 				treceived = int(row[0])
 			with transaction.atomic():
-				if not self.hasReference(Data,False):		
+				if not self.hasReference(Data,cur):		
 					cur.execute("""Delete FROM n_a_goods_receive_detail WHERE FK_App = %s""",[Data['idapp']])
 					cur.execute("""Delete FROM n_a_goods_receive WHERE IDApp = %s""",[Data['idapp']])
 					#update stock
