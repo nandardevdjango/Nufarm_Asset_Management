@@ -179,39 +179,43 @@ class NA_BR_Goods_Receive(models.Manager):
 									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
 						cur.executemany(Query,details)
 				elif Status == StatusForm.Edit:
+					hasChangedHeader = commonFunct.str2bool(str(Data['hasChangedHeader']))
+					hasChangedDetail = commonFunct.str2bool(str(Data['hasChangedDetail']))				
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
-					Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
-								FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
-					if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
-						Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
-						Params.update(Qty=Data['totalreceived'])
-					Query = Query + """ WHERE IDApp = %(IDApp)s"""
-					Params.update(ModifiedBy=Data['createdBy']) 
-					Params.update(IDApp=Data['idapp'])
-					cur.execute(Query,Params)
-					if detCount > 0:
-						for i in range(detCount):
+					if hasChangedHeader:
+						Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
+									FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
+						if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
+							Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
+							Params.update(Qty=Data['totalreceived'])
+						Query = Query + """ WHERE IDApp = %(IDApp)s"""
+						Params.update(ModifiedBy=Data['createdBy']) 
+						Params.update(IDApp=Data['idapp'])
+						cur.execute(Query,Params)
+					if hasChangedDetail:
+						if detCount > 0:
+							for i in range(detCount):
 							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
-							Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
-							cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
-							row = cur.fetchone()
-							HasRows = commonFunct.str2bool(str(row[0]))
-							if HasRows:
-								#data sudah ada
-								#check hasrefDetail jika data sudah ada reference data anak
-								hasRefDetail = commonFunct.str2bool(dataDetail[i]['HasRef'])
-								if not hasRefDetail:
-									ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':Data['serialnumber']}
-									hasRefDetail = self.hasRefDetail(ParDetails)
-								if not hasRefDetail:
-									Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber),\
-												warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
-									cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
-													'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['waranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
-							else:
-								Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
-										VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
-								cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['waranty'],dataDetail[i]['endofwarranty'],'createdby'])	
+								Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
+								cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
+								row = cur.fetchone()
+								HasRows = commonFunct.str2bool(str(row[0]))
+								if HasRows:
+									#data sudah ada
+									#check hasrefDetail jika data sudah ada reference data anak
+									hasRefDetail = commonFunct.str2bool(dataDetail[i]['HasRef'])
+									if not hasRefDetail:
+										ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':Data['serialnumber']}
+										hasRefDetail = self.hasRefDetail(ParDetails)
+									if not hasRefDetail:
+										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber),\
+													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
+										cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
+														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['waranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
+								else:
+									Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
+											VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
+									cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['waranty'],dataDetail[i]['endofwarranty'],'createdby'])	
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})

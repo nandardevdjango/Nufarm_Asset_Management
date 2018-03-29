@@ -174,7 +174,9 @@ def ShowEntry_Receive(request):
 		elif status == 'Edit' or status == "Open":	
 					
 			if request.POST:
-				hasRefData = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},None)	
+				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'FK_goods':['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
+				ChangedHeader = data['hasChangedHeader']
+				ChangedDetail = data['hasChangedDetail']	
 				form = NA_Goods_Receive_Form(data)
 				if form.is_valid():
 					form.clean()
@@ -182,6 +184,8 @@ def ShowEntry_Receive(request):
 					data = getCurrentDataModel(request,form);
 					data.update(idapp=data['idapp'])
 					data.update(hasRefData=hasRefData)
+					data.update(hasChangedHeader=ChangedHeader)
+					data.update(hasChangedDetail=ChangedDetail)
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
 					if result != 'success':
 						statuscode = 500
