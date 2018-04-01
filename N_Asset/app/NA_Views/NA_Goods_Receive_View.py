@@ -61,7 +61,8 @@ def NA_Goods_Receive_Search(request):
 	#column IDapp 	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
 	i = 0;
 	for row in dataRows:
-		datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i+1,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
+		i = i+1
+		datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
 			row['pr_by'],row['totalpurchase'],row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -164,8 +165,7 @@ def ShowEntry_Receive(request):
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-				else: 
-					return HttpResponse(json.dumps({'message':'invalid form data'}),status = 400, content_type='application/json')
+				return HttpResponse(json.dumps({'message':result}),status = 400, content_type='application/json')
 			else:				
 				form = NA_Goods_Receive_Form(initial=initializationForm)
 				form.fields['status'].widget.attrs = {'value':status}	
@@ -174,7 +174,9 @@ def ShowEntry_Receive(request):
 		elif status == 'Edit' or status == "Open":	
 					
 			if request.POST:
-				hasRefData = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)	
+				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'FK_goods':['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
+				ChangedHeader = data['hasChangedHeader']
+				ChangedDetail = data['hasChangedDetail']	
 				form = NA_Goods_Receive_Form(data)
 				if form.is_valid():
 					form.clean()
@@ -182,6 +184,8 @@ def ShowEntry_Receive(request):
 					data = getCurrentDataModel(request,form);
 					data.update(idapp=data['idapp'])
 					data.update(hasRefData=hasRefData)
+					data.update(hasChangedHeader=ChangedHeader)
+					data.update(hasChangedDetail=ChangedDetail)
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
 					if result != 'success':
 						statuscode = 500
@@ -196,7 +200,7 @@ def ShowEntry_Receive(request):
 				#Ndata = goods.objects.getData(IDApp)[0]
 				Ndata = NAGoodsReceive.objects.getData(IDApp)
 				Ndata = Ndata[0]
-				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':Ndata['idapp'],'idapp_fk_goods':Ndata['idapp_fk_goods'], 'datereceived':Ndata['datereceived']},False)
+				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':Ndata['idapp'],'idapp_fk_goods':Ndata['idapp_fk_goods'], 'datereceived':Ndata['datereceived']},None)
 				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_suplier':Ndata['fk_suplier'],'supliername':Ndata['supliername'],
 						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_received':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
@@ -209,11 +213,11 @@ def ShowEntry_Receive(request):
 				#var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
 		  #  	DummyData.push(rowData);
 				for row in NADetailRows:
-					datarow = {'idapp':row['IDApp'],'.fkapp':row['FK_App'], 'no':i+1,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
+					i = i+1
+					datarow = {'idapp':row['IDApp'],'.fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
 						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['warranty'],'endofwarranty':row['EndOfWarranty'], \
 						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef']))}
-					rows.append(datarow)
-					i = i+1
+					rows.append(datarow)					
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 				NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
@@ -240,7 +244,7 @@ def HasRefDetail(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-	result = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},False)
+	result = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},None)
 def Delete(request):
 	result = ''
 	try:
