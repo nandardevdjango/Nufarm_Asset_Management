@@ -133,7 +133,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		if not hasRef:
 			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s AND Qty >= 1 AND TypeApp = %s) \
 					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND Qty >= 1 AND TypeApp = %s)"""
-			TParams =  [data.idapp_fk_goods, data.datereceived,data.typeapp,data.idapp_fk_goods, data.datereceived,data.typeapp]
+			TParams =  [data['idapp_fk_goods'], data['datereceived'],data['typeapp'],data['idapp_fk_goods'], data['datereceived'],data['typeapp']]
 			cur.execute(Query,TParams)
 			hasRef = cur.rowcount >0
 		cur.close()
@@ -203,9 +203,9 @@ class NA_BR_Goods_Receive(models.Manager):
 								if HasRows:
 									#data sudah ada
 									#check hasrefDetail jika data sudah ada reference data anak
-									hasRefDetail = commonFunct.str2bool(dataDetail[i]['HasRef'])
+									hasRefDetail = commonFunct.str2bool(str(dataDetail[i]['HasRef']))
 									if not hasRefDetail:
-										ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':Data['serialnumber']}
+										ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':dataDetail[i]['serialnumber']}
 										hasRefDetail = self.hasRefDetail(ParDetails)
 									if not hasRefDetail:
 										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber),\
@@ -307,4 +307,4 @@ class custEmpManager(models.Manager):
 	def getEmployee(self,nik):
 		return super(custEmpManager,self).get_queryset().filter(nik__iexact=nik).values('idapp','employee_name')
 	def getEmloyeebyForm(self,employeeName):
-		return super(custEmpManager,self).get_queryset().filter(employee_name__icontains=employeeName).values('idapp','nik','employee_name')
+		return super(custEmpManager,self).get_queryset().filter(Q(employee_name__icontains=employeeName) & Q(inactive__exact=0)).values('idapp','nik','employee_name')

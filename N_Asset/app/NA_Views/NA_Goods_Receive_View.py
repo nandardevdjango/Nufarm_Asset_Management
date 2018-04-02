@@ -74,15 +74,15 @@ def ExistSerialNO(request):
 	statuscode = 200
 	data = request.body
 	data = json.loads(data)
-	SN = data['serialnumber']
+	SN = data['SN']
 	result = ''
 	try:
 		result = NAGoodsReceive.objects.hasEsitsSN(SN)
-		result = str2bool(result)
+		result = str2bool(str(result))
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-	return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+	return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json')
 
 def getRefNO(request):
 	if(request.is_ajax()):
@@ -171,8 +171,7 @@ def ShowEntry_Receive(request):
 				form.fields['status'].widget.attrs = {'value':status}	
 				form.fields['hasRefData'].widget.attrs = {'value': False}
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
-		elif status == 'Edit' or status == "Open":	
-					
+		elif status == 'Edit' or status == "Open":					
 			if request.POST:
 				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'idapp_fk_goods':data['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
 				ChangedHeader = data['hasChangedHeader']

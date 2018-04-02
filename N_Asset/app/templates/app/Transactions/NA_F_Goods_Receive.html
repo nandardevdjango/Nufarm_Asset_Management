@@ -353,7 +353,7 @@
             var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.value = originalData.fk_suplier;
             var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.value = originalData.supliername;
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.value = originalData.totalpurchase;
-            var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.value = totalreceived;
+            var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.value = originalData.totalreceived;
             var elidapp_fk_p_r_by = NA.common.getElementID('id_idapp_fk_p_r_by'); elidapp_fk_p_r_by.value = originalData.idapp_fk_p_r_by;
             var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.value = originalData.fk_p_r_by;
             var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.value = originalData.employee_pr;
@@ -413,7 +413,8 @@
 									        }
 									        if (confirmText === 'OK') {
 									            win.document.body.style.cursor = 'wait';
-									            if (submitForm()) {
+									            valuesForm = getValuesForm();
+									            if (submitForm(valuesForm)) {
 									                //clear kan semua data
 									                //reloadGridMaster
 									                grid.trigger("reloadGrid", [{ page: 1 }]);
@@ -429,7 +430,8 @@
 									        else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
 									            return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
 									                win.document.body.style.cursor = 'wait';
-									                if (submitForm()) {
+									                valuesForm = getValuesForm();
+									                if (submitForm(valuesForm)) {
 									                    //clear kan semua data
 									                    //reloadGridMaster
 									                    grid.trigger("reloadGrid", [{ page: 1 }]);
@@ -448,7 +450,7 @@
 									        XhrError(this); throw new Error('');
 									    }
 									}, null, function () { XhrError(this); throw new Error(''); },
-									function () { win.body.style.cursor = 'default'; }, null
+									function () { win.document.body.style.cursor = 'default'; }
 								);
                             }
                             else if (win.status === 'Edit') {
@@ -463,10 +465,10 @@
                                 var elOriDetail = NA.common.getElementID('id_dataForGridDetail'),//data sudah dalam bentuk json
 									oriDataDetail = elOriDetail.value;
                                 hasChangedDetail = NA.common.detectInputChanges(dataDetail, JSON.parse(oriDataDetail));
-                                 valuesForm['hasChangedDetail'] = hasChangedDetail;
+                                valuesForm['hasChangedDetail'] = hasChangedDetail;
                                 if (hasChangedHeader || hasChangedDetail) {
                                     //close saja									
-                                	if (submitForm(valuesForm)) {
+                                    if (submitForm(valuesForm)) {
                                         //reloadGridMaster
                                         grid.trigger("reloadGrid", [{ page: 1 }]);
                                     }
@@ -629,7 +631,7 @@
             //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
             NAAjax.POST('ShowEntry_Receive', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
 				function () {
-				    window.document.body.style.cursor = 'wait';
+				    win.document.body.style.cursor = 'wait';
 				},
 				null,
 				function (e) {
@@ -641,7 +643,7 @@
 				    else {//error berarti
 				        XhrError(this); document.body.style.cursor = 'default'; throw new Error('');
 				    }
-				    document.body.style.cursor = 'default';
+				    win.document.body.style.cursor = 'default';
 				}, null,
 				function (e) { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
 				function (e) {
@@ -997,7 +999,7 @@
 					    },
 					    editrules:{date:true,required:true
 					    },
-					    formatter: "date", formatoptions: {newformat: "d/m/Y",reformatAfterEdit:true },
+					    formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit') },
 						
 					},
 					{
@@ -1123,12 +1125,12 @@
                         //check ke database
                         //HasExistSN
                         var NAAJax = NA.common.AJAX;
-                        NAAJax.POST('HasExistSN/', { 'SN': value }, 'application/x-www-form-urlencoded', 'application/json',
+                        NAAJax.POST('HasExistSN/', JSON.stringify({ 'SN': value }), 'application/x-www-form-urlencoded', 'application/json',
                         function () { win.document.body.style.cursor = 'wait' }, null,//Before send
                         function () { //onload
                             if (this.status === 200) {
                                 var result = JSON.parse(this.responseText);
-                                if (result) {
+                                if (result.message) {
                                     return ShowAlert('Serial Number has existed', NA.common.message.existsData, function () {
                                         gridTbl.setSelection(rowid, false);
                                         win.document.body.style.cursor = 'default';
