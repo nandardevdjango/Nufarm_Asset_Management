@@ -100,7 +100,7 @@ def getRefNO(request):
 	else:
 		return HttpResponse(content='',content_type='application/json')	
 def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
-	return {'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
+	return {'idapp':form.cleaned_data['idapp'],'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'fk_p_r_by':form.cleaned_data['fk_p_r_by'],
 		 'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'descriptions':form.cleaned_data['descriptions'],'hasRefData':form.cleaned_data['hasRefData'],
 		 'dataForGridDetail':json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal),'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
@@ -174,10 +174,10 @@ def ShowEntry_Receive(request):
 		elif status == 'Edit' or status == "Open":	
 					
 			if request.POST:
-				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'FK_goods':['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
+				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'idapp_fk_goods':data['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
 				ChangedHeader = data['hasChangedHeader']
 				ChangedDetail = data['hasChangedDetail']	
-				form = NA_Goods_Receive_Form(data)
+				form = NA_Goods_Receive_Form(data=data)
 				if form.is_valid():
 					form.clean()
 					#save data
@@ -186,6 +186,20 @@ def ShowEntry_Receive(request):
 					data.update(hasRefData=hasRefData)
 					data.update(hasChangedHeader=ChangedHeader)
 					data.update(hasChangedDetail=ChangedDetail)
+
+					dataDetail = list(data.get('dataForGridDetail'))				
+					desc = '('				
+					#dataDetail = object_list
+					if len(dataDetail) > 0:
+						detCount = len(dataDetail)
+						#build descriptions
+						for i in range(detCount):
+							desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
+							if i <detCount -1:
+								desc += ', '
+					desc += ')'
+					data.update(descbysystem=desc)
+
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
 					if result != 'success':
 						statuscode = 500
@@ -203,7 +217,7 @@ def ShowEntry_Receive(request):
 				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':Ndata['idapp'],'idapp_fk_goods':Ndata['idapp_fk_goods'], 'datereceived':Ndata['datereceived']},None)
 				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
 				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_suplier':Ndata['fk_suplier'],'supliername':Ndata['supliername'],
-						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_received':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
+						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_receivedby':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
 						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['idapp_fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
 				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
@@ -244,7 +258,7 @@ def HasRefDetail(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-	result = NAGoodsReceive.objects.hasReference({idapp:data['idapp'],FK_goods:['idapp_fk_goods'], datereceived:data['datereceived']},None)
+	result = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'idapp_fk_goods':data['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
 def Delete(request):
 	result = ''
 	try:

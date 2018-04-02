@@ -196,8 +196,8 @@ class NA_BR_Goods_Receive(models.Manager):
 						if detCount > 0:
 							for i in range(detCount):
 							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
-								Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_detail WHERE IDApp = %(IDApp)s) "
-								cur.execute(Query,{'IDapp':dataDetail[i]['idapp']})
+								Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_receive_detail WHERE IDApp = %(IDApp)s) "
+								cur.execute(Query,{'IDApp':dataDetail[i]['idapp']})
 								row = cur.fetchone()
 								HasRows = commonFunct.str2bool(str(row[0]))
 								if HasRows:
