@@ -144,8 +144,9 @@ class NA_BR_Goods_Receive(models.Manager):
 		try:
 			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
 			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
-			totalNew = totalNew + int(Data['totalreceived'])
-			totalReceived = totalReceived + int(Data['totalreceived'])
+			if Status == StatusForm.Input:
+				totalNew = totalNew + int(Data['totalreceived'])
+				totalReceived = totalReceived + int(Data['totalreceived'])
 			with transaction.atomic():
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
@@ -221,7 +222,9 @@ class NA_BR_Goods_Receive(models.Manager):
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
 				row = cur.fetchone()
 				HasRows = commonFunct.str2bool(str(row[0]))
+				
 				if HasRows:
+					(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
 					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
 					cur.execute(Query,Params)
