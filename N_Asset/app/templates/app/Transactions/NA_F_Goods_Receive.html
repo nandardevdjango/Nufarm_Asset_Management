@@ -1246,7 +1246,8 @@
                         	gridTbl.jqGrid('restoreRow', lastsel);
                         	var OrowData = gridTbl.getRowData(id);
                         	gridTbl.jqGrid('editRow', id, {
-                        		keys: true,
+                        	    keys: true,
+                                url:'clientArray',
                         		aftersavefunc: function (rowid) {
                         			var IRowData = gridTbl.getRowData(rowid);
                         			var Owarranty = parseFloat(OrowData['warranty']);
@@ -1273,7 +1274,10 @@
                         				//var NVal = FDate.getDate(
                         				//set grid cell
                         				var dtStr = formatDate(NDate)
-                        				gridTbl.jqGrid('setCell', rowid, 'endofwarranty', dtStr);
+                        				//var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
+                        				IRowData.endofwarranty = dtStr;
+                        				gridTbl.jqGrid('setRowData', rowid, IRowData);
+                        				//gridTbl.jqGrid('setCell', rowid, 'endofwarranty', dtStr);
                         				// now change the internal local data
                         				gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
                         				return true;

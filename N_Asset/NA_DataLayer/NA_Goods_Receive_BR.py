@@ -115,8 +115,8 @@ class NA_BR_Goods_Receive(models.Manager):
 				if i < len(results)-1:
 					strResult += ','				
 			#strResult = ','.join(results[i][0]*len(results))
-			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND  DateLending >= %s AND Qty >= 1 AND SerialNumber  IN ('{0}')) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber  IN ('{1}') )""".format(strResult,strResult)
+			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND  DateLending >= %s  AND SerialNumber  IN ('{0}')) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1  AND SerialNumber  IN ('{1}') )""".format(strResult,strResult)
 			TParams =  [Data['idapp_fk_goods'], Data['datereceived'],Data['idapp_fk_goods'], Data['datereceived']]
 			cur.execute(Query,TParams)
 			row = cur.fetchone()
@@ -125,17 +125,18 @@ class NA_BR_Goods_Receive(models.Manager):
 	def hasRefDetail(self,data):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
-		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1 AND Status = 'L' AND DateLending >= %s AND Qty >= 1 AND SerialNumber = %s) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND Qty >= 1 AND SerialNumber = %s)"""
+		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s AND SerialNumber = %s) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1 AND SerialNumber = %s)"""
 		TParams =  [data['idapp_fk_goods'], data['datereceived'],data['serialnumber'],data['idapp_fk_goods'], data['datereceived'],data['serialnumber']]
 		cur.execute(Query,TParams)
-		hasRef = cur.rowcount >0	
-		if not hasRef:
-			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s AND Qty >= 1 AND TypeApp = %s) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND Qty >= 1 AND TypeApp = %s)"""
-			TParams =  [data['idapp_fk_goods'], data['datereceived'],data['typeapp'],data['idapp_fk_goods'], data['datereceived'],data['typeapp']]
-			cur.execute(Query,TParams)
-			hasRef = cur.rowcount >0
+		row = cur.fetchone()
+		hasRef = commonFunct.str2bool(str(row[0]))	
+		#if not hasRef:
+		#	Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s  AND TypeApp = %s) \
+		#			OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND Qty >= 1 AND TypeApp = %s)"""
+		#	TParams =  [data['idapp_fk_goods'], data['datereceived'],data['typeapp'],data['idapp_fk_goods'], data['datereceived'],data['typeapp']]
+		#	cur.execute(Query,TParams)
+		#	hasRef = cur.rowcount >0
 		cur.close()
 		return hasRef
 	def SaveData(self,Data,Status=StatusForm.Input):
@@ -172,7 +173,7 @@ class NA_BR_Goods_Receive(models.Manager):
 						details = []
 						detail = []
 						for i in range(detCount):
-							dataDetail[i]['fkapp'] = str(FKApp)
+							dataDetail[i]['fkapp'] = FKApp
 							details.append(tuple(dataDetail[i].values()))
 						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
 						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
@@ -209,7 +210,7 @@ class NA_BR_Goods_Receive(models.Manager):
 										ParDetails = {'idapp_fk_goods':Data['idapp_fk_goods'],'datereceived':Data['datereceived'],'serialnumber':dataDetail[i]['serialnumber']}
 										hasRefDetail = self.hasRefDetail(ParDetails)
 									if not hasRefDetail:
-										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber),\
+										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber)s,\
 													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
 										cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
 														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['waranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
