@@ -960,7 +960,9 @@
 					},
 					{
 					    name: 'endofwarranty', width: 100, align: 'left','index':'endofwarranty',
-					    editable: true,
+					    editable: (win.status === 'Add' && AllowEdit),
+					    //datefmt: 'd/m/Y',
+					    //sorttype:'date',
 					    editoptions: {
 					    	class: 'NA-Form-Control',
 					    	dataInit: function (elem, options) {
@@ -999,7 +1001,7 @@
 					    },
 					    editrules:{date:true,required:true
 					    },
-					    formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit') },
+					   formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit')},/*  */
 						
 					},
 					{
@@ -1109,7 +1111,8 @@
                         var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
                         NValEndOfWarranty = NDate;
                         //var NVal = FDate.getDate(
-                        //set grid cell
+                    	//set grid cell
+                        debugger;
                         var dtStr = formatDate(NDate)
                         gridTbl.jqGrid('setCell', rowid, 'endofwarranty', dtStr);
                         // now change the internal local data
@@ -1161,7 +1164,7 @@
                     }             
                 },
                 inlineEditing: {
-                    keys: (win.status === 'Add')
+                    keys: (win.status === 'Edit')
                 },
                 afterEditCell: function (rowid, cellname, value, iRow, iCol) {
                     // Get a handle to the actual input field
@@ -1240,8 +1243,43 @@
                 onSelectRow: function (id) {
                     if (AllowEdit) {
                         if (id && id !== lastsel) {
-                            gridTbl.jqGrid('restoreRow', lastsel);
-                            gridTbl.jqGrid('editRow', id, true);
+                        	gridTbl.jqGrid('restoreRow', lastsel);
+                        	var OrowData = gridTbl.getRowData(id);
+                        	gridTbl.jqGrid('editRow', id, {
+                        		keys: true,
+                        		aftersavefunc: function (rowid) {
+                        			var IRowData = gridTbl.getRowData(rowid);
+                        			var Owarranty = parseFloat(OrowData['warranty']);
+                        			var IWarranty = parseFloat(IRowData['warranty']);
+                        			if (IWarranty != Owarranty) {
+                        				var modVal = (IWarranty % 1).toFixed(2);//modulus value decimal number
+                        				var intVal = Math.round(IWarranty) - Math.round(modVal);
+                        				var dtReceived = $('#id_datereceived').val();
+                        				if (dtReceived === '') {
+                        					ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
+                        						NA.common.getElementID('id_datereceived').focus();
+                        					});
+                        					return false;
+                        				}
+                        				FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+
+                        				//var NmodVal = parseFloat(modVal) * 12;
+                        				//var NM = dtReceived.getMonth();
+                        				//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
+                        				NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+
+                        				var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+                        				NValEndOfWarranty = NDate;
+                        				//var NVal = FDate.getDate(
+                        				//set grid cell
+                        				var dtStr = formatDate(NDate)
+                        				gridTbl.jqGrid('setCell', rowid, 'endofwarranty', dtStr);
+                        				// now change the internal local data
+                        				gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
+                        				return true;
+                        			}
+                        		}
+                        	});
                             lastsel = id;
                         }
 
@@ -1385,6 +1423,29 @@
                     break;
                 }
             }
+            var orgRowActions = $.fn.fmatter.rowactions;
+            $.fn.fmatter.rowactions = function (rid, gid, act, pos) {
+            	var $grid = $("#" + $.jgrid.jqID(gid)),
+                    rowData = $grid.jqGrid("getLocalRow", rid),
+                    isNonEditable = false,
+                    result;
+            	// we can test any condition and change
+            	// editable property of any column
+            	var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
+            	var AllowEdit = (!hasRef) && (window.status !== 'Open')
+            	if (act === "save" && AllowEdit) {
+            		//'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
+            		$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: false } });
+            		isNonEditable = true;
+            	}
+            	result = orgRowActions.call(this, rid, gid, act, pos);
+            	if (isNonEditable && AllowEdit) {
+            		// reset the setting to original state
+        			$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit') } });
+            	}
+            	return true;
+            }
+
             //SET Icon Validate dan rfresh
 
             //assigned collumn Editable with condition
