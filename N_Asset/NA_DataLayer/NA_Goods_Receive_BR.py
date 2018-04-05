@@ -213,11 +213,11 @@ class NA_BR_Goods_Receive(models.Manager):
 										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber)s,\
 													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
 										cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
-														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['waranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
+														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['warranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
 								else:
 									Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
 											VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
-									cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['waranty'],dataDetail[i]['endofwarranty'],'createdby'])	
+									cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],'createdby'])	
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})

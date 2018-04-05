@@ -223,7 +223,7 @@ class commonFunct:
 		if(cur is None):
 			cur = connection.cursor()
 
-		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
+		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
 		cur.execute(Query)
 	
 		Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_"""  + username + """
@@ -287,7 +287,7 @@ class commonFunct:
 			row = cur.fetchone()
 			TotalSpare = int(row[0])		
 		#drop table temporary
-		Query = "DROP TEMPORARY TABLE IF EXISTS T_Goods_Used_" + username
+		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
 		cur.execute(Query)
 		if closeCursor:
 			cur.close();
