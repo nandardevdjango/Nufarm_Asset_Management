@@ -1543,7 +1543,7 @@
                         //return false;
                         gridTbl.setSelection(rowId, false);
                         var hasRef = getGridCellValue(gridTbl, 'hasref');
-                        if (HasRef.valueOf === true || HasRef.valueOf === 1) {
+                        if (hasRef.valueOf === true || hasRef.valueOf === 1) {
                             switch (win.status) {
                                 case 'Open': {
                                     NA.NAEvent.preventDefault(e);
@@ -1563,29 +1563,29 @@
                             }
                         }
                         else {
-                            if (win.status === 'edit') {
-                                if (showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo) === true) {
-                                    var NAAjax = NA.common.AJAX;
-                                    var NRowid = rowId;
-                                    var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                                    NAAjax.POST('deleteDetail/', { 'idapp': idapp }, 'application/json', 'application/json',
-                                   null, null, function () {
-                                       //rubah totalreceived -1;
-                                       var textStatus = JSON.parse(this.responseText);
-                                       if (textStatus.message === 'success') {
-                                           var eltreceived = NA.common.getElementID('id_total_received'),
-                                                                            valTrec = eltreceived.value;
-                                           valTrec = valTrec - 1;
-                                           eltreceived.value = valTrec;
-                                           gridTbl.delRowData(NRowid);
-                                       }
-                                       else {
-                                           ShowAlert(textStatus.message, NA.common.message.titleError);
-                                           return false;
-                                       }
+                        	if (win.status === 'Edit') {
+                        		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+                        			var NAAjax = NA.common.AJAX;
+                        			var NRowid = rowId;
+                        			var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+                        			NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+                                   null, function () { }, function () {
+                                   	//rubah totalreceived -1;
+                                   	var textStatus = JSON.parse(this.responseText);
+                                   	if (textStatus.message === 'success') {
+                                   		var eltreceived = NA.common.getElementID('id_total_received'),
+																		 valTrec = eltreceived.value;
+                                   		valTrec = valTrec - 1;
+                                   		eltreceived.value = valTrec;
+                                   		gridTbl.delRowData(NRowid);
+                                   	}
+                                   	else {
+                                   		ShowAlert(textStatus.message, NA.common.message.titleError);
+                                   		return false;
+                                   	}
                                    }, null, function () {
                                    }, function () { win.document.body.style.cursor = 'default'; })
-                                }
+                        		});
                             }
                         }
                     }
