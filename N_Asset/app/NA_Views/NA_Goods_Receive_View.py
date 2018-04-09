@@ -276,11 +276,16 @@ def Delete(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def deleteDetail(request):
-	Iidapp = Request.POST.get('idapp')
+	statuscode = 200
+	#result=NAGoodsReceive.objects.delete(
+	data = request.body
+	data = json.loads(data)
+	Iidapp = data['idapp']
 	result = ''
 	try:
 		#get data
-		result = NAGoodsReceive.objects.deleteDetail(Iidapp)
+		NAData = {'idapp':Iidapp,'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
+		result = NAGoodsReceive.objects.deleteDetail(NAData)
 		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)
@@ -442,7 +447,16 @@ def SearchEmployeebyform(request):
 #	return HttpResponse(data, content_type='application/json')
 def getBrandForDetailEntry(request):
 	IvalueKey =  request.GET.get('term')
-	BrandRows = NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
+	idappFKGoods = request.GET.get('fk_goods')
+	BrandRows = {}
+	try:
+		if idappFKGoods == '' or idappFKGoods is None:
+			BrandRows = NAGoodsReceive.objects.getBrandsForDetail(None,IvalueKey)
+		else:
+			BrandRows = NAGoodsReceive.objects.getBrandsForDetail(idappFKGoods,IvalueKey)
+	except Exception as e :
+		return repr(e)
+	
 	results = []
 	for brandrow in BrandRows:
 		JsonResult = {}

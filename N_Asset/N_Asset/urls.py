@@ -4,7 +4,9 @@ Definition of urls for N_Asset.
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
-from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View, NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View
+from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
+ NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
+ NA_GoodsLost_View
 import app.views
 # Uncomment the next lines to enable the admin:
 # admin.autodiscover()
@@ -72,7 +74,6 @@ urlpatterns = [
 	#url(r'^NA_Goods_Receive/HasRef/$',NA_Goods_Receive_View.HasRef,name='HasRef'),
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
-	url(r'^NA_Goods_Receive/HasExistSN/$',NA_Goods_Receive_View.ExistSerialNO,name='ExistSerialNO'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
@@ -80,8 +81,28 @@ urlpatterns = [
 	url(r'^NA_Acc_FA/$',NA_Acc_Fa_View.NA_Acc_FA, name='NA_Acc'),
 	url(r'^NA_Acc_FA/ShowEntry/$',NA_Acc_Fa_View.EntryAcc, name='NA_Acc_Entry'),
     url(r'NA_Acc_FA/getData/$',NA_Acc_Fa_View.NA_AccGetData),
-    url(r'NA_Acc_FA/SearchGoods/$',NA_Acc_Fa_View.searchGoods),
-	#url(r'^NA_Acc_FA/getGoods/$',NA_Acc_Fa_View.getGoods_data),
+	url(r'^NA_Acc_FA/getGoods/$',NA_Acc_Fa_View.getGoods_data),
+    url(r'^NA_Acc_FA/SearchGoodsByForm/$',NA_Acc_Fa_View.SearchGoodsbyForm),
+    url(r'^NA_Acc_FA/customFilter/',NA_Acc_Fa_View.ShowCustomFilter),
+
+    #NA Maintenance
+    url(r'^NA_Maintenance/$',NA_Maintenance_View.NA_Maintenance,name='NA_Maintenance'),
+    url(r'^NA_Maintenance/getData/$',NA_Maintenance_View.NA_MaintenanceGetData),
+    url(r'^NA_Maintenance/ShowEntry/$',NA_Maintenance_View.EntryMaintenance),
+    url(r'^NA_Maintenance/SearchGoodsByForm/$',NA_Maintenance_View.SearchGoodsbyForm),
+    url(r'^NA_Maintenance/getGoods/$',NA_Maintenance_View.get_GoodsData),
+    url(r'^NA_Maintenance/delete/$',NA_Maintenance_View.Delete_M_data),
+
+    #NA Goods Lost
+    url(r'^NA_GoodsLost/$',NA_GoodsLost_View.NA_Goods_Lost, name='NA_GoodsLost'),
+    url(r'^NA_GoodsLost/getData/$',NA_GoodsLost_View.NA_GoodsLost_GetData),
+    url(r'^NA_GoodsLost/ShowEntry/$',NA_GoodsLost_View.EntryGoods_Lost),
+    url(r'^NA_GoodsLost/SearchGoodsByForm/',NA_GoodsLost_View.SearchGoodsbyForm),
+    url(r'^NA_GoodsLost/SearchEmployeeByForm/$',NA_GoodsLost_View.SearchEmployeebyform),
+	url(r'^NA_GoodsLost/customFilter/$',NA_GoodsLost_View.ShowCustomFilter),
+
+    #NA Report
+    #url(r'^NA_Report/$',NA_Report_View.write_pdf_view),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', admin.site.urls),
 ]

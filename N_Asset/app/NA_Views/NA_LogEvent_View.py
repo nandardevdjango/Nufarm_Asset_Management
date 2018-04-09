@@ -3,32 +3,20 @@ from NA_Models.models import LogEvent
 from django.db import connection, transaction
 import json
 import datetime
-#from app.middleware import get_current_user
-def line_profiler(view=None, extra_view=None):
-    import line_profiler
 
-    def wrapper(view):
-        def wrapped(*args, **kwargs):
-            prof = line_profiler.LineProfiler()
-            prof.add_function(view)
-            if extra_view:
-                [prof.add_function(v) for v in extra_view]
-            with prof:
-                resp = view(*args, **kwargs)
-            prof.print_stats()
-            return resp
-        return wrapped
-    if view:
-        return wrapper(view)
-    return wrapper
-
-@line_profiler
 def NA_LogEvent_data(request):
     LogEvent_data = []
     tahun = []
     bulan = []
     hari = []
     ev = LogEvent.objects.filter(createdby=request.user.username).values('nameapp', 'createddate')
+    is_filter = request.GET.get('_Search')
+    must_filter = False
+    if is_filter is not None:
+        must_filter = True
+    if must_filter:
+        filter_log = request.GET['search']
+        ev = ev.filter(nameapp__icontains=filter_log)
     if ev.exists():
         event = [i for i in ev.iterator()] #get log event filter by user
         get_dyn_year = [i for i in ev.dates('createddate', 'year', order='DESC').iterator()] #get dynamic year
@@ -40,7 +28,6 @@ def NA_LogEvent_data(request):
             bulan.append(m)
         for d in get_dyn_day:
             hari.append(d)
-           
         result = []
         for t in tahun:
           for b in bulan:
@@ -56,10 +43,7 @@ def NA_LogEvent_data(request):
                 result.append((h,'{} at {}'.format(e['nameapp'] , e['createddate'].strftime("%H:%M:%S"))))
         parents, children = zip(*result) #get parent and children then return tuple within list .. . :D
         root_nodes = {x for x in parents if x not in children}
-
         getUser = str(request.user.username)
-
-        
         for node in root_nodes:
           result.append((getUser, node))
         result.append(('Log Event', getUser))
@@ -68,6 +52,8 @@ def NA_LogEvent_data(request):
             data['text'] = node
             if data['text'] == str(request.user.username):
                 data['iconCls'] = 'fa fa-user'
+            if must_filter:
+                data['state'] = 'Open'
             children = get_children(node)
             if children:
                 data['children'] = [get_nodes(child) for child in children]
@@ -87,42 +73,8 @@ def NA_LogEvent_data(request):
             return '{} {} {}'.format(o.strftime('%d'), o.strftime('%B'), o.strftime('%Y'))
     return HttpResponse(json.dumps(LogEvent_data, indent=4, default=convert))
 
-def dictfetchall(cursor):
-    columns = [col[0] for col in cursor.description]
-    return [
-    dict(zip(columns, row))
-    for row in cursor.fetchall()
-]
-
-@line_profiler
 def LogDescriptions(request):
     if request.method == 'GET':
-        get_desc = request.GET.get('createddate')
-        #type_log = request.GET['type_log']
-        #tbl_log = request.GET['tbl_log']
-        #I_gender = None
-        #I_status = None
-        #I_inactive = None
-        #if type_log == 'created':
-        #    if tbl_log == 'employee':
-        #        I_gender = 4
-        #        I_status = 5
-        #        I_inactive = 9
-        #cursor = connection.cursor()
-        #with transaction.atomic():
-        #    label = '''SELECT IDApp,IF(json_extract(descriptionsapp,"$.created[4]")="M",json_replace(descriptionsapp,"$.created[4]","Male"),
-        #    IF(json_extract(descriptionsapp,"$.createddate[4]")="F",json_replace(descriptionsapp,"$.created[4]","Female"),"$.created[4]")) AS
-        #    descriptionsapp FROM LogEvent WHERE createddate=%(createddate)s AND createdby=%(createdby)s'''
-        #    prms = {
-        #        'createddate':get_desc,
-        #        'createdby':request.user.username
-        #        }
-        #    cursor.execute(label,prms)
-        #    row = dictfetchall(cursor)
-        by_user = LogEvent.objects.raw('''SELECT IDApp,descriptionsapp FROM LogEvent WHERE createddate=%s AND createdby=%s''',[get_desc,request.user.username])
-        #by_user = LogEvent.objects.filter(createdby=request.user.username).values('descriptionsapp')
-        #get_createddate = by_user.filter(createddate = get_desc).iterator()
-        data = [
-         i.__get_descriptions__() for i in by_user
-        ]
-    return HttpResponse(json.dumps(data), content_type='application/json')
+        Createddate = request.GET.get('createddate')
+        data = LogEvent.objects.filter(createddate=Createddate,createdby=request.user.username).values('descriptions')[0]['descriptions']
+    return HttpResponse(json.dumps([data]), content_type='application/json')

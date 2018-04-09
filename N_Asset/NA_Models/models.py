@@ -4,6 +4,8 @@ from NA_DataLayer.NA_Goods_BR import NA_BR_Goods
 from django_mysql.models import JSONField
 from NA_DataLayer.NA_Goods_BR import NA_BR_Goods,CustomManager
 from NA_DataLayer.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
+from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
+from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 def forced_mariadb_connection(self):
@@ -37,8 +39,7 @@ JSONField._check_mysql_version = forced_mariadb_connection
 class LogEvent(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
     nameapp = models.CharField(db_column='NameApp', max_length=30)
-    typeapp = models.CharField(db_column='TypeApp', max_length=10)
-    descriptionsapp = JSONField()
+    descriptions = JSONField()
     createddate = models.DateTimeField(db_column='CreatedDate', auto_now_add=True)
     createdby = models.CharField(db_column='CreatedBy', max_length=30)
 
@@ -105,7 +106,9 @@ class NASuplier(models.Model):
 
 class NAAccFa(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.ForeignKey('goods',db_column='FK_Goods', related_name='AccFA_goods',to_field='idapp',on_delete=None)  # Field name made lowercase.
+    fk_goods = models.ForeignKey('goods',db_column='FK_Goods', related_name='AccFA_goods',to_field='idapp')  # Field name made lowercase.
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+    typeapp = models.CharField(db_column='TypeApp',max_length=32)
     year = models.DecimalField(db_column='Year', max_digits=10, decimal_places=2)  # Field name made lowercase.
     startdate = models.DateField(db_column='StartDate')  # Field name made lowercase.
     depr_expense = models.DecimalField(db_column='Depr_Expense', max_digits=30, decimal_places=4, blank=True, null=True)  # Field name made lowercase.
@@ -194,13 +197,13 @@ class goods(models.Model):
 
 class NAGoodsLending(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.CharField(db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
     isnew = models.IntegerField(db_column='IsNew')  # Field name made lowercase.
-    fk_employee = models.CharField(db_column='FK_Employee', max_length=50)  # Field name made lowercase.
+    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='used_by')  # Field name made lowercase.
     datelending = models.DateField(db_column='DateLending', blank=True, null=True)  # Field name made lowercase.
     qty = models.IntegerField(db_column='Qty')  # Field name made lowercase.
     fk_stock = models.CharField(db_column='FK_Stock', max_length=50)  # Field name made lowercase.
-    fk_responsible_person = models.CharField(db_column='FK_Responsible_Person', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='resp_person')  # Field name made lowercase.
     benefitof = models.CharField(db_column='BenefitOf', max_length=150, blank=True, null=True)  # Field name made lowercase.
     fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
     status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)  # Field name made lowercase.
@@ -216,17 +219,18 @@ class NAGoodsLending(models.Model):
 
 class NAGoodsOutwards(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.CharField(db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
     isnew = models.IntegerField(db_column='IsNew')  # Field name made lowercase.
     qty = models.IntegerField(db_column='Qty', blank=True, null=True)  # Field name made lowercase.
     daterequest = models.DateTimeField(db_column='DateRequest')  # Field name made lowercase.
     datereleased = models.DateTimeField(db_column='DateReleased')  # Field name made lowercase.
-    fk_employee = models.CharField(db_column='FK_Employee', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50, blank=True, null=True,related_name='used_by_outwards')  # Field name made lowercase.
     fk_usedemployee = models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_frommaintenance = models.IntegerField(db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
-    fk_responsibleperson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='resp_person_outwards')  # Field name made lowercase.
     fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
 
     class Meta:
         managed = True
@@ -235,13 +239,13 @@ class NAGoodsOutwards(models.Model):
 
 class NAGoodsReceive(models.Model):
 	idapp = models.AutoField(db_column='IDApp', primary_key=True)
-	idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods',on_delete=None)
+	idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods')
 	datereceived = models.DateTimeField(db_column='DateReceived')
-	fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier',on_delete=None)
+	fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier')
 	totalpurchase = models.SmallIntegerField(db_column='TotalPurchase')
 	totalreceived = models.SmallIntegerField(db_column='TotalReceived')
-	idapp_fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy',on_delete=None)  # Field name made lowercase.
-	idapp_fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by',on_delete=None)
+	idapp_fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy')  # Field name made lowercase.
+	idapp_fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by')
 	createddate = models.DateTimeField(db_column='CreatedDate')
 	createdby = models.CharField(db_column='Createdby', max_length=50)
 	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
@@ -286,6 +290,8 @@ class NAMaintenance(models.Model):
     personalname = models.CharField(db_column='PersonalName', max_length=100, blank=True, null=True)  # Field name made lowercase.
     enddate = models.DateField(db_column='EndDate', blank=True, null=True)  # Field name made lowercase.
     fk_goods = models.CharField(db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+    typeapp = models.CharField(db_column='TypeApp',max_length=32)
     issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True)  # Field name made lowercase.
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)  # Field name made lowercase.
     createddate = models.DateTimeField(db_column='CreatedDate')  # Field name made lowercase.
@@ -293,6 +299,7 @@ class NAMaintenance(models.Model):
     modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)  # Field name made lowercase.
     modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)  # Field name made lowercase.
 
+    objects = NA_BR_Maintenance()
     class Meta:
         managed = True
         db_table = 'n_a_maintenance'
@@ -317,3 +324,26 @@ class NAStock(models.Model):
     class Meta:
         managed = True
         db_table = 'n_a_stock'
+
+class NAGoodsLost(models.Model):
+    idapp = models.AutoField(db_column='IDApp',primary_key=True)
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods')
+    fk_goods_outwards = models.ForeignKey(NAGoodsOutwards,db_column='FK_Goods_Outwards')
+    fk_goods_lending = models.ForeignKey(NAGoodsLending,db_column='FK_Goods_Lending')
+    fk_maintenance = models.ForeignKey(NAMaintenance,db_column='FK_Maintenance')
+    fk_fromgoods = models.CharField(db_column='FK_FromGoods',max_length=10)
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+    typeapp = models.CharField(db_column='TypeApp',max_length=32)
+    fk_lostby = models.ForeignKey(Employee,db_column='FK_LostBy')
+    status = models.CharField(db_column='Status',max_length=5)
+    descriptions = models.CharField(db_column='Descriptions', max_length=250, blank=True, null=True)
+    reason = models.CharField(db_column='Reason', max_length=250, blank=True, null=True)
+    createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)
+    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+    modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)
+
+    objects = NA_BR_GoodsLost()
+    class Meta:
+        managed = True
+        db_table = 'n_a_goods_lost'

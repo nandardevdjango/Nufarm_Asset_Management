@@ -73,7 +73,10 @@ class ResolveCriteria:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query = " LIKE '%{0!s}'".format(str(self.valueData))
 		elif self.criteria == CriteriaSearch.Equal:
-			ResolveCriteria.__query = ' = {0}'.format(self.valueData)
+			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+				ResolveCriteria.__query = " = '{0}'".format(self.valueData)
+			elif self.typeofData==DataType.Integer:
+				ResolveCriteria.__query = ' = {0}'.format(self.valueData)
 		elif self.criteria==CriteriaSearch.Greater:
 			if self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:
@@ -120,7 +123,10 @@ class ResolveCriteria:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query = " LIKE '%{0!s}%'".format(str(self.valueData))
 		elif self.criteria==CriteriaSearch.NotEqual:
-				ResolveCriteria.__query = ' <>{0} '.format(str(self.valueData))
+			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+				ResolveCriteria.__query = " <> '{0}'".format(str(self.valueData))
+			elif self.typeofData==DataType.Integer:
+				ResolveCriteria.__query = ' <>{0}'.format(self.valueData)
 		return ResolveCriteria.__query
 
 	def getDataType(strDataType):
@@ -195,7 +201,6 @@ class query:
 			dict(zip(columns, row))
 			for row in cursor.fetchall()
 		]
-
 class commonFunct:
 	def str2bool(v):
 		return v.lower() in ("yes", "true", "t", "1")
@@ -296,3 +301,39 @@ class commonFunct:
 		#query = """SELECT COUNT
 #FROM information_schema.table_statistics
 #WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
+
+	def retriveColumn(**kwargs):
+		table = kwargs['table']
+		resolve = kwargs['resolve']
+		initialname = kwargs['initial_name']
+		fields = []
+		if type(table) == list:
+			for i in range(len(table)):
+				fields.append([j.name for j in table[i]._meta.local_fields])
+		else:
+			fields = [i.name for i in table._meta.local_fields]
+		exclude = None
+		if 'exclude' in kwargs:
+			exclude = kwargs['exclude']
+		if exclude is not None:
+			try:
+				for i in exclude:
+					fields.remove(i)
+			except ValueError:
+				raise Exception('fields name doesn\'t match with table fields')
+		result = None
+		if 'custom_fields' in kwargs:
+			cust_fields = kwargs['custom_fields']
+			if len(cust_fields) > 1:
+				for i in cust_fields:
+					fields.append(i)
+			else:
+				if type(cust_fields[0]) == list:
+					fields.append(cust_fields[0])
+				else:
+					fields.append([kwargs['custom_fields']])
+		for i in range(len(fields)):
+			if resolve in fields[i]:
+				result = str(initialname[i] + "." + resolve)
+				break
+		return result

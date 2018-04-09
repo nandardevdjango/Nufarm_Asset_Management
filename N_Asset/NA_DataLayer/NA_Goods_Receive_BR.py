@@ -186,12 +186,12 @@ class NA_BR_Goods_Receive(models.Manager):
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
 					if hasChangedHeader:
 						Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
-									FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s)"""
+									FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s """
 						if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
 							Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
 							Params.update(Qty=Data['totalreceived'])
 						Query = Query + """ WHERE IDApp = %(IDApp)s"""
-						Params.update(ModifiedBy=Data['createdBy']) 
+						Params.update(ModifiedBy=Data['createdby']) 
 						Params.update(IDApp=Data['idapp'])
 						cur.execute(Query,Params)
 					if hasChangedDetail:
@@ -241,23 +241,45 @@ class NA_BR_Goods_Receive(models.Manager):
 			cur.close()								
 			return repr(e)	
 		return 'success'
-	def deleteDetail(self,idappDetail):
+	def deleteDetail(self,Data):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		#cek reference detail
 		#[data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
 		Query = """SELECT ngr.IDApp AS idapp_fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
 					ON ngd.FK_App = ngr.IDApp WHERE ngd.idapp = %s"""
-		cur.execute(Query,idappDetail)
+		cur.execute(Query,[Data['idapp']])
 		if cur.rowcount > 0:
 			row = cur.fetchone()
-			Params = {'idapp_fk_goods':row['idapp_fk_goods'], 'datereceived':row['datereceived'],'typeapp':row['typeapp'],'serialnumber':row['serialnumber']}
+			Params = {'idapp_fk_goods':row[0], 'datereceived':row[1],'typeapp':row[2],'serialnumber':row[3]}
 			if self.hasRefDetail(Params):
 				cur.close()
 				return 'Can not delete data\Data has child-referenced'
+			try:
+				with transaction.atomic():
+					FKApp = int(row[0])					
+					(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(FKApp,cur,Data['deletedby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
+					Query = """DELETE FROM n_a_goods_receive_detail WHERE IDApp = %s"""
+					cur.execute(Query,[Data['idapp']]);
+					#update stock
+					Query = """SELECT COUNT(IDApp) FROM n_a_goods_receive_detail WHERE FK_App = %s"""
+					cur.execute(Query,[FKApp])
+					row = cur.fetchone()
+					tgoodsRec = int(row[0])
+					Query = """UPDATE n_a_goods_receive SET TotalReceived = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
+					cur.execute(Query,[tgoodsRec,Data['deletedby'],FKApp])
+					totalNew = totalNew - 1
+					totalReceived = totalReceived - 1
 
-			Query = """DELETE FROM na_goods_receive_detail WHERE IDApp = %s"""
-			cur.execute(Query,Params)
+					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
+					Params = [totalNew,totalReceived,Data['deletedby'],FKApp]
+					cur.execute(Query,Params)
+
+					cur.close()	
+					return 'success'
+			except Exception as e :
+				cur.close()
+				return repr(e)
 		cur.close()						
 		return 'success'	
 	def delete(self,Data):
@@ -288,15 +310,22 @@ class NA_BR_Goods_Receive(models.Manager):
 		except Exception as e:
 			cur.close()
 			return repr(e)
-	def getBrandsForDetail(self,searchText):
+	def getBrandsForDetail(self,FKGoods,searchText):
+
 		#ambil data di receive_goods_detail,union dengan brandname di table goods
-		Query = "SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE '%{0!s}%' \
+		if FKGoods is not None:
+			Query =  """SELECT DISTINCT(ngd.BrandName) FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App WHERE ngd.BrandName LIKE '%{0!s}%' AND ngr.FK_Goods = {1!s}"""
+			Query = Query.format(searchText,FKGoods)
+		else:
+			Query = "SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE '%{0!s}%' \
 				   UNION \
-				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE '%{1!s}%'"""
-		Query.format(searchText,searchText)
+				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE '%{1!s}%' """
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
-		cur.execute(Query.format(searchText,searchText))
+		if FKGoods is not None:
+			cur.execute(Query)
+		else:
+			cur.execute(Query.format(searchText,searchText))
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data

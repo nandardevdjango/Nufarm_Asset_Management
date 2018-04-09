@@ -32,6 +32,17 @@
             min-width:100%;
             width:-moz-fit-content;
         }
+        .ui-jqgrid .ui-pg-table .ui-pg-input {
+            height: 16px;
+            width: 30px;
+            line-height: inherit;
+            padding: 1px;
+            font-weight: normal;
+            font-size: 11px;
+            margin: 1px;
+            border: 1px solid #0b9910;
+            text-align: center;
+}
     </style>
 </head>
                        <body>
@@ -64,7 +75,7 @@
                                                    <li><a href="{% url 'NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
                                                    <li><a href="{% url 'GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
                                                    <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
+                                                   <li><a href="{% url 'NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
                                                    <li><a href="#">Others Menu</a></li>
                                                    <li><a href="#">Others Menu</a></li>
                                                    <li><a href="#">Others Menu</a></li>
@@ -88,7 +99,7 @@
                                                </ul>
                                            </li>
                                            <li> <a href="{% url 'NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
-                                           <li> <a href="#"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
+                                           <li> <a href="{% url 'NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
                                            <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
                                            <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
                                        </ul>
@@ -301,7 +312,7 @@
                                 <input class="btn btn-primary btn-block" id="sign-in-twitter" value="Sign In with Twitter" type="button">
                             </li>-->
                                                </ul>
-                                           </li>#}
+                                           </li>
                                            {% endif %}
                                            <!-- ============================ End User Login =============================== -->
                                        </ul>
@@ -309,7 +320,12 @@
                                    <div class="AsideMainArea">
 
                                        <div id="EventLogs" class="LogEvent"></div>
-
+                                       <div class="input-group" style="display:inline-flex;position:relative">
+                                            <input class="NA-Form-Control" id="searchLogEvent" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Search Actions" type="text">
+                                            <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
+                                                <button style="height:30.22px;" class="btn btn-default" type="submit" id="btnSearchLogEvent"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                                            </div>
+                                        </div>
                                    </div>
                                </aside>
                                <div class="clearfloat"></div>
@@ -435,239 +451,278 @@
                            <script type="text/javascript" src="{% static 'app/scripts/easyloader.js' %}"></script>
                            <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
                            <script type="text/javascript">
-                               $(document).ready(function () {
-                                   using('tree', function () {
-                                       $("#EventLogs").tree({
-                                           url: url_logEvent(),
-                                           method: 'get',
-                                           animate: false,
-                                           loadFilter: function (data, parent) {
-                                               function forNodes(data, callback) {
-                                                   var nodes = [];
-                                                   for (var i = 0; i < data.length; i++) {
-                                                   	nodes.push(data[i]);
-                                                   }
-                                                   while (nodes.length) {
-                                                       var node = nodes.shift();
-                                                       if (callback(node) == false) { return; }
-                                                       if (node.children) {
-                                                           for (var i = node.children.length - 1; i >= 0; i--) {
-                                                               nodes.unshift(node.children[i]);
-                                                           }
-                                                       }
-                                                   }
-                                               };
-                                               forNodes(data, function (node) {
-                                                   if (!node.children) {
-                                                       if (node.text.match(/Created/)) {
-                                                           node.iconCls = 'fa fa-plus';
-                                                       };
-                                                       if (node.text.match(/Updated/)) {
-                                                           node.iconCls = 'fa fa-pencil';
-                                                       };
-                                                       if (node.text.match(/Deleted/)) {
-                                                           node.iconCls = 'fa fa-trash';
-                                                       };
-                                                       if(node.text.match(/^Send/)){
-                                                           node.iconCls = 'fa fa-envelope'
-                                                       }
-                                                   };
-                                                   if (node.children) {
-                                                       if (node.text.match(/\d+ \w+ \d+/)) {
-                                                           node.state = 'closed'
-                                                           node.iconCls = 'fa fa-calendar'
-                                                       } else if (node.text.match(/^Log/)) {
-                                                           node.iconCls = 'fa fa-indent'
-                                                       } else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-                                                           node.iconCls = 'fa fa-calendar-o'
-                                                       }
-                                                   }
+          $(document).ready(function () {
+              var inputLogEvent = NA.common.getElementID('searchLogEvent'),
+                  btn_search_log = NA.common.getElementID('btnSearchLogEvent');
+              function searchLog(event){
+                  NA.NAEvent.preventDefault(event);
+                  var targetValue = inputLogEvent.value;
+                  NA.common.AJAX.GET(url_logEvent() + '?' + win.encodeURIComponent('_Search') + '=' + true + '&' + win.encodeURIComponent('search') + '=' + targetValue, 'application/json', function (e) { window.document.body.style.cursor = 'wait'; },
+                        null,
+                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                            var data = JSON.parse(this.responseText);
+                            if (data) {
+                                $('#EventLogs').tree('loadData',data);
+                            }
+                        }, null, function (e) {
+                            throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                        null);
+              };
+              NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
+                  console.log(event);
+                  if(event.keyCode == 13){
+                      searchLog(event);
+                  }
+              });
+              NA.NAEvent.addHandler(btn_search_log,'click',function(event){
+                  searchLog(event);
+              });
+              var months = [
+                  'January', 'February', 'March', 'April', 'May',
+                  'June', 'July', 'August', 'September',
+                  'October', 'November', 'December'
+              ];
+              function retriveMonth(monthname) {
+                  var month = months.indexOf(monthname);
+                  return month ? month + 1 : 0;
+              };
+            using('tree', function () {
+                $("#EventLogs").tree({
+                    url: url_logEvent(),
+                    method: 'get',
+                    animate: false,
+                    loadFilter: function (data, parent) {
+                                    function forNodes(data, callback) {
+                                        var nodes = [];
+                                        for (var i = 0; i < data.length; i++) {
+                                            nodes.push(data[i]);
+                                        }
+                                        while (nodes.length) {
+                                            var node = nodes.shift();
+                                            if (callback(node) == false) { return; }
+                                            if (node.children) {
+                                                for (var i = node.children.length - 1; i >= 0; i--) {
+                                                    nodes.unshift(node.children[i]);
+                                                }
+                                            }
+                                        }
+                                    };
+                                    forNodes(data, function (node) {
+                                        if (!node.children) {
+                                            if (node.text.match(/Created/)) {
+                                                node.iconCls = 'fa fa-plus';
+                                            };
+                                            if (node.text.match(/Updated/)) {
+                                                node.iconCls = 'fa fa-pencil';
+                                            };
+                                            if (node.text.match(/Deleted/)) {
+                                                node.iconCls = 'fa fa-trash';
+                                            };
+                                            if(node.text.match(/^Send/)){
+                                                node.iconCls = 'fa fa-envelope'
+                                            }
+                                        };
+                                        if (node.children) {
+                                            if (node.text.match(/\d+ \w+ \d+/)) {
+                                                node.state = 'closed'
+                                                node.iconCls = 'fa fa-calendar'
+                                            } else if (node.text.match(/^Log/)) {
+                                                node.iconCls = 'fa fa-indent'
+                                            } else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
+                                                node.iconCls = 'fa fa-calendar-o'
+                                            }
+                                        }
+                        
+                                    });
+                                    
+                        return data;
+                    },
+                    onClick: function (node) {
+                        if (!node.children) {
+                            var obj = $(node.target).parent()['context']['id']; //get id of the clicked object/node .. . :D
+                            var get_tanggal = $('#' + obj).parents().eq(1).prev().text(); //get date of the clicked object, by access parent of element .. . :D
+                            var dynamic_field = (get_tanggal + 'T' + get_waktu); //this is the default format time of the django, and can optional if change it .. . :D
+                            var descrModal = $('#mYmodal'); // Modal Log Descriptions
+                            var get_waktu = node.text.match(/\d+:\d+:\d+/);
+                            var get_year = get_tanggal.match(/\d{4}/),
+                                get_month = retriveMonth(get_tanggal.match(/\s\w+\s/).toString().trim()),
+                                get_day = get_tanggal.match(/\d{2}/);
+                            var get_clicked = get_year + '-' + get_month + '-' + get_day + 'T' + get_waktu;
+                            $.ajax({
+                                type: 'GET',
+                                url: url_logDesc() + '?createddate=' + get_clicked,
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data[0]['created']) {
+                                        var get_created = data[0]['created'];
+                                    } else if (data[0]['before']) {
+                                        var get_before = data[0]['before'];
+                                        var get_after = data[0]['after'];
+                                    } else if (data[0]['deleted']) {
+                                        var get_deleted = data[0]['deleted'];
+                                    } else if (data[0]['emailData']) {
+                                        var get_mailData = data[0]['emailData'];
+                                    };
+                                    // ===== Label for Display Log Event
+                                    function label_inactive(text){
+                                        if (text.indexOf('0') > -1){
+                                            var i_inactive = text.indexOf('0');
+                                            text[i_inactive] = 'No'
+                                        }else if(text.indexOf('1') > -1){
+                                            var i_active = text.indexOf('1');
+                                            text[i_active] = 'Yes'
+                                        };
+                                        return text
+                                    };
 
-                                               });
+                                    function label_empl() {
+                                        var txt_data = get_created;
+                                        if (txt_data.indexOf('M') > -1) {
+                                            var i_Male = txt_data.indexOf('M');
+                                            txt_data[i_Male] = 'Male';
+                                        }else if(txt_data.indexOf('F') > -1){
+                                            var i_Female = txt_data.indexOf('F');
+                                            txt_data[i_Female] = 'Female';
+                                        };
+                                        if (txt_data.indexOf('S') > -1) {
+                                            var i_Single = txt_data.indexOf('S');
+                                            txt_data[i_Single] = 'Single'
+                                        } else if (txt_data.indexOf('M') > -1) {
+                                            var i_Married = txt_data.indexOf('M');
+                                            txt_data[i_Married] = 'Married'
+                                        };
+                                        label_inactive(txt_data);
+                                        return txt_data
+                                    };
+                                    var match_created = node.text.match(/Created/);
+                                    var match_updated = node.text.match(/Updated/);
+                                    var match_deleted = node.text.match(/Deleted/);
+                                    var match_suplier = node.text.match(/Suplier/);
+                                    var match_employee = node.text.match(/Employee/);
+                                    var match_goods = node.text.match(/Goods/);
+                                    var match_mail = node.text.match(/Email/);
+                                    function removeNull(text) {
+                                        if ($('div#contentName').is(':visible')) {
+                                            if(text[text.length - 1] == null || text.length < $('div#contentElem').length){
+                                                $('div#contentElem:contains(Modified), div#contentData:contains(null), div#contentData:contains(undefined)').remove()
+                                            }
+                                        } else {
+                                            setTimeout(removeNull, 50); //wait 50 ms, then try again this is recursive function :D
+                                        }
+                                    };
+                                    var settings_default = {
+                                        title: 'Nufarm Log Event - Descriptions',
+                                        parentClass: 'col-md-12'
+                                    };
+                                    if (match_suplier) {
+                                        var settings_suplier = NA.common.AssignObject({
+                                            textToContent: ['Suplier Code :', 'Suplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+                                            contentElem_Class: 'col-md-4',
+                                            contentData_Class: 'col-md-7'
+                                        },settings_default)
+                                        if (match_created) {
+                                            var settings_suplier_create = NA.common.AssignObject({
+                                                get_text: label_inactive(get_created)
+                                            },settings_suplier)
+                                            NA.common.dialog.showDescriptionsLog(settings_suplier_create)
+                                            removeNull(get_created);
+                                        } else if (match_updated) {
+                                            var settings_suplier_update = NA.common.AssignObject({
+                                                get_text: get_after,
+                                                mode: 'update',
+                                                text_after: get_after,
+                                                text_before: get_before
+                                            },settings_suplier)
+                                            NA.common.dialog.showDescriptionsLog(settings_suplier_update)
 
-                                               return data;
-                                           },
-                                           onClick: function (node) {
-                                               console.log(node);
-                                               if (!node.children) {
-                                                   var obj = $(node.target).parent()['context']['id']; //get id of the clicked object/node .. . :D
-                                                   var get_tanggal = $('#' + obj).parents().eq(1).prev().text(); //get date of the clicked object, by access parent of element .. . :D
-                                                   var dynamic_field = (get_tanggal + 'T' + get_waktu); //this is the default format time of the django, and can optional if change it .. . :D
-                                                   var descrModal = $('#mYmodal'); // Modal Log Descriptions
-                                                   var get_waktu = node.text.match(/\d+:\d+:\d+/);
-                                                   var get_year = get_tanggal.match(/\d{4}/),
-                                                       get_month,
-                                                       get_day = get_tanggal.match(/\d{2}/);
-                                                   if (get_tanggal.match(/January/)) {
-                                                       get_month = '01'
-                                                   } else if (get_tanggal.match(/February/)) {
-                                                       get_month = '02'
-                                                   }
-                                                   var get_clicked = get_year + '-' + get_month + '-' + get_day + 'T' + get_waktu;
-                                                   $.ajax({
-                                                       type: 'GET',
-                                                       url: url_logDesc() + '?createddate=' + get_clicked,
-                                                       dataType: 'json',
-                                                       success: function (data) {
-                                                           if (data[0]['created']) {
-                                                               var get_created = data[0]['created'];
-                                                           } else if (data[0]['before']) {
-                                                               var get_before = data[0]['before'];
-                                                               var get_after = data[0]['after'];
-                                                           } else if (data[0]['deleted']) {
-                                                               var get_deleted = data[0]['deleted'];
-                                                           } else if (data[0]['emailData']) {
-                                                               var get_mailData = data[0]['emailData'];
-                                                           };
-                                                           function label_empl() {
-                                                               var txt_data = get_created;
-                                                               if (txt_data.indexOf('M') > -1) {
-                                                                   var i_Male = txt_data.indexOf('M');
-                                                                   txt_data[i_Male] = 'Male';
-                                                               }else if(txt_data.indexOf('F') > -1){
-                                                                   var i_Female = txt_data.indexOf('F');
-                                                                   txt_data[i_Female] = 'Female';
-                                                               };
-                                                               if (txt_data.indexOf('S') > -1) {
-                                                                   var i_Single = txt_data.indexOf('S');
-                                                                   txt_data[i_Single] = 'Single'
-                                                               } else if (txt_data.indexOf('M') > -1) {
-                                                                   var i_Married = txt_data.indexOf('M');
-                                                                   txt_data[i_Married] = 'Married'
-                                                               }
-                                                               return txt_data
-                                                           };
-                                                           var match_created = node.text.match(/Created/);
-                                                           var match_updated = node.text.match(/Updated/);
-                                                           var match_deleted = node.text.match(/Deleted/);
-                                                           var match_suplier = node.text.match(/Suplier/);
-                                                           var match_employee = node.text.match(/Employee/);
-                                                           var match_goods = node.text.match(/Goods/);
-                                                           var match_mail = node.text.match(/Email/);
-                                                           function removeNull(text) {
-                                                               if ($('div#contentName').is(':visible')) {
-                                                                   if(text[text.length - 1] == null || text.length < $('div#contentElem').length){
-                                                                       $('div#contentElem:contains(Modified), div#contentData:contains(null), div#contentData:contains(undefined)').remove()
-                                                                   }
-                                                               } else {
-                                                                   setTimeout(removeNull, 50); //wait 50 ms, then try again this is recursive function :D
-                                                               }
-                                                           };
-                                                           var settings_default = {
-                                                               title: 'Nufarm Log Event - Descriptions',
-                                                               parentClass: 'col-md-12'
-                                                           };
-                                                           if (match_suplier) {
-                                                               var settings_suplier = Object.assign({
-                                                                   textToContent: ['Suplier Code :', 'Suplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                                                   contentElem_Class: 'col-md-4',
-                                                                   contentData_Class: 'col-md-7'
-                                                               },settings_default)
-                                                               if (match_created) {
-                                                                   var settings_suplier_create = Object.assign({
-                                                                       get_text: get_created
-                                                                   },settings_suplier)
-                                                                   NA.common.dialog.showDescriptionsLog(settings_suplier_create)
-                                                                   removeNull(get_created);
-                                                               } else if (match_updated) {
-                                                                   var settings_suplier_update = Object.assign({
-                                                                       get_text: get_after,
-                                                                       mode: 'update',
-                                                                       text_after: get_after,
-                                                                       text_before: get_before
-                                                                   },settings_suplier)
-                                                                   NA.common.dialog.showDescriptionsLog(settings_suplier_update)
+                                        } else if (match_deleted) {
+                                            var settings_suplier_delete = NA.common.AssignObject({
+                                                get_text: get_deleted
+                                            },settings_suplier)
+                                            NA.common.dialog.showDescriptionsLog(settings_suplier_delete);
+                                            removeNull(get_deleted);
+                                        }
+                                    } else if (match_employee) {
+                                        var settings_employee = NA.common.AssignObject({
+                                            textToContent: ['Nik:', 'Employee Name :', 'Type App :', 'Jobtype :', 'Gender :', 'Status :', 'Telp/Hp :', 'Territory :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+                                            contentElem_Class: 'col-md-4',
+                                            contentData_Class: 'col-md-7'
+                                        }, settings_default)
+                                        if (match_created) {
+                                            var settings_employee_create = NA.common.AssignObject({
+                                                get_text: label_empl()
+                                            },settings_employee)
+                                            NA.common.dialog.showDescriptionsLog(settings_employee_create)
+                                            removeNull(get_created);
+                                        } else if (match_updated) {
+                                            var settings_employee_update = NA.common.AssignObject({
+                                                get_text: get_after,
+                                                mode: 'update',
+                                                text_after: get_after,
+                                                text_before: get_before
+                                            }, settings_employee);
+                                            NA.common.dialog.showDescriptionsLog(settings_employee_update);
+                                        } else if (match_deleted) {
+                                            var settings_employee_delete = NA.common.AssignObject({
+                                                mode: 'delete',
+                                                get_text: get_deleted
+                                            }, settings_employee);
+                                            NA.common.dialog.showDescriptionsLog(settings_employee_delete);
+                                            removeNull(get_deleted);
+                                        }
 
-                                                               } else if (match_deleted) {
-                                                                   var settings_suplier_delete = Object.assign({
-                                                                       get_text: get_deleted
-                                                                   },settings_suplier)
-                                                                   NA.common.dialog.showDescriptionsLog(settings_suplier_delete);
-                                                                   removeNull(get_deleted);
-                                                               }
-                                                           } else if (match_employee) {
-                                                               var settings_employee = Object.assign({
-                                                                   textToContent: ['Nik:', 'Employee Name :', 'Type App :', 'Jobtype :', 'Gender :', 'Status :', 'Telp/Hp :', 'Territory :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                                                   contentElem_Class: 'col-md-4',
-                                                                   contentData_Class: 'col-md-7'
-                                                               }, settings_default)
-                                                               if (match_created) {
-                                                                   var settings_employee_create = Object.assign({
-                                                                       get_text: label_empl()
-                                                                   },settings_employee)
-                                                                   NA.common.dialog.showDescriptionsLog(settings_employee_create)
-                                                                   removeNull(get_created);
-                                                               } else if (match_updated) {
-                                                                   var settings_employee_update = Object.assign({
-                                                                       get_text: get_after,
-                                                                       mode: 'update',
-                                                                       text_after: get_after,
-                                                                       text_before: get_before
-                                                                   }, settings_employee);
-                                                                   NA.common.dialog.showDescriptionsLog(settings_employee_update);
-                                                               } else if (match_deleted) {
-                                                                   var settings_employee_delete = Object.assign({
-                                                                       mode: 'delete',
-                                                                       get_text: get_deleted
-                                                                   }, settings_employee);
-                                                                   NA.common.dialog.showDescriptionsLog(settings_employee_delete);
-                                                                   removeNull(get_deleted);
-                                                               }
+                                    } else if (match_goods) {
+                                        var settings_goods = NA.common.AssignObject({
+                                            textToContent: ['Item Code :', 'Goods Name :', 'Brand Name :', 'Type App :', 'Price/Unit :', 'Depreciation :', 'Unit :', 'Economic Life :', 'Placement :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+                                            contentElem_Class: 'col-md-3',
+                                            contentData_Class: 'col-md-7'
+                                        }, settings_default);
+                                        if (match_created) {
+                                            var settings_goods_create = NA.common.AssignObject({
+                                                get_text: get_created
+                                            }, settings_goods);
+                                            NA.common.dialog.showDescriptionsLog(settings_goods_create);
+                                            removeNull(get_created);
+                                        } else if (match_updated) {
+                                            var settings_goods_update = NA.common.AssignObject({
+                                                get_text: get_after,
+                                                mode: 'update',
+                                                text_after: get_after,
+                                                text_before: get_before
+                                            }, settings_goods);
+                                            NA.common.dialog.showDescriptionsLog(settings_goods_update);
+                                        } else if (match_deleted) {
+                                            var settings_goods_delete = NA.common.AssignObject({
+                                                get_text: get_deleted,
+                                                mode: 'delete'
+                                            }, settings_goods);
+                                            NA.common.dialog.showDescriptionsLog(settings_goods_delete);
+                                            removeNull(get_deleted);
+                                        }
+                                    } else if (match_mail) {
+                                        NA.common.dialog.showDescriptionsLog({
+                                            title: 'Nufarm Log Event - Descriptions',
+                                            textToContent: ['To :','From :', 'Subject :', 'Message :', 'Type Report :'],
+                                            parentClass: 'col-md-12',
+                                            contentElem_Class: 'col-md-4',
+                                            contentData_Class:'col-md-7',
+                                            get_text: get_mailData,
+                                            mode: 'emailData'
+                                        });
+                                    }
 
-                                                           } else if (match_goods) {
-                                                               var settings_goods = Object.assign({
-                                                                   textToContent: ['Item Code :', 'Goods Name :', 'Brand Name :', 'Type App :', 'Price/Unit :', 'Depreciation :', 'Unit :', 'Economic Life :', 'Placement :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                                                   contentElem_Class: 'col-md-4',
-                                                                   contentData_Class: 'col-md-7'
-                                                               }, settings_default);
-                                                               if (match_created) {
-                                                                   var settings_goods_create = Object.assign({
-                                                                       get_text: get_created
-                                                                   }, settings_goods);
-                                                                   NA.common.dialog.showDescriptionsLog(settings_goods_create);
-                                                                   removeNull(get_created);
-                                                               } else if (match_updated) {
-                                                                   var settings_goods_update = Object.assign({
-                                                                       get_text: get_after,
-                                                                       mode: 'update',
-                                                                       text_after: get_after,
-                                                                       text_before: get_before
-                                                                   }, settings_goods);
-                                                                   NA.common.dialog.showDescriptionsLog(settings_goods_update);
-                                                               } else if (match_deleted) {
-                                                                   var settings_goods_delete = Object.assign({
-                                                                       get_text: get_deleted,
-                                                                       mode: 'delete'
-                                                                   }, settings_goods);
-                                                                   NA.common.dialog.showDescriptionsLog(settings_goods_delete);
-                                                                   removeNull(get_deleted);
-                                                               }
-                                                           } else if (match_mail) {
-                                                               NA.common.dialog.showDescriptionsLog({
-                                                                   title: 'Nufarm Log Event - Descriptions',
-                                                                   textToContent: ['To :','From :', 'Subject :', 'Message :', 'Type Report :'],
-                                                                   parentClass: 'col-md-12',
-                                                                   contentElem_Class: 'col-md-4',
-                                                                   contentData_Class:'col-md-7',
-                                                                   get_text: get_mailData,
-                                                                   mode: 'emailData'
-                                                               });
-                                                           }
+                                }
+                            })
+                        }
 
-                                                       }
-                                                   })
-                                               }
+                    }
 
-                                           }
-
-                                       });
-                                   });
-                               });
-                    
-                           </script>
+                });
+            });
+         });
+      </script>
                            <!--================================================= End Script Log Event =============================================== -->
-                           <!-- ================================== Jquery Modal Register / User Profile ==============================================  -->
-                           <!-- =============================================== End Jquery Modal Register ================================================= -->
                            <!--====================Jquery untuk menu============================ -->
                            <script>
                                $(function () {
@@ -695,7 +750,7 @@
                                    });
                                });
                            </script>
-                           <script src="{% static 'app/scripts/bootstrap.js' %}"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
                            <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
                        </body>
 </html>

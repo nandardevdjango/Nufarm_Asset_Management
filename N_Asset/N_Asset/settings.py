@@ -64,17 +64,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'app.middleware.GlobalUserMiddleware', #access user as Global scope for log event and another using signal built-in django, because the signal such as models they can't get request from HTTP 
+    'app.middleware.GlobalUserMiddleware', #access user as Global scope for log event and another using signal built-in django, because the signal such as models they can't get request from HTTP 
     #'django.middleware.cache.FetchFromCacheMiddleware',
-
-	  #'django.middleware.security.SecurityMiddleware',
-   # 'django.contrib.sessions.middleware.SessionMiddleware',
-   # 'django.middleware.common.CommonMiddleware',
-   # #'django.middleware.csrf.CsrfViewMiddleware',
-   # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-   # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-   # 'django.contrib.messages.middleware.MessageMiddleware',
-   # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'N_Asset.urls'
@@ -161,8 +152,8 @@ MEDIA_URL = os.path.join(BASE_DIR, 'app/static/NA_User_Image/img/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 
-#from django.core.urlresolvers import reverse_lazy
-#LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 
 # django-debug-toolbar
 

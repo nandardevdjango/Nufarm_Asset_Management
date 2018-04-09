@@ -336,6 +336,18 @@ NA.client = function () {
 }();
 
 NA.common = {
+    //assign Object cross browser
+    AssignObject: function () {
+        var resObj = {};
+        for (var i = 0; i < arguments.length; i++) {
+            var obj = arguments[i],
+                keys = Object.keys(obj);
+            for (var j = 0; j < keys.length; j++) {
+                resObj[keys[j]] = obj[keys[j]];
+            }
+        }
+        return resObj; //result Object
+    },
     doc: window.document,
     //============Validate Input Number========================
     numberInput: function (evt) {
@@ -433,7 +445,7 @@ NA.common = {
                     this.doc.body.appendChild(script)
                 }
                 else {
-                    elem.appendChild(script)
+                    Elem.appendChild(script)
                 }
             }
         }
@@ -442,7 +454,7 @@ NA.common = {
                 this.doc.body.appendChild(script)
             }
             else {
-                elem.appendChild(script)
+                Elem.appendChild(script)
             }
         }
     },
@@ -639,7 +651,20 @@ NA.common = {
             el.setAttribute(key, attrs[key]);
         }
     },
-
+    qs: function (el) {
+        if (typeof NA.common.doc.querySelector !== "undefined") {
+            return NA.common.doc.querySelector(el);
+        } else {
+            throw new Error("No way to retrieve element!");
+        }
+    },
+    qsAll: function (el) {
+        if (typeof NA.common.doc.querySelectorAll !== "undefined") {
+            return NA.common.doc.querySelectorAll(el);
+        } else {
+            throw new Error("No way to retrieve element!");
+        }
+    },
     
 
 };
@@ -1757,7 +1782,8 @@ NA.common.message = {
     _existsData: 'Data has existed',
     _titleInfo: 'Information',
     _confirmInfo: 'Confirmation',
-    _titleError: 'Unhandled system exception due to the following occurs'
+    _titleError: 'Unhandled system exception due to the following occurs',
+    _dataHasLost: 'Data has Lost'
 };
 Object.defineProperties(NA.common.message, {
     confirmDelete: {
@@ -1808,6 +1834,11 @@ Object.defineProperties(NA.common.message, {
     confirmInfo: {
         get: function () {
             return this._confirmInfo;
+        }
+    },
+    dataHasLost: {
+        get: function () {
+            return this._dataHasLost;
         }
     }
 });

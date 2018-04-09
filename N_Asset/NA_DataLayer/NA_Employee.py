@@ -63,11 +63,37 @@ class NA_BR_Employee(models.Manager):
     #    connection.close()
     #    return row
 
+
+        #def SaveData(self,statusForm=StatusForm.Input,**data):
+        #cursor = connection.cursor()
+        #Params = {'Nik':data['nik'],'Employee_Name':data['employee_name'],'TypeApp':data['typeapp'],'JobType':data['jobtype']}
+        #if statusForm == StatusForm.Input:
+        #    cursor.execute('''INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
+        #    status, telphp, territory, descriptions, inactive,createddate, createdby)
+        #    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''', [
+        #        data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
+        #        data['territory'], data['descriptions'], data['inactive'],data['createddate'], data['createdby']]
+        #        )
+        #elif statusForm == StatusForm.Edit:
+        #    Query = '''UPDATE employee SET nik=%s,employee_name=%s, typeapp=%s, 
+        #    jobtype=%s, gender=%s, status=%s, telphp=%s, territory=%s,
+        #    descriptions=%s, inactive=%s, modifieddate=%s, modifiedby=%s WHERE idapp=%s'''
+        #    cursor.execute(Query,[
+        #        data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
+        #        data['territory'], data['descriptions'], data['inactive'], data['modifieddate'],data['modifiedby'], data['idapp']
+        #        ]
+        #            )
+        #row = cursor.fetchone()
+        #connection.close()
+        #return row
+
+
     def update_employee(self, **data):
         cursor = connection.cursor()
-        cursor.execute('''UPDATE employee SET nik=%s,employee_name=%s, typeapp=%s, 
+        Query = '''UPDATE employee SET nik=%s,employee_name=%s, typeapp=%s, 
         jobtype=%s, gender=%s, status=%s, telphp=%s, territory=%s,
-        descriptions=%s, inactive=%s, modifieddate=%s, modifiedby=%s WHERE idapp=%s''',[
+        descriptions=%s, inactive=%s, modifieddate=%s, modifiedby=%s WHERE idapp=%s'''
+        cursor.execute(Query,[
             data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
             data['territory'], data['descriptions'], data['inactive'], data['modifieddate'],data['modifiedby'], data['idapp']
             ]

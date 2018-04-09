@@ -1,5 +1,4 @@
-﻿from .NA_To_Grids import EmployeeGrid
-from django.http import HttpResponse, JsonResponse
+﻿from django.http import HttpResponse
 from django.shortcuts import render
 from NA_Models.models import Employee, LogEvent
 from django.core.serializers.json import DjangoJSONEncoder
@@ -10,7 +9,7 @@ from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
-@login_required
+#@login_required
 def NA_Employee(request):
     return render(request, 'app/MasterData/NA_F_Employee.html')
 
@@ -30,10 +29,10 @@ def NA_EmployeeGetData(request):
     if(Isord is not None and str(Isord) != ''):
         emplData = Employee.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType).order_by('-' + str(Isidx))
     else:
-        emplData = Employee.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType)			
+        emplData = Employee.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType)
 
     totalRecord = emplData.count()
-    paginator = Paginator(emplData, int(Ilimit)) 
+    paginator = Paginator(emplData, int(Ilimit))
     try:
         page = request.GET.get('page', '1')
     except ValueError:
@@ -56,52 +55,33 @@ def NA_EmployeeGetData(request):
 from django import forms
 class NA_Employee_form(forms.Form):
     nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Enter Nik'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Enter Nik'}))
     employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Enter Employee Name'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Enter Employee Name'}))
     typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Type of Employee'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Type of Employee'}))
     jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Jobtype'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Jobtype'}))
     gender = forms.CharField(required=True, widget=forms.RadioSelect(choices=[('M', 'Male'), ('F','Female')]))
     status = forms.CharField(required=True, widget=forms.RadioSelect(choices=[('S', 'Single'), ('M','Married')]))
     telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Phone Number'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Phone Number'}))
     territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Territory'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Territory'}))
     descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control', 'placeholder':'Descriptions of Employee','cols':'100','rows':'2', 'style':'height: 50px;clear:left;width:500px;max-width:600px'
-        }))
+        'class':'NA-Form-Control', 'placeholder':'Descriptions of Employee','cols':'100','rows':'2', 'style':'height: 50px;clear:left;width:500px;max-width:600px'}))
     inactive = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
     window_status = forms.CharField(widget=forms.HiddenInput(), required=False)
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
-    class Meta:
-        model = Employee
-        #fields = ['nik', 'employee_name', 'typeapp', 'jobtype', 'gender', 'status', 'telphp', 'territory', 'descriptions', 'inactive']
-        exclude = ('createdby','createddate','modifiedby','modifieddate')
 
 def getCurrentUser(request):
     return str(request.user.username)
 
 def getData(request, form):
     clData = form.cleaned_data
-    data = {
-        'nik': clData['nik'],
-        'employee_name': clData['employee_name'],
-        'typeapp': clData['typeapp'],
-        'jobtype': clData['jobtype'],
-        'gender': clData['gender'],
-        'status':clData['status'],
-        'telphp':clData['telphp'],
-        'territory':clData['territory'],
-        'descriptions':clData['descriptions'],
-        'inactive':clData['inactive'],
+    data = {'nik': clData['nik'],'employee_name': clData['employee_name'],'typeapp': clData['typeapp'],
+            'jobtype': clData['jobtype'],'gender': clData['gender'],'status':clData['status'],'telphp':clData['telphp'],
+            'territory':clData['territory'],'descriptions':clData['descriptions'],'inactive':clData['inactive'],
         }
     return data
 
@@ -114,7 +94,7 @@ def EntryEmployee(request):
             if mode == 'Add':
                 checkExist = Employee.objects.dataExist(data['nik'])
                 if checkExist:
-                    return JsonResponse({'message':'This data has exists'})
+                    return HttpResponse(json.dumps({'message':'This data has exists'}),status=403,content_type='application/json')
                 else:
                    data['createddate'] = datetime.datetime.now()
                    data['createdby'] = getCurrentUser(request)
@@ -150,13 +130,14 @@ def EntryEmployee(request):
             'status':result.status,
             'telphp':result.telphp,
             'territory':result.territory,
-            'inactive':result.inactive,
+            'inactive': True if result.inactive == 1 else False,
             'descriptions':result.descriptions
             }
             form = NA_Employee_form(initial=data)
+            form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
             form = NA_Employee_form()
-        return render(request, 'app/MasterData/EntryEmployee.html', {'form':form})
+        return render(request, 'app/MasterData/NA_Entry_Employee.html', {'form':form})
     #return render(request, 'app/MasterData/EntryEmployee.html', {'form':form})
 
 
@@ -173,27 +154,7 @@ def ShowCustomFilter(request):
 		cols.append({'name':'territory','value':'territory','selected':'','dataType':'varchar','text':'Territory'})
 		cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'Descriptions'})
 		cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
-		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})	
-
-
-def retriveEmployee(request):
-    if request.method == 'POST':
-        get_idapp = request.POST['idapp']
-        result = Employee.objects.get(idapp=get_idapp)
-        data = {
-        'idapp':result.idapp,
-        'nik':result.nik,
-        'employee_name':result.employee_name,
-        'typeapp':result.typeapp,
-        'jobtype':result.jobtype,
-        'gender':result.gender,
-        'status':result.status,
-        'telphp':result.telphp,
-        'territory':result.territory,
-        'inactive':result.inactive,
-        'descriptions':result.descriptions
-        }
-    return JsonResponse(data, safe=False)
+		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 def NA_Employee_delete(request):
     if request.user.is_authenticated():
