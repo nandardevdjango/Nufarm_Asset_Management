@@ -466,6 +466,24 @@ def getBrandForDetailEntry(request):
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')
+def getTypeApps(request):
+	IvalueKey =  request.GET.get('term')
+	idappFKGoods = request.GET.get('fk_goods')
+	TypeAppRows = {}
+	try:
+		TypeAppRows = NAGoodsReceive.objects.getTypesApp(idappFKGoods,IvalueKey)
+	except Exception as e :
+		return repr(e)
+	
+	results = []
+	for typeAppRow in TypeAppRows:
+		JsonResult = {}
+		JsonResult['id'] = typeAppRow['TypeApp']
+		JsonResult['label'] = typeAppRow['TypeApp']
+		JsonResult['value'] = typeAppRow['TypeApp']
+		results.append(JsonResult)
+	data = json.dumps(results,cls=DjangoJSONEncoder)
+	return HttpResponse(data, content_type='application/json')
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,

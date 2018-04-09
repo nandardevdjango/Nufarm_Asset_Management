@@ -71,7 +71,7 @@ urlpatterns = [
 	url(r'^NA_Goods_Receive/SearchSuplierbyForm/$',NA_Goods_Receive_View.SearchSuplierbyForm,name='SearchSuplierbyForm'),
 	url(r'^NA_Goods_Receive/SearchEmployeebyform/$',NA_Goods_Receive_View.SearchEmployeebyform,name='SearchEmployeebyform'),
 	url(r'^NA_Goods_Receive/getBrandForDetailEntry/$',NA_Goods_Receive_View.getBrandForDetailEntry,name='getBrandForDetailEntry'),
-	#url(r'^NA_Goods_Receive/HasRef/$',NA_Goods_Receive_View.HasRef,name='HasRef'),
+	url(r'^NA_Goods_Receive/getTypeApps/$',NA_Goods_Receive_View.getTypeApps,name='getTypeApps'),
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
     # Uncomment the admin/doc line below to enable admin documentation:

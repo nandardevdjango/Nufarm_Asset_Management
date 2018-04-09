@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, commonFunct
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import datetime
-from dateutil import relativedelta
+#from dateutil import relativedelta
 from decimal import Decimal
 def NA_AccGetData(request):
     IcolumnName = request.GET.get('columnName')

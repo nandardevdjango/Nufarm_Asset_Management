@@ -108,7 +108,7 @@
         txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
-        TypeApps = [],
+        //TypeApps = [],
         //settings btn sesuai user access
         //anggap saja sekarang admin
         btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
@@ -729,6 +729,16 @@
                 //minLength: 0
             });
         };
+        function fetchTypeApps(elem) {
+        	var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value;
+        	$(elem).autocomplete({
+        		//source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
+        		source: "getTypeApps/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
+        		minLength: 1,
+        		delay: 0,
+        		//minLength: 0
+        	});
+        }
         function createDummyRowData(intLength) {
             //check datarows di jqgrid
             var DummyData = [];
@@ -954,11 +964,14 @@
 					    edittype: 'text',
 					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })() },
 					    editoptions: {
-					        dataInit: function (elem) {
-					            $(elem).autocomplete({
-					                source: TypeApps,
-					            });
-					        },
+					        //dataInit: function (elem) {
+					        //    $(elem).autocomplete({
+					        //        source: TypeApps,
+					        //    });
+					    	//}
+					    	dataInit: function (elem) {
+					    		fetchTypeApps.call(this, elem, "typeapp");
+					    	},
 					        class: 'NA-Form-Control', placeholder: function () {
 					            if ($(this).val() === '') { return 'type of brand'; }
 					        }
@@ -1156,11 +1169,11 @@
                         gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
                         return true;
                     }
-                    else if (cellname === 'typeapp') {
-                        if (TypeApps.indexOf(value) <= -1) {
-                            TypeApps.push(value);
-                        }
-                    }
+                    //else if (cellname === 'typeapp') {
+                    //    if (TypeApps.indexOf(value) <= -1) {
+                    //        TypeApps.push(value);
+                    //    }
+                    //}
                     else if (cellname === 'serialnumber') {
                         //check ke database
                         //HasExistSN
@@ -1319,6 +1332,14 @@
                         				gridTbl.jqGrid('getLocalRow', rowid).endofwarranty = GetServerFormatDate(NDate);
                         				return true;
                         			}
+                        		},
+                        		oneditfunc: function (rowid) {
+
+                        		},
+                        		errorfunc: function (rowid) {
+                        			ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
+
+                        			return false;
                         		}
                         	});
                             lastsel = id;
@@ -1575,10 +1596,15 @@
                                            var eltreceived = NA.common.getElementID('id_totalreceived'),
                                                                             valTrec = eltreceived.value;
                                            valTrec = valTrec - 1;
+                                           valTrec = (valTrec < 0) ? 0 : valtrec;
                                            eltreceived.value = valTrec;
                                            gridTbl.delRowData(NRowid);
                                            dataDetail = gridTbl.jqGrid('getGridParam', 'data');
                                            NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+
+                                           var initializeForm = NA.common.getElementID('id_initializeForm');
+                                           originalData = JSON.stringify(getValuesForm());
+                                           initializeForm.value = originalData;
                                            //grid.trigger("reloadGrid", [{ page: 1 }]);
                                            var IrowId = grid.jqGrid('getGridParam', 'selrow');
                                            var IRowData = grid.getRowData(IrowId);
@@ -2085,7 +2111,10 @@
                         				txtTPurchase.setAttribute('readonly', true);
                         				var txtTreceived = NA.common.getElementID('id_totalreceived');
                                         //get priviledge allow edit
-                        				txtTreceived.setAttribute('readonly', parseInt(txtTPurchase.value) === parseInt(txtTreceived.value));
+                        				//txtTreceived.setAttribute('readonly', parseInt(txtTPurchase.value) === parseInt(txtTreceived.value));
+                        				if (parseInt(txtTPurchase.value) < parseInt(txtTreceived.value)) {
+                        					txtTreceived.setAttribute('readonly', true);
+                        				} else { txtTreceived.removeAttribute('readonly'); }
                         				var dtReceived = NA.common.getElementID('id_datereceived');
                         				dtReceived.setAttribute('readonly', true);
 
@@ -2291,7 +2320,7 @@
 
                         			// eldatereceived.value.toString().trim();
                         			//$('#id_initializeForm').val(originalData);
-                        			initializeForm = NA.common.getElementID('id_initializeForm');
+                        			var initializeForm = NA.common.getElementID('id_initializeForm');
                         			initializeForm.value = originalData;
                         			//=====================end id_datereceived==========================================
 
@@ -2339,8 +2368,8 @@
                         					                //buat manual rowdata
                         					                for (var i = 0; i < totalReceived; i++) {
                         					                    //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                        					                    var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
-                        					                    gridTbl.jqGrid.addRowData(i + 1, rowData, 'last');
+                        					                	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
+                        					                    gridTbl.jqGrid('addRowData', i + 1, rowData, "last");
                         					                };
                         					            }
                         					            else {
@@ -2350,10 +2379,10 @@
                         					        if (reccount < totalReceived) {
                         					            var countAdd = totalReceived - reccount;
                         					            for (var i = 0; i < countAdd; i++) {
-                        					                recCount += 1;
+                        					            	reccount += 1;
                         					                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                        					                var rowData = { 'idapp': '', 'fkapp': '', 'no': recCount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
-                        					                gridTbl.jqGrid.addRowData(recCount, rowData, 'last');
+                        					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
+                        					            	gridTbl.jqGrid('addRowData', reccount, rowData, "last");
                         					            };
                         					        }
                         					        e.stopImmediatePropagation(); return false;

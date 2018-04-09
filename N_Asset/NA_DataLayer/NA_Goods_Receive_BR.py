@@ -329,6 +329,15 @@ class NA_BR_Goods_Receive(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
+	def getTypesApp(self,FKGoods,searchText):
+		Query = """SELECT DISTINCT(ngd.TypeApp) FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App WHERE ngd.TypeApp LIKE '%{0!s}%' AND ngr.FK_Goods = {1!s}"""
+		Query = Query.format(searchText,FKGoods)
+		self.__class__.c = connection.cursor()
+		cur = self.__class__.c
+		cur.execute(Query)
+		data = query.dictfetchall(cur)
+		cur.close()
+		return data
 class CustomSuplierManager(models.Manager):
 	def getSuplier(self,supliercode):
 		return super(CustomSuplierManager,self).get_queryset().filter(supliercode__iexact=supliercode).values('supliername')
