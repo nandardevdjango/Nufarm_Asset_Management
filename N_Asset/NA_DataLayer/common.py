@@ -77,6 +77,8 @@ class ResolveCriteria:
 				ResolveCriteria.__query = " = '{0}'".format(self.valueData)
 			elif self.typeofData==DataType.Integer:
 				ResolveCriteria.__query = ' = {0}'.format(self.valueData)
+			elif self.typeofData==DataType.DateTime:
+				ResolveCriteria.__query = ' = {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
 		elif self.criteria==CriteriaSearch.Greater:
 			if self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:

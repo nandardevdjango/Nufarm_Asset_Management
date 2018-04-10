@@ -21,10 +21,10 @@ class NA_BR_Goods_Receive(models.Manager):
 		elif columnKey == 'suplier':
 			colKey = """sp.supliername"""
 		elif columnKey == 'receivedby':
-			colKey ==  """emp1.receivedby"""
+			colKey =  """emp1.receivedby"""
 		elif columnKey == 'pr_by':
 			colKey = """Emp2.pr_by"""
-		elif columnKey == 'refno':
+		elif columnKey == 'RefNO':
 			colKey = """ngr.refno"""
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		self.__class__.c = connection.cursor()
@@ -217,7 +217,7 @@ class NA_BR_Goods_Receive(models.Manager):
 								else:
 									Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
 											VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
-									cur.execute(Query,[dataDetail[i]['fkapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],'createdby'])	
+									cur.execute(Query,[Data['idapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],dataDetail[i]['modifiedby']])	
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})

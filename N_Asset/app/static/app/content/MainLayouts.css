@@ -94,7 +94,7 @@ label{
 /*===========Main Wrapper middle===============*/
 body > div:nth-child(2) {
     height: 85.5%;
-    position: relative;
+    /*position: relative;*/
 }
 
 div.fltlft {
@@ -400,3 +400,6 @@ ul, menu, dir {
     -webkit-padding-start: 0px;
 }
 
+.btn .caret {
+	margin-left: 10px !important;
+}

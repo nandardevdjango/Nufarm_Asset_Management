@@ -129,6 +129,18 @@ table.ui-datepicker-calendar tr td:first-child span.ui-state-default {
 color: red;
 font-weight: bold;
 }
+/* ======== jQUERY Error Info ==============*/
+div#info_dialog{
+	width: 290px;
+	height: auto;
+	z-index: 1050;
+	overflow: hidden;
+	top: 30%;
+	left: 45%;
+	display: block;
+	background: white;
+}
+
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }

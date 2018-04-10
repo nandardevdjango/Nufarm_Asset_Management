@@ -14,7 +14,8 @@
 <script type="text/javascript">
     
 	(function(){ 
-
+		var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]');
+	    var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
 	    if (!NA.common.getElementID('CustomSearch')) {
 	        var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
 	        lastLi = NA.common.doc.createElement('li'),
@@ -24,6 +25,16 @@
 	        lastLi.appendChild(lastLi_a);
 	        parentC.appendChild(lastLi);
 	    }
+		
+	    //function setFocusSearch(event) {
+	    //	this.setAttribute('placeholder', '');
+	    //};
+
+	    //function setBlurSearch(event) {
+	    //	this.setAttribute('placeholder', 'yyyy-mm-dd');
+	    //	NA.NAEvent.stopPropagation(event);
+	    //};
+	   
 //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
         NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");   
@@ -32,14 +43,59 @@
         (function(elm){
             var listElem = elm.children;
             Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
-                NA.NAEvent.addHandler(item, 'click', function (event) {
-                    event.preventDefault();
-                    if (item.firstChild.id === 'custSearch') {
-                        //=========='show dialog search'==================
-                        //NA.common.dialog.createSearchDialog(event)
-                    }
-                    NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent;
-                });
+            	NA.NAEvent.addHandler(item, 'click', function (event) {
+            		event.preventDefault();
+            		if (item.firstChild.id === 'custSearch') {
+            			//=========='show dialog search'==================
+            			NA.common.dialog.createSearchDialog(event)
+            		}
+            		var textSearch = NA.common.getElementID('bySearch');
+            		textSearch.firstChild.nodeValue = item.textContent;
+            		var elSearch = item.firstChild;
+            		if (elSearch.dataset.tipe === 'datetime') {
+            			txtSearchMaster.setAttribute('placeholder', 'yyyy-mm-dd');
+            			var valPlaceHolder = 'yyyy-mm-dd';
+            			NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+            				if (this.value === '') {
+            					if (this.getAttribute('placeholder') === valPlaceHolder) {
+            						this.setAttribute('placeholder', '');
+            					}
+            				}
+            				e.stopImmediatePropagation();
+            			});
+            			NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+            				if (this.value === '') {
+            					if (this.getAttribute('placeholder') === '') {
+            						this.setAttribute('placeholder', valPlaceHolder);
+            					}
+            				}
+            				e.stopImmediatePropagation();
+            			});
+            		}
+            		else {
+            			txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+            			if (typeof txtSearchMaster.onfocus != 'function') {
+            				NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+            					if (this.value === '') {
+            						if (this.getAttribute('placeholder') === defPlaceHolder) {
+            							this.setAttribute('placeholder', '');
+            						}
+            					}
+            					e.stopImmediatePropagation();
+            				});
+            			}
+            			if (typeof txtSearchMaster.onblur != 'function') {
+            				NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+            					if (this.value === '') {
+            						if (this.getAttribute('placeholder') === '') {
+            							this.setAttribute('placeholder', defPlaceHolder);
+            						}
+            					}
+            					e.stopImmediatePropagation();
+            				});
+            			}
+            		}
+            	});
             });
         })(DivSearch);
     })();   
@@ -105,8 +161,8 @@
         //========================Variable Object untuk ===============================
         var win = win || window,
         grid = $("#jqGrid_NA_F_Goods_Receive"),
-        txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-        btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+        txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+        btnSearchMaster =  NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
         //TypeApps = [],
         //settings btn sesuai user access
@@ -118,8 +174,8 @@
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
 		originalData = {},hasGridDetail = false;
-        window.onunload = function () {
-            if (typeof txtSearchMaster.onclick == "function") {
+        win.onunload = function () {
+        	if (typeof txtSearchMaster.onkeydown == "function") {
                 NA.NAEvent.removeHandler(txtSearchMaster, 'keydown', handlerSearchInput)
             }
             if (typeof btnSearchMaster.onclick == "function") {
@@ -852,6 +908,7 @@
                     endofwarranty = null;
                 }
                 if (!hasRef) {
+                	//gridTbl.jgrid('cellEdit', true);
                     gridTbl.jqGrid('setCell', rowID, 'brandname', brandname.toString().toUpperCase());
                     // now change the internal local data
                     gridTbl.jqGrid('getLocalRow', rowID).brandname = brandname.toString().toUpperCase();
@@ -1026,14 +1083,13 @@
 					    		}
 					    		var economiclife = NA.common.getElementID('id_economiclife').value;
 					    		if (economiclife !== '') {
-					    			maxMonth = parseInt(economiclife);
+					    			maxMonth = parseInt(economiclife) * 12;
 					    		}
 					    		$(elem).datepicker({
 					    			dateFormat: 'dd/mm/yy',
 					    			autoSize: true,
 					    			changeYear: true,
 					    			changeMonth: true,
-					    			showWeek: true,
 					    			beforeShowDay: $.datepicker.noWeekends,
 					    			minDate: (function (g, dtrec) {
 					    				if (g.status === 'Edit') {
@@ -1333,10 +1389,10 @@
                         				return true;
                         			}
                         		},
-                        		oneditfunc: function (rowid) {
+                        		//oneditfunc: function (rowid) {
 
-                        		},
-                        		errorfunc: function (rowid) {
+                        		//},
+                        		onerrorfunc: function (rowid) {
                         			ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
 
                         			return false;
@@ -1421,8 +1477,8 @@
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
                             }
-                            var rowData = { 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
-                            gridTbl.jqGrid.addRowData(recCount + 1, rowData, 'last');
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }]
+                            gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
                             gridTbl.jqGrid.editCell(recCount + 1, 3, true);
@@ -1456,16 +1512,16 @@
                         caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
                             //add row data position in last row
                             var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            var totalReceived = e.value || 0;
+                            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
                             if (recCount >= parseInt(totalReceived)) {
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
                             }
-                            var rowData = { 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
-                            gridTbl.jqGrid.addRowData(recCount + 1, rowData, 'last');
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }]
+                            gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
-                            gridTbl.jqGrid.editCell(recCount + 1, 3, true);
+                            gridTbl.jqGrid('editCell',recCount + 1, 3, true);
                             return true;
                         }, position: "last"
                     });
@@ -1596,7 +1652,7 @@
                                            var eltreceived = NA.common.getElementID('id_totalreceived'),
                                                                             valTrec = eltreceived.value;
                                            valTrec = valTrec - 1;
-                                           valTrec = (valTrec < 0) ? 0 : valtrec;
+                                           valTrec = (valTrec < 0) ? 0 : valTrec;
                                            eltreceived.value = valTrec;
                                            gridTbl.delRowData(NRowid);
                                            dataDetail = gridTbl.jqGrid('getGridParam', 'data');
@@ -1762,25 +1818,25 @@
         }
         //========================END GROUP FUNCTION DECLARATION===================================
 
-        //=======================GROUP FUNCTION EVENT=============================================
+    	//=======================GROUP FUNCTION EVENT=============================================
         function printToPDF(event) {
-            if (event) {
-                NA.NAEvent.preventDefault(event);
-                var target = NA.NAEvent.getTarget(event);
-                grid.jqGrid("exportToPdf", {
-                    title: 'Transactions -- goods Received',
-                    orientation: 'portrait',
-                    pageSize: 'A4',
-                    description: 'description of the exported document',
-                    customSettings: null,
-                    download: 'download',
-                    includeLabels: true,
-                    includeGroupHeader: true,
-                    includeFooter: true,
-                    fileName: "goods_Received.pdf"
-                    //langsung print by pdf file
-                });
-            }
+        	if (event) {
+        		NA.NAEvent.preventDefault(event);
+        		var target = NA.NAEvent.getTarget(event);
+        		grid.jqGrid("exportToPdf", {
+        			title: 'Transactions -- goods Received',
+        			orientation: 'portrait',
+        			pageSize: 'A4',
+        			description: 'description of the exported document',
+        			customSettings: null,
+        			download: 'download',
+        			includeLabels: true,
+        			includeGroupHeader: true,
+        			includeFooter: true,
+        			fileName: "goods_Received.pdf"
+        			//langsung print by pdf file
+        		});
+        	}
         };
 
         //sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
@@ -1806,12 +1862,12 @@
                 SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
                 if (SearchBy.trim() == 'By') {
                     SearchData.setDefaultSearchData('goods', 'varchar', 'like');
-                    var curPage = parseInt(grid.getGridParam('page'));
+                    //var curPage = parseInt(grid.getGridParam('page'));
                     window.document.body.style.cursor = 'wait';
                     if (event.target.value !== '') {
                         NA.common.SearchData.setValue(event.target.value);
                     }
-                    LoadData(curPage);
+                    LoadData(1);
                 }
                 else {
                     //submit search
@@ -1857,8 +1913,7 @@
                 elDataType = elementOption.dataset.tipe;
             }
             else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
-                var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-                elSearch = null;
+                var elSearch = null;
                 valueKey = txtSearchMaster.value.trim();
                 var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
                 var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
@@ -1870,32 +1925,30 @@
                 columnKey = elSearch.dataset.column
                 elDataType = elSearch.dataset.tipe;
                 criteria = 'like'
-                if (!elSearch.dataset.column) {
-                    switch (elDataType) {
-                        case "bigint":
-                        case "integer":
-                        case "money":
-                        case "float":
-                        case "decimal":
-                        case "boolean":
-                        case "datetime": {
-                            if (valueKey.toString().indexOf(',') > -1) {
-                                criteria = 'in'
-                            }
-                            criteria = 'equal';
-                            break;
-                        }
-                    };
-                }
+                switch (elDataType) {
+                	case "bigint":
+                	case "integer":
+                	case "money":
+                	case "float":
+                	case "decimal":
+                	case "boolean":
+                	case "datetime": {
+                		if (valueKey.toString().indexOf(',') > -1) {
+                			criteria = 'in'
+                		}
+                		criteria = 'equal';
+                		break;
+                	}
+                };
             };
 
             SearchData.setValue(valueKey);
             SearchData.setColumnName(columnKey);
             SearchData.setDataType(elDataType)
-            SearchData.setCriteria(valCriteria);
-            window.document.body.style.cursor = 'wait';
+            SearchData.setCriteria(criteria);
+            win.document.body.style.cursor = 'wait';
             LoadData(1);
-            document.body.style.cursor = 'default';
+            win.document.body.style.cursor = 'default';
             //grid.setGridParam.trigger("reloadGrid",[{page:1}]);//karena searching harus di set ke page 1
         };
 
@@ -1905,7 +1958,44 @@
             SearchData.setDefaultSearchData('goods', 'varchar', 'like');
             SearchData.setValue('');
             LoadData(1);
-            window.document.body.style.cursor = 'default';
+            win.document.body.style.cursor = 'default';
+        };
+        window.showDialogCustomSearch = function (event) {
+        	$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
+        		if (statusTxt == "success") {
+        			$(this).html(responseTxt);
+        			var dialog = NA.common.doc.querySelector('div.containerDialog');
+        			NA.common.getElementID('searchmodfbox').style.display = 'block';
+        			var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
+                    txtSearchCustom = NA.common.getElementID('jqg1');
+        			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+        				NA.common.dialog.closeDialog(dialog);
+        			});
+        			var btnFind = NA.common.getElementID('fbox_jqGrid_search');
+        			NA.NAEvent.addHandler(btnFind, 'click', function (event) {
+        				submitSearch(event);
+        				if (event) {
+        					NA.NAEvent.stopPropagation(event);
+        				}
+        			});
+        			var btnReset = NA.common.getElementID('fbox_jqGrid_reset');
+        			NA.NAEvent.addHandler(btnReset, 'click', function (event) {
+        				submitReset(event);
+        				if (event) {
+        					NA.NAEvent.stopPropagation(event);
+        				}
+        			});
+        			NA.NAEvent.addHandler(txtSearchCustom, 'keydown', function (event) {
+        				event = NA.NAEvent.getEvent(event);
+        				if (event.keyCode === 13) {
+        					submitSearch(event);
+        				}
+        				if (event) {
+        					NA.NAEvent.stopPropagation(event);
+        				}
+        			});
+        		}
+        	});
         };
 
         //=======================END GROUP FUNCTION EVENT========================================
@@ -2369,7 +2459,7 @@
                         					                for (var i = 0; i < totalReceived; i++) {
                         					                    //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
                         					                	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
-                        					                    gridTbl.jqGrid('addRowData', i + 1, rowData, "last");
+                        					                    gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                         					                };
                         					            }
                         					            else {
@@ -2382,7 +2472,7 @@
                         					            	reccount += 1;
                         					                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
                         					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
-                        					            	gridTbl.jqGrid('addRowData', reccount, rowData, "last");
+                        					            	gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                         					            };
                         					        }
                         					        e.stopImmediatePropagation(); return false;

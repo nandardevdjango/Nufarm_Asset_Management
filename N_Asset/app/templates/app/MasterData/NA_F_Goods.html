@@ -460,29 +460,27 @@
                 columnKey = elSearch.dataset.column
                 elDataType = elSearch.dataset.tipe;
                 criteria = 'like'                
-                if (!elSearch.dataset.column) {
-                    switch( elDataType){
-                        case "bigint":
-                        case "integer":
-                        case "money":
-                        case "float":
-                        case "decimal":
-                        case "boolean":
-                        case "datetime":{
-                            if(valueKey.toString().indexOf(',') > -1){
-                                criteria = 'in'
-                            }
-                            criteria = 'equal';
-                            break;
-                        }                      
-                    };
-                }
+                switch( elDataType){
+                	case "bigint":
+                	case "integer":
+                	case "money":
+                	case "float":
+                	case "decimal":
+                	case "boolean":
+                	case "datetime":{
+                		if(valueKey.toString().indexOf(',') > -1){
+                			criteria = 'in'
+                		}
+                		criteria = 'equal';
+                		break;
+                	}                      
+                };
             }
             
             NA.common.SearchData.setValue(valueKey);
             NA.common.SearchData.setColumnName(columnKey);
             NA.common.SearchData.setDataType(elDataType)
-            NA.common.SearchData.setCriteria(valCriteria);
+            NA.common.SearchData.setCriteria(criteria);
             window.document.body.style.cursor = 'wait';
             LoadData(1);
             document.body.style.cursor = 'default';
