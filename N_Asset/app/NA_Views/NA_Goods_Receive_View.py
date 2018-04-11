@@ -22,19 +22,36 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponseRedirect
 from distutils.util import strtobool
 from decimal import Decimal
+import math
 def NA_Goods_Receive(request):
 	assert isinstance(request,HttpRequest)
 	#buat nama-name column, key sama 
 	populate_combo = []
 	populate_combo.append({'label':'RefNO','columnName':'RefNO','dataType':'varchar'})
-	populate_combo.append({'label':'Goods Descriptions','columnName':'goods','dataType':'varchar'})
+	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
 	populate_combo.append({'label':'Date Received','columnName':'datereceived','dataType':'datetime'})
-	populate_combo.append({'label':'Suplier Name','columnName':'suplier','dataType':'varchar'})
+	populate_combo.append({'label':'Suplier Name','columnName':'supliername','dataType':'varchar'})
 	populate_combo.append({'label':'Received By','columnName':'receivedby','dataType':'varchar'})
-	populate_combo.append({'label':'PR By','columnName':'pr_by','dataType':'varchar'})
+	populate_combo.append({'label':'Purchase Request By','columnName':'pr_by','dataType':'varchar'})
 	populate_combo.append({'label':'Total Purchased','columnName':'totalpurchase','dataType':'int'})
 	populate_combo.append({'label':'Total Received','columnName':'totalreceived','dataType':'int'})
 	return render(request,'app/Transactions/NA_F_Goods_Receive.html',{'populateColumn':populate_combo})
+def ShowCustomFilter(request):
+	if request.is_ajax():
+		cols = []
+		#//#column idapp  no refno, goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
+		# label idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'
+		cols.append({'name':'refno','value':'refno','selected':'','dataType':'varchar','text':'RefNO'})
+		cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'goods name'})
+		cols.append({'name':'datereceived','value':'datereceived','selected':'','dataType':'datetime','text':'Date Received'})
+		cols.append({'name':'supliername','value':'supliername','selected':'','dataType':'varchar','text':'type of brand'})
+		cols.append({'name':'receivedby','value':'receivedby','selected':'','dataType':'varchar','text':'Received By'})
+		cols.append({'name':'pr_by','value':'pr_by','selected':'','dataType':'varchar','text':'Purchase Request By'})
+		cols.append({'name':'totalpurchase','value':'totalpurchase','selected':'','dataType':'int','text':'Total Purchased'})
+		cols.append({'name':'totalreceived','value':'totalreceived','selected':'','dataType':'int','text':'Total Received'})
+		cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+
 def NA_Goods_Receive_Search(request):
 	IcolumnName = request.GET.get('columnName');
 	IvalueKey =  request.GET.get('valueKey')
@@ -67,7 +84,8 @@ def NA_Goods_Receive_Search(request):
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 		rows.append(datarow)
-	results = {"page": int(request.GET.get('page', '1')),"total": totalRecord/int( request.GET.get('page', '1')) ,"records": totalRecord,"rows": rows }
+	TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+	results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 def ExistSerialNO(request):
 	authentication_classes = []

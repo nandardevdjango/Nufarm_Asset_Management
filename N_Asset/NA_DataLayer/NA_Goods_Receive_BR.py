@@ -14,18 +14,20 @@ class NA_BR_Goods_Receive(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		#IDapp,goods,datereceived,suplier,receivedby,pr_by,totalPurchase,totalreceived
 		colKey = '';
-		if columnKey == 'goods':
+		if columnKey == "goods":
 			colKey = """CONCAT(g.goodsname, ' ', g.brandname, ' ', IFNULL(g.typeapp,' '))"""
 		elif columnKey == 'datereceived':
-			colKey = """ngr.datereceived"""
-		elif columnKey == 'suplier':
-			colKey = """sp.supliername"""
+			colKey = "ngr.datereceived"
+		elif columnKey == "supliername":
+			colKey = "sp.supliername"
 		elif columnKey == 'receivedby':
-			colKey =  """emp1.receivedby"""
+			colKey =  "emp1.receivedby"
 		elif columnKey == 'pr_by':
-			colKey = """Emp2.pr_by"""
-		elif columnKey == 'RefNO':
-			colKey = """ngr.refno"""
+			colKey = "Emp2.pr_by"
+		elif columnKey == "RefNO":
+			colKey = "ngr.refno"
+		elif columnKey == 'createdby':
+			colKey = "ngr.createdby"
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c

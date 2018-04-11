@@ -1,6 +1,7 @@
 ﻿from enum import Enum
 from datetime import date
 from datetime import datetime
+from dateutil.parser import parse
 from django.db import connection
 class CriteriaSearch(Enum):
 	Equal = 1
@@ -39,7 +40,19 @@ class ResolveCriteria:
 				if ',' in str(self.valueData):
 					strValueKeys = str(self.valueData).split(',')
 					filterfield = self.colKey + '__range'
-					return {filterfield:[datetime((str(strValueKeys[0])[0:3]),str(strValueKeys[0])[5:6],str(strValueKeys[0])[7:8]),datetime((str(strValueKeys[1])[0:3]),str(strValueKeys[1])[5:6],str(strValueKeys[1])[7:8])]}
+					startDate = datetime.strptime(self.valueData[0],'Y-m-d')
+					#StartDateRange = (  # The start_date with the minimum possible time
+					#datetime.combine(startDate, datetime.min.time()),
+					## The start_date with the maximum possible time
+					#datetime.combine(StatDateRange, datetime.max.time())
+					#)
+					endDate = datetime.strptime(self.valueData[1],'Y-m-d')
+					#endDateRange = (  # The start_date with the minimum possible time
+					#datetime.combine(endDate, datetime.min.time()),
+					## The start_date with the maximum possible time
+					#datetime.combine(endDate, datetime.max.time())
+					#)
+					return {filterfield:[startDate,endDate]}
 			elif self.typeofData==DataType.BigInt or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Integer or self.typeofData==DataType.Money:
 				return {filterfield:[self.valueData[0],self.valueData[1]]}
 			else:
@@ -65,7 +78,7 @@ class ResolveCriteria:
 				values = str(self.valueData).split('-')
 				startDate = values[0]
 				endDate = values[1]
-				self.__class__.__query = ' >= {0!s} AND ' + self.colKey + ' <= {1!s}'.format(startDate,endDate)
+				self.__class__.__query = parse(startDate).strftime(' >=  %Y-%m-%d') + ' AND ' + self.colKey + parse(endDate).strftime(' <= %Y-%m-%d')
 		elif self.criteria==CriteriaSearch.BeginWith:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
@@ -78,49 +91,72 @@ class ResolveCriteria:
 			elif self.typeofData==DataType.Integer:
 				ResolveCriteria.__query = ' = {0}'.format(self.valueData)
 			elif self.typeofData==DataType.DateTime:
-				ResolveCriteria.__query = ' = {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = " BETWEEN '" + str(self.valueData) + "'" + " AND '" + strDate + " 23:59:59'"
+				#ResolveCriteria.__query = """ = STR_TO_DATE('""" + str(self.valueData) + """','%Y-%m-%d')"""
 		elif self.criteria==CriteriaSearch.Greater:
 			if self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:
 				ResolveCriteria.__query = ' > {0}'.format(float(self.valueData))
 			elif self.typeofData==DataType.DateTime:
-				ResolveCriteria.__query = ' > {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = """ > STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""			
 		elif self.criteria==CriteriaSearch.GreaterOrEqual:
 			if self.typeofData==DataType.Integer or self.typeofData== DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:
 				ResolveCriteria.__query = ' > {0}'.format(float(self.valueData))
 			elif self.typeofData==DataType.DateTime:
 				#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses
-				ResolveCriteria.__query = ' >= {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = """ >= STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""	
 		elif self.criteria==CriteriaSearch.In:
 			rowFilter = " IN('"
-			if ',' in str(self.valueData):
-				strValueKeys = str(self.valueData).split(',')				
-				for i in range(len(strValueKeys)):
-					rowFilter += strValueKeys[i] + "'"
-					if i < len(strValueKeys) -1:
-						rowFilter += ","
-				rowFilter += ")"
-			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-				if rowFilter != " IN(')":
+			if ',' in str(self.valueData):				
+				if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						rowFilter += strValueKeys[i] + "'"
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
 					ResolveCriteria.__query = rowFilter
-				else:
+				elif self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
+					or self.typeofData==DataType.BigInt:
+					rowFilter = " IN("
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						rowFilter += strValueKeys[i] + ""
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
+				elif self.typeofData==DataType.DateTime:
+					rowFilter = " IN("
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						rowFilter += parse(strValueKeys).strftime("""'%Y-%m-%d'""")
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
+			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 					ResolveCriteria.__query = " IN ('{0!s}')".format(str(self.valueData))
 			elif self.typeofData==DataType.DateTime:
 			#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses	
-				ResolveCriteria.__query = ' IN {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				ResolveCriteria.__query = parse(self.valueData).strftime("""' IN('%Y-%m-%d')""")
 		elif self.criteria==CriteriaSearch.Less:
 			if self.typeofData==DataType.Integer or self.typeofData== DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:
 				ResolveCriteria.__query = ' < {0}'.format(float(self.valueData))
 			elif self.typeofData==DataType.DateTime:
-				ResolveCriteria.__query = ' < {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = """ < STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""				
 		elif self.criteria==CriteriaSearch.LessOrEqual:
 			if self.typeofData==DataType.Integer or self.typeofData== DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:
 				ResolveCriteria.__query = ' <= {0}'.format(float(self.valueData))
 			elif self.typeofData==DataType.DateTime:
-				ResolveCriteria.__query = ' <= {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = """ <= STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""
+				#ResolveCriteria.__query = ' <= {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
 		elif self.criteria==CriteriaSearch.Like:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query = " LIKE '%{0!s}%'".format(str(self.valueData))

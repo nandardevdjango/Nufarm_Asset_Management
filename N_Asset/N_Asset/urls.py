@@ -74,6 +74,7 @@ urlpatterns = [
 	url(r'^NA_Goods_Receive/getTypeApps/$',NA_Goods_Receive_View.getTypeApps,name='getTypeApps'),
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
+	url(r'^NA_Goods_Receive/customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

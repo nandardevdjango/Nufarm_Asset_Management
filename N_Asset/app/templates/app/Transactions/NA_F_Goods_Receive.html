@@ -175,6 +175,9 @@
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
 		originalData = {},hasGridDetail = false;
         win.onunload = function () {
+        	var frmSearch = NA.common.doc.querySelector('form.navbar-form');
+        	frmSearch.reset();
+        	txtSearchMaster.value = '';
         	if (typeof txtSearchMaster.onkeydown == "function") {
                 NA.NAEvent.removeHandler(txtSearchMaster, 'keydown', handlerSearchInput)
             }
@@ -195,12 +198,12 @@
                     grid.jqGrid({
                         url: url,
                         mtype: "GET",
-                        datatype: "json",//#column IDapp  no	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
+                        datatype: "json",//#column idapp  no refno, goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
                         colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
                         colModel: [
                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
-							{ name: 'refno', width: 80, align: 'left', sortable: true, editable: false, },
+							{ name: 'refno', width: 80,index:'refno', align: 'left', sortable: true, editable: false, },
                             { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
                             { name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
@@ -229,7 +232,6 @@
                             document.body.style.cursor = 'default';
                         },
                         cellEdit: false,
-                        viewrecords: true,
                         height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                         rowNum: 300,
                         rowList: [20, 50, 100, 200, 300, 500],
