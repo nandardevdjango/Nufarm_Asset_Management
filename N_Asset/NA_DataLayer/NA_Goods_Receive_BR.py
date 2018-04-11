@@ -15,7 +15,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		#IDapp,goods,datereceived,suplier,receivedby,pr_by,totalPurchase,totalreceived
 		colKey = '';
 		if columnKey == "goods":
-			colKey = """CONCAT(g.goodsname, ' ', g.brandname, ' ', IFNULL(g.typeapp,' '))"""
+			colKey = "g.goodsname"
 		elif columnKey == 'datereceived':
 			colKey = "ngr.datereceived"
 		elif columnKey == "supliername":

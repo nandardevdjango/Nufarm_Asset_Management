@@ -1888,6 +1888,7 @@
             elCriteria = null,//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
             valCriteria = '',//elCriteria.nodeValue;
             elDataType = '';//elementOption.dataset.dataType;
+            criteria = 'like'
             //get  ajax with querystring search
             //valueKey : valueKey,
             //columnKey :columnKey,
@@ -1897,11 +1898,11 @@
                 elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
                 columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
                 elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
-                criteria = elCriteria.value;
+                valCriteria = elCriteria.value;
                 switch (valCriteria) {
                     case "eq": { criteria = 'equal'; break; }
                     case "ne": { criteria = 'not equal'; break; }
-                    case "bw": { criteria = 'beginwith'; break; }
+                    case "bw": { criteria = 'beginwith'; break; }S
                     case "ew": { criteria = "endwith"; break; }
                     case "cn": { criteria = "contains"; break; }
                     case "in": { criteria = "in"; break; }
@@ -1925,8 +1926,7 @@
                     }
                 });
                 columnKey = elSearch.dataset.column
-                elDataType = elSearch.dataset.tipe;
-                criteria = 'like'
+                elDataType = elSearch.dataset.tipe;              
                 switch (elDataType) {
                 	case "bigint":
                 	case "integer":
@@ -1935,10 +1935,11 @@
                 	case "decimal":
                 	case "boolean":
                 	case "datetime": {
-                		if (valueKey.toString().indexOf(',') > -1) {
-                			criteria = 'in'
-                		}
-                		criteria = 'equal';
+                	    if (valueKey.toString().indexOf(',') > -1) {
+                	        criteria = 'in'
+                	    } else {
+                	        criteria = 'equal';
+                	    }
                 		break;
                 	}
                 };
