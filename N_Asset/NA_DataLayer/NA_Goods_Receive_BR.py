@@ -28,6 +28,10 @@ class NA_BR_Goods_Receive(models.Manager):
 			colKey = "ngr.refno"
 		elif columnKey == 'createdby':
 			colKey = "ngr.createdby"
+		elif columnKey == "totalpurchase":
+			colkey = "ngr.totalpurchase"
+		elif columnKey == "totalreceived":
+			colkey = "ngr.totalreceived"
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c

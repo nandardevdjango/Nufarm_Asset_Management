@@ -142,6 +142,41 @@ class ResolveCriteria:
 			elif self.typeofData==DataType.DateTime:
 			#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses	
 				ResolveCriteria.__query = parse(self.valueData).strftime("""' IN('%Y-%m-%d')""")
+		elif self.criteria==CriteriaSearch.NotIn:
+			rowFilter = " NOT IN('"
+			if ',' in str(self.valueData):				
+				if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						rowFilter += strValueKeys[i] + "'"
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
+					ResolveCriteria.__query = rowFilter
+				elif self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
+					or self.typeofData==DataType.BigInt:
+					rowFilter = " NOT IN("
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						rowFilter += strValueKeys[i] + ""
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
+				elif self.typeofData==DataType.DateTime:
+					rowFilter = """ NOT IN("""
+					strValueKeys = str(self.valueData).split(',')				
+					for i in range(len(strValueKeys)):
+						 #"""STR_TO_DATE('""" + strValueKeys + """','%Y-%m-%d')"""
+						rowFilter += """STR_TO_DATE('""" + strValueKeys + """','%Y-%m-%d')"""
+						if i < len(strValueKeys) -1:
+							rowFilter += ","
+					rowFilter += ")"
+			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+					ResolveCriteria.__query = " NOT IN ('{0!s}')".format(str(self.valueData))
+			elif self.typeofData==DataType.DateTime:
+			#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses	
+				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+				ResolveCriteria.__query = """ NOT IN(STR_TO_DATE('""" + strDate + """','%Y-%m-%d'))"""
 		elif self.criteria==CriteriaSearch.Less:
 			if self.typeofData==DataType.Integer or self.typeofData== DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
 				or self.typeofData==DataType.BigInt:

@@ -1776,14 +1776,15 @@ NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
     _canNotDelete: 'Can not delete data\Data has child-referenced',
     _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
-    _savingSucces: 'Data Saved Succesfuly.',
+    _savingSucces: 'Data saved succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
     _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',
     _existsData: 'Data has existed',
     _titleInfo: 'Information',
     _confirmInfo: 'Confirmation',
     _titleError: 'Unhandled system exception due to the following occurs',
-    _dataHasLost: 'Data has Lost'
+    _dataHasLost: 'Data has Lost',
+    _unsupportedCriteria : 'Operator is not supported for this kind of data\nPlease change criteria or column name'
 };
 Object.defineProperties(NA.common.message, {
     confirmDelete: {
@@ -1839,6 +1840,11 @@ Object.defineProperties(NA.common.message, {
     dataHasLost: {
         get: function () {
             return this._dataHasLost;
+        }
+    },
+    unsupportedCriteria: {
+        get: function () {
+            return this._unsupportedCriteria;
         }
     }
 });

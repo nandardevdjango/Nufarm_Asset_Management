@@ -1899,21 +1899,62 @@
                 columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
                 elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
                 valCriteria = elCriteria.value;
+                elDataType = elementOption.dataset.tipe;
                 switch (valCriteria) {
                     case "eq": { criteria = 'equal'; break; }
                     case "ne": { criteria = 'notequal'; break; }
-                    case "bw": { criteria = 'beginwith'; break; }S
+                    case "bw": { criteria = 'beginwith'; break; }
                     case "ew": { criteria = "endwith"; break; }
                     case "cn": { criteria = "contains"; break; }
                     case "in": { criteria = "in"; break; }
                     case "ni": { criteria = "notin"; break; }
-                    case "gt": { criteria = "Greater"; break; }
-                    case "le": { criteria = "less"; break; }
-                    case "leq": { criteria = "lessorequal"; break; }
-                    case "gtq": { criteria = "greaterorequal"; break; }
-                    case "bw": { criteria = "between"; break; }
-                };
-                elDataType = elementOption.dataset.tipe;
+                    case "gt": {
+                        criteria = "greater";
+                        var  expr = /char/;  // no quotes here
+                        if (expr.test(elDataType)) {
+                            ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "(expr for only numeric or date data)");
+                            win.document.body.style.cursor = 'default';
+                            return false;
+                        }
+                        break;
+                    }
+                    case "le": {
+                        criteria = "less";
+                        var expr = /char/;  // no quotes here
+                        if (expr.test(elDataType)) {
+                            ShowAlert(NA.common.message.unsupportedCriteria,  "expr for only numeric or date data");
+                            win.document.body.style.cursor = 'default'; return false;
+                        }
+                        break;
+                    }
+                    case "leq": {
+                        criteria = "lessorequal";
+                        var expr = /char/;  // no quotes here
+                        if (expr.test(elDataType)) {
+                            ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+                            win.document.body.style.cursor = 'default'; return false;
+                        }
+                        break;
+                    }
+                    case "gtq": {
+                        criteria = "greaterorequal";
+                        var expr = /char/;  // no quotes here
+                        if (expr.test(elDataType)) {
+                            ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+                            win.document.body.style.cursor = 'default'; return false;
+                        }
+                        break;
+                    }
+                    case "blg": {
+                        criteria = "between";
+                        var expr = /char/;  // no quotes here
+                        if (expr.test(elDataType)) {
+                            ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "expr for only numeric or date data");
+                            win.document.body.style.cursor = 'default'; return false;
+                        }
+                        break;
+                    }
+                };               
             }
             else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
                 var elSearch = null;
@@ -1977,7 +2018,7 @@
         			var btnFind = NA.common.getElementID('fbox_jqGrid_search');
         			NA.NAEvent.addHandler(btnFind, 'click', function (event) {
         				submitSearch(event);
-        				if (event) {
+        				if (event) {        				  
         					NA.NAEvent.stopPropagation(event);
         				}
         			});
