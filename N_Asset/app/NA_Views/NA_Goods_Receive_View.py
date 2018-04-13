@@ -27,7 +27,7 @@ def NA_Goods_Receive(request):
 	assert isinstance(request,HttpRequest)
 	#buat nama-name column, key sama 
 	populate_combo = []
-	populate_combo.append({'label':'RefNO','columnName':'RefNO','dataType':'varchar'})
+	populate_combo.append({'label':'RefNO','columnName':'refno','dataType':'varchar'})
 	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
 	populate_combo.append({'label':'Date Received','columnName':'datereceived','dataType':'datetime'})
 	populate_combo.append({'label':'Suplier Name','columnName':'supliername','dataType':'varchar'})
@@ -510,7 +510,7 @@ def getTypeApps(request):
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,
-																						 'placeholder': 'RefNO','data-value':'RefNO','tittle':'Ref NO is required'}))
+																						 'placeholder': 'RefNO','data-value':'refno','tittle':'Ref NO is required'}))
 	datereceived = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter Date Received','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={
@@ -558,7 +558,7 @@ class NA_Goods_Receive_Form(forms.Form):
 	#	exclude = ('createdby','createddate','modifiedby','modifieddate')
 	def clean(self):#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
 		cleaned_data = super(NA_Goods_Receive_Form,self).clean()
-		RefNO =  self.cleaned_data.get('refno')
+		refno =  self.cleaned_data.get('refno')
 		fk_goods = self.cleaned_data.get('fk_goods')
 		datereceived = self.cleaned_data.get('datereceived')
 		fk_suplier = self.cleaned_data.get('fk_suplier')

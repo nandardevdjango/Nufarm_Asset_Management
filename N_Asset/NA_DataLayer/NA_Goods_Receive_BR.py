@@ -24,7 +24,7 @@ class NA_BR_Goods_Receive(models.Manager):
 			colKey =  "emp1.receivedby"
 		elif columnKey == 'pr_by':
 			colKey = "Emp2.pr_by"
-		elif columnKey == "RefNO":
+		elif columnKey == "refno":
 			colKey = "ngr.refno"
 		elif columnKey == 'createdby':
 			colKey = "ngr.createdby"

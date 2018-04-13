@@ -14,7 +14,8 @@
 <script type="text/javascript">
     
 	(function(){ 
-		var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]');
+	    var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
 	    var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
 	    if (!NA.common.getElementID('CustomSearch')) {
 	        var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
@@ -42,61 +43,105 @@
         var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
         (function(elm){
             var listElem = elm.children;
+             var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+            var numPlaceHolder = 'enter numeric type';
             Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
-            	NA.NAEvent.addHandler(item, 'click', function (event) {
-            		event.preventDefault();
-            		if (item.firstChild.id === 'custSearch') {
-            			//=========='show dialog search'==================
-            			NA.common.dialog.createSearchDialog(event)
-            		}
-            		var textSearch = NA.common.getElementID('bySearch');
-            		textSearch.firstChild.nodeValue = item.textContent;
-            		var elSearch = item.firstChild;
-            		if (elSearch.dataset.tipe === 'datetime') {
-            			txtSearchMaster.setAttribute('placeholder', 'yyyy-mm-dd');
-            			var valPlaceHolder = 'yyyy-mm-dd';
-            			NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
-            				if (this.value === '') {
-            					if (this.getAttribute('placeholder') === valPlaceHolder) {
-            						this.setAttribute('placeholder', '');
-            					}
-            				}
-            				e.stopImmediatePropagation();
-            			});
-            			NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
-            				if (this.value === '') {
-            					if (this.getAttribute('placeholder') === '') {
-            						this.setAttribute('placeholder', valPlaceHolder);
-            					}
-            				}
-            				e.stopImmediatePropagation();
-            			});
-            		}
-            		else {
-            			txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
-            			if (typeof txtSearchMaster.onfocus != 'function') {
-            				NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
-            					if (this.value === '') {
-            						if (this.getAttribute('placeholder') === defPlaceHolder) {
-            							this.setAttribute('placeholder', '');
-            						}
-            					}
-            					e.stopImmediatePropagation();
-            				});
-            			}
-            			if (typeof txtSearchMaster.onblur != 'function') {
-            				NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
-            					if (this.value === '') {
-            						if (this.getAttribute('placeholder') === '') {
-            							this.setAttribute('placeholder', defPlaceHolder);
-            						}
-            					}
-            					e.stopImmediatePropagation();
-            				});
-            			}
-            		}
-            	});
+                NA.NAEvent.addHandler(item, 'click', function (event) {
+                    event.preventDefault();
+                    if (item.firstChild.id === 'custSearch') {
+                        //=========='show dialog search'==================
+                        NA.common.dialog.createSearchDialog(event)
+                        txtSearchMaster.setAttribute('disabled', true);
+                        txtSearchMaster.setAttribute('placeholder', '');
+                        btnSearchMaster.setAttribute('disabled', true)
+                    }
+                    else {
+                        txtSearchMaster.removeAttribute('disabled');
+                        btnSearchMaster.removeAttribute('disabled');
+                        var textSearch = NA.common.getElementID('bySearch');
+                        textSearch.firstChild.nodeValue = item.textContent;
+                        var elSearch = item.firstChild;
+                        switch (elSearch.dataset.tipe) {
+                            case "varchar":
+                            case "nchar":
+                            case "char":
+                            case "nvarchar": {
+                                txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+                                break;
+                            }
+                            case "int":
+                            case "integer":
+                            case "decimal":
+                            case "floatt":
+                            case "bigint": {
+                                txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+                                break;
+                            }
+                            case "datetime": {
+                                txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+                                break;
+                            }
+                        }
+                    }
+                    //event.stopImmediatePropagation();
+                });
             });
+       
+            NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+                //get textcontent IDbySearch
+                //looping dropdown li a textContent
+                var SearchByText = NA.common.getElementID('bySearch').textContent;
+                var elSearch = null;
+                Array.prototype.forEach.call(listElem, function (item) {
+                    if (item.firstChild.text == SearchByText) {
+                        elSearch = item.firstChild;
+                        return;
+                    }                        
+                });
+                switch (elSearch.dataset.tipe) {
+                    case "varchar":
+                    case "nchar":
+                    case "char":
+                    case "nvarchar": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== defPlaceHolder) {
+                                this.setAttribute('placeholder', defPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "int":
+                    case "integer":
+                    case "decimal":
+                    case "floatt":
+                    case "bigint": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== numPlaceHolder) {
+                                this.setAttribute('placeholder', numPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "datetime": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== datePlaceHolder) {
+                                this.setAttribute('placeholder', datePlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                }
+            });
+            NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+                if (this.value === '') {
+                    if (this.getAttribute('placeholder') !== '') {
+                        this.setAttribute('placeholder', '');
+                    }
+                }
+            });            
         })(DivSearch);
     })();   
 </script>
@@ -730,7 +775,7 @@
 				    			//    //reloadGridMaster
 				    			    grid.trigger("reloadGrid", [{ page: 1 }]);
 				    			    clearEntry();
-				    			//    //focus langsung ke REFNO				    		
+				    			//    //focus langsung ke 				    		
 				    			    var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
 				    			    btnCancelDetail.click();//fire event btnCancellDetail;
 				    			    win.document.body.style.cursor = 'default';
@@ -1964,6 +2009,9 @@
                 valueKey = txtSearchMaster.value.trim();
                 var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
                 var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+                if (textToSearch === "CustomSearch") {
+                    ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
+                }
                 Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
                     if (item.firstChild.textContent === textToSearch) {
                         elSearch = item.firstChild;
@@ -1973,7 +2021,8 @@
                 elDataType = elSearch.dataset.tipe;              
                 switch (elDataType) {
                 	case "bigint":
-                	case "integer":
+                    case "integer":
+                    case "int":
                 	case "money":
                 	case "float":
                 	case "decimal":
