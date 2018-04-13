@@ -231,6 +231,9 @@
                         gridComplete: function () {
                             document.body.style.cursor = 'default';
                         },
+                        loadError: function (xhr, st, err) {
+                        	win.document.body.style.cursor = 'default';	XhrError(xhr);
+                        },
                         cellEdit: false,
                         height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                         rowNum: 300,

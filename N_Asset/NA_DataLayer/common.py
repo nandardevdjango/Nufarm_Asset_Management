@@ -74,25 +74,40 @@ class ResolveCriteria:
 			if self.typeofData==DataType.Boolean or self.typeofData==DataType.Char or self.typeofData==DataType.NChar or self.typeofData==DataType.NVarChar \
 				or self.typeofData==DataType.VarChar:
 					raise ValueError('value type is in valid')
-			if self.typeofData==DataType.DateTime:
+			elif self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
+					or self.typeofData==DataType.BigInt:
 				values = str(self.valueData).split('-')
+				val1 =  values[0];val2 = ''
+				ResolveCriteria.__query = " = " + str(val1)
+				if len(values) >1:
+					val2 = values[1]
+					ResolveCriteria.__query = " BETWEEN " + str(val1) + " AND " + str(val2)
+			if self.typeofData==DataType.DateTime:
+				values = str(self.valueData).split('-')				
 				startDate = values[0]
-				endDate = values[1]
-				self.__class__.__query = parse(startDate).strftime(' >=  %Y-%m-%d') + ' AND ' + self.colKey + parse(endDate).strftime(' <= %Y-%m-%d')
+				strstartDate = str(parse(startDate).strftime("%Y-%m-%d"))#jadinya string datetime
+				endDate = strstartDate + " 23:59:59'"
+				strEndDate = endDate
+				ResolveCriteria.__query = " BETWEEN '" + strstartDate + "'" + " AND '" + strEndDate
+				if len(values) > 1:
+					endDate = values[1]
+					strEndDate = str(parse(endDate).strftime("%Y-%m-%d"))#jadinya string datetime
+					#str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
+					ResolveCriteria.__query =  """ >=  STR_TO_DATE('""" + strstartDate + """','%Y-%m-%d') AND  """ + self.colKey + """ <= STR_TO_DATE('""" + strEndDate + """','%Y-%m-%d')"""
+			
 		elif self.criteria==CriteriaSearch.BeginWith:
-			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-				ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
+			ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
 		elif self.criteria==CriteriaSearch.EndWith:
-			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-				ResolveCriteria.__query = " LIKE '%{0!s}'".format(str(self.valueData))
+				ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
 		elif self.criteria == CriteriaSearch.Equal:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query = " = '{0}'".format(self.valueData)
-			elif self.typeofData==DataType.Integer:
+			elif self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
+					or self.typeofData==DataType.BigInt:
 				ResolveCriteria.__query = ' = {0}'.format(self.valueData)
 			elif self.typeofData==DataType.DateTime:
 				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
-				ResolveCriteria.__query = " BETWEEN '" + str(self.valueData) + "'" + " AND '" + strDate + " 23:59:59'"
+				ResolveCriteria.__query = " BETWEEN '" + strDate + "'" + " AND '" + strDate + " 23:59:59'"
 				#ResolveCriteria.__query = """ = STR_TO_DATE('""" + str(self.valueData) + """','%Y-%m-%d')"""
 		elif self.criteria==CriteriaSearch.Greater:
 			if self.typeofData==DataType.Integer or self.typeofData==DataType.Decimal or self.typeofData==DataType.Float or self.typeofData==DataType.Money \
@@ -133,12 +148,14 @@ class ResolveCriteria:
 					rowFilter = " IN("
 					strValueKeys = str(self.valueData).split(',')				
 					for i in range(len(strValueKeys)):
-						rowFilter += parse(strValueKeys).strftime("""'%Y-%m-%d'""")
+						strDate = str(parse(strValueKeys[i]).strftime("%Y-%m-%d"))#jadinya string datetime
+						rowFilter += """STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""
 						if i < len(strValueKeys) -1:
 							rowFilter += ","
 					rowFilter += ")"
+					ResolveCriteria.__query = rowFilter
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-					ResolveCriteria.__query = " IN ('{0!s}')".format(str(self.valueData))
+				ResolveCriteria.__query = " IN ('{0!s}')".format(str(self.valueData))
 			elif self.typeofData==DataType.DateTime:
 			#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses	
 				ResolveCriteria.__query = parse(self.valueData).strftime("""' IN('%Y-%m-%d')""")
@@ -164,15 +181,18 @@ class ResolveCriteria:
 					rowFilter += ")"
 				elif self.typeofData==DataType.DateTime:
 					rowFilter = """ NOT IN("""
-					strValueKeys = str(self.valueData).split(',')				
+					strValueKeys = str(self.valueData).split(',')
+									
 					for i in range(len(strValueKeys)):
 						 #"""STR_TO_DATE('""" + strValueKeys + """','%Y-%m-%d')"""
-						rowFilter += """STR_TO_DATE('""" + strValueKeys + """','%Y-%m-%d')"""
+						strDate = str(parse(strValueKeys[i]).strftime("%Y-%m-%d"))#jadinya string datetime
+						rowFilter += """STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""
 						if i < len(strValueKeys) -1:
 							rowFilter += ","
 					rowFilter += ")"
+					ResolveCriteria.__query = rowFilter
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-					ResolveCriteria.__query = " NOT IN ('{0!s}')".format(str(self.valueData))
+				ResolveCriteria.__query = " NOT IN ('{0!s}')".format(str(self.valueData))
 			elif self.typeofData==DataType.DateTime:
 			#format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses	
 				strDate = str(parse(self.valueData).strftime("%Y-%m-%d"))#jadinya string datetime
@@ -193,13 +213,12 @@ class ResolveCriteria:
 				ResolveCriteria.__query = """ <= STR_TO_DATE('""" + strDate + """','%Y-%m-%d')"""
 				#ResolveCriteria.__query = ' <= {%Y-%m-%d}'.format(datetime((str(self.valueData)[0:3]),str(self.valueData)[5:6],str(self.valueData)[7:8]))
 		elif self.criteria==CriteriaSearch.Like:
-			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
-				ResolveCriteria.__query = " LIKE '%{0!s}%'".format(str(self.valueData))
+			ResolveCriteria.__query = " LIKE '%{0!s}%'".format(str(self.valueData))
 		elif self.criteria==CriteriaSearch.NotEqual:
 			if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
 				ResolveCriteria.__query = " <> '{0}'".format(str(self.valueData))
 			elif self.typeofData==DataType.Integer:
-				ResolveCriteria.__query = ' <>{0}'.format(self.valueData)
+				ResolveCriteria.__query = ' <> {0}'.format(self.valueData)
 		return ResolveCriteria.__query
 
 	def getDataType(strDataType):
@@ -243,7 +262,7 @@ class ResolveCriteria:
 			return CriteriaSearch.Greater
 		elif strCriteria == 'less':
 			return CriteriaSearch.Less
-		elif CriteriaSearch == 'lessorequal':
+		elif strCriteria == 'lessorequal':
 			return CriteriaSearch.LessOrEqual
 		elif strCriteria == 'greaterorequal':
 			return CriteriaSearch.GreaterOrEqual
@@ -253,7 +272,7 @@ class ResolveCriteria:
 			return CriteriaSearch.In
 		elif strCriteria == 'notin':
 			return CriteriaSearch.NotIn
-		elif strCriteria == 'beetween':
+		elif strCriteria == 'between':
 			return CriteriaSearch.Beetween
 		else:
 			return CriteriaSearch.Like

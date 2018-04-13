@@ -53,40 +53,45 @@ def ShowCustomFilter(request):
 		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 def NA_Goods_Receive_Search(request):
-	IcolumnName = request.GET.get('columnName');
-	IvalueKey =  request.GET.get('valueKey')
-	IdataType =  request.GET.get('dataType')
-	Icriteria =  request.GET.get('criteria')
-	Ilimit = request.GET.get('rows', '')
-	Isidx = request.GET.get('sidx', '')
-	Isord = request.GET.get('sord', '')
-	if 'suplier' in Isidx:#ganti suplier key column jadi supliername
-		#IndexS = Isidx.index['suplier']
-		#del(Isidx[IndexS])
-		#Isindx.insert(IndexS,'supliername')
-		str(Isidx).replace('suplier','supliername') 
-	criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
-	dataType = ResolveCriteria.getDataType(str(IdataType))
-	if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
-		NAData = NAGoodsReceive.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
-	else:
-		NAData = NAGoodsReceive.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
-	totalRecord = NAData[1][0]
-	dataRows = NAData[0]
+	try:
+		IcolumnName = request.GET.get('columnName');
+		IvalueKey =  request.GET.get('valueKey')
+		IdataType =  request.GET.get('dataType')
+		Icriteria =  request.GET.get('criteria')
+		Ilimit = request.GET.get('rows', '')
+		Isidx = request.GET.get('sidx', '')
+		Isord = request.GET.get('sord', '')
+		if 'suplier' in Isidx:#ganti suplier key column jadi supliername
+			#IndexS = Isidx.index['suplier']
+			#del(Isidx[IndexS])
+			#Isindx.insert(IndexS,'supliername')
+			str(Isidx).replace('suplier','supliername') 
+		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
+		dataType = ResolveCriteria.getDataType(str(IdataType))
+		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+			NAData = NAGoodsReceive.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		else:
+			NAData = NAGoodsReceive.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		totalRecord = NAData[1][0]
+		dataRows = NAData[0]
 		
-	rows = []
-	#column IDapp 	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
-	i = 0;
-	for row in dataRows:
-		i = i+1
-		datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
-			row['pr_by'],row['totalpurchase'],row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']]}
-		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
-		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
-		rows.append(datarow)
-	TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
-	results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+		rows = []
+		#column IDapp 	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
+		i = 0;
+		for row in dataRows:
+			i = i+1
+			datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
+				row['pr_by'],row['totalpurchase'],row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']]}
+			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
+			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
+			rows.append(datarow)
+		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+	
 def ExistSerialNO(request):
 	authentication_classes = []
 	statuscode = 200

@@ -1,0 +1,90 @@
+#dokumentaasi git
+  #check remote master di github
+  git remote show origin
+  git fetch -h
+   #fetch data di remote repository
+  git fetch origin master
+  git log master..origin/master
+  git merge origin/master
+   #list commitID
+  git reflog
+  history
+   #execute ini sebelum git add, biar di ignore
+    git checkout -- "*.pyc" 
+	git checkout N_Asset/web.debug.config
+   #ignore changed
+   $ git update-index --assume-unchanged .gitignore 
+   
+   $ git remote show origin
+$ git fetch -h
+$ git fetch origin master
+$ git log origin master
+  git add -h
+  git commit -h
+   #list branch
+  git branch
+  git stash list
+  git status -s
+  #check remote master di github
+  git remote show origin
+  git fetch -h
+   #fetch data di remote repository
+  git fetch origin master
+  git log master..origin/master
+  git merge origin/master
+   #list commitID
+  git reflog
+  history
+   #execute ini sebelum git add, biar di ignore
+    git checkout -- "*.pyc"
+    git checkout N_Asset/web.debug.config
+   #ignore changed
+   $ git update-index --assume-unchanged .gitignore 
+   
+# setting log query in mysql
+#SHOW VARIABLES LIKE '%log_file%';
+<# SET GLOBAL general_log = 'ON';
+SET GLOBAL general_log_file = 'my_log.log';
+
+First will enable loging (which may be off by default)
+and the second select updates the preferred file (by default under C:/xampp/mysql/data/).
+
+NOTE: On windows 8 you may have to run your SQL IDE as ADMINISTRATOR for this commands to get saved.
+
+NOTE2: you can also set this in the config, go to path_to_xampp/mysql/ and edit my.ini
+(copy from my-default.ini if it does not exists) and add the settings there:
+
+[mysqld]
+
+general_log = 'ON';
+general_log_file = 'my_log.log';
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES #> 
+
+
+#Git pull: error: Entry foo not uptodate. Cannot merge
+<#  1
+down vote
+
+This may happen if you update the index to ignore certain files:
+
+git update-index --assume-unchanged <file>
+
+and then for instance checkout some other branch:
+
+git checkout <branch>
+> error: Entry '<file>' not uptodate. Cannot merge.
+
+Forcing index refresh fixes the issue:
+
+git update-index --really-refresh
+<file>: needs update
+
+Followed by:
+
+git reset --hard 
+
+And then everything should be back to normal.
+ #>
+ #follow understanding git util
+ http://365git.tumblr.com
