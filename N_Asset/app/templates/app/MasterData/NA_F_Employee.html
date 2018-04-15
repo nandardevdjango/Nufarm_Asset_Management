@@ -384,23 +384,15 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
         var get_idapp = getGridId()
-        console.log(getGridId())
-        if (getGridId()) {
+        if (get_idapp) {
             NA.NAEvent.preventDefault(event);
-            if (!confirm('are you sure you want to delete data\nOperation can not be undone ?')) {
-                return false;
-            }
-            NA.NAEvent.preventDefault(event);
-            try {
-                //delete data di server                  
-                //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
+            return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
                 $.ajax({
                     url: 'delete/',
-                    method:'POST',
+                    method: 'POST',
                     data: {
-                        'csrfmiddlewaretoken':get_csrf(),
-                        'idapp': get_idapp,
-                        'oper':'del'
+                        'csrfmiddlewaretoken': get_csrf(),
+                        'idapp': get_idapp
                     },
                     success: function (data) {
                         var rowNum = employee_grid.getGridParam('rowNum'),
@@ -409,7 +401,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                          curPage = employee_grid.getGridParam('page'),
                          rowId = employee_grid.jqGrid('getGridParam', 'selrow'),
                          curRecount = employee_grid.jqGrid('getGridParam', 'reccount');
-                         mustReload = true;
+                        mustReload = true;
                         if (parseInt(curRecount) === 1) {
                             if (totalPages > 1) {
                                 curPage--;
@@ -431,17 +423,20 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                             employee_grid.trigger("reloadGrid", [{ page: curPage }]);
                         };
                         reload_LogEvent();
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200) {
+                            return dialogAlert(data.responseJSON['message'],NA.common.titleInfo)
+                        }
                     }
                 })
-            } catch (e) {
-                console.log(e);
-                window.document.body.style.cursor = 'default';
-                
-            }
+            }, function () {
+                return false;
+            });
         }
         else {
             document.body.style.cursor = 'default';
-            alert('Please select data you want to delete');
+            dialogAlert('Please select data you want to delete', NA.common.message.titleInfo)
         }
         return false;
     });
@@ -478,6 +473,11 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                             }, 1000);
                             reload_LogEvent();
                             
+                        }
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200) {
+                            return dialogAlert(data.responseJSON['message'],NA.common.message.titleInfo)
                         }
                     }
                 });

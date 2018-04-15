@@ -5,8 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 import datetime
 import json
-from NA_DataLayer.common import CriteriaSearch
-from NA_DataLayer.common import ResolveCriteria
+from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 #@login_required
@@ -91,54 +90,44 @@ def EntryEmployee(request):
         if form.is_valid():
             mode = request.POST['mode']
             data = getData(request, form)
+            statusResp = 200
             if mode == 'Add':
-                checkExist = Employee.objects.dataExist(data['nik'])
-                if checkExist:
-                    return HttpResponse(json.dumps({'message':'This data has exists'}),status=403,content_type='application/json')
-                else:
-                   data['createddate'] = datetime.datetime.now()
-                   data['createdby'] = getCurrentUser(request)
-                   result = Employee.objects.create_employee(**data)
-                   return HttpResponse(json.dumps({'message':result}), content_type='application/json')
-                   #get idapp for highlight element
+                data['createddate'] = datetime.datetime.now()
+                data['createdby'] = getCurrentUser(request)
+                result = Employee.objects.SaveData(**data)
+                message = result[0]
+                if result[0] == 'exists':
+                    statusResp = 400
+                    message = result[1]
+                return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')
+                #get idapp for highlight element
             elif mode == 'Edit':
                 getIdapp = request.POST['idapp']
                 data['idapp'] = getIdapp
                 data['modifieddate'] = datetime.datetime.now()
                 data['modifiedby'] = getCurrentUser(request)
-                Employee.objects.update_employee(**data)
-                return HttpResponse(json.dumps({'message':data['idapp']}), content_type='application/json')
+                result = Employee.objects.SaveData(StatusForm.Edit,**data)
+                message = data['idapp']
+                if result[0] == 'hasRef':
+                    statusResp = 403
+                    message = 'Cannot Edit, This data has reference child'
+                return HttpResponse(json.dumps({'message':message}), status=statusResp, content_type='application/json')
             elif mode == 'Open':
                 if request.POST['employee_name']:
                     return HttpResponse(json.dumps({'messages':'You\'re try to Edit this Data with Open Mode\nWith technic inspect element\n Lol :D'}))
-            elif mode == 'Delete':
-                getIdapp = request.POST['idapp']
-                Employee.objects.delete_employee(getIdapp)
         return HttpResponse(json.dumps({'message':'success'}), content_type='application/json')
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
-            result = Employee.objects.retriveData(idapp)[0]
-            data = {
-            #'idapp':result.idapp,
-            'nik':result.nik,
-            'employee_name':result.employee_name,
-            'typeapp':result.typeapp,
-            'jobtype':result.jobtype,
-            'gender':result.gender,
-            'status':result.status,
-            'telphp':result.telphp,
-            'territory':result.territory,
-            'inactive': True if result.inactive == 1 else False,
-            'descriptions':result.descriptions
-            }
-            form = NA_Employee_form(initial=data)
+            result = Employee.objects.retriveData(idapp)
+            if result[0] == 'Lost':
+                return HttpResponse(json.dumps({'message':result[0]}),status=404,content_type='application/json')
+            form = NA_Employee_form(initial=result[1][0])
             form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
             form = NA_Employee_form()
         return render(request, 'app/MasterData/NA_Entry_Employee.html', {'form':form})
-    #return render(request, 'app/MasterData/EntryEmployee.html', {'form':form})
 
 
 def ShowCustomFilter(request):
@@ -159,27 +148,15 @@ def ShowCustomFilter(request):
 def NA_Employee_delete(request):
     if request.user.is_authenticated():
         if request.method == 'POST':
-            if request.POST['oper'] == 'del':
-                get_idapp = request.POST.get(str('idapp'))
-                log_empl_deleted = Employee.objects.retriveData(get_idapp).values('nik', 'employee_name', 'typeapp', 'jobtype', 'gender',\
-                    'gender', 'status', 'telphp', 'territory', 'inactive', 'descriptions', 'createddate', 'createdby', 'modifieddate', 'modifiedby')[0]
-                LogEvent.objects.create(nameapp='Deleted Employee',typeapp='P', descriptionsapp={
-                    'deleted':[
-                        log_empl_deleted['nik'],
-                        log_empl_deleted['employee_name'],
-                        log_empl_deleted['typeapp'],
-                        log_empl_deleted['jobtype'],
-                        log_empl_deleted['gender'],
-                        log_empl_deleted['status'],
-                        log_empl_deleted['telphp'],
-                        log_empl_deleted['territory'],
-                        log_empl_deleted['descriptions'],
-                        log_empl_deleted['inactive'],
-                        log_empl_deleted['createddate'].strftime('%d %B %Y %H:%M:%S'),
-                        log_empl_deleted['createdby'],
-                        None if log_empl_deleted['modifieddate'] == None else log_empl_deleted['modifieddate'].strftime('%d %B %Y %H:%M:%S'),
-                        log_empl_deleted['modifiedby']
-                        ]
-                    }, createdby=str(request.user.username))
-                Employee.objects.delete_employee(get_idapp)
-    return HttpResponse('success')
+            get_idapp = request.POST.get('idapp')
+            result = Employee.objects.delete_employee(idapp=get_idapp,NA_User=request.user.username)
+            statusResp = 200
+            if result != 'success':
+                if result == 'Lost':
+                    statusResp = 404
+                elif result == 'hasRef':
+                    statusResp = 403
+                else:
+                    statusResp = 500
+            return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),
+                    status=statusResp, content_type='application/json')

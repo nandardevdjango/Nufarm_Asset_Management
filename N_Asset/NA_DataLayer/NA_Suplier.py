@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection, transaction
-from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, ResolveCriteria
+from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, ResolveCriteria, Data
 from django.db.models import Q
 from datetime import datetime
 
@@ -42,7 +42,7 @@ class NA_BR_Suplier(models.Manager):
         if statusForm == StatusForm.Input:
             check_exists = self.dataExist(supliercode=data['supliercode'],hp=data['hp'],telp=data['telp'])
             if check_exists[0]:
-                return ('exists',check_exists[1])
+                return (Data.Exists,check_exists[1])
             else:
                 Query = '''INSERT INTO n_a_suplier(SuplierCode, SuplierName, Address, Telp, Hp, ContactPerson, Inactive, CreatedDate, CreatedBy)
                 values(%(supliercode)s,%(supliername)s,%(address)s,%(telp)s,%(hp)s,%(contactperson)s,%(inactive)s,%(createddate)s,%(createdby)s)'''
@@ -50,11 +50,11 @@ class NA_BR_Suplier(models.Manager):
                 Params['createdby'] = data['createdby']
         elif statusForm == StatusForm.Edit:
             if self.HasRef(data['supliercode']):
-                return 'hasref'
+                return (Data.HasRef,)
             else:
                 check_exists = self.dataExist(hp=data['hp'],telp=data['telp'])
                 if check_exists[0]:
-                    return ('exists',check_exists[1])
+                    return (Data.Exists,check_exists[1])
                 else:
                     Params['modifieddate'] = data['modifieddate']
                     Params['modifiedby'] = data['modifiedby']
@@ -64,7 +64,7 @@ class NA_BR_Suplier(models.Manager):
         cur.execute(Query,Params)
         rowId = cur.lastrowid
         connection.close()
-        return (rowId,)
+        return (Data.Success,rowId)
 
     def delete_suplier(self,**kwargs):
         cur = connection.cursor()
@@ -72,7 +72,7 @@ class NA_BR_Suplier(models.Manager):
         check_exists = self.dataExist(supliercode=supliercode)
         if check_exists[0]:
             if self.HasRef(supliercode):
-                return 'HasRef'
+                return Data.HasRef
             else:
                 data = self.retriveData(supliercode)[1][0] #tuple
                 createddate = data['createddate']
@@ -107,7 +107,7 @@ class NA_BR_Suplier(models.Manager):
                     connection.close()
                     raise
                 connection.close()
-                return 'success'
+                return Data.Success
         else:
             return 'Lost'
     def retriveData(self, get_supliercode):
@@ -116,9 +116,9 @@ class NA_BR_Suplier(models.Manager):
                 .filter(supliercode=get_supliercode).values(
                     'supliercode','supliername','address','telp','hp',
                     'contactperson','inactive','createddate','createdby')
-            return ('success',result)
+            return (Data.Success,result)
         else:
-            return ('Lost',)
+            return (Data.Lost,)
 
     def dataExist(self, **kwargs):
         data = super(NA_BR_Suplier,self).get_queryset()

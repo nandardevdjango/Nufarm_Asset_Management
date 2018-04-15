@@ -396,15 +396,17 @@
                             suplier_grid.trigger("reloadGrid", [{ page: curPage }]);
                         }
                         reload_LogEvent();
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200) {
+                            return dialogAlert(data.responseJSON['message'], NA.common.message.titleInfo);
+                        }
                     }
                 });
             },
             function () {
                 return false;
             })
-            if (!confirm('are you sure you want to delete data\nOperation can not be undone ?')) {
-                return false;
-            }
         }
         else {
             document.body.style.cursor = 'default';

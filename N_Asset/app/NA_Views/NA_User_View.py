@@ -79,7 +79,10 @@ def login_view(request): # users will login with their Email & Password
             # authenticates Email & Password
             user = authenticate(email=email, password=password) 
             login(request, user)
-            return redirect(request.GET.get('next'))
+            next_action = request.GET.get('next')
+            if next_action is not None:
+                return redirect(next_action)
+            else :return redirect('home')
         context = {"formLogin":formLogin,
                    "title":title
         }

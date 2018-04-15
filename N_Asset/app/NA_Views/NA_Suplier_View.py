@@ -3,9 +3,7 @@ from NA_Models.models import NASuplier, LogEvent
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 import datetime
-from NA_DataLayer.common import CriteriaSearch
-from NA_DataLayer.common import ResolveCriteria
-from NA_DataLayer.common import StatusForm
+from NA_DataLayer.common import CriteriaSearch, StatusForm, ResolveCriteria, Data
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -94,7 +92,7 @@ def EntrySuplier(request):
                 result = NASuplier.objects.SaveData(StatusForm.Input,**data)
                 statusResp = 200
                 message = result[0]
-                if result[0] == 'exists':
+                if result[0] == Data.Exists:
                     statusResp = 400
                     message = result[1]
                 return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')#get idapp for highlight element
@@ -103,10 +101,10 @@ def EntrySuplier(request):
                 data['modifiedby'] = getCurrentUser(request)
                 result = NASuplier.objects.SaveData(StatusForm.Edit,**data)
                 statusResp = 200
-                if result[0] == 'hasref':
+                if result[0] == Data.HasRef:
                     message = 'Cannot Edit, This data Has Referenced child'
                     statusResp = 403
-                elif result[0] == 'exists':
+                elif result[0] == Data.Exists:
                     message = result[1]
                     statusResp = 400
                 else:
@@ -124,21 +122,11 @@ def EntrySuplier(request):
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
             result = NASuplier.objects.retriveData(getSupCode) #return tuple
-            if result[0] == 'success':
-            #data = {
-            ##'idapp':result.idapp,
-            #'supliercode':result.supliercode,
-            #'supliername':result.supliername,
-            #'address':result.address,
-            #'telp':result.telp,
-            #'hp':result.hp,
-            #'contactperson':result.contactperson,
-            #'inactive': True if result.inactive == 1 else False
-            #}
+            if result[0] == Data.Success:
                 form = NA_Suplier_form(initial=result[1][0])
                 form.fields['supliercode'].widget.attrs['disabled'] = 'disabled'
                 return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})
-            elif result[0] == 'Lost':
+            elif result[0] == Data.Lost:
                 return HttpResponse('Lost',status=404)
         else:
             form = NA_Suplier_form()

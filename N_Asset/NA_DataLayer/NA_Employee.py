@@ -1,4 +1,4 @@
-﻿from django.db import models, connection
+﻿from django.db import models, connection, transaction
 from NA_DataLayer.common import *
 
 class NA_BR_Employee(models.Manager):
@@ -33,86 +33,114 @@ class NA_BR_Employee(models.Manager):
         employeeData = employeeData.values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')				
         return employeeData
 
-
-    def create_employee(self, **data):
-        employee = self.create(
-            nik=data['nik'],
-            employee_name=data['employee_name'],
-            typeapp=data['typeapp'],
-            jobtype=data['jobtype'],
-            gender=data['gender'],
-            status=data['status'],
-            telphp=data['telphp'],
-            territory=data['territory'],
-            descriptions=data['descriptions'],
-            inactive=data['inactive'],
-            createddate=data['createddate'],
-            createdby=data['createdby']
-            )
-        return employee.idapp
-
-    #def create_employee(self, **data):
-    #    cursor = connection.cursor()
-    #    cursor.execute('''INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
-    #    status, telphp, territory, descriptions, inactive,createddate, createdby)
-    #    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''', [
-    #        data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
-    #        data['territory'], data['descriptions'], data['inactive'],data['createddate'], data['createdby']]
-    #        )
-    #    row = cursor.fetchone()
-    #    connection.close()
-    #    return row
-
-
-        #def SaveData(self,statusForm=StatusForm.Input,**data):
-        #cursor = connection.cursor()
-        #Params = {'Nik':data['nik'],'Employee_Name':data['employee_name'],'TypeApp':data['typeapp'],'JobType':data['jobtype']}
-        #if statusForm == StatusForm.Input:
-        #    cursor.execute('''INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
-        #    status, telphp, territory, descriptions, inactive,createddate, createdby)
-        #    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''', [
-        #        data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
-        #        data['territory'], data['descriptions'], data['inactive'],data['createddate'], data['createdby']]
-        #        )
-        #elif statusForm == StatusForm.Edit:
-        #    Query = '''UPDATE employee SET nik=%s,employee_name=%s, typeapp=%s, 
-        #    jobtype=%s, gender=%s, status=%s, telphp=%s, territory=%s,
-        #    descriptions=%s, inactive=%s, modifieddate=%s, modifiedby=%s WHERE idapp=%s'''
-        #    cursor.execute(Query,[
-        #        data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
-        #        data['territory'], data['descriptions'], data['inactive'], data['modifieddate'],data['modifiedby'], data['idapp']
-        #        ]
-        #            )
-        #row = cursor.fetchone()
-        #connection.close()
-        #return row
-
-
-    def update_employee(self, **data):
-        cursor = connection.cursor()
-        Query = '''UPDATE employee SET nik=%s,employee_name=%s, typeapp=%s, 
-        jobtype=%s, gender=%s, status=%s, telphp=%s, territory=%s,
-        descriptions=%s, inactive=%s, modifieddate=%s, modifiedby=%s WHERE idapp=%s'''
-        cursor.execute(Query,[
-            data['nik'], data['employee_name'], data['typeapp'], data['jobtype'], data['gender'], data['status'], data['telphp'],
-            data['territory'], data['descriptions'], data['inactive'], data['modifieddate'],data['modifiedby'], data['idapp']
-            ]
-                )
-        row = cursor.fetchone()
+    def SaveData(self,statusForm=StatusForm.Input,**data):
+        cur = connection.cursor()
+        Params = {'Nik':data['nik'],'Employee_Name':data['employee_name'],'TypeApp':data['typeapp'],'JobType':data['jobtype'],
+                  'Gender':data['gender'],'Status':data['status'],'Telphp':data['telphp'],'Territory':data['territory'],
+                  'Inactive':data['inactive'],'Descriptions':data['descriptions']}
+        if statusForm == StatusForm.Input:
+            is_exists = self.dataExist(nik=data['nik'],telphp=data['telphp'])
+            if is_exists[0]:
+                return ('exists',is_exists[1])
+            Params['CreatedDate'] = data['createddate']
+            Params['CreatedBy'] = data['createdby']
+            Query = """INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
+            status, telphp, territory, descriptions, inactive,createddate, createdby)
+            VALUES({})""".format(','.join('%('+i+')s' for i in Params))
+        elif statusForm == StatusForm.Edit:
+            if self.hasRef(data['idapp']):
+                return ('hasRef',)
+            else:
+                Params['ModifiedDate'] = data['modifieddate']
+                Params['ModifiedBy'] = data['modifiedby']
+                Params['IDApp'] = data['idapp']
+                Query = """UPDATE employee SET nik=%(Nik)s,employee_name=%(Employee_Name)s, typeapp=%(TypeApp)s, 
+                jobtype=%(JobType)s, gender=%(Gender)s, status=%(Status)s, telphp=%(Telphp)s, territory=%(Territory)s,
+                descriptions=%(Descriptions)s, inactive=%(Inactive)s, modifieddate=%(ModifiedDate)s,
+                modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
+        cur.execute(Query,Params)
+        row = cur.fetchone()
         connection.close()
-        return row
+        return ('success',row)
 
-    def delete_employee(self, get_idapp):
-        cursor = connection.cursor()
-        cursor.execute('''DELETE FROM employee where idapp=%s
-        ''',[get_idapp]
-        )
-        row = cursor.fetchone()
-        connection.close()
-        return row
+    def delete_employee(self, **kwargs):
+        get_idapp = kwargs['idapp']
+        NA_User = kwargs['NA_User']
+        if self.dataExist(idapp=get_idapp):
+            if self.hasRef(get_idapp):
+                return 'hasRef'
+            else:
+                cur = connection.cursor()
+                #============== INSERT INTO LOG EVENT ================
+                data = self.retriveData(get_idapp,False)[1]
+                dataPrms = {'Nik':data['nik'],'Employee_Name':data['employee_name'],'Typeapp':data['typeapp'],'Jobtype':data['typeapp'],
+                            'Gender':data['gender'],'Status':data['status'],'Telphp':data['telphp'],'Territory':data['territory'],
+                            'Descriptions':data['descriptions']}
+                createddate = data['createddate']
+                modifieddate = data.get('modifieddate')
+                if isinstance(createddate,datetime):
+                    dataPrms['CreatedDate'] = createddate.strftime('%d %B %Y %H:%M:%S')
+                dataPrms['CreatedBy'] = data['createdby']
+                if modifieddate is not None:
+                    dataPrms['ModifiedDate'] = modifieddate
+                    dataPrms['ModifiedBy'] = data['modifiedby']
+                dataPrms['NA_User']
+                Query = """INSERT INTO logevent (nameapp,descriptions,createddate,createdby) VALUES(\'Deleted Employee\',
+                JSON_OBJECT({}),NOW(),""".format(','.join('%('+i+')s') for i in dataPrms)
+                Query = Query + NA_User +")"
+                try:
+                    with transaction.atomic():
+                        cur.execute(Query,dataPrms)
+                        #============= End INSERT INTO LOG EVENT ==============
+                        cur.execute('''DELETE FROM employee WHERE idapp=%s''',[get_idapp])
+                        cur.close()
+                except Exception:
+                    transaction.rollback()
+                    connection.close()
+                    raise
+                return 'success'
+        else:
+            return 'Lost'
 
-    def retriveData(self, get_idapp):
-        return super(NA_BR_Employee, self).get_queryset().filter(idapp__exact=get_idapp)
+    def retriveData(self, get_idapp,must_check=True):
+        def get_data():
+            return super(NA_BR_Employee, self).get_queryset()\
+                    .filter(idapp__exact=get_idapp)\
+                    .values('idapp','nik','employee_name','typeapp','jobtype','gender',
+                            'status','telphp','territory','descriptions','createddate','createdby')
+        if must_check:
+            if self.dataExist(idapp=get_idapp):
+                return ('success',get_data())
+            else:
+                return ('Lost',)
+        else:
+            return ('success',get_data())
 
-    def dataExist(self, get_nik):
-        return super(NA_BR_Employee, self).get_queryset().filter(nik=get_nik).exists()
+    def dataExist(self, **kwargs):
+        idapp = kwargs.get('idapp')
+        if idapp is not None:
+            return super(NA_BR_Employee, self).get_queryset().filter(idapp=idapp).exists()
+        nik = kwargs.get('nik')
+        if nik is not None:
+            is_nik = super(NA_BR_Employee, self).get_queryset().filter(nik=get_nik).exists()
+            if is_nik:
+                return (True,'Employee with Nik {0} has exists'.format(nik))
+        telphp = kwargs.get('telphp')
+        if telphp is not None:
+            is_telp = super(NA_BR_Employee, self).get_queryset().filter(telphp=telphp).exists()
+            if is_telp:
+                return (True,'Employee with Telp/HP {0} has exists'.format(telphp))
+        return (False,)
+
+    def hasRef(self,idapp):
+        cur = connection.cursor()
+        Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s 
+        OR fk_sender=%(IDApp)s UNION SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
+        OR fk_sender=%(IDApp)s OR fk_usedemployee=%(IDApp)s)"""
+        cur.execute(Query,{'IDApp':idapp})
+        if cur.fetchone()[0] > 0:
+            cur.close()
+            return True
+        else:
+            cur.close()
+            return False

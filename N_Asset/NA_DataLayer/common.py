@@ -23,6 +23,27 @@ class DataType(Enum):
 	  BigInt = 1; Boolean = 2;Char = 3;DateTime = 4; Decimal = 5; Float = 6; Image = 7; Integer = 8;
 	  Money = 9; NChar = 10; NVarChar = 11; VarChar = 12; Variant=13;
 
+class Data(Enum):
+    Success = 1
+    Exists = 2
+    Lost = 3
+    HasRef = 4
+
+class Message:
+    def __init__(self,**kwargs):
+        self.exists = kwargs.get('exists_for')
+        self.hasRef = 'Cannot Change/Delete,This Data Has Reference child'
+        self.lost = 'Data Has Lost'
+    @property
+    def exists(self):
+        return self.__exists
+    @exists.setter
+    def exists(self,m):
+        if m == 'common' or m is None:
+            self.__exists = 'Data Has Exists'
+        elif m == 'suplier':
+            self.__exists = 'Suplier'
+
 class ResolveCriteria:
 	__query = "";
 	def __init__(self,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,columnKey='',value=None):
