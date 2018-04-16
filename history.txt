@@ -230,3 +230,26 @@ And then everything should be back to normal.
   139  git diff 67f9d26..861792f
   140  git history
   141  history
+
+  #commit  only deleted and changes file  with bash commands
+  
+
+Another version to ByScripts answer is
+
+git rm $(git ls-files --deleted)
+
+This will ONLY remove the deleted files from the git.
+
+It could be also be used for adding ONLY modified files also.
+
+git add $(git ls-files --modified)
+
+These commands also works on gitbash for windows.
+
+#commit  only deleted and changes file  with command not bash 2
+
+#How to remove multiple deleted files in Git repository
+
+git add -u .
+
+git add --update 
