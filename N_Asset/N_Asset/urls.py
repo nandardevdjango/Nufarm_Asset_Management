@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
  NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View
+ NA_GoodsLost_View,NA_Goods_Lending_View
 import app.views
 # Uncomment the next lines to enable the admin:
 # admin.autodiscover()
@@ -75,6 +75,10 @@ urlpatterns = [
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
 	url(r'^NA_Goods_Receive/customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter'),
+
+	#NA_Goods_Lending
+	url(r'^NA_Goods_Lending/$',NA_Goods_Lending_View.NA_Goods_Lending,name='GoodsLending'),
+	url(r'^NA_Goods_Receive/NA_Goods_Lending_Search/$',NA_Goods_Lending_View.NA_Goods_Lending_Search,name='GoodsLendingManager'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

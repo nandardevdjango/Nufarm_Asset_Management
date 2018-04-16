@@ -196,26 +196,26 @@ class goods(models.Model):
 		return self.goodsname
 
 class NAGoodsLending(models.Model):
-    idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
-    isnew = models.IntegerField(db_column='IsNew')  # Field name made lowercase.
-    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='used_by')  # Field name made lowercase.
-    datelending = models.DateField(db_column='DateLending', blank=True, null=True)  # Field name made lowercase.
-    qty = models.IntegerField(db_column='Qty')  # Field name made lowercase.
-    fk_stock = models.CharField(db_column='FK_Stock', max_length=50)  # Field name made lowercase.
-    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='resp_person')  # Field name made lowercase.
-    benefitof = models.CharField(db_column='BenefitOf', max_length=150, blank=True, null=True)  # Field name made lowercase.
-    fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)  # Field name made lowercase.
-    createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)  # Field name made lowercase.
-    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)  # Field name made lowercase.
-    modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_goods_lending'
-
+	idapp = models.AutoField(db_column='IDApp', primary_key=True)
+	fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)
+	isnew = models.IntegerField(db_column='IsNew')
+	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='used_by')
+	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
+	fk_stock = models.CharField(db_column='FK_Stock', max_length=50)
+	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', max_length=50, blank=True, null=True,related_name='resp_person')
+	intererest = models.CharField(db_column='intererest', max_length=150, blank=True, null=True)
+	fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)
+	status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
+	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+	createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+	modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
+	typeapp = models.CharField(db_column='TypeApp',max_length=32)
+	serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+	fk_maintenance = models.CharField(db_column="FK_Maintenance", blank=True, null=True)
+	class Meta:
+		managed = True
+		db_table = 'n_a_goods_lending'
 
 class NAGoodsOutwards(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.

@@ -59,11 +59,11 @@ def NA_Goods_Receive_Search(request):
 		Ilimit = request.GET.get('rows', '')
 		Isidx = request.GET.get('sidx', '')
 		Isord = request.GET.get('sord', '')
-		if 'suplier' in Isidx:#ganti suplier key column jadi supliername
-			#IndexS = Isidx.index['suplier']
-			#del(Isidx[IndexS])
-			#Isindx.insert(IndexS,'supliername')
-			str(Isidx).replace('suplier','supliername') 
+		#if 'suplier' in Isidx:#ganti suplier key column jadi supliername
+		#	#IndexS = Isidx.index['suplier']
+		#	#del(Isidx[IndexS])
+		#	#Isindx.insert(IndexS,'supliername')
+		#	str(Isidx).replace('suplier','supliername') 
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
 		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):

@@ -240,7 +240,7 @@ CREATE TABLE n_a_goods_lending (
   Qty int(11) NOT NULL,
   FK_Stock varchar(50) NOT NULL,
   FK_Responsible_Person varchar(50) DEFAULT NULL,
-  BenefitOf varchar(150) DEFAULT NULL,
+  interest varchar(150) DEFAULT NULL,
   FK_Sender varchar(50) DEFAULT NULL,
   Status varchar(10) DEFAULT NULL,
   CreatedDate datetime DEFAULT NULL,
@@ -285,3 +285,8 @@ ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL;
 
 --DELETE COLUMN Qty di NA_Goods_Lending
 ALTER TABLE NA_Goods_lending DROP COLUMN IF EXISTS Qty;
+ALTER TABLE n_a_goods_lending ADD Descriptions 	VARCHAR(250);
+ALTER TABLE n_a_goods_lending CHANGE BenefitOf interests VARCHAR(150);
+
+-- Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interests,Responsible By,Goods From,IsNew,Status,Created By,CreatedDate
+--SELECT g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,s.sentby,ngl.Interests,r.responsibleby,
