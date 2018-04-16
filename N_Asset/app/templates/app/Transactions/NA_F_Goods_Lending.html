@@ -1,0 +1,12 @@
+﻿{% extends "../../app/layout.html" %}
+{% block SearchData %}
+{% for itemCombo in populateColumn %}
+<li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
+{% endfor %}
+
+{% endblock %}
+
+{% block javascriptAndUI %}
+<!--================================Load Script Modules NA ===========================================-->
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<!--=======================================================================================================-->

@@ -283,3 +283,5 @@ ALTER TABLE n_a_acc_fa CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_acc_fa add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL; 
 
+--DELETE COLUMN Qty di NA_Goods_Lending
+ALTER TABLE NA_Goods_lending DROP COLUMN IF EXISTS Qty;

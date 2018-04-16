@@ -13,13 +13,11 @@ from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
-from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import HttpResponseRedirect
 from distutils.util import strtobool
 from decimal import Decimal
 import math
