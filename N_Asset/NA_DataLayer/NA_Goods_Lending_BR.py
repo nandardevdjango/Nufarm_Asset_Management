@@ -37,13 +37,15 @@ class NA_BR_Goods_Lending(models.manager):
 			colKey = 'ngl.status'
 		elif columnKey == 'createdby':
 			colKey = 'ngl.createdby'
+		elif columnKey == 'descriptions':
+			colKey = 'ngl.descriptions'			
 		elif columnKey == 'createddate':
 			colKey = 'ngl.createddate'
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Lending_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ENGINE=MyISAM AS (SELECT g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.Interests,R.responsibleby,
-					Ref.refgoodsfrom,ngl.isnew,ngl.status, ngl.createdby,ngl.createddate
+		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.interests,R.responsibleby,
+					Ref.refgoodsfrom,ngl.isnew,ngl.status, ngl.descriptions,ngl.createdby,ngl.createddate
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON G.IDApp = ngl.FK_Goods
 					INNER JOIN (SELECT ngl.IDApp,CASE
 						WHEN (ngl.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'

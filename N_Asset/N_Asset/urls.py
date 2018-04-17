@@ -78,7 +78,8 @@ urlpatterns = [
 
 	#NA_Goods_Lending
 	url(r'^NA_Goods_Lending/$',NA_Goods_Lending_View.NA_Goods_Lending,name='GoodsLending'),
-	url(r'^NA_Goods_Receive/NA_Goods_Lending_Search/$',NA_Goods_Lending_View.NA_Goods_Lending_Search,name='GoodsLendingManager'),
+	url(r'^NA_Goods_Lending/NA_Goods_Lending_Search/$',NA_Goods_Lending_View.NA_Goods_Lending_Search,name='GoodsLendingManager'),
+	url(r'^NA_Goods_Lending/UpdateStatus/$',NA_Goods_Lending_View.UpdateStatus,name='UpdateStatusNAGoodsLending'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

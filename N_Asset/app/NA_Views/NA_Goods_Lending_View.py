@@ -60,6 +60,27 @@ def NA_Goods_Lending_Search(request):
 			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		totalRecord = NAData[1][0]
 		dataRows = NAData[0]
+		rows = []
+		#column idapp,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
+		i = 0;
+		for row in dataRows:
+			i = i+1
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['interests'], \
+				row['responsibleby'],row['refgoodsfrom'],row['isnew'],row['status'],row['descriptions'],datetime.date(row['createddate']),row['createdby']]}
+			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
+			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
+			rows.append(datarow)
+		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def UpdateStatus(request):
+	try:
+		idapp = request.GET.get('idapp');
+		inactive = request.GET.get('newVal');
+
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

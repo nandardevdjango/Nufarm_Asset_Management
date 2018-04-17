@@ -246,11 +246,176 @@
                 grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
             }
             else {
+                //column idapp,no,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
+                try {
+                    var oriStatus = "L";
+                    grid.jqGrid({
+                        url: url,
+                        mtype: "GET",
+                        datatype: "json",
+                        colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Lent By', 'Sent By','Lent Date', 'Interests', 'Responsible By', 'Ref Goods From', 'IsNew', 'Status', 'Descriptions', 'Created Date', 'Created By'],
+                        colModel: [
+                            { name: 'idapp', key: true, hidden: true, align: 'left' },
+                            { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+							{ name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
+                            { name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
+                            { name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
+                            { name: 'lentby', index: 'lentby', width: 100, sortable: true, editable: false, align: 'left', },
+                            //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
+                            { name: 'sentby', index: 'sentby', width: 100, sortable: true, editable: false, align: 'left', },
+                            { name: 'lentdate', index: 'lentdate', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+                            { name: 'interests', index: 'interests', width: 140, sortable: true, editable: false, align: 'left', },
+                            {
+                                name: 'responsibleby', index: 'responsibleby', width: 100, sortable: true, align: 'right',
+                            },
+                            {
+                                name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, align: 'right',
+                            },
+                            { name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { disabled: false } },
+                            {
+                                name: 'status', index: 'status', width: 90, sortable: true, editable: true, align: 'left',
+                                edittype: 'select', formatter: 'select', editoptions: {
+                                    value: {'L':'Lent','R':'Return'},
+                                    dataEvents:[
+                                        {
+                                            type:'change',
+                                            fn:function(e){
+                                                var NewVal = $(this).val(),url = 'UpdateStatus/';
+                                                var tr = $(e.target).closest('tr');
+                                                var idapp = tr[0].id;
+                                                url = NA.common.addURLParam(url,'idapp',idapp);
+                                                url = NA.common.addURLParam(url,'newVal',NewVal);
+                                                //set data 
+                                                $.post(url, function(data, status,xhr){
+                                                    if(parseInt(status) != 200){
+                                                        if(parseInt(status) >= 500){
+                                                            //reset value
+                                                            grid.jqGrid('setColProp', 'status', { editoptions: { value: {'L':'Lent','R':'Return'}} });
+                                                            XhrError(xhr); win.document.body.style.cursor = 'default';
+                                                        }
+                                                        else {
+                                                            grid.jqGrid('setColProp', 'status', { editoptions: { value: { 'L': 'Lent', 'R': 'Return' } } });
+                                                            XhrError(xhr); win.document.body.style.cursor = 'default';
+                                                        }
+                                                    }
+                                                },'json');
+                                            },
+                                        },]
+                                },
+                            },
+							{ name: 'descriptions', index: 'descriptions', width: 140, sortable: true, editable: false, align: 'left', },
+                            { name: 'createddate', index: 'createddate', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+                            { name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
+                        ],
+                        ondblClickRow: function (rowId) {
+                            var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
+                            if (btnOpen) {
+                                btnOpen.click();
+                            }
+                        },
+                        beforeSelectRow: function (rowid, e) {
+                            var $self = $(this),
+                                iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+                            cm = $self.jqGrid("getGridParam", "colModel");
+                            if (cm[iCol].name === "status") {
+                                oriStatus =  $(e.target).val();
+                            }
+                        },
+                        gridComplete: function () {
+                            document.body.style.cursor = 'default';
+                        },
+                        loadError: function (xhr, st, err) {
+                            win.document.body.style.cursor = 'default'; XhrError(xhr);
+                        },
+                        cellEdit: false,
+                        height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
+                        rowNum: 300,
+                        rowList: [20, 50, 100, 200, 300, 500],
+                        sortname: "idapp",
+                        sortorder: "desc",
+                        multiSort: true,
+                        shrinkToFit: false,
+                        iconSet: "fontAwesome",
+                        forceFit: true,
+                        toolbar: true,
+                        scrollrows: true,
+                        hidegrid: true,
+                        caption: "Transactions ---Goods Lending",
+                        pager: "#jqGrid_NA_F_Goods_Lending_Pager"
+                    });
+                    grid.navGrid("#jqGrid_NA_F_Goods_Lending_Pager", {
+                        search: false, // show search button on the toolbar
+                        add: false,
+                        edit: false,
+                        del: false,
+                        refresh: true
+                    });
 
+                } catch (e) {
+                    ShowAlert(e.message);
+                    console.log(e);
+                    document.body.style.cursor = 'default';
+                };
             }
         }
         //==========================GROUP Function Declaration================================
-        
+        function getGridCellValue(thegrid, CeltoGet) {
+            var reccount = thegrid.jqGrid('getGridParam', 'reccount');
+            var rowId, rowData, colData;
+            if (reccount > 0) {
+                rowId = thegrid.jqGrid('getGridParam', 'selrow');
+                if (rowId) {
+                    rowData = thegrid.getRowData(rowId);
+                    colData = rowData[CeltoGet];
+                }
+            }
+            return colData;
+        };
+        //csrf token untuk form
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        };
+        function XhrError(xhr) {
+            try {
+                var messageErr = xhr.responseText;
+                var contentype = xhr.getResponseHeader('Content-Type')
+                if (contentype === 'application/json') {
+                    messageErr = JSON.parse(xhr.responseText);
+                }
+                var message = xhr.responseText;
+                if (messageErr) {
+                    message = messageErr.message;
+                    if (message.indexOf('!DOCTYPE html') > 0) {
+                        //error bawaan dari python django
+                        //redirect to error web
+                        //untuk sekarang tampilkan saja error codenya saja
+                        ShowAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+                        document.body.style.cursor = 'default';
+                        return false;
+                    }
+                    else if (xhr.status >= 500) {
+                        ShowAlert('Unknown Server error occurred: ' + '\n' + message + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+                        document.body.style.cursor = 'default';
+                        return false;
+                    }
+                    else if (message) {
+                        ShowAlert('An error occurred: ' + message);
+                    }
+                    else {
+                        ShowAlert('An error occurred: ' + messageErr);
+                    }
+                }
+                else if (message) {
+                    ShowAlert('An error occurred: ' + message);
+                }
+                document.body.style.cursor = 'default';
+            } catch (e) {
+                ShowAlert('An error occurred: ' + e + '\n' + e.message);
+                document.body.style.cursor = 'default';
+            }
+            return false;
+        };
         //==========================End GROUP Function Declaration ============================
     });
 </script>
