@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
-from NA_Models.models import NAGoodsReceive, goods,NASuplier,Employee
+from NA_Models.models import NAGoodsReceive, goods,NASuplier,Employee,NAGoodsLending
 from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
@@ -27,14 +27,14 @@ def NA_Goods_Lending(request):
 	#buat nama-name column, key sama 
 	populate_combo = []
 	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
-	populate_combo.append({'label':'Goods Type','columnName':'typeApp','dataType':'varchar'})
+	populate_combo.append({'label':'Goods Type','columnName':'typeapp','dataType':'varchar'})
 	populate_combo.append({'label':'Serial Number','columnName':'serialnumber','dataType':'varchar'})
 	populate_combo.append({'label':'Lent_by','columnName':'lentby','dataType':'varchar'})
 	populate_combo.append({'label':'Sent By','columnName':'sentby','dataType':'varchar'})
 	populate_combo.append({'label':'Lent Date','columnName':'lentdate','dataType':'datetime'})
-	populate_combo.append({'label':'intererest','columnName':'intererest','dataType':'varchar'})
+	populate_combo.append({'label':'intererest','columnName':'intererests','dataType':'varchar'})
 	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'datetime'})	
-	populate_combo.append({'label':'Goods From','columnName':'takenfrom','dataType':'varchar'})
+	populate_combo.append({'label':'Goods From','columnName':'refgoodsfrom','dataType':'varchar'})
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Status','columnName':'status','dataType':'varchar'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
@@ -54,6 +54,12 @@ def NA_Goods_Lending_Search(request):
 		Isord = request.GET.get('sord', '')
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
+		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+			NAData = NAGoodsLending.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		else:
+			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		totalRecord = NAData[1][0]
+		dataRows = NAData[0]
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

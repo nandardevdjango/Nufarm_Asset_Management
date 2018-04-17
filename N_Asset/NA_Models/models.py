@@ -6,6 +6,7 @@ from NA_DataLayer.NA_Goods_BR import NA_BR_Goods,CustomManager
 from NA_DataLayer.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
 from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
+from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 def forced_mariadb_connection(self):
@@ -199,12 +200,12 @@ class NAGoodsLending(models.Model):
 	idapp = models.AutoField(db_column='IDApp', primary_key=True)
 	fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)
 	isnew = models.IntegerField(db_column='IsNew')
-	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='used_by')
+	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='fk_gl_employee_used_by')
 	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
 	fk_stock = models.CharField(db_column='FK_Stock', max_length=50)
-	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', max_length=50, blank=True, null=True,related_name='resp_person')
+	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', blank=True, null=True,related_name='fk_gl_employee_resp_person')
 	intererest = models.CharField(db_column='intererest', max_length=150, blank=True, null=True)
-	fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)
+	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
 	status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
 	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
 	createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
@@ -213,10 +214,13 @@ class NAGoodsLending(models.Model):
 	typeapp = models.CharField(db_column='TypeApp',max_length=32)
 	serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
 	fk_maintenance = models.CharField(db_column="FK_Maintenance", blank=True, null=True)
+	fk_return = models.ForeignKey(db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
+	fk_receive = models.ForeignKey(db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
+	fk_CurrentApp =models.ForeignKey(db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
 	class Meta:
 		managed = True
 		db_table = 'n_a_goods_lending'
-
+	objects = NA_BR_Goods_Lending()
 class NAGoodsOutwards(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
     fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.

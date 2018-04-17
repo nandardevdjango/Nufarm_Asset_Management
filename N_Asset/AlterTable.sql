@@ -252,7 +252,7 @@ CREATE TABLE n_a_goods_lending (
 
 ALTER TABLE n_a_goods_Lending add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_goods_Lending add TypeApp VARCHAR(32) NOT NULL;  
-ALTER TABLE n_a_goods_Lending add FK_Maintenance INT(11) UNSIGNED NULL;
+--ALTER TABLE n_a_goods_Lending add FK_Maintenance INT(11) UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 
 --============perbaikan stock==================
@@ -287,6 +287,9 @@ ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL;
 ALTER TABLE NA_Goods_lending DROP COLUMN IF EXISTS Qty;
 ALTER TABLE n_a_goods_lending ADD Descriptions 	VARCHAR(250);
 ALTER TABLE n_a_goods_lending CHANGE BenefitOf interests VARCHAR(150);
+ALTER TABLE n_a_goods_lending ADD FK_Receive INT(11)UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending ADD FK_RETURN INT(11)UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending ADD FK_CurrentApp INT(11)UNSIGNED NULL;---ForeignKey ke table sendiri
 
 -- Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interests,Responsible By,Goods From,IsNew,Status,Created By,CreatedDate
 --SELECT g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,s.sentby,ngl.Interests,r.responsibleby,
