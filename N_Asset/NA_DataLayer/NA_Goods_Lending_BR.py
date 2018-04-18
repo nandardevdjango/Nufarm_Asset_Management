@@ -82,3 +82,30 @@ class NA_BR_Goods_Lending(models.manager):
 		totalRecords = row
 		cur.close()
 		return (result,totalRecords)
+
+	def UpdateStatus(self,idapp,newVal,UpdatedBy):		
+		cur = connection.cursor()			
+		with transaction.atomic():
+			Query = """SELECT FK_Goods FROM n_a_goods_lending WHERE idapp = %(idapp)s LIMIT 1 """
+			cur.execute(Query,{'idapp':idapp})
+			row = cur.fetchone()
+			FKGoods = int(row[0])
+
+			Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s """
+			cur.execute(Query,{'newVal':newVal,'idapp':idapp})				
+
+			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
+			AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0) 
+			AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp) 
+			AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """ 
+			cur.execute(Query,{'FK_Goods':FKGoods})
+			TotalSpare = 0
+			if cur.rowcount >0:
+				row = cur.fetchone()
+				TotalSpare = int(row[0])
+				#update langsung Stock
+
+			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare),Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
+			cur.execute(Query,{'TotalSpare':TotalSpare,'UpdatedBy':UpdatedBy,'FK_Goods':FKGoods})
+			return 'success'
+		

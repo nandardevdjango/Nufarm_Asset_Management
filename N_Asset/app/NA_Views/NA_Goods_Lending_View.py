@@ -79,8 +79,29 @@ def NA_Goods_Lending_Search(request):
 def UpdateStatus(request):
 	try:
 		idapp = request.GET.get('idapp');
-		inactive = request.GET.get('newVal');
+		newVal = request.GET.get('newVal');
+		updatedby = request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'
+		result = NAGoodsLending.objects.UpdateStatus(idapp,newVal,updatedby)
+		if result != 'success':
+			statuscode = 500
+		return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def Delete(request):
+	result = ''
+	try:
+		statuscode = 200
+		#result=NAGoodsReceive.objects.delete(
+		data = request.body
+		data = json.loads(data)
 
+		IDApp = data['idapp']
+		Ndata = NAGoodsReceive.objects.getData(IDApp)[0]
+		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata['idapp_fk_goods'],'datereceived':Ndata['datereceived'],'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
+		#check reference data
+		result = NAGoodsReceive.objects.delete(NAData)
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
