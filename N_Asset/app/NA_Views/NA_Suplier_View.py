@@ -3,7 +3,7 @@ from NA_Models.models import NASuplier, LogEvent
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 import datetime
-from NA_DataLayer.common import CriteriaSearch, StatusForm, ResolveCriteria, Data
+from NA_DataLayer.common import CriteriaSearch, StatusForm, ResolveCriteria, Data, Message, commonFunct
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -86,37 +86,19 @@ def EntrySuplier(request):
         if form.is_valid():
             mode = request.POST['mode']
             data = getData(request, form)
+            result = None
             if mode == 'Add':
                 data['createddate'] = datetime.datetime.now()
                 data['createdby'] = getCurrentUser(request)
                 result = NASuplier.objects.SaveData(StatusForm.Input,**data)
-                statusResp = 200
-                message = result[0]
-                if result[0] == Data.Exists:
-                    statusResp = 400
-                    message = result[1]
-                return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')#get idapp for highlight element
             elif mode == 'Edit':
                 data['modifieddate'] = datetime.datetime.now()
                 data['modifiedby'] = getCurrentUser(request)
                 result = NASuplier.objects.SaveData(StatusForm.Edit,**data)
-                statusResp = 200
-                if result[0] == Data.HasRef:
-                    message = 'Cannot Edit, This data Has Referenced child'
-                    statusResp = 403
-                elif result[0] == Data.Exists:
-                    message = result[1]
-                    statusResp = 400
-                else:
-                    message = data['supliercode']
-                return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')
             elif mode == 'Open':
                 if request.POST['supliername']:
-                    return HttpResponse(json.dumps({'messages':'Cannot Edit Data with inspect element .. .'}))
-            elif mode == 'Delete':
-                getSupCode = request.POST['supliercode']
-                NASuplier.objects.delete_suplier(getSupCode)
-                return HttpResponse(json.dumps({'message':'success'}), content_type='application/json')
+                    return HttpResponse(json.dumps({'message':'Cannot Edit Data with inspect element .. .'}),status=403,content_type='application/json')
+            return commonFunct.response_default(result)
     elif request.method == 'GET':
         getSupCode = request.GET['supliercode']
         mode = request.GET['mode']
@@ -127,7 +109,7 @@ def EntrySuplier(request):
                 form.fields['supliercode'].widget.attrs['disabled'] = 'disabled'
                 return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})
             elif result[0] == Data.Lost:
-                return HttpResponse('Lost',status=404)
+                return HttpResponse(Message.Lost.value,status=404)
         else:
             form = NA_Suplier_form()
             return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})
@@ -150,7 +132,4 @@ def NA_Suplier_delete(request):
         if request.method == 'POST':
             get_supcode = request.POST.get('supliercode')
             deleteObj = NASuplier.objects.delete_suplier(supliercode=get_supcode,NA_User=request.user.username)
-            if deleteObj == 'HasRef':
-                return HttpResponse('HasRef',status=403)
-            elif deleteObj == 'success':
-                return HttpResponse('success')
+            return commonFunct.response_default(deleteObj)

@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection,transaction
-from NA_DataLayer.common import *
+from NA_DataLayer.common import CriteriaSearch, DataType, Data, query
 from django.db.models import F
 class NA_Acc_FA_BR(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,sidx='idapp',sord='desc'):
@@ -23,7 +23,7 @@ class NA_Acc_FA_BR(models.Manager):
             transaction.rollback()
             raise
         connection.close()
-        return 'success'
+        return Data.Success
 
     #retive data from jqGrid / status == Open
     def retriveData(self,IDApp):
@@ -43,20 +43,20 @@ class NA_Acc_FA_BR(models.Manager):
     def searchAcc_ByForm(self,value):
         cur = connection.cursor()
         Query = """SELECT g.idapp,g.itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) as goods,grd.serialnumber
-        FROM n_a_goods g INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app 
-        WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac WHERE ac.serialnumber = grd.serialnumber) AND 
+        FROM n_a_goods g INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app
+        WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac WHERE ac.serialnumber = grd.serialnumber) AND
         CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'""".format(value)
         cur.execute(Query)
         result = query.dictfetchall(cur)
         connection.close()
         return result
-    
+
     #get goods data after click (select) data from above (search goods by form)
     def getGoods_data(self,IDApp):
         cur = connection.cursor()
         Query = """SELECT g.IDApp,grd.typeapp,CONCAT(g.goodsname, ' ',grd.brandname) as goods,g.economiclife,grd.priceperunit as price_orig,grd.serialnumber, CONCAT('Rp ',FORMAT(g.priceperunit,2,'de_DE')) as price_label,\
-            g.depreciationmethod AS depr_method,g.createddate AS startdate,DATE_ADD(g.createddate, INTERVAL SUM(g.economiclife*12) MONTH) as enddate 
-            FROM n_a_goods g INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app WHERE NOT EXISTS 
+            g.depreciationmethod AS depr_method,g.createddate AS startdate,DATE_ADD(g.createddate, INTERVAL SUM(g.economiclife*12) MONTH) as enddate
+            FROM n_a_goods g INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app WHERE NOT EXISTS
             (SELECT ac.FK_Goods FROM n_a_acc_fa ac WHERE ac.serialnumber = grd.serialnumber) AND g.IDApp = %s"""
         cur.execute(Query,[IDApp])
         result = query.dictfetchall(cur)

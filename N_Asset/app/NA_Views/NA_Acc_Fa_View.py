@@ -224,10 +224,6 @@ def getGoods_data(request):
         goods_obj['startdate'] = goods_obj['startdate'].strftime('%d/%m/%Y')
         goods_obj['enddate'] = goods_obj['enddate'].strftime('%d/%m/%Y')
         goods_obj['depr_method'] = depr_method(goods_obj['depr_method'])
-        #data = {'goods_name':goods_obj.goodsname,'brandname':goods_obj.brandname,'price':goods_obj.price_label,
-        #        'startdate':goods_obj.startdate.strftime('%d %b %Y'),'enddate':goods_obj.enddate.strftime('%d %b %Y'),
-        #        '_price':goods_obj.price_orig,'depr_method':depr_method(goods_obj.depr_method),
-        #        'economiclife':goods_obj.economiclife,'serialNumber':goods_obj.serialnumber,'typeApp':goods_obj.typeapp}
         return HttpResponse(json.dumps(goods_obj, cls=DjangoJSONEncoder),content_type='application/json')
 
 def SearchGoodsbyForm(request):
@@ -240,7 +236,7 @@ def SearchGoodsbyForm(request):
         results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
     else:
         totalRecord = len(NAData)
-        paginator = Paginator(NAData, int(Ilimit)) 
+        paginator = Paginator(NAData, int(Ilimit))
         try:
             page = request.GET.get('page', '1')
         except ValueError:
@@ -249,7 +245,7 @@ def SearchGoodsbyForm(request):
             dataRows = paginator.page(page)
         except (EmptyPage, InvalidPage):
             dataRows = paginator.page(paginator.num_pages)
-        
+
         rows = []
         i = 0;#idapp,itemcode,goods
         for row in dataRows.object_list:

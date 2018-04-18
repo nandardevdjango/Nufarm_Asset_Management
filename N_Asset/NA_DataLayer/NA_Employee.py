@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection, transaction
-from NA_DataLayer.common import *
+from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
@@ -10,9 +10,9 @@ class NA_BR_Employee(models.Manager):
                 filterfield = columnKey + '__in'
             else:
                 filterfield = columnKey + '__iexact'
-            employeeData = super(NA_BR_Employee,self).get_queryset().exclude(**{filterfield:[ValueKey]}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')	
+            employeeData = super(NA_BR_Employee,self).get_queryset().exclude(**{filterfield:[ValueKey]}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
         if criteria==CriteriaSearch.Equal:
-            return super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: ValueKey}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')		
+            return super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: ValueKey}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
         elif criteria==CriteriaSearch.Greater:
             filterfield = columnKey + '__gt'
         elif criteria==CriteriaSearch.GreaterOrEqual:
@@ -25,12 +25,12 @@ class NA_BR_Employee(models.Manager):
             filterfield = columnKey + '__lte'
         elif criteria==CriteriaSearch.Like:
             filterfield = columnKey + '__icontains'
-            employeeData = super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})	
+            employeeData = super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
         if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
-            rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)			
+            rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
             employeeData = super(NA_BR_Employee,self).get_queryset().filter(**rs.DefaultModel())
 
-        employeeData = employeeData.values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')				
+        employeeData = employeeData.values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
         return employeeData
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
@@ -41,7 +41,7 @@ class NA_BR_Employee(models.Manager):
         if statusForm == StatusForm.Input:
             is_exists = self.dataExist(nik=data['nik'],telphp=data['telphp'])
             if is_exists[0]:
-                return ('exists',is_exists[1])
+                return (Data.Exists,is_exists[1])
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
             Query = """INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
@@ -49,26 +49,26 @@ class NA_BR_Employee(models.Manager):
             VALUES({})""".format(','.join('%('+i+')s' for i in Params))
         elif statusForm == StatusForm.Edit:
             if self.hasRef(data['idapp']):
-                return ('hasRef',)
+                return (Data.HasRef,)
             else:
                 Params['ModifiedDate'] = data['modifieddate']
                 Params['ModifiedBy'] = data['modifiedby']
                 Params['IDApp'] = data['idapp']
-                Query = """UPDATE employee SET nik=%(Nik)s,employee_name=%(Employee_Name)s, typeapp=%(TypeApp)s, 
+                Query = """UPDATE employee SET nik=%(Nik)s,employee_name=%(Employee_Name)s, typeapp=%(TypeApp)s,
                 jobtype=%(JobType)s, gender=%(Gender)s, status=%(Status)s, telphp=%(Telphp)s, territory=%(Territory)s,
                 descriptions=%(Descriptions)s, inactive=%(Inactive)s, modifieddate=%(ModifiedDate)s,
                 modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
         cur.execute(Query,Params)
         row = cur.fetchone()
         connection.close()
-        return ('success',row)
+        return (Data.Success,row)
 
     def delete_employee(self, **kwargs):
         get_idapp = kwargs['idapp']
         NA_User = kwargs['NA_User']
         if self.dataExist(idapp=get_idapp):
             if self.hasRef(get_idapp):
-                return 'hasRef'
+                return Data.HasRef
             else:
                 cur = connection.cursor()
                 #============== INSERT INTO LOG EVENT ================
@@ -98,9 +98,9 @@ class NA_BR_Employee(models.Manager):
                     transaction.rollback()
                     connection.close()
                     raise
-                return 'success'
+                return Data.Success
         else:
-            return 'Lost'
+            return Data.Lost
 
     def retriveData(self, get_idapp,must_check=True):
         def get_data():
@@ -110,11 +110,11 @@ class NA_BR_Employee(models.Manager):
                             'status','telphp','territory','descriptions','createddate','createdby')
         if must_check:
             if self.dataExist(idapp=get_idapp):
-                return ('success',get_data())
+                return (Data.Success,get_data())
             else:
-                return ('Lost',)
+                return (Data.Lost,)
         else:
-            return ('success',get_data())
+            return (Data.Success,get_data())
 
     def dataExist(self, **kwargs):
         idapp = kwargs.get('idapp')
@@ -134,7 +134,7 @@ class NA_BR_Employee(models.Manager):
 
     def hasRef(self,idapp):
         cur = connection.cursor()
-        Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s 
+        Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
         OR fk_sender=%(IDApp)s UNION SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
         OR fk_sender=%(IDApp)s OR fk_usedemployee=%(IDApp)s)"""
         cur.execute(Query,{'IDApp':idapp})

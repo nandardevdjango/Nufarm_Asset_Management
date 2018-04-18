@@ -1774,7 +1774,8 @@ NA.common.dialog = {
 };
 NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
-    _canNotDelete: 'Can not delete data\Data has child-referenced',
+    _canNotDelete: 'Can not delete data\nData has child-referenced',
+    _canNotEdit: 'Can not edit data\nData has child-referenced',
     _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
     _savingSucces: 'Data saved succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
@@ -1786,6 +1787,7 @@ NA.common.message = {
     _dataHasLost: 'Data has Lost',
     _unsupportedCriteria : 'Operator is not supported for this kind of data\nPlease change criteria or column name'
 };
+//mang misalkan user1 teh aya di posisi kieu, user1 keur nga update data .. ehh ai pek teh data eta karek bieu dihapus ku user2 ... terus nga handle na bere pesan(message) bahwa data eta teh geus dihapus ku user lain terus bere keterangan waktu jeng user anu ngahapus na ???
 Object.defineProperties(NA.common.message, {
     confirmDelete: {
         get: function () {
@@ -1795,6 +1797,11 @@ Object.defineProperties(NA.common.message, {
     canNotDelete:{
         get:function(){
             return this._canNotDelete;
+        }
+    },
+    canNotEdit: {
+        get: function () {
+        return this._canNotEdit;
         }
     },
     clearData: {
@@ -1848,6 +1855,24 @@ Object.defineProperties(NA.common.message, {
         }
     }
 });
+    NA.common.message.server = function(message) {
+        var result;
+        switch (message) {
+            case '__hasref_edit':
+                result = NA.common.message.canNotEdit;
+                break;
+            case '__hasref_del':
+                result = NA.common.message.canNotDelete;
+                break;
+            case '__lost':
+                result = NA.common.message.dataHasLost;
+                break;
+            default:
+                result = message;
+                break;
+        }
+        return result;
+    }
 //=========================AJAX NAJS,(sudah test) =============================================
 NA.common.AJAX = {
     XHR: {},
