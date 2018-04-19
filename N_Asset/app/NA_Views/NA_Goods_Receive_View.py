@@ -512,30 +512,30 @@ class NA_Goods_Receive_Form(forms.Form):
 	datereceived = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter Date Received','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':1,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':3,
                                    'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
 	goods_desc = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'goods item code','data-value':'goods item code','tittle':'goods Desc is required'}))
 	 
 	fk_suplier = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':2,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':4,
                                    'placeholder': 'suplier code','data-value':'suplier code','tittle':'Please enter suplier code'}),required=True)
 	supliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'suplier name','data-value':'suplier name','tittle':'suplier name is required'}))
 
-	totalpurchase = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':4,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
-	totalreceived = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':5,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalpurchase = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalreceived = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
 	fk_p_r_by = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':6,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':7,
                                    'placeholder': 'P R By','data-value':'P R By','tittle':'Employee code(NIK) who PRs'}),required=True)
 	employee_pr = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'Employee who PRs','data-value':'Employee who PRs','tittle':'Employee who PRs is required'}))
 	fk_receivedby = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':7,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':8,
                                    'placeholder': 'Who Receives','data-value':'Who Receives','tittle':'Employee code(NIK) who Receives'}),required=True)
 	employee_received = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'Employee who Receives','data-value':'Employee who Receives','tittle':'Employee who Receives is required'}))
-	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','tabindex':8,'style':'max-width: 520px;width: 444px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods received (remark)','data-value':'descriptions about goods received (remark)'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
+	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','tabindex':9,'style':'max-width: 520px;width: 444px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods received (remark)','data-value':'descriptions about goods received (remark)'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
 	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput(),required=True)

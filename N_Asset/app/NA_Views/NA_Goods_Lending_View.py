@@ -111,9 +111,10 @@ class NA_Goods_Lending_Form(forms.Form):
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={#Item Code Goods
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':1,
                                    'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
-	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput())
+	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	goods = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
-																						 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
+																					 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
+	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	fk_employee = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':2,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
@@ -121,31 +122,35 @@ class NA_Goods_Lending_Form(forms.Form):
 	lentby_fk_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
 	
-	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':5,
+	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':4,
-                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
-	idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=False)
+	idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
-	fk_responsibleperson_employee = orms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	fk_responsibleperson_employee = orms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	interests = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':5,
-																						 'placeholder': 'RefNO','data-value':'refno','tittle':'Ref NO is required'}))
+																						 'placeholder': 'Interest Of','data-value':'Interest Of','tittle':'Interest is required'}))
 	fk_sender = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':3,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
-	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=True)
-	fk_sender_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
 	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control select','style':'width:90px;margin-left:auto;'}),choices=(('L', 'Lent'),('R','Returned')),initial=['L'])
-	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=True)#goods type
-	serialnumber = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=True)
+                                   'class': 'NA-Form-Control select','style':'width:90px;margin-left:auto;','readonly':True}),choices=(('L', 'Lent'),('R','Returned')),initial=['L'])
+	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
+																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
+	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	serialnumber = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_currentapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	LastInfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)

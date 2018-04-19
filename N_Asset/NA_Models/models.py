@@ -325,6 +325,7 @@ class NAGoodsLending(models.Model):
 	fk_return = models.ForeignKey(NAGoodsReturn, db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
 	fk_receive = models.ForeignKey(NAGoodsReceive, db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
 	fk_currentapp =models.ForeignKey('self', db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
+	descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)  # Field name made lowercase.
 	class Meta:
 		managed = True
 		db_table = 'n_a_goods_lending'
