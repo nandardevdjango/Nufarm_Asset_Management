@@ -196,31 +196,7 @@ class goods(models.Model):
 	def __str__(self):
 		return self.goodsname
 
-class NAGoodsLending(models.Model):
-	idapp = models.AutoField(db_column='IDApp', primary_key=True)
-	fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)
-	isnew = models.IntegerField(db_column='IsNew')
-	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50,related_name='fk_gl_employee_used_by')
-	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
-	fk_stock = models.CharField(db_column='FK_Stock', max_length=50)
-	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', blank=True, null=True,related_name='fk_gl_employee_resp_person')
-	intererest = models.CharField(db_column='intererest', max_length=150, blank=True, null=True)
-	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
-	status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
-	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
-	createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
-	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
-	modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
-	typeapp = models.CharField(db_column='TypeApp',max_length=32)
-	serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
-	fk_maintenance = models.CharField(db_column="FK_Maintenance", blank=True, null=True)
-	fk_return = models.ForeignKey(db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
-	fk_receive = models.ForeignKey(db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
-	fk_CurrentApp =models.ForeignKey(db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
-	class Meta:
-		managed = True
-		db_table = 'n_a_goods_lending'
-	objects = NA_BR_Goods_Lending()
+
 class NAGoodsOutwards(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
     fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
@@ -328,7 +304,31 @@ class NAStock(models.Model):
     class Meta:
         managed = True
         db_table = 'n_a_stock'
-
+class NAGoodsLending(models.Model):
+	idapp = models.AutoField(db_column='IDApp', primary_key=True)
+	fk_goods = models.ForeignKey(goods,db_column='FK_Goods')
+	isnew = models.IntegerField(db_column='IsNew')
+	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', related_name='fk_gl_employee_used_by')
+	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
+	fk_stock = models.ForeignKey(NAStock, db_column='FK_Stock',related_name='fk_gl_stock')
+	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', blank=True, null=True,related_name='fk_gl_employee_resp_person')
+	intererest = models.CharField(db_column='intererest', max_length=150, blank=True, null=True)
+	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
+	statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
+	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+	createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+	modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
+	typeapp = models.CharField(db_column='TypeApp',max_length=32)
+	serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+	fk_maintenance = models.ForeignKey(NAMaintenance, db_column="FK_Maintenance", blank=True, null=True,related_name='fk_gl_maintenance')
+	fk_return = models.ForeignKey(NAGoodsReturn, db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
+	fk_receive = models.ForeignKey(NAGoodsReceive, db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
+	fk_currentapp =models.ForeignKey('self', db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
+	class Meta:
+		managed = True
+		db_table = 'n_a_goods_lending'
+	objects = NA_BR_Goods_Lending()
 class NAGoodsLost(models.Model):
     idapp = models.AutoField(db_column='IDApp',primary_key=True)
     fk_goods = models.ForeignKey(goods,db_column='FK_Goods')

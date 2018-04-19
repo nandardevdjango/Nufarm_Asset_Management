@@ -2135,8 +2135,8 @@
 							            grid.delRowData(rowId);
 							        }
 							        if (mustReload) {
-							            win.document.body.style.cursor = 'default';
-							            grid.trigger("reloadGrid", [{ page: curPage }]);
+							            win.document.body.style.cursor = 'wait';
+							            grid.trigger("reloadGrid", [{ page: curPage }]); win.document.body.style.cursor = 'default';
 							        }
 							    }
 							    else if (this.status == 203) {

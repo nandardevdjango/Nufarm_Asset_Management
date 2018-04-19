@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
-from NA_Models.models import NAGoodsReceive, goods,NASuplier,Employee,NAGoodsLending
+from NA_Models.models import NAGoodsLending
 from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
@@ -33,15 +33,15 @@ def NA_Goods_Lending(request):
 	populate_combo.append({'label':'Sent By','columnName':'sentby','dataType':'varchar'})
 	populate_combo.append({'label':'Lent Date','columnName':'lentdate','dataType':'datetime'})
 	populate_combo.append({'label':'intererest','columnName':'intererests','dataType':'varchar'})
-	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'datetime'})	
+	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'varchar'})	
 	populate_combo.append({'label':'Goods From','columnName':'refgoodsfrom','dataType':'varchar'})
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Status','columnName':'status','dataType':'varchar'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
-	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'varchar'})	
+	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})	
 	#populate_combo.append({'label':'Modified By','columnName':'modifiedby','dataType':'varchar'})
 	#populate_combo.append({'label':'Modified Date','columnName':'modifieddate','dataType':'datetime'})
-	return render(request,'app/Transactions/NA_F_Goods_Receive.html',{'populateColumn':populate_combo})
+	return render(request,'app/Transactions/NA_F_Goods_Lending.html',{'populateColumn':populate_combo})
 	#Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interest,Goods From,IsNew,Status,Created By,CreatedDate
 def NA_Goods_Lending_Search(request):
 	try:
@@ -55,9 +55,9 @@ def NA_Goods_Lending_Search(request):
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
 		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
-			NAData = NAGoodsLending.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+			NAData = NAGoodsLending.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
-			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
+			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		totalRecord = NAData[1][0]
 		dataRows = NAData[0]
 		rows = []
@@ -105,3 +105,47 @@ def Delete(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+
+class NA_Goods_Lending_Form(forms.Form):
+	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_goods = forms.CharField(widget=forms.TextInput(attrs={#Item Code Goods
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':1,
+                                   'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
+	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput())
+	goods = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+																						 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
+	fk_employee = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':2,
+                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	lentby_fk_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
+	
+	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':5,
+                                   'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
+	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':4,
+                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+	idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+
+	fk_responsibleperson_employee = orms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+																						 'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
+	interests = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':5,
+																						 'placeholder': 'RefNO','data-value':'refno','tittle':'Ref NO is required'}))
+	fk_sender = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':3,
+                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	fk_sender_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
+	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
+                                   'class': 'NA-Form-Control select','style':'width:90px;margin-left:auto;'}),choices=(('L', 'Lent'),('R','Returned')),initial=['L'])
+	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=True)#goods type
+	serialnumber = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=True)
+	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_currentapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
+	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)

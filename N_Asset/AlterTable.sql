@@ -257,6 +257,8 @@ ALTER TABLE n_a_goods_lending CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL
 
 --============perbaikan stock==================
 ALTER TABLE n_a_stock CHANGE TotalQty T_Goods_Spare tinyint(5) UNSIGNED NOT NULL;--PERBAIKAN DI SINI 
+
+  
 ALTER TABLE n_a_stock DROP COLUMN IF EXISTS T_Goods_Lending;--PERBAIKAN DI SINI
 ALTER TABLE n_a_goods_lending
   ADD PRIMARY KEY (IDApp);
@@ -290,6 +292,11 @@ ALTER TABLE n_a_goods_lending CHANGE BenefitOf interests VARCHAR(150);
 ALTER TABLE n_a_goods_lending ADD FK_Receive INT(11)UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending ADD FK_RETURN INT(11)UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending ADD FK_CurrentApp INT(11)UNSIGNED NULL;---ForeignKey ke table sendiri
+ALTER TABLE n_a_stock CHANGE FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Employee FK_Employee INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Stock FK_Stock INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Responsible_Person FK_Responsible_Person INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Sender FK_Sender INT(11) UNSIGNED NULL;
 
 -- Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interests,Responsible By,Goods From,IsNew,Status,Created By,CreatedDate
 --SELECT g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,s.sentby,ngl.Interests,r.responsibleby,

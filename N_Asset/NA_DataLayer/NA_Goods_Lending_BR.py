@@ -9,7 +9,7 @@ from django.db.models import F
 from django.db.models import Q
 from decimal import Decimal
 from NA_DataLayer.common import commonFunct
-class NA_BR_Goods_Lending(models.manager):
+class NA_BR_Goods_Lending(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		colKey = ''
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
@@ -44,7 +44,7 @@ class NA_BR_Goods_Lending(models.manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Lending_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.interests,R.responsibleby,
+		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.interests,R.responsibleby,
 					Ref.refgoodsfrom,ngl.isnew,ngl.status, ngl.descriptions,ngl.createdby,ngl.createddate
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON G.IDApp = ngl.FK_Goods
 					INNER JOIN (SELECT ngl.IDApp,CASE
