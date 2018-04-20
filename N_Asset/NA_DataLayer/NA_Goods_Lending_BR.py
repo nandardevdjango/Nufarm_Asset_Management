@@ -108,4 +108,5 @@ class NA_BR_Goods_Lending(models.Manager):
 			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare),Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
 			cur.execute(Query,{'TotalSpare':TotalSpare,'UpdatedBy':UpdatedBy,'FK_Goods':FKGoods})
 			return 'success'
-		
+	def getInterest(self,SearchIntr):
+		return super(NA_BR_Goods_Lending,self).get_queryset().filter(interests__istartswith=SearchIntr).values('interests').distinct()

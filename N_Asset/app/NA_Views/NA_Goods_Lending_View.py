@@ -105,7 +105,21 @@ def Delete(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-
+def getInterest(request):
+	if(request.is_ajax()):
+		IvalueKey =  request.GET.get('term')
+		dataRows = NAGoodsLending.objects.getInterest(IvalueKey)
+		results = []
+		for datarow in dataRows:
+			JsonResult = {}
+			JsonResult['id'] = datarow['interests']
+			JsonResult['label'] = datarow['interests']
+			JsonResult['value'] = datarow['interests']
+			results.append(JsonResult)
+		data = json.dumps(results,cls=DjangoJSONEncoder)
+		return HttpResponse(data, content_type='application/json')
+	else:
+		return HttpResponse(content='',content_type='application/json')	
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={#Item Code Goods

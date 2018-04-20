@@ -681,98 +681,159 @@
         	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			//rubah dialog top nya jadi 10px saja
-		}
+
 		//======================End GROUP DIALOG ENTRY===============================================
-		dialog.style.top = "10px";
-		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-			NA.NAEvent.addHandler(item, 'click', function (event) {
-				NA.NAEvent.preventDefault(event);
-				if (win.status !== 'Open') {
-					var textElem = event.target.innerText;
-					if (textElem === 'OK') {
-						ExecuteHandler('OK');
-					} else {
-						ExecuteHandler('Close');
+			dialog.style.top = "10px";
+			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+				NA.NAEvent.addHandler(item, 'click', function (event) {
+					NA.NAEvent.preventDefault(event);
+					if (win.status !== 'Open') {
+						var textElem = event.target.innerText;
+						if (textElem === 'OK') {
+							ExecuteHandler('OK');
+						} else {
+							ExecuteHandler('Close');
+						}
 					}
-				}
+					if (event) {
+						NA.NAEvent.stopPropagation(event);
+					}
+					if (!hasLoadDialog) {
+						NA.common.dialog.closeDialog(dialog);
+					}
+					win.document.body.style.cursor = 'default';
+					return false;
+				});
+			});
+			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+				NA.NAEvent.preventDefault(event);
+				ExecuteHandler('Close');
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}
+				win.document.body.style.cursor = 'default';
 				if (!hasLoadDialog) {
 					NA.common.dialog.closeDialog(dialog);
 				}
-				win.document.body.style.cursor = 'default';
 				return false;
 			});
-		});
-		NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-			NA.NAEvent.preventDefault(event);
-			ExecuteHandler('Close');
-			if (event) {
-				NA.NAEvent.stopPropagation(event);
-			}
-			win.document.body.style.cursor = 'default';
-			if (!hasLoadDialog) {
-				NA.common.dialog.closeDialog(dialog);
-			}
-			return false;
-		});
-		try {
-			if (target.innerText === ' Add' || target.innerText === ' Edit' || target.innerText === ' Open') {
-				var idapp = 0;
-				if (target.innerText.trim() !== 'Add') {
-					idapp = getGridCellValue(grid, 'idapp');
-					if (typeof idapp == 'undefined' || idapp === '') {
-						ShowAlert('Please select data to edit');
-						var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
-						if (dialog) {
-							//closeJQueryDialog();
-							NA.common.dialog.closeDialog(dialog);
+			try {
+				if (target.innerText === ' Add' || target.innerText === ' Edit' || target.innerText === ' Open') {
+					var idapp = 0;
+					if (target.innerText.trim() !== 'Add') {
+						idapp = getGridCellValue(grid, 'idapp');
+						if (typeof idapp == 'undefined' || idapp === '') {
+							ShowAlert('Please select data to edit');
+							var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+							if (dialog) {
+								//closeJQueryDialog();
+								NA.common.dialog.closeDialog(dialog);
+							}
+							if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
+							return false;
 						}
-						if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
-						return false;
+						else if (target.innerText.trim() === 'Open') {
+							Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+								if (!item.hasAttribute('disabled')) {
+									item.setAttribute('disabled', true);
+								}
+							});
+						}
 					}
-					else if (target.innerText.trim() === 'Open') {
-						Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
-							if (!item.hasAttribute('disabled')) {
-								item.setAttribute('disabled', true);
-							}
-						});
-					}
-				}
-				$('div.maindialogContent').load("ShowEntry_Receive?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
-				function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
-					if (statusTxt == "success") {
-						$(this).html(responseTxt);
-						switch (win.statu.trim()) {
-							case 'Add': {
-								Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
-									if (item.hasAttribute('disabled')) {
-										item.removeAttribute('disabled');
-									}//remove attribute disable untuk button OK dan cancel bila statusnya Add
-								});
-								break;
-							}
-							case 'Edit': {
+					$('div.maindialogContent').load("ShowEntry_Receive?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
+					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+						if (statusTxt == "success") {
+							$(this).html(responseTxt);
+							switch (win.statu.trim()) {
+								case 'Add': {
+									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+										if (item.hasAttribute('disabled')) {
+											item.removeAttribute('disabled');
+										}//remove attribute disable untuk button OK dan cancel bila statusnya Add
+									});
+									break;
+								}
+								case 'Edit': {
 
-								break;
+									break;
+								}
+								case 'Open': {
+									break;
+								}
+							};
+							if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+
+								Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
+									var valPlaceHolder = item.dataset.value;
+									NA.NAEvent.addHandler(item, 'focus', function (event) {
+										if (this.value === '') {
+											if (this.getAttribute('placeholder') === valPlaceHolder) {
+												this.setAttribute('placeholder', '');
+											}
+										}
+										NA.NAEvent.stopPropagation(event);
+									});
+									//============blur event================================
+									NA.NAEvent.addHandler(item, 'blur', function (event) {
+										if (this.value === '') {
+											if (this.getAttribute('placeholder') === '') {
+												this.setAttribute('placeholder', valPlaceHolder);
+											}
+										}
+										NA.NAEvent.stopPropagation(event);
+									});
+								});
+								//auto complete interests
+								$("#id_interests").autocomplete({ source: "geInterests/", minLength: 1, });
+								//set background colour autocomplete
+								NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
+
+								//Event untuk TextBoxt FK
+								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan 
+								//fk_goods, fk_employee, fk_sender, fk_responsibleperson_employee
+								var listFK = NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson_employee"]');
+								Array.prototype.forEach.call(listFK, function (item) {
+									NA.NAEvent.addHandler(item, 'keydown', function (event) {
+										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+											NA.NAEvent.preventDefault(event);//prevent from submit
+											event.stopImmediatePropagation();
+											return false;
+										}
+										if (event.keyCode === 13) {//kalau menekan tombol enter
+											var NAAjax = NA.common.AJAX;
+											switch (this.id) {
+												case 'id_fk_goods': {
+													//ambil data terakhir transaksi
+													//jika tidak ada ambil di n_a_goods_receive_detail
+													break;
+												}
+												case 'id_fk_employee': {
+													break;
+												}
+												case 'id_fk_sender': {
+													break;
+												}
+												case 'id_fk_responsibleperson_employee': {
+													break;
+												}
+											};
+										}
+									});
+								});
 							}
-							case 'Open': {
-								break;
-							}
-						};
-					}
-				});
-			}
-		} catch (e) {
-			BootstrapDialog.closeAll();
-			dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-			if (dialog) {
-				closeJQueryDialog();
-				NA.common.dialog.closeDialog(dialog);
-			}
-			if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
-			ShowAlert(e);
+						}
+					});
+				}
+			} catch (e) {
+				BootstrapDialog.closeAll();
+				dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+				if (dialog) {
+					closeJQueryDialog();
+					NA.common.dialog.closeDialog(dialog);
+				}
+				if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
+				ShowAlert(e);
+			};
 		};
 	})();
 </script>
