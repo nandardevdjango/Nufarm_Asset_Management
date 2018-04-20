@@ -317,3 +317,5 @@ CREATE TABLE IF NOT EXISTS n_a_goods_History (
   CreatedDate datetime DEFAULT NULL,
   CreatedBy varchar(50) DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  ALTER TABLE n_a_goods_History ADD PRIMARY KEY (IDApp);
+ALTER TABLE n_a_goods_History  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
