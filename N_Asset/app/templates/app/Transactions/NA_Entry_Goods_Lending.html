@@ -1,67 +1,65 @@
 ﻿<div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal" enctype="multipart/form-data" style="background-color:transparent;font-size: 1em;" id="frm-NA-Entry-Goods_Lending" onsubmit="return false;">
         {% csrf_token %}
-        <fieldset>
+        <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
             <div class="NA-Entry-div-row">
-                <div class="NA-Entry-inlinve-div">
-                    <label for="fk_goods" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Goods Desc</label>
+              <label for="fk_goods" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Goods Desc</label>
                     {{ form.fk_goods }}
-                    <div class="input-group" style="display: inline-flex; width: 46%;">
+                    <div class="input-group" style="display: inline-flex; width: 50%;">
                         {{ form.goods }}
                         <span class="input-group-btn" style="display:inline-flex;height: 27px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_goods" style="padding:4px 8px;height: 27px"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
-                    </div>
-                </div>
-                <div class="NA-Entry-inlinve-div">
+                    </div>               
+            </div>
+            <div class="NA-Entry-div-row" id="difInfo">
                     <!--Khusus untuk Goods Info setelah di pilih-->
-                    <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
-                        <label id="BrandKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">Brand</label>
+                    <div style="margin-bottom:5px;;margin-right:auto">
+                        <label id="BrandKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Brand</label>
                         <label for="BrandValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:auto;">{{ form.brandvalue.value }}</label>
                     </div>
-                    <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
-                        <label id="TypeKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">Tipe</label>
-                        <label id="TypeValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">{{ form.typeapp.value }}</label>
+                    <div style="margin-bottom:5px;margin-right:auto">
+                        <label id="TypeKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Tipe</label>
+                        <label id="TypeValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:auto;">{{ form.typeapp.value }}</label>
                     </div>
-                    <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
-                        <label id="serialnumberKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">Serial Number</label>
-                        <label id="serialnumberValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">{{ form.serialnumber.value }}</label>
+                    <div style="margin-bottom:5px;margin-right:auto">
+                        <label id="serialnumberKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Serial Number</label>
+                        <label id="serialnumberValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:auto;">{{ form.serialnumber.value }}</label>
                     </div>
-                    <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
-                        <label id="LastInfoKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">Last Info</label>
-                        <label id="LastInfoValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:50px;">{{ form.LastInfo.value }}</label>
+                    <div style="margin-bottom:5px;margin-right:auto">
+                        <label id="LastInfoKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Last Info</label>
+                        <label id="LastInfoValue" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:auto;">{{ form.LastInfo.value }}</label>
                     </div>
-                </div>
             </div>
         </fieldset>
         <div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
-            <fieldset>
+            <fieldset style="margin-bottom:5px;margin-top:5px;">
                 <legend>Employe Info</legend>
-                <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
+                <div style="margin-bottom:5px;margin-right:auto">
                     <label for="fk_employee" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Lent By</label>
                     {{ form.fk_employee }}
-                    <div class="input-group" style="display:inline-flex;width:46%;">
+                    <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.lentby_fk_employee }}
                         <span class="input-group-btn" style="display:inline-flex;height: 27px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_employee" style="padding:4px 8px;height: 27px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
-                <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
+                <div style="margin-bottom:5px;margin-right:auto">
                     <label for="fk_sender" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Sent By</label>
                     {{ form.fk_sender }}
-                    <div class="input-group" style="display:inline-flex;width:46%;">
+                    <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_sender_employee }}
                         <span class="input-group-btn" style="display:inline-flex;height: 27px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_sender" style="padding:4px 8px;height: 27px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
-                <div style="margin-bottom:5px;margin-left:5px;margin-right:auto">
-                    <label for="fk_responsibleperson" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Sent By</label>
+                <div style="margin-bottom:5px;margin-right:auto">
+                    <label for="fk_responsibleperson" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Responsible By</label>
                     {{ form.fk_responsibleperson }}
-                    <div class="input-group" style="display:inline-flex;width:46%;">
+                    <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_responsibleperson_employee }}
                         <span class="input-group-btn" style="display:inline-flex;height: 27px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_responsibleperson" style="padding:4px 8px;height: 27px;"><i class="glyphicon glyphicon-search"></i></button>
@@ -72,18 +70,19 @@
         </div>
         <div class="NA-Entry-div-row">
             <div class="NA-Entry-inlinve-div">
-                <label for="interests" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Interests</label>
+                <label for="interests" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px;width:112px;">Interests</label>
                 <!--Pake Auto complete supaya sama nilainya bila menemukan case yang sama-->
                 {{ form.interests }}
             </div>
-            <div class="NA-Entry-inlinve-div">
-                <label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Date Lent</label>
+           
+        </div>
+        <div class="NA-Entry-div-row">
+                <label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date Lent</label>
                 {{ form.datelending }}
-            </div>
         </div>
         <!--Jika status Add maka hidden div ini-->
         <div class="NA-Entry-div-row" id="div_status_lent">
-            <label for="statuslent" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">status</label>
+            <label for="statuslent" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px;width:112px;">status</label>
             {{ form.statuslent }}
         </div>
         <div class="NA-Entry-div-row">

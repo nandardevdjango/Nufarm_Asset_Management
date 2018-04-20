@@ -298,5 +298,22 @@ ALTER TABLE n_a_goods_lending CHANGE FK_Stock FK_Stock INT(11) UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending CHANGE FK_Responsible_Person FK_Responsible_Person INT(11) UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending CHANGE FK_Sender FK_Sender INT(11) UNSIGNED NULL;
 
--- Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interests,Responsible By,Goods From,IsNew,Status,Created By,CreatedDate
---SELECT g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,s.sentby,ngl.Interests,r.responsibleby,
+--CREATE Goods History
+--goods history untuk melacak barang terakhir berada di posisi mana
+--setiap transaksi n_a_disposal,n_a_goods_Lending,n_a_goods_outwards,n_a_goods_return,n_a_maintenance
+--akan menginsert ke table n_a_goods_history
+--untuk melihat full history suatu barang sampai barang hilang/dispose
+
+CREATE TABLE IF NOT EXISTS n_a_goods_History (
+  IDApp int(11) NOT NULL,
+  FK_Goods INT(11) NOT NULL,
+  TypeApp VARCHAR(32) NOT NULL,
+  SerialNumber VARCHAR(50) NOT NULL,
+  FK_Lending INT(11) NULL,
+  FK_Outwards INT(11) NULL,
+  FK_RETURN int(11) NULL,
+  FK_Maintenance INT(11) NULL,
+  FK_Disposal INT(11) NULL,
+  CreatedDate datetime DEFAULT NULL,
+  CreatedBy varchar(50) DEFAULT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -517,6 +517,9 @@
 			if (UlHiddenAuto) { UlHiddenAuto.parentNode.removeChild(UlHiddenAuto); }
 			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
 		};
+		function getValuesForm() {
+
+		};
 		//==========================End GROUP Function Declaration ============================
 
 
@@ -681,43 +684,54 @@
         	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			//rubah dialog top nya jadi 10px saja
-
-		//======================End GROUP DIALOG ENTRY===============================================
+	
 			dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 				NA.NAEvent.addHandler(item, 'click', function (event) {
 					NA.NAEvent.preventDefault(event);
-					if (win.status !== 'Open') {
-						var textElem = event.target.innerText;
-						if (textElem === 'OK') {
-							ExecuteHandler('OK');
-						} else {
-							ExecuteHandler('Close');
-						}
-					}
+				    //==============uncommment this after debugging=============
+
+					//if (win.status !== 'Open') {
+
+					//	var textElem = event.target.innerText;
+					//	if (textElem === 'OK') {
+					//		ExecuteHandler('OK');
+					//	} else {
+					//		ExecuteHandler('Close');
+					//    }
+                     
+					//}
 					if (event) {
 						NA.NAEvent.stopPropagation(event);
 					}
-					if (!hasLoadDialog) {
-						NA.common.dialog.closeDialog(dialog);
-					}
+                    //comment this after debugging
+					    NA.common.dialog.closeDialog(dialog);
+					//if (!hasLoadDialog) {
+					//	NA.common.dialog.closeDialog(dialog);
+					//}
 					win.document.body.style.cursor = 'default';
 					return false;
 				});
 			});
 			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-				NA.NAEvent.preventDefault(event);
-				ExecuteHandler('Close');
+			    NA.NAEvent.preventDefault(event);
+                //==============uncommment this after debugging=============
+
+				//ExecuteHandler('Close');
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}
 				win.document.body.style.cursor = 'default';
-				if (!hasLoadDialog) {
-					NA.common.dialog.closeDialog(dialog);
-				}
+				//if (!hasLoadDialog) {
+				//	NA.common.dialog.closeDialog(dialog);
+			    //}
+			    //==============End uncommment this after debugging=============
+			    //comment this after debugging
+				NA.common.dialog.closeDialog(dialog);
 				return false;
 			});
-			try {
+		    try {
+		        var target = NA.NAEvent.getTarget(event);
 				if (target.innerText === ' Add' || target.innerText === ' Edit' || target.innerText === ' Open') {
 					var idapp = 0;
 					if (target.innerText.trim() !== 'Add') {
@@ -740,24 +754,29 @@
 							});
 						}
 					}
-					$('div.maindialogContent').load("ShowEntry_Receive?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
+					$('div.maindialogContent').load("ShowEntry_Lending?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
 					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
 						if (statusTxt == "success") {
 							$(this).html(responseTxt);
-							switch (win.statu.trim()) {
+							switch (win.status.trim()) {
 								case 'Add': {
 									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
 										if (item.hasAttribute('disabled')) {
 											item.removeAttribute('disabled');
 										}//remove attribute disable untuk button OK dan cancel bila statusnya Add
 									});
+									NA.common.getElementID('difInfo').style.display = 'none';
+									NA.common.getElementID('id_statuslent').style.display = 'none';
 									break;
 								}
-								case 'Edit': {
+							    case 'Edit': {
 
+							        var hasref = NA.common.getElementID('id_hasRefData').value
+							        NA.common.getElementID('id_statuslent').setAttribute('disabled', hasref.valueOf || false);
 									break;
 								}
-								case 'Open': {
+							    case 'Open': {
+							        
 									break;
 								}
 							};
@@ -815,15 +834,72 @@
 												}
 												case 'id_fk_responsibleperson_employee': {
 													break;
-												}
-											};
+												}//end if (event.keyCode === 13)
+											};//end switch
+											event.stopImmediatePropagation();
 										}
-									});
+									});//end add handler
+								});//end Array.prototype.forEach.call(listFK, function (item) {
+								originalData = JSON.stringify(getValuesForm());
+							    //====================id_datelent===========================
+								$('#id_datelending').datepicker({
+								    dateFormat: 'dd/mm/yy',
+								    changeMonth: true,
+								    changeYear: true,
+								    beforeShowDay: $.datepicker.noWeekends,
+								    minDate: (function (g) {
+								        if (g.status === 'Edit') {
+								            var eloriginalData = JSON.parse(originalData),
+                                                hasRef = eloriginalData['hasRefData'];
+								            if (hasRef) { return 1; }
+								            valDateReceived = new Date(eloriginalData.datereceived);
+								            return valDateReceived;
+								        }
+								        //get date datereceived
+								    })(win),
+								    maxDate: 1,
+								    showButtonPanel: true,
+								    closeText: "Close",
+								    currentText: 'Now',
 								});
-							}
-						}
-					});
-				}
+
+							    //setting Custom Validity
+								var elm = NA.common.doc.querySelector('#id_datelending');
+								NA.NAEvent.addHandler(elm, 'input', function (event) {
+								    var elpat = this.getAttribute('patern');
+								    var patern = new RegExp(elpat, 'i');
+								    var valuePat = this.value;
+								    if (valuePat === null || valuePat === '') {
+								        valuePat = this.textcontent;
+								    }
+								    if (!patern.test(valuePat)) {
+								        this.setCustomValidity('Invalid date value');
+								        this.validity.valid = false;
+								    }
+								    else {
+								        this.setCustomValidity(''); //clearkan error custom validity
+								    }
+								});
+
+								if (win.status !== 'Add') {
+								    var eloriginalData = JSON.parse(originalData),
+                                    valDateReceived = new Date(eloriginalData.datereceived);
+								    $("#id_lending").datepicker("setDate", valDateReceived);
+								}
+								originalData = JSON.stringify(getValuesForm());
+
+								var initializeForm = NA.common.getElementID('id_initializeForm');
+								initializeForm.value = originalData;
+							    //======================event handler BUTTONS Search================================================ 
+
+
+							    //======================End Event handler BUTTONS Search================================================ 
+							    //simpan original data di initializeForm
+							}//end if status bukan open
+							hasLoadDialog = true;
+						}//end if (statusTxt == "success") {						
+					});//end $('div.maindialogContent').load()
+				}// end if
 			} catch (e) {
 				BootstrapDialog.closeAll();
 				dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
@@ -835,6 +911,7 @@
 				ShowAlert(e);
 			};
 		};
+	//======================End GROUP DIALOG ENTRY===============================================
 	})();
 </script>
 {% endblock %}
