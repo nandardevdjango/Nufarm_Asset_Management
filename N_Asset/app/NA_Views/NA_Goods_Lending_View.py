@@ -149,12 +149,15 @@ def getLastTransGoods(request):
 	data = request.body
 	data = json.loads(data)
 	serialno = data['serialno']
-
+	try:
+		result = NAGoodsLending.objects.getLastTrans(serialno)
+		return HttpResponse(json.dumps({'itemcode':result[0],'goodsname':result[1],'brandname':result[3],'typeapp':result[2],'lastInfo':result[4]}),status = statuscode, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_goods = forms.CharField(widget=forms.TextInput(attrs={#Item Code Goods
-                                   'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':1,
-                                   'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
+	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
 	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	goods = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																					 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
@@ -189,12 +192,13 @@ class NA_Goods_Lending_Form(forms.Form):
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
-	serialnumber = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
+                                   'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_currentapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	LastInfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)

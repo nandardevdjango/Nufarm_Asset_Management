@@ -9,6 +9,7 @@ from django.db.models import F
 from django.db.models import Q
 from decimal import Decimal
 from NA_DataLayer.common import commonFunct
+from distutils.util import strtobool
 class NA_BR_Goods_Lending(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		colKey = ''
@@ -110,3 +111,104 @@ class NA_BR_Goods_Lending(models.Manager):
 			return 'success'
 	def getInterest(self,SearchIntr):
 		return super(NA_BR_Goods_Lending,self).get_queryset().filter(interests__istartswith=SearchIntr).values('interests').distinct()
+	
+	def getLastTrans(self,SerialNO):
+		"""function untuk mengambil terakhir transaksi data, sebagai umpan balik ke user, barang ini terakhir di pake oleh siapa / belum di pakai sama sekali
+		param : SerialNO
+		"""
+		#ambil data brand dan typenya
+		Query = """SELECT g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
+					LEFT OUTER JOIN n_a_goods g ON g.IDApp = ngr.FK_Goods WHERE ngd.serialnumber = %s"""
+		cur = connection.cursor()
+		cur.execute(Query,[SerialNO])
+		typeapp = ''
+		brandname = ''
+		goodsname = ''
+		itemcode = ''
+		row = []
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			typeapp = row[3]
+			brandname = row[2]
+			goodsname = row[1]
+			itemcode = row[0]
+		else:
+			cur.close()
+			raise Exception('no such data')
+		#cek apakah sudah ada transaksi untuk barang dengan serial number tsb
+		Query = """SELECT EXISTS(SELECT serialnumber FROM n_goods_history WHERE serialnumber = %s)"""
+		cur.execute(Query,[SerialNO])
+		row = cur.fetchone()
+		lastInfo = 'unknown'
+		if int(row[0]) > 0:
+			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance,disposal
+			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
+			cur.execute(Query,[SerialNO])
+			row = cur.fetchone()
+			fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0
+			if cur.rowcount > 0:
+				fklending = row[0]
+				fkoutwards = row[1]
+				fkreturn = row[2]
+				fkmaintenance = row[3]
+				fkdisposal = row[4]
+			if int(fklending)>0:
+				Query = """SELECT e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
+							WHERE ngl.IDApp = %s"""
+				cur.execute(Query,[fklending])
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+			elif int(fkoutwards) > 0:
+				Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
+							WHERE ngo.IDApp = %s"""
+				cur.execute(Query,[fkoutwards])
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+			elif int(fkreturn) > 0:
+				Query = """SELECT e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.NIK = ngt.FK_FromEmployee
+							WHERE ngt.IDApp = %s"""
+				cur.execute(Query,[fkreturn])
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					lastInfo = 'Last used by ' + str(row[0]) + ', date returned ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is already returned)'
+			elif int(fkmaintenance) > 0:
+				Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
+				cur.execute(Query,[fkmaintenance])
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
+					if row[3] is not None:
+						isFinished = strtobool(row[2])
+					if row[4] is not None:
+						isSucced = strtobool(row[3])
+					if row[1] is not None:
+						starDate =  str(parse(row[1]).strftime('%d %B %Y'))
+					if row[2] is not None:
+						endDate =  str(parse(row[1]).strftime('%d %B %Y'))
+					if isFinished and isSucced:
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use )'
+					elif isFinished == True and isSucced == false:
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is not able to use )'
+					elif not isFInished:
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + str(parse(starDate).strftime('%d %B %Y')) + ', ' +  ' (goods is still in maintenance)'
+			elif int(fkdisposal) > 0:
+				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
+				cur.execute(Query,[fkdisposal])
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					lastInfo = "goods is not able to use again " +  row[0]
+		else:
+			Query = """SELECT ngl.brandname,ngl.typeapp,ngr.datereceived FROM n_a_goods_receive_detail ngl INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngl.FK_App WHERE ngl.serialnumber = %s"""
+			cur.execute(Query,[SerialNO])
+			row = []
+			if cur.rowcount > 0:
+				row = cur.fetchone()
+				typeapp = row[1]
+				brandname = row[0]
+			else:
+				raise Exception('no such data')
+			lastInfo = 'goods is new, date received ' + str(parse(row[2]).strftime('%d %B %Y'))
+		cur.close()
+		return(itemcode,goodsname,typeapp,brandname,lastInfo)
