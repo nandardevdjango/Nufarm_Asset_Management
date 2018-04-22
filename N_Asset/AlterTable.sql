@@ -320,4 +320,5 @@ CREATE TABLE IF NOT EXISTS n_a_goods_History (
   ALTER TABLE n_a_goods_History ADD PRIMARY KEY (IDApp);
 ALTER TABLE n_a_goods_History  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
 
-ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) DEFAULT 0;--PERBAIKAN DI SINI 
+ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) NULL;
+ALTER TABLE n_a_maintenance CHANGE IsSucced IsSucced tinyint(1) NOT NULL DEFAULT 0;
