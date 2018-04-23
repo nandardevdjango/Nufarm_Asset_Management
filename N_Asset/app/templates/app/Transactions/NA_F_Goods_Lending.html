@@ -930,7 +930,7 @@
 										type: BootstrapDialog.TYPE_INFO,
 										size: BootstrapDialog.SIZE_SMALL,
 										message: function (dialogRef) {
-											var placeHolder = 'Enter goods desc to search for';
+											var placeHolder = 'Enter goods name to search for';
 											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
 											function (e) {//event for blur
 												if (this.value === '') {
@@ -950,6 +950,7 @@
 												if (e.keyCode === 13) {
 													NA.NAEvent.preventDefault(e);
 													win.document.body.style.cursor = 'wait';
+													//cek posisi keur dina tab mana
 													//cari data ke database
 													var url = 'SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
 													if (gridTbl) {
