@@ -810,7 +810,7 @@
 								//Event untuk TextBoxt FK
 								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan 
 								//fk_goods, fk_employee, fk_sender, fk_responsibleperson_employee
-								var listFK = NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson_employee"]');
+								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson_employee"]');
 								Array.prototype.forEach.call(listFK, function (item) {
 									NA.NAEvent.addHandler(item, 'keydown', function (event) {
 										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -832,19 +832,23 @@
                                                         null,//nggak usah di isi bila tidak perlu
                                                         function (e) {//function executed after data has been returned by server(XHR.onload)
                                                             var data = JSON.parse(this.responseText);
-                                                            if (data) {
-                                                                var txtGoods = NA.common.getElementID('id_goods');
-                                                                txtGoods.value = data['goods'] || '';
-                                                                var txtBrand = NA.common.getElementID('BrandValue');
-                                                                txtBrand.textContent = data['brandname']||'';
-                                                                var txttype = NA.common.getElementID('TypeValue');
-                                                                txttype.textContent = data['typeapp']||'';
-                                                                //var txtserialnumberValue = NA.common.getElementID('serialnumberValue');
-                                                                //txtserialnumberValue.textContent = data['serialnumber'];
-                                                                var txtitemCode = NA.common.getElementID('fk_goodsValue');
-                                                                txtitemCode.textContent = data['itemcode'];
-                                                                var txtlastInfo = NA.common.getElementID('LastInfoValue');
-                                                                txtlastInfo.textContent = data['LastInfoValue'];
+                                                            if (data.message) {
+                                                            		window.document.body.style.cursor = 'default'; XhrError(this);
+                                                            }
+                                                            else {
+                                                            	var txtGoods = NA.common.getElementID('id_goods');
+                                                            	txtGoods.value = data['goodsname'] || '';
+                                                            	var lblBrand = NA.common.getElementID('BrandValue');
+                                                            	lblBrand.textContent = data['brandname'] || '';
+                                                            	var lbltype = NA.common.getElementID('TypeValue');
+                                                            	lbltype.textContent = data['typeapp'] || '';
+                                                            	//var txtserialnumberValue = NA.common.getElementID('serialnumberValue');
+                                                            	//txtserialnumberValue.textContent = data['serialnumber'];
+                                                            	var lblitemCode = NA.common.getElementID('fk_goodsValue');
+                                                            	lblitemCode.textContent = data['itemcode'];
+                                                            	var lbllastInfo = NA.common.getElementID('LastInfoValue');
+                                                            	lbllastInfo.textContent = data['lastInfo'];
+                                                            	NA.common.getElementID('difInfo').style.display = 'block'
                                                             }
                                                         }, null, function (e) {//function untuk ajax error
                                                             window.document.body.style.cursor = 'default'; XhrError(this);
@@ -852,7 +856,6 @@
                                                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                                         );
 												    break;
-													break;
 												}
 												case 'id_fk_employee': {
 													break;
@@ -919,7 +922,65 @@
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
 							    //======================event handler BUTTONS Search================================================ 
+								var btnFindGoods = NA.common.getElementID('id_goods');
+								NA.NAEvent.addHandler(btnFindGoods,'click',function(e){
+									//show dialog
+									BootstrapDialog.show({
+										draggable: true,
+										type: BootstrapDialog.TYPE_INFO,
+										size: BootstrapDialog.SIZE_SMALL,
+										message: function (dialogRef) {
+											var placeHolder = 'Enter goods desc to search for';
+											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
+											function (e) {//event for blur
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === '') {
+														this.setAttribute('placeholder', placeHolder);
+													}
+												}
+											},
+											function (e) {//event for focus
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === placeHolder) {
+														this.setAttribute('placeholder', '');
+													}
+												}
+											},
+											function (e) {//even for keydown txtSearch													
+												if (e.keyCode === 13) {
+													NA.NAEvent.preventDefault(e);
+													win.document.body.style.cursor = 'wait';
+													//cari data ke database
+													var url = 'SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
+													if (gridTbl) {
+														jQuery(gridTbl).setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+													}
+													win.document.body.style.cursor = 'default';
+													NA.NAEvent.stopPropagation(e);
+												}
+											}, function (e) {
+												txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+												NA.common.triggerKeyboardEvent(txtSearch, 13);
+											});
+											var children = containerMessage.childNodes;
+											var mainContainer = null, txtSearch = null;
+											for (var i = 0, len = children.length; i < len; i++) {
+												if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
+													mainContainer = children[i]; break;
+												}
+											};
+											//loads Data into JqueryGrid
+											gridTbl = NA.common.doc.createElement('table');
+											gridTbl.id = 'jqGrid_NA_F_Goods_Receive_FK_Goods';
+											gridPager = NA.common.doc.createElement('div');
+											gridPager.id = 'jqGrid_NA_F_Goods_Receive_FK_Goods_Pager';
+											mainContainer.appendChild(gridTbl);
+											mainContainer.appendChild(gridPager);
+											return containerMessage;
+										},
 
+									});
+								});
 
 							    //======================End Event handler BUTTONS Search================================================ 
 							    //simpan original data di initializeForm

@@ -146,12 +146,10 @@ def ShowEntry_Lending(request):
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
 def getLastTransGoods(request):
-	data = request.body
-	data = json.loads(data)
-	serialno = data['serialno']
+	serialNO = request.GET.get('serialno')
 	try:
-		result = NAGoodsLending.objects.getLastTrans(serialno)
-		return HttpResponse(json.dumps({'itemcode':result[0],'goodsname':result[1],'brandname':result[3],'typeapp':result[2],'lastInfo':result[4]}),status = statuscode, content_type='application/json')
+		result = NAGoodsLending.objects.getLastTrans(serialNO)
+		return HttpResponse(json.dumps({'itemcode':result[0],'goodsname':result[1],'brandname':result[3],'typeapp':result[2],'lastInfo':result[4]}),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

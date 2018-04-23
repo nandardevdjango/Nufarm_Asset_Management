@@ -2330,7 +2330,7 @@
                         			//Auto Complete RefNO
                         			$("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                         			NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
-                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
+                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                         				NA.NAEvent.addHandler(item, 'keydown', function (event) {
                         					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                         						NA.NAEvent.preventDefault(event);//prevent from submit
@@ -2340,7 +2340,7 @@
                         					if (event.keyCode === 13) {//kalau menekan tombol enter
                         						var NAAjax = NA.common.AJAX;
                         						switch (this.id) {
-                        							case 'id_fk_goods': {
+                        							case 'id_serialnumber': {
                         								//prevent default
                         								NA.NAEvent.preventDefault(event);//prevent from submit
                         								//get data ke database by itemCode

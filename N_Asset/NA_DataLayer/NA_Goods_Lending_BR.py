@@ -136,7 +136,7 @@ class NA_BR_Goods_Lending(models.Manager):
 			cur.close()
 			raise Exception('no such data')
 		#cek apakah sudah ada transaksi untuk barang dengan serial number tsb
-		Query = """SELECT EXISTS(SELECT serialnumber FROM n_goods_history WHERE serialnumber = %s)"""
+		Query = """SELECT EXISTS(SELECT serialnumber FROM n_a_goods_history WHERE serialnumber = %s)"""
 		cur.execute(Query,[SerialNO])
 		row = cur.fetchone()
 		lastInfo = 'unknown'
@@ -209,6 +209,7 @@ class NA_BR_Goods_Lending(models.Manager):
 				brandname = row[0]
 			else:
 				raise Exception('no such data')
-			lastInfo = 'goods is new, date received ' + str(parse(row[2]).strftime('%d %B %Y'))
+			dt = datetime.date(row[2])
+			lastInfo = 'goods is new, date received ' +dt.strftime('%d %B %Y')
 		cur.close()
 		return(itemcode,goodsname,typeapp,brandname,lastInfo)
