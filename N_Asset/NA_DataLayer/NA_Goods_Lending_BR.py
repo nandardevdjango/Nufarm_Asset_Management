@@ -213,3 +213,40 @@ class NA_BR_Goods_Lending(models.Manager):
 			lastInfo = 'goods is new, date received ' +dt.strftime('%d %B %Y')
 		cur.close()
 		return(itemcode,goodsname,typeapp,brandname,lastInfo)
+
+	def getBrandForLending(self,serialNO,goodsName,BrandName):
+		#get item from goods received
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_" + userName
+		cur = connection.cursor()
+		cur.execute(Query)
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Lending_" + userName
+		cur.execute(Query)
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Maintenance_" + userName
+		cur.execute(Query)
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Disposal_" + userName
+		cur.execute(Query)
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Outwards_" + userName
+		cur.execute(Query)
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Lost_" + userName
+		cur.execute(Query)
+
+		#Query new items
+		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, descriptions = 'not yet used' \
+					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
+					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber) """
+	    # Query get last trans in history 
+		
+
+#SELECT *     
+#FROM MyTable T1    
+#WHERE date = (
+#   SELECT max(date)
+#   FROM MyTable T2
+#   WHERE T1.username=T2.username
+#)
+
+
+
+
+	
+

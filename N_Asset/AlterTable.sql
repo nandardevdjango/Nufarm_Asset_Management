@@ -322,3 +322,25 @@ ALTER TABLE n_a_goods_History  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) NULL;
 ALTER TABLE n_a_maintenance CHANGE IsSucced IsSucced tinyint(1) NOT NULL DEFAULT 0;
+
+
+CREATE TABLE  IF NOT EXISTS n_a_goods_lost (
+  `IDApp` int(11) NOT NULL,
+  `FK_Goods` int(11) NOT NULL,
+  `FK_Goods_Outwards` int(11) DEFAULT NULL,
+  `FK_Goods_Lending` int(11) DEFAULT NULL,
+  `FK_Maintenance` int(11) DEFAULT NULL,
+  `FromGoods` varchar(30) NOT NULL,
+  `SerialNumber` varchar(50) NOT NULL,
+  `TypeApp` varchar(32) NOT NULL,
+  `FK_LostBy` int(11) DEFAULT NULL,
+  `FK_UsedBy` int(11) DEFAULT NULL,
+  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
+  `Status` varchar(5) NOT NULL DEFAULT 'L',
+  `DateLost` DATETIME NOT NULL DEFAULT current_timestamp
+) ;
+
+ALTER TABLE `n_a_goods_lost`
+  MODIFY `IDApp` int(11) NOT NULL AUTO_INCREMENT;
+  
+  ALTER TABLE `n_a_goods_lost` ADD PRIMARY KEY (`IDApp`);
