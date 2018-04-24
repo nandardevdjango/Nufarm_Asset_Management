@@ -188,7 +188,7 @@ class NA_BR_Goods_Lending(models.Manager):
 					if row[2] is not None:
 						endDate =  str(parse(row[1]).strftime('%d %B %Y'))
 					if isFinished and isSucced:
-						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use )'
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use)'
 					elif isFinished == True and isSucced == false:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is not able to use )'
 					elif not isFInished:
@@ -231,11 +231,19 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query)
 
 		#Query new items
-		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, descriptions = 'not yet used' \
+		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as descriptions \
 					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
-					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber) """
+					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 	    # Query get last trans in history 
 		
+		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as descriptions \
+					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App 
+					CASE WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), 
+							CASE 
+								WHEN (ngm.isfinihed = 1 AND ngm.issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(ngm.endate,'%d %B %Y'),' (goods is able to use)')
+								WHEN (ngm.isfinished = 1 AND ngm.issucced = 0) THEN (CONCAT('
+					
+					"""
 
 #SELECT *     
 #FROM MyTable T1    
