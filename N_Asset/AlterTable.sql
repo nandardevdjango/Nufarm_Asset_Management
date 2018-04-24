@@ -314,6 +314,7 @@ CREATE TABLE IF NOT EXISTS n_a_goods_History (
   FK_RETURN int(11) NULL,
   FK_Maintenance INT(11) NULL,
   FK_Disposal INT(11) NULL,
+  FK_LOST  INT(11) NULL,
   CreatedDate datetime DEFAULT NULL,
   CreatedBy varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -322,7 +323,6 @@ ALTER TABLE n_a_goods_History  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) NULL;
 ALTER TABLE n_a_maintenance CHANGE IsSucced IsSucced tinyint(1) NOT NULL DEFAULT 0;
-
 
 CREATE TABLE  IF NOT EXISTS n_a_goods_lost (
   `IDApp` int(11) NOT NULL,
@@ -337,9 +337,10 @@ CREATE TABLE  IF NOT EXISTS n_a_goods_lost (
   `FK_UsedBy` int(11) DEFAULT NULL,
   `FK_ResponsiblePerson` int(11) DEFAULT NULL,
   `Status` varchar(5) NOT NULL DEFAULT 'L',
-  `DateLost` DATETIME NOT NULL DEFAULT current_timestamp
+  `DateLost` DATETIME NOT NULL DEFAULT current_timestamp,
+   Descriptions varchar(800) NOT NULL DEFAULT '',
+   Reason VARCHAR(25) DEFAULT NULL
 ) ;
-
 ALTER TABLE `n_a_goods_lost`
   MODIFY `IDApp` int(11) NOT NULL AUTO_INCREMENT;
   
