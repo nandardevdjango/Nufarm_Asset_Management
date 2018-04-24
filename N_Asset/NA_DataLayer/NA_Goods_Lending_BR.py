@@ -142,16 +142,23 @@ class NA_BR_Goods_Lending(models.Manager):
 		lastInfo = 'unknown'
 		if int(row[0]) > 0:
 			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance,disposal
-			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
+			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal,fk_lost FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
 			cur.execute(Query,[SerialNO])
 			row = cur.fetchone()
-			fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0
+			fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;
 			if cur.rowcount > 0:
-				fklending = row[0]
-				fkoutwards = row[1]
-				fkreturn = row[2]
-				fkmaintenance = row[3]
-				fkdisposal = row[4]
+				if row[0] is not None:
+					fklending = row[0]
+				if row[1] is not None:
+					fkoutwards =row[1]
+				if row[2] is not None:
+					fkreturn = row[2]
+				if row[3] is not None:
+					fkmaintenance = row[3]
+				if row[4] is not None:
+					fkdisposal = row[4]
+				if row[5] is not None:
+					fklost = row[5]
 			if int(fklending)>0:
 				Query = """SELECT e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
 							WHERE ngl.IDApp = %s"""
@@ -190,15 +197,69 @@ class NA_BR_Goods_Lending(models.Manager):
 					if isFinished and isSucced:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use)'
 					elif isFinished == True and isSucced == false:
-						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is not able to use )'
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is unable to use )'
 					elif not isFInished:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + str(parse(starDate).strftime('%d %B %Y')) + ', ' +  ' (goods is still in maintenance)'
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
 				cur.execute(Query,[fkdisposal])
+				lastInfo = "goods is not able to use again " 
 				if cur.rowcount > 0:
 					row = cur.fetchone()
 					lastInfo = "goods is not able to use again " +  row[0]
+			elif int(fklost) > 0:
+				Query = """SELECT fk_goods_lending,fk_goods_outwards,fk_maintenance,Reason,status FROM n_a_goods_lost WHERE idapp = %s"""
+				cur.execute(Query,[fklost])
+				lastInfo = "goods has lost "
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					fk_lost_lending = 0;fk_lost_outwards = 0;fk_lost_maintenance = 0;
+					if row[0] is not None:
+						fk_lost_lending = row[0]
+					if  row[1] is not None:
+						fk_lost_outwards = row[1]
+					if row[2] is not None:
+						fk_lost_maintenance = row[2]
+					reason = row[3]
+					lost_status = row[4]
+					if lost_status == "F":
+						if int(fk_lost_lending) > 0:
+							Query = """SELECT e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
+									WHERE ngl.IDApp = %s"""
+							cur.execute(Query,[fk_lost_lending])
+							if cur.rowcount > 0:
+								row = cur.fetchone()
+								lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+						elif int(fk_lost_outwards) > 0:
+							Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
+									WHERE ngo.IDApp = %s"""
+							cur.execute(Query,[fkoutwards])
+							if cur.rowcount > 0:
+								row = cur.fetchone()
+								lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+						elif int(fk_lost_maintenance) > 0:
+							Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
+							cur.execute(Query,[fkmaintenance])
+							if cur.rowcount > 0:
+								row = cur.fetchone()
+								isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
+								if row[3] is not None:
+									isFinished = strtobool(row[2])
+									if row[4] is not None:
+										isSucced = strtobool(row[3])
+								if row[1] is not None:
+									starDate =  str(parse(row[1]).strftime('%d %B %Y'))
+								if row[2] is not None:
+									endDate =  str(parse(row[1]).strftime('%d %B %Y'))
+							if isFinished and isSucced:
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use)'
+							elif isFinished == True and isSucced == false:
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is unable to use )'
+							elif not isFInished:
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + str(parse(starDate).strftime('%d %B %Y')) + ', ' +  ' (goods is still in maintenance)'
+						#elif fk_lost_outwards
+						else:
+							lastInfo = "goods has lost, but has been found "
 		else:
 			Query = """SELECT ngl.brandname,ngl.typeapp,ngr.datereceived FROM n_a_goods_receive_detail ngl INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngl.FK_App WHERE ngl.serialnumber = %s"""
 			cur.execute(Query,[SerialNO])
@@ -210,7 +271,7 @@ class NA_BR_Goods_Lending(models.Manager):
 			else:
 				raise Exception('no such data')
 			dt = datetime.date(row[2])
-			lastInfo = 'goods is new, date received ' +dt.strftime('%d %B %Y')
+			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
 		return(itemcode,goodsname,typeapp,brandname,lastInfo)
 
@@ -229,19 +290,37 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query)
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Lost_" + userName
 		cur.execute(Query)
-
+		
 		#Query new items
 		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as descriptions \
 					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 	    # Query get last trans in history 
 		
-		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as descriptions \
-					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App 
-					CASE WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), 
-							CASE 
-								WHEN (ngm.isfinihed = 1 AND ngm.issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(ngm.endate,'%d %B %Y'),' (goods is able to use)')
-								WHEN (ngm.isfinished = 1 AND ngm.issucced = 0) THEN (CONCAT('
+		Query = """SELECT gh.idapp,gh.goodsname,gh.brandname,gh.'type',gh.serialnumber, 
+					 CASE 
+ 							WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), 
+												(CASE 
+													WHEN (isfinihed = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(endate,'%d %B %Y'),' (goods is able to use)'))
+													WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(endate,'%d %B %Y'),' (goods unable to use)'))
+													WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(endate,'%d %B %Y'),' (goods is still in maintenance)'))
+												END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance)
+							WHEN(gh.fk_lending IS NOT NULL) THEN((CASE 
+																	 WHEN ((SELECT 'status' FROM n_a_goods_lending WHERE fk_goods_lending = gh.fk_lending) = 'L') THEN 'good is still lent'
+																	 ELSE ('goods is able to use')
+																  END))
+						    WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee'
+						    WHEN (gh.fk_return IS NOT NULL) THEN 'goods is able to use'
+						    WHEN (gh.disposal IS NOT NULL) THEN 'goods is unabled to use(been disposed,auction,broken,etc)'
+						    WHEN (gh.fk_lost IS NOT NULL) 	 THEN 'goods has lost'
+						    ELSE 'Unknown or uncategorized last goods position'
+						END AS Last Info
+					FROM(			
+					SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.BrandName) AS BrandName,ngd.typeapp as 'type',ngd.serialnumber,ngh.fk_outwards,ngh.fk_lending,
+					ngh.fk_maintenance,ngh.fk_lost FROM
+					n_a_goods g INNER JOIN n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp
+					INNER JOIN n_a_goods_history ngh ON ngh.fk_goods = g.idapp AND ngh.serialnumber = ngd.serialnumber
+					WHERE ngh.createddate = (SELECT Max(CreatedDate) FROM n_a_goods_history WHERE fk_goods = g.idapp AND serialnumber = ngd.serialnumber))gh
 					
 					"""
 
