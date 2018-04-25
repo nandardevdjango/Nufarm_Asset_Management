@@ -930,7 +930,7 @@
 										type: BootstrapDialog.TYPE_INFO,
 										size: BootstrapDialog.SIZE_SMALL,
 										message: function (dialogRef) {
-											var placeHolder = 'Enter goods name to search for';
+											var placeHolder = 'Enter goods name or brandname or (exact serialnumber) to search for';
 											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
 											function (e) {//event for blur
 												if (this.value === '') {
@@ -952,7 +952,7 @@
 													win.document.body.style.cursor = 'wait';
 													//cek posisi keur dina tab mana
 													//cari data ke database
-													var url = 'SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
+													var url = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(e.target.value.trim());
 													if (gridTbl) {
 														jQuery(gridTbl).setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
 													}
@@ -972,14 +972,76 @@
 											};
 											//loads Data into JqueryGrid
 											gridTbl = NA.common.doc.createElement('table');
-											gridTbl.id = 'jqGrid_NA_F_Goods_Receive_FK_Goods';
+											gridTbl.id = 'jqGrid_NA_F_Goods_Lending_FK_Goods';
 											gridPager = NA.common.doc.createElement('div');
-											gridPager.id = 'jqGrid_NA_F_Goods_Receive_FK_Goods_Pager';
+											gridPager.id = 'jqGrid_NA_F_Goods_Lending_FK_Goods_Pager';
 											mainContainer.appendChild(gridTbl);
 											mainContainer.appendChild(gridPager);
 											return containerMessage;
 										},
-
+										onshown: function (dialogRef) {
+										    txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+										    //loads Data into JqueryGrid 
+										    gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
+										    gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
+										    var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+										    gridTbl.jqGrid({
+										        url: urlGoods,
+										        mtype: "GET",
+										        datatype: "json",//column idapp,NO,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+										        colNames: ['idapp', 'NO', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance','fk_disposal','fk_lost'],
+										        colModel: [
+                                                   { name: 'idapp', key: true, hidden: true, align: 'left' },
+                                                    { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+                                                    { name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
+                                                    { name: 'brandname', index: 'brandname', width: 120, sortable: true, editable: false, align: 'left', },
+                                                    { name: 'type', index: 'type', width: 90, sortable: true, editable: false, align: 'left', },
+                                                    { name: 'serialnumber', index: 'serialnumber', width: 100, sortable: true, editable: false, align: 'left', },
+                                                    { name: 'lastinfo', index: 'lastinfo', width: 200, sortable: false, editable: false, align: 'left', },
+                                                    { name: 'fk_outwards', index: 'fk_outwards', hidden: true, },
+                                                    { name: 'fk_lending', index: 'fk_lending', hidden: true, },
+                                                    { name: 'fk_return', index: 'fk_return', hidden: true, },
+                                                    { name: 'fk_maintenance', index: 'fk_maintenance', hidden: true, },
+                                                    { name: 'fk_disposal', index: 'fk_disposal', hidden: true, },
+                                                    { name: 'fk_lost', index: 'fk_lost', hidden: true, },
+										        ],
+										        ondblClickRow: function (rowId) {
+										            //fire button OK
+										            var btnOK = dialogRef.getButton('btnOKFindGoods');
+										            btnOK.click();
+										        },
+										        gridComplete: function () {
+										            document.body.style.cursor = 'default';
+										        },
+										        loadError: function (xhr, textStatus, errorThrown) {
+										            var error_msg = xhr.responseText
+										            var msg = "Some errors occurred during processing:"
+										            msg += '\n\n' + error_msg
+										            ShowAlert(msg)
+										        },
+										        cellEdit: false,
+										        height: '200px',
+										        rowNum: 500,
+										        rowList: [20, 50, 100, 200, 300, 500],
+										        sortname: "brandname",
+										        sortorder: "asc",
+										        multiSort: true,
+										        //shrinkToFit: false,
+										        iconSet: "fontAwesome",
+										        //forceFit: true,
+										        //toolbar: true,
+										        scrollrows: true,
+										        //hidegrid: true,
+										        pager: "#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager"
+										    });
+										    gridTbl.navGrid(gridPager, {
+										        search: false, // show search button on the toolbar
+										        add: false,
+										        edit: false,
+										        del: false,
+										        refresh: false
+										    });
+										},
 									});
 								});
 

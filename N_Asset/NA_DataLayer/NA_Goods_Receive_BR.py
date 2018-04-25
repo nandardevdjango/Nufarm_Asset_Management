@@ -60,7 +60,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		Query = """SELECT COUNT(*) FROM T_Receive_Manager"""
 		cur.execute(Query)
 		row = cur.fetchone()
-		totalRecords = row
+		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	

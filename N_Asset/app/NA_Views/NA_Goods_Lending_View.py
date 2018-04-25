@@ -58,7 +58,7 @@ def NA_Goods_Lending_Search(request):
 			NAData = NAGoodsLending.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
 			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
-		totalRecord = NAData[1][0]
+		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []
 		#column idapp,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
@@ -153,6 +153,29 @@ def getLastTransGoods(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def getGoodsWithHistory(request):
+	try:
+		searchText = request.GET.get('searchData')
+		PageSize = request.GET.get('rows', '')
+		PageIndex = request.GET.get('page', '1')
+		Isidx = request.GET.get('sidx', '')
+		Isord = request.GET.get('sord', '')
+		NAData = NAGoodsLending.objects.getBrandForLending(searchText,str(Isidx),Isord,PageSize,PageIndex, request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
+		totalRecord = NAData[1]
+		dataRows = NAData[0]
+		rows = []
+		i = 0;#idapp,itemcode,goods
+		for row in dataRows:
+			i+=1
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goodsname'],row['brandName'],row['type'],['serialnumber'],['lastinfo'],['fk_outwards'],['fk_lending'],['fk_return'],['fk_maintenance'],['fk_disposal'],['fk_lost'],]}
+			rows.append(datarow)
+		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
+		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')	
+
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
