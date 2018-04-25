@@ -280,50 +280,40 @@ class NA_BR_Goods_Lending(models.Manager):
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Lending_" + userName
-		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Maintenance_" + userName
-		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Disposal_" + userName
-		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Outwards_" + userName
-		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Lost_" + userName
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_" + userName		
 		cur.execute(Query)
 		
 		#Query new items
-		Query = """CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as descriptions \
+		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_" + userName  + """ ENGINE=MyISAM AS (SELECT g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.serialnumber, 'not yet used' as LastInfo \
 					FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
-	    # Query get last trans in history 
-		
-		Query = """SELECT gh.idapp,gh.goodsname,gh.brandname,gh.'type',gh.serialnumber, 
-					 CASE 
- 							WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), 
-												(CASE 
-													WHEN (isfinihed = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(endate,'%d %B %Y'),' (goods is able to use)'))
-													WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(endate,'%d %B %Y'),' (goods unable to use)'))
-													WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(endate,'%d %B %Y'),' (goods is still in maintenance)'))
-												END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance)
-							WHEN(gh.fk_lending IS NOT NULL) THEN((CASE 
-																	 WHEN ((SELECT 'status' FROM n_a_goods_lending WHERE fk_goods_lending = gh.fk_lending) = 'L') THEN 'good is still lent'
-																	 ELSE ('goods is able to use')
-																  END))
-						    WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee'
-						    WHEN (gh.fk_return IS NOT NULL) THEN 'goods is able to use'
-						    WHEN (gh.disposal IS NOT NULL) THEN 'goods is unabled to use(been disposed,auction,broken,etc)'
-						    WHEN (gh.fk_lost IS NOT NULL) 	 THEN 'goods has lost'
-						    ELSE 'Unknown or uncategorized last goods position'
-						END AS Last Info
-					FROM(			
-					SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.BrandName) AS BrandName,ngd.typeapp as 'type',ngd.serialnumber,ngh.fk_outwards,ngh.fk_lending,
-					ngh.fk_maintenance,ngh.fk_lost FROM
-					n_a_goods g INNER JOIN n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp
-					INNER JOIN n_a_goods_history ngh ON ngh.fk_goods = g.idapp AND ngh.serialnumber = ngd.serialnumber
-					WHERE ngh.createddate = (SELECT Max(CreatedDate) FROM n_a_goods_history WHERE fk_goods = g.idapp AND serialnumber = ngd.serialnumber))gh
-					
-					"""
-
+		cur.execute(Query)
+	    # Query get last trans in history 		
+		Query = "CREATE TEMPORARY TABLE Temp_T_History_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
+					CASE \
+						WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), \
+							(CASE \
+								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is able to use)')) \
+								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods unable to use)')) \
+								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is still in maintenance)')) \
+								END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance) \
+						WHEN(gh.fk_lending IS NOT NULL) THEN((CASE \
+																WHEN ((SELECT 'status' FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
+																ELSE ('goods is able to use') \
+																END)) \
+						WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee' \
+						WHEN (gh.fk_return IS NOT NULL) THEN 'goods is able to use' \
+						WHEN (gh.fk_disposal IS NOT NULL) THEN 'goods is unabled to use(been disposed,auction,broken,etc)' \
+						WHEN (gh.fk_lost IS NOT NULL) THEN 'goods has lost' \
+						ELSE 'Unknown or uncategorized last goods position' \
+						END AS LastInfo \
+						FROM(			\
+							SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.BrandName) AS BrandName,ngd.typeapp as 'type',ngd.serialnumber,ngh.fk_outwards,ngh.fk_lending, \
+							ngh.fk_return,ngh.fk_maintenance,ngh.fk_disposal,ngh.fk_lost FROM \
+							n_a_goods g INNER JOIN n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp \
+							INNER JOIN n_a_goods_history ngh ON ngh.fk_goods = g.idapp AND ngh.serialnumber = ngd.serialnumber \
+							WHERE ngh.createddate = (SELECT Max(CreatedDate) FROM n_a_goods_history WHERE fk_goods = g.idapp AND serialnumber = ngd.serialnumber))gh)				
+				"""
 #SELECT *     
 #FROM MyTable T1    
 #WHERE date = (
