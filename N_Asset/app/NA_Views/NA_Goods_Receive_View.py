@@ -361,7 +361,7 @@ def getEmployee(request):
 		#	JsonResult['value'] = brandrow['brandname']
 		#	results.append(JsonResult)
 		#data = json.dumps(results,cls=DjangoJSONEncoder)
-	return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 500, content_type='application/json')
+	return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json')
 @ensure_csrf_cookie
 def SearchGoodsbyForm(request):
 	"""get goods data for grid searching, retusn idapp,itemcode,goods criteria = icontains"""

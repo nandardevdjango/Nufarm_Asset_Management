@@ -120,7 +120,6 @@ def getInterest(request):
 		return HttpResponse(data, content_type='application/json')
 	else:
 		return HttpResponse(content='',content_type='application/json')
-
 @ensure_csrf_cookie
 def ShowEntry_Lending(request):
 	authentication_classes = []
@@ -190,7 +189,7 @@ class NA_Goods_Lending_Form(forms.Form):
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=True)
-	lentby_fk_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	fk_employee_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
 	
 	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
