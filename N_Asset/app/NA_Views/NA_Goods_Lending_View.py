@@ -149,7 +149,10 @@ def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:
 		result = NAGoodsLending.objects.getLastTrans(serialNO)
-		return HttpResponse(json.dumps({'itemcode':result[0],'goodsname':result[1],'brandname':result[3],'typeapp':result[2],'lastInfo':result[4]}),status = 200, content_type='application/json')
+		#idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost
+		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
+								  'lastinfo':result[5],'fk_return':result[6],'fk_lending':result[7],'fk_outwards':[8],'fk_maintenance':result[9],'fk_disposal':result[10],
+								  'fklost':result[11],}),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -220,6 +223,8 @@ class NA_Goods_Lending_Form(forms.Form):
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_currentapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_disposal = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_lost = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)

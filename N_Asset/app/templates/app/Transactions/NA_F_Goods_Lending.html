@@ -519,6 +519,19 @@
 		};
 		function getValuesForm() {
 
+
+		};
+		function restyleBoostrapDialog() {
+			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
+			BSDialogContent.style.cssText = 'width: 440px; height: 330px;';
+			var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
+			ContentBody.style.cssText = 'padding:0px;';
+			var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
+			contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
+			var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
+			mHeader.style.cssText = 'height:30px;padding:0px;';
+			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
+			footerButton.style.cssText = 'padding-top:8px;';
 		};
 		//==========================End GROUP Function Declaration ============================
 
@@ -836,6 +849,7 @@
                                                             		window.document.body.style.cursor = 'default'; XhrError(this);
                                                             }
                                                             else {
+                                                            	//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
                                                             	var txtGoods = NA.common.getElementID('id_goods');
                                                             	txtGoods.value = data['goodsname'] || '';
                                                             	var lblBrand = NA.common.getElementID('BrandValue');
@@ -923,7 +937,7 @@
 								initializeForm.value = originalData;
 							    //======================event handler BUTTONS Search================================================ 
 								var btnFindGoods = NA.common.getElementID('id_goods');
-								NA.NAEvent.addHandler(btnFindGoods,'click',function(e){
+								NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
 									//show dialog
 									BootstrapDialog.show({
 										draggable: true,
@@ -980,19 +994,20 @@
 											return containerMessage;
 										},
 										onshown: function (dialogRef) {
-										    txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-										    //loads Data into JqueryGrid 
-										    gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
-										    gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
-										    var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-										    gridTbl.jqGrid({
-										        url: urlGoods,
-										        mtype: "GET",
-										        datatype: "json",//column idapp,NO,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
-										        colNames: ['idapp', 'NO', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance','fk_disposal','fk_lost'],
-										        colModel: [
-                                                   { name: 'idapp', key: true, hidden: true, align: 'left' },
+											txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+											//loads Data into JqueryGrid 
+											gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
+											gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
+											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+											gridTbl.jqGrid({
+												url: urlGoods,
+												mtype: "GET",
+												datatype: "json",//column idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+												colNames: ['idapp', 'NO', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
+												colModel: [
+                                                   { name: 'idapp', key: true, index: 'idapp', hidden: true, },
                                                     { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+													{ name: 'fk_goods', index: 'fk_goods', hidden: true, },
                                                     { name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
                                                     { name: 'brandname', index: 'brandname', width: 120, sortable: true, editable: false, align: 'left', },
                                                     { name: 'type', index: 'type', width: 90, sortable: true, editable: false, align: 'left', },
@@ -1004,46 +1019,139 @@
                                                     { name: 'fk_maintenance', index: 'fk_maintenance', hidden: true, },
                                                     { name: 'fk_disposal', index: 'fk_disposal', hidden: true, },
                                                     { name: 'fk_lost', index: 'fk_lost', hidden: true, },
-										        ],
-										        ondblClickRow: function (rowId) {
-										            //fire button OK
-										            var btnOK = dialogRef.getButton('btnOKFindGoods');
-										            btnOK.click();
-										        },
-										        gridComplete: function () {
-										            document.body.style.cursor = 'default';
-										        },
-										        loadError: function (xhr, textStatus, errorThrown) {
-										            var error_msg = xhr.responseText
-										            var msg = "Some errors occurred during processing:"
-										            msg += '\n\n' + error_msg
-										            ShowAlert(msg)
-										        },
-										        cellEdit: false,
-										        height: '200px',
-										        rowNum: 500,
-										        rowList: [20, 50, 100, 200, 300, 500],
-										        sortname: "brandname",
-										        sortorder: "asc",
-										        multiSort: true,
-										        //shrinkToFit: false,
-										        iconSet: "fontAwesome",
-										        //forceFit: true,
-										        //toolbar: true,
-										        scrollrows: true,
-										        //hidegrid: true,
-										        pager: "#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager"
-										    });
-										    gridTbl.navGrid(gridPager, {
-										        search: false, // show search button on the toolbar
-										        add: false,
-										        edit: false,
-										        del: false,
-										        refresh: false
-										    });
+												],
+												ondblClickRow: function (rowId) {
+													//fire button OK
+													var btnOK = dialogRef.getButton('btnOKFindGoods');
+													btnOK.click();
+												},
+												gridComplete: function () {
+													document.body.style.cursor = 'default';
+												},
+												loadError: function (xhr, textStatus, errorThrown) {
+													var error_msg = xhr.responseText
+													var msg = "Some errors occurred during processing:"
+													msg += '\n\n' + error_msg
+													ShowAlert(msg)
+												},
+												cellEdit: false,
+												height: '200px',
+												rowNum: 500,
+												rowList: [20, 50, 100, 200, 300, 500],
+												sortname: "brandname",
+												sortorder: "asc",
+												multiSort: true,
+												//shrinkToFit: false,
+												iconSet: "fontAwesome",
+												//forceFit: true,
+												//toolbar: true,
+												scrollrows: true,
+												//hidegrid: true,
+												pager: "#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager"
+											});
+											gridTbl.navGrid(gridPager, {
+												search: false, // show search button on the toolbar
+												add: false,
+												edit: false,
+												del: false,
+												refresh: false
+											});
 										},
+										closable: false,
+										animate: false,
+										closeByBackdrop: false,
+										closeByKeyboard: false,
+										buttons: [{
+											label: 'Cancel',
+											icon: 'glyphicon glyphicon-remove',
+											cssClass: 'btn-success',
+											action: function (dialogRef) {
+												dialogRef.close();
+											},
+										},
+										, {
+											label: 'OK',
+											id: 'btnOKFindGoods',
+											icon: 'glyphicon glyphicon-ok',
+											cssClass: 'btn-success',
+											action: function (dialogRef) {
+												var idapp = getGridCellValue(gridTbl, 'idapp');
+												if (idapp) {//cell di select sama user
+													//tempelkan data row di fk_goods, dan valuenya di goods_desc;
+													var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
+
+													//form.idapp di status edit/open
+
+													//  	form.idapp_fk_goods
+													var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+													idapp_fk_goods.value = rowData['idapp'];//idapp di grid adalah idapp_fkgoods
+
+													//    form.fk_maintenance 
+													var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
+													elfk_maintenance.value = rowData['fk_maintenance'] || null;
+
+													//      form.fk_return 
+													var elfk_return = NA.common.getElementID('id_fk_return');
+													elfk_return.value = rowData['fk_return'];
+
+													//    form.fk_currentapp
+													var elfk_receive = NA.common.getElementID('id_fk_currentapp');
+													elfk_receive.value = rowData['fk_lending'];
+
+													//     form.fk_receive 
+													var elfk_receive = NA.common.getElementID('id_fk_receive');
+													elfk_receive.value = rowData['fk_receive'];
+
+													//  	 form.fk_disposal 
+													var elfk_disposal = NA.common.getElementID('id_fk_disposal');
+													elfk_disposal.value = rowData['fk_disposal'];
+
+													// form.fk_lost 
+													var elfk_lost = NA.common.getElementID('id_fk_lost');
+													elfk_lost.value = rowData['fk_lost'];
+
+													//form.brandvalue
+													var elbrandvalue = NA.common.getElementID('BrandValue');
+													elbrandvalue.textContent = rowData['brandname']
+
+													//form.typeapp
+													var elTypeValue = NA.common.getElementID('TypeValue');
+													elTypeValue.textContent = rowData['type']
+
+													//form.fk_goods
+													var elfk_goodsValue = NA.common.getElementID('fk_goodsValue');
+													elfk_goodsValue.textContent = rowData['fk_goods'];
+
+													//form.LastInfo')
+													var ellastinfo = NA.common.getElementID('LastInfoValue');
+													ellastinfo.textContent = rowData['lastinfo'];
+
+													//form.serialnumber
+													var elserialnumber = NA.common.getElementID('id_serialnumber');
+													elserialnumber.value = rowData['serialnumber'];
+													elserialnumber.attributes['placeholder'] = '';
+
+													//form.goods
+													var elgoods = NA.common.getElementID('id_goods');
+													elgoods.value = rowData['goodsname'];
+													elgoods.attributes['placeholder'] = '';
+													dialogRef.close();
+												}
+											}
+										}]
 									});
-								});
+									restyleBoostrapDialog();
+									var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Lending_FK_Goods');
+									gbox.style.width = '432px';
+									var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Lending_FK_Goods');
+									gview.style.width = '432px';
+
+									var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Lending_FK_Goods_Pager_right');
+									tdInfo.style.width = '110px';
+									var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Lending_FK_Goods');
+									pager.style.width = '430px';
+									evt.stopImmediatePropagation();
+								});						
 
 							    //======================End Event handler BUTTONS Search================================================ 
 							    //simpan original data di initializeForm

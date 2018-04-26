@@ -117,21 +117,27 @@ class NA_BR_Goods_Lending(models.Manager):
 		param : SerialNO
 		"""
 		#ambil data brand dan typenya
-		Query = """SELECT g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
+		Query = """SELECT g.idapp,g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
 					LEFT OUTER JOIN n_a_goods g ON g.IDApp = ngr.FK_Goods WHERE ngd.serialnumber = %s"""
 		cur = connection.cursor()
 		cur.execute(Query,[SerialNO])
+		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+		idapp = 0
+		itemcode = ''		
+		goodsname = ''
 		typeapp = ''
 		brandname = ''
-		goodsname = ''
-		itemcode = ''
+		serialnumber = ''
+		lastInfo = 'unknown'
+		fkreturn = 0;fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;		
 		row = []
 		if cur.rowcount > 0:
 			row = cur.fetchone()
-			typeapp = row[3]
-			brandname = row[2]
-			goodsname = row[1]
-			itemcode = row[0]
+			typeapp = row[4]
+			brandname = row[3]
+			goodsname = row[2]
+			itemcode = row[1]
+			idapp = row[0]
 		else:
 			cur.close()
 			raise Exception('no such data')
@@ -139,13 +145,12 @@ class NA_BR_Goods_Lending(models.Manager):
 		Query = """SELECT EXISTS(SELECT serialnumber FROM n_a_goods_history WHERE serialnumber = %s)"""
 		cur.execute(Query,[SerialNO])
 		row = cur.fetchone()
-		lastInfo = 'unknown'
+		
 		if int(row[0]) > 0:
 			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance,disposal
 			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal,fk_lost FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
 			cur.execute(Query,[SerialNO])
 			row = cur.fetchone()
-			fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;
 			if cur.rowcount > 0:
 				if row[0] is not None:
 					fklending = row[0]
@@ -273,7 +278,8 @@ class NA_BR_Goods_Lending(models.Manager):
 			dt = datetime.date(row[2])
 			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
-		return(itemcode,goodsname,typeapp,brandname,lastInfo)
+		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost)
 
 	def getBrandForLending(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		#get item from goods received
@@ -284,12 +290,12 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query)
 		
 		#Query new items
-		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 'not yet used' as lastinfo, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 'not yet used' as lastinfo, \
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 		cur.execute(Query)
 	    # Query get last trans in history 		
-		Query = "CREATE TEMPORARY TABLE Temp_T_History_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_History_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
 					CASE \
 						WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), \
 							(CASE \
