@@ -312,7 +312,7 @@ class NAGoodsLending(models.Model):
 	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
 	fk_stock = models.ForeignKey(NAStock, db_column='FK_Stock',related_name='fk_gl_stock')
 	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', blank=True, null=True,related_name='fk_gl_employee_resp_person')
-	intererest = models.CharField(db_column='intererest', max_length=150, blank=True, null=True)
+	interests = models.CharField(db_column='interests', max_length=150, blank=True, null=True)
 	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
 	statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
 	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)

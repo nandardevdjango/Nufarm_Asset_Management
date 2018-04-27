@@ -58,7 +58,7 @@ class NA_Maintenance_Form(forms.Form):
     serialNum = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:180px;'}))
     minus = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:227px;'}))
+        'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:228px;'}))
     requestdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','placeholder':'Request Date','style':'width:110px;'}))
     startdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
@@ -68,7 +68,7 @@ class NA_Maintenance_Form(forms.Form):
     expense = forms.DecimalField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','placeholder':'Expense','style':'width:180px;'}))
     maintenanceby = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Maintenance By','style':'width:227px;'}))
+        'class':'NA-Form-Control','placeholder':'Maintenance By','style':'width:228px;'}))
     personalname = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','placeholder':'Personal Name','style':'width:180px;'}))
     issucced = forms.BooleanField(required=False,widget=forms.CheckboxInput(attrs={

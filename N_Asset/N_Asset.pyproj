@@ -145,6 +145,7 @@
     <Content Include="app\static\app\content\font-awesome.min.css" />
     <Content Include="app\static\app\content\NA_commonEntry.css" />
     <Content Include="app\static\app\content\ui.jqgrid.css" />
+    <Content Include="app\static\app\images\br_down.png" />
     <Content Include="app\static\app\images\NufarmLogo.jpg" />
     <Content Include="app\static\app\images\bgLogo.jpg" />
     <Content Include="app\static\app\images\Examplemyself.jpg" />

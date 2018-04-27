@@ -19,7 +19,6 @@ body {
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-select,
 textarea {
     max-width: 280px;
 }
@@ -114,6 +113,26 @@ div > aside:nth-child(2) {
     background-color: transparent;
     padding: 2px 2px 0;
 }
+select {
+       max-width: 280px;
+    background: url('../images/br_down.png') no-repeat right;
+    border: 1.5px solid #4CAF50;
+    -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+    /*color: black;*/
+    padding-right: 15px;
+    background-origin: padding-box;
+}
+
+
+/*option {
+    color: black;
+    border-style: solid;
+    border-width: 1px;
+    border-bottom: 1px solid #4CAF50;
+}*/
+
 
 .content {
     /*width: 72.8%;

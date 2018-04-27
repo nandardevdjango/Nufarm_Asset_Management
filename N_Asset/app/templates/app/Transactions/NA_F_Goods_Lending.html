@@ -538,7 +538,7 @@
 
 		    //  	form.idapp_fk_goods
 		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
-		    idapp_fk_goods.value = rowData['idapp'];//idapp di grid adalah idapp_fkgoods
+		    elidapp_fk_goods.value = rowData['idapp']||null;//idapp di grid adalah idapp_fkgoods
 
 		    //    form.fk_maintenance 
 		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
@@ -546,48 +546,48 @@
 
 		    //      form.fk_return 
 		    var elfk_return = NA.common.getElementID('id_fk_return');
-		    elfk_return.value = rowData['fk_return'];
+		    elfk_return.value = rowData['fk_return'] || null;
 
 		    //    form.fk_currentapp
 		    var elfk_receive = NA.common.getElementID('id_fk_currentapp');
-		    elfk_receive.value = rowData['fk_lending'];
+		    elfk_receive.value = rowData['fk_lending'] || null;
 
 		    //     form.fk_receive 
 		    var elfk_receive = NA.common.getElementID('id_fk_receive');
-		    elfk_receive.value = rowData['fk_receive'];
+		    elfk_receive.value = rowData['fk_receive'] || null;
 
 		    //  	 form.fk_disposal 
 		    var elfk_disposal = NA.common.getElementID('id_fk_disposal');
-		    elfk_disposal.value = rowData['fk_disposal'];
+		    elfk_disposal.value = rowData['fk_disposal'] || null;
 
 		    // form.fk_lost 
 		    var elfk_lost = NA.common.getElementID('id_fk_lost');
-		    elfk_lost.value = rowData['fk_lost'];
+		    elfk_lost.value = rowData['fk_lost'] || null;
 
 		    //form.brandvalue
 		    var elbrandvalue = NA.common.getElementID('BrandValue');
-		    elbrandvalue.textContent = rowData['brandname']
+		    elbrandvalue.textContent = rowData['brandname'] || '';
 
 		    //form.typeapp
 		    var elTypeValue = NA.common.getElementID('TypeValue');
-		    elTypeValue.textContent = rowData['type']
+		    elTypeValue.textContent = rowData['type'] || '';
 
 		    //form.fk_goods
 		    var elfk_goodsValue = NA.common.getElementID('fk_goodsValue');
-		    elfk_goodsValue.textContent = rowData['fk_goods'];
+		    elfk_goodsValue.textContent = rowData['fk_goods'] || '';
 
 		    //form.LastInfo')
 		    var ellastinfo = NA.common.getElementID('LastInfoValue');
-		    ellastinfo.textContent = rowData['lastinfo'];
+		    ellastinfo.textContent = rowData['lastinfo'] || '';
 
-		    //form.serialnumber
-		    var elserialnumber = NA.common.getElementID('id_serialnumber');
-		    elserialnumber.value = rowData['serialnumber'];
-		    elserialnumber.attributes['placeholder'] = '';
+		    ////form.serialnumber
+		    //var elserialnumber = NA.common.getElementID('id_serialnumber');
+		    //elserialnumber.value = rowData['serialnumber'];
+		    //elserialnumber.attributes['placeholder'] = '';
 
 		    //form.goods
 		    var elgoods = NA.common.getElementID('id_goods');
-		    elgoods.value = rowData['goodsname'];
+		    elgoods.value = rowData['goodsname']||'';
 		    elgoods.attributes['placeholder'] = '';
 		    NA.common.getElementID('difInfo').style.display = 'block';
 		};
@@ -601,8 +601,14 @@
                         function () {//function executed after data has been returned by server(XHR.onload)
                             var data = JSON.parse(this.responseText);
                             if (data) {
-                                var txtEmployee = NA.common.getElementID(elmID);
-                                txtEmployee.value = data['employee_name'] || '';
+                            	var mainID = elmID.substring(3);
+                            	//set employee_name
+                            	var elempname = NA.common.getElementID('id_' + mainID + '_employee');
+                            	var elidapp = NA.common.getElementID('id_idapp_' + mainID);
+                            	//var elFKEmp = NA.common.getElementID('id_' + mainID);
+                            	//elFKEmp.value = data['nik']||'';
+                            	elempname.value = data['employee_name'] || '';
+                            	elidapp.value = data['idapp']||'';
                             }
                         }, null, function () {//function untuk ajax error
                             window.document.body.style.cursor = 'default'; XhrError(this);
@@ -856,7 +862,7 @@
 										}//remove attribute disable untuk button OK dan cancel bila statusnya Add
 									});
 									NA.common.getElementID('difInfo').style.display = 'none';
-									NA.common.getElementID('id_statuslent').style.display = 'none';
+									NA.common.getElementID('div_status_lent').style.display = 'none';
 									break;
 								}
 							    case 'Edit': {
@@ -900,7 +906,7 @@
 								//Event untuk TextBoxt FK
 								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan 
 								//fk_goods, fk_employee, fk_sender, fk_responsibleperson_employee
-								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson_employee"]');
+								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
 								Array.prototype.forEach.call(listFK, function (item) {
 								    NA.NAEvent.addHandler(item, 'keydown', function (event) {
 										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -938,7 +944,7 @@
 												}
 											    case 'id_fk_employee':
 											    case 'id_fk_sender':
-											    case 'id_fk_responsibleperson_employee': {
+											    case 'id_fk_responsibleperson': {
 											        NA.NAEvent.preventDefault(event);//prevent from submit
 											        fillEmployeeName(event, this.id);
 													break;
