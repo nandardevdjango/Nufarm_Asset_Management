@@ -518,8 +518,12 @@
 			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
 		};
 		function getValuesForm() {
+		    var elserialnumber = NA.common.getElementID('id_serialnumber'),
+            serialnumber = elserialnumber.value;
+		    var elfk_goods = NA.common.getElementID('id_fk_goods'),
+                fk_goods = elfk_goods.value;
 
-
+		    return {};
 		};
 		function restyleBoostrapDialog() {
 			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
@@ -533,7 +537,7 @@
 			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
-		function fillGoodsInfo(rowData) {
+		function fillGoodsInfo(rowData,serialnumber) {
 		    //form.idapp di status edit/open
 
 		    //  	form.idapp_fk_goods
@@ -555,7 +559,12 @@
 		    //     form.fk_receive 
 		    var elfk_receive = NA.common.getElementID('id_fk_receive');
 		    elfk_receive.value = rowData['fk_receive'] || null;
-
+		    if (elfk_receive.value) {
+		        if (parseInt(elfk_receive.value) > 0) {
+		            var elisNew = NA.common.getElementID('id_isnew');
+		            elisNew.value = true;
+		        }
+		    }
 		    //  	 form.fk_disposal 
 		    var elfk_disposal = NA.common.getElementID('id_fk_disposal');
 		    elfk_disposal.value = rowData['fk_disposal'] || null;
@@ -587,7 +596,12 @@
 
 		    //form.goods
 		    var elgoods = NA.common.getElementID('id_goods');
-		    elgoods.value = rowData['goodsname']||'';
+		    elgoods.value = rowData['goodsname'] || '';
+
+		    if (!serialnumber) {
+		        var elserialnumber = NA.common.getElementID('id_serialnumber');
+		        elserialnumber.value = rowData['serialnumber'] || '';
+		    }
 		    elgoods.attributes['placeholder'] = '';
 		    NA.common.getElementID('difInfo').style.display = 'block';
 		};
@@ -933,7 +947,7 @@
                                                             }
                                                             else {
                                                             	//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                                fillGoodsInfo(data);                                                            	
+                                                                fillGoodsInfo(data, this.id);
                                                             }
                                                         }, null, function (e) {//function untuk ajax error
                                                             window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1005,11 +1019,12 @@
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
 							    //======================event handler BUTTONS Search================================================ 
-								var btnFindGoods = NA.common.getElementID('id_goods');
+								var btnFindGoods = NA.common.getElementID('FE_fk_goods');
 								NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
 									//show dialog
 									BootstrapDialog.show({
-										draggable: true,
+									    draggable: true,
+                                        title:'Find goods',
 										type: BootstrapDialog.TYPE_INFO,
 										size: BootstrapDialog.SIZE_SMALL,
 										message: function (dialogRef) {
@@ -1072,7 +1087,7 @@
 												url: urlGoods,
 												mtype: "GET",
 												datatype: "json",//column idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
-												colNames: ['idapp', 'NO', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
+												colNames: ['idapp', 'NO','fk_goods','Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info','fk_receive','fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
 												colModel: [
                                                    { name: 'idapp', key: true, index: 'idapp', hidden: true, },
                                                     { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -1082,6 +1097,7 @@
                                                     { name: 'type', index: 'type', width: 90, sortable: true, editable: false, align: 'left', },
                                                     { name: 'serialnumber', index: 'serialnumber', width: 100, sortable: true, editable: false, align: 'left', },
                                                     { name: 'lastinfo', index: 'lastinfo', width: 200, sortable: false, editable: false, align: 'left', },
+                                                    { name: 'fk_receive', index: 'fk_receive', hidden: true, },
                                                     { name: 'fk_outwards', index: 'fk_outwards', hidden: true, },
                                                     { name: 'fk_lending', index: 'fk_lending', hidden: true, },
                                                     { name: 'fk_return', index: 'fk_return', hidden: true, },
@@ -1091,7 +1107,7 @@
 												],
 												ondblClickRow: function (rowId) {
 													//fire button OK
-													var btnOK = dialogRef.getButton('btnOKFindGoods');
+												    var btnOK = dialogRef.getButton('btnOKFindGoods');
 													btnOK.click();
 												},
 												gridComplete: function () {
@@ -1107,7 +1123,7 @@
 												height: '200px',
 												rowNum: 500,
 												rowList: [20, 50, 100, 200, 300, 500],
-												sortname: "brandname",
+												//sortname: "brandname",
 												sortorder: "asc",
 												multiSort: true,
 												//shrinkToFit: false,
@@ -1137,8 +1153,7 @@
 											action: function (dialogRef) {
 												dialogRef.close();
 											},
-										},
-										, {
+										}, {
 											label: 'OK',
 											id: 'btnOKFindGoods',
 											icon: 'glyphicon glyphicon-ok',
@@ -1155,16 +1170,18 @@
 										}]
 									});
 									restyleBoostrapDialog();
-									var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Lending_FK_Goods');
-									gbox.style.width = '432px';
-									var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Lending_FK_Goods');
-									gview.style.width = '432px';
+									//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Lending_FK_Goods');
+									//gbox.style.width = '432px';
+									//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Lending_FK_Goods');
+									//gview.style.width = '432px';
 
-									var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Lending_FK_Goods_Pager_right');
-									tdInfo.style.width = '110px';
-									var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Lending_FK_Goods');
-									pager.style.width = '430px';
-									evt.stopImmediatePropagation();
+									//var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Lending_FK_Goods_Pager_right');
+									//tdInfo.style.width = '110px';
+									//var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Lending_FK_Goods');
+								    //pager.style.width = '430px';S
+									var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
+									BSDialogContent.style.cssText = 'width: 500px; height: 400px;';
+									e.stopImmediatePropagation();
 								});
 								var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_employee"],[id="FE_fk_sender"],[id="FE_fk_responsibleperson"]');
 								Array.prototype.forEach.call(listFK, function (item) {
@@ -1178,6 +1195,7 @@
 								            //create bootstrapDialog
 								            BootstrapDialog.show({
 								                draggable: true,
+                                                title:'Find Employee',
 								                type: BootstrapDialog.TYPE_INFO,
 								                size: BootstrapDialog.SIZE_SMALL,
 								                message: function (dialogRef) {
@@ -1300,6 +1318,7 @@
 								                            //set nik
 								                            var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
 								                            //set employee_name
+								                            elfk_employee.value = rowData['nik'];
 								                            var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
 								                            elempname.value = employeeName;
 								                            var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);

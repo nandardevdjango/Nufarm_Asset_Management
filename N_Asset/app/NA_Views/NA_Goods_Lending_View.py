@@ -150,8 +150,8 @@ def getLastTransGoods(request):
 		result = NAGoodsLending.objects.getLastTrans(serialNO)
 		#idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
-								  'lastinfo':result[5],'fk_return':result[6],'fk_lending':result[7],'fk_outwards':[8],'fk_maintenance':result[9],'fk_disposal':result[10],
-								  'fklost':result[11],}),status = 200, content_type='application/json')
+								  'lastinfo':result[5],'fk_receive':result[6],'fk_return':result[7],'fk_lending':result[8],'fk_outwards':[9],'fk_maintenance':result[10],'fk_disposal':result[11],
+								  'fklost':result[12],}),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -169,7 +169,9 @@ def getGoodsWithHistory(request):
 		i = 0;#idapp,itemcode,goods
 		for row in dataRows:
 			i+=1
-			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goodsname'],row['brandName'],row['type'],['serialnumber'],['lastinfo'],['fk_outwards'],['fk_lending'],['fk_return'],['fk_maintenance'],['fk_disposal'],['fk_lost'],]}
+			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['fk_goods'],row['goodsname'],row['brandname'],row['type'],
+							row['serialnumber'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],row['fk_disposal'],row['fk_lost'],]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
 		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
@@ -181,7 +183,7 @@ def getGoodsWithHistory(request):
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
-	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
+	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)
 	goods = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																					 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
 	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)

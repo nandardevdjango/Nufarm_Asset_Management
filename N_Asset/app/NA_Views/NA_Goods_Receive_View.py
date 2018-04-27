@@ -70,7 +70,7 @@ def NA_Goods_Receive_Search(request):
 			NAData = NAGoodsReceive.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
 			NAData = NAGoodsReceive.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
-		totalRecord = NAData[1][0]
+		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		
 		rows = []

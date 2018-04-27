@@ -129,7 +129,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		brandname = ''
 		serialnumber = ''
 		lastInfo = 'unknown'
-		fkreturn = 0;fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;		
+		fkreceive = 0;fkreturn = 0;fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;		
 		row = []
 		if cur.rowcount > 0:
 			row = cur.fetchone()
@@ -266,20 +266,22 @@ class NA_BR_Goods_Lending(models.Manager):
 						else:
 							lastInfo = "goods has lost, but has been found "
 		else:
-			Query = """SELECT ngl.brandname,ngl.typeapp,ngr.datereceived FROM n_a_goods_receive_detail ngl INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngl.FK_App WHERE ngl.serialnumber = %s"""
+			Query = """SELECT ngl.idapp as fk_receive,ngl.brandname,ngl.typeapp,ngr.datereceived FROM n_a_goods_receive_detail ngl INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngl.FK_App WHERE ngl.serialnumber = %s"""
 			cur.execute(Query,[SerialNO])
 			row = []
 			if cur.rowcount > 0:
 				row = cur.fetchone()
-				typeapp = row[1]
-				brandname = row[0]
+				fkreceive = row[0]
+				typeapp = row[2]
+				brandname = row[1]
+
 			else:
 				raise Exception('no such data')
 			dt = datetime.date(row[2])
 			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
-		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost)
+		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost)
 
 	def getBrandForLending(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		#get item from goods received
@@ -290,7 +292,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query)
 		
 		#Query new items
-		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 'not yet used' as lastinfo, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 		cur.execute(Query)
@@ -312,9 +314,9 @@ class NA_BR_Goods_Lending(models.Manager):
 						WHEN (gh.fk_disposal IS NOT NULL) THEN 'goods is unabled to use(been disposed,auction,broken,etc)' \
 						WHEN (gh.fk_lost IS NOT NULL) THEN 'goods has lost' \
 						ELSE 'Unknown or uncategorized last goods position' \
-						END AS lastinfo,gh.fk_outwards,gh.fk_lending,gh.fk_return,gh.fk_maintenance,gh.fk_disposal,gh.fk_lost  \
+						END AS lastinfo,gh.fk_receive,gh.fk_outwards,gh.fk_lending,gh.fk_return,gh.fk_maintenance,gh.fk_disposal,gh.fk_lost  \
 						FROM(			\
-							SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.brandName) AS brandName,ngd.typeapp as 'type',ngd.serialnumber,ngh.fk_outwards,ngh.fk_lending, \
+							SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.brandName) AS brandName,ngd.typeapp as 'type',ngd.serialnumber,ngd.idapp AS fk_receive,ngh.fk_outwards,ngh.fk_lending, \
 							ngh.fk_return,ngh.fk_maintenance,ngh.fk_disposal,ngh.fk_lost FROM \
 							n_a_goods g INNER JOIN n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp \
 							INNER JOIN n_a_goods_history ngh ON ngh.fk_goods = g.idapp AND ngh.serialnumber = ngd.serialnumber \
@@ -332,9 +334,12 @@ class NA_BR_Goods_Lending(models.Manager):
 					UNION \
 				 SELECT * FROM Temp_T_History_""" + userName + """\
 				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s) OR (serialnumber = %s))"""
-		cur.execute(Query['%'+searchText+'%','%'+searchText+'%',searchText])
-		
-		Query  = "SELECT * FROM Temp_F_" + userName + " ORDER BY """ + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
+		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%',searchText])
+		if orderFields == '':
+			Query  = "SELECT * FROM Temp_F_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
+		else:
+			Query  = "SELECT * FROM Temp_F_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
+		cur.execute(Query)
 		result = query.dictfetchall(cur)
 
 		Query = "SELECT COUNT(*) FROM Temp_F_" + userName

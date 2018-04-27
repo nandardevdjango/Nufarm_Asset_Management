@@ -123,6 +123,9 @@ select {
     /*color: black;*/
     padding-right: 15px;
     background-origin: padding-box;
+background-size:10px 11px;
+
+
 }
 
 

@@ -214,6 +214,7 @@ div.dialogButtonEntry>a.btn-link{
     width: 300px;
 }
 .bootstrap-dialog-title{
-    font-size:medium;
-      color:ghostwhite;
+font-size: medium;
+color: darkgreen;
+font-weight: bold;
 }
