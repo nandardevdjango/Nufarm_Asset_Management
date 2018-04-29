@@ -662,8 +662,8 @@
             win.document.body.style.cursor = 'default';
             return true;
         };
-        function GetServerFormatDate(formatedDateString) {//dd/mm/yy
-            var d = new Date(formatedDateString),
+        function GetServerFormatDate(parsedDate) {//dd/mm/yy
+            var d = new Date(parsedDate),
                 month = '' + (d.getMonth() + 1),
                 day = '' + d.getDate(),
                 year = d.getFullYear();

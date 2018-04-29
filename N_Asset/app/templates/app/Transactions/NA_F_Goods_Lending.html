@@ -374,17 +374,27 @@
 		NA.common.dialog.initDialog(containerMenu, 'Nufarm Entry Goods Lending - Transactions');//inistialisasi menu
 
 		//==========================GROUP Function Declaration================================
-		function GetServerFormatDate(formatedDateString) {//dd/mm/yy
-			var d = new Date(formatedDateString),
+		function GetServerFormatDate(parsedDate) {//dd/mm/yy value -->yyyy-mm-dd
+		    var d = new Date(parsedDate),
                 month = '' + (d.getMonth() + 1),
                 day = '' + d.getDate(),
                 year = d.getFullYear();
 
-			if (month.length < 2) month = '0' + month;
-			if (day.length < 2) day = '0' + day;
+		    if (month.length < 2) month = '0' + month;
+		    if (day.length < 2) day = '0' + day;
 
-			return [year, month, day].join('-');
+		    return [year, month, day].join('-');
 		};
+		function formatDate(theDate) {//date/month/year
+		    var date = new Date(theDate),
+              year = date.getFullYear(),
+              month = (date.getMonth() + 1).toString(),
+              formatedMonth = (month.length === 1) ? ("0" + month) : month,
+              day = date.getDate().toString(),
+              formatedDay = (day.length === 1) ? ("0" + day) : day;
+		    return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
+		};
+
 		function getGridCellValue(thegrid, CeltoGet) {
 			var reccount = thegrid.jqGrid('getGridParam', 'reccount');
 			var rowId, rowData, colData;
@@ -517,13 +527,270 @@
 			if (UlHiddenAuto) { UlHiddenAuto.parentNode.removeChild(UlHiddenAuto); }
 			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
 		};
+		function submitForm(valuesForm) {
+		    valuesForm['csrfmiddlewaretoken'] = (function () {
+		        var el = document.getElementsByName("csrfmiddlewaretoken");
+		        return el[0].getAttribute("value");
+		    })();
+		    var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
+		    CDate = GetServerFormatDate(FDate);
+
+		    valuesForm['datereceived'] = CDate, SuccesTrans = false;
+
+		    var NAAjax = NA.common.AJAX;
+		    //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+		    NAAjax.POST('ShowEntry_Lending', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
+				function () {
+				    win.document.body.style.cursor = 'wait';
+				},
+				null,
+				function (e) {
+				    var Data = JSON.parse(this.responseText);
+				    if (Data.message === "success") {
+				        SuccesTrans = true;
+				        switch (win.status) {
+				            case 'Add': {
+				                //    //clear kan semua data
+				                //    //reloadGridMaster
+				                win.document.body.style.cursor = 'wait';
+				                grid.trigger("reloadGrid", [{ page: 1 }]);
+				                clearEntry();
+				                //    //focus langsung ke 				    		
+				                var elserialnumber = NA.common.getElementID('id_serialnumber');
+				                elserialnumber.focus();
+				                win.document.body.style.cursor = 'default';
+				                break;
+				            }
+				            case 'Edit': {
+				                win.document.body.style.cursor = 'wait';
+				                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+				                closeJQueryDialog();
+				                NA.common.dialog.closeDialog(dialog);
+				                grid.trigger("reloadGrid", [{ page: 1 }]);
+				                win.document.body.style.cursor = 'default';
+				                break;
+				            }
+				        }
+				        //reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
+				    }
+				    else {//error berarti
+				        XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+				    }
+				    win.document.body.style.cursor = 'default';
+				}, null,
+				function (e) { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+				function (e) {
+				    win.document.body.style.cursor = 'default';
+				});
+		    return SuccesTrans;
+		};
+		function ExecuteHandler(textElement) {
+		    if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
+		    var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+		    var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
+		    switch (textElement) {
+		        case 'OK': {
+		            if (!frmEntry.checkValidity()) {
+		                //NA.NAEvent.preventDefault(event);                                          
+		                var inputbtn = NA.common.getElementID('inputButton');
+		                inputbtn.click();
+		            }
+		            else {
+		                //check exists
+		                //barang dan serial number dan lenddate
+		                var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+		                var elserialnumber = NA.common.getElementID('id_serialnumber');
+		                var elDate = NA.common.getElementID('id_datelending').value;
+		                datelent = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', datereceived));
+		                var NAAjax = NA.common.AJAX;
+		                if (win.status === 'Add') {
+		                    NAAjax.POST('HasExists/',
+                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'datelent': datelent, 'serialnumber': elserialnumber.value }),
+                                'application/x-www-form-urlencoded', 'application/json',
+                                function () {
+                                    window.document.body.style.cursor = 'wait';
+                                }, null,
+                                function () {
+                                    if (this.status === 200) {
+                                        var confirmText = JSON.parse(this.responseText);
+                                        if (confirmText) {
+                                            confirmText = confirmText.message;
+                                            if (!confirmText) {
+                                                ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
+                                            }
+                                        }
+                                        else {
+                                            win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
+                                        }
+                                        if (confirmText === 'OK') {
+                                            win.document.body.style.cursor = 'wait';
+                                            valuesForm = getValuesForm();
+                                            submitForm(valuesForm);
+                                            win.document.body.style.cursor = 'default';
+                                        }
+                                        else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
+                                            return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
+                                                win.document.body.style.cursor = 'wait';
+                                                valuesForm = getValuesForm();
+                                                submitForm(valuesForm);
+                                                win.document.body.style.cursor = 'default';
+                                            });
+                                        }
+                                    }
+                                    else {
+                                        XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+                                    }
+                                }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+                                function () { win.document.body.style.cursor = 'default'; }
+                            );
+		                }
+		            }
+		            break;
+		        }
+		        case 'Cancel': {
+		            break;
+		        }
+		        case 'Close': {
+		            break;
+		        }
+		    };
+		};
+		function clearEntry() {
+		    var elidapp = NA.common.getElementID('id_idapp');
+		    elidapp.value = originalData.idapp;
+		    var elfk_goods = NA.common.getElementID('id_fk_goods');
+		    elfk_goods.value = originalData.fk_goods || '';
+		    var elisnew = NA.common.getElementID('id_isnew');
+		    elisnew.value = originalData.isnew || false;
+		    //goods tidak usah
+		    var elgoods = NA.common.getElementID('id_goods');
+		    elgoods.value = '';
+		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+		    elidapp_fk_goods.value = originalData.idapp_fk_goods;
+		    var elfk_employee = NA.common.getElementID('id_fk_employee');
+		    elfk_employee.value = originalData.fk_employee || '';
+		    var elidapp_fk_employee = NA.common.getElementID('id_idapp_fk_employee');
+		    elidapp_fk_employee.value = originalData.idapp_fk_employee;
+		    //fk_employee_employee nggak usah
+		    var elfk_employee_employee = NA.common.getElementID('id_fk_employee_employee');
+		    elfk_employee_employee.value = originalData.fk_employee_employee || '';
+		    var eldatelending = NA.common.getElementID('id_datelending');
+		    eldatelending.value = originalData.datelending || '';
+		    //fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
+		    var elfk_responsibleperson = NA.common.getElementID('id_fk_responsibleperson');
+		    elfk_responsibleperson.value = originalData.fk_responsibleperson || '';
+		    var elidapp_fk_responsibleperson = NA.common.getElementID('id_idapp_fk_responsibleperson');
+		    elidapp_fk_responsibleperson.value = originalData.idapp_fk_responsibleperson;
+		    //fk_responsibleperson_employee nggak usah
+		    var elinterests = NA.common.getElementID('id_interests');
+		    elinterests.value = originalData.interests;
+		    var elfk_sender = NA.common.getElementID('id_fk_sender');
+		    elfk_sender.value = originalData.fk_sender || '';
+		    var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender');
+		    elidapp_fk_sender.value = originalData.fk_sender;
+
+		    //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
+		    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
+		    //fk_sender_employee nggak usah
+
+		    var elstatuslent = NA.common.getElementID('id_statuslent');
+		    elstatuslent.value = originalData.statuslent || 'L';
+		    var eldescriptions = NA.common.getElementID('id_descriptions');
+		    eldescriptions.value = originalData.descriptions || '';
+		    var eltypeapp = NA.common.getElementID('id_typeapp');
+		    eltypeapp.value = originalData.typeapp || '';
+		    var elserialnumber = NA.common.getElementID('id_serialnumber');
+		    elserialnumber.value = originalData.serialnumber || '';
+		    //brandvalue nggak usah
+		    var elbrandvalue = NA.common.getElementID('brandvalue');
+		    elbrandvalue.value = '';
+		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
+		    elfk_maintenance.value = originalData.fk_maintenance;
+		    var elfk_return = NA.common.getElementID('id_fk_return');
+		    elfk_return.value = originalData.fk_return;
+		    var elfk_currentapp = NA.common.getElementID('id_fk_currentapp');
+		    elfk_currentapp.value = originalData.fk_currentapp;
+		    var elfk_receive = NA.common.getElementID('id_fk_receive');
+		    elfk_receive.value = originalData.fK_receive;
+		    var elfk_disposal = NA.common.getElementID('id_fk_disposal');
+		    elfk_disposal.value = originalData.fk_disposal;
+		    var elfk_lost = NA.common.getElementID('id_fk_lost');
+		    elfk_lost.value = originalData.fk_lost;
+		    var ellastinfo = NA.common.getElementID('id_lastinfo');
+		    ellastinfo.value = '';
+		};
 		function getValuesForm() {
+		    //idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+		    //datelending, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+            //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
+		    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
+		    var elidapp = NA.common.getElementID('id_idapp'),
+                idapp = elidapp.value;
+           var elfk_goods = NA.common.getElementID('id_fk_goods'),
+                fk_goods = elfk_goods.value;
+           var elisnew = NA.common.getElementID('id_isnew'),
+               isnew = elisnew.value;
+		    //goods tidak usah
+           var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
+               idapp_fk_goods = elidapp_fk_goods.value;
+           var elfk_employee = NA.common.getElementID('id_fk_employee'),
+               fk_employee = elfk_employee.value;
+           var elidapp_fk_employee = NA.common.getElementID('id_idapp_fk_employee'),
+               idapp_fk_employee = elidapp_fk_employee.value;
+		    //fk_employee_employee nggak usah
+           var eldatelending = NA.common.getElementID('id_datelending'),
+               datelending = eldatelending.value;
+		    //fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
+           var elfk_responsibleperson = NA.common.getElementID('id_fk_responsibleperson'),
+               fk_responsibleperson = elfk_responsibleperson.value;
+           var elidapp_fk_responsibleperson = NA.common.getElementID('id_idapp_fk_responsibleperson'),
+               idapp_fk_responsibleperson = elidapp_fk_responsibleperson.value;
+		    //fk_responsibleperson_employee nggak usah
+           var elinterests = NA.common.getElementID('id_interests'),
+               interests = elinterests.value;
+           var elfk_sender = NA.common.getElementID('id_fk_sender'),
+               fk_sender = elfk_sender.value;
+           var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender'),
+               idapp_fk_sender = elidapp_fk_sender.value;
+		   
+
+		    //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
+		    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
+		    //fk_sender_employee nggak usah
+
+           var elstatuslent = NA.common.getElementID('id_statuslent'),
+               statuslent = elstatuslent.value;
+           var eldescriptions = NA.common.getElementID('id_descriptions'),
+               descriptions = eldescriptions.value;
+           var eltypeapp = NA.common.getElementID('id_typeapp'),
+               typeapp = eltypeapp.value;
 		    var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
-		    var elfk_goods = NA.common.getElementID('id_fk_goods'),
-                fk_goods = elfk_goods.value;
-
-		    return {};
+		    //brandvalue nggak usah
+		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
+                fk_maintenance = elfk_maintenance.value;
+		    var elfk_return = NA.common.getElementID('id_fk_return'),
+                fk_return = elfk_return.value;
+		    var elfk_currentapp = NA.common.getElementID('id_fk_currentapp'),
+                fk_currentapp = elfk_currentapp.value;
+		    var elfk_receive = NA.common.getElementID('id_fk_receive'),
+                fk_receive = elfk_receive.value;
+		    var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
+                fk_disposal = elfk_disposal.value;
+		    var elfk_lost = NA.common.getElementID('id_fk_lost'),
+                fk_lost = elfk_lost.value;
+		    var ellastinfo = NA.common.getElementID('id_lastinfo'),
+                lastinfo = ellastinfo.value;
+		    //hasRefData nggak usah , karena apa yang sedang di di edit oleh user bisa jadi di hapus oleh user lain
+		    //idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee,
+		    //datelending,  fk_responsibleperson, idapp_fk_responsibleperson, interests, fk_sender, idapp_fk_sender,  statuslent, descriptions, typeapp, serialnumber,
+		    //fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo 
+		    return {
+		        idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
+		        datelending: datelending, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson, interests: interests,
+		        fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, statuslent: elstatuslent, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
+		        fk_maintenance:fk_maintenance, fk_return:fk_return, fk_currentapp:fk_currentapp, fk_receive:fk_receive, fk_disposal:fk_disposal, fk_lost:fk_lost, lastinfo:lastinfo
+		    };
 		};
 		function restyleBoostrapDialog() {
 			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
@@ -800,25 +1067,30 @@
 				NA.NAEvent.addHandler(item, 'click', function (event) {
 					NA.NAEvent.preventDefault(event);
 				    //==============uncommment this after debugging=============
+				    try {
 
-					//if (win.status !== 'Open') {
+				    } catch (e) {
+				        ShowAlert(e.message);
+				    }
+					if (win.status !== 'Open') {
 
-					//	var textElem = event.target.innerText;
-					//	if (textElem === 'OK') {
-					//		ExecuteHandler('OK');
-					//	} else {
-					//		ExecuteHandler('Close');
-					//    }
+						var textElem = event.target.innerText;
+						if (textElem === 'OK') {
+							ExecuteHandler('OK');
+						} else {
+							ExecuteHandler('Close');
+					    }
                      
-					//}
+					}
 					if (event) {
 						NA.NAEvent.stopPropagation(event);
 					}
+
                     //comment this after debugging
-					    NA.common.dialog.closeDialog(dialog);
-					//if (!hasLoadDialog) {
-					//	NA.common.dialog.closeDialog(dialog);
-					//}
+					//NA.common.dialog.closeDialog(dialog);
+					if (!hasLoadDialog) {
+						NA.common.dialog.closeDialog(dialog);
+					}
 					win.document.body.style.cursor = 'default';
 					return false;
 				});

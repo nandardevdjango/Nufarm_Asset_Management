@@ -83,6 +83,7 @@ urlpatterns = [
 	url(r'^NA_Goods_Lending/ShowEntry_Lending',NA_Goods_Lending_View.ShowEntry_Lending,name='ShowEntryLending'),
 	url(r'^NA_Goods_Lending/UpdateStatus/$',NA_Goods_Lending_View.UpdateStatus,name='UpdateStatusNAGoodsLending'),
 	url(r'^NA_Goods_Lending/Delete/$',NA_Goods_Lending_View.Delete,name='delete'),
+	url(r'^NA_Goods_Lending/HasExists/$',NA_Goods_Lending_View.HasExists,name='existsLending'),
 	url(r'^NA_Goods_Lending/geInterests/$',NA_Goods_Lending_View.getInterest,name='getinterests'),
 	url(r'^NA_Goods_Lending/getLastTransGoods/$',NA_Goods_Lending_View.getLastTransGoods,name='getlastTransGoods'),
 	url(r'^NA_Goods_Lending/getGoodsWithHistory/$',NA_Goods_Lending_View.getGoodsWithHistory,name='getGoodsWithHistory'),

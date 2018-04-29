@@ -282,7 +282,9 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.close()
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
 		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost)
-
+	def hasExists(self,idapp_fk_goods,serialnumber,datelent):
+		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
+		return super(NA_BR_Goods_Lending,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(datelending=datelent)).exists()#Q(member=p1) | Q(member=p2)
 	def getBrandForLending(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		#get item from goods received
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_" + userName
