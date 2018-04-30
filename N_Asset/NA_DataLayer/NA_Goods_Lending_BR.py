@@ -350,13 +350,55 @@ class NA_BR_Goods_Lending(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-#SELECT *     
-#FROM MyTable T1    
-#WHERE date = (
-#   SELECT max(date)
-#   FROM MyTable T2
-#   WHERE T1.username=T2.username
-#)
+	def SaveData(self,Data,Status=StatusForm.Input):
+		cur = connection.cursor()
+		#get FK_stock
+		Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 0"""
+		cur.execute(Query,[Data['fk_goods']])
+		row = cur.fethcone()
+		fk_stock = row[0]
+		try:
+			with transaction.Atomic():
+
+				Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_Responsible_Person, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions, FK_Receive, FK_RETURN, FK_CurrentApp) \
+							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
+				param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_Stock':fk_stock,'FK_Responsible_Person':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
+						'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],'FK_Receive':Data['fk_receive'],
+						'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
+				cur.execute(Query,param)
+				cur.execute('SELECT last_insert_id()')
+				row = cur.fetchone()
+				FKApp = row[0]
+				#Update Stock
+				Stock = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,Data['createdby'])
+				TNew = Stock[0]
+				TSpare = Stock[6]
+				if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
+					Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %(TIsNew)s, ModifiedBy=%s WHERE IDApp = %s """
+					cur.execute(Query,[TSpare,TNew-1,Data['createdby'],fk_stock])
+				else:
+					Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s WHERE IDApp = %s """
+					cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
+
+				#insert n_goods_history
+				Query = """INSERT INTO n_a_goods_history(IDApp, FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
+						 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Lending)s,NULL, NULL, NULL, NULL, NULL, NOW(), %(CreatedBy)s )"""
+				param = {'FK_Goods':Data['idapp_fk_goods'],'TypeApp':Data['typeapp'],'SerialNumber':Data['serialnumber'],'FK_Lending':FKApp,'CreatedBy':Data['createdby']}
+				cur.execute(Query,param)
+				return 'success'
+		except Exception as e :
+			cur.close()
+			return repr(e)
+	def HasReference(self,IDApp):
+		cur = connection.cursor()
+		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Lending = %s)"""
+		cur.execute(Query,[IDApp])
+		row = cur.fetchone()
+		if cur.rowcount > 1:
+			return int(row[0]) > 1
+		else:
+			return False
+
 
 
 

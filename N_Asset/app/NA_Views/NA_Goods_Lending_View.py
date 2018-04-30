@@ -43,6 +43,7 @@ def NA_Goods_Lending(request):
 	#populate_combo.append({'label':'Modified Date','columnName':'modifieddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Lending.html',{'populateColumn':populate_combo})
 	#Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interest,Goods From,IsNew,Status,Created By,CreatedDate
+
 def NA_Goods_Lending_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
@@ -120,6 +121,8 @@ def getInterest(request):
 		return HttpResponse(data, content_type='application/json')
 	else:
 		return HttpResponse(content='',content_type='application/json')
+#def getCurrentDataModel(request,form):
+#	return{
 @ensure_csrf_cookie
 def ShowEntry_Lending(request):
 	authentication_classes = []
@@ -133,9 +136,20 @@ def ShowEntry_Lending(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
+			form = NA_Goods_Lending(data)
+			form.clean()
+			if status == 'Add':				
+				#SaveData
+				result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+			elif status == 'Edit':
+				if NAGoodsLending.objects.HasReference(data['idapp']):
+					return  HttpResponse(json.dumps({'message':'Can data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
+
 		else:
 			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
 			#set initilization
+
 		if status == 'Add':
 			form = NA_Goods_Lending_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
@@ -195,31 +209,30 @@ def getGoodsWithHistory(request):
 		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 	except Exception as e:
 		result = repr(e)
-		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')	
-
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
 	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)
-	goods = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	goods = forms.CharField(max_length=100,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																					 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
-	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_employee = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
-	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=True)
-	fk_employee_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
 																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
 	
 	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
-	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
-                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=False)
+                                   'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
-	fk_responsibleperson_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	fk_responsibleperson_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
 																						 'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	interests = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:355px;display:inline-block;','tabindex':5,
 																						 'placeholder': 'Interest Of','data-value':'Interest Of','tittle':'Interest is required'}))
@@ -227,7 +240,7 @@ class NA_Goods_Lending_Form(forms.Form):
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':3,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
 																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
 	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
                                    'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),disabled=True,choices=(('L', 'Lent'),('R','Returned')),initial=['L'])
@@ -246,3 +259,13 @@ class NA_Goods_Lending_Form(forms.Form):
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
+	def clean():
+		cleaned_data = super(NAGoodsLending,self).clean()
+		fk_employee = self.cleaned_data['fk_employee']
+		datelending = self.cleaned_data['datelending']
+		fk_responsibleperson = self.cleanead_data['fk_responsibleperson']
+		interests = self.cleaned_data['interests']
+		fk_sender = self.cleaned_data['fk_sender']
+		serialnumber = self.cleaned_data['serialnumber']
+
+
