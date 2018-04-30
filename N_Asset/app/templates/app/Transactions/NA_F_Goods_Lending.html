@@ -532,10 +532,10 @@
 		        var el = document.getElementsByName("csrfmiddlewaretoken");
 		        return el[0].getAttribute("value");
 		    })();
-		    var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
+		    var FDate = $('#id_datelending').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 		    CDate = GetServerFormatDate(FDate);
 
-		    valuesForm['datereceived'] = CDate, SuccesTrans = false;
+		    valuesForm['datelending'] = CDate, SuccesTrans = false;
 
 		    var NAAjax = NA.common.AJAX;
 		    //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
@@ -601,7 +601,7 @@
 		                var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 		                var elserialnumber = NA.common.getElementID('id_serialnumber');
 		                var elDate = NA.common.getElementID('id_datelending').value;
-		                datelent = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', datereceived));
+		                datelent = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDate));
 		                var NAAjax = NA.common.AJAX;
 		                if (win.status === 'Add') {
 		                    NAAjax.POST('HasExists/',
@@ -726,7 +726,7 @@
 		    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
 		    var elidapp = NA.common.getElementID('id_idapp'),
                 idapp = elidapp.value;
-           var elfk_goods = NA.common.getElementID('id_fk_goods'),
+		    var elfk_goods = NA.common.getElementID('fk_goodsValue'),
                 fk_goods = elfk_goods.value;
            var elisnew = NA.common.getElementID('id_isnew'),
                isnew = elisnew.value;
@@ -762,7 +762,7 @@
                statuslent = elstatuslent.value;
            var eldescriptions = NA.common.getElementID('id_descriptions'),
                descriptions = eldescriptions.value;
-           var eltypeapp = NA.common.getElementID('id_typeapp'),
+		    var eltypeapp = NA.common.getElementID('TypeValue'),
                typeapp = eltypeapp.value;
 		    var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
@@ -779,8 +779,8 @@
                 fk_disposal = elfk_disposal.value;
 		    var elfk_lost = NA.common.getElementID('id_fk_lost'),
                 fk_lost = elfk_lost.value;
-		    var ellastinfo = NA.common.getElementID('id_lastinfo'),
-                lastinfo = ellastinfo.value;
+		    //var ellastinfo = NA.common.getElementID('id_lastinfo'),
+            //    lastinfo = ellastinfo.value;
 		    //hasRefData nggak usah , karena apa yang sedang di di edit oleh user bisa jadi di hapus oleh user lain
 		    //idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee,
 		    //datelending,  fk_responsibleperson, idapp_fk_responsibleperson, interests, fk_sender, idapp_fk_sender,  statuslent, descriptions, typeapp, serialnumber,
@@ -788,8 +788,8 @@
 		    return {
 		        idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
 		        datelending: datelending, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson, interests: interests,
-		        fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, statuslent: elstatuslent, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
-		        fk_maintenance: fk_maintenance, fk_return: fk_return, fk_currentapp: fk_currentapp, fk_receive: fk_receive, fk_disposal: fk_disposal, fk_lost: fk_lost, lastinfo: lastinfo,
+		        fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, statuslent: statuslent, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
+		        fk_maintenance: fk_maintenance, fk_return: fk_return, fk_currentapp: fk_currentapp, fk_receive: fk_receive, fk_disposal: fk_disposal, fk_lost: fk_lost,
 		        status:win.status
 		    };
 		};
@@ -1253,10 +1253,10 @@
 								            var eloriginalData = JSON.parse(originalData),
                                                 hasRef = eloriginalData['hasRefData'];
 								            if (hasRef) { return 1; }
-								            valDateReceived = new Date(eloriginalData.datereceived);
-								            return valDateReceived;
+								          var  valDatelent = new Date(eloriginalData.datelending);
+								          return valDatelent;
 								        }
-								        //get date datereceived
+								        //get date datelending
 								    })(win),
 								    maxDate: 1,
 								    showButtonPanel: true,
@@ -1283,9 +1283,9 @@
 								});
 
 								if (win.status !== 'Add') {
-								    var eloriginalData = JSON.parse(originalData),
-                                    valDateReceived = new Date(eloriginalData.datereceived);
-								    $("#id_lending").datepicker("setDate", valDateReceived);
+								    var eloriginalData = JSON.parse(originalData);
+								    var valDatelent = new Date(eloriginalData.datelending);
+								    $("#id_datelending").datepicker("setDate", valDatelent);
 								}
 								originalData = JSON.stringify(getValuesForm());
 
@@ -1526,7 +1526,7 @@
 								                    gridTbl.jqGrid({
 								                        url: urlPR,
 								                        mtype: "GET",
-								                        datatype: "json",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+								                        datatype: "json",
 								                        colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
 								                        colModel: [
                                                             { name: 'idapp', key: true, hidden: true, align: 'left' },

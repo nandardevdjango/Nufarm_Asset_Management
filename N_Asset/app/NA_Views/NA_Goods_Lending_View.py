@@ -136,16 +136,20 @@ def ShowEntry_Lending(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
-			form = NA_Goods_Lending(data)
-			form.clean()
-			if status == 'Add':				
-				#SaveData
-				result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-			elif status == 'Edit':
-				if NAGoodsLending.objects.HasReference(data['idapp']):
-					return  HttpResponse(json.dumps({'message':'Can data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
-
+			form = NA_Goods_Lending_Form(data)
+			resul = ''
+			if form.is_valid():
+				form.clean()
+				if status == 'Add':				
+					#SaveData
+					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
+					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				elif status == 'Edit':
+					if NAGoodsLending.objects.HasReference(data['idapp']):
+						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
+				if result != 'success':
+					statuscode = 500
+					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		else:
 			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
 			#set initilization
@@ -259,11 +263,11 @@ class NA_Goods_Lending_Form(forms.Form):
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
-	def clean():
-		cleaned_data = super(NAGoodsLending,self).clean()
+	def clean(self):
+		cleaned_data = super(NA_Goods_Lending_Form,self).clean()
 		fk_employee = self.cleaned_data['fk_employee']
 		datelending = self.cleaned_data['datelending']
-		fk_responsibleperson = self.cleanead_data['fk_responsibleperson']
+		fk_responsibleperson = self.cleaned_data['fk_responsibleperson']
 		interests = self.cleaned_data['interests']
 		fk_sender = self.cleaned_data['fk_sender']
 		serialnumber = self.cleaned_data['serialnumber']
