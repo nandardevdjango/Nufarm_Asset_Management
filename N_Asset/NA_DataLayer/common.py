@@ -30,6 +30,7 @@ class Data(Enum):
     Exists = 2
     Lost = 3
     HasRef = 4
+    Empty = 5
 
 class Message(Enum):
     Success = '__success'
@@ -472,7 +473,7 @@ class commonFunct:
 
     def get_log_data(data):
         cur = connection.cursor()
-        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,'$.deleted[0]')=%(DATA)s"""
+        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,'$.deleted[0]')=%(DATA)s""" #DATA is PK (Primary Key)
         cur.execute(Query,{'DATA':data})
         return query.dictfetchall(cur)
 

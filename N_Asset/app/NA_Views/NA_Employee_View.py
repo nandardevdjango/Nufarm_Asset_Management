@@ -5,7 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 import datetime
 import json
-from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm
+from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm, commonFunct
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 #@login_required
@@ -100,7 +100,6 @@ def EntryEmployee(request):
                     statusResp = 400
                     message = result[1]
                 return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')
-                #get idapp for highlight element
             elif mode == 'Edit':
                 getIdapp = request.POST['idapp']
                 data['idapp'] = getIdapp
@@ -150,13 +149,4 @@ def NA_Employee_delete(request):
         if request.method == 'POST':
             get_idapp = request.POST.get('idapp')
             result = Employee.objects.delete_employee(idapp=get_idapp,NA_User=request.user.username)
-            statusResp = 200
-            if result != 'success':
-                if result == 'Lost':
-                    statusResp = 404
-                elif result == 'hasRef':
-                    statusResp = 403
-                else:
-                    statusResp = 500
-            return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),
-                    status=statusResp, content_type='application/json')
+            return commonFunct.response_default(result)

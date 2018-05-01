@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection
-from NA_DataLayer.common import  query, ResolveCriteria, StatusForm, CriteriaSearch, DataType
+from NA_DataLayer.common import  query, ResolveCriteria, StatusForm, CriteriaSearch, DataType, Data
 from django.db.models import F, Value, Case, When, CharField
 from django.db.models.functions import Concat
 class NA_BR_GoodsLost(models.Manager):
@@ -25,12 +25,12 @@ class NA_BR_GoodsLost(models.Manager):
         elif criteria==CriteriaSearch.Like:
             filterfield = columnKey + '__icontains'
 
-        qs = super(NA_BR_GoodsLost,self).get_queryset().annotate(goods=Concat(F('fk_goods__goodsname'), Value(' '), \
-                                                                            F('fk_goods__brandname'), Value(' '), F('fk_goods__typeapp')),
-                                                                 itemcode=F('fk_goods__itemcode'),
-                                                                 lost_by=Case(When(fk_lostby=None,then=Value(' ')),
-                                                                              When(fk_lostby=int,then=F('fk_lostby__employee_name')),
-                                                                              output_field=CharField()))
+        #qs = super(NA_BR_GoodsLost,self).get_queryset().annotate(goods=Concat(F('fk_goods__goodsname'), Value(' '), \
+        #                                                                    F('fk_goods__brandname'), Value(' '), F('fk_goods__typeapp')),
+        #                                                         itemcode=F('fk_goods__itemcode'),
+        #                                                         lost_by=Case(When(fk_lostby=None,then=Value('N/A')),
+        #                                                                      default=F('fk_lostby__employee_name'),
+        #                                                                      output_field=CharField()))
         #_getGoods_lending = qs.select_related('fk_goods_lending').annotate(used_by=F('fk_goods_lending__fk_employee__employee_name'),
         #                                                               resp_person=F('fk_goods_lending__fk_responsibleperson__employee_name')).values(
         #                                                                   'idapp','goods','itemcode','serialnumber','fk_fromgoods','used_by','lost_by',
@@ -44,18 +44,49 @@ class NA_BR_GoodsLost(models.Manager):
         #                                                                   'idapp','goods','itemcode','serialnumber','fk_fromgoods','used_by','lost_by','resp_person',
         #                                                                   'descriptions','createddate','createdby')
         #goods_data = _getGoods_lending.union(_getGoods_outwards)
-        #cur = connection.cursor()
-        #cur.execute("DROP TEMPORARY TABLE IF EXISTS T_GoodsLost_Manager")
+        cur = connection.cursor()
+        cur.execute("DROP TEMPORARY TABLE IF EXISTS T_GoodsLost_Manager")
         #rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-        #Query = """CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS(SELECT gls.idapp, gls.fk_goods, gls.fk_fromgoods, gls.serialnumber,ngo.fk_employee AS used_by,ngo.fk_responsibleperson AS resp_person,gls.fk_lostby AS lost_by,
-        #gls.datelost, gls.reason, gls.descriptions, gls.createddate, gls.createdby, CONCAT(g.goodsname, ' ',g.brandname, ' ',gls.typeapp) as goods, g.itemcode FROM
-        #n_a_goods_lost gls INNER JOIN n_a_goods g ON gls.fk_goods = g.idapp INNER JOIN  n_a_goods_outwards ngo ON gls.fk_goods_outwards=ngo.idapp AND gls.fk_goods_outwards IS NOT NULL WHERE """
+        Query = """CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS(SELECT gls.idapp, gls.fk_fromgoods, gls.serialnumber,
+        em.employee_name AS lost_by,gls.datelost, gls.reason, gls.fk_goods_outwards,gls.fk_goods_lending,
+        gls.descriptions, gls.createddate, gls.createdby, CONCAT(g.goodsname, ' ',g.brandname, ' ',gls.typeapp) as goods, g.itemcode 
+        FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON gls.fk_goods = g.idapp LEFT JOIN employee em ON gls.fk_lostby = em.idapp)""" # INNER JOIN  n_a_goods_outwards ngo ON 
+        #gls.fk_goods_outwards=ngo.idapp AND gls.fk_goods_outwards IS NOT NULL WHERE
         #Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + " " + sord + ")"
-        #cur.execute(Query)
-        #cur.execute("SELECT * FROM T_GoodsLost_Manager")
-        #result = query.dictfetchall(cur)
+        cur.execute(Query)
+        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager)""")
+        if cur.fetchone()[0] == 0:
+            return Data.Empty
+        check_exists_outwards = False
+        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GO\')""")
+        if cur.fetchone()[0] > 0:
+            check_exists_outwards = True
+        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GL\')""")
+        check_exists_lending = False
+        if cur.fetchone()[0] > 0:
+            check_exists_lending = True
+        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GM\')""")
+        check_exists_maintenance = False
+        if cur.fetchone()[0] > 0:
+            check_exists_maintenance = True
+        Query_orig = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
+        Query = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
+        if check_exists_outwards:
+            Query = Query + """LEFT OUTER JOIN n_a_goods_outwards ngo ON tgm.fk_goods_outwards = ngo.idapp 
+            AND tgm.fk_fromgoods = \'GO\' INNER JOIN employee em ON ngo.fk_employee = em.idapp"""
+        #if check_exists_outwards and check_exists_lending:
+        #    Query = Query + """ UNION """ + Query_orig
+        #if check_exists_lending:
+        #    Query = Query + """OUTER JOIN n_a_goods_lending ngl ON tgm.fk_goods_lending = ngl.idapp 
+        #    AND tgm.fk_fromgoods = \'GL\' INNER JOIN employee em ON ngl.fk_employee = em.idapp"""
+        #if check_exists_maintenance:
+        #    Query = Query + """INNER JOIN n_a_goods_lending ngl ON tgm.fk_goods_lending = ngl.idapp 
+        #    AND tgm.fk_fromgoods = \'GL\' INNER JOIN employee em ON ngl.fk_employee = em.idapp"""
+        cur.execute(Query)
+        result = query.dictfetchall(cur)
+        print(Query)
         #cur.close()
-        return qs.values('idapp','goods','itemcode','serialnumber','fk_fromgoods','lost_by','descriptions','createddate','createdby')
+        return result
 
     def SaveData(self, statusForm=StatusForm.Input, **data):
         cur = connection.cursor()

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
  NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View
+ NA_GoodsLost_View, NA_Report_View
 import app.views
 # Uncomment the next lines to enable the admin:
 # admin.autodiscover()
@@ -103,7 +103,7 @@ urlpatterns = [
 	url(r'^NA_GoodsLost/customFilter/$',NA_GoodsLost_View.ShowCustomFilter),
 
     #NA Report
-    #url(r'^NA_Report/$',NA_Report_View.write_pdf_view),
+    url(r'^NA_Report/$',NA_Report_View.cetak_daftar_hadir),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', admin.site.urls),
 ]

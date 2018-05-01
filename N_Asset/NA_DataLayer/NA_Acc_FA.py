@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection,transaction
-from NA_DataLayer.common import CriteriaSearch, DataType, Data, query
+from NA_DataLayer.common import CriteriaSearch, DataType, Data, query, ResolveCriteria
 from django.db.models import F
 class NA_Acc_FA_BR(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,sidx='idapp',sord='desc'):

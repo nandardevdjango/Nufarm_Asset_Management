@@ -40,6 +40,7 @@
     <Compile Include="app\NA_Views\NA_EmailData_View.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\NA_GoodsLost_View.py" />
     <Compile Include="app\NA_Views\NA_Goods_Receive_View.py" />
     <Compile Include="app\NA_Views\NA_Goods_View.py">
       <SubType>Code</SubType>
@@ -47,6 +48,8 @@
     <Compile Include="app\NA_Views\NA_LogEvent_View.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\NA_Maintenance_View.py" />
+    <Compile Include="app\NA_Views\NA_Report_View.py" />
     <Compile Include="app\NA_Views\NA_Suplier_View.py" />
     <Compile Include="app\NA_Views\NA_To_Grids.py" />
     <Compile Include="app\NA_Views\NA_User_View.py">
@@ -65,10 +68,12 @@
     <Compile Include="NA_DataLayer\NA_Acc_FA.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_DataLayer\NA_GoodsLost_BR.py" />
     <Compile Include="NA_DataLayer\NA_Goods_BR.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
+    <Compile Include="NA_DataLayer\NA_Maintenance_BR.py" />
     <Compile Include="NA_DataLayer\NA_Suplier.py">
       <SubType>Code</SubType>
     </Compile>
@@ -157,16 +162,20 @@
     <Content Include="app\static\app\scripts\standard_fonts_metrics.js" />
     <Content Include="app\static\app\Upload\email_data\rimba47prayoga\rimba47prayoga_employee.pdf" />
     <Content Include="app\templates\app\Dummy.html" />
-    <Content Include="app\templates\app\MasterData\EntryEmployee.html" />
-    <Content Include="app\templates\app\MasterData\EntrySuplier.html" />
-    <Content Include="app\templates\app\MasterData\Entry_AccFA.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_AccFA.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Employee.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_GoodsLost.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Maintenance.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Suplier.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Acc_FA.html" />
     <Content Include="app\templates\app\MasterData\NA_F_EmailData.html">
       <SubType>Code</SubType>
     </Content>
     <Content Include="app\templates\app\MasterData\NA_F_Goods.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Employee.html" />
+    <Content Include="app\templates\app\MasterData\NA_F_GoodsLost.html" />
+    <Content Include="app\templates\app\MasterData\NA_F_Maintenance.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Suplier.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />

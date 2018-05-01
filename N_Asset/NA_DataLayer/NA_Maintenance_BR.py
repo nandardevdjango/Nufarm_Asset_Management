@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection
-from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, query, StatusForm, DataType
+from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, query, StatusForm, DataType, Data, Message
 
 #idapp, requestdate, startdate, isstillguarante, expense,maintenanceby,personalname,enddate,fk_goods,issucced,descriptions,createddate,createdby
 class NA_BR_Maintenance(models.Manager):
@@ -92,5 +92,5 @@ class NA_BR_Maintenance(models.Manager):
             connection.close()
             return result
     def dataExist(self,serialNum):
-        data = super(NA_BR_Maintenance, self).get_queryset().filter(serialnumber=serialNum).values('idapp')
+        data = super(NA_BR_Maintenance, self).get_queryset().values('idapp').filter(serialnumber=serialNum)
         return data.exists()

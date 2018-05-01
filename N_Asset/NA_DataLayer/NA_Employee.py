@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection, transaction
-from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data
+from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data, Message
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
@@ -49,7 +49,7 @@ class NA_BR_Employee(models.Manager):
             VALUES({})""".format(','.join('%('+i+')s' for i in Params))
         elif statusForm == StatusForm.Edit:
             if self.hasRef(data['idapp']):
-                return (Data.HasRef,)
+                return (Data.HasRef,Message.HasRef_edit.value)
             else:
                 Params['ModifiedDate'] = data['modifieddate']
                 Params['ModifiedBy'] = data['modifiedby']
@@ -68,7 +68,7 @@ class NA_BR_Employee(models.Manager):
         NA_User = kwargs['NA_User']
         if self.dataExist(idapp=get_idapp):
             if self.hasRef(get_idapp):
-                return Data.HasRef
+                return (Data.HasRef,Message.HasRef_del.value)
             else:
                 cur = connection.cursor()
                 #============== INSERT INTO LOG EVENT ================
@@ -84,7 +84,7 @@ class NA_BR_Employee(models.Manager):
                 if modifieddate is not None:
                     dataPrms['ModifiedDate'] = modifieddate
                     dataPrms['ModifiedBy'] = data['modifiedby']
-                dataPrms['NA_User']
+                dataPrms['NA_User'] = NA_User
                 Query = """INSERT INTO logevent (nameapp,descriptions,createddate,createdby) VALUES(\'Deleted Employee\',
                 JSON_OBJECT({}),NOW(),""".format(','.join('%('+i+')s') for i in dataPrms)
                 Query = Query + NA_User +")"
@@ -98,9 +98,9 @@ class NA_BR_Employee(models.Manager):
                     transaction.rollback()
                     connection.close()
                     raise
-                return Data.Success
+                return (Data.Success,Message.Success.value)
         else:
-            return Data.Lost
+            return (Data.Lost,Message.get_lost_info(get_idapp))
 
     def retriveData(self, get_idapp,must_check=True):
         def get_data():
@@ -109,7 +109,7 @@ class NA_BR_Employee(models.Manager):
                     .values('idapp','nik','employee_name','typeapp','jobtype','gender',
                             'status','telphp','territory','descriptions','createddate','createdby')
         if must_check:
-            if self.dataExist(idapp=get_idapp):
+            if self.dataExist(idapp=get_idapp)[0]:
                 return (Data.Success,get_data())
             else:
                 return (Data.Lost,)
@@ -124,12 +124,12 @@ class NA_BR_Employee(models.Manager):
         if nik is not None:
             is_nik = super(NA_BR_Employee, self).get_queryset().filter(nik=get_nik).exists()
             if is_nik:
-                return (True,'Employee with Nik {0} has exists'.format(nik))
+                return (True,Message.get_specific_exists('Employee','Nik',nik))
         telphp = kwargs.get('telphp')
         if telphp is not None:
             is_telp = super(NA_BR_Employee, self).get_queryset().filter(telphp=telphp).exists()
             if is_telp:
-                return (True,'Employee with Telp/HP {0} has exists'.format(telphp))
+                return (True,Message.get_specific_exists('Employee','Telp/HP',telphp))
         return (False,)
 
     def hasRef(self,idapp):
