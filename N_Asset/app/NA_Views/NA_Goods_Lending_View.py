@@ -135,16 +135,19 @@ def ShowEntry_Lending(request):
 		if request.POST:
 			data = request.body
 			data = json.loads(data)
+			
 			status = data['status']
 			form = NA_Goods_Lending_Form(data)
 			resul = ''
 			if form.is_valid():
 				form.clean()
-				if status == 'Add':				
+				if status == 'Add':	
+					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')			
 					#SaveData
 					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				elif status == 'Edit':
+					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')	
 					if NAGoodsLending.objects.HasReference(data['idapp']):
 						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
 				if result != 'success':
@@ -247,7 +250,7 @@ class NA_Goods_Lending_Form(forms.Form):
 	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
 																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
 	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),disabled=True,choices=(('L', 'Lent'),('R','Returned')),initial=['L'])
+                                   'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),disabled=True,choices=(('L', 'Lent'),('R','Returned')),required=False)
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
@@ -271,5 +274,11 @@ class NA_Goods_Lending_Form(forms.Form):
 		interests = self.cleaned_data['interests']
 		fk_sender = self.cleaned_data['fk_sender']
 		serialnumber = self.cleaned_data['serialnumber']
-
-
+	def __init__(self,*args,**kwargs):
+		super(NA_Goods_Lending_Form,self).__init__(*args, **kwargs)
+		self.initial['statuslent'] = 'L'
+		self.initial['goods'] = ''
+		self.initial['brandvalue'] = ''
+		self.initial['typeapp'] = ''
+		self.initial['hasRefData'] = False
+		self.initial['isnew'] = False

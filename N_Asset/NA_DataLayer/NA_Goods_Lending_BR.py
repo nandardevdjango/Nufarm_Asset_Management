@@ -353,12 +353,14 @@ class NA_BR_Goods_Lending(models.Manager):
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
 		#get FK_stock
-		Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 0"""
-		cur.execute(Query,[Data['fk_goods']])
-		row = cur.fethcone()
-		fk_stock = row[0]
+		Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
+		cur.execute(Query,{'FK_Goods':Data['idapp_fk_goods']})
+		row = []
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			fk_stock = row[0]
 		try:
-			with transaction.Atomic():
+			with transaction.atomic():
 
 				Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_Responsible_Person, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions, FK_Receive, FK_RETURN, FK_CurrentApp) \
 							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
@@ -373,12 +375,13 @@ class NA_BR_Goods_Lending(models.Manager):
 				Stock = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,Data['createdby'])
 				TNew = Stock[0]
 				TSpare = Stock[6]
-				if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
-					Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %(TIsNew)s, ModifiedBy=%s WHERE IDApp = %s """
-					cur.execute(Query,[TSpare,TNew-1,Data['createdby'],fk_stock])
-				else:
-					Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s WHERE IDApp = %s """
-					cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
+				if fk_stock > 0:
+					if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
+						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %(TIsNew)s, ModifiedBy=%s WHERE IDApp = %s """
+						cur.execute(Query,[TSpare,TNew-1,Data['createdby'],fk_stock])
+					else:
+						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s WHERE IDApp = %s """
+						cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
 
 				#insert n_goods_history
 				Query = """INSERT INTO n_a_goods_history(IDApp, FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \

@@ -727,7 +727,7 @@
 		    var elidapp = NA.common.getElementID('id_idapp'),
                 idapp = elidapp.value;
 		    var elfk_goods = NA.common.getElementID('fk_goodsValue'),
-                fk_goods = elfk_goods.value;
+                fk_goods = elfk_goods.textContent;
            var elisnew = NA.common.getElementID('id_isnew'),
                isnew = elisnew.value;
 		    //goods tidak usah
@@ -747,7 +747,7 @@
                idapp_fk_responsibleperson = elidapp_fk_responsibleperson.value;
 		    //fk_responsibleperson_employee nggak usah
            var elinterests = NA.common.getElementID('id_interests'),
-               interests = elinterests.value;
+               interests = elinterests.value.toString().toUpperCase();
            var elfk_sender = NA.common.getElementID('id_fk_sender'),
                fk_sender = elfk_sender.value;
            var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender'),
@@ -763,7 +763,7 @@
            var eldescriptions = NA.common.getElementID('id_descriptions'),
                descriptions = eldescriptions.value;
 		    var eltypeapp = NA.common.getElementID('TypeValue'),
-               typeapp = eltypeapp.value;
+               typeapp = eltypeapp.textContent;
 		    var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
 		    //brandvalue nggak usah
@@ -1184,6 +1184,11 @@
 										}
 										NA.NAEvent.stopPropagation(event);
 									});
+									//if (item.id === 'id_interests') {
+									//    NA.NAEvent.addHandler(item, 'input', function (e) {
+                                    //        //this.value =  this.value
+									//    });
+									//}
 								});
 								//auto complete interests
 								$("#id_interests").autocomplete({ source: "geInterests/", minLength: 1, });
@@ -1258,11 +1263,15 @@
 								        }
 								        //get date datelending
 								    })(win),
-								    maxDate: 1,
+								    //maxDate: 0,
+								    //showOn: "button",
 								    showButtonPanel: true,
 								    closeText: "Close",
 								    currentText: 'Now',
 								});
+								$.datepicker._gotoToday = function (id) {
+								    $(id).datepicker('setDate', new Date()).datepicker('hide').blur();
+								};
 
 							    //setting Custom Validity
 								var elm = NA.common.doc.querySelector('#id_datelending');
