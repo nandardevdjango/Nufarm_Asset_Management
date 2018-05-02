@@ -442,8 +442,6 @@
 					}
 				},
 				onshown: function (dialogRef) {
-					var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
-					divHeader.style.backgroundColor = 'green';
 					NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons button.btn.btn-success').focus();
 				}
 			});
@@ -469,10 +467,6 @@
 						}
 						return true;
 					}
-				},
-				onshown: function (dialogRef) {
-					var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
-					divHeader.style.backgroundColor = 'green';
 				},
 				onhidden: function (dialogRef) {
 					if (calbackOnHide) {
@@ -657,7 +651,7 @@
 		};
 		function clearEntry() {
 		    var elidapp = NA.common.getElementID('id_idapp');
-		    elidapp.value = originalData.idapp;
+		    elidapp.value = originalData.idapp||null;
 		    var elfk_goods = NA.common.getElementID('fk_goodsValue');
 		    elfk_goods.textContent = originalData.fk_goods || '';
 		    var elisnew = NA.common.getElementID('id_isnew');
@@ -1452,7 +1446,12 @@
 												var idapp = getGridCellValue(gridTbl, 'idapp');
 												if (idapp) {//cell di select sama user
 													//tempelkan data row di fk_goods, dan valuenya di goods_desc;
-													var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
+												    var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
+												    var lastinfo = rowData['lastinfo'] // goods is able to use
+												    if (lastinfo != 'goods is able to use') {
+												        ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
+												        return false;
+												    }
 													fillGoodsInfo(rowData);
 													dialogRef.close();
 												}

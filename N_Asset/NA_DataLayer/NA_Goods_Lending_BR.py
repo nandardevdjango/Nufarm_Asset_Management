@@ -305,11 +305,11 @@ class NA_BR_Goods_Lending(models.Manager):
 						WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), \
 							(CASE \
 								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is able to use)')) \
-								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods unable to use)')) \
+								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is unable to use)')) \
 								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is still in maintenance)')) \
 								END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance) \
 						WHEN(gh.fk_lending IS NOT NULL) THEN((CASE \
-																WHEN ((SELECT 'status' FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
+																WHEN ((SELECT `status` FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
 																ELSE ('goods is able to use') \
 																END)) \
 						WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee' \
@@ -378,10 +378,10 @@ class NA_BR_Goods_Lending(models.Manager):
 				TSpare = Stock[6]
 				if fk_stock > 0:
 					if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
-						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %s, ModifiedBy=%s WHERE IDApp = %s """
-						cur.execute(Query,[TSpare,TNew-1,Data['createdby'],fk_stock])
+						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %s, ModifiedBy=%s,ModifiedDate = NOW() WHERE IDApp = %s """
+						cur.execute(Query,[TSpare,TNew,Data['createdby'],fk_stock])
 					else:
-						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s WHERE IDApp = %s """
+						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s,ModifiedDate = NOW() WHERE IDApp = %s """
 						cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
 
 				#insert n_goods_history
@@ -402,6 +402,31 @@ class NA_BR_Goods_Lending(models.Manager):
 			return int(row[0]) > 1
 		else:
 			return False
+	def Delete(self,idapp,username):
+		cur = connection.cursor()
+		Query = """SELECT ns.IDApp,ngl.fk_goods,ngl.serialnumber,ngl.fk_receive FROM n_a_stock ns INNER JOIN n_a_goods_lending ngl ON ngl.fk_goods = ns.fk_goods WHERE ngl.IDApp = %s LIMIT 1"""
+		cur.execute(Query,[idapp])
+
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			fk_stock = row[0]
+			fk_goods = row[1]
+			serialnumber = row[2]
+			fk_receive = row[3]
+			try:
+				with transaction.atomic():
+					Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
+					cur.execute(Query,[idapp])
+					Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
+					cur.execute(Query,[fk_goods,serialnumber,idapp])
+					if fk_receive is not None:
+						#barang berarti  ngambil dari 
+						Query = """UPDATE n_a_stock SET TIsNew = TIsNew + 1, ModifiedBy = %s,ModifiedDate = NOW() WHERE IDApp = %s """
+						cur.execute(Query,[username,fk_stock]) 
+				return "success"
+			except :
+				cur.close()
+				return repr(e)
 
 
 

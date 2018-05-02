@@ -218,3 +218,6 @@ font-size: medium;
 color: black;
 font-weight: bold;
 }
+div.modal-header{
+    background-color: #4CAF50;
+}

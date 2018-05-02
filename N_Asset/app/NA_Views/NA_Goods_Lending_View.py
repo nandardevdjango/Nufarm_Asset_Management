@@ -98,10 +98,9 @@ def Delete(request):
 		data = json.loads(data)
 
 		IDApp = data['idapp']
-		Ndata = NAGoodsReceive.objects.getData(IDApp)[0]
-		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata['idapp_fk_goods'],'datereceived':Ndata['datereceived'],'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
+	
 		#check reference data
-		result = NAGoodsReceive.objects.delete(NAData)
+		result = NAGoodsLending.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)

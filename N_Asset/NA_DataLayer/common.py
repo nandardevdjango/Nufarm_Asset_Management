@@ -360,14 +360,15 @@ class commonFunct:
 		cur.execute(Query,{'FK_Goods':FKGoods})
 	
 		#get totalused and totalReceived
-		Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - T_Used.Total AS TotalNew,T_Used.Total AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
-					ON ngr.FK_goods = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec INNER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
+		Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
+					ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
 					ON Rec.FK_Goods = T_Used.FK_Goods """
-		row = cur.execute(Query,{'FK_Goods':FKGoods})
+		cur.execute(Query,{'FK_Goods':FKGoods})
 		if cur.rowcount >0:
-			totalNew = int(row['TotalNew'])
-			totalReceived = int(row['TotalReceived'])
-			totalUsed = int(row['TotalUsed'])	
+			row = cur.fetchone()
+			totalNew = int(row[1])
+			totalReceived = int(row[0])
+			totalUsed = int(row[2])	
 		
 		#totalReturn 
 		Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
