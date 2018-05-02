@@ -42,14 +42,10 @@ class Message(Enum):
     @staticmethod
     def get_specific_exists(table,column,data):
         return '{0} with {1} {2} has existed'.format(table,column,data)
-    @staticmethod
-    def get_lost_info(data):
-        obj = commonFunct.get_log_data(data)
-        if obj == []:
-            return 'This data doesn\'t lost'
-        else:
-            obj = obj[0]
-        diff = (datetime.now() - obj['createddate']).seconds
+
+    @classmethod
+    def get_time_info(cls,times):
+        diff = (datetime.now() - times).seconds
         unit = 'seconds'
         result = diff
         if diff >= 60:
@@ -62,7 +58,22 @@ class Message(Enum):
             unit = 'hour'
             if diff >=7200:
                 unit = 'hours'
-        return 'This data has lost or deleted by other user {0} {1} ago'.format(int(result),unit)
+        return (int(result),unit)
+
+    @classmethod
+    def get_lost_info(cls,**kwargs):
+        obj = commonFunct.get_log_data(pk=kwargs['pk'],table=kwargs['table'],action='deleted')
+        if obj == []:
+            return 'This data doesn\'t lost'
+        else:
+            obj = obj[0]
+            result, unit =cls.get_time_info(obj['createddate'])
+            return 'This data has lost or deleted by other user, {0} {1} ago'.format(int(result),unit)
+
+    @classmethod
+    def get_exists_info(cls,data):
+            result, unit = cls.get_time_info(data)
+            return 'This data has exists or created by other user, {0} {1} ago'.format(int(result),unit)
 
 class ResolveCriteria:
     __query = "";
@@ -471,10 +482,11 @@ class commonFunct:
                 break
         return result
 
-    def get_log_data(data):
+    def get_log_data(**kwargs):
         cur = connection.cursor()
-        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,'$.deleted[0]')=%(DATA)s""" #DATA is PK (Primary Key)
-        cur.execute(Query,{'DATA':data})
+        action = kwargs['action']
+        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$."""+action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%""" #PK (Primary Key)
+        cur.execute(Query,{'PK':kwargs['pk'],'NameApp':kwargs['table']})
         return query.dictfetchall(cur)
 
     def response_default(data):

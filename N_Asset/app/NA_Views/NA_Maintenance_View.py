@@ -86,20 +86,11 @@ def EntryMaintenance(request):
         if form.is_valid():
             data = getFormData(request,form)
             statusForm = request.POST['statusForm']
+            result = None
             if statusForm == 'Add':
                 data['createddate'] = datetime.now()
                 data['createdby'] = getUser
                 result = NAMaintenance.objects.SaveData(StatusForm.Input,**data)
-                statusResp = 200
-                if result[0] != 'success' and result[0] != 'HasExist':
-                    message = 'Fail'
-                    statusResp = 500
-                elif result[0] == 'HasExist':
-                    statusResp = 403
-                    message = 'This data has Exist'
-                else:
-                    message = result[1]
-                return HttpResponse(json.dumps(message),status=statusResp,content_type='application/json')
             elif statusForm == 'Edit':
                 idapp = request.POST['idapp']
                 data['idapp'] = idapp
@@ -107,13 +98,7 @@ def EntryMaintenance(request):
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = getUser
                 result = NAMaintenance.objects.SaveData(StatusForm.Edit,**data)
-                statusResp = 200
-                if result[0] != 'success':
-                    message = 'Fail'
-                    statusResp = 500
-                else:
-                    message = result[1]
-                return HttpResponse(json.dumps(message, cls=DjangoJSONEncoder),status=statusResp,content_type='application/json')
+            return commonFunct.response_default(result)
     elif request.method == 'GET':
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':

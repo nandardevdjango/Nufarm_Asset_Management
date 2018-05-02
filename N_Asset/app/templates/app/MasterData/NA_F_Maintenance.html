@@ -383,18 +383,18 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
             typeApp: qs('input#id_typeApp').value.trim(),
             serialNum: qs('input#id_serialNum').value.trim(),
             minus: qs('input#id_minus').value.trim(),
-            requestdate:qs('input#id_requestdate').value.trim(),
+            requestdate: qs('input#id_requestdate').value.trim(),
             startdate: qs('input#id_startdate').value.trim(),
-            isstillguarantee:qs('input#id_isstillguarantee').checked,
+            isstillguarantee: qs('input#id_isstillguarantee').checked,
             maintenanceby: qs('input#id_maintenanceby').value.trim() === '' ? 'N/A' : qs('input#id_maintenanceby').value.trim(),
             personalname: qs('input#id_personalname').value.trim() === '' ? 'N/A' : qs('input#id_personalname').value.trim(),
-            expense:qs('input#id_expense').value.trim().split(',').join(''),
-            enddate:qs('input#id_enddate').value.trim(),
-            issucced:qs('input#id_issucced').checked,
+            expense: qs('input#id_expense').value.trim().split(',').join(''),
+            enddate: qs('input#id_enddate').value.trim(),
+            issucced: qs('input#id_issucced').checked,
             descriptions: qs('textarea#id_descriptions').value.trim()
         };
         return data
-    }
+    };
     
 
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
@@ -445,9 +445,14 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
                                 };
                             },
                             complete: function (data, status) {
-                                if (data.status === 500 && data.responseText === 'Lost') {
-                                    return dialogAlert(NA.common.message.dataHasLost, NA.common.message.titleInfo, function () {
-                                        return maintenance_grid.trigger("reloadGrid", [{ page: curPage }]);
+                                if (data.status !== 200) {
+                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
+                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
+                                        if (data.status == 404) {
+                                            var dialog = qs("div.containerDialog");
+                                            NA.common.dialog.closeDialog(dialog);
+                                        };
+                                        return maintenance_grid.trigger('reloadGrid');
                                     });
                                 }
                             }
@@ -520,9 +525,14 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
                         }
                     },
                     complete: function (data, status) {
-                        if (data.statusText === 'Forbidden' && data.responseJSON === 'This data has Exist') {
-                            return dialogAlert(NA.common.message.existsData, NA.common.message.titleInfo, function () {
-                                return false;
+                        if (data.status !== 200) {
+                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
+                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
+                                if (data.status == 404) {
+                                    var dialog = qs("div.containerDialog");
+                                    NA.common.dialog.closeDialog(dialog);
+                                };
+                                return maintenance_grid.trigger('reloadGrid');
                             });
                         }
                     }

@@ -112,7 +112,7 @@ class NA_BR_Employee(models.Manager):
             if self.dataExist(idapp=get_idapp)[0]:
                 return (Data.Success,get_data())
             else:
-                return (Data.Lost,)
+                return (Data.Lost,Message.get_lost_info(pk=get_idapp,table='employee'))
         else:
             return (Data.Success,get_data())
 

@@ -19,8 +19,8 @@ class NA_BR_Maintenance(models.Manager):
                   "Expense":data["expense"],"MaintenanceBy":data["maintenanceby"],"PersonalName":data["personalname"],
                   "EndDate":data["enddate"],"FK_Goods":data["fk_goods"],"IsSucced":data["issucced"],"Descriptions":data["descriptions"]}
         if statusForm == StatusForm.Input:
-            if self.dataExist(data['serialNum']):
-                return ('HasExist',)
+            if self.dataExist(serialnumber=data['serialNum']):
+                return (Data.Exists,Message.get_exists_info(self.get_createddate(data['serialNum'])['createddate']))
             else:
                 Params['CreatedDate'] = data["createddate"]
                 Params["CreatedBy"] = data["createdby"]
@@ -37,7 +37,7 @@ class NA_BR_Maintenance(models.Manager):
         cur.execute(Query,Params)
         row = cur.lastrowid
         connection.close()
-        return ('success',row)
+        return (Data.Success,Message.Success.value)
     
     def DeleteData(self,idapp):
         cur = connection.cursor()
@@ -78,10 +78,7 @@ class NA_BR_Maintenance(models.Manager):
 
     def getGoods_data(self,idapp):
         cur = connection.cursor()
-        Query = """SELECT EXISTS(SELECT m.idapp FROM n_a_maintenance m WHERE m.idapp=%s)"""
-        cur.execute(Query,[idapp])
-        result = cur.fetchone()[0]
-        if result > 0:
+        if self.dataExist(idapp=idapp):
             return 'HasExist'
         else:
             Query = """SELECT g.idapp,g.itemcode,g.goodsname,g.brandname,grt.typeapp, grt.serialnumber,grt.minus, IF(NOW() <= grd.endofwarranty, 'True','False')
@@ -91,6 +88,15 @@ class NA_BR_Maintenance(models.Manager):
             result = query.dictfetchall(cur)
             connection.close()
             return result
-    def dataExist(self,serialNum):
-        data = super(NA_BR_Maintenance, self).get_queryset().values('idapp').filter(serialnumber=serialNum)
-        return data.exists()
+    def dataExist(self,**kwargs):
+        data = super(NA_BR_Maintenance, self).get_queryset().values('idapp')
+        idapp = kwargs.get('idapp')
+        if idapp is not None:
+            return data.filter(idapp=idapp).exists()
+        serialnumber = kwargs.get('serialnumber')
+        if serialnumber is not None:
+            return data.filter(serialnumber=serialnumber).exists()
+
+    def get_createddate(self,serial_num):
+        data = super(NA_BR_Maintenance,self).get_queryset().values('createddate').filter(serialnumber=serial_num)
+        return data[0]

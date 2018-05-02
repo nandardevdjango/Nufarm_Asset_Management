@@ -5,7 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 import datetime
 import json
-from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm, commonFunct
+from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm, commonFunct, Data
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 #@login_required
@@ -95,32 +95,23 @@ def EntryEmployee(request):
                 data['createddate'] = datetime.datetime.now()
                 data['createdby'] = getCurrentUser(request)
                 result = Employee.objects.SaveData(**data)
-                message = result[0]
-                if result[0] == 'exists':
-                    statusResp = 400
-                    message = result[1]
-                return HttpResponse(json.dumps({'message':message}),status=statusResp, content_type='application/json')
+                return commonFunct.response_default(result)
             elif mode == 'Edit':
                 getIdapp = request.POST['idapp']
                 data['idapp'] = getIdapp
                 data['modifieddate'] = datetime.datetime.now()
                 data['modifiedby'] = getCurrentUser(request)
                 result = Employee.objects.SaveData(StatusForm.Edit,**data)
-                message = data['idapp']
-                if result[0] == 'hasRef':
-                    statusResp = 403
-                    message = 'Cannot Edit, This data has reference child'
-                return HttpResponse(json.dumps({'message':message}), status=statusResp, content_type='application/json')
+                return commonFunct.response_default(result)
             elif mode == 'Open':
                 if request.POST['employee_name']:
                     return HttpResponse(json.dumps({'messages':'You\'re try to Edit this Data with Open Mode\nWith technic inspect element\n Lol :D'}))
-        return HttpResponse(json.dumps({'message':'success'}), content_type='application/json')
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
             result = Employee.objects.retriveData(idapp)
-            if result[0] == 'Lost':
+            if result[0] == Data.Lost:
                 return HttpResponse(json.dumps({'message':result[0]}),status=404,content_type='application/json')
             form = NA_Employee_form(initial=result[1][0])
             form.fields['nik'].widget.attrs['disabled'] = 'disabled'
