@@ -142,7 +142,15 @@ def ShowEntry_Lending(request):
 			if form.is_valid():
 				form.clean()
 				if status == 'Add':	
-					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')			
+					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
+					data.update(isnew=strtobool(str(data['isnew'])))
+					data.update(fk_maintenance=(None if int(data['fk_maintenance']) == 0 else data['fk_maintenance']))
+					data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
+					data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
+					data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
+					data.update(fk_disposal=(None if int(data['fk_disposal']) == 0 else  data['fk_disposal']))
+					data.update(fk_lost=(None if int(data['fk_lost']) == 0 else data['fk_lost']))
+					#fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost		
 					#SaveData
 					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')

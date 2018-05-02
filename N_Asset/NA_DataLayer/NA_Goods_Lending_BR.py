@@ -57,6 +57,7 @@ class NA_BR_Goods_Lending(models.Manager):
 					END AS refgoodsfrom FROM n_a_goods_lending ngl)Ref ON Ref.IDApp = ngl.IDApp
 					INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = g.IDApp
 					INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
+					AND ngl.SerialNumber = ngd.SerialNumber AND ngl.TypeApp = ngd.TypeApp
 					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS lentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)L
 										ON L.IDApp = ngl.FK_Employee
 					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS sentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)S
@@ -377,14 +378,14 @@ class NA_BR_Goods_Lending(models.Manager):
 				TSpare = Stock[6]
 				if fk_stock > 0:
 					if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
-						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %(TIsNew)s, ModifiedBy=%s WHERE IDApp = %s """
+						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %s, ModifiedBy=%s WHERE IDApp = %s """
 						cur.execute(Query,[TSpare,TNew-1,Data['createdby'],fk_stock])
 					else:
 						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s WHERE IDApp = %s """
 						cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
 
 				#insert n_goods_history
-				Query = """INSERT INTO n_a_goods_history(IDApp, FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
+				Query = """INSERT INTO n_a_goods_history(FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
 						 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Lending)s,NULL, NULL, NULL, NULL, NULL, NOW(), %(CreatedBy)s )"""
 				param = {'FK_Goods':Data['idapp_fk_goods'],'TypeApp':Data['typeapp'],'SerialNumber':Data['serialnumber'],'FK_Lending':FKApp,'CreatedBy':Data['createdby']}
 				cur.execute(Query,param)

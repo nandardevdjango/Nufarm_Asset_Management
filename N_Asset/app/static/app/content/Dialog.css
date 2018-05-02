@@ -211,10 +211,10 @@ div.dialogButtonEntry>a.btn-link{
     background: rgba(255, 255, 255, 0.85);  
 }
 .login-dialog .modal-dialog {
-    width: 300px;
+    width: 350px;
 }
 .bootstrap-dialog-title{
 font-size: medium;
-color: darkgreen;
+color: black;
 font-weight: bold;
 }
