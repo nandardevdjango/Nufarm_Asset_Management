@@ -777,10 +777,10 @@
                 fk_currentapp = elfk_currentapp.value;
 		    var elfk_receive = NA.common.getElementID('id_fk_receive'),
                 fk_receive = elfk_receive.value;
-		    var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
-                fk_disposal = elfk_disposal.value;
-		    var elfk_lost = NA.common.getElementID('id_fk_lost'),
-                fk_lost = elfk_lost.value;
+		    //var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
+            //    fk_disposal = elfk_disposal.value;
+		    //var elfk_lost = NA.common.getElementID('id_fk_lost'),
+            //    fk_lost = elfk_lost.value;
 		    //var ellastinfo = NA.common.getElementID('id_lastinfo'),
             //    lastinfo = ellastinfo.value;
 		    //hasRefData nggak usah , karena apa yang sedang di di edit oleh user bisa jadi di hapus oleh user lain
@@ -1069,12 +1069,17 @@
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 				NA.NAEvent.addHandler(item, 'click', function (event) {
 					NA.NAEvent.preventDefault(event);
-				    //==============uncommment this after debugging=============
-				    try {
+					//==============uncommment this after debugging=============
+					//comment this after debugging
+					//NA.common.dialog.closeDialog(dialog);
+					if (!hasLoadDialog) {
+						NA.common.dialog.closeDialog(dialog); win.document.body.style.cursor = 'default'; return false;
+					}
+					try {
 
-				    } catch (e) {
-				        ShowAlert(e.message);
-				    }
+					} catch (e) {
+						ShowAlert(e.message);
+					}
 					if (win.status !== 'Open') {
 
 						var textElem = event.target.innerText;
@@ -1082,17 +1087,10 @@
 							ExecuteHandler('OK');
 						} else {
 							ExecuteHandler('Close');
-					    }
-                     
+						}
 					}
 					if (event) {
 						NA.NAEvent.stopPropagation(event);
-					}
-
-                    //comment this after debugging
-					//NA.common.dialog.closeDialog(dialog);
-					if (!hasLoadDialog) {
-						NA.common.dialog.closeDialog(dialog);
 					}
 					win.document.body.style.cursor = 'default';
 					return false;
@@ -1155,13 +1153,35 @@
 									break;
 								}
 							    case 'Edit': {
-
-							        var hasref = NA.common.getElementID('id_hasRefData').value
-							        NA.common.getElementID('id_statuslent').setAttribute('disabled', hasref.valueOf || false);
+							    	var hasref = NA.common.getElementID('id_hasRefData').value
+							    	NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+							    	NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+							    	if (hasref.valueOf === true) {
+							    		NA.common.getElementID('id_statuslent').setAttribute('disabled',true);
+							    		NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);							    		
+							    		NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+							    		NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+							    		NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+							    		NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+							    		NA.common.getElementID('id_datelending').setAttribute('disabled', true);
+							    	}
 									break;
 								}
 							    case 'Open': {
-							        
+							    	NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_statuslent').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+							    	NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+							    	NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+							    	NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_datelending').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_interests').setAttribute('disabled', true);
+							    	NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
+
 									break;
 								}
 							};
@@ -1373,8 +1393,8 @@
 												datatype: "json",//column idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
 												colNames: ['idapp', 'NO','fk_goods','Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'Last Info','fk_receive','fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
 												colModel: [
-                                                   { name: 'idapp', key: true, index: 'idapp', hidden: true, },
-                                                    { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+                                                   { name: 'idapp', index: 'idapp', hidden: true, },
+                                                    { name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },
 													{ name: 'fk_goods', index: 'fk_goods', hidden: true, },
                                                     { name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
                                                     { name: 'brandname', index: 'brandname', width: 120, sortable: true, editable: false, align: 'left', },
@@ -1407,7 +1427,7 @@
 												height: '200px',
 												rowNum: 500,
 												rowList: [20, 50, 100, 200, 300, 500],
-												//sortname: "brandname",
+												sortname: "brandname",
 												sortorder: "asc",
 												multiSort: true,
 												//shrinkToFit: false,
@@ -1448,12 +1468,16 @@
 													//tempelkan data row di fk_goods, dan valuenya di goods_desc;
 												    var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
 												    var lastinfo = rowData['lastinfo'] // goods is able to use
-												    if (lastinfo != 'goods is able to use') {
-												        ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
-												        return false;
+												    var validInfo = ['goods is able to use', 'not yet used'];
+												    if (validInfo.indexOf(lastinfo) >=0) {
+												    	fillGoodsInfo(rowData);
+												    	dialogRef.close();
 												    }
-													fillGoodsInfo(rowData);
-													dialogRef.close();
+												    else {
+												    	ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
+												    	return false;
+												    }
+													
 												}
 											}
 										}]

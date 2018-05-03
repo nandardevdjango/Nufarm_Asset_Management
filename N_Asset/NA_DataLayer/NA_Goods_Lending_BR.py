@@ -282,7 +282,7 @@ class NA_BR_Goods_Lending(models.Manager):
 			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
-		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost)
+		return(idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 	def hasExists(self,idapp_fk_goods,serialnumber,datelent):
 		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
 		return super(NA_BR_Goods_Lending,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(datelending=datelent)).exists()#Q(member=p1) | Q(member=p2)
@@ -427,6 +427,41 @@ class NA_BR_Goods_Lending(models.Manager):
 			except :
 				cur.close()
 				return repr(e)
+	def getData(self,idapp):
+		cur = connection.cursor()
+		#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+		#    //datelending, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+		#    //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
+		#    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
+		Query = """SELECT g.itemcode AS fk_goods,ngl.isnew,g.goodsname AS goods,ngl.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
+					ngl.fk_employee AS idapp_fk_employee,		emp.employee_name AS fk_employee_employee,ngl.datelending,ngl.fk_stock,\
+					emp1.NIK AS fk_responsibleperson, ngl.fk_responsible_person AS idaap_fk_responsibleperson,ngl.interests, \
+					emp2.NIK AS fk_sender,ngl.fk_sender AS idapp_fk_sender,emp2.employee_name AS fk_sender_employee,ngl.status AS statuslent, \
+					ngl.descriptions,ngl.typeapp,ngl.serialnumber, 		emp1.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
+					IFNULL(ngl.fk_maintenance,0)AS fk_maintenance,IFNULL(ngl.fk_return,0) AS fk_return, \
+					IFNULL(ngl.fk_currentapp,0) AS fk_currentapp,IFNULL(fk_receive,0) AS fk_receive, \
+						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
+							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
+							 ELSE 0 
+					END AS hasRefData  
+					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON ngl.fk_goods = g.IDApp \
+					INNER JOIN employee emp ON emp.IDApp = ngl.fk_employee 	\
+					LEFT OUTER JOIN (SELECT IDApp, NIK,employee_name FROM employee)emp1 ON emp1.IDApp = ngl.fk_sender	\
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngl.fk_responsible_person WHERE ngl.idapp = %s""" 
+		cur.execute(Query,[idapp])
+		data = query.dictfetchall(cur)
+
+		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s)"""
+		cur.execute(Query,[idapp])
+		row = cur.fetchone()
+		if row[0] > 0:
+			data[0]['hasRefData'] = True
+		isnew =  commonFunct.str2bool(str(data[0]['isnew']))
+		data[0]['isnew'] = isnew
+		cur.close()
+
+		return data
+
 
 
 

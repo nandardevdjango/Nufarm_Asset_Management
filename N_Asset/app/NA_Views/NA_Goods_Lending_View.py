@@ -131,6 +131,7 @@ def ShowEntry_Lending(request):
 	data = None
 	hasRefData = False
 	try:
+		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
 		if request.POST:
 			data = request.body
 			data = json.loads(data)
@@ -160,14 +161,22 @@ def ShowEntry_Lending(request):
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-		else:
-			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
-			#set initilization
-
 		if status == 'Add':
 			form = NA_Goods_Lending_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Lending.html', {'form' : form})
+		elif status == 'Edit' or status == 'Open':
+			IDApp = request.GET.get('idapp')
+			Ndata = NAGoodsLending.objects.getData(IDApp)
+			Ndata = Ndata[0]
+			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
+			form = NA_Goods_Lending_Form(data=Ndata)
+			return render(request, 'app/Transactions/NA_Entry_Goods_Lending.html', {'form' : form})
+			#get data
+			#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+		 #   //datelending, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+   #         //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
+		 #   //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive,  lastinfo, initializeForm, hasRefData
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -195,8 +204,8 @@ def getLastTransGoods(request):
 		result = NAGoodsLending.objects.getLastTrans(serialNO)
 		#idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
-								  'lastinfo':result[5],'fk_receive':result[6],'fk_return':result[7],'fk_lending':result[8],'fk_outwards':[9],'fk_maintenance':result[10],'fk_disposal':result[11],
-								  'fklost':result[12],}),status = 200, content_type='application/json')
+								  'lastinfo':result[5],'fk_receive':result[6],'fk_return':result[7],'fk_lending':result[8],'fk_outwards':[9],'fk_maintenance':result[10],
+								  }),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -214,9 +223,9 @@ def getGoodsWithHistory(request):
 		i = 0;#idapp,itemcode,goods
 		for row in dataRows:
 			i+=1
-			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
+			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
 			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['fk_goods'],row['goodsname'],row['brandname'],row['type'],
-							row['serialnumber'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],row['fk_disposal'],row['fk_lost'],]}
+							row['serialnumber'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
 		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
@@ -228,14 +237,14 @@ class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
 	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)
-	goods = forms.CharField(max_length=100,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+	goods = forms.CharField(max_length=100,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																					 'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
 	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_employee = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
+	fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
 	
 	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
@@ -246,7 +255,7 @@ class NA_Goods_Lending_Form(forms.Form):
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
-	fk_responsibleperson_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
+	fk_responsibleperson_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																						 'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	interests = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:355px;display:inline-block;','tabindex':5,
 																						 'placeholder': 'Interest Of','data-value':'Interest Of','tittle':'Interest is required'}))
@@ -254,22 +263,22 @@ class NA_Goods_Lending_Form(forms.Form):
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':3,
                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
 	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':False,
+	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
 	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
                                    'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),disabled=True,choices=(('L', 'Lent'),('R','Returned')),required=False)
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
-	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
-	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_currentapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_disposal = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_lost = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	#fk_disposal = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	#fk_lost = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
