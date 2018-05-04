@@ -557,9 +557,7 @@
 				            }
 				            case 'Edit': {
 				                win.document.body.style.cursor = 'wait';
-				                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-				                closeJQueryDialog();
-				                NA.common.dialog.closeDialog(dialog);
+				                closeDialog();
 				                grid.trigger("reloadGrid", [{ page: 1 }]);
 				                win.document.body.style.cursor = 'default';
 				                break;
@@ -641,10 +639,27 @@
 		            }
 		            break;
 		        }
-		        case 'Cancel': {
-		            break;
-		        }
+		        case 'Cancel': 
 		        case 'Close': {
+		            var valuesForm = getValuesForm(); var retval = false;
+		            if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+		                showConfirmation(NA.common.message.dataHasChanged, 'Confirmation', function () {
+		                    if (!frmEntry.checkValidity()) {
+		                        var inputbtn = NA.common.getElementID('inputButton');
+		                        inputbtn.click();
+		                    }
+		                    else {
+		                        submitForm(valuesForm);
+		                    }
+		                    win.document.body.style.cursor = 'default';
+		                }, function () {
+		                    closeDialog();
+		                    win.document.body.style.cursor = 'default';
+		                });
+		            }
+		            else {
+		                closeDialog();
+		            }
 		            break;
 		        }
 		    };
@@ -713,10 +728,10 @@
 		    elfk_currentapp.value = originalData.fk_currentapp;
 		    var elfk_receive = NA.common.getElementID('id_fk_receive');
 		    elfk_receive.value = originalData.fK_receive;
-		    var elfk_disposal = NA.common.getElementID('id_fk_disposal');
-		    elfk_disposal.value = originalData.fk_disposal;
-		    var elfk_lost = NA.common.getElementID('id_fk_lost');
-		    elfk_lost.value = originalData.fk_lost;
+		    //var elfk_disposal = NA.common.getElementID('id_fk_disposal');
+		    //elfk_disposal.value = originalData.fk_disposal;
+		    //var elfk_lost = NA.common.getElementID('id_fk_lost');
+		    //elfk_lost.value = originalData.fk_lost;
 		    var ellastinfo = NA.common.getElementID('LastInfoValue');
 		    ellastinfo.textContent = '';
 		    NA.common.getElementID('difInfo').style.display = 'none';
@@ -836,12 +851,12 @@
 		        }
 		    }
 		    //  	 form.fk_disposal 
-		    var elfk_disposal = NA.common.getElementID('id_fk_disposal');
-		    elfk_disposal.value = rowData['fk_disposal'] || null;
+		    //var elfk_disposal = NA.common.getElementID('id_fk_disposal');
+		    //elfk_disposal.value = rowData['fk_disposal'] || null;
 
-		    // form.fk_lost 
-		    var elfk_lost = NA.common.getElementID('id_fk_lost');
-		    elfk_lost.value = rowData['fk_lost'] || null;
+		    //// form.fk_lost 
+		    //var elfk_lost = NA.common.getElementID('id_fk_lost');
+		    //elfk_lost.value = rowData['fk_lost'] || null;
 
 		    //form.brandvalue
 		    var elbrandvalue = NA.common.getElementID('BrandValue');
@@ -899,6 +914,27 @@
                         }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                         );
+		};
+
+		//function ConfirmPageLeave(e) {
+		//    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+		//    if (!dialog) {
+		//        return true;
+		//    };
+		//    var valuesForm = getValuesForm(); var retval = false;
+		//    if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+		//        showConfirmation(NA.common.message.dataHasChanged, 'Please confirm', function () {
+		//            win.document.body.style.cursor = 'wait';retval = ExecuteHandler('OK'); win.document.body.style.cursor = 'default';
+		//        });
+		//    }
+		//    return retval;
+		//};
+		function closeDialog() {
+		    EraseElHidden();
+		    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+		    if (dialog) {
+		        NA.common.dialog.closeDialog(dialog);
+		    }
 		};
 		//==========================End GROUP Function Declaration ============================
 
@@ -1099,18 +1135,19 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
 			    NA.NAEvent.preventDefault(event);
                 //==============uncommment this after debugging=============
-
-				//ExecuteHandler('Close');
+			    if (hasLoadDialog) {
+			        ExecuteHandler('Close');
+			    }				
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}
 				win.document.body.style.cursor = 'default';
-				//if (!hasLoadDialog) {
-				//	NA.common.dialog.closeDialog(dialog);
-			    //}
+				if (!hasLoadDialog) {
+				    closeDialog();
+			    }
 			    //==============End uncommment this after debugging=============
 			    //comment this after debugging
-				NA.common.dialog.closeDialog(dialog);
+				//NA.common.dialog.closeDialog(dialog);
 				return false;
 			});
 		    try {
@@ -1121,11 +1158,7 @@
 						idapp = getGridCellValue(grid, 'idapp');
 						if (typeof idapp == 'undefined' || idapp === '') {
 							ShowAlert('Please select data to edit');
-							var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
-							if (dialog) {
-								//closeJQueryDialog();
-								NA.common.dialog.closeDialog(dialog);
-							}
+							closeDialog();
 							if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
 							return false;
 						}
@@ -1659,16 +1692,19 @@
 							    //simpan original data di initializeForm
 							}//end if status bukan open
 							hasLoadDialog = true;
+							win.onbeforeunload = function (e) {
+							    var valuesForm = getValuesForm(); var retval = false;
+							        if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+							            return NA.common.message.dataHasChanged;
+							        }
+							}
+							//NA.NAEvent.addHandler(win, 'beforeunload', function () { return "Do you really want to leave our brilliant application?";});
 						}//end if (statusTxt == "success") {						
 					});//end $('div.maindialogContent').load()
 				}// end if
 			} catch (e) {
 				BootstrapDialog.closeAll();
-				dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-				if (dialog) {
-					closeJQueryDialog();
-					NA.common.dialog.closeDialog(dialog);
-				}
+				closeDialog();
 				if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
 				ShowAlert(e);
 			};
