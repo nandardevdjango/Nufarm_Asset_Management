@@ -266,7 +266,7 @@ class NA_Goods_Lending_Form(forms.Form):
 	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																			 'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
 	statuslent = forms.ChoiceField(widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),disabled=True,choices=(('L', 'Lent'),('R','Returned')),required=False)
+                                   'class': 'NA-Form-Control','style':'width:90px;display:inline-block'}),choices=(('L', 'Lent'),('R','Returned')),required=False)
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)

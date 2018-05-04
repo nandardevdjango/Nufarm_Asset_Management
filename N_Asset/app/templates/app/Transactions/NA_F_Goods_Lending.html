@@ -781,8 +781,8 @@
             //    fk_disposal = elfk_disposal.value;
 		    //var elfk_lost = NA.common.getElementID('id_fk_lost'),
             //    fk_lost = elfk_lost.value;
-		    //var ellastinfo = NA.common.getElementID('id_lastinfo'),
-            //    lastinfo = ellastinfo.value;
+			var ellastinfo = NA.common.getElementID('LastInfoValue'),
+                lastinfo = ellastinfo.textContent;
 		    //hasRefData nggak usah , karena apa yang sedang di di edit oleh user bisa jadi di hapus oleh user lain
 		    //idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee,
 		    //datelending,  fk_responsibleperson, idapp_fk_responsibleperson, interests, fk_sender, idapp_fk_sender,  statuslent, descriptions, typeapp, serialnumber,
@@ -791,7 +791,7 @@
 		        idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
 		        datelending: datelending, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson, interests: interests,
 		        fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, statuslent: statuslent, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
-		        fk_maintenance: fk_maintenance, fk_return: fk_return, fk_currentapp: fk_currentapp, fk_receive: fk_receive, fk_disposal: fk_disposal, fk_lost: fk_lost,
+		        fk_maintenance: fk_maintenance, fk_return: fk_return, fk_currentapp: fk_currentapp, fk_receive: fk_receive, lastinfo:lastinfo,
 		        status:win.status
 		    };
 		};
@@ -1154,7 +1154,7 @@
 								}
 							    case 'Edit': {
 							    	var hasref = NA.common.getElementID('id_hasRefData').value
-							    	NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+							    	//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
 							    	NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
 							    	NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
 							    	if (hasref.valueOf === true) {

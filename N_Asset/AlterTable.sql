@@ -345,3 +345,5 @@ ALTER TABLE `n_a_goods_lost`
   MODIFY `IDApp` int(11) NOT NULL AUTO_INCREMENT;
   
   ALTER TABLE `n_a_goods_lost` ADD PRIMARY KEY (`IDApp`);
+
+  ALTER TABLE n_a_goods_lending ADD lastinfo VARCHAR(150)  NULL

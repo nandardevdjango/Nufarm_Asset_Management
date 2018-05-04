@@ -1817,7 +1817,7 @@
             var elRefNO = NA.common.getElementID('id_refno'); elRefNO.setAttribute('readonly', true);
             var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
             var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
-            var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('readonly', true);
+            var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('disabled', true);
             var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.setAttribute('readonly', true);
             var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.setAttribute('readonly', true);
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
@@ -2283,7 +2283,7 @@
                         					txtTreceived.setAttribute('readonly', true);
                         				} else { txtTreceived.removeAttribute('readonly'); }
                         				var dtReceived = NA.common.getElementID('id_datereceived');
-                        				dtReceived.setAttribute('readonly', true);
+                        				dtReceived.setAttribute('disabled', true);
 
                         				CreateGridDetail()
                         				//remove btnAddDetail

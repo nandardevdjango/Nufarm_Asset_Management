@@ -363,10 +363,11 @@ class NA_BR_Goods_Lending(models.Manager):
 		try:
 			with transaction.atomic():
 
-				Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_Responsible_Person, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions, FK_Receive, FK_RETURN, FK_CurrentApp) \
-							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
+				Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_Responsible_Person, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions,lastinfo, FK_Receive, FK_RETURN, FK_CurrentApp) \
+							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(lastinfo)s,%(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
 				param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_Stock':fk_stock,'FK_Responsible_Person':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
-						'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],'FK_Receive':Data['fk_receive'],
+						'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],
+						'lastinfol':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
 						'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
 				cur.execute(Query,param)
 				cur.execute('SELECT last_insert_id()')
@@ -435,7 +436,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		#    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
 		Query = """SELECT g.itemcode AS fk_goods,ngl.isnew,g.goodsname AS goods,ngl.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
 					ngl.fk_employee AS idapp_fk_employee,		emp.employee_name AS fk_employee_employee,ngl.datelending,ngl.fk_stock,\
-					emp1.NIK AS fk_responsibleperson, ngl.fk_responsible_person AS idaap_fk_responsibleperson,ngl.interests, \
+					emp1.NIK AS fk_responsibleperson, ngl.fk_responsible_person AS idaap_fk_responsibleperson,ngl.interests,IFNULL(ngl.lastinfo,'not yet used') AS lastinfo, \
 					emp2.NIK AS fk_sender,ngl.fk_sender AS idapp_fk_sender,emp2.employee_name AS fk_sender_employee,ngl.status AS statuslent, \
 					ngl.descriptions,ngl.typeapp,ngl.serialnumber, 		emp1.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
 					IFNULL(ngl.fk_maintenance,0)AS fk_maintenance,IFNULL(ngl.fk_return,0) AS fk_return, \

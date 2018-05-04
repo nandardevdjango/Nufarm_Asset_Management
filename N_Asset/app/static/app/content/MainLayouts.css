@@ -122,12 +122,13 @@ select {
   appearance: none;
     /*color: black;*/
     padding-right: 15px;
-    background-origin: padding-box;
+    background-origin: content-box;
 background-size:10px 11px;
 
-
 }
-
+select.ui-pg-selbox.ui-widget-content.ui-corner-all{
+    background-origin: padding-box;
+}
 
 /*option {
     color: black;
