@@ -372,46 +372,6 @@ class commonFunct:
         if(cur is None):
             cur = connection.cursor()
 
-<<<<<<< HEAD
-        Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-        cur.execute(Query)
-=======
-		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-		cur.execute(Query)
-	
-		Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_"""  + username + """
-				   (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
-				    (SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
-					UNION 	
-					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
-					UNION 	
-					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
-					UNION 	
-					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
-					UNION 	
-					(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """			
-		#		UNION
-		#		SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s )"""
-		cur.execute(Query,{'FK_Goods':FKGoods})
-	
-		#get totalused and totalReceived
-		Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
-					ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
-					ON Rec.FK_Goods = T_Used.FK_Goods """
-		cur.execute(Query,{'FK_Goods':FKGoods})
-		if cur.rowcount >0:
-			row = cur.fetchone()
-			totalNew = int(row[1])
-			totalReceived = int(row[0])
-			totalUsed = int(row[2])	
-		
-		#totalReturn 
-		Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
-		cur.execute(Query,{'FK_Goods':FKGoods})
-		if cur.rowcount >0:
-			row = cur.fetchone()
-			totalReturn = int(row[0])
->>>>>>> master
 
         Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_"""  + username + """
                    (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS
