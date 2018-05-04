@@ -58,7 +58,7 @@ class NA_Acc_Form(forms.Form):
     enddate = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','disabled':'disabled','placeholder':'End Date','style':'width:115px'}))
     depr_expense = forms.DecimalField(required=False,label='Depreciation Expense',widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'Depreciation Expense','style':'width:227px'}))
+        'class':'NA-Form-Control','disabled':'disabled','placeholder':'Depreciation Expense','style':'width:228px'}))
     depr_accumulation = forms.DecimalField(required=False,label='Depreciation Accumulation',widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','disabled':'disabled','placeholder':'Depreciation Accumulation','style':'width:220px'}))
     bookvalue = forms.DecimalField(required=False,label='Book Value',widget=forms.TextInput(attrs={

@@ -26,15 +26,6 @@
 	        lastLi.appendChild(lastLi_a);
 	        parentC.appendChild(lastLi);
 	    }
-		
-	    //function setFocusSearch(event) {
-	    //	this.setAttribute('placeholder', '');
-	    //};
-
-	    //function setBlurSearch(event) {
-	    //	this.setAttribute('placeholder', 'yyyy-mm-dd');
-	    //	NA.NAEvent.stopPropagation(event);
-	    //};
 	   
 //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
@@ -671,8 +662,8 @@
             win.document.body.style.cursor = 'default';
             return true;
         };
-        function GetServerFormatDate(formatedDateString) {//dd/mm/yy
-            var d = new Date(formatedDateString),
+        function GetServerFormatDate(parsedDate) {//dd/mm/yy
+            var d = new Date(parsedDate),
                 month = '' + (d.getMonth() + 1),
                 day = '' + d.getDate(),
                 year = d.getFullYear();
@@ -682,16 +673,6 @@
 
             return [year, month, day].join('-');
         };
-        //function formattedDate(d) {
-        //    let month = String(d.getMonth() + 1);
-        //    let day = String(d.getDate());
-        //    const year = String(d.getFullYear());
-
-        //    if (month.length < 2) month = '0' + month;
-        //    if (day.length < 2) day = '0' + day;
-
-        //    return '${day}/${month}/${year}';
-        //}
         function formatDate(theDate) {
             var date = new Date(theDate),
               year = date.getFullYear(),
@@ -1836,7 +1817,7 @@
             var elRefNO = NA.common.getElementID('id_refno'); elRefNO.setAttribute('readonly', true);
             var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
             var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
-            var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('readonly', true);
+            var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('disabled', true);
             var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.setAttribute('readonly', true);
             var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.setAttribute('readonly', true);
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
@@ -1865,6 +1846,10 @@
             btnFindReceivedBy.setAttribute('disabled', true);
             btnAddDetail.setAttribute('disabled', true);
             btnCancelDetail.setAttribute('disabled', true);
+        }
+
+        function ConfirmPageLeave() {
+			
         }
         //========================END GROUP FUNCTION DECLARATION===================================
 
@@ -2154,8 +2139,8 @@
 							            grid.delRowData(rowId);
 							        }
 							        if (mustReload) {
-							            win.document.body.style.cursor = 'default';
-							            grid.trigger("reloadGrid", [{ page: curPage }]);
+							            win.document.body.style.cursor = 'wait';
+							            grid.trigger("reloadGrid", [{ page: curPage }]); win.document.body.style.cursor = 'default';
 							        }
 							    }
 							    else if (this.status == 203) {
@@ -2302,7 +2287,7 @@
                         					txtTreceived.setAttribute('readonly', true);
                         				} else { txtTreceived.removeAttribute('readonly'); }
                         				var dtReceived = NA.common.getElementID('id_datereceived');
-                        				dtReceived.setAttribute('readonly', true);
+                        				dtReceived.setAttribute('disabled', true);
 
                         				CreateGridDetail()
                         				//remove btnAddDetail
@@ -2349,7 +2334,7 @@
                         			//Auto Complete RefNO
                         			$("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                         			NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
-                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
+                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                         				NA.NAEvent.addHandler(item, 'keydown', function (event) {
                         					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                         						NA.NAEvent.preventDefault(event);//prevent from submit
@@ -2359,7 +2344,7 @@
                         					if (event.keyCode === 13) {//kalau menekan tombol enter
                         						var NAAjax = NA.common.AJAX;
                         						switch (this.id) {
-                        							case 'id_fk_goods': {
+                        							case 'id_serialnumber': {
                         								//prevent default
                         								NA.NAEvent.preventDefault(event);//prevent from submit
                         								//get data ke database by itemCode
@@ -2470,7 +2455,7 @@
                         						return valDateReceived;
                         					}
                         					//get date datereceived
-                        				})(window),
+                        				})(win),
                         				maxDate: 1,
                         				showButtonPanel: true,
                         				closeText: "Close",
@@ -2702,7 +2687,6 @@
                         								ShowAlert(msg)
                         							},
                         							cellEdit: false,
-                        							viewrecords: true,
                         							height: '150px',
                         							rowNum: 500,
                         							rowList: [20, 50, 100, 200, 300, 500],
@@ -2860,7 +2844,6 @@
                         								ShowAlert(msg)
                         							},
                         							cellEdit: false,
-                        							viewrecords: true,
                         							height: '150px',
                         							rowNum: 500,
                         							rowList: [20, 50, 100, 200, 300, 500],
@@ -3007,7 +2990,6 @@
                         								document.body.style.cursor = 'default';
                         							},
                         							cellEdit: false,
-                        							viewrecords: true,
                         							height: '150px',
                         							rowNum: 500,
                         							rowList: [20, 50, 100, 200, 300, 500],
@@ -3156,7 +3138,6 @@
                         								document.body.style.cursor = 'default';
                         							},
                         							cellEdit: false,
-                        							viewrecords: true,
                         							height: '150px',
                         							rowNum: 500,
                         							rowList: [20, 50, 100, 200, 300, 500],

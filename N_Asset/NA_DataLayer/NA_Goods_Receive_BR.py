@@ -60,7 +60,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		Query = """SELECT COUNT(*) FROM T_Receive_Manager"""
 		cur.execute(Query)
 		row = cur.fetchone()
-		totalRecords = row
+		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
@@ -231,7 +231,8 @@ class NA_BR_Goods_Receive(models.Manager):
 				HasRows = commonFunct.str2bool(str(row[0]))
 				
 				if HasRows:
-					(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+					TStock = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+					TotalNew = TStock[0];totalReceived = TStock[1]
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
 					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
 					cur.execute(Query,Params)

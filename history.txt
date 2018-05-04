@@ -88,3 +88,168 @@ And then everything should be back to normal.
  #>
  #follow understanding git util
  http://365git.tumblr.com
+
+ 1  git add -h
+    2  git commit -h
+    3  cd D:
+    4  cd Pekerjaan/Django-Project/Nufarm_Asset_Management
+    5  cd Pekerjaan/Django_Project/Nufarm_Asset_Management
+    6  cd Pekerjaan
+    7  cd Django-Project
+    8  cd Django_Project
+    9  cd Django Project
+   10  cd "Django Project"
+   11  cd Nufarm_Asset_Management
+   12  git branch
+   13  gmit branch
+   14  git branch
+   15  git stash list
+   16  git status -s
+   17  git config show origin
+   18  git remote show origin
+   19  git fetch -h
+   20  git fetch origin master
+   21  git log master..origin/master
+   22  git merge origin/master
+   23  git reflog
+   24  history
+   25  git update-index --assume-unchanged FILE .gitignore
+   26  git update-index --assume-unchanged .gitignore
+   27  git status
+   28  git diff
+   29  gt update-index --assume-unchangedgit update-index --assume-unchangedgit update-index --assume-unchangedqqq
+   30  cd "/d//d/
+   31  q
+   32  q
+   33  d
+   34  cd
+   35  quit
+   36  e
+   37  cd "/d/
+   38  "
+   39  cd "/d/Pekerjaan/Django Project/Nufarm_Assset_Management"
+   40  cd "/d/Pekerjaan/Django Project/Nufarm_Assset_Management/"
+   41  cd "d/Pekerjaan/Django Project/Nufarm_Assset_Management/"
+   42  cd d:
+   43  cd Pekerjaan
+   44  cd "Django Project"
+   45  cd Nufarm_Asset_Manager
+   46  cd Nufarm_Asset_Management
+   47  git update-index --assume-unchanged *.pyc
+   48  git update-index --assume-unchanged .pyc
+   49  git update-index --assume-unchanged ".pyc*
+   50  git checkout -- "*.pyc"
+   51  git status
+   52  history
+   53  git checkout -- "*.web.debug.config"
+   54  git status
+   55  git update-index --assume-unchanged web.debug.config
+   56  git update-index --assume-unchanged "web.debug.config"
+   57  git update-index --assume-unchanged "N_Asset/*.config"
+   58  git chechout web.debug.config
+   59  git checkhout web.debug.config
+   60  git checkout web.debug.config
+   61  git checkout /N_Asset/web.debug.config
+   62  git checkout N_Asset/web.debug.config
+   63  git statys
+   64  git status
+   65  git branch
+   66  git log master..origin/master
+   67  git reflog
+   68  git status
+   69  git add .
+   70  git diff
+   71  git diff --staged
+   72  git commit -p
+   73  git diff -cached
+   74  git diff --cached
+   75  git commit
+   76  git commit -m "nambal criteria"
+   77  git push origin master
+   78  git remote show origin
+   79  git fetch origin master
+   80  git log --online --decorate origin/master
+   81  git log --oneline --decorate origin/master
+   82  q
+   83  git diff origin/master
+   84  git diff origin/master
+   85  git merge origin/master
+   86  git diff
+   87  git diff --cached
+   88  git status
+   89  git fetch origin master
+   90  git merge origin/master
+   91  git stash save
+   92  git rebase origin/master
+   93  git commit -m 'commit git ignore'
+   94  git reset --hard origin/master
+   95  git fetch --all origin master
+   96  git fetch --all
+   97  git reset --hard origin/master
+   98  git update-index --really-refresh
+   99  git reset --hard
+  100  git fetch origin master
+  101  git merge origin/master
+  102  git diff head
+  103  git diff HEAD
+  104  git diff HEAD^
+  105  git log master..origin/master
+  106  git log master
+  107  git log
+  108  git qresereset
+  109  greset
+  110  reset
+  111  git diff f943b1f6981dc3940adc98660f8fb05d4a726850
+  112  git diff
+  113  git diff --all
+  114  git diff .
+  115  git add .
+  116  git status
+  117  git commit -m "custom search"
+  118  git push origin master
+  119  git fetch origin master
+  120  git merge --all
+  121  git fetch origin rimba
+  122  git fetch origin Rimba
+  123  git diff master origin/Rimba
+  124  dif merge origin/Rimba
+  125  diff merge origin/Rimba
+  126  git merge
+  127  git merger origin/master
+  128  git merge origin/master
+  129  git fetch origin rimba
+  130  git fetch origin Rimba
+  131  git merge origin/master
+  132  git fetch origin Rimba
+  133  git diff master origin rimba
+  134  git diff master origin Rimba
+  135  history
+  136  git diff master origin/Rimba
+  137  git merge origin/Rimba
+  138  git diff master origin/Rimba
+  139  git diff 67f9d26..861792f
+  140  git history
+  141  history
+
+  #commit  only deleted and changes file  with bash commands
+  
+
+Another version to ByScripts answer is
+
+git rm $(git ls-files --deleted)
+
+This will ONLY remove the deleted files from the git.
+
+It could be also be used for adding ONLY modified files also.
+
+git add $(git ls-files --modified)
+
+These commands also works on gitbash for windows.
+
+#commit  only deleted and changes file  with command not bash 2
+
+#How to remove multiple deleted files in Git repository
+
+git add -u .
+
+git add --update 

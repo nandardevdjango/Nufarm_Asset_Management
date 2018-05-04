@@ -36,11 +36,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\models.py" />
+    <Compile Include="app\NA_Views\jasperclient.py" />
     <Compile Include="app\NA_Views\NA_Acc_Fa_View.py" />
     <Compile Include="app\NA_Views\NA_EmailData_View.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\NA_GoodsLost_View.py" />
+    <Compile Include="app\NA_Views\NA_Goods_Lending_View.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\NA_Views\NA_Goods_Receive_View.py" />
     <Compile Include="app\NA_Views\NA_Goods_View.py">
       <SubType>Code</SubType>
@@ -70,6 +74,9 @@
     </Compile>
     <Compile Include="NA_DataLayer\NA_GoodsLost_BR.py" />
     <Compile Include="NA_DataLayer\NA_Goods_BR.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NA_DataLayer\NA_Goods_Lending_BR.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
@@ -138,6 +145,7 @@
     <Content Include="app\static\app\content\font-awesome.min.css" />
     <Content Include="app\static\app\content\NA_commonEntry.css" />
     <Content Include="app\static\app\content\ui.jqgrid.css" />
+    <Content Include="app\static\app\images\br_down.png" />
     <Content Include="app\static\app\images\NufarmLogo.jpg" />
     <Content Include="app\static\app\images\bgLogo.jpg" />
     <Content Include="app\static\app\images\Examplemyself.jpg" />
@@ -181,6 +189,8 @@
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
     <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Lending.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
     <Content Include="app\templates\app\UserControl\customFilter.html" />
     <Content Include="NA_DataLayer\common.py" />

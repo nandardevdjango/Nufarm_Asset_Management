@@ -6,8 +6,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
  NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View, NA_Report_View
+ NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View
 import app.views
+from django.views.generic import RedirectView
 # Uncomment the next lines to enable the admin:
 # admin.autodiscover()
 from django.contrib import admin
@@ -75,6 +76,19 @@ urlpatterns = [
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
 	url(r'^NA_Goods_Receive/customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter'),
+
+	#NA_Goods_Lending
+	url(r'^NA_Goods_Lending/$',NA_Goods_Lending_View.NA_Goods_Lending,name='GoodsLending'),
+	url(r'^NA_Goods_Lending/NA_Goods_Lending_Search/$',NA_Goods_Lending_View.NA_Goods_Lending_Search,name='GoodsLendingManager'),
+	url(r'^NA_Goods_Lending/ShowEntry_Lending',NA_Goods_Lending_View.ShowEntry_Lending,name='ShowEntryLending'),
+	url(r'^NA_Goods_Lending/UpdateStatus/$',NA_Goods_Lending_View.UpdateStatus,name='UpdateStatusNAGoodsLending'),
+	url(r'^NA_Goods_Lending/Delete/$',NA_Goods_Lending_View.Delete,name='delete'),
+	url(r'^NA_Goods_Lending/HasExists/$',NA_Goods_Lending_View.HasExists,name='existsLending'),
+	url(r'^NA_Goods_Lending/geInterests/$',NA_Goods_Lending_View.getInterest,name='getinterests'),
+	url(r'^NA_Goods_Lending/getLastTransGoods/$',NA_Goods_Lending_View.getLastTransGoods,name='getlastTransGoods'),
+	url(r'^NA_Goods_Lending/getGoodsWithHistory/$',NA_Goods_Lending_View.getGoodsWithHistory,name='getGoodsWithHistory'),
+	url(r'^NA_Goods_Lending/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
+	url(r'^NA_Goods_Lending/SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

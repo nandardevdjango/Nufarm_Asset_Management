@@ -13,7 +13,7 @@
 */*/__pycache__/
 
 */__pycache__/
-*.web.debug.config
+N_Asset/web.debug.config
 # User-specific files
 *.suo
 *.user

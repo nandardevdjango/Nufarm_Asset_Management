@@ -758,7 +758,7 @@ NA.common.dialog = {
         var containerForm = this.doc.createElement("div");
         containerForm.className = 'containerForm';
         containerForm.classList.add(IDForControl);
-        containerForm.style.cssText = 'margin:auto';
+        containerForm.style.cssText = 'margin:auto;';
         //create Header for Searching
         var HeaderSearching = this.doc.createElement('div');
         HeaderSearching.className = 'input-group';
@@ -812,6 +812,7 @@ NA.common.dialog = {
 
         var mainContainer = this.doc.createElement('div');
         mainContainer.className = 'maincontainerForm';
+        mainContainer.style.cssText = 'overflow-x:auto;';
         mainContainer.classList.add(IDForControl);
         containerForm.appendChild(HeaderSearching);
         containerForm.appendChild(mainContainer);

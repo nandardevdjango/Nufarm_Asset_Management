@@ -240,7 +240,7 @@ CREATE TABLE n_a_goods_lending (
   Qty int(11) NOT NULL,
   FK_Stock varchar(50) NOT NULL,
   FK_Responsible_Person varchar(50) DEFAULT NULL,
-  BenefitOf varchar(150) DEFAULT NULL,
+  interest varchar(150) DEFAULT NULL,
   FK_Sender varchar(50) DEFAULT NULL,
   Status varchar(10) DEFAULT NULL,
   CreatedDate datetime DEFAULT NULL,
@@ -252,11 +252,13 @@ CREATE TABLE n_a_goods_lending (
 
 ALTER TABLE n_a_goods_Lending add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_goods_Lending add TypeApp VARCHAR(32) NOT NULL;  
-ALTER TABLE n_a_goods_Lending add FK_Maintenance INT(11) UNSIGNED NULL;
+--ALTER TABLE n_a_goods_Lending add FK_Maintenance INT(11) UNSIGNED NULL;
 ALTER TABLE n_a_goods_lending CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 
 --============perbaikan stock==================
 ALTER TABLE n_a_stock CHANGE TotalQty T_Goods_Spare tinyint(5) UNSIGNED NOT NULL;--PERBAIKAN DI SINI 
+
+  
 ALTER TABLE n_a_stock DROP COLUMN IF EXISTS T_Goods_Lending;--PERBAIKAN DI SINI
 ALTER TABLE n_a_goods_lending
   ADD PRIMARY KEY (IDApp);
@@ -283,3 +285,65 @@ ALTER TABLE n_a_acc_fa CHANGE FK_Goods FK_Goods INT(11) UNSIGNED NOT NULL;
 ALTER TABLE n_a_acc_fa add SerialNumber VARCHAR(50) NOT NULL DEFAULT 'N/A';
 ALTER TABLE n_a_acc_fa add TypeApp VARCHAR(32) NOT NULL; 
 
+--DELETE COLUMN Qty di NA_Goods_Lending
+ALTER TABLE NA_Goods_lending DROP COLUMN IF EXISTS Qty;
+ALTER TABLE n_a_goods_lending ADD Descriptions 	VARCHAR(250);
+ALTER TABLE n_a_goods_lending CHANGE BenefitOf interests VARCHAR(150);
+ALTER TABLE n_a_goods_lending ADD FK_Receive INT(11)UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending ADD FK_RETURN INT(11)UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending ADD FK_CurrentApp INT(11)UNSIGNED NULL;---ForeignKey ke table sendiri
+ALTER TABLE n_a_stock CHANGE FK_Goods INT(11) UNSIGNED NOT NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Employee FK_Employee INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Stock FK_Stock INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Responsible_Person FK_Responsible_Person INT(11) UNSIGNED NULL;
+ALTER TABLE n_a_goods_lending CHANGE FK_Sender FK_Sender INT(11) UNSIGNED NULL;
+
+--CREATE Goods History
+--goods history untuk melacak barang terakhir berada di posisi mana
+--setiap transaksi n_a_disposal,n_a_goods_Lending,n_a_goods_outwards,n_a_goods_return,n_a_maintenance
+--akan menginsert ke table n_a_goods_history
+--untuk melihat full history suatu barang sampai barang hilang/dispose
+
+CREATE TABLE IF NOT EXISTS n_a_goods_History (
+  IDApp int(11) NOT NULL,
+  FK_Goods INT(11) NOT NULL,
+  TypeApp VARCHAR(32) NOT NULL,
+  SerialNumber VARCHAR(50) NOT NULL,
+  FK_Lending INT(11) NULL,
+  FK_Outwards INT(11) NULL,
+  FK_RETURN int(11) NULL,
+  FK_Maintenance INT(11) NULL,
+  FK_Disposal INT(11) NULL,
+  FK_LOST  INT(11) NULL,
+  CreatedDate datetime DEFAULT NULL,
+  CreatedBy varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  ALTER TABLE n_a_goods_History ADD PRIMARY KEY (IDApp);
+ALTER TABLE n_a_goods_History  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) NULL;
+ALTER TABLE n_a_maintenance CHANGE IsSucced IsSucced tinyint(1) NOT NULL DEFAULT 0;
+
+CREATE TABLE  IF NOT EXISTS n_a_goods_lost (
+  `IDApp` int(11) NOT NULL,
+  `FK_Goods` int(11) NOT NULL,
+  `FK_Goods_Outwards` int(11) DEFAULT NULL,
+  `FK_Goods_Lending` int(11) DEFAULT NULL,
+  `FK_Maintenance` int(11) DEFAULT NULL,
+  `FromGoods` varchar(30) NOT NULL,
+  `SerialNumber` varchar(50) NOT NULL,
+  `TypeApp` varchar(32) NOT NULL,
+  `FK_LostBy` int(11) DEFAULT NULL,
+  `FK_UsedBy` int(11) DEFAULT NULL,
+  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
+  `Status` varchar(5) NOT NULL DEFAULT 'L',
+  `DateLost` DATETIME NOT NULL DEFAULT current_timestamp,
+   Descriptions varchar(800) NOT NULL DEFAULT '',
+   Reason VARCHAR(25) DEFAULT NULL
+) ;
+ALTER TABLE `n_a_goods_lost`
+  MODIFY `IDApp` int(11) NOT NULL AUTO_INCREMENT;
+  
+  ALTER TABLE `n_a_goods_lost` ADD PRIMARY KEY (`IDApp`);
+
+  ALTER TABLE n_a_goods_lending ADD lastinfo VARCHAR(150)  NULL
