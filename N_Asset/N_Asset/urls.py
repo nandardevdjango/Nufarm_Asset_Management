@@ -103,7 +103,7 @@ urlpatterns = [
 	url(r'^NA_GoodsLost/customFilter/$',NA_GoodsLost_View.ShowCustomFilter),
 
     #NA Report
-    url(r'^NA_Report/$',NA_Report_View.cetak_daftar_hadir),
+    #url(r'^NA_Report/$',NA_Report_View.cetak_daftar_hadir),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', admin.site.urls),
 ]

@@ -40,16 +40,13 @@ class NA_BR_Maintenance(models.Manager):
         return (Data.Success,Message.Success.value)
     
     def DeleteData(self,idapp):
-        cur = connection.cursor()
-        Query = """SELECT EXISTS(SELECT idapp from n_a_maintenance WHERE idapp=%s)"""
-        cur.execute(Query,[idapp])
-        check_exist = cur.fetchone()
-        if check_exist[0] == 0:
-            return 'Lost'
-        else:
+        if self.dataExist(idapp=idapp):
+            cur = connection.cursor()
             Query = """DELETE FROM n_a_maintenance WHERE idapp=%s"""
-        cur.execute(Query,[idapp])
-        return 'success'
+            cur.execute(Query,[idapp])
+            return (Data.Success,Message.Success.value)
+        else:
+            return (Data.Lost,Message.Lost.value)
     def retriveData(self,idapp):
         cur = connection.cursor()
         Query = """SELECT m.fk_goods,g.itemcode, CONCAT(g.goodsname, ' ',g.brandname) as goods,m.typeapp AS typeApp,m.serialnumber AS serialNum,grt.minus, m.requestdate,
@@ -60,17 +57,17 @@ class NA_BR_Maintenance(models.Manager):
         result = query.dictfetchall(cur)
         connection.close()
         if result == []:
-            return ('Lost',)
+            return (Data.Lost,)
         else:
-            return ('success',result)
+            return (Data.Success,result)
 
     def search_M_ByForm(self,value):
         cur = connection.cursor()
         Query = """SELECT g.idapp,g.itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grt.typeapp) AS goods,grt.serialnumber, 
-        IF(NOW() <= grd.endofwarranty,'True','False') AS still_guarantee,grt.condition,grt.minus FROM n_a_goods_return grt INNER JOIN n_a_goods g ON grt.fk_goods = g.idapp 
+        IF(NOW() <= grd.endofwarranty,'True','False') AS still_guarantee,grt.conditions,grt.minusdesc FROM n_a_goods_return grt INNER JOIN n_a_goods g ON grt.fk_goods = g.idapp 
         INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app 
         AND grt.serialnumber = grd.serialnumber WHERE NOT EXISTS (SELECT m.fk_goods FROM n_a_maintenance m WHERE m.fk_goods = g.idapp)
-        AND grt.condition <> 'W' AND CONCAT(g.goodsname, ' ',g.brandname, ' ',g.typeapp) LIKE '%{0}%'""".format(value)
+        AND grt.conditions <> 'W' AND CONCAT(g.goodsname, ' ',g.brandname, ' ',g.typeapp) LIKE '%{0}%'""".format(value)
         cur.execute(Query)
         result = query.dictfetchall(cur)
         connection.close()

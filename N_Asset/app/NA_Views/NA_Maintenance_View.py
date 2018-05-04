@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 import json
-from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm
+from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm, Data
 from NA_Models.models import NAMaintenance,goods
 from django import forms
 from datetime import datetime
@@ -105,7 +105,7 @@ def EntryMaintenance(request):
             idapp = request.GET['idapp']
             data = NAMaintenance.objects.retriveData(idapp) #tuple data
             statusResp = 200
-            if data[0] == 'Lost':
+            if data[0] == Data.Lost:
                 statusResp = 500
                 return HttpResponse('Lost',status=statusResp)
             if statusResp == 200:
@@ -124,9 +124,9 @@ def Delete_M_data(request):
         idapp = request.POST['idapp']
         result = NAMaintenance.objects.DeleteData(idapp)
         statusResp = 200
-        if result == 'Lost':
+        if result[0] == Data.Lost:
             statusResp = 500
-        return HttpResponse(result,status=statusResp)
+        return HttpResponse(result[1],status=statusResp)
 def SearchGoodsbyForm(request):
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')

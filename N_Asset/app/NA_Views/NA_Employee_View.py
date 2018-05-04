@@ -90,7 +90,6 @@ def EntryEmployee(request):
         if form.is_valid():
             mode = request.POST['mode']
             data = getData(request, form)
-            statusResp = 200
             if mode == 'Add':
                 data['createddate'] = datetime.datetime.now()
                 data['createdby'] = getCurrentUser(request)
@@ -105,7 +104,7 @@ def EntryEmployee(request):
                 return commonFunct.response_default(result)
             elif mode == 'Open':
                 if request.POST['employee_name']:
-                    return HttpResponse(json.dumps({'messages':'You\'re try to Edit this Data with Open Mode\nWith technic inspect element\n Lol :D'}))
+                    return HttpResponse(json.dumps({'messages':'You\'re try to Edit this Data with Open Mode\nWith technic inspect element\n Lol :D'}),status=403,content_type='application/json')
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']

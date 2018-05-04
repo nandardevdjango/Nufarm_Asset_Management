@@ -53,56 +53,56 @@
 #    response.write(pdf)
 #    return response
 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib import colors
-from NA_Models.models import NAAccFa
-from django.http import HttpResponse
+#from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+#from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+#from reportlab.lib.units import inch
+#from reportlab.lib.pagesizes import A4, landscape
+#from reportlab.lib import colors
+#from NA_Models.models import NAAccFa
+#from django.http import HttpResponse
 
-def cetak_daftar_hadir(request):
-    # pengaturan respon berformat pdf
-    filename = "daftar_hadir_"
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="' + filename + '.pdf"'
+#def cetak_daftar_hadir(request):
+#    # pengaturan respon berformat pdf
+#    filename = "daftar_hadir_"
+#    response = HttpResponse(content_type='application/pdf')
+#    response['Content-Disposition'] = 'inline; filename="' + filename + '.pdf"'
 
-    # mengambil daftar kehadiran dan mengubahnya menjadi data ntuk tabel
-    data = NAAccFa.objects.values('depr_accumulation','bookvalue')
-    table_data = []
-    table_data.append([ "Depreciation Accumulation", "Book Value" ])
-    for x in data:
-        table_data.append([ x['depr_accumulation'], x['bookvalue'] ])
+#    # mengambil daftar kehadiran dan mengubahnya menjadi data ntuk tabel
+#    data = NAAccFa.objects.values('depr_accumulation','bookvalue')
+#    table_data = []
+#    table_data.append([ "Depreciation Accumulation", "Book Value" ])
+#    for x in data:
+#        table_data.append([ x['depr_accumulation'], x['bookvalue'] ])
 
 
-    # membuat dokumen baru
-    doc = SimpleDocTemplate(response, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
-    print(doc.width)
-    styles = getSampleStyleSheet()
+#    # membuat dokumen baru
+#    doc = SimpleDocTemplate(response, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+#    print(doc.width)
+#    styles = getSampleStyleSheet()
 
-    # pengaturan tabel di pdf
-    table_style = TableStyle([
-                               ('ALIGN',(1,1),(-2,-2),'RIGHT'),
-                               ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                               ('VALIGN',(0,0),(0,-1),'TOP'),
-                               ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                               ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                           ])
-    kehadiran_table = Table(table_data, colWidths=[150,125])
-    kehadiran_table.setStyle(table_style)
+#    # pengaturan tabel di pdf
+#    table_style = TableStyle([
+#                               ('ALIGN',(1,1),(-2,-2),'RIGHT'),
+#                               ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#                               ('VALIGN',(0,0),(0,-1),'TOP'),
+#                               ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+#                               ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+#                           ])
+#    kehadiran_table = Table(table_data, colWidths=[150,125])
+#    kehadiran_table.setStyle(table_style)
 
-    # mengisi pdf
-    content = []
-    content.append(Paragraph('Daftar Kehadiran', styles['Title']))
-    content.append(Spacer(1,12))
-    content.append(Paragraph('Berikut ini adalah hasil rekam jejak kehadiran Anda selama :' , styles['Normal']))
-    content.append(Spacer(1,12))
-    content.append(kehadiran_table)
-    content.append(Spacer(1,36))
-    content.append(Paragraph('Mengetahui, ', styles['Normal']))
-    content.append(Spacer(1,48))
-    content.append(Paragraph('Mira Kumalasari, Head of Department PT. Ngabuburit Sentosa Sejahtera. ', styles['Normal']))
+#    # mengisi pdf
+#    content = []
+#    content.append(Paragraph('Daftar Kehadiran', styles['Title']))
+#    content.append(Spacer(1,12))
+#    content.append(Paragraph('Berikut ini adalah hasil rekam jejak kehadiran Anda selama :' , styles['Normal']))
+#    content.append(Spacer(1,12))
+#    content.append(kehadiran_table)
+#    content.append(Spacer(1,36))
+#    content.append(Paragraph('Mengetahui, ', styles['Normal']))
+#    content.append(Spacer(1,48))
+#    content.append(Paragraph('Mira Kumalasari, Head of Department PT. Ngabuburit Sentosa Sejahtera. ', styles['Normal']))
 
-    # menghasilkan pdf untk di download
-    doc.build(content)
-    return response
+#    # menghasilkan pdf untk di download
+#    doc.build(content)
+#    return response
