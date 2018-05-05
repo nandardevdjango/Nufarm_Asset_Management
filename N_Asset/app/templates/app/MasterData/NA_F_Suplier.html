@@ -706,7 +706,7 @@
                             }
 
                         } else if (xhr.status != 200 || responseTxt == '__lost') {
-                            return dialogAlert(NA.common.message.server(responseTxt), NA.common.message.titleInfo, function () {
+                            return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
                                 var dialog = qs("div.containerDialog");
                                 NA.common.dialog.closeDialog(dialog);
                                 return suplier_grid.trigger('reloadGrid');

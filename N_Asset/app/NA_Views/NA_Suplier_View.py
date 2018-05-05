@@ -7,6 +7,7 @@ from NA_DataLayer.common import CriteriaSearch, StatusForm, ResolveCriteria, Dat
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
 from django.core.serializers.json import DjangoJSONEncoder
+from django import forms
 
 #@login_required
 def NA_Suplier(request):
@@ -51,7 +52,7 @@ def NA_SuplierGetData(request):
     results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 
-from django import forms
+
 class NA_Suplier_form(forms.Form):
     supliercode = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
         'class':'NA-Form-Control', 'placeholder':'Enter Suplier Code','style':'width:200px'}))
@@ -109,7 +110,7 @@ def EntrySuplier(request):
                 form.fields['supliercode'].widget.attrs['disabled'] = 'disabled'
                 return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})
             elif result[0] == Data.Lost:
-                return HttpResponse(Message.Lost.value,status=404)
+                return HttpResponse(json.dumps({'message':Message.get_lost_info(pk=getSupCode,table='suplier')}),status=404,content_type='application/json')
         else:
             form = NA_Suplier_form()
             return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})

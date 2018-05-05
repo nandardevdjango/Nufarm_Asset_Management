@@ -63,7 +63,7 @@ class NA_BR_Suplier(models.Manager):
                         ContactPerson=%(contactperson)s, Inactive=%(inactive)s,ModifiedDate=%(modifieddate)s, ModifiedBy=%(modifiedby)s
                         WHERE SuplierCode=%(supliercode)s"""
             else:
-                return (Data.Lost,Message.get_lost_info(data['supliercode']))
+                return (Data.Lost,Message.get_lost_info(pk=data['supliercode'],table='suplier'))
         cur.execute(Query,Params)
         rowId = cur.lastrowid
         connection.close()
