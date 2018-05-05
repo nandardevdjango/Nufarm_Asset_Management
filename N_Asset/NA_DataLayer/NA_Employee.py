@@ -109,7 +109,7 @@ class NA_BR_Employee(models.Manager):
                     .values('idapp','nik','employee_name','typeapp','jobtype','gender',
                             'status','telphp','territory','descriptions','createddate','createdby')
         if must_check:
-            if self.dataExist(idapp=get_idapp)[0]:
+            if self.dataExist(idapp=get_idapp):
                 return (Data.Success,get_data())
             else:
                 return (Data.Lost,Message.get_lost_info(pk=get_idapp,table='employee'))

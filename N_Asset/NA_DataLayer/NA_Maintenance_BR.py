@@ -48,18 +48,18 @@ class NA_BR_Maintenance(models.Manager):
         else:
             return (Data.Lost,Message.Lost.value)
     def retriveData(self,idapp):
-        cur = connection.cursor()
-        Query = """SELECT m.fk_goods,g.itemcode, CONCAT(g.goodsname, ' ',g.brandname) as goods,m.typeapp AS typeApp,m.serialnumber AS serialNum,grt.minus, m.requestdate,
-        m.startdate, m.isstillguarantee, m.expense, m.maintenanceby,m.personalname, m.enddate, m.issucced, m.descriptions FROM n_a_maintenance m 
-        INNER JOIN n_a_goods g ON m.fk_goods = g.idapp INNER JOIN n_a_goods_return grt on g.idapp = grt.fk_goods AND grt.serialnumber = m.serialnumber
-        WHERE m.idapp = %(IDApp)s"""
-        cur.execute(Query,{'IDApp':idapp})
-        result = query.dictfetchall(cur)
-        connection.close()
-        if result == []:
-            return (Data.Lost,)
-        else:
+        if self.dataExist(idapp=idapp):
+            cur = connection.cursor()
+            Query = """SELECT m.fk_goods,g.itemcode, CONCAT(g.goodsname, ' ',g.brandname) as goods,m.typeapp AS typeApp,m.serialnumber AS serialNum,grt.minusdesc AS minus, m.requestdate,
+            m.startdate, m.isstillguarantee, m.expense, m.maintenanceby,m.personalname, m.enddate, m.issucced, m.descriptions FROM n_a_maintenance m 
+            INNER JOIN n_a_goods g ON m.fk_goods = g.idapp INNER JOIN n_a_goods_return grt on g.idapp = grt.fk_goods AND grt.serialnumber = m.serialnumber
+            WHERE m.idapp = %(IDApp)s"""
+            cur.execute(Query,{'IDApp':idapp})
+            result = query.dictfetchall(cur)
+            connection.close()
             return (Data.Success,result)
+        else:
+            return (Data.Lost,)
 
     def search_M_ByForm(self,value):
         cur = connection.cursor()
@@ -73,18 +73,20 @@ class NA_BR_Maintenance(models.Manager):
         connection.close()
         return result
 
-    def getGoods_data(self,idapp):
+    def getGoods_data(self,idapp,serialnumber):
         cur = connection.cursor()
-        if self.dataExist(idapp=idapp):
-            return 'HasExist'
+        if self.dataExist(serialnumber=serialnumber):
+            return (Data.Exists,Message.get_exists_info(self.get_createddate(serialnumber)['createddate']))
         else:
-            Query = """SELECT g.idapp,g.itemcode,g.goodsname,g.brandname,grt.typeapp, grt.serialnumber,grt.minus, IF(NOW() <= grd.endofwarranty, 'True','False')
+            Query = """SELECT g.idapp,g.itemcode,g.goodsname,g.brandname,grt.typeapp, grt.serialnumber,grt.minusdesc, IF(NOW() <= grd.endofwarranty, 'True','False')
             AS still_guarantee FROM n_a_goods_return grt INNER JOIN n_a_goods g ON grt.fk_goods = g.idapp INNER JOIN n_a_goods_receive gr ON g.idapp = gr.fk_goods
             INNER JOIN n_a_goods_receive_detail grd ON gr.idapp = grd.fk_app AND grd.serialnumber = grt.serialnumber WHERE g.idapp = %s"""
             cur.execute(Query,[idapp])
             result = query.dictfetchall(cur)
             connection.close()
-            return result
+            if len(result) == 0:
+                return (Data.Empty,)
+            return (Data.Success,result[0])
     def dataExist(self,**kwargs):
         data = super(NA_BR_Maintenance, self).get_queryset().values('idapp')
         idapp = kwargs.get('idapp')

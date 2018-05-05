@@ -38,6 +38,7 @@ class Message(Enum):
     Lost = '__lost'
     HasRef_del = '__hasref_del'
     HasRef_edit = '__hasref_edit'
+    Empty = '__empty'
 
     @staticmethod
     def get_specific_exists(table,column,data):
@@ -71,8 +72,8 @@ class Message(Enum):
             return 'This data has lost or deleted by other user, {0} {1} ago'.format(int(result),unit)
 
     @classmethod
-    def get_exists_info(cls,data):
-            result, unit = cls.get_time_info(data)
+    def get_exists_info(cls,createddate):
+            result, unit = cls.get_time_info(createddate)
             return 'This data has exists or created by other user, {0} {1} ago'.format(int(result),unit)
 
 class ResolveCriteria:
@@ -490,11 +491,24 @@ class commonFunct:
     def response_default(data):
         statusResp = 200
         if type(data) is tuple:
-            message = data[1]
+            message = None
+            if data[0] == Data.Success:
+                if len(data) > 1:
+                    message = data[1]
+                else:
+                    message = Message.Success.value
             if data[0] == Data.Exists or data[0] == Data.HasRef:
                 statusResp = 403
+                message = data[1]
             elif data[0] == Data.Lost:
                 statusResp = 404
+                message = data[1]
+            elif data[0] == Data.Empty:
+                statusResp = 404
+                if len(data) > 1:
+                    message = data[1]
+                else:
+                    message = Message.Empty.value
             return HttpResponse(json.dumps({'message':message}),status=statusResp,content_type='application/json')
                 
 

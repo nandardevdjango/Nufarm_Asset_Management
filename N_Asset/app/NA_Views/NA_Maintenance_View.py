@@ -106,7 +106,7 @@ def EntryMaintenance(request):
             data = NAMaintenance.objects.retriveData(idapp) #tuple data
             statusResp = 200
             if data[0] == Data.Lost:
-                statusResp = 500
+                statusResp = 404
                 return HttpResponse('Lost',status=statusResp)
             if statusResp == 200:
                 data[1][0]['issucced'] = True if data[1][0]['issucced'] == 1 else False
@@ -151,8 +151,8 @@ def SearchGoodsbyForm(request):
         i = 0;#idapp,itemcode,goods
         for row in dataRows.object_list:
             i+=1
-            datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['condition'],\
-                row['still_guarantee'],row['serialnumber'],row['minus']]}
+            datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['conditions'],\
+                row['still_guarantee'],row['serialnumber'],row['minusdesc']]}
             rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -160,9 +160,6 @@ def SearchGoodsbyForm(request):
 def get_GoodsData(request):
     if request.method == 'GET':
         idapp = request.GET['idapp']
-        result = NAMaintenance.objects.getGoods_data(idapp)
-        statusResp = 200
-        if result == 'HasExist':
-            statusResp = 403
-            result = 'This data has Exist'
-        return HttpResponse(json.dumps(result[0]),status=statusResp,content_type='application/json')
+        serialnumber = request.GET['serialnumber']
+        result = NAMaintenance.objects.getGoods_data(idapp,serialnumber)
+        return commonFunct.response_default(result)
