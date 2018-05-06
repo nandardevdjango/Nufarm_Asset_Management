@@ -8,6 +8,7 @@ from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
+from NA_DataLayer.common import commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -141,23 +142,19 @@ def ShowEntry_Lending(request):
 			resul = ''
 			if form.is_valid():
 				form.clean()
+				data.update(isnew=strtobool(str(data['isnew'])))
+				data.update(fk_maintenance=(None if int(data['fk_maintenance']) == 0 else data['fk_maintenance']))
+				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
+				data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
+				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
 				if status == 'Add':	
-					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					data.update(isnew=strtobool(str(data['isnew'])))
-					data.update(fk_maintenance=(None if int(data['fk_maintenance']) == 0 else data['fk_maintenance']))
-					data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
-					data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
-					data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
-					#data.update(fk_disposal=(None if int(data['fk_disposal']) == 0 else  data['fk_disposal']))
-					#data.update(fk_lost=(None if int(data['fk_lost']) == 0 else data['fk_lost']))
-					#fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost		
-					#SaveData
-					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
-					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')				
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')	
 					if NAGoodsLending.objects.HasReference(data['idapp']):
 						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
+				result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
@@ -169,6 +166,8 @@ def ShowEntry_Lending(request):
 			IDApp = request.GET.get('idapp')
 			Ndata = NAGoodsLending.objects.getData(IDApp)
 			Ndata = Ndata[0]
+			Ndata.update(idapp=IDApp)
+			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasRefData'])))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
 			form = NA_Goods_Lending_Form(data=Ndata)
 			return render(request, 'app/Transactions/NA_Entry_Goods_Lending.html', {'form' : form})
