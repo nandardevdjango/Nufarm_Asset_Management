@@ -578,18 +578,9 @@
                                 valuesForm['hasChangedDetail'] = hasChangedDetail;
                                 if (hasChangedHeader || hasChangedDetail) {
                                     submitForm(valuesForm);
-                                    //close saja									
-                                    //if (submitForm(valuesForm)) {
-                                    //    //reloadGridMaster
-                                    //    grid.trigger("reloadGrid", [{ page: 1 }]);
-                                    //}
-                                    //else {
-                                    //    win.document.body.style.cursor = 'default'; return false;
-                                    //}
-                                }
+                                   }
                                 else {
-                                    closeJQueryDialog();
-                                    NA.common.dialog.closeDialog(dialog);
+                                    closeDialog();
                                 }
                             }
                             //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
@@ -601,7 +592,7 @@
                     case 'Close': {
                         //check if data has changed with javascrispt
                         //initializeForm = NA.common.getElementID('id_initializeForm');
-                        if (win.status === 'Open') { closeJQueryDialog(); NA.common.dialog.closeDialog(dialog); win.document.body.style.cursor = 'default'; return false; }
+                        if (win.status === 'Open') { closeDialog(); win.document.body.style.cursor = 'default'; return false; }
                         win.document.body.style.cursor = 'wait';
                         var valuesForm = getValuesForm();
                         var hasChangedHeader = false, hasChangedDetail = false;
@@ -633,24 +624,16 @@
 																inputbtn.click();
 															}
 															else {
-																submitForm(valuesForm);
-																//if (submitForm(valuesForm)) {
-																//	closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
-																//	if (grid) {
-																//		win.document.body.style.cursor = 'wait';
-																//		grid.trigger("reloadGrid", [{ page: 1 }]);
-																//	}
-																//}
-
+																submitForm(valuesForm);																
 															}
 															win.document.body.style.cursor = 'default';
 														}, function () {
-															closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+														    closeDialog();
 															win.document.body.style.cursor = 'default';
 														});
                         }
                         else {
-                            closeJQueryDialog(); NA.common.dialog.closeDialog(dialog);
+                            closeDialog();
                         }
                         win.document.body.style.cursor = 'default';
                         break;
@@ -765,9 +748,7 @@
 				    			break;
 				    		}
 				    		case 'Edit': {
-				    			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-				    			closeJQueryDialog();
-				    			NA.common.dialog.closeDialog(dialog);
+				    		    closeDialog();
 				    			grid.trigger("reloadGrid", [{ page: 1 }]);
 				    			win.document.body.style.cursor = 'default';
 				    			break;
@@ -1809,8 +1790,7 @@
             var dtpicker = NA.common.getElementID('ui-datepicker-div');
             if (dtpicker) {
                 dtpicker.parentNode.removeChild(dtpicker);
-            }
-            EraseElHidden();
+            }           
         };
 
         function setDisabledControls() {
@@ -1848,9 +1828,50 @@
             btnCancelDetail.setAttribute('disabled', true);
         }
 
-        function ConfirmPageLeave() {
-			
-        }
+        //function ConfirmPageLeave(e) {
+        //    var retval = false;
+        //    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+        //    if (!dialog) {
+        //        return true;
+        //    }
+        //    if (win.status === 'Open') { closeDialog(); win.document.body.style.cursor = 'default'; return false; }
+        //    win.document.body.style.cursor = 'wait';
+        //    var valuesForm = getValuesForm();
+        //    var hasChangedHeader = false, hasChangedDetail = false;
+        //    hasChangedHeader = NA.common.detectInputChanges(valuesForm, JSON.parse(originalData));
+        //    valuesForm['hasChangedHeader'] = hasChangedHeader;
+        //    if (hasGridDetail) {
+        //        var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+        //        dataDetail = gridDetail.jqGrid('getGridParam', 'data');
+        //        var recCount = gridDetail.jqGrid("getGridParam", "reccount");
+        //        var elOriDetail = NA.common.getElementID('id_dataForGridDetail'),//data sudah dalam bentuk json
+        //            oriDataDetail = elOriDetail.value;
+        //        if (typeof oriDataDetail !== 'undefined' && oriDataDetail != '') {
+        //            if (recCount > 0) {
+        //                hasChangedDetail = NA.common.detectInputChanges(dataDetail, JSON.parse(oriDataDetail));
+        //            }
+        //        }
+        //        else if (recCount > 0) {
+        //            hasChangedDetail = (parseInt(recCount) > 0);
+        //        }
+        //    }
+        //    var retval = false;
+        //    if (hasChangedDetail || hasChangedHeader) {
+        //        showConfirmation(NA.common.message.dataHasChanged, 'Please confirm', function () {
+        //            retval = ExecuteHandler('OK');
+        //        });
+        //    }
+        //    return retval;
+        //};
+        function closeDialog() {
+            closeJQueryDialog();
+            EraseElHidden();
+            var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+            if (dialog) {
+                NA.common.dialog.closeDialog(dialog);
+            }
+            //NA.NAEvent.removeHandler(win, 'beforeunload', ConfirmPageLeave);
+        };
         //========================END GROUP FUNCTION DECLARATION===================================
 
     	//=======================GROUP FUNCTION EVENT=============================================
@@ -2050,7 +2071,7 @@
         			var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
                     txtSearchCustom = NA.common.getElementID('jqg1');
         			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-        				NA.common.dialog.closeDialog(dialog);
+        			    closeDialog();
         			});
         			var btnFind = NA.common.getElementID('fbox_jqGrid_search');
         			NA.NAEvent.addHandler(btnFind, 'click', function (event) {
@@ -2200,7 +2221,7 @@
         				NA.NAEvent.stopPropagation(event);
         			}
         			if (!hasLoadDialog) {
-        				NA.common.dialog.closeDialog(dialog);
+        			    closeDialog();
         			}
         			win.document.body.style.cursor = 'default';
         			return false;
@@ -2214,7 +2235,7 @@
         		}
         		win.document.body.style.cursor = 'default';
         		if (!hasLoadDialog) {
-        			NA.common.dialog.closeDialog(dialog);
+        		    closeDialog();
         		}
         		return false;
         	});
@@ -2225,12 +2246,8 @@
         			if (target.innerText.trim() !== 'Add') {
         				idapp = getGridCellValue(grid, 'idapp');
         				if (typeof idapp == 'undefined' || idapp === '') {
-        					ShowAlert('Please select data to edit');
-        					var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
-        					if (dialog) {
-        						//closeJQueryDialog();
-        						NA.common.dialog.closeDialog(dialog);
-        					}
+        					ShowAlert('Please select data to edit');        				
+        					closeDialog();
         					if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
         					return false;
         				}
@@ -3315,6 +3332,32 @@
                         			//gridTbl.on("keyup", "tr", deletegridDetail);
                         		}//hanya untuk status Add/Edit 
                         		hasLoadDialog = true;
+                        		win.onbeforeunload = function (e) {                  
+                        		    if (win.status === 'Open') { closeDialog(); win.document.body.style.cursor = 'default'; return false; }
+                        		    win.document.body.style.cursor = 'wait';
+                        		    var valuesForm = getValuesForm();
+                        		    var hasChangedHeader = false, hasChangedDetail = false;
+                        		    hasChangedHeader = NA.common.detectInputChanges(valuesForm, JSON.parse(originalData));
+                        		    valuesForm['hasChangedHeader'] = hasChangedHeader;
+                        		    if (hasGridDetail) {
+                        		        var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                        		        dataDetail = gridDetail.jqGrid('getGridParam', 'data');
+                        		        var recCount = gridDetail.jqGrid("getGridParam", "reccount");
+                        		        var elOriDetail = NA.common.getElementID('id_dataForGridDetail'),//data sudah dalam bentuk json
+                                            oriDataDetail = elOriDetail.value;
+                        		        if (typeof oriDataDetail !== 'undefined' && oriDataDetail != '') {
+                        		            if (recCount > 0) {
+                        		                hasChangedDetail = NA.common.detectInputChanges(dataDetail, JSON.parse(oriDataDetail));
+                        		            }
+                        		        }
+                        		        else if (recCount > 0) {
+                        		            hasChangedDetail = (parseInt(recCount) > 0);
+                        		        }
+                        		    }
+                        		    if (hasChangedDetail || hasChangedHeader) {
+                        		        return NA.common.message.dataHasChanged;
+                        		    }
+                        		}
                         	}
                         	NA.NAEvent.preventDefault(event);
                         	if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
@@ -3326,11 +3369,7 @@
         		//}                
         	} catch (e) {
         		BootstrapDialog.closeAll();
-        		dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-        		if (dialog) {
-        			closeJQueryDialog();
-        			NA.common.dialog.closeDialog(dialog);
-        		}
+        		closeDialog();
         		if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
         		ShowAlert(e);
         	}

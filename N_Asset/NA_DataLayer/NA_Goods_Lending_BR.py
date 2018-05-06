@@ -367,7 +367,7 @@ class NA_BR_Goods_Lending(models.Manager):
 							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(lastinfo)s,%(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
 				param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_Stock':fk_stock,'FK_Responsible_Person':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
 						'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],
-						'lastinfol':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
+						'lastinfo':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
 						'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
 				cur.execute(Query,param)
 				cur.execute('SELECT last_insert_id()')
