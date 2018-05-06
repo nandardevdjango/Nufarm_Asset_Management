@@ -7,8 +7,11 @@ from NA_DataLayer.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierMa
 from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
+from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
+from django.contrib.auth.models import AbstractUser
+
 def forced_mariadb_connection(self):
     errors = []
 
@@ -353,3 +356,52 @@ class NAGoodsLost(models.Model):
     class Meta:
         managed = True
         db_table = 'n_a_goods_lost'
+
+class NAPriviledge(AbstractUser):
+    idapp = models.AutoField(primary_key=True,db_column='IDApp')
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    username = models.CharField(max_length=250,unique=True, blank=False,db_column='UserName')
+    email = models.EmailField(unique=True, blank=True,db_column='Email')
+    password = models.CharField(max_length=50,db_column='Password')
+    picture = models.ImageField(null=True, blank=True, default='default.png',db_column='Picture')
+    last_login=models.DateTimeField(db_column='Last_login')
+    last_form = models.CharField(max_length=50,db_column='Last_form')
+    computer_name = models.CharField(max_length=50,db_column='Computer_Name')
+    ip_address = models.CharField(max_length=20,db_column='IP_Address')
+    is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
+    is_staff = models.BooleanField(default=False,db_column='Is_Staff')
+    is_active = models.BooleanField(default=False,db_column='InActive')
+    USERNAME_FIELD = 'email' # use email to log in
+    REQUIRED_FIELDS = ['username'] # required when user is created
+    date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)
+    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+    modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)
+
+    objects = NA_BR_Priviledge()
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        managed = True
+        db_table = 'N_A_Priviledge'
+
+class NAPriviledge_form(models.Model):
+    idapp = models.AutoField(primary_key=True,db_column='IDApp')
+    form_id = models.CharField(max_length=20,db_column='Form_id')
+    form_name = models.CharField(max_length=30,db_column='Form_name')
+    form_name_ori = models.CharField(max_length=50,db_column='Form_name_ori')
+
+    class Meta:
+        db_table = 'N_A_Priviledge_form'
+
+class NASysPriviledge(models.Model):
+    idapp = models.AutoField(primary_key=True,db_column='IDApp')
+    fk_p_form = models.IntegerField(db_column='FK_PForm')
+    permission = models.CharField(max_length=50,db_column='Permission')
+    user_id = models.IntegerField(db_column='User_id')
+
+    class Meta:
+        db_table = 'N_A_Sys_Priviledge'

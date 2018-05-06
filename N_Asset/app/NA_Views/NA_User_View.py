@@ -1,12 +1,13 @@
 ﻿from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from NA_DataLayer.NA_User.models import User
 from NA_DataLayer.NA_User.forms import UserLoginForm, UserRegistrationForm, UserProfileUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from NA_Models.models import NAPriviledge
+
 def require_ajax(view):
     from functools import wraps
     @wraps(view)
@@ -50,7 +51,7 @@ class NA_User_Form(UserCreationForm):
         return user
 
     class Meta:
-        model = User
+        model = NAPriviledge
         fields = ('first_name','last_name','username','email','picture','password1','password2')
 
 def NA_User_Register(request):

@@ -1,12 +1,13 @@
 ﻿from django.contrib import admin
-from NA_DataLayer.NA_User.models import User
 from NA_Models.models import *
 
-admin.site.register(User)
 admin.site.register(Employee)
 admin.site.register(NASuplier)
 admin.site.register(NAAccFa)
 admin.site.register(goods)
+admin.site.register(NAPriviledge)
+admin.site.register(NAPriviledge_form)
+admin.site.register(NASysPriviledge)
 class LogAdmin(admin.ModelAdmin):
 
     list_filter = ["nameapp", "createddate"]

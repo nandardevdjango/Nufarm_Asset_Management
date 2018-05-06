@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
  NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View
+ NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View,NA_Priviledge_View
 import app.views
 from django.views.generic import RedirectView
 # Uncomment the next lines to enable the admin:
@@ -116,6 +116,10 @@ urlpatterns = [
     url(r'^NA_GoodsLost/SearchEmployeeByForm/$',NA_GoodsLost_View.SearchEmployeebyform),
 	url(r'^NA_GoodsLost/customFilter/$',NA_GoodsLost_View.ShowCustomFilter),
 
+    #NA Priviledge
+    url(r'^NA_Priviledge/$',NA_Priviledge_View.NA_Priviledge,name='NA_Priviledge'),
+    url(r'^NA_Priviledge/getData/$',NA_Priviledge_View.NA_PriviledgeGetData),
+    url(r'^NA_Priviledge/sys/$',NA_Priviledge_View.NA_Priviledge_sys),
     #NA Report
     #url(r'^NA_Report/$',NA_Report_View.cetak_daftar_hadir),
     # Uncomment the next line to enable the admin:

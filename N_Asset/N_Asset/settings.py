@@ -38,7 +38,6 @@ INSTALLED_APPS = [
 	'NA_DataLayer',
 	'NA_Domain',
 	'NA_Models',
-    'NA_DataLayer.NA_User',
     # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,7 +69,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'N_Asset.urls'
 
-AUTH_USER_MODEL = 'NA_User.User'
+AUTH_USER_MODEL = 'NA_Models.NAPriviledge'
 
 TEMPLATES = [
     {
