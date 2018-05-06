@@ -134,6 +134,16 @@
             }
         };
 
+        showPermissions = function (rowId, val, rawObject, cm) {
+        	var attr = rawObject.attr[cm.name], result;
+        	if (attr.rowspan) {
+        		result = ' rowspan=' + '"' + attr.rowspan + '"';
+        	} else if (attr.display) {
+        		result = ' style="display:' + attr.display + '"';
+        	}
+        	return result;
+        };
+
 
         function showChildGrid(parentRowID, parentRowKey) {
         	var childGridID = parentRowID + "_table";
@@ -141,65 +151,22 @@
 
         	// send the parent row primary key to the server so that we know which grid to show
         	var childGridURL = parentRowKey + ".json";
-
+        	//var data = [{ "idapp": 1, "form_name": "Suplier Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 2, "form_name": "Suplier Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 5, "form_name": "Suplier Form", "permission": "Allow Add", "attr": { "display": "none" } }, { "idapp": 3, "form_name": "Employee Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 4, "form_name": "Employee Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 6, "form_name": "Employee Form", "permission": "Allow Add", "attr": { "display": "none" } }]
         	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
         	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
 
         	$("#" + childGridID).jqGrid({
-        		url: childGridURL,
+        		url: 'sys/?' + win.encodeURIComponent('user_id') + '=' + parentRowKey,
         		mtype: "GET",
         		datatype: "json",
         		page: 1,
         		colModel: [
-                    { label: 'Order ID', name: 'OrderID', key: true, width: 75 },
-                    { label: 'Required Date', name: 'RequiredDate', width: 100 },
-                    { label: 'Ship Name', name: 'ShipName', width: 100 },
-                    { label: 'Ship City', name: 'ShipCity', width: 100 },
-                    { label: 'Freight', name: 'Freight', width: 75 }
+                    { label: 'IDApp', name: 'idapp', key: true, width: 75,hidden:true },
+                    { label: 'Form Name', name: 'form_name',align:'center', width: 60, cellattr: showPermissions },
+                    { label: 'Permissions', name: 'permission', width: 50 }
         		],
         		loadonce: true,
         		width: 500,
-        		height: '100%',
-        		subGrid: true, // set the subGrid property to true to show expand buttons for each row
-        		subGridRowExpanded: showThirdLevelChildGrid, // javascript function that will take care of showing the child grid
-        		pager: "#" + childGridPagerID
-        	});
-
-        }
-
-    	// the event handler on expanding parent row receives two parameters
-    	// the ID of the grid tow  and the primary key of the row
-        function showThirdLevelChildGrid(parentRowID, parentRowKey) {
-        	var childGridID = parentRowID + "_table";
-        	var childGridPagerID = parentRowID + "_pager";
-
-        	// send the parent row primary key to the server so that we know which grid to show
-        	var childGridURL = "child3.json";
-
-        	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
-        	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
-
-        	$("#" + childGridID).jqGrid({
-        		url: childGridURL,
-        		mtype: "GET",
-        		datatype: "json",
-        		colModel: [
-                    { label: 'Order ID', name: 'OrderID', key: true, width: 75, hidden: true },
-                    { label: 'Product ID', name: 'ProductID', width: 100 },
-					{ label: 'Quantity', name: 'Quantity', width: 100 },
-                    { label: 'Unit Price', name: 'UnitPrice', width: 100 },
-					{
-						label: 'Total',
-						name: 'Total',
-						width: 100,
-						sortable: false,
-						formatter: function (cellValue, options, row) {   // custom calculations at client side
-							return parseFloat(row.Quantity) * parseFloat(row.UnitPrice);
-						}
-					}
-        		],
-        		loadonce: true,
-        		width: 300,
         		height: '100%',
         		pager: "#" + childGridPagerID
         	});

@@ -62,17 +62,18 @@ def NA_Priviledge_sys(request):
                 else:
                     same_data[j['form_name']] = 2
     for index,i in enumerate(data):
-        #if 'attr' in data[index-1]:
-        #     if i['form_name'] in same_data:
-        #         i['attr'] = {}
-        #         i['attr']['display'] = "none"
         if i['form_name'] in same_data:
             i['attr'] = {}
+            i['attr']['form_name'] = {}
             if index > 0:
                 if 'attr' in data[index-1]:
-                    i['attr']['display'] = "none"
+                    if i['form_name'] != data[index-1]['form_name']:
+                        if data[index+1]['form_name'] == i['form_name']:
+                            i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
+                    else:
+                        i['attr']['form_name']['display'] = "none"
                 else:
-                    i['attr']['rowspan'] = same_data[i['form_name']]
+                    i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
             else:
-                i['attr']['rowspan'] = same_data[i['form_name']]
-    return HttpResponse(json.dumps({"message":data},cls=DjangoJSONEncoder),content_type='application/json')
+                i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
+    return HttpResponse(json.dumps(data,cls=DjangoJSONEncoder),content_type='application/json')
