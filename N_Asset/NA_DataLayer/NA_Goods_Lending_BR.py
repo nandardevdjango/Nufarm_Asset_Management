@@ -58,12 +58,12 @@ class NA_BR_Goods_Lending(models.Manager):
 					INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = g.IDApp
 					INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 					AND ngl.SerialNumber = ngd.SerialNumber AND ngl.TypeApp = ngd.TypeApp
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS lentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)L
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS lentby FROM employee)L
 										ON L.IDApp = ngl.FK_Employee
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS sentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)S
-										ON S.IDApp = ngl.FK_Employee
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS responsibleby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)R
-					ON R.IDApp = ngl.FK_Employee WHERE """ + colKey + rs.Sql() + ")"
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS sentby FROM employee)S
+										ON S.IDApp = ngl.FK_Sender
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS responsibleby FROM employee)R
+					ON R.IDApp = ngl.FK_Responsible_Person WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
 		strLimit = '300'
 		if int(PageIndex) <= 1:
@@ -423,20 +423,16 @@ class NA_BR_Goods_Lending(models.Manager):
 			fk_goods = row[1]
 			serialnumber = row[2]
 			fk_receive = row[3]
-			try:
-				with transaction.atomic():
-					Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
-					cur.execute(Query,[idapp])
-					Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
-					cur.execute(Query,[fk_goods,serialnumber,idapp])
-					if fk_receive is not None:
-						#barang berarti  ngambil dari 
-						Query = """UPDATE n_a_stock SET TIsNew = TIsNew + 1, ModifiedBy = %s,ModifiedDate = NOW() WHERE IDApp = %s """
-						cur.execute(Query,[username,fk_stock]) 
-				return "success"
-			except :
-				cur.close()
-				return repr(e)
+			with transaction.atomic():
+				Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
+				cur.execute(Query,[idapp])
+				Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
+				cur.execute(Query,[fk_goods,serialnumber,idapp])
+				if fk_receive is not None:
+					#barang berarti  ngambil dari 
+					Query = """UPDATE n_a_stock SET TIsNew = TIsNew + 1, ModifiedBy = %s,ModifiedDate = NOW() WHERE IDApp = %s """
+					cur.execute(Query,[username,fk_stock]) 
+			return "success"
 	def getData(self,idapp):
 		cur = connection.cursor()
 		#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee

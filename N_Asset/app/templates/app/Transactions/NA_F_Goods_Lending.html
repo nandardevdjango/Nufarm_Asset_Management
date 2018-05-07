@@ -41,7 +41,7 @@
                     event.preventDefault();
                     if (item.firstChild.id === 'custSearch') {
                         //=========='show dialog search'==================
-                        //NA.common.dialog.createSearchDialog(event)
+                        NA.common.dialog.createSearchDialog(event)
                         txtSearchMaster.setAttribute('disabled', true);
                         txtSearchMaster.setAttribute('placeholder', '');
                         btnSearchMaster.setAttribute('disabled', true)
@@ -650,26 +650,30 @@
 		            break;
 		        }
 		        case 'Cancel': 
-		        case 'Close': {
-		            var valuesForm = getValuesForm(); var retval = false;
-		            if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
-		                showConfirmation(NA.common.message.dataHasChanged, 'Confirmation', function () {
-		                    if (!frmEntry.checkValidity()) {
-		                        var inputbtn = NA.common.getElementID('inputButton');
-		                        inputbtn.click();
-		                    }
-		                    else {
-		                        submitForm(valuesForm);
-		                    }
-		                    win.document.body.style.cursor = 'default';
-		                }, function () {
-		                    closeDialog();
-		                    win.document.body.style.cursor = 'default';
-		                });
-		            }
-		            else {
-		                closeDialog();
-		            }
+		    	case 'Close': {
+		    		if (win.status != 'Open') {
+		    			var valuesForm = getValuesForm(); var retval = false;
+		    			if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+		    				showConfirmation(NA.common.message.dataHasChanged, 'Confirmation', function () {
+		    					if (!frmEntry.checkValidity()) {
+		    						var inputbtn = NA.common.getElementID('inputButton');
+		    						inputbtn.click();
+		    					}
+		    					else {
+		    						submitForm(valuesForm);
+		    					}
+		    					win.document.body.style.cursor = 'default';
+		    				}, function () {
+		    					closeDialog();
+		    					win.document.body.style.cursor = 'default';
+		    				});
+		    			}
+		    			else {
+		    				closeDialog();
+		    			}
+		    		} else {
+		    			closeDialog(); win.document.body.style.cursor = 'default';
+		    		}		           
 		            break;
 		        }
 		    };
@@ -1007,6 +1011,171 @@
 				NA.NAEvent.stopPropagation(event);
 			}
 		};
+		//function untuk Reset
+		function submitReset(event) {
+			window.document.body.style.cursor = 'wait';
+			SearchData.setDefaultSearchData('goods', 'varchar', 'like');
+			SearchData.setValue('');
+			LoadData(1);
+			win.document.body.style.cursor = 'default';
+		};
+		window.showDialogCustomSearch = function (event) {
+			$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
+				if (statusTxt == "success") {
+					$(this).html(responseTxt);
+					var dialog = NA.common.doc.querySelector('div.containerDialog');
+					NA.common.getElementID('searchmodfbox').style.display = 'block';
+					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
+                    txtSearchCustom = NA.common.getElementID('jqg1');
+					NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+						closeDialog();
+					});
+					var btnFind = NA.common.getElementID('fbox_jqGrid_search');
+					NA.NAEvent.addHandler(btnFind, 'click', function (event) {
+						submitSearch(event);
+						if (event) {
+							NA.NAEvent.stopPropagation(event);
+						}
+					});
+					var btnReset = NA.common.getElementID('fbox_jqGrid_reset');
+					NA.NAEvent.addHandler(btnReset, 'click', function (event) {
+						submitReset(event);
+						if (event) {
+							NA.NAEvent.stopPropagation(event);
+						}
+					});
+					NA.NAEvent.addHandler(txtSearchCustom, 'keydown', function (event) {
+						event = NA.NAEvent.getEvent(event);
+						if (event.keyCode === 13) {
+							submitSearch(event);
+						}
+						if (event) {
+							NA.NAEvent.stopPropagation(event);
+						}
+					});
+				}
+			});
+		};
+		function submitSearch(event) {
+			window.document.body.style.cursor = 'wait';
+			if (event)
+				NA.NAEvent.preventDefault(event);
+
+			var elementOption = null, columnKey = '', valueKey = '',
+            elCriteria = null,//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
+            valCriteria = '',//elCriteria.nodeValue;
+            elDataType = '';//elementOption.dataset.dataType;
+			criteria = 'like'
+			//get  ajax with querystring search
+			//valueKey : valueKey,
+			//columnKey :columnKey,
+			//dataType : dataType,
+			//criteria : criteria,
+			if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
+				elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
+				columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
+				elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
+				valCriteria = elCriteria.value;
+				elDataType = elementOption.dataset.tipe;
+				switch (valCriteria) {
+					case "eq": { criteria = 'equal'; break; }
+					case "ne": { criteria = 'notequal'; break; }
+					case "bw": { criteria = 'beginwith'; break; }
+					case "ew": { criteria = "endwith"; break; }
+					case "cn": { criteria = "contains"; break; }
+					case "in": { criteria = "in"; break; }
+					case "ni": { criteria = "notin"; break; }
+					case "gt": {
+						criteria = "greater";
+						var expr = /char/;  // no quotes here
+						if (expr.test(elDataType)) {
+							ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "(expr for only numeric or date data)");
+							win.document.body.style.cursor = 'default';
+							return false;
+						}
+						break;
+					}
+					case "le": {
+						criteria = "less";
+						var expr = /char/;  // no quotes here
+						if (expr.test(elDataType)) {
+							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+							win.document.body.style.cursor = 'default'; return false;
+						}
+						break;
+					}
+					case "leq": {
+						criteria = "lessorequal";
+						var expr = /char/;  // no quotes here
+						if (expr.test(elDataType)) {
+							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+							win.document.body.style.cursor = 'default'; return false;
+						}
+						break;
+					}
+					case "gtq": {
+						criteria = "greaterorequal";
+						var expr = /char/;  // no quotes here
+						if (expr.test(elDataType)) {
+							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+							win.document.body.style.cursor = 'default'; return false;
+						}
+						break;
+					}
+					case "blg": {
+						criteria = "between";
+						var expr = /char/;  // no quotes here
+						if (expr.test(elDataType)) {
+							ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "expr for only numeric or date data");
+							win.document.body.style.cursor = 'default'; return false;
+						}
+						break;
+					}
+				};
+			}
+			else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
+				var elSearch = null;
+				valueKey = txtSearchMaster.value.trim();
+				var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
+				var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+				if (textToSearch === "CustomSearch") {
+					ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
+				}
+				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+					if (item.firstChild.textContent === textToSearch) {
+						elSearch = item.firstChild;
+					}
+				});
+				columnKey = elSearch.dataset.column
+				elDataType = elSearch.dataset.tipe;
+				switch (elDataType) {
+					case "bigint":
+					case "integer":
+					case "int":
+					case "money":
+					case "float":
+					case "decimal":
+					case "boolean":
+					case "datetime": {
+						if (valueKey.toString().indexOf(',') > -1) {
+							criteria = 'in'
+						} else {
+							criteria = 'equal';
+						}
+						break;
+					}
+				};
+			};
+
+			SearchData.setValue(valueKey);
+			SearchData.setColumnName(columnKey);
+			SearchData.setDataType(elDataType)
+			SearchData.setCriteria(criteria);
+			win.document.body.style.cursor = 'wait';
+			LoadData(1);
+			win.document.body.style.cursor = 'default';
+			//grid.setGridParam.trigger("reloadGrid",[{page:1}]);//karena searching harus di set ke page 1
+		};
 		//=======================End GROUP FUNCTION EVENT=========================================
 
 
@@ -1119,7 +1288,7 @@
 					//comment this after debugging
 					//NA.common.dialog.closeDialog(dialog);
 					if (!hasLoadDialog) {
-						NA.common.dialog.closeDialog(dialog); win.document.body.style.cursor = 'default'; return false;
+						closeDialog(); win.document.body.style.cursor = 'default'; return false;
 					}
 					try {
 
