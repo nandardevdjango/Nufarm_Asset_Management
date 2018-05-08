@@ -53,6 +53,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\NA_Maintenance_View.py" />
+    <Compile Include="app\NA_Views\NA_Priviledge_View.py" />
     <Compile Include="app\NA_Views\NA_Report_View.py" />
     <Compile Include="app\NA_Views\NA_Suplier_View.py" />
     <Compile Include="app\NA_Views\NA_To_Grids.py" />
@@ -184,6 +185,7 @@
     <Content Include="app\templates\app\MasterData\NA_F_Employee.html" />
     <Content Include="app\templates\app\MasterData\NA_F_GoodsLost.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Maintenance.html" />
+    <Content Include="app\templates\app\MasterData\NA_F_Priviledge.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Suplier.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
