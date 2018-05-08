@@ -155,8 +155,16 @@
 {% endblock %}
 
 {%block content-0 %}
-<table id="jqGrid_NA_F_Goods_Receive"></table>
-<div id="jqGrid_NA_F_Goods_Receive_Pager"></div>
+<style>
+div#content-0 {
+    overflow:hidden;}
+div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGrid_NA_F_Goods_Receive_Pager,div.ui-jqgrid-titlebar{
+    border-radius: 0px
+}
+</style>
+
+<table id="jqGrid_NA_F_Goods_Receive" style="overflow:auto"></table>
+<div id="jqGrid_NA_F_Goods_Receive_Pager"  class="scroll" style="text-align:center;"></div>
 
 {%endblock%}
 
@@ -280,6 +288,7 @@
                         shrinkToFit: false,
                         iconSet: "fontAwesome",
                         forceFit: true,
+                        width: 'inherit',
                         toolbar: true,
                         scrollrows: true,
                         hidegrid: true,
@@ -299,6 +308,9 @@
                     console.log(e);
                     document.body.style.cursor = 'default';
                 };
+                $("div#gbox_jqGrid_NA_F_Goods_Receive, div#gview_jqGrid_NA_F_Goods_Receive, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+                	'width': 'inherit'
+                })
             };
         };
 
@@ -1948,7 +1960,7 @@
             //columnKey :columnKey,
             //dataType : dataType,
             //criteria : criteria,
-            if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
+            if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1' || event.parentNode.id === 'fbox_jqGrid_search') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
                 elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
                 columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
                 elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');

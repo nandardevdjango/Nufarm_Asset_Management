@@ -151,7 +151,7 @@ class ResolveCriteria:
         elif self.criteria==CriteriaSearch.BeginWith:
             ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
         elif self.criteria==CriteriaSearch.EndWith:
-                ResolveCriteria.__query= " LIKE '{0!s}%'".format(str(self.valueData))
+                ResolveCriteria.__query= " LIKE '%{0!s}'".format(str(self.valueData))
         elif self.criteria == CriteriaSearch.Equal:
             if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
                 ResolveCriteria.__query = " = '{0}'".format(self.valueData)

@@ -161,7 +161,7 @@ class NADisposal(models.Model):
     ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)  # Field name made lowercase.
     issold = models.IntegerField(db_column='IsSold', blank=True, null=True)  # Field name made lowercase.
     sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)  # Field name made lowercase.
-    fk_responsible_person = models.CharField(db_column='FK_Responsible_Person', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    FK_ResponsiblePerson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_acc_fa = models.CharField(db_column='FK_Acc_FA', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
     bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)  # Field name made lowercase.
@@ -314,7 +314,7 @@ class NAGoodsLending(models.Model):
 	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', related_name='fk_gl_employee_used_by')
 	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
 	fk_stock = models.ForeignKey(NAStock, db_column='FK_Stock',related_name='fk_gl_stock')
-	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_Responsible_Person', blank=True, null=True,related_name='fk_gl_employee_resp_person')
+	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', blank=True, null=True,related_name='fk_gl_employee_resp_person')
 	interests = models.CharField(db_column='interests', max_length=150, blank=True, null=True)
 	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
 	statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
