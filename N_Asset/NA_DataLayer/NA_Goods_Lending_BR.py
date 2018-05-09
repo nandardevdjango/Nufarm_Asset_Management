@@ -45,7 +45,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Lending_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.interests,R.responsibleby,
+		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.DateReturn as datereturn,ngl.interests,R.responsibleby,
 					Ref.refgoodsfrom,ngl.isnew,ngl.status, ngl.descriptions,ngl.createdby,ngl.createddate
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON G.IDApp = ngl.FK_Goods
 					INNER JOIN (SELECT ngl.IDApp,CASE
@@ -93,7 +93,10 @@ class NA_BR_Goods_Lending(models.Manager):
 			row = cur.fetchone()
 			FKGoods = int(row[0])
 
-			Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s """
+			if newVal == "R":
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NOW() """
+			else:
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NULL """
 			cur.execute(Query,{'newVal':newVal,'idapp':idapp})				
 
 			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
@@ -107,7 +110,7 @@ class NA_BR_Goods_Lending(models.Manager):
 				TotalSpare = int(row[0])
 				#update langsung Stock
 
-			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare),Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
+			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare)s,Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
 			cur.execute(Query,{'TotalSpare':TotalSpare,'UpdatedBy':UpdatedBy,'FK_Goods':FKGoods})
 			return 'success'
 	def getInterest(self,SearchIntr):

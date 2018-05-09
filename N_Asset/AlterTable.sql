@@ -350,3 +350,4 @@ ALTER TABLE `n_a_goods_lost`
 
   ALTER TABLE n_a_goods_lending CHANGE FK_Responsible_Person FK_ResponsiblePerson INT(11) UNSIGNED NULL;
   ALTER TABLE n_a_disposal CHANGE FK_Responsible_Person FK_ResponsiblePerson INT(11) UNSIGNED NULL;
+    ALTER TABLE n_a_goods_lending ADD DateReturn DATETIME  NULL

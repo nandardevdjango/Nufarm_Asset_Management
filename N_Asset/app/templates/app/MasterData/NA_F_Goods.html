@@ -602,7 +602,7 @@
             // Always add "?debug=1" to every URL
             options.beforeSend = function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type)) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken());
                 }
             }     
         });

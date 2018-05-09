@@ -39,7 +39,8 @@ def NA_Goods_Lending(request):
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Status','columnName':'status','dataType':'varchar'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
-	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})	
+	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
+	populate_combo.append({'label':'Date Returned','columnName':'datereturn','dataType':'datetime'})		
 	#populate_combo.append({'label':'Modified By','columnName':'modifiedby','dataType':'varchar'})
 	#populate_combo.append({'label':'Modified Date','columnName':'modifieddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Lending.html',{'populateColumn':populate_combo})
@@ -53,6 +54,7 @@ def ShowCustomFilter(request):
 	cols.append({'name':'lentby','value':'lentby','selected':'','dataType':'varchar','text':'Lent By'})
 	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
 	cols.append({'name':'lentdate','value':'lentdate','selected':'','dataType':'datetime','text':'Date Lent'})
+	cols.append({'name':'datereturn','value':'datereturn','selected':'','dataType':'datetime','text':'Date Returned'})
 	cols.append({'name':'interests','value':'interests','selected':'','dataType':'varchar','text':'Interest of Lending'})
 	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
 
@@ -86,7 +88,7 @@ def NA_Goods_Lending_Search(request):
 		i = 0;
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['interests'], \
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['datereturn'],row['interests'], \
 				row['responsibleby'],row['refgoodsfrom'],row['isnew'],row['status'],row['descriptions'],datetime.date(row['createddate']),row['createdby']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -99,6 +101,7 @@ def NA_Goods_Lending_Search(request):
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def UpdateStatus(request):
 	try:
+		statuscode = 200
 		idapp = request.GET.get('idapp');
 		newVal = request.GET.get('newVal');
 		updatedby = request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'

@@ -245,7 +245,19 @@
 			}
 		};
 		// ===============End Remove event kalau ada yang masih menempel di textbox/btnSearch master=================
-
+		//csrf token untuk form
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		};
+		$.ajaxPrefilter(function (options) {
+			// Always add "?debug=1" to every URL
+			options.beforeSend = function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type)) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken());
+				}
+			}
+		});
 		//Load Data grid
 		function LoadData(page) {
 			var url = 'NA_Goods_Lending_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
@@ -274,6 +286,7 @@
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             { name: 'sentby', index: 'sentby', width: 100, sortable: true, editable: false, align: 'left', },
                             { name: 'lentdate', index: 'lentdate', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							{ name: 'datereturn', index: 'datereturn', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'interests', index: 'interests', width: 140, sortable: true, editable: false, align: 'left', },
                             {
                             	name: 'responsibleby', index: 'responsibleby', width: 100, sortable: true, editable: false, align: 'right',
@@ -281,7 +294,7 @@
                             {
                             	name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'right',
                             },
-                            { name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { disabled: false } },
+                            { name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
                             {
                             	name: 'status', index: 'status', width: 90, sortable: true, editable: true, align: 'left',
                             	edittype: 'select', formatter: 'select', editoptions: {
@@ -324,21 +337,25 @@
 								btnOpen.click();
 							}
 						},
+
 						beforeSelectRow: function (rowid, e) {
 							var $self = $(this),
                                 iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
                             cm = $self.jqGrid("getGridParam", "colModel");
 							if (cm[iCol].name === "status") {
-								oriStatus = $(e.target).val();
+								var ostatus = $(e.target).text;
+								if (ostatus == 'Return') {oriStatus = "R"
+								} else { oriStatus = "L" }
 							}
 						},
+						cellEdit: true,cellsubmit:'clientArray',
 						gridComplete: function () {
 							document.body.style.cursor = 'default';
 						},
 						loadError: function (xhr, st, err) {
 							win.document.body.style.cursor = 'default'; XhrError(xhr);
 						},
-						cellEdit: false,
+						//cellEdit: false,
 						height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
 						rowNum: 300,
 						rowList: [20, 50, 100, 200, 300, 500],
@@ -419,11 +436,7 @@
 			}
 			return colData;
 		};
-		//csrf token untuk form
-		function csrfSafeMethod(method) {
-			// these HTTP methods do not require CSRF protection
-			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-		};
+	
 		function showConfirmation(message, title, callbackYess, calBackNO) {
 			BootstrapDialog.confirm({
 				title: title || NA.common.message.titleInfo,
