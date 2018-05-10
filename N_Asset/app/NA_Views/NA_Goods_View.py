@@ -27,7 +27,7 @@ def NA_Goods(request):
 	#buat nama-name column, key sama 
 	populate_combo = []
 	populate_combo.append({'label':'ItemCode','columnName':'itemcode','dataType':'varchar'})
-	populate_combo.append({'label':'BrandName','columnName':'brandname','dataType':'varchar'})
+	#populate_combo.append({'label':'BrandName','columnName':'brandname','dataType':'varchar'})
 	populate_combo.append({'label':'PricePerUnit','columnName':'priceperUnit','dataType':'decimal'})
 	populate_combo.append({'label':'Depreciation_Method','columnName':'depreciationmethod','dataType':'char'})
 	populate_combo.append({'label':'unit','columnName':'economiclife','dataType':'decimal'})
@@ -71,7 +71,7 @@ def NA_Goods_Search(request):
 		
 	rows = []
 	for row in dataRows.object_list:
-		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],row['itemcode'],row['goodsname'],row['brandname'],row['unit'],row['priceperunit'], \
+		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],row['itemcode'],row['goodsname'],row['unit'],row['priceperunit'], \
 			row['placement'],row['typeofdepreciation'],row['economiclife'],row['inactive'],datetime.date(row['createddate']),row['createdby']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}

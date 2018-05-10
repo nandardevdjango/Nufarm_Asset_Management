@@ -8,6 +8,7 @@ from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
+from NA_DataLayer.common import commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -38,12 +39,33 @@ def NA_Goods_Lending(request):
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Status','columnName':'status','dataType':'varchar'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
-	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})	
+	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
+	populate_combo.append({'label':'Date Returned','columnName':'datereturn','dataType':'datetime'})		
 	#populate_combo.append({'label':'Modified By','columnName':'modifiedby','dataType':'varchar'})
 	#populate_combo.append({'label':'Modified Date','columnName':'modifieddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Lending.html',{'populateColumn':populate_combo})
 	#Goods Name,Goods Type,Serial Number,Lent By,Sent By,Lent Date,Interest,Goods From,IsNew,Status,Created By,CreatedDate
+def ShowCustomFilter(request):
+	#idapp,no,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
+	cols = []
+	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
+	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
+	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
+	cols.append({'name':'lentby','value':'lentby','selected':'','dataType':'varchar','text':'Lent By'})
+	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
+	cols.append({'name':'lentdate','value':'lentdate','selected':'','dataType':'datetime','text':'Date Lent'})
+	cols.append({'name':'datereturn','value':'datereturn','selected':'','dataType':'datetime','text':'Date Returned'})
+	cols.append({'name':'interests','value':'interests','selected':'','dataType':'varchar','text':'Interest of Lending'})
+	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
 
+	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
+	cols.append({'name':'isnew','value':'isnew','selected':'','dataType':'boolean','text':'Is New'})
+	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
+	cols.append({'name':'status','value':'status','selected':'','dataType':'int','text':'Status Lent'})
+	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
+	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+	cols.append({'name':'createddate','value':'createddate','selected':'','dataType':'datetime','text':'Created Date'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 def NA_Goods_Lending_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
@@ -66,7 +88,7 @@ def NA_Goods_Lending_Search(request):
 		i = 0;
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['interests'], \
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['datereturn'],row['interests'], \
 				row['responsibleby'],row['refgoodsfrom'],row['isnew'],row['status'],row['descriptions'],datetime.date(row['createddate']),row['createdby']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -79,6 +101,7 @@ def NA_Goods_Lending_Search(request):
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def UpdateStatus(request):
 	try:
+		statuscode = 200
 		idapp = request.GET.get('idapp');
 		newVal = request.GET.get('newVal');
 		updatedby = request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'
@@ -141,23 +164,21 @@ def ShowEntry_Lending(request):
 			resul = ''
 			if form.is_valid():
 				form.clean()
+				data.update(isnew=strtobool(str(data['isnew'])))
+				data.update(fk_maintenance=(None if int(data['fk_maintenance']) == 0 else data['fk_maintenance']))
+				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
+				data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
+				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					data.update(isnew=strtobool(str(data['isnew'])))
-					data.update(fk_maintenance=(None if int(data['fk_maintenance']) == 0 else data['fk_maintenance']))
-					data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
-					data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
-					data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
-					#data.update(fk_disposal=(None if int(data['fk_disposal']) == 0 else  data['fk_disposal']))
-					#data.update(fk_lost=(None if int(data['fk_lost']) == 0 else data['fk_lost']))
-					#fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost		
-					#SaveData
 					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
-					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				elif status == 'Edit':
-					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')	
+					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					if NAGoodsLending.objects.HasReference(data['idapp']):
-						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
+						result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
+						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
+				
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
@@ -169,6 +190,8 @@ def ShowEntry_Lending(request):
 			IDApp = request.GET.get('idapp')
 			Ndata = NAGoodsLending.objects.getData(IDApp)
 			Ndata = Ndata[0]
+			Ndata.update(idapp=IDApp)
+			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasRefData'])))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
 			form = NA_Goods_Lending_Form(data=Ndata)
 			return render(request, 'app/Transactions/NA_Entry_Goods_Lending.html', {'form' : form})

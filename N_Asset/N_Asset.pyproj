@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
     <Compile Include="NA_DataLayer\NA_Maintenance_BR.py" />
+    <Compile Include="NA_DataLayer\NA_Priviledge_BR.py" />
     <Compile Include="NA_DataLayer\NA_Suplier.py">
       <SubType>Code</SubType>
     </Compile>

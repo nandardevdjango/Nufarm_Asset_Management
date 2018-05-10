@@ -16,7 +16,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		if columnKey == 'goods':
 			colKey = 'g.goodsname'
-		elif columnKey == 'typeapp':
+		elif columnKey == 'goodstype':
 			colKey = 'ngd.TypeApp'
 		elif columnKey == 'serialnumber':
 			colKey = 'ngd.serialnumber'
@@ -26,7 +26,7 @@ class NA_BR_Goods_Lending(models.Manager):
 			colKey = 'S.sentby'
 		elif columnKey == 'lentdate':
 			colKey = 'ngl.DateLending'
-		elif columnKey == 'intererests':
+		elif columnKey == 'interests':
 			colKey = 'ngl.interests'
 		elif columnKey == 'responsibleby':
 			colKey = 'R.responsibleby'
@@ -45,7 +45,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Lending_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.interests,R.responsibleby,
+		Query = """ CREATE TEMPORARY TABLE T_Lending_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngl.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,L.lentby,S.sentby,ngl.DateLending AS lentdate,ngl.DateReturn as datereturn,ngl.interests,R.responsibleby,
 					Ref.refgoodsfrom,ngl.isnew,ngl.status, ngl.descriptions,ngl.createdby,ngl.createddate
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON G.IDApp = ngl.FK_Goods
 					INNER JOIN (SELECT ngl.IDApp,CASE
@@ -58,12 +58,12 @@ class NA_BR_Goods_Lending(models.Manager):
 					INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = g.IDApp
 					INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 					AND ngl.SerialNumber = ngd.SerialNumber AND ngl.TypeApp = ngd.TypeApp
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS lentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)L
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS lentby FROM employee)L
 										ON L.IDApp = ngl.FK_Employee
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS sentby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)S
-										ON S.IDApp = ngl.FK_Employee
-					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS responsibleby FROM employee WHERE InActive = 0 AND InActive IS NOT NULL)R
-					ON R.IDApp = ngl.FK_Employee WHERE """ + colKey + rs.Sql() + ")"
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS sentby FROM employee)S
+										ON S.IDApp = ngl.FK_Sender
+					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS responsibleby FROM employee)R
+					ON R.IDApp = ngl.FK_ResponsiblePerson WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
 		strLimit = '300'
 		if int(PageIndex) <= 1:
@@ -93,7 +93,10 @@ class NA_BR_Goods_Lending(models.Manager):
 			row = cur.fetchone()
 			FKGoods = int(row[0])
 
-			Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s """
+			if newVal == "R":
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NOW() """
+			else:
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NULL """
 			cur.execute(Query,{'newVal':newVal,'idapp':idapp})				
 
 			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
@@ -107,7 +110,7 @@ class NA_BR_Goods_Lending(models.Manager):
 				TotalSpare = int(row[0])
 				#update langsung Stock
 
-			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare),Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
+			Query = """UPDATE n_a_stock SET T_Goods_Spare = %(TotalSpare)s,Modifiedby = %(UpdatedBy)s, ModifiedDate = NOW() WHERE FK_Goods = %(FK_Goods)s"""
 			cur.execute(Query,{'TotalSpare':TotalSpare,'UpdatedBy':UpdatedBy,'FK_Goods':FKGoods})
 			return 'success'
 	def getInterest(self,SearchIntr):
@@ -362,35 +365,44 @@ class NA_BR_Goods_Lending(models.Manager):
 			fk_stock = row[0]
 		try:
 			with transaction.atomic():
+				if Status == StatusForm.Input:
+					Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_ResponsiblePerson, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions,lastinfo, FK_Receive, FK_RETURN, FK_CurrentApp) \
+								VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_ResponsiblePerson)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(lastinfo)s,%(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
+					param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_Stock':fk_stock,'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
+							'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],
+							'lastinfo':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
+							'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
+					cur.execute(Query,param)
+					cur.execute('SELECT last_insert_id()')
+					row = cur.fetchone()
+					FKApp = row[0]
 
-				Query = """INSERT INTO n_a_goods_lending(FK_Goods, IsNew, FK_Employee, DateLending, FK_Stock, FK_Responsible_Person, interests, FK_Sender, Status, CreatedDate, CreatedBy, SerialNumber, TypeApp, FK_Maintenance, Descriptions,lastinfo, FK_Receive, FK_RETURN, FK_CurrentApp) \
-							VALUES (%(FK_Goods)s, %(IsNew)s, %(FK_Employee)s, %(DateLending)s, %(FK_Stock)s, %(FK_Responsible_Person)s, %(interests)s, %(FK_Sender)s, %(Status)s, NOW(), %(CreatedBy)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Maintenance)s, %(Descriptions)s, %(lastinfo)s,%(FK_Receive)s, %(FK_RETURN)s, %(FK_CurrentApp)s)"""
-				param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_Stock':fk_stock,'FK_Responsible_Person':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
-						'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'CreatedBy':Data['createdby'],'SerialNumber':Data['serialnumber'],'TypeApp':Data['typeapp'],'FK_Maintenance':Data['fk_maintenance'],'Descriptions':Data['descriptions'],
-						'lastinfo':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
-						'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
+					#insert n_goods_history
+					Query = """INSERT INTO n_a_goods_history(FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
+							 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Lending)s,NULL, NULL, NULL, NULL, NULL, NOW(), %(CreatedBy)s )"""
+					param = {'FK_Goods':Data['idapp_fk_goods'],'TypeApp':Data['typeapp'],'SerialNumber':Data['serialnumber'],'FK_Lending':FKApp,'CreatedBy':Data['createdby']}
+				elif Status == StatusForm.Edit:
+					Query = """ UPDATE n_a_goods_lending SET FK_Employee=%(FK_Employee)s,DateLending=%(DateLending)s,FK_ResponsiblePerson=%(FK_ResponsiblePerson)s, \
+								interests=%(interests)s,FK_Sender=%(FK_Sender)s,Status=%(Status)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s,Descriptions=%(Descriptions)s \
+								WHERE idapp = %(idapp)s """
+					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateLending':Data['datelending'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
+							'FK_Sender':Data['idapp_fk_sender'],'Status':Data['statuslent'],'ModifiedBy':Data['modifiedby'],'Descriptions':Data['descriptions']}
 				cur.execute(Query,param)
-				cur.execute('SELECT last_insert_id()')
-				row = cur.fetchone()
-				FKApp = row[0]
+
 				#Update Stock
-				Stock = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,Data['createdby'])
+				who = Data['createdby'] if Status == StatusForm.Input else Data['modifiedby']
+				Stock = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
 				TNew = Stock[0]
 				TSpare = Stock[6]
 				if fk_stock > 0:
 					if strtobool(str(Data['isnew'])) == 1:#jika ngambil dari barang baru, kurangi tisnew di stock
 						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,TIsNew = %s, ModifiedBy=%s,ModifiedDate = NOW() WHERE IDApp = %s """
-						cur.execute(Query,[TSpare,TNew,Data['createdby'],fk_stock])
+						cur.execute(Query,[TSpare,TNew,who,fk_stock])
 					else:
 						Query = """UPDATE n_a_stock SET T_Goods_Spare=%s,ModifiedBy=%s,ModifiedDate = NOW() WHERE IDApp = %s """
-						cur.execute(Query,[TSpare,Data['createdby'],fk_stock])
-
-				#insert n_goods_history
-				Query = """INSERT INTO n_a_goods_history(FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
-						 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Lending)s,NULL, NULL, NULL, NULL, NULL, NOW(), %(CreatedBy)s )"""
-				param = {'FK_Goods':Data['idapp_fk_goods'],'TypeApp':Data['typeapp'],'SerialNumber':Data['serialnumber'],'FK_Lending':FKApp,'CreatedBy':Data['createdby']}
-				cur.execute(Query,param)
+						cur.execute(Query,[TSpare,who,fk_stock])
 				return 'success'
+
 		except Exception as e :
 			cur.close()
 			return repr(e)
@@ -414,20 +426,16 @@ class NA_BR_Goods_Lending(models.Manager):
 			fk_goods = row[1]
 			serialnumber = row[2]
 			fk_receive = row[3]
-			try:
-				with transaction.atomic():
-					Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
-					cur.execute(Query,[idapp])
-					Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
-					cur.execute(Query,[fk_goods,serialnumber,idapp])
-					if fk_receive is not None:
-						#barang berarti  ngambil dari 
-						Query = """UPDATE n_a_stock SET TIsNew = TIsNew + 1, ModifiedBy = %s,ModifiedDate = NOW() WHERE IDApp = %s """
-						cur.execute(Query,[username,fk_stock]) 
-				return "success"
-			except :
-				cur.close()
-				return repr(e)
+			with transaction.atomic():
+				Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
+				cur.execute(Query,[idapp])
+				Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
+				cur.execute(Query,[fk_goods,serialnumber,idapp])
+				if fk_receive is not None:
+					#barang berarti  ngambil dari 
+					Query = """UPDATE n_a_stock SET TIsNew = TIsNew + 1, ModifiedBy = %s,ModifiedDate = NOW() WHERE IDApp = %s """
+					cur.execute(Query,[username,fk_stock]) 
+			return "success"
 	def getData(self,idapp):
 		cur = connection.cursor()
 		#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
@@ -436,7 +444,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		#    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
 		Query = """SELECT g.itemcode AS fk_goods,ngl.isnew,g.goodsname AS goods,ngl.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
 					ngl.fk_employee AS idapp_fk_employee,		emp.employee_name AS fk_employee_employee,ngl.datelending,ngl.fk_stock,\
-					emp1.NIK AS fk_responsibleperson, ngl.fk_responsible_person AS idaap_fk_responsibleperson,ngl.interests,IFNULL(ngl.lastinfo,'not yet used') AS lastinfo, \
+					emp1.NIK AS fk_responsibleperson, ngl.FK_ResponsiblePerson AS idapp_fk_responsibleperson,ngl.interests,IFNULL(ngl.lastinfo,'not yet used') AS lastinfo, \
 					emp2.NIK AS fk_sender,ngl.fk_sender AS idapp_fk_sender,emp2.employee_name AS fk_sender_employee,ngl.status AS statuslent, \
 					ngl.descriptions,ngl.typeapp,ngl.serialnumber, 		emp1.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
 					IFNULL(ngl.fk_maintenance,0)AS fk_maintenance,IFNULL(ngl.fk_return,0) AS fk_return, \
@@ -448,7 +456,7 @@ class NA_BR_Goods_Lending(models.Manager):
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON ngl.fk_goods = g.IDApp \
 					INNER JOIN employee emp ON emp.IDApp = ngl.fk_employee 	\
 					LEFT OUTER JOIN (SELECT IDApp, NIK,employee_name FROM employee)emp1 ON emp1.IDApp = ngl.fk_sender	\
-					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngl.fk_responsible_person WHERE ngl.idapp = %s""" 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngl.FK_ResponsiblePerson WHERE ngl.idapp = %s""" 
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)
 
