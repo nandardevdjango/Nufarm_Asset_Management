@@ -371,7 +371,7 @@ class NAPriviledge(AbstractUser):
     ip_address = models.CharField(max_length=20,db_column='IP_Address')
     is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
     is_staff = models.BooleanField(default=False,db_column='Is_Staff')
-    is_active = models.BooleanField(default=False,db_column='InActive')
+    is_active = models.BooleanField(default=True,db_column='InActive')
     USERNAME_FIELD = 'email' # use email to log in
     REQUIRED_FIELDS = ['username'] # required when user is created
     date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
