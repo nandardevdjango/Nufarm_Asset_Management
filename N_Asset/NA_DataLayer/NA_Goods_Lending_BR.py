@@ -94,9 +94,9 @@ class NA_BR_Goods_Lending(models.Manager):
 			FKGoods = int(row[0])
 
 			if newVal == "R":
-				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NOW() """
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s, datereturn = NOW() WHERE idapp = %(idapp)s """
 			else:
-				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NULL """
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s, datereturn = NULL WHERE idapp = %(idapp)s """
 			cur.execute(Query,{'newVal':newVal,'idapp':idapp})				
 
 			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 
