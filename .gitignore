@@ -254,3 +254,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /Update Perubahan.txt
+/N_Asset/app/static/app/content/images/photothumb.db
