@@ -5,7 +5,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 import datetime
 import json
-from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, StatusForm, commonFunct, Data
+from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria,
+                                 StatusForm, commonFunct, Data,decorators)
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 #@login_required
@@ -84,6 +85,14 @@ def getData(request, form):
         }
     return data
 
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def Set_InActive(request):
+    idapp = request.POST['idapp']
+    inactive = request.POST['inactive']
+    result = Employee.objects.setInActive(idapp,commonFunct.str2bool(inactive))
+    return commonFunct.response_default(result)
+
 def EntryEmployee(request):
     if request.method == 'POST':
         form = NA_Employee_form(request.POST)
@@ -116,6 +125,7 @@ def EntryEmployee(request):
             form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
             form = NA_Employee_form()
+            del form.fields['inactive']
         return render(request, 'app/MasterData/NA_Entry_Employee.html', {'form':form})
 
 

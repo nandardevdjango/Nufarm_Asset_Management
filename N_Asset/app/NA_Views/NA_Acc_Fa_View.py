@@ -32,8 +32,8 @@ def NA_AccGetData(request):
     i = 0
     for row in dataRows.object_list:
         i +=1
-        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['year'],\
-            row['startdate'],row['depr_expense'],row['depr_accumulation'],row['bookvalue'],row['createddate'],row['createdby']]}
+        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['year'],\
+            row['startdate'],row['depreciationmethod'],row['depr_expense'],row['depr_accumulation'],row['bookvalue'],row['createddate'],row['createdby']]}
         rows.append(datarow)
     results = {"page": dataRows.number,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -93,30 +93,31 @@ def EntryAcc(request):
             if request.POST['mode'] == 'Add':
                 createdby = str(request.user.username)
                 fk_goods = data['fk_goods']
+                goods_obj = goods.objects.values('economiclife','depreciationmethod').filter(idapp=fk_goods)[0]
                 #year = Decimal(data['year']) #sisa umur economic
-                economiclife = Decimal(data['economiclife']) #original economic
+                economiclife = goods_obj['economiclife'] #Decimal(data['economiclife']) #original economic
                 startdate = datetime.datetime.strptime(data['startdate'],'%d/%m/%Y').date()
                 startdate = startdate.strftime('%Y-%m-%d')
                 price = Decimal(data['price'])
-                depr_method = lambda dm: 'SL' if dm == 'Straight Line' else('DDB' if dm == 'Double Declining Balance' else 'STYD')
+                depr_method = goods_obj['depreciationmethod']
                 now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 values_insert = []
                 def settings_generate(opt):
                     settings = {'month_of':opt['month_of'],'economiclife':economiclife,'typeApp':data['typeApp'],
-                                'serialNumber':data['serialNumber'],'price':price,'depr_method':depr_method(data['depr_method']),
+                                'serialNumber':data['serialNumber'],'price':price,'depr_method':depr_method,
                                 'depr_expense':opt['depr_Expense'],'startdate':startdate,'fk_goods': fk_goods,'createddate':now,
                                 'createdby':createdby}
                     if opt['depr_method'] == 'STYD':
                         settings['depr_acc'] = opt['depr_acc']
                     return settings
-
-                if depr_method(data['depr_method']) == 'SL' or depr_method(data['depr_method']) == 'DDB':
+                
+                if depr_method == 'SL' or depr_method == 'DDB':
                     depr_expense = price/(economiclife*12)
                     for i in range(int(economiclife*12) + 1):
                         generate_acc(settings_generate({
-                            'depr_method':'SL','month_of':i,'depr_Expense':depr_expense
+                            'depr_method':depr_method,'month_of':i,'depr_Expense':depr_expense
                             }),values_insert)
-                elif depr_method(data['depr_method']) == 'STYD':
+                elif depr_method == 'STYD':
                     arr_year = [i for i in range(int(economiclife),0,-1)]
                     total_year = 0
                     for i in arr_year:
@@ -138,12 +139,7 @@ def EntryAcc(request):
                                 }),values_insert)
                 str_values = ','.join(values_insert)
                 result = NAAccFa.objects.create_acc_FA(str_values)
-                statusResp = 200
-                message = 'success'
-                if result != 'success':
-                    statusResp = 403
-                    message = 'Fail'
-                return HttpResponse(message,status=statusResp)
+                return commonFunct.response_default(result)
             elif request.POST['mode'] == 'Edit':
                 pass
             elif request.POST['mode'] == 'Open':
@@ -210,6 +206,8 @@ def generate_acc(acc,values_insert):
             bookvalue = 0
             depr_accumulation = price
         else:
+            if depr_accumulation > price:
+                depr_accumulation = price
             bookvalue = price - depr_accumulation
         str_values = ['("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str('%0.2f' % residue_eccLife),str(startdate),str('%0.2f' % depr_expense),\
             str('%0.2f' % depr_accumulation),str('%0.2f' % bookvalue),acc['createddate'],acc['createdby']+'")']
@@ -227,30 +225,26 @@ def getGoods_data(request):
         return HttpResponse(json.dumps(goods_obj, cls=DjangoJSONEncoder),content_type='application/json')
 
 def SearchGoodsbyForm(request):
-    Isidx = request.GET.get('sidx', '')
-    Isord = request.GET.get('sord', '')
-    goodsFilter = request.GET.get('goods_filter')
-    Ilimit = request.GET.get('rows', '')
-    NAData = NAAccFa.objects.searchAcc_ByForm(goodsFilter)
-    if NAData == []:
-        results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
-    else:
-        totalRecord = len(NAData)
-        paginator = Paginator(NAData, int(Ilimit))
-        try:
-            page = request.GET.get('page', '1')
-        except ValueError:
-            page = 1
-        try:
-            dataRows = paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            dataRows = paginator.page(paginator.num_pages)
-
-        rows = []
-        i = 0;#idapp,itemcode,goods
-        for row in dataRows.object_list:
-            i+=1
-            datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']]}
-            rows.append(datarow)
-        results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-    return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	Isidx = request.GET.get('sidx', '')
+	Isord = request.GET.get('sord', '')
+	goodsFilter = request.GET.get('goods_filter')
+	Ilimit = request.GET.get('rows', '')
+	try:
+		NAData = NAAccFa.objects.searchAcc_ByForm(goodsFilter)
+		if NAData == []:
+			results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
+		else:
+			totalRecord = len(NAData)
+			paginator = Paginator(NAData, int(Ilimit))
+			page = request.GET.get('page', '1')
+			dataRows = paginator.page(page)
+	except (EmptyPage, InvalidPage):
+			dataRows = paginator.page(paginator.num_pages)
+	rows = []
+	i = 0;#idapp,itemcode,goods
+	for row in dataRows.object_list:
+		i+=1
+		datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']]}
+		rows.append(datarow)
+	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

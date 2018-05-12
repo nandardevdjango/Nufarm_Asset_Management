@@ -4,9 +4,10 @@ Definition of urls for N_Asset.
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
-from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
- NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View,NA_Priviledge_View
+from app.NA_Views import (NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,
+                          NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,
+                          NA_Maintenance_View,NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,
+                          NA_Goods_Lending_View,NA_Priviledge_View)
 import app.views
 from django.views.generic import RedirectView
 # Uncomment the next lines to enable the admin:
@@ -32,6 +33,7 @@ urlpatterns = [
     url(r'^NA_Employee/EntryEmployee/$', NA_Employee_View.EntryEmployee),
     url(r'^NA_Employee/customFilter/$', NA_Employee_View.ShowCustomFilter),
     url(r'^NA_Employee/getData/$', NA_Employee_View.NA_EmployeeGetData, name='NA_Employee_data'),
+    url(r'^NA_Employee/setInActive/$',NA_Employee_View.Set_InActive),
 
     #NA_Suplier
     url(r'^NA_Suplier/$', NA_Suplier_View.NA_Suplier, name='NA_Suplier'),

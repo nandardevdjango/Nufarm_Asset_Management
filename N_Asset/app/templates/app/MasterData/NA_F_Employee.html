@@ -144,6 +144,33 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                         if (btnOpen) {
                             btnOpen.click();
                         }
+                    },
+                    beforeSelectRow: function (rowid, e) {
+                    	var $self = $(this),
+							iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+						cm = $self.jqGrid("getGridParam", "colModel");
+                    	//localData = $self.jqGrid("getLocalRow", rowid);
+                    	if (cm[iCol].name === "inactive") {
+                    		var checked = $(e.target).is(":checked");
+                    		oriChecked = !checked;
+                    		var tr = $(e.target).closest('tr');
+                    		idapp = tr[0].id;
+                    		if (parseInt(idapp) != -1) {
+                    			$.ajax({
+                    				url: 'setInActive/',
+                    				method: 'POST',
+                    				beforeSend: function (xhr) {
+                    					xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+                    				},
+                    				data: {
+                    					'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken'),
+                    					'idapp': idapp,
+										'inactive':checked
+                    				}
+                    			});
+                    		}
+                    	}
+                    	return true; // allow selection
                     }
                 });
             }
@@ -374,9 +401,11 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             status: qs('input[value="S"]').checked ?'S':'M',
             telphp: qs('input#id_telphp').value.trim(),
             territory: qs('input#id_territory').value.trim(),
-            inactive: qs('input#id_inactive').checked,
             descriptions: qs('textarea#id_descriptions').value.trim()
         };
+        if (win.status != 'Add') {
+        	data['inactive'] = qs('input#id_inactive').checked
+        }
         return data
     }
     

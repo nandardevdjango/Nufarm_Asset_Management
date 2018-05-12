@@ -5,6 +5,9 @@ from dateutil.parser import parse
 from django.db import connection
 from django.http import HttpResponse
 import json
+from django.core.exceptions import PermissionDenied
+from functools import wraps
+
 class CriteriaSearch(Enum):
     Equal = 1
     BeginWith = 2
@@ -31,6 +34,7 @@ class Data(Enum):
     Lost = 3
     HasRef = 4
     Empty = 5
+    Changed = 6
 
 class Message(Enum):
     Success = '__success'
@@ -39,6 +43,7 @@ class Message(Enum):
     HasRef_del = '__hasref_del'
     HasRef_edit = '__hasref_edit'
     Empty = '__empty'
+    Changed = '__changed'
 
     @staticmethod
     def get_specific_exists(table,column,data):
@@ -46,6 +51,12 @@ class Message(Enum):
 
     @classmethod
     def get_time_info(cls,times):
+        """
+        function get time
+        param:
+        must instance of datetime
+        return (tuple): {digits} {unit} e.g : 1 minute, 2 minutes
+        """
         diff = (datetime.now() - times).seconds
         unit = 'seconds'
         result = diff
@@ -63,18 +74,40 @@ class Message(Enum):
 
     @classmethod
     def get_lost_info(cls,**kwargs):
+        """
+        get lost info, 
+        param:
+        pk(Primary Key):idapp or supliercode
+        table:table_name
+        """
         obj = commonFunct.get_log_data(pk=kwargs['pk'],table=kwargs['table'],action='deleted')
         if obj == []:
             return 'This data doesn\'t lost'
         else:
             obj = obj[0]
             result, unit =cls.get_time_info(obj['createddate'])
-            return 'This data has lost or deleted by other user, {0} {1} ago'.format(int(result),unit)
+            return 'This data has lost or deleted by other user, {0} {1} ago'.format(result,unit)
 
     @classmethod
     def get_exists_info(cls,createddate):
-            result, unit = cls.get_time_info(createddate)
-            return 'This data has exists or created by other user, {0} {1} ago'.format(int(result),unit)
+        """
+        function return exists info
+        params:
+        must instance of datetime
+        createddate:from each table
+        """
+        result, unit = cls.get_time_info(createddate)
+        return 'This data has exists or created by other user, {0} {1} ago'.format(result,unit)
+
+    @classmethod
+    def has_update_by_other(cls,**kwargs):
+        obj = commonFunct.get_log_data(pk=kwargs['pk'],table=kwargs['table'],action='updated')
+        if obj == []:
+            return None
+        else:
+            obj = obj[0]
+            result, unit =cls.get_time_info(obj['createddate'])
+            return 'This data has changed or updated by other user, {0} {1}'.format(result,unit)
 
 class ResolveCriteria:
     __query = "";
@@ -329,15 +362,38 @@ class ResolveCriteria:
             return CriteriaSearch.Beetween
         else:
             return CriteriaSearch.Like
+
 class decorators:
-    def ajax_required(f):
-        def wrap(request, *args, **kwargs):
-            if not request.is_ajax():
-                return HttpResponseBadRequest()
-            return f(request, *args, **kwargs)
-            wrap.__doc__=f.__doc__
-            wrap.__name__=f.__name__
-            return wrap
+    def ajax_required(func):
+        @wraps(func)
+        def wrapper(request, *args, **kwargs):
+            if request.is_ajax():
+                return func(request, *args, **kwargs)
+            else:
+                raise PermissionDenied()
+        return wrapper
+
+    def detail_request_method(arguments):
+        """
+        usage @detail_request_method('POST')
+        return status 405(Method not allowed) if request method in did not same as your specific method
+        """
+        def real_decorator(func):
+            @wraps(func)
+            def wrapper(request,*args, **kwargs):
+                if arguments == 'POST':
+                    if request.method == 'POST':
+                        return func(request,*args, **kwargs)
+                elif arguments == 'GET':
+                    if request.method == 'POST':
+                        return func(request,*args, **kwargs)
+                return HttpResponse(
+                    json.dumps({'message':'Method Not Allowed'}),
+                    status=405,content_type='application/json'
+                    )
+            return wrapper
+        return real_decorator
+
 class query:
     def dictfetchall(cursor):
         "Return all rows from a cursor as a dict"
@@ -348,9 +404,17 @@ class query:
         ]
 class commonFunct:
     def str2bool(v):
-        return v.lower() in ("yes", "true", "t", "1")
+        if type(v) == int:
+            v = str(v)
+        v = v.lower()
+        if v in ("yes", "true", "t", "1"):
+            return True
+        elif v in ("no","false","f","0"):
+            return False
+        else:
+            raise ValueError("Please enter correct value")
 
-        #   #buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,TotalSpare
+    #buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,TotalSpare
     #untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used)
     #maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
 
@@ -486,6 +550,8 @@ class commonFunct:
         cur = connection.cursor()
         action = kwargs['action']
         Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$."""+action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%""" #PK (Primary Key)
+        if action == 'updated':
+            Query = Query + """ AND idapp = (SELECT Max(idapp) FROM logevent WHERE JSON_EXTRACT(descriptions,$."""+action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%)"""
         cur.execute(Query,{'PK':kwargs['pk'],'NameApp':kwargs['table']})
         return query.dictfetchall(cur)
 
@@ -511,5 +577,3 @@ class commonFunct:
                 else:
                     message = Message.Empty.value
             return HttpResponse(json.dumps({'message':message}),status=statusResp,content_type='application/json')
-                
-

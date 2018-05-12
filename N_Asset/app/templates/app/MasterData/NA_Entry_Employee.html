@@ -10,7 +10,7 @@
             {{form.employee_name}}
         </div>
         <div class="col-md-3" style="padding: 0 10px 0 0;">
-            <label class="left" for="id_typeapp">Typeapp:</label>
+            <label class="left" for="id_typeapp">Employee Type:</label>
             {{form.typeapp}}
         </div>
     </div>
@@ -50,16 +50,18 @@
 
     <div class="row" style="margin:20px 0 0 0">
         <div class="col-md-4" style="padding: 0px 10px 0px 0px;">
-            <label class="left" for="id_telphp">Telphp:</label>
+            <label class="left" for="id_telphp">Mobile Phone:</label>
             {{form.telphp}}
         </div>
         <div class="col-md-5" style="padding: 0px">
             <label class="left" for="id_territory">Territory:</label>
             {{form.territory}}
         </div>
+		{% if form.inactive %}
         <div class="col-md-2" style="padding:0px;margin: 25px 0 0 25px;">
             <label for="id_inactive" style="margin-left: 7px;">{{form.inactive}}In active</label>
         </div>
+		{% endif %}
     </div>
     <div class="row" style="margin:20px 0 0 0">
         <label for="id_descriptions" class="left">Descriptions:</label>

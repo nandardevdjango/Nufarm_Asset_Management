@@ -5,7 +5,7 @@ class NA_Acc_FA_BR(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,sidx='idapp',sord='desc'):
         cur = connection.cursor()
         rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-        Query = """SELECT ac.idapp,CONCAT(g.goodsname, ' ',g.brandname, ' ',g.typeapp) as goods,g.itemcode,ac.serialnumber,ac.year,ac.startdate,ac.depr_expense,ac.depr_accumulation,
+        Query = """SELECT ac.idapp,CONCAT(g.goodsname, ' ',g.brandname, ' ',g.typeapp) as goods,g.itemcode,g.depreciationmethod,ac.serialnumber,ac.year,ac.startdate,ac.depr_expense,ac.depr_accumulation,
         ac.bookvalue,ac.createddate,ac.createdby FROM n_a_acc_fa ac INNER JOIN n_a_goods g ON ac.fk_goods = g.IDApp
         WHERE """ #g.EconomicLife - ac.year+Year(StartDate) = Year(now())
         Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + ' ' +sord
@@ -14,16 +14,12 @@ class NA_Acc_FA_BR(models.Manager):
         cur.close()
         return result
     def create_acc_FA(self,data):
-        try:
-            with transaction.atomic():
-                cursor = connection.cursor()
-                cursor.execute('''INSERT INTO n_a_acc_fa(FK_Goods,SerialNumber,TypeApp,Year,StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
-                VALUES {}'''.format(data))
-        except Exception:
-            transaction.rollback()
-            raise
-        connection.close()
-        return Data.Success
+        with transaction.atomic():
+            cur = connection.cursor()
+            cur.execute('''INSERT INTO n_a_acc_fa(FK_Goods,SerialNumber,TypeApp,Year,StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
+            VALUES {}'''.format(data))
+        cur.close()
+        return (Data.Success,)
 
     #retive data from jqGrid / status == Open
     def retriveData(self,IDApp):

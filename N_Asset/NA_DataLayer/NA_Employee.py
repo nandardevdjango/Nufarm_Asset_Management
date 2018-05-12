@@ -1,5 +1,5 @@
 ﻿from django.db import models, connection, transaction
-from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data, Message
+from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data, Message, commonFunct
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
@@ -144,3 +144,14 @@ class NA_BR_Employee(models.Manager):
         else:
             cur.close()
             return False
+
+    def setInActive(self,idapp,inactive):
+        if self.dataExist(idapp=idapp):
+            data = super(NA_BR_Employee,self).get_queryset().values('inactive').filter(idapp=idapp)
+            if commonFunct.str2bool(data[0]['inactive']) == inactive:
+                return (Data.Changed,Message.has_update_by_other(pk=idapp,table='employee'))
+            else:
+                data.update(inactive=inactive)
+                return (Data.Success,)
+        else:
+            return (Data.Lost,Message.get_lost_info(pk=idapp,table='employee'))
