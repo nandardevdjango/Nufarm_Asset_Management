@@ -438,7 +438,8 @@
             },
             data: sendData(),
             success: function (data) {
-                $('div.containerDialog, div#dropSheet').remove()
+            	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+            	NA.common.dialog.closeDialog(dialog);
                 suplier_grid.trigger('reloadGrid');
                 setTimeout(function () {
                     suplier_grid.setSelection(data['message'], true)

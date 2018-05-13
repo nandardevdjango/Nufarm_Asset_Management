@@ -125,6 +125,10 @@ urlpatterns = [
     url(r'^NA_Priviledge/sys/$',NA_Priviledge_View.NA_Priviledge_sys),
     #NA Report
     #url(r'^NA_Report/$',NA_Report_View.cetak_daftar_hadir),
+
+    url(r'^oauth/', include('social_django.urls', namespace='social')),
+
+
     # Uncomment the next line to enable the admin:
     url(r'^admin/', admin.site.urls),
 ]

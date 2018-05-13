@@ -190,15 +190,18 @@ def generate_acc(acc,values_insert):
     depr_expense = Decimal(acc['depr_expense'])
     economiclife = acc['economiclife']
     if month_of == 0:
+        if depr_method == 'DDB':
+            depr_expense = depr_expense*2
         str_values = ['("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str(economiclife),str(startdate),str(depr_expense),
                       '0.00',str('%0.2f' % price),acc['createddate'],acc['createdby']+'")']
     else:
         total_rows = int(economiclife*12)
         if depr_method == 'SL' or depr_method == 'DDB':
-            if depr_method == 'SL':
-                depr_accumulation = depr_expense*month_of
-            elif depr_method == 'DDB':
-                depr_accumulation = 2*(depr_expense*month_of)
+            #if depr_method == 'SL':
+            if depr_method == 'DDB':
+                depr_expense = depr_expense*2
+                #depr_accumulation = 2*(depr_expense*month_of)
+            depr_accumulation = depr_expense*month_of
         elif depr_method == 'STYD':
             depr_accumulation = acc['depr_acc']
         residue_eccLife = economiclife*(total_rows-month_of)/total_rows
@@ -212,7 +215,7 @@ def generate_acc(acc,values_insert):
         str_values = ['("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str('%0.2f' % residue_eccLife),str(startdate),str('%0.2f' % depr_expense),\
             str('%0.2f' % depr_accumulation),str('%0.2f' % bookvalue),acc['createddate'],acc['createdby']+'")']
     str_values = '","'.join(str_values)
-    return values_insert.append(str_values)#(FK_Goods,Goods_Name,Year,StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
+    return values_insert.insert(0,str_values)#(FK_Goods,Goods_Name,Year,StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
 def getGoods_data(request):
     if request.is_ajax() and request.method == 'GET':
         idapp = request.GET['idapp']

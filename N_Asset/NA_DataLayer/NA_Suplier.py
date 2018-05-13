@@ -53,7 +53,11 @@ class NA_BR_Suplier(models.Manager):
                 if self.HasRef(data['supliercode']):
                     return (Data.HasRef,Message.HasRef_edit.value)
                 else:
-                    check_exists = self.dataExist(hp=data['hp'],telp=data['telp'])
+                    check_exists = self.dataExist(
+                        'update',
+                        _exclude_suplierCode=data['supliercode'],
+                        hp=data['hp'],telp=data['telp']
+                        )
                     if check_exists[0]:
                         return (Data.Exists,check_exists[1])
                     else:
@@ -123,7 +127,7 @@ class NA_BR_Suplier(models.Manager):
         else:
             return (Data.Lost,)
 
-    def dataExist(self, **kwargs):
+    def dataExist(self,action='insert', **kwargs):
         data = super(NA_BR_Suplier,self).get_queryset()
         suplier_code = kwargs.get('supliercode')
         hp = kwargs.get('hp')
@@ -137,10 +141,13 @@ class NA_BR_Suplier(models.Manager):
             if exist_supCode:
                 return (True,Message.get_specific_exists('Suplier','suplier code',suplier_code))
         if hp and telp is not None:
-            exist_hp = data.exclude(supliercode=suplier_code).filter(hp=hp).exists()
+            sup_code = suplier_code
+            if action == 'update':
+                sup_code = kwargs.get('_exclude_suplierCode')
+            exist_hp = data.exclude(supliercode=sup_code).filter(hp=hp).exists()
             if exist_hp:
                 return (True,Message.get_specific_exists('Suplier','HP',hp))
-            exist_telp = data.exclude(supliercode=suplier_code).filter(telp=telp).exists()
+            exist_telp = data.exclude(supliercode=sup_code).filter(telp=telp).exists()
             if exist_telp:
                 return (True,Message.get_specific_exists('Suplier','Telp',telp))
         return (False,)

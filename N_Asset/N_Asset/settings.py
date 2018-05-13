@@ -34,6 +34,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'social_django',
+    'sslserver',
     'app',
 	'NA_DataLayer',
 	'NA_Domain',
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #'debug_toolbar',
@@ -65,6 +68,8 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.GlobalUserMiddleware', #access user as Global scope for log event and another using signal built-in django, because the signal such as models they can't get request from HTTP 
     #'django.middleware.cache.FetchFromCacheMiddleware',
+
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'N_Asset.urls'
@@ -82,6 +87,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -121,6 +129,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 
 # Internationalization
@@ -180,3 +196,7 @@ EMAIL_PORT=587
 EMAIL_HOST_USER='rimba16prayoga@gmail.com'
 EMAIL_HOST_PASSWORD='nufID2017'
 
+SOCIAL_AUTH_FACEBOOK_KEY = '2064088950480097'
+SOCIAL_AUTH_FACEBOOK_SECRET = '33a954803a9e26392f39464a550973a0'
+
+LOGIN_REDIRECT_URL = reverse_lazy('home')

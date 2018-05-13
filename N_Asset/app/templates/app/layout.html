@@ -2,13 +2,15 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+ <!--<![endif]-->
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <meta http-equiv="Cache-control" content="no-cache">
-    <meta name="description" content= "{{CompanyName}} Asset Management, {{CompanyName}} Asset internal for management only" />
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta name="description" content="{{CompanyName}} Asset Management, {{CompanyName}} Asset internal for management only" />
     <!--[if lt IE 9]>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
     <![endif]-->
@@ -21,17 +23,20 @@
     <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
     <style>
         div.tree-node span.fa-plus, div.tree-node span.fa-pencil {
-            position:relative;
-            bottom:1px
+            position: relative;
+            bottom: 1px;
         }
+
         div.tree-node span.fa-trash, div.tree-node span.fa-envelope {
-            position:relative;
-            bottom:2px
+            position: relative;
+            bottom: 2px;
         }
+
         div#EventLogs li, div#EventLogs ul {
-            min-width:100%;
-            width:-moz-fit-content;
+            min-width: 100%;
+            width: -moz-fit-content;
         }
+
         .ui-jqgrid .ui-pg-table .ui-pg-input {
             height: 16px;
             width: 30px;
@@ -42,127 +47,127 @@
             margin: 1px;
             border: 1px solid #0b9910;
             text-align: center;
-}
+        }
     </style>
 </head>
-                       <body>
-                           <header>
-                               <a href="#"><img src="{% static 'app/images/NufarmLogo.jpg' %}" alt="Insert Logo Here" width="173" height="90" id="Insert_logo" style="background-color:transparent; display:block;" /></a>
-                           </header>
-                           <div style="height: 85.5%;position: relative;">
-                               <div class="fltlft">
-                                   {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->
-                                   <div class="sidebar">
-                                       <ul class="list-sidebar bg-defoult">
-                                           <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
+<body>
+    <header>
+        <a href="#"><img src="{% static 'app/images/NufarmLogo.jpg' %}" alt="Insert Logo Here" width="173" height="90" id="Insert_logo" style="background-color:transparent; display:block;" /></a>
+    </header>
+    <div style="height: 85.5%;position: relative;">
+        <div class="fltlft">
+            {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->
+            <div class="sidebar">
+                <ul class="list-sidebar bg-defoult">
+                    <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
                         <li><a href="#">Regular link</a></li>
                         <li class="disabled"><a href="#">Disabled link</a></li>
                         <li><a href="#">Another link</a></li>
                     </ul> -->
-                                           <li>
-                                               <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
-                                           </li>
-                                           <li>
-                                               <a href="#" data-toggle="collapse" data-target="#dashboard" class="active collapsed" aria-expanded="false">
-                                                   <i class="fa fa-address-card" aria-hidden="true"></i>
-                                                   <span class="nav-label"> Master Data </span> <span class="fa fa-angle-down pull-right"></span>
-                                               </a>
-                                               <ul class="sub-menu collapse" id="dashboard" aria-expanded="false" style="">
+                    <li>
+                        <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
+                    </li>
+                    <li>
+                        <a href="#" data-toggle="collapse" data-target="#dashboard" class="active collapsed" aria-expanded="false">
+                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                            <span class="nav-label"> Master Data </span> <span class="fa fa-angle-down pull-right"></span>
+                        </a>
+                        <ul class="sub-menu collapse" id="dashboard" aria-expanded="false" style="">
 
 
-                                                   <li><a href="{% url 'NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
-                                                   <li><a href="{% url 'NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
-                                                   <li><a href="{% url 'GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
-                                                   <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-                                                   <li><a href="{% url 'NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
+                            <li><a href="{% url 'NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
+                            <li><a href="{% url 'NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
+                            <li><a href="{% url 'GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
+                            <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
+                            <li><a href="{% url 'NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
 
 
-                                               </ul>
-                                           </li>
-                                           <li>
-                                               <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false"> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span> </a>
-                                               <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
-                                                   <li class="active"><a href="{% url 'GoodsReceive' %}">Goods Receiving</a></li>
-                                                   <li><a href="#">Goods Outwords</a></li>
-                                                   <li><a href="{% url 'GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
-                                                   <li><a href="#">Goods Returned</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                                   <li><a href="#">Others Menu</a></li>
-                                               </ul>
-                                           </li>
-                                           <li> <a href="{% url 'NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
-                                           <li> <a href="{% url 'NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
-                                           <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
-                                           <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
-                                       </ul>
-                                   </div>
-                                   {% endwith %}
-                                   <div class="content">
-                                       <div class="nfAction">
-                                           <div class="row">
-                                               <div class="col-xs-12">
-                                                   <nav class="navbar navbar-default" role="navigation">
-                                                       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="display:flex;flex-flow:nowrap;position:relative">
-                                                           <ul class="nav navbar-nav" style="flex:0 1 auto ;display: flex;flex-flow: row nowrap">
-                                                               {%block ActionMenu %}
-                                                               <li class="active"><button class="btn-sm" id="addData"><i class="fa fa-plus">  Add</i></button></li>
-                                                               <li><button class="btn-sm"><i class="fa fa-envelope-open">  Open</i></button></li>
-                                                               <li><button class="btn-sm" id="editData"><i class="fa fa-pencil-square">  Edit</i></button></li>
-                                                               <li><button class="btn-sm"><i class="fa fa-floppy-o">  Save</i></button></li>
-                                                               <li><button class="btn-sm" id="delData"><i class="fa fa-window-close">  Delete</i></button></li>
-                                                               <li><button class="btn-sm"><i class="fa fa-file-excel-o">  Export</i></button></li>
-                                                               <li><button class="btn-sm"><i class="fa fa-print">  Print</i></button></li>
-                                                               <li><button class="btn-sm"><i class="fa fa-question-circle">  Help</i></button></li>
-                                                               {% endblock %}
-                                                           </ul>
-                                                           <div class="col-sm-8 col-md-4" style="display:flex;padding:0px;">
-                                                               <ul>
-                                                                   <li class="dropdown" style="flex:0 1 65px">
-                                                                       <a href="http://www.jquery2dotnet.com" class=" btn dropdown-toggle" data-toggle="dropdown" style="color:black;border-radius:0px;padding:4px 10px;" id="bySearch" value="By">By <b class="caret"></b></a>
-                                                                       <ul class="dropdown-menu search" id="selectValue">
-                                                                           {%block SearchData %}
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false"> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span> </a>
+                        <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
+                            <li class="active"><a href="{% url 'GoodsReceive' %}">Goods Receiving</a></li>
+                            <li><a href="#">Goods Outwords</a></li>
+                            <li><a href="{% url 'GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
+                            <li><a href="#">Goods Returned</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                            <li><a href="#">Others Menu</a></li>
+                        </ul>
+                    </li>
+                    <li> <a href="{% url 'NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
+                    <li> <a href="{% url 'NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
+                    <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
+                    <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
+                </ul>
+            </div>
+            {% endwith %}
+            <div class="content">
+                <div class="nfAction">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <nav class="navbar navbar-default" role="navigation">
+                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="display:flex;flex-flow:nowrap;position:relative">
+                                    <ul class="nav navbar-nav" style="flex:0 1 auto ;display: flex;flex-flow: row nowrap">
+                                        {%block ActionMenu %}
+                                        <li class="active"><button class="btn-sm" id="addData"><i class="fa fa-plus">  Add</i></button></li>
+                                        <li><button class="btn-sm"><i class="fa fa-envelope-open">  Open</i></button></li>
+                                        <li><button class="btn-sm" id="editData"><i class="fa fa-pencil-square">  Edit</i></button></li>
+                                        <li><button class="btn-sm"><i class="fa fa-floppy-o">  Save</i></button></li>
+                                        <li><button class="btn-sm" id="delData"><i class="fa fa-window-close">  Delete</i></button></li>
+                                        <li><button class="btn-sm"><i class="fa fa-file-excel-o">  Export</i></button></li>
+                                        <li><button class="btn-sm"><i class="fa fa-print">  Print</i></button></li>
+                                        <li><button class="btn-sm"><i class="fa fa-question-circle">  Help</i></button></li>
+                                        {% endblock %}
+                                    </ul>
+                                    <div class="col-sm-8 col-md-4" style="display:flex;padding:0px;">
+                                        <ul>
+                                            <li class="dropdown" style="flex:0 1 65px">
+                                                <a href="http://www.jquery2dotnet.com" class=" btn dropdown-toggle" data-toggle="dropdown" style="color:black;border-radius:0px;padding:4px 10px;" id="bySearch" value="By">By <b class="caret"></b></a>
+                                                <ul class="dropdown-menu search" id="selectValue">
+                                                    {%block SearchData %}
 
-                                                                           {% endblock %}
-                                                                       </ul>
-                                                                   </li>
-                                                               </ul>
-                                                               <!--<form class="navbar-form" role="search" style="flex: 11 1 450px;left:0;position:relative;">
-                                              <div class="input-group" style="display:inline-flex;position:relative">
-                                                  <input class="form-control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" type="text" id="searchData" required="" name="q" />
-                                                  <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                                                      <button style="height:30.22px;" class="btn btn-default" type="submit" id="submitSearch"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
-                                                  </div>
-                                              </div>
-                                         </form>-->
-                                                               <!--input-group-btn{padding-bottom: 2px}
-                                         col-sm-5 col-md-4-->
-                                                               <form class="navbar-form" role="search" style="left:0;position:relative;margin:auto;flex:1 1 auto;">
-                                                                   <div class="input-group" style="display:inline-flex;position:relative">
-                                                                       <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" type="text">
-                                                                       <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                                                                           <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
-                                                                       </div>
-                                                                   </div>
-                                                               </form>
-                                                           </div>
-                                                       </div>
-                                                   </nav>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <div class="nfsitemap">
+                                                    {% endblock %}
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                        <!--<form class="navbar-form" role="search" style="flex: 11 1 450px;left:0;position:relative;">
+                                             <div class="input-group" style="display:inline-flex;position:relative">
+                                                 <input class="form-control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" type="text" id="searchData" required="" name="q" />
+                                                 <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
+                                                     <button style="height:30.22px;" class="btn btn-default" type="submit" id="submitSearch"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                                                 </div>
+                                             </div>
+                                        </form>-->
+                                        <!--input-group-btn{padding-bottom: 2px}
+                                        col-sm-5 col-md-4-->
+                                        <form class="navbar-form" role="search" style="left:0;position:relative;margin:auto;flex:1 1 auto;">
+                                            <div class="input-group" style="display:inline-flex;position:relative">
+                                                <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" type="text">
+                                                <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
+                                                    <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="nfsitemap">
 
-                                       </div>
-                                       <div id="content-0">
-                                           <script>
+                </div>
+                <div id="content-0">
+                    <script>
                            function url_logEvent() {
                                return '{% url 'NA_LogEvent' %}'
                            };
@@ -190,1156 +195,1150 @@
                            function url_retriveBio(){
                                return '{% url 'NA_Email_retriveBio' %}'
                            };
-                                           </script>
-                                           <script>
-                                               function reload_LogEvent() {
-                                                   setTimeout(function () {
-                                                       $.ajax({
-                                                           url: url_logEvent(),
-                                                           success: function (data) {
-                                                               $('#EventLogs').tree('loadData',JSON.parse(data));
-                                                           }
-                                                       })
+                    </script>
+                    <script>
+                    	function reload_LogEvent() {
+                    		setTimeout(function () {
+                    			$.ajax({
+                    				url: url_logEvent(),
+                    				success: function (data) {
+                    					$('#EventLogs').tree('loadData',JSON.parse(data));
+                    				}
+                    			})
 
-                                                   },3000)
-                                               };
-                                               function getValues_emailForm() {
-                                                   var data = {
-                                                       to: $.trim($('input#id_to').val()),
-                                                       subject: $.trim($('input#id_subject').val()),
-                                                       message: $.trim($('textarea').val())
-                                                   };
+                    		},3000)
+                    	};
+                    	function getValues_emailForm() {
+                    		var data = {
+                    			to: $.trim($('input#id_to').val()),
+                    			subject: $.trim($('input#id_subject').val()),
+                    			message: $.trim($('textarea').val())
+                    		};
 
-                                                   return data
-                                               }
-                                           </script>
-                                           <!---============================Application content resides here======================== -->
-                                           {% block javascriptAndUI %}
-                                           {% endblock %}
+                    		return data
+                    	}
+                    </script>
+                    <!---============================Application content resides here======================== -->
+                    {% block javascriptAndUI %}
+                    {% endblock %}
 
-                                           {%block content-0 %}
-                                           {% endblock %}
+                    {%block content-0 %}
+                    {% endblock %}
 
-                                       </div>
-                                       <!--<footer>
+                </div>
+                <!--<footer>
                     <p>Express anything here for the footer info</p>
                     <address>
                         Address Content
                     </address>
                 </footer>-->
-                                   </div>
-                               </div>
-                               <aside>
-                                   <div class="AsideLoginArea">
-                                       <ul class="nav navbar-nav navbar-right" style="display: flex;flex-flow: row nowrap;">
-                                           <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
-                                           {%block ImgUserLogin %}
-                                           {% if request.user.is_authenticated %}
-                                           <li class="dropdown" style="position: absolute;right: 40px;top: 8px;">
-                                               <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
-                                                   <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
-                                               </div>
-                                               <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
-                                                   <div class="row" style="margin:15px;height:110px;">
-                                                       <div class="col-md-4" style="padding:0px;margin-right:17px">
-                                                           <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
-                                                           </div>
-                                                       </div>
-                                                       <div class="col-md-7" style="font-size:13px;padding:0px;">
-                                                           <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                                                           <div class="email">{{ request.user.email }}</div>
-                                                           <button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>
-                                                       </div>
-                                                   </div>
-                                                   <li class="divider"></li>
-                                                   <li>
-                                                       <a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>
-                                                   </li>
-                                               </ul>
-                                           </li>
-                                           {% else %}
-                                           <li style="background-color:transparent;margin-top:7px; display:inline-flex;flex :0 0 auto;top:10px; ">
-                                               <i class="fa fa-user"></i>
-                                           </li>
-                                           {% endif %}
-                                           {% endblock %}
-                                           <!--When user has sign in this text must be changed with the name sign out and removed li control-->
-                                           <!-- ============================ User Login =================================== -->
-                                           {% if not request.user.is_authenticated %}
-                                           <li class="dropdown" style="flex: 0 1 65px;">
-                                               <!--<li class="dropdown{% if not request.user.is_authenticated %} open{% endif %}" style="flex: 0 1 65px;">-->
-                                               <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
-                                                   Sign in
-                                                   <b class="caret"></b>
-                                               </a>
-
-                                               <ul class="dropdown-menu" styl
-
-                                               <ul class="dropdown-menu" style="padding: 10px;min-width: 170px;">
-                                                   <li>
-                                                       <div class="row">
-                                                           <div class="col-md-12">
-                                                               <form class="form" role="form" method="post" action="" accept-charset="UTF-8" id="login-nav">
-                                                                   {% csrf_token %}
-                                                                   <div class="form-group">
-                                                                       <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                                                                       <input class="form-control" name="email" id="id_email" required="" type="email" placeholder="Email address">
-                                                                   </div>
-                                                                   <div class="form-group">
-                                                                       <label class="sr-only" for="exampleInputPassword2">Password</label>
-                                                                       <input class="form-control" name="password" id="id_password" required="" type="password" placeholder="Password">
-                                                                   </div>
-                                                                   <div class="checkbox">
-                                                                       <label>
-                                                                           <input type="checkbox"> Remember me
-                                                                       </label>
-                                                                   </div>
-
-                                                                   <div class="form-group">
-                                                                       <button type="submit" class="btn btn-success btn-block">Sign in</button>
-                                                                   </div>
-
-                                                               </form>
-                                                               <div class="form-group">
-                                                                   <button class="btn btn-primary btn-block" id="register">Sign up</button>
-                                                               </div>
-                                                           </div>
-                                                       </div>
-                                                   </li>
-                                                   <li class="divider"></li>
-                                                   <!--<li>
-                                <input class="btn btn-primary btn-block" id="sign-in-google" value="Sign In with Google" type="button">
-                                <input class="btn btn-primary btn-block" id="sign-in-twitter" value="Sign In with Twitter" type="button">
-                            </li>-->
-                                               </ul>
-                                           </li>
-                                           {% endif %}
-                                           <!-- ============================ End User Login =============================== -->
-                                       </ul>
-                                   </div>
-                                   <div class="AsideMainArea">
-
-                                       <div id="EventLogs" class="LogEvent"></div>
-                                       <div class="input-group" style="display:inline-flex;position:relative">
-                                            <input class="NA-Form-Control" id="searchLogEvent" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Search Actions" type="text">
-                                            <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                                                <button style="height:30.22px;" class="btn btn-default" type="submit" id="btnSearchLogEvent"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <aside>
+            <div class="AsideLoginArea">
+                <ul class="nav navbar-nav navbar-right" style="display: flex;flex-flow: row nowrap;">
+                    <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
+                    {%block ImgUserLogin %}
+                    {% if request.user.is_authenticated %}
+                    <li class="dropdown" style="position: absolute;right: 40px;top: 8px;">
+                        <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
+                            <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
+                        </div>
+                        <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
+                            <div class="row" style="margin:15px;height:110px;">
+                                <div class="col-md-4" style="padding:0px;margin-right:17px">
+                                    <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+                                    </div>
+                                </div>
+                                <div class="col-md-7" style="font-size:13px;padding:0px;">
+                                    <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                                    <div class="email">{{ request.user.email }}</div>
+                                    <button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>
+                                </div>
+                            </div>
+                            <li class="divider"></li>
+                            <li>
+                                <a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li style="background-color:transparent;margin-top:7px; display:inline-flex;flex :0 0 auto;top:10px; ">
+                        <i class="fa fa-user"></i>
+                    </li>
+                    {% endif %}
+                    {% endblock %}
+                    <!--When user has sign in this text must be changed with the name sign out and removed li control-->
+                    <!-- ============================ User Login =================================== -->
+                    {%if not request.user.is_authenticated%}
+                    <li class="dropdown" style="flex: 0 1 65px;">
+                        <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
+                            Sign in
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" style="padding: 10px;min-width: 170px;">
+                            <li>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form class="form" role="form" method="post" action="" accept-charset="UTF-8" id="login-nav">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputEmail2">Email address</label>
+                                                <input class="form-control" name="email" id="id_email" required="" type="email" placeholder="Email address">
                                             </div>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                                                <input class="form-control" name="password" id="id_password" required="" type="password" placeholder="Password">
+                                            </div>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox"> Remember me
+                                                </label>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-success btn-block">Sign in</button>
+                                            </div>
+
+                                        </form>
+                                        <div class="form-group">
+                                            <button class="btn btn-primary btn-block" id="register">Sign up</button>
                                         </div>
-                                   </div>
-                               </aside>
-                               <div class="clearfloat"></div>
-
-                               <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->\
-
-                               {% block DialogEntry %}
-
-                               {% endblock %}
-
-                               <!--====================================================================-->
-                           </div>
-                           <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
-                           {% with request.resolver_match.url_name as url_name %}
-                           {% if url_name == 'home' or url_name == 'login' %}
-                           <script>window.NA || document.write('<script src="../../static/app/scripts/NAJS.js"><\/script>')</script>
-                           <!-- ========================== This is Load only in Home, =============================== -->
-                           <script>
-                               NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
-                               NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
-                               NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
-                               //NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");//Load Style buat form sebelum di pakai
-                               var btnRegister = NA.common.doc.querySelector('button#register')
-                               NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
-                               window.showDialogEntry = function(event){
-                                   $('div.maindialogContent').load(url_register(), function (response, status, xhr) {
-                                       function getData_User() {
-                                           data = {
-                                               first_name: $('input#id_first_name').val(),
-                                               last_name: $('input#id_last_name').val(),
-                                               username: $('form#form_user').find('input#id_username').val(),
-                                               picture: $('input#id_picture').val(),
-                                               email: $('form#form_user').find('input#id_email').val(),
-                                               password1: $('form#form_user').find('input#id_password1').val(),
-                                               password2: $('form#form_user').find('input#id_password2').val()
-                                           }
-                                           return data
-                                       }
-                                       var initializeForm_user = NA.common.getElementID('id_initializeForm_user');
-                                       initializeForm_user.Value = JSON.stringify(getData_User());
-                                       function NA_UserSubmit() {
-                                           $('form#form_user').submit(function (event) {
-                                               $.ajax({
-                                                   url: $(this).attr('action'),
-                                                   method: 'POST',
-                                                   data: new FormData(this),
-                                                   cache: false,
-                                                   contentType: false,
-                                                   processData: false,
-                                                   success: function (data) {
-                                                       console.log(data)
-                                                   }
-                                               })
-                                           });
-                                       };
-                                       var form_user = NA.common.getElementID('form_user');
-                                       var dialog_user = NA.common.dialog.doc.querySelector("div.containerDialog");
-                                       var btn_input = NA.common.getElementID('user_submit');
-                                       function detectDifference_pass() {
-                                           var container_msg = NA.common.doc.createElement('p');
-                                           var message = NA.common.doc.createTextNode('Password didn\'t match .. . Please check again!!');
-                                           container_msg.appendChild(message);
-                                           return {
-                                               check: function () {
-                                                   return $('form#form_user > #id_password1').val() !== $('form#form_user > #id_password2').val();
-                                               },
-                                               showMessage: function () {
-                                                   return form_user.appendChild(container_msg);
-                                               }
-                                           };
-                                       };
-                                       function closeForm_user() {
-                                           var originalData = JSON.parse(initializeForm_user.Value);
-                                           var valuesForm = getData_User();
-                                           if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                                               if (confirm('Data has changed, \nSave data before closing form ?')) {
-                                                   if (detectDifference_pass().check()) {
-                                                       detectDifference_pass().showMessage();
-                                                       form_user.onsubmit('return false')
-                                                   } else {
-                                                       btn_input.click();
-                                                   }
-
-                                               } else {
-                                                   NA.common.dialog.closeDialog(dialog_user);
-                                               }
-                                           } else {
-                                               NA.common.dialog.closeDialog(dialog_user);
-                                           }
-                                       };
-                                       $('div.dialogButtonOKCancel>a.button').click(function (event) {
-                                           var target = NA.NAEvent.getTarget(event);
-                                           if (target.innerText.trim() == 'OK') {
-                                               UserHandler('OK');
-                                           } else if (target.innerText.trim() == 'Cancel') {
-                                               UserHandler('Cancel', closeForm_user);
-                                           }
-                                       });
-                                       $('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
-
-                                           UserHandler('Close', closeForm_user);
-                                           NA.NAEvent.preventDefault(event);
-                                       });
-
-                                       function UserHandler(text, closeForm) {
-                                           if (text == 'OK') {
-                                               btn_input.click();
-                                           } else if (text == 'Cancel' || text == 'Close') {
-                                               if (form_user) {
-                                                   closeForm();
-                                               }
-                                           }
-                                       }
-                                   });
-
-                               }
-                           </script>
-                           {%endif%}
-                           {%endwith%}
-                           <!--======================================== Script Log Event =============================================== -->
-            
-                           <link rel="stylesheet" type="text/css" href="{% static 'app/content/backupss/icon.css' %}">
-                           <script type="text/javascript" src="{% static 'app/scripts/easyloader.js' %}"></script>
-                           <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
-                           <script type="text/javascript">
-          $(document).ready(function () {
-             function showDescriptionsLog(args) {//title, content, classContent, textToContent
-
-var body = NA.common.doc.body;
-var pageDimensions = NA.common.dialog.getPageDimensions();
-var viewportSize = NA.common.dialog.getViewportSize();
-
-if (viewportSize[1] > pageDimensions[1]) {
-    pageDimensions[1] = viewportSize[1];
-}
-var mnuContainer = NA.common.doc.querySelector('nav.navbar.navbar-default')
-if (mnuContainer) { mnuContainer.style.zIndex = "0"; }
-var dropSheet = NA.common.doc.createElement("div");
-
-dropSheet.setAttribute("id", "dropSheet");
-dropSheet.style.position = "absolute";
-dropSheet.style.left = "0";
-dropSheet.style.top = "0";
-
-dropSheet.style.zIndex = 1;
-dropSheet.style.width = pageDimensions[0] + "px";
-dropSheet.style.height = pageDimensions[1] + "px";
-body.appendChild(dropSheet);
-
-    var dialog = NA.common.doc.querySelector("div.containerDialog");
-    if (!dialog) {
-        dialog = NA.common.doc.createElement("div");
-        dialog.className = 'containerDialog';
-    }
-    //dialog.classList.add("draggable");
-    dialog.style.visibility = "hidden";
-    dialog.style.position = "absolute";
-    dialog.style.zIndex = "2";
-    //=============create Header Dialog======================
-
-    var headerDialog = NA.common.doc.createElement("div");
-    headerDialog.className = "ui-dialog-titlebar"
-    headerDialog.classList.add("ui-corner-all");
-    headerDialog.classList.add("ui-widget-header");
-    headerDialog.classList.add("ui-helper-clearfix");
-    headerDialog.classList.add("ui-draggable-handle");
-    dialog.classList.add("draggable");
-    headerDialog.style.cursor = 'move'
-    //create Span element
-    var spanDialogTitle = NA.common.doc.createElement('span');
-    spanDialogTitle.setAttribute('id', 'ui-id-18');
-
-    spanDialogTitle.className = "ui-dialog-title";
-
-    //get title value from parameter
-    //var dialogTitle = args['dialogTitle'];
-    spanDialogTitle.textContent =args['title'];
-
-
-    //create button element
-    var dialogCloseButton = NA.common.doc.createElement("button");
-    dialogCloseButton.className = "ui-button";
-    dialogCloseButton.classList.add("ui-corner-all");
-    dialogCloseButton.classList.add("ui-widget");
-    dialogCloseButton.classList.add("ui-button-icon-only");
-    dialogCloseButton.classList.add("ui-dialog-titlebar-close");
-    dialogCloseButton.style.cssFloat = "right";
-    dialogCloseButton.style.marginTop = "3px";
-    dialogCloseButton.style.paddingLeft = ".5em";
-    dialogCloseButton.style.paddingRight = ".5em"
-    //create element spanDialogbutton close
-    var spandialogbuttonclose = NA.common.doc.createElement("span");
-    spandialogbuttonclose.className = "ui-button-icon";
-    spandialogbuttonclose.classList.add("ui-icon");
-    spandialogbuttonclose.classList.add("ui-icon-closethick");
-   
-
-    var spanuibuttonIconSpace = NA.common.doc.createElement("span");
-    spanuibuttonIconSpace.className = "ui-button-icon-space";
-    dialogCloseButton.appendChild(spanuibuttonIconSpace);
-    dialogCloseButton.appendChild(spandialogbuttonclose);
-
-    headerDialog.appendChild(spanDialogTitle);
-    headerDialog.appendChild(dialogCloseButton);//1
-
-    //===============create maincontendialog===============
-
-    var mainContentDialog = NA.common.doc.createElement("div");
-    mainContentDialog.className = "maindialogContent";//2
-    //isi content di loag pakai ajax Jquery(diluar object ini) setelah dialog di create
-
-
-    //=============create bottom dialog=====================
-    var bottomDialog = NA.common.doc.createElement("div");
-    bottomDialog.className = "bottomDialogContent";
-
-    var dialogButtonSet1 = NA.common.doc.createElement("div");
-    dialogButtonSet1.className = "dialogButtonEntry";
-
-    //==========create tombol OK Cancel Print dan Export==================
-    //create dulu container untuk button OK Cancelnya
-    dialogButtonSet1.classList.add('dialogButtonOKCancel');
-    //Create tombol OK Cancel
-    var btnOK = NA.common.doc.createElement("a");
-    btnOK.className = "button";
-    btnOK.nodeValue = "OK";
-    btnOK.textContent = "OK";
-    //var isDisableOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
-    btnOK.style.width = "80px";
-    //btnOK.disabled = isDisableOK.valueOf();
-
-    //btnOK.disabled = true;
-
-    var btnCancel = NA.common.doc.createElement("a");
-    btnCancel.className = "button";
-    btnCancel.nodeValue = "Cancel";
-    btnCancel.textContent = "Cancel";
-    btnCancel.style.width = "80px";
-    //var isDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
-    //btnCancel.disabled = isDisabledCancel.valueOf();
-
-    dialogButtonSet1.appendChild(btnOK);
-    dialogButtonSet1.appendChild(btnCancel);
-
-
-    var dialogButtonSet2 = NA.common.doc.createElement("div");
-    dialogButtonSet2.className = "dialogButtonEntry";
-    dialogButtonSet2.classList.add("dialogButtonRightOther");
-    //create tombol Print dan Export
-    var btnPrint = NA.common.doc.createElement("a");
-    btnPrint.className = "btn-link";
-    btnPrint.nodeValue = "Print Preview";
-    btnPrint.textContent = "Print Preview";
-    btnPrint.style.width = "120px";
-    //var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
-    //btnPrint.disabled = isDisabledPrint.valueOf();
-    btnPrint.style.marginRight = "0";
-    btnPrint.style.paddingRight = "0";
-    var btnExport = NA.common.doc.createElement("a");
-    btnExport.className = "btn-link";
-    btnExport.nodeValue = "Export";
-    btnExport.textContent = "Export"
-    btnExport.style.width = "100px";
-
-    //var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnPrintPreview"];
-    btnExport.style.marginRight = "0";
-    btnExport.style.paddingRight = "0";
-
-    //btnExport.disabled = isDisabledExport.valueOf()
-    dialogButtonSet2.appendChild(btnPrint);
-    dialogButtonSet2.appendChild(btnExport);
-
-
-    bottomDialog.appendChild(dialogButtonSet1);
-    bottomDialog.appendChild(dialogButtonSet2);//3
-
-    dialog.appendChild(headerDialog);
-    dialog.appendChild(mainContentDialog);
-    dialog.appendChild(bottomDialog);
-
-    var scrollingPosition = NA.common.dialog.getScrollingPosition();
-    body.appendChild(dialog);
-    dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
-    dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2.5) - parseInt(dialog.offsetHeight) + "px";
-
-    dialog.style.visibility = 'visible';
-
-
-    //===============Enabled kan Dragdrop=================================
-    NA.common.dialog.DragDrop.enable();
-
-
-
-    var ParentContent = document.createElement('div');
-    NA.common.NA_setAttr(ParentContent, {
-        "class": args['parentClass'],
-        "id": "contentName",
-        "style":"width:"+args['width']+""
-    });
-    var contentElem;
-    for (var i = 0; i < args['textToContent'].length; i++) {
-        containerElem = document.createElement('div')
-        NA.common.NA_setAttr(containerElem, {
-            'class': 'col-md-12',
-            'id':'containerElem'
-        });
-
-        contentElem = document.createElement('div');
-        NA.common.NA_setAttr(contentElem, {
-            'class': args['contentElem_Class'],
-            'id': 'contentElem'
-
-        });
-        contentData = document.createElement('div');
-        NA.common.NA_setAttr(contentData, {
-            'class': args['contentData_Class'],
-            'id': 'contentData'
-
-        });
-        
-        var textContent = document.createTextNode(args['textToContent'][i]);
-        contentElem.appendChild(textContent);
-        var textData = document.createTextNode(args['get_text'][i]);
-        contentData.appendChild(textData)
-        containerElem.innerHTML += contentElem.outerHTML + contentData.outerHTML
-        
-        contentData.appendChild(textData);
-        
-        ParentContent.appendChild(containerElem);
-    };
-    mainContentDialog.appendChild(ParentContent);
-    var close_Dialog = NA.common.doc.querySelector('button.ui-button.ui-dialog-titlebar-close')
-    var theDialog = NA.common.doc.querySelector("div.containerDialog");
-    NA.NAEvent.addHandler(close_Dialog, 'click', function () {
-        NA.common.dialog.closeDialog(theDialog)
-    });
-    var cancelButton = NA.common.doc.querySelector('div.dialogButtonOKCancel > a.button:nth-child(2)');
-    NA.NAEvent.addHandler(cancelButton, 'click', function () {
-        NA.common.dialog.closeDialog(theDialog)
-    });
-    var content_Name = NA.common.doc.querySelector('div#contentName');
-    if (args['mode'] == 'update') {
-        var main_Dialog = NA.common.doc.querySelector('div.maindialogContent');
-        var btnContainer = NA.common.doc.createElement('div');
-        NA.common.NA_setAttr(btnContainer, {
-            'style': 'clear:left;padding-top:20px'
-        });
-        var prevBtn = NA.common.doc.createElement('button');
-        NA.common.NA_setAttr(prevBtn, {
-            'id': 'prev',
-            'class': 'btn btn-success'
-        });
-        var nextBtn = NA.common.doc.createElement('button');
-        NA.common.NA_setAttr(nextBtn, {
-            'id': 'next',
-            'class': 'btn btn-success'
-        });
-        var iconPrev = NA.common.doc.createElement('i');
-        NA.common.NA_setAttr(iconPrev, {
-            'class': 'fa fa-angle-double-left'
-        });
-        var iconNext = NA.common.doc.createElement('i');
-        NA.common.NA_setAttr(iconNext, {
-            'class': 'fa fa-angle-double-right'
-        });
-        prevBtn.appendChild(iconPrev)
-        nextBtn.appendChild(iconNext)
-        btnContainer.appendChild(prevBtn)
-        btnContainer.appendChild(nextBtn)
-        main_Dialog.appendChild(btnContainer);
-
-        var getPrev = NA.common.doc.querySelector('button#prev')
-        var getNext = NA.common.doc.querySelector('button#next')
-        var text_before = args['text_before']
-        var text_after = args['text_after'];
-
-        var changeText = function () {
-            return $('div#contentData').text('');
-        };
-        NA.NAEvent.addHandler(getPrev, 'click', function () {
-            changeText();
-            if (text_before.length < text_after.length) {
-                if ($('div.' + args['contentElem_Class'] + ':contains(Modified)').length == 0) {
-                    var container_Elem = NA.common.doc.createElement('div');
-                    NA.common.NA_setAttr(container_Elem, {
-                        'class': 'col-md-12',
-                        'id': 'containerElem'
-                    });
-                    var container_Elem2 = NA.common.doc.createElement('div');
-                    NA.common.NA_setAttr(container_Elem2, {
-                        'class': 'col-md-12',
-                        'id': 'containerElem'
-                    });
-                    var modifieddate = NA.common.doc.createElement('div');
-                    NA.common.NA_setAttr(modifieddate, {
-                        'class': args['contentElem_Class'],
-                        'id': 'contentElem'
-                    });
-                    modifieddate.textContent = 'Modified Date :'
-                    var modifiedby = NA.common.doc.createElement('div')
-                    NA.common.NA_setAttr(modifiedby, {
-                        'class': args['contentElem_Class'],
-                        'id': 'contentElem'
-                    });
-                    modifiedby.textContent = 'Modified By :'
-
-                    var data_modifiedDate = NA.common.doc.createElement('div');
-                    NA.common.NA_setAttr(data_modifiedDate, {
-                        'id': 'contentData',
-                        'class': args['contentData_Class']
-                    });
-                    var data_modifiedBy = NA.common.doc.createElement('div');
-                    NA.common.NA_setAttr(data_modifiedBy, {
-                        'id': 'contentData',
-                        'class': args['contentData_Class']
-                    })
-
-                    container_Elem.appendChild(modifieddate);
-                    container_Elem.appendChild(data_modifiedDate);
-                    container_Elem2.appendChild(modifiedby);
-                    container_Elem2.appendChild(data_modifiedBy);
-                    content_Name.appendChild(container_Elem);
-                    content_Name.appendChild(container_Elem2);
-                }
-
-            };
-            for (var i = 0; i < text_after.length; i++) {
-                $('div#contentData:eq(' + i + ')').text(text_after[i])
-            };
-        });
-        NA.NAEvent.addHandler(getNext, 'click', function () {
-            changeText();
-            for (var i = 0; i < text_before.length; i++) {
-                $('div#contentData:eq(' + i + ')').text(text_before[i])
-            };
-            if (text_before.length < text_after.length) {
-                $('div.'+args['contentElem_Class']+':contains(Modified)').parent().remove()
-            }
-
-        })
-    } else if (args['mode'] == 'emailData') {
-        function createElem(data,callback) {
-            (function(data_args){
-                var containerElem = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(containerElem, {
-                    'id': 'containerElem',
-                    'class': 'col-md-12'
-                });
-                var contentElem = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(contentElem, {
-                    'id': 'contentElem',
-                    'class': args['contentElem_Class']
-                });
-                var contentData = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(contentData, {
-                    'id': 'contentData',
-                    'class': args['contentData_Class']
-                });
-                contentElem.textContent = data_args['text_elem']
-                contentData.textContent = data_args['text_data']
-                if (data_args['type'] == 'tabular_data') {
-                    containerElem.appendChild(contentElem);
-                    containerElem.appendChild(contentData);
-                    content_Name.appendChild(containerElem);
-                } else if (data_args['type'] == 'biodata') {
-                    callback(containerElem, contentElem, contentData);
-                }
-            })(data)
-            
-        }
-        
-
-        var type_report = args['get_text'][4]
-        var data_report = args['get_text'][5]
-        var data_report_employee = data_report['bio_employee']
-        var data_report_suplier = data_report['bio_suplier']
-        var tabular_employee = data_report['tabular_data_employee']
-        var tabular_suplier = data_report['tabular_data_suplier']
-        if (type_report == 'biodata'||type_report == 'Biodata') {
-            if (data_report_employee) {
-                
-                var container_dataEmployee = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(container_dataEmployee, {
-                    'id': 'containerElem',
-                    'class': 'col-md-12'
-                });
-                var data_reportEmployee = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(data_reportEmployee, {
-                    'id': 'contentElem',
-                    'class': args['contentElem_Class']
-                });
-                var data_reportText = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(data_reportText, {
-                    'id': 'contentData',
-                    'class': args['contentData_Class']
-                });
-
-                data_reportEmployee.textContent = 'Employee :';
-                var ul_bio = NA.common.doc.createElement('ul');
-                NA.common.NA_setAttr(ul_bio, {
-                    'id': 'ul_container'
-                });
-
-                
-                    
-                
-                var create_elem_employee = function (i) {
-                    var bio = NA.common.doc.createElement('a');
-                    var li_bio = NA.common.doc.createElement('li');
-                    var ul_data_bio = NA.common.doc.createElement('ul');
-                    var li_bio_nik = NA.common.doc.createElement('li');
-                    var li_bio_typeapp = NA.common.doc.createElement('li');
-                    var li_bio_jobtype = NA.common.doc.createElement('li');
-                    var li_bio_gender = NA.common.doc.createElement('li');
-                    var li_bio_statusEmpl = NA.common.doc.createElement('li');
-                    var li_bio_telphp = NA.common.doc.createElement('li');
-                    var li_bio_territory = NA.common.doc.createElement('li');
-                    var li_bio_descriptions = NA.common.doc.createElement('li');
-                    var li_bio_inactive = NA.common.doc.createElement('li');
-                    NA.common.NA_setAttr(ul_data_bio, {
-                        'class': 'dropdown-menu triangle',
-                        'id': 'data-dropdown'
-                    });
-                    NA.common.NA_setAttr(li_bio, {
-                        'class': 'dropdown',
-                        'id': 'dropdown-bio'
-                    });
-                    NA.common.NA_setAttr(bio, {
-                        'href': '#',
-                        'class': 'dropdown-toggle',
-                        'data-toggle': 'dropdown'
-                    });
-
-                    var textBio = NA.common.doc.createTextNode(data_report_employee[i]['employee_name']);
-                    var text_nik = NA.common.doc.createTextNode('Nik :' + data_report_employee[i]['nik']);
-                    var text_typeapp = NA.common.doc.createTextNode('Type App :' + data_report_employee[i]['typeapp']);
-                    var text_jobtype = NA.common.doc.createTextNode('Job Type :' + data_report_employee[i]['jobtype']);
-                    var text_gender = NA.common.doc.createTextNode('Gender :' + data_report_employee[i]['gender']);
-                    var text_statusEmpl = NA.common.doc.createTextNode('Status :' + data_report_employee[i]['status']);
-                    var text_telphp = NA.common.doc.createTextNode('Telp/HP :' + data_report_employee[i]['telphp']);
-                    var text_territory = NA.common.doc.createTextNode('Territory :' + data_report_employee[i]['territory']);
-                    var text_descriptions = NA.common.doc.createTextNode('Descriptions :' + data_report_employee[i]['descriptions']);
-                    var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_employee[i]['inactive']);
-
-                    bio.appendChild(textBio);
-                    li_bio.appendChild(bio);
-                    li_bio_nik.appendChild(text_nik);
-                    li_bio_typeapp.appendChild(text_typeapp);
-                    li_bio_jobtype.appendChild(text_jobtype);
-                    li_bio_gender.appendChild(text_gender);
-                    li_bio_statusEmpl.appendChild(text_statusEmpl);
-                    li_bio_telphp.appendChild(text_telphp);
-                    li_bio_territory.appendChild(text_territory);
-                    li_bio_descriptions.appendChild(text_descriptions);
-                    li_bio_inactive.appendChild(text_inactive);
-                    ul_data_bio.appendChild(li_bio_nik);
-                    ul_data_bio.appendChild(li_bio_typeapp);
-                    ul_data_bio.appendChild(li_bio_jobtype);
-                    ul_data_bio.appendChild(li_bio_gender);
-                    ul_data_bio.appendChild(li_bio_statusEmpl);
-                    ul_data_bio.appendChild(li_bio_telphp);
-                    ul_data_bio.appendChild(li_bio_territory);
-                    ul_data_bio.appendChild(li_bio_descriptions);
-                    ul_data_bio.appendChild(li_bio_inactive);
-                    li_bio.appendChild(ul_data_bio);
-                    ul_bio.appendChild(li_bio)
-                    data_reportText.appendChild(ul_bio);
-                }
-                if (data_report_employee.length > 1) {
-                    for (var i = 0; i < data_report_employee.length; i++) {
-                        create_elem_employee(i);
-                    }
-                } else if (data_report_employee.length == 1) {
-                    create_elem_employee(0)
-                };
-                container_dataEmployee.appendChild(data_reportEmployee);
-                container_dataEmployee.appendChild(data_reportText);
-                content_Name.appendChild(container_dataEmployee);
-
-            };
-            if (data_report_suplier) {
-                var container_dataSuplier = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(container_dataSuplier, {
-                    'id': 'containerElem',
-                    'class': 'col-md-12'
-                });
-                var data_reportSuplier = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(data_reportSuplier, {
-                    'id': 'contentElem',
-                    'class': args['contentElem_Class']
-                });
-                var data_reportText = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(data_reportText, {
-                    'id': 'contentData',
-                    'class': args['contentData_Class']
-                });
-
-                data_reportSuplier.textContent = 'Suplier :';
-                var ul_bio = NA.common.doc.createElement('ul');
-                NA.common.NA_setAttr(ul_bio, {
-                    'id': 'ul_container'
-                })
-                var create_elem_suplier = function (i) {
-                    var bio = NA.common.doc.createElement('a');
-                    var li_bio = NA.common.doc.createElement('li');
-                    var ul_data_bio = NA.common.doc.createElement('ul');
-                    var li_bio_supliercode = NA.common.doc.createElement('li');
-                    var li_bio_supliername = NA.common.doc.createElement('li');
-                    var li_bio_telp = NA.common.doc.createElement('li');
-                    var li_bio_hp = NA.common.doc.createElement('li');
-                    var li_bio_contactperson = NA.common.doc.createElement('li');
-                    var li_bio_inactive = NA.common.doc.createElement('li');
-                    var li_bio_address = NA.common.doc.createElement('li');
-                    NA.common.NA_setAttr(ul_data_bio, {
-                        'class': 'dropdown-menu triangle',
-                        'id': 'data-dropdown'
-                    });
-                    NA.common.NA_setAttr(li_bio, {
-                        'class': 'dropdown',
-                        'id': 'dropdown-bio'
-                    });
-                    NA.common.NA_setAttr(bio, {
-                        'href': '#',
-                        'class': 'dropdown-toggle',
-                        'data-toggle': 'dropdown'
-                    });
-
-                    var textBio = NA.common.doc.createTextNode(data_report_suplier[i]['supliername']);
-                    var text_supliercode = NA.common.doc.createTextNode('Suplier Code :' + data_report_suplier[i]['supliercode']);
-                    var text_supliername = NA.common.doc.createTextNode('Suplier Name :' + data_report_suplier[i]['supliername']);
-                    var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_suplier[i]['telp']);
-                    var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_suplier[i]['hp']);
-                    var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_suplier[i]['contactperson']);
-                    var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_suplier[i]['inactive']);
-                    var text_address = NA.common.doc.createTextNode('Address :' + data_report_suplier[i]['address']);
-
-                    bio.appendChild(textBio);
-                    li_bio.appendChild(bio);
-                    li_bio_supliercode.appendChild(text_supliercode);
-                    li_bio_supliername.appendChild(text_supliername);
-                    li_bio_telp.appendChild(text_telp);
-                    li_bio_hp.appendChild(text_hp);
-                    li_bio_contactperson.appendChild(text_contactperson);
-                    li_bio_inactive.appendChild(text_inactive);
-                    li_bio_address.appendChild(text_address);
-                    ul_data_bio.appendChild(li_bio_supliercode);
-                    ul_data_bio.appendChild(li_bio_supliername);
-                    ul_data_bio.appendChild(li_bio_telp);
-                    ul_data_bio.appendChild(li_bio_hp);
-                    ul_data_bio.appendChild(li_bio_contactperson);
-                    ul_data_bio.appendChild(li_bio_inactive);
-                    ul_data_bio.appendChild(li_bio_address);
-                    li_bio.appendChild(ul_data_bio);
-                    ul_bio.appendChild(li_bio)
-                    data_reportText.appendChild(ul_bio);
-                }
-                if (data_report_suplier.length > 1) {
-                    for (var i = 0; i < data_report_suplier.length; i++) {
-                        create_elem_suplier(i);
-                    }
-                } else if (data_report_suplier.length == 1) {
-                    create_elem_suplier(0)
-                };
-                container_dataSuplier.appendChild(data_reportSuplier);
-                container_dataSuplier.appendChild(data_reportText);
-                content_Name.appendChild(container_dataSuplier);
-            }
-        } else if (type_report == 'tabular_data' || type_report == 'Tabular Data') {
-            
-            var tabular_employee = data_report['tabular_data_employee']
-            var tabular_suplier = data_report['tabular_data_suplier']
-            var create_tabular = function (tabular) {
-                var containerElm = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(containerElm, {
-                    'class': 'col-md-12',
-                    'id': 'containerElem'
-                });
-                var contentElem_t = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(contentElem_t, {
-                    'class': args['contentElem_Class'],
-                    'id': 'contentElem'
-                });
-                contentElem_t.textContent = tabular['textContent']
-                var contentData_t = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(contentData_t, {
-                    'id': 'contentData',
-                    'class': args['contentData_Class']
-                });
-                contentData_t.textContent = tabular['textData'];
-                containerElm.appendChild(contentElem_t);
-                containerElm.appendChild(contentData_t);
-                content_Name.appendChild(containerElm);
-            };
-            if (tabular_employee) {
-                create_tabular({
-                    textContent: 'Total Employee :',
-                    textData: tabular_employee
-                })
-            };
-            if (tabular_suplier) {
-                create_tabular({
-                    textContent: 'Total Suplier :',
-                    textData: tabular_suplier
-                })
-            }
-        }
-        
-        
-        
-    }
-
-}
-
-
-
-              var inputLogEvent = NA.common.getElementID('searchLogEvent'),
-                  btn_search_log = NA.common.getElementID('btnSearchLogEvent');
-              function searchLog(event){
-                  NA.NAEvent.preventDefault(event);
-                  var targetValue = inputLogEvent.value;
-                  NA.common.AJAX.GET(url_logEvent() + '?' + win.encodeURIComponent('_Search') + '=' + true + '&' + win.encodeURIComponent('search') + '=' + targetValue, 'application/json', function (e) { window.document.body.style.cursor = 'wait'; },
-                        null,
-                        function (e) {//function executed after data has been returned by server(XHR.onload)
-                            var data = JSON.parse(this.responseText);
-                            if (data) {
-                                $('#EventLogs').tree('loadData',data);
-                            }
-                        }, null, function (e) {
-                            throw new Error(this.responseText + '\nStatus code :' + this.statusText);
-                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
-                        null);
-              };
-              NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
-                  console.log(event);
-                  if(event.keyCode == 13){
-                      searchLog(event);
-                  }
-              });
-              NA.NAEvent.addHandler(btn_search_log,'click',function(event){
-                  searchLog(event);
-              });
-              var months = [
-                  'January', 'February', 'March', 'April', 'May',
-                  'June', 'July', 'August', 'September',
-                  'October', 'November', 'December'
-              ];
-              function retriveMonth(monthname) {
-                  var month = months.indexOf(monthname);
-                  return month ? month + 1 : 0;
-              };
-            using('tree', function () {
-                $("#EventLogs").tree({
-                    url: url_logEvent(),
-                    method: 'get',
-                    animate: false,
-                    loadFilter: function (data, parent) {
-                                    function forNodes(data, callback) {
-                                        var nodes = [];
-                                        for (var i = 0; i < data.length; i++) {
-                                            nodes.push(data[i]);
-                                        }
-                                        while (nodes.length) {
-                                            var node = nodes.shift();
-                                            if (callback(node) == false) { return; }
-                                            if (node.children) {
-                                                for (var i = node.children.length - 1; i >= 0; i--) {
-                                                    nodes.unshift(node.children[i]);
-                                                }
-                                            }
-                                        }
-                                    };
-                                    forNodes(data, function (node) {
-                                        if (!node.children) {
-                                            if (node.text.match(/Created/)) {
-                                                node.iconCls = 'fa fa-plus';
-                                            };
-                                            if (node.text.match(/Updated/)) {
-                                                node.iconCls = 'fa fa-pencil';
-                                            };
-                                            if (node.text.match(/Deleted/)) {
-                                                node.iconCls = 'fa fa-trash';
-                                            };
-                                            if(node.text.match(/^Send/)){
-                                                node.iconCls = 'fa fa-envelope'
-                                            }
-                                        };
-                                        if (node.children) {
-                                            if (node.text.match(/\d+ \w+ \d+/)) {
-                                                node.state = 'closed'
-                                                node.iconCls = 'fa fa-calendar'
-                                            } else if (node.text.match(/^Log/)) {
-                                                node.iconCls = 'fa fa-indent'
-                                            } else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-                                                node.iconCls = 'fa fa-calendar-o'
-                                            }
-                                        }
-                        
-                                    });
-                                    
-                        return data;
-                    },
-                    onClick: function (node) {
-                        if (!node.children) {
-                            var obj = $(node.target).parent()['context']['id']; //get id of the clicked object/node .. . :D
-                            var get_tanggal = $('#' + obj).parents().eq(1).prev().text(); //get date of the clicked object, by access parent of element .. . :D
-                            var dynamic_field = (get_tanggal + 'T' + get_waktu); //this is the default format time of the django, and can optional if change it .. . :D
-                            var descrModal = $('#mYmodal'); // Modal Log Descriptions
-                            var get_waktu = node.text.match(/\d+:\d+:\d+/);
-                            var get_year = get_tanggal.match(/\d{4}/),
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-primary btn-block">Login with Facebook</a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    <!-- ============================ End User Login =============================== -->
+                </ul>
+            </div>
+            <div class="AsideMainArea">
+
+                <div id="EventLogs" class="LogEvent"></div>
+                <div class="input-group" style="display:inline-flex;position:relative">
+                    <input class="NA-Form-Control" id="searchLogEvent" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Search Actions" type="text">
+                    <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
+                        <button style="height:30.22px;" class="btn btn-default" type="submit" id="btnSearchLogEvent"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="clearfloat"></div>
+
+        <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->\
+
+        {% block DialogEntry %}
+
+        {% endblock %}
+
+        <!--====================================================================-->
+    </div>
+    <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+    {% with request.resolver_match.url_name as url_name %}
+    {% if url_name == 'home' or url_name == 'login' %}
+    <script>window.NA || document.write('<script src="../../static/app/scripts/NAJS.js"><\/script>')</script>
+    <!-- ========================== This is Load only in Home, =============================== -->
+    <script>
+    	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
+    	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
+    	NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
+    	//NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");//Load Style buat form sebelum di pakai
+    	var btnRegister = NA.common.doc.querySelector('button#register')
+    	NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
+    	window.showDialogEntry = function(event){
+    		$('div.maindialogContent').load(url_register(), function (response, status, xhr) {
+    			function getData_User() {
+    				data = {
+    					first_name: $('input#id_first_name').val(),
+    					last_name: $('input#id_last_name').val(),
+    					username: $('form#form_user').find('input#id_username').val(),
+    					picture: $('input#id_picture').val(),
+    					email: $('form#form_user').find('input#id_email').val(),
+    					password1: $('form#form_user').find('input#id_password1').val(),
+    					password2: $('form#form_user').find('input#id_password2').val()
+    				}
+    				return data
+    			}
+    			var initializeForm_user = NA.common.getElementID('id_initializeForm_user');
+    			initializeForm_user.Value = JSON.stringify(getData_User());
+    			function NA_UserSubmit() {
+    				$('form#form_user').submit(function (event) {
+    					$.ajax({
+    						url: $(this).attr('action'),
+    						method: 'POST',
+    						data: new FormData(this),
+    						cache: false,
+    						contentType: false,
+    						processData: false,
+    						success: function (data) {
+    							console.log(data)
+    						}
+    					})
+    				});
+    			};
+    			var form_user = NA.common.getElementID('form_user');
+    			var dialog_user = NA.common.dialog.doc.querySelector("div.containerDialog");
+    			var btn_input = NA.common.getElementID('user_submit');
+    			function detectDifference_pass() {
+    				var container_msg = NA.common.doc.createElement('p');
+    				var message = NA.common.doc.createTextNode('Password didn\'t match .. . Please check again!!');
+    				container_msg.appendChild(message);
+    				return {
+    					check: function () {
+    						return $('form#form_user > #id_password1').val() !== $('form#form_user > #id_password2').val();
+    					},
+    					showMessage: function () {
+    						return form_user.appendChild(container_msg);
+    					}
+    				};
+    			};
+    			function closeForm_user() {
+    				var originalData = JSON.parse(initializeForm_user.Value);
+    				var valuesForm = getData_User();
+    				if (NA.common.detectInputChanges(originalData, valuesForm)) {
+    					if (confirm('Data has changed, \nSave data before closing form ?')) {
+    						if (detectDifference_pass().check()) {
+    							detectDifference_pass().showMessage();
+    							form_user.onsubmit('return false')
+    						} else {
+    							btn_input.click();
+    						}
+
+    					} else {
+    						NA.common.dialog.closeDialog(dialog_user);
+    					}
+    				} else {
+    					NA.common.dialog.closeDialog(dialog_user);
+    				}
+    			};
+    			$('div.dialogButtonOKCancel>a.button').click(function (event) {
+    				var target = NA.NAEvent.getTarget(event);
+    				if (target.innerText.trim() == 'OK') {
+    					UserHandler('OK');
+    				} else if (target.innerText.trim() == 'Cancel') {
+    					UserHandler('Cancel', closeForm_user);
+    				}
+    			});
+    			$('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
+
+    				UserHandler('Close', closeForm_user);
+    				NA.NAEvent.preventDefault(event);
+    			});
+
+    			function UserHandler(text, closeForm) {
+    				if (text == 'OK') {
+    					btn_input.click();
+    				} else if (text == 'Cancel' || text == 'Close') {
+    					if (form_user) {
+    						closeForm();
+    					}
+    				}
+    			}
+    		});
+
+    	}
+    </script>
+    {%endif%}
+    {%endwith%}
+    <!--======================================== Script Log Event =============================================== -->
+
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/backupss/icon.css' %}">
+    <script type="text/javascript" src="{% static 'app/scripts/easyloader.js' %}"></script>
+    <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
+    <script type="text/javascript">
+    	$(document).ready(function () {
+    		function showDescriptionsLog(args) {//title, content, classContent, textToContent
+    			var body = NA.common.doc.body;
+    			var pageDimensions = NA.common.dialog.getPageDimensions();
+    			var viewportSize = NA.common.dialog.getViewportSize();
+
+    			if (viewportSize[1] > pageDimensions[1]) {
+    				pageDimensions[1] = viewportSize[1];
+    			}
+    			var mnuContainer = NA.common.doc.querySelector('nav.navbar.navbar-default')
+    			if (mnuContainer) { mnuContainer.style.zIndex = "0"; }
+    			var dropSheet = NA.common.doc.createElement("div");
+
+    			dropSheet.setAttribute("id", "dropSheet");
+    			dropSheet.style.position = "absolute";
+    			dropSheet.style.left = "0";
+    			dropSheet.style.top = "0";
+
+    			dropSheet.style.zIndex = 1;
+    			dropSheet.style.width = pageDimensions[0] + "px";
+    			dropSheet.style.height = pageDimensions[1] + "px";
+    			body.appendChild(dropSheet);
+
+    			var dialog = NA.common.doc.querySelector("div.containerDialog");
+    			if (!dialog) {
+    				dialog = NA.common.doc.createElement("div");
+    				dialog.className = 'containerDialog';
+    			}
+    			//dialog.classList.add("draggable");
+    			dialog.style.visibility = "hidden";
+    			dialog.style.position = "absolute";
+    			dialog.style.zIndex = "2";
+    			//=============create Header Dialog======================
+
+    			var headerDialog = NA.common.doc.createElement("div");
+    			headerDialog.className = "ui-dialog-titlebar"
+    			headerDialog.classList.add("ui-corner-all");
+    			headerDialog.classList.add("ui-widget-header");
+    			headerDialog.classList.add("ui-helper-clearfix");
+    			headerDialog.classList.add("ui-draggable-handle");
+    			dialog.classList.add("draggable");
+    			headerDialog.style.cursor = 'move'
+    			//create Span element
+    			var spanDialogTitle = NA.common.doc.createElement('span');
+    			spanDialogTitle.setAttribute('id', 'ui-id-18');
+
+    			spanDialogTitle.className = "ui-dialog-title";
+
+    			//get title value from parameter
+    			//var dialogTitle = args['dialogTitle'];
+    			spanDialogTitle.textContent =args['title'];
+
+
+    			//create button element
+    			var dialogCloseButton = NA.common.doc.createElement("button");
+    			dialogCloseButton.className = "ui-button";
+    			dialogCloseButton.classList.add("ui-corner-all");
+    			dialogCloseButton.classList.add("ui-widget");
+    			dialogCloseButton.classList.add("ui-button-icon-only");
+    			dialogCloseButton.classList.add("ui-dialog-titlebar-close");
+    			dialogCloseButton.style.cssFloat = "right";
+    			dialogCloseButton.style.marginTop = "3px";
+    			dialogCloseButton.style.paddingLeft = ".5em";
+    			dialogCloseButton.style.paddingRight = ".5em"
+    			//create element spanDialogbutton close
+    			var spandialogbuttonclose = NA.common.doc.createElement("span");
+    			spandialogbuttonclose.className = "ui-button-icon";
+    			spandialogbuttonclose.classList.add("ui-icon");
+    			spandialogbuttonclose.classList.add("ui-icon-closethick");
+
+
+    			var spanuibuttonIconSpace = NA.common.doc.createElement("span");
+    			spanuibuttonIconSpace.className = "ui-button-icon-space";
+    			dialogCloseButton.appendChild(spanuibuttonIconSpace);
+    			dialogCloseButton.appendChild(spandialogbuttonclose);
+
+    			headerDialog.appendChild(spanDialogTitle);
+    			headerDialog.appendChild(dialogCloseButton);//1
+
+    			//===============create maincontendialog===============
+
+    			var mainContentDialog = NA.common.doc.createElement("div");
+    			mainContentDialog.className = "maindialogContent";//2
+    			//isi content di loag pakai ajax Jquery(diluar object ini) setelah dialog di create
+
+
+    			//=============create bottom dialog=====================
+    			var bottomDialog = NA.common.doc.createElement("div");
+    			bottomDialog.className = "bottomDialogContent";
+
+    			var dialogButtonSet1 = NA.common.doc.createElement("div");
+    			dialogButtonSet1.className = "dialogButtonEntry";
+
+    			//==========create tombol OK Cancel Print dan Export==================
+    			//create dulu container untuk button OK Cancelnya
+    			dialogButtonSet1.classList.add('dialogButtonOKCancel');
+    			//Create tombol OK Cancel
+    			var btnOK = NA.common.doc.createElement("a");
+    			btnOK.className = "button";
+    			btnOK.nodeValue = "OK";
+    			btnOK.textContent = "OK";
+    			//var isDisableOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
+    			btnOK.style.width = "80px";
+    			//btnOK.disabled = isDisableOK.valueOf();
+
+    			//btnOK.disabled = true;
+
+    			var btnCancel = NA.common.doc.createElement("a");
+    			btnCancel.className = "button";
+    			btnCancel.nodeValue = "Cancel";
+    			btnCancel.textContent = "Cancel";
+    			btnCancel.style.width = "80px";
+    			//var isDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
+    			//btnCancel.disabled = isDisabledCancel.valueOf();
+
+    			dialogButtonSet1.appendChild(btnOK);
+    			dialogButtonSet1.appendChild(btnCancel);
+
+
+    			var dialogButtonSet2 = NA.common.doc.createElement("div");
+    			dialogButtonSet2.className = "dialogButtonEntry";
+    			dialogButtonSet2.classList.add("dialogButtonRightOther");
+    			//create tombol Print dan Export
+    			var btnPrint = NA.common.doc.createElement("a");
+    			btnPrint.className = "btn-link";
+    			btnPrint.nodeValue = "Print Preview";
+    			btnPrint.textContent = "Print Preview";
+    			btnPrint.style.width = "120px";
+    			//var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
+    			//btnPrint.disabled = isDisabledPrint.valueOf();
+    			btnPrint.style.marginRight = "0";
+    			btnPrint.style.paddingRight = "0";
+    			var btnExport = NA.common.doc.createElement("a");
+    			btnExport.className = "btn-link";
+    			btnExport.nodeValue = "Export";
+    			btnExport.textContent = "Export"
+    			btnExport.style.width = "100px";
+
+    			//var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnPrintPreview"];
+    			btnExport.style.marginRight = "0";
+    			btnExport.style.paddingRight = "0";
+
+    			//btnExport.disabled = isDisabledExport.valueOf()
+    			dialogButtonSet2.appendChild(btnPrint);
+    			dialogButtonSet2.appendChild(btnExport);
+
+
+    			bottomDialog.appendChild(dialogButtonSet1);
+    			bottomDialog.appendChild(dialogButtonSet2);//3
+
+    			dialog.appendChild(headerDialog);
+    			dialog.appendChild(mainContentDialog);
+    			dialog.appendChild(bottomDialog);
+
+    			var scrollingPosition = NA.common.dialog.getScrollingPosition();
+    			body.appendChild(dialog);
+    			dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
+    			dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2.5) - parseInt(dialog.offsetHeight) + "px";
+
+    			dialog.style.visibility = 'visible';
+
+
+    			//===============Enabled kan Dragdrop=================================
+    			NA.common.dialog.DragDrop.enable();
+
+
+
+    			var ParentContent = document.createElement('div');
+    			NA.common.NA_setAttr(ParentContent, {
+    				"class": args['parentClass'],
+    				"id": "contentName",
+    				"style":"width:"+args['width']+""
+    			});
+    			var contentElem;
+    			for (var i = 0; i < args['textToContent'].length; i++) {
+    				containerElem = document.createElement('div')
+    				NA.common.NA_setAttr(containerElem, {
+    					'class': 'col-md-12',
+    					'id':'containerElem'
+    				});
+
+    				contentElem = document.createElement('div');
+    				NA.common.NA_setAttr(contentElem, {
+    					'class': args['contentElem_Class'],
+    					'id': 'contentElem'
+
+    				});
+    				contentData = document.createElement('div');
+    				NA.common.NA_setAttr(contentData, {
+    					'class': args['contentData_Class'],
+    					'id': 'contentData'
+
+    				});
+
+    				var textContent = document.createTextNode(args['textToContent'][i]);
+    				contentElem.appendChild(textContent);
+    				var textData = document.createTextNode(args['get_text'][i]);
+    				contentData.appendChild(textData)
+    				containerElem.innerHTML += contentElem.outerHTML + contentData.outerHTML
+
+    				contentData.appendChild(textData);
+
+    				ParentContent.appendChild(containerElem);
+    			};
+    			mainContentDialog.appendChild(ParentContent);
+    			var close_Dialog = NA.common.doc.querySelector('button.ui-button.ui-dialog-titlebar-close')
+    			var theDialog = NA.common.doc.querySelector("div.containerDialog");
+    			NA.NAEvent.addHandler(close_Dialog, 'click', function () {
+    				NA.common.dialog.closeDialog(theDialog)
+    			});
+    			var cancelButton = NA.common.doc.querySelector('div.dialogButtonOKCancel > a.button:nth-child(2)');
+    			NA.NAEvent.addHandler(cancelButton, 'click', function () {
+    				NA.common.dialog.closeDialog(theDialog)
+    			});
+    			var content_Name = NA.common.doc.querySelector('div#contentName');
+    			if (args['mode'] == 'update') {
+    				var main_Dialog = NA.common.doc.querySelector('div.maindialogContent');
+    				var btnContainer = NA.common.doc.createElement('div');
+    				NA.common.NA_setAttr(btnContainer, {
+    					'style': 'clear:left;padding-top:20px'
+    				});
+    				var prevBtn = NA.common.doc.createElement('button');
+    				NA.common.NA_setAttr(prevBtn, {
+    					'id': 'prev',
+    					'class': 'btn btn-success'
+    				});
+    				var nextBtn = NA.common.doc.createElement('button');
+    				NA.common.NA_setAttr(nextBtn, {
+    					'id': 'next',
+    					'class': 'btn btn-success'
+    				});
+    				var iconPrev = NA.common.doc.createElement('i');
+    				NA.common.NA_setAttr(iconPrev, {
+    					'class': 'fa fa-angle-double-left'
+    				});
+    				var iconNext = NA.common.doc.createElement('i');
+    				NA.common.NA_setAttr(iconNext, {
+    					'class': 'fa fa-angle-double-right'
+    				});
+    				prevBtn.appendChild(iconPrev)
+    				nextBtn.appendChild(iconNext)
+    				btnContainer.appendChild(prevBtn)
+    				btnContainer.appendChild(nextBtn)
+    				main_Dialog.appendChild(btnContainer);
+
+    				var getPrev = NA.common.doc.querySelector('button#prev')
+    				var getNext = NA.common.doc.querySelector('button#next')
+    				var text_before = args['text_before']
+    				var text_after = args['text_after'];
+
+    				var changeText = function () {
+    					return $('div#contentData').text('');
+    				};
+    				NA.NAEvent.addHandler(getPrev, 'click', function () {
+    					changeText();
+    					if (text_before.length < text_after.length) {
+    						if ($('div.' + args['contentElem_Class'] + ':contains(Modified)').length == 0) {
+    							var container_Elem = NA.common.doc.createElement('div');
+    							NA.common.NA_setAttr(container_Elem, {
+    								'class': 'col-md-12',
+    								'id': 'containerElem'
+    							});
+    							var container_Elem2 = NA.common.doc.createElement('div');
+    							NA.common.NA_setAttr(container_Elem2, {
+    								'class': 'col-md-12',
+    								'id': 'containerElem'
+    							});
+    							var modifieddate = NA.common.doc.createElement('div');
+    							NA.common.NA_setAttr(modifieddate, {
+    								'class': args['contentElem_Class'],
+    								'id': 'contentElem'
+    							});
+    							modifieddate.textContent = 'Modified Date :'
+    							var modifiedby = NA.common.doc.createElement('div')
+    							NA.common.NA_setAttr(modifiedby, {
+    								'class': args['contentElem_Class'],
+    								'id': 'contentElem'
+    							});
+    							modifiedby.textContent = 'Modified By :'
+
+    							var data_modifiedDate = NA.common.doc.createElement('div');
+    							NA.common.NA_setAttr(data_modifiedDate, {
+    								'id': 'contentData',
+    								'class': args['contentData_Class']
+    							});
+    							var data_modifiedBy = NA.common.doc.createElement('div');
+    							NA.common.NA_setAttr(data_modifiedBy, {
+    								'id': 'contentData',
+    								'class': args['contentData_Class']
+    							})
+
+    							container_Elem.appendChild(modifieddate);
+    							container_Elem.appendChild(data_modifiedDate);
+    							container_Elem2.appendChild(modifiedby);
+    							container_Elem2.appendChild(data_modifiedBy);
+    							content_Name.appendChild(container_Elem);
+    							content_Name.appendChild(container_Elem2);
+    						}
+
+    					};
+    					for (var i = 0; i < text_after.length; i++) {
+    						$('div#contentData:eq(' + i + ')').text(text_after[i])
+    					};
+    				});
+    				NA.NAEvent.addHandler(getNext, 'click', function () {
+    					changeText();
+    					for (var i = 0; i < text_before.length; i++) {
+    						$('div#contentData:eq(' + i + ')').text(text_before[i])
+    					};
+    					if (text_before.length < text_after.length) {
+    						$('div.'+args['contentElem_Class']+':contains(Modified)').parent().remove()
+    					}
+
+    				})
+    			} else if (args['mode'] == 'emailData') {
+    				function createElem(data,callback) {
+    					(function(data_args){
+    						var containerElem = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(containerElem, {
+    							'id': 'containerElem',
+    							'class': 'col-md-12'
+    						});
+    						var contentElem = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(contentElem, {
+    							'id': 'contentElem',
+    							'class': args['contentElem_Class']
+    						});
+    						var contentData = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(contentData, {
+    							'id': 'contentData',
+    							'class': args['contentData_Class']
+    						});
+    						contentElem.textContent = data_args['text_elem']
+    						contentData.textContent = data_args['text_data']
+    						if (data_args['type'] == 'tabular_data') {
+    							containerElem.appendChild(contentElem);
+    							containerElem.appendChild(contentData);
+    							content_Name.appendChild(containerElem);
+    						} else if (data_args['type'] == 'biodata') {
+    							callback(containerElem, contentElem, contentData);
+    						}
+    					})(data)
+
+    				}
+
+
+    				var type_report = args['get_text'][4]
+    				var data_report = args['get_text'][5]
+    				var data_report_employee = data_report['bio_employee']
+    				var data_report_suplier = data_report['bio_suplier']
+    				var tabular_employee = data_report['tabular_data_employee']
+    				var tabular_suplier = data_report['tabular_data_suplier']
+    				if (type_report == 'biodata'||type_report == 'Biodata') {
+    					if (data_report_employee) {
+
+    						var container_dataEmployee = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(container_dataEmployee, {
+    							'id': 'containerElem',
+    							'class': 'col-md-12'
+    						});
+    						var data_reportEmployee = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(data_reportEmployee, {
+    							'id': 'contentElem',
+    							'class': args['contentElem_Class']
+    						});
+    						var data_reportText = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(data_reportText, {
+    							'id': 'contentData',
+    							'class': args['contentData_Class']
+    						});
+
+    						data_reportEmployee.textContent = 'Employee :';
+    						var ul_bio = NA.common.doc.createElement('ul');
+    						NA.common.NA_setAttr(ul_bio, {
+    							'id': 'ul_container'
+    						});
+
+
+
+
+    						var create_elem_employee = function (i) {
+    							var bio = NA.common.doc.createElement('a');
+    							var li_bio = NA.common.doc.createElement('li');
+    							var ul_data_bio = NA.common.doc.createElement('ul');
+    							var li_bio_nik = NA.common.doc.createElement('li');
+    							var li_bio_typeapp = NA.common.doc.createElement('li');
+    							var li_bio_jobtype = NA.common.doc.createElement('li');
+    							var li_bio_gender = NA.common.doc.createElement('li');
+    							var li_bio_statusEmpl = NA.common.doc.createElement('li');
+    							var li_bio_telphp = NA.common.doc.createElement('li');
+    							var li_bio_territory = NA.common.doc.createElement('li');
+    							var li_bio_descriptions = NA.common.doc.createElement('li');
+    							var li_bio_inactive = NA.common.doc.createElement('li');
+    							NA.common.NA_setAttr(ul_data_bio, {
+    								'class': 'dropdown-menu triangle',
+    								'id': 'data-dropdown'
+    							});
+    							NA.common.NA_setAttr(li_bio, {
+    								'class': 'dropdown',
+    								'id': 'dropdown-bio'
+    							});
+    							NA.common.NA_setAttr(bio, {
+    								'href': '#',
+    								'class': 'dropdown-toggle',
+    								'data-toggle': 'dropdown'
+    							});
+
+    							var textBio = NA.common.doc.createTextNode(data_report_employee[i]['employee_name']);
+    							var text_nik = NA.common.doc.createTextNode('Nik :' + data_report_employee[i]['nik']);
+    							var text_typeapp = NA.common.doc.createTextNode('Type App :' + data_report_employee[i]['typeapp']);
+    							var text_jobtype = NA.common.doc.createTextNode('Job Type :' + data_report_employee[i]['jobtype']);
+    							var text_gender = NA.common.doc.createTextNode('Gender :' + data_report_employee[i]['gender']);
+    							var text_statusEmpl = NA.common.doc.createTextNode('Status :' + data_report_employee[i]['status']);
+    							var text_telphp = NA.common.doc.createTextNode('Telp/HP :' + data_report_employee[i]['telphp']);
+    							var text_territory = NA.common.doc.createTextNode('Territory :' + data_report_employee[i]['territory']);
+    							var text_descriptions = NA.common.doc.createTextNode('Descriptions :' + data_report_employee[i]['descriptions']);
+    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_employee[i]['inactive']);
+
+    							bio.appendChild(textBio);
+    							li_bio.appendChild(bio);
+    							li_bio_nik.appendChild(text_nik);
+    							li_bio_typeapp.appendChild(text_typeapp);
+    							li_bio_jobtype.appendChild(text_jobtype);
+    							li_bio_gender.appendChild(text_gender);
+    							li_bio_statusEmpl.appendChild(text_statusEmpl);
+    							li_bio_telphp.appendChild(text_telphp);
+    							li_bio_territory.appendChild(text_territory);
+    							li_bio_descriptions.appendChild(text_descriptions);
+    							li_bio_inactive.appendChild(text_inactive);
+    							ul_data_bio.appendChild(li_bio_nik);
+    							ul_data_bio.appendChild(li_bio_typeapp);
+    							ul_data_bio.appendChild(li_bio_jobtype);
+    							ul_data_bio.appendChild(li_bio_gender);
+    							ul_data_bio.appendChild(li_bio_statusEmpl);
+    							ul_data_bio.appendChild(li_bio_telphp);
+    							ul_data_bio.appendChild(li_bio_territory);
+    							ul_data_bio.appendChild(li_bio_descriptions);
+    							ul_data_bio.appendChild(li_bio_inactive);
+    							li_bio.appendChild(ul_data_bio);
+    							ul_bio.appendChild(li_bio)
+    							data_reportText.appendChild(ul_bio);
+    						}
+    						if (data_report_employee.length > 1) {
+    							for (var i = 0; i < data_report_employee.length; i++) {
+    								create_elem_employee(i);
+    							}
+    						} else if (data_report_employee.length == 1) {
+    							create_elem_employee(0)
+    						};
+    						container_dataEmployee.appendChild(data_reportEmployee);
+    						container_dataEmployee.appendChild(data_reportText);
+    						content_Name.appendChild(container_dataEmployee);
+
+    					};
+    					if (data_report_suplier) {
+    						var container_dataSuplier = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(container_dataSuplier, {
+    							'id': 'containerElem',
+    							'class': 'col-md-12'
+    						});
+    						var data_reportSuplier = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(data_reportSuplier, {
+    							'id': 'contentElem',
+    							'class': args['contentElem_Class']
+    						});
+    						var data_reportText = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(data_reportText, {
+    							'id': 'contentData',
+    							'class': args['contentData_Class']
+    						});
+
+    						data_reportSuplier.textContent = 'Suplier :';
+    						var ul_bio = NA.common.doc.createElement('ul');
+    						NA.common.NA_setAttr(ul_bio, {
+    							'id': 'ul_container'
+    						})
+    						var create_elem_suplier = function (i) {
+    							var bio = NA.common.doc.createElement('a');
+    							var li_bio = NA.common.doc.createElement('li');
+    							var ul_data_bio = NA.common.doc.createElement('ul');
+    							var li_bio_supliercode = NA.common.doc.createElement('li');
+    							var li_bio_supliername = NA.common.doc.createElement('li');
+    							var li_bio_telp = NA.common.doc.createElement('li');
+    							var li_bio_hp = NA.common.doc.createElement('li');
+    							var li_bio_contactperson = NA.common.doc.createElement('li');
+    							var li_bio_inactive = NA.common.doc.createElement('li');
+    							var li_bio_address = NA.common.doc.createElement('li');
+    							NA.common.NA_setAttr(ul_data_bio, {
+    								'class': 'dropdown-menu triangle',
+    								'id': 'data-dropdown'
+    							});
+    							NA.common.NA_setAttr(li_bio, {
+    								'class': 'dropdown',
+    								'id': 'dropdown-bio'
+    							});
+    							NA.common.NA_setAttr(bio, {
+    								'href': '#',
+    								'class': 'dropdown-toggle',
+    								'data-toggle': 'dropdown'
+    							});
+
+    							var textBio = NA.common.doc.createTextNode(data_report_suplier[i]['supliername']);
+    							var text_supliercode = NA.common.doc.createTextNode('Suplier Code :' + data_report_suplier[i]['supliercode']);
+    							var text_supliername = NA.common.doc.createTextNode('Suplier Name :' + data_report_suplier[i]['supliername']);
+    							var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_suplier[i]['telp']);
+    							var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_suplier[i]['hp']);
+    							var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_suplier[i]['contactperson']);
+    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_suplier[i]['inactive']);
+    							var text_address = NA.common.doc.createTextNode('Address :' + data_report_suplier[i]['address']);
+
+    							bio.appendChild(textBio);
+    							li_bio.appendChild(bio);
+    							li_bio_supliercode.appendChild(text_supliercode);
+    							li_bio_supliername.appendChild(text_supliername);
+    							li_bio_telp.appendChild(text_telp);
+    							li_bio_hp.appendChild(text_hp);
+    							li_bio_contactperson.appendChild(text_contactperson);
+    							li_bio_inactive.appendChild(text_inactive);
+    							li_bio_address.appendChild(text_address);
+    							ul_data_bio.appendChild(li_bio_supliercode);
+    							ul_data_bio.appendChild(li_bio_supliername);
+    							ul_data_bio.appendChild(li_bio_telp);
+    							ul_data_bio.appendChild(li_bio_hp);
+    							ul_data_bio.appendChild(li_bio_contactperson);
+    							ul_data_bio.appendChild(li_bio_inactive);
+    							ul_data_bio.appendChild(li_bio_address);
+    							li_bio.appendChild(ul_data_bio);
+    							ul_bio.appendChild(li_bio)
+    							data_reportText.appendChild(ul_bio);
+    						}
+    						if (data_report_suplier.length > 1) {
+    							for (var i = 0; i < data_report_suplier.length; i++) {
+    								create_elem_suplier(i);
+    							}
+    						} else if (data_report_suplier.length == 1) {
+    							create_elem_suplier(0)
+    						};
+    						container_dataSuplier.appendChild(data_reportSuplier);
+    						container_dataSuplier.appendChild(data_reportText);
+    						content_Name.appendChild(container_dataSuplier);
+    					}
+    				} else if (type_report == 'tabular_data' || type_report == 'Tabular Data') {
+
+    					var tabular_employee = data_report['tabular_data_employee']
+    					var tabular_suplier = data_report['tabular_data_suplier']
+    					var create_tabular = function (tabular) {
+    						var containerElm = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(containerElm, {
+    							'class': 'col-md-12',
+    							'id': 'containerElem'
+    						});
+    						var contentElem_t = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(contentElem_t, {
+    							'class': args['contentElem_Class'],
+    							'id': 'contentElem'
+    						});
+    						contentElem_t.textContent = tabular['textContent']
+    						var contentData_t = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(contentData_t, {
+    							'id': 'contentData',
+    							'class': args['contentData_Class']
+    						});
+    						contentData_t.textContent = tabular['textData'];
+    						containerElm.appendChild(contentElem_t);
+    						containerElm.appendChild(contentData_t);
+    						content_Name.appendChild(containerElm);
+    					};
+    					if (tabular_employee) {
+    						create_tabular({
+    							textContent: 'Total Employee :',
+    							textData: tabular_employee
+    						})
+    					};
+    					if (tabular_suplier) {
+    						create_tabular({
+    							textContent: 'Total Suplier :',
+    							textData: tabular_suplier
+    						})
+    					}
+    				}
+
+
+
+    			}
+
+    		}
+
+
+
+    		var inputLogEvent = NA.common.getElementID('searchLogEvent'),
+				btn_search_log = NA.common.getElementID('btnSearchLogEvent');
+    		function searchLog(event){
+    			NA.NAEvent.preventDefault(event);
+    			var targetValue = inputLogEvent.value;
+    			NA.common.AJAX.GET(url_logEvent() + '?' + win.encodeURIComponent('_Search') + '=' + true + '&' + win.encodeURIComponent('search') + '=' + targetValue, 'application/json', function (e) { window.document.body.style.cursor = 'wait'; },
+					  null,
+					  function (e) {//function executed after data has been returned by server(XHR.onload)
+					  	var data = JSON.parse(this.responseText);
+					  	if (data) {
+					  		$('#EventLogs').tree('loadData',data);
+					  	}
+					  }, null, function (e) {
+					  	throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+					  }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+					  null);
+    		};
+    		NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
+    			console.log(event);
+    			if(event.keyCode == 13){
+    				searchLog(event);
+    			}
+    		});
+    		NA.NAEvent.addHandler(btn_search_log,'click',function(event){
+    			searchLog(event);
+    		});
+    		var months = [
+				'January', 'February', 'March', 'April', 'May',
+				'June', 'July', 'August', 'September',
+				'October', 'November', 'December'
+    		];
+    		function retriveMonth(monthname) {
+    			var month = months.indexOf(monthname);
+    			return month ? month + 1 : 0;
+    		};
+    		using('tree', function () {
+    			$("#EventLogs").tree({
+    				url: url_logEvent(),
+    				method: 'get',
+    				animate: false,
+    				loadFilter: function (data, parent) {
+    					function forNodes(data, callback) {
+    						var nodes = [];
+    						for (var i = 0; i < data.length; i++) {
+    							nodes.push(data[i]);
+    						}
+    						while (nodes.length) {
+    							var node = nodes.shift();
+    							if (callback(node) == false) { return; }
+    							if (node.children) {
+    								for (var i = node.children.length - 1; i >= 0; i--) {
+    									nodes.unshift(node.children[i]);
+    								}
+    							}
+    						}
+    					};
+    					forNodes(data, function (node) {
+    						if (!node.children) {
+    							if (node.text.match(/Created/)) {
+    								node.iconCls = 'fa fa-plus';
+    							};
+    							if (node.text.match(/Updated/)) {
+    								node.iconCls = 'fa fa-pencil';
+    							};
+    							if (node.text.match(/Deleted/)) {
+    								node.iconCls = 'fa fa-trash';
+    							};
+    							if(node.text.match(/^Send/)){
+    								node.iconCls = 'fa fa-envelope'
+    							}
+    						};
+    						if (node.children) {
+    							if (node.text.match(/\d+ \w+ \d+/)) {
+    								node.state = 'closed'
+    								node.iconCls = 'fa fa-calendar'
+    							} else if (node.text.match(/^Log/)) {
+    								node.iconCls = 'fa fa-indent'
+    							} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
+    								node.iconCls = 'fa fa-calendar-o'
+    							}
+    						}
+
+    					});
+
+    					return data;
+    				},
+    				onClick: function (node) {
+    					if (!node.children) {
+    						var obj = $(node.target).parent()['context']['id']; //get id of the clicked object/node .. . :D
+    						var get_tanggal = $('#' + obj).parents().eq(1).prev().text(); //get date of the clicked object, by access parent of element .. . :D
+    						var dynamic_field = (get_tanggal + 'T' + get_waktu); //this is the default format time of the django, and can optional if change it .. . :D
+    						var descrModal = $('#mYmodal'); // Modal Log Descriptions
+    						var get_waktu = node.text.match(/\d+:\d+:\d+/);
+    						var get_year = get_tanggal.match(/\d{4}/),
                                 get_month = retriveMonth(get_tanggal.match(/\s\w+\s/).toString().trim()),
                                 get_day = get_tanggal.match(/\d{2}/);
-                            var get_clicked = get_year + '-' + get_month + '-' + get_day + 'T' + get_waktu;
-                            $.ajax({
-                                type: 'GET',
-                                url: url_logDesc() + '?createddate=' + get_clicked,
-                                dataType: 'json',
-                                success: function (data) {
-                                    if (data[0]['created']) {
-                                        var get_created = data[0]['created'];
-                                    } else if (data[0]['before']) {
-                                        var get_before = data[0]['before'];
-                                        var get_after = data[0]['after'];
-                                    } else if (data[0]['deleted']) {
-                                        var get_deleted = data[0]['deleted'];
-                                    } else if (data[0]['emailData']) {
-                                        var get_mailData = data[0]['emailData'];
-                                    };
-                                    // ===== Label for Display Log Event
-                                    function label_inactive(text){
-                                        if (text.indexOf('0') > -1){
-                                            var i_inactive = text.indexOf('0');
-                                            text[i_inactive] = 'No'
-                                        }else if(text.indexOf('1') > -1){
-                                            var i_active = text.indexOf('1');
-                                            text[i_active] = 'Yes'
-                                        };
-                                        return text
-                                    };
+    						var get_clicked = get_year + '-' + get_month + '-' + get_day + 'T' + get_waktu;
+    						$.ajax({
+    							type: 'GET',
+    							url: url_logDesc() + '?createddate=' + get_clicked,
+    							dataType: 'json',
+    							success: function (data) {
+    								if (data[0]['created']) {
+    									var get_created = data[0]['created'];
+    								} else if (data[0]['before']) {
+    									var get_before = data[0]['before'];
+    									var get_after = data[0]['after'];
+    								} else if (data[0]['deleted']) {
+    									var get_deleted = data[0]['deleted'];
+    								} else if (data[0]['emailData']) {
+    									var get_mailData = data[0]['emailData'];
+    								};
+    								// ===== Label for Display Log Event
+    								function label_inactive(text){
+    									if (text.indexOf('0') > -1){
+    										var i_inactive = text.indexOf('0');
+    										text[i_inactive] = 'No'
+    									}else if(text.indexOf('1') > -1){
+    										var i_active = text.indexOf('1');
+    										text[i_active] = 'Yes'
+    									};
+    									return text
+    								};
 
-                                    function label_empl() {
-                                        var txt_data = get_created;
-                                        if (txt_data.indexOf('M') > -1) {
-                                            var i_Male = txt_data.indexOf('M');
-                                            txt_data[i_Male] = 'Male';
-                                        }else if(txt_data.indexOf('F') > -1){
-                                            var i_Female = txt_data.indexOf('F');
-                                            txt_data[i_Female] = 'Female';
-                                        };
-                                        if (txt_data.indexOf('S') > -1) {
-                                            var i_Single = txt_data.indexOf('S');
-                                            txt_data[i_Single] = 'Single'
-                                        } else if (txt_data.indexOf('M') > -1) {
-                                            var i_Married = txt_data.indexOf('M');
-                                            txt_data[i_Married] = 'Married'
-                                        };
-                                        label_inactive(txt_data);
-                                        return txt_data
-                                    };
-                                    var match_created = node.text.match(/Created/);
-                                    var match_updated = node.text.match(/Updated/);
-                                    var match_deleted = node.text.match(/Deleted/);
-                                    var match_suplier = node.text.match(/Suplier/);
-                                    var match_employee = node.text.match(/Employee/);
-                                    var match_goods = node.text.match(/Goods/);
-                                    var match_mail = node.text.match(/Email/);
-                                    function removeNull(text) {
-                                        if ($('div#contentName').is(':visible')) {
-                                            if(text[text.length - 1] == null || text.length < $('div#contentElem').length){
-                                                $('div#contentElem:contains(Modified), div#contentData:contains(null), div#contentData:contains(undefined)').remove()
-                                            }
-                                        } else {
-                                            setTimeout(removeNull, 50); //wait 50 ms, then try again this is recursive function :D
-                                        }
-                                    };
-                                    var settings_default = {
-                                        title: 'Nufarm Log Event - Descriptions',
-                                        parentClass: 'col-md-12'
-                                    };
-                                    if (match_suplier) {
-                                        var settings_suplier = NA.common.AssignObject({
-                                            textToContent: ['Suplier Code :', 'Suplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                            contentElem_Class: 'col-md-4',
-                                            contentData_Class: 'col-md-7'
-                                        },settings_default)
-                                        if (match_created) {
-                                            var settings_suplier_create = NA.common.AssignObject({
-                                                get_text: label_inactive(get_created)
-                                            },settings_suplier)
-                                            showDescriptionsLog(settings_suplier_create)
-                                            removeNull(get_created);
-                                        } else if (match_updated) {
-                                            var settings_suplier_update = NA.common.AssignObject({
-                                                get_text: get_after,
-                                                mode: 'update',
-                                                text_after: get_after,
-                                                text_before: get_before
-                                            },settings_suplier)
-                                            showDescriptionsLog(settings_suplier_update)
+    								function label_empl() {
+    									var txt_data = get_created;
+    									if (txt_data.indexOf('M') > -1) {
+    										var i_Male = txt_data.indexOf('M');
+    										txt_data[i_Male] = 'Male';
+    									}else if(txt_data.indexOf('F') > -1){
+    										var i_Female = txt_data.indexOf('F');
+    										txt_data[i_Female] = 'Female';
+    									};
+    									if (txt_data.indexOf('S') > -1) {
+    										var i_Single = txt_data.indexOf('S');
+    										txt_data[i_Single] = 'Single'
+    									} else if (txt_data.indexOf('M') > -1) {
+    										var i_Married = txt_data.indexOf('M');
+    										txt_data[i_Married] = 'Married'
+    									};
+    									label_inactive(txt_data);
+    									return txt_data
+    								};
+    								var match_created = node.text.match(/Created/);
+    								var match_updated = node.text.match(/Updated/);
+    								var match_deleted = node.text.match(/Deleted/);
+    								var match_suplier = node.text.match(/Suplier/);
+    								var match_employee = node.text.match(/Employee/);
+    								var match_goods = node.text.match(/Goods/);
+    								var match_mail = node.text.match(/Email/);
+    								function removeNull(text) {
+    									if ($('div#contentName').is(':visible')) {
+    										if(text[text.length - 1] == null || text.length < $('div#contentElem').length){
+    											$('div#contentElem:contains(Modified), div#contentData:contains(null), div#contentData:contains(undefined)').remove()
+    										}
+    									} else {
+    										setTimeout(removeNull, 50); //wait 50 ms, then try again this is recursive function :D
+    									}
+    								};
+    								var settings_default = {
+    									title: 'Nufarm Log Event - Descriptions',
+    									parentClass: 'col-md-12'
+    								};
+    								if (match_suplier) {
+    									var settings_suplier = NA.common.AssignObject({
+    										textToContent: ['Suplier Code :', 'Suplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+    										contentElem_Class: 'col-md-4',
+    										contentData_Class: 'col-md-7'
+    									},settings_default)
+    									if (match_created) {
+    										var settings_suplier_create = NA.common.AssignObject({
+    											get_text: label_inactive(get_created)
+    										},settings_suplier)
+    										showDescriptionsLog(settings_suplier_create)
+    										removeNull(get_created);
+    									} else if (match_updated) {
+    										var settings_suplier_update = NA.common.AssignObject({
+    											get_text: get_after,
+    											mode: 'update',
+    											text_after: get_after,
+    											text_before: get_before
+    										},settings_suplier)
+    										showDescriptionsLog(settings_suplier_update)
 
-                                        } else if (match_deleted) {
-                                            var settings_suplier_delete = NA.common.AssignObject({
-                                                get_text: get_deleted
-                                            },settings_suplier)
-                                            showDescriptionsLog(settings_suplier_delete);
-                                            removeNull(get_deleted);
-                                        }
-                                    } else if (match_employee) {
-                                        var settings_employee = NA.common.AssignObject({
-                                            textToContent: ['Nik:', 'Employee Name :', 'Type App :', 'Jobtype :', 'Gender :', 'Status :', 'Telp/Hp :', 'Territory :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                            contentElem_Class: 'col-md-4',
-                                            contentData_Class: 'col-md-7'
-                                        }, settings_default)
-                                        if (match_created) {
-                                            var settings_employee_create = NA.common.AssignObject({
-                                                get_text: label_empl()
-                                            },settings_employee)
-                                            showDescriptionsLog(settings_employee_create)
-                                            removeNull(get_created);
-                                        } else if (match_updated) {
-                                            var settings_employee_update = NA.common.AssignObject({
-                                                get_text: get_after,
-                                                mode: 'update',
-                                                text_after: get_after,
-                                                text_before: get_before
-                                            }, settings_employee);
-                                            showDescriptionsLog(settings_employee_update);
-                                        } else if (match_deleted) {
-                                            var settings_employee_delete = NA.common.AssignObject({
-                                                mode: 'delete',
-                                                get_text: get_deleted
-                                            }, settings_employee);
-                                            showDescriptionsLog(settings_employee_delete);
-                                            removeNull(get_deleted);
-                                        }
+    									} else if (match_deleted) {
+    										var settings_suplier_delete = NA.common.AssignObject({
+    											get_text: get_deleted
+    										},settings_suplier)
+    										showDescriptionsLog(settings_suplier_delete);
+    										removeNull(get_deleted);
+    									}
+    								} else if (match_employee) {
+    									var settings_employee = NA.common.AssignObject({
+    										textToContent: ['Nik:', 'Employee Name :', 'Type App :', 'Jobtype :', 'Gender :', 'Status :', 'Telp/Hp :', 'Territory :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+    										contentElem_Class: 'col-md-4',
+    										contentData_Class: 'col-md-7'
+    									}, settings_default)
+    									if (match_created) {
+    										var settings_employee_create = NA.common.AssignObject({
+    											get_text: label_empl()
+    										},settings_employee)
+    										showDescriptionsLog(settings_employee_create)
+    										removeNull(get_created);
+    									} else if (match_updated) {
+    										var settings_employee_update = NA.common.AssignObject({
+    											get_text: get_after,
+    											mode: 'update',
+    											text_after: get_after,
+    											text_before: get_before
+    										}, settings_employee);
+    										showDescriptionsLog(settings_employee_update);
+    									} else if (match_deleted) {
+    										var settings_employee_delete = NA.common.AssignObject({
+    											mode: 'delete',
+    											get_text: get_deleted
+    										}, settings_employee);
+    										showDescriptionsLog(settings_employee_delete);
+    										removeNull(get_deleted);
+    									}
 
-                                    } else if (match_goods) {
-                                        var settings_goods = NA.common.AssignObject({
-                                            textToContent: ['Item Code :', 'Goods Name :', 'Brand Name :', 'Type App :', 'Price/Unit :', 'Depreciation :', 'Unit :', 'Economic Life :', 'Placement :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-                                            contentElem_Class: 'col-md-3',
-                                            contentData_Class: 'col-md-7'
-                                        }, settings_default);
-                                        if (match_created) {
-                                            var settings_goods_create = NA.common.AssignObject({
-                                                get_text: get_created
-                                            }, settings_goods);
-                                            showDescriptionsLog(settings_goods_create);
-                                            removeNull(get_created);
-                                        } else if (match_updated) {
-                                            var settings_goods_update = NA.common.AssignObject({
-                                                get_text: get_after,
-                                                mode: 'update',
-                                                text_after: get_after,
-                                                text_before: get_before
-                                            }, settings_goods);
-                                            showDescriptionsLog(settings_goods_update);
-                                        } else if (match_deleted) {
-                                            var settings_goods_delete = NA.common.AssignObject({
-                                                get_text: get_deleted,
-                                                mode: 'delete'
-                                            }, settings_goods);
-                                            showDescriptionsLog(settings_goods_delete);
-                                            removeNull(get_deleted);
-                                        }
-                                    } else if (match_mail) {
-                                        showDescriptionsLog({
-                                            title: 'Nufarm Log Event - Descriptions',
-                                            textToContent: ['To :','From :', 'Subject :', 'Message :', 'Type Report :'],
-                                            parentClass: 'col-md-12',
-                                            contentElem_Class: 'col-md-4',
-                                            contentData_Class:'col-md-7',
-                                            get_text: get_mailData,
-                                            mode: 'emailData'
-                                        });
-                                    }
+    								} else if (match_goods) {
+    									var settings_goods = NA.common.AssignObject({
+    										textToContent: ['Item Code :', 'Goods Name :', 'Brand Name :', 'Type App :', 'Price/Unit :', 'Depreciation :', 'Unit :', 'Economic Life :', 'Placement :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+    										contentElem_Class: 'col-md-3',
+    										contentData_Class: 'col-md-7'
+    									}, settings_default);
+    									if (match_created) {
+    										var settings_goods_create = NA.common.AssignObject({
+    											get_text: get_created
+    										}, settings_goods);
+    										showDescriptionsLog(settings_goods_create);
+    										removeNull(get_created);
+    									} else if (match_updated) {
+    										var settings_goods_update = NA.common.AssignObject({
+    											get_text: get_after,
+    											mode: 'update',
+    											text_after: get_after,
+    											text_before: get_before
+    										}, settings_goods);
+    										showDescriptionsLog(settings_goods_update);
+    									} else if (match_deleted) {
+    										var settings_goods_delete = NA.common.AssignObject({
+    											get_text: get_deleted,
+    											mode: 'delete'
+    										}, settings_goods);
+    										showDescriptionsLog(settings_goods_delete);
+    										removeNull(get_deleted);
+    									}
+    								} else if (match_mail) {
+    									showDescriptionsLog({
+    										title: 'Nufarm Log Event - Descriptions',
+    										textToContent: ['To :','From :', 'Subject :', 'Message :', 'Type Report :'],
+    										parentClass: 'col-md-12',
+    										contentElem_Class: 'col-md-4',
+    										contentData_Class:'col-md-7',
+    										get_text: get_mailData,
+    										mode: 'emailData'
+    									});
+    								}
 
-                                }
-                            })
-                        }
+    							}
+    						})
+    					}
 
-                    }
+    				}
 
-                });
-            });
-         });
-      </script>
-                           <!--================================================= End Script Log Event =============================================== -->
-                           <!--====================Jquery untuk menu============================ -->
-                           <script>
-                               $(function () {
-                                   $("div.sidebar ul li a").click(function (event) {
-                                       if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
-                                           $(this).find($(".fa")).removeClass('fa-angle-down');
-                                           $(this).find($(".pull-right")).addClass('fa-angle-up');
-                                       }
-                                       else if ($(this).find($(".fa")).hasClass('fa-angle-up')) {
-                                           $(this).find($(".fa")).removeClass('fa-angle-up');
-                                           $(this).find($(".pull-right")).addClass('fa-angle-down');
-                                       }
-                                       else if ($(this).find($(".fa")).hasClass('fa-angle-left')) {
-                                           $(this).find($(".fa")).removeClass('fa-angle-left');
-                                           $(this).find($(".pull-right")).addClass('fa-angle-right');
-                                           $('div.sidebar').css('flex', '0 1 auto');
-                                           $('div.sidebar').toggleClass('fliph');
-                                       }
-                                       else if ($(this).find($(".fa")).hasClass('fa-angle-right')) {
-                                           $(this).find($(".fa")).removeClass('fa-angle-right');
-                                           $(this).find($(".pull-right")).addClass('fa-angle-left');
-                                           $('.sidebar').css('flex', '0 0 173px');
-                                           $('.sidebar').toggleClass('fliph');
-                                       }
-                                   });
-                               });
-                           </script>
-<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
-                           <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
-                       </body>
+    			});
+    		});
+    	});
+    </script>
+    <!--================================================= End Script Log Event =============================================== -->
+    <!--====================Jquery untuk menu============================ -->
+    <script>
+    	$(function () {
+    		$("div.sidebar ul li a").click(function (event) {
+    			if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
+    				$(this).find($(".fa")).removeClass('fa-angle-down');
+    				$(this).find($(".pull-right")).addClass('fa-angle-up');
+    			}
+    			else if ($(this).find($(".fa")).hasClass('fa-angle-up')) {
+    				$(this).find($(".fa")).removeClass('fa-angle-up');
+    				$(this).find($(".pull-right")).addClass('fa-angle-down');
+    			}
+    			else if ($(this).find($(".fa")).hasClass('fa-angle-left')) {
+    				$(this).find($(".fa")).removeClass('fa-angle-left');
+    				$(this).find($(".pull-right")).addClass('fa-angle-right');
+    				$('div.sidebar').css('flex', '0 1 auto');
+    				$('div.sidebar').toggleClass('fliph');
+    			}
+    			else if ($(this).find($(".fa")).hasClass('fa-angle-right')) {
+    				$(this).find($(".fa")).removeClass('fa-angle-right');
+    				$(this).find($(".pull-right")).addClass('fa-angle-left');
+    				$('.sidebar').css('flex', '0 0 173px');
+    				$('.sidebar').toggleClass('fliph');
+    			}
+    		});
+    	});
+    </script>
+    <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+</body>
 </html>
