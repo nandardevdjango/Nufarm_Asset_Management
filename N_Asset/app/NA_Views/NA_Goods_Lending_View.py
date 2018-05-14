@@ -1,10 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpRequest
-from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
 from NA_Models.models import NAGoodsLending
-from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
@@ -14,11 +12,9 @@ from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
-from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
-from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal

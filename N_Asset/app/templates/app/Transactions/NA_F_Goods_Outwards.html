@@ -1,0 +1,408 @@
+﻿{% extends "../../app/layout.html" %}
+{% block SearchData %}
+{% for itemCombo in populateColumn %}
+<li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
+{% endfor %}
+
+{% endblock %}
+
+{% block javascriptAndUI %}
+<!--================================Load Script Modules NA ===========================================-->
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<!--=======================================================================================================-->
+<script type="text/javascript">
+(function () {
+	var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+	var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
+	if (!NA.common.getElementID('CustomSearch')) {
+		var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+		lastLi = NA.common.doc.createElement('li'),
+		lastLi_a = NA.common.doc.createElement('a');
+		lastLi_a.setAttribute('id', 'custSearch');
+		lastLi_a.textContent = 'CustomSearch';
+		lastLi.appendChild(lastLi_a);
+		parentC.appendChild(lastLi);
+	}
+	//=================add Dynamic Styles=============================
+	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
+	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
+	var doc = doc || window.document;
+	var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+	(function (elm) {
+		var listElem = elm.children;
+		var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+		var numPlaceHolder = 'enter numeric type';
+		var boolPlaceHolder = 'true/false/1/0';
+		Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+			NA.NAEvent.addHandler(item, 'click', function (event) {
+				event.preventDefault();
+				if (item.firstChild.id === 'custSearch') {
+					//=========='show dialog search'==================
+					NA.common.dialog.createSearchDialog(event)
+					txtSearchMaster.setAttribute('disabled', true);
+					txtSearchMaster.setAttribute('placeholder', '');
+					txtSearchMaster.value = '';
+					btnSearchMaster.setAttribute('disabled', true)
+				}
+				else {
+					txtSearchMaster.removeAttribute('disabled');
+					btnSearchMaster.removeAttribute('disabled');
+					var textSearch = NA.common.getElementID('bySearch');
+					textSearch.firstChild.nodeValue = item.textContent;
+					var elSearch = item.firstChild;
+					switch (elSearch.dataset.tipe) {
+						case "varchar":
+						case "nchar":
+						case "char":
+						case "nvarchar": {
+							txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+							break;
+						}
+						case "boolean": {
+							txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+							break;
+						}
+						case "int":
+						case "integer":
+						case "decimal":
+						case "floatt":
+						case "bigint": {
+							txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+							break;
+						}
+						case "datetime": {
+							txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+							break;
+						}
+					}
+				}
+				//event.stopImmediatePropagation();
+			});
+		});
+
+		NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+			//get textcontent IDbySearch
+			//looping dropdown li a textContent
+			var SearchByText = NA.common.getElementID('bySearch').textContent;
+			var elSearch = null;
+			Array.prototype.forEach.call(listElem, function (item) {
+				if (item.firstChild.text == SearchByText) {
+					elSearch = item.firstChild;
+					return;
+				}
+			});
+			switch (elSearch.dataset.tipe) {
+				case "varchar":
+				case "nchar":
+				case "char":
+				case "nvarchar": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== defPlaceHolder) {
+							this.setAttribute('placeholder', defPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "boolean": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== boolPlaceHolder) {
+							this.setAttribute('placeholder', boolPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "int":
+				case "integer":
+				case "decimal":
+				case "floatt":
+				case "bigint": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== numPlaceHolder) {
+							this.setAttribute('placeholder', numPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "datetime": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== datePlaceHolder) {
+							this.setAttribute('placeholder', datePlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+			}
+		});
+		NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+			if (this.value === '') {
+				if (this.getAttribute('placeholder') !== '') {
+					this.setAttribute('placeholder', '');
+				}
+			}
+		});
+
+	})(DivSearch);
+});
+</script>
+<!--SETUP Jquery grid-->
+<!-- The jQuery library is a prerequisite for all jqSuite products -->
+<script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
+
+<!-- This is the Javascript file of jqGrid -->
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
+
+<!-- This is the localization file of the grid controlling messages, labels, etc. -->
+<!-- We support more than 40 localizations -->
+<script src="../../../static/app/scripts/grid.locale-en.js"></script>
+<!----------------------------Load Jquery UI. JS file-------------------------------->
+<script src="../../../static/app/scripts/jquery-ui.js"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+{% endblock %}
+
+{%block content-0 %}
+<style>
+    div#content-0 {
+        overflow: hidden;
+    }
+    div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div#jqGrid_NA_F_Goods_Outwards_Pager, div.ui-jqgrid-titlebar {
+        border-radius: 0px;
+    }
+</style>
+<table id="jqGrid_NA_F_Goods_Outwards" style="overflow:auto"></table>
+<div id="jqGrid_NA_F_Goods_Outwards_Pager" class="scroll" style="text-align:center;"></div>
+
+{% endblock %}
+
+{% block DialogEntry %}
+<script type="text/javascript">
+	(function () {
+		//=================================AJAX Setup pake jquery===========================-->
+		$.ajaxSetup({
+			cache: false,
+			error: function (xhr, status, error) {
+				try {
+					var messageErr = xhr.responseText;
+					var contentype = xhr.getResponseHeader('Content-Type')
+					if (contentype === 'application/json') {
+						messageErr = $.parseJSON(xhr.responseText);
+					}
+					var message = xhr.responseText;
+					if (messageErr) {
+						message = messageErr.message;
+					}
+					if (message) {
+						ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
+					}
+
+				} catch (e) {
+					ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
+				}
+				window.document.body.style.cursor = 'defautl'; return false;
+			},
+			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
+			type: 'GET',
+			crossDomain: false, // obviates need for sameOrigin test                              
+		});
+
+		//===================================END AJAX SetuP===========================--> 
+		//csrf token untuk form
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		};
+		$.ajaxPrefilter(function (options) {
+			// Always add "?debug=1" to every URL
+			options.beforeSend = function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type)) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken());
+				}
+			}
+		});
+		//Load Data grid
+		function LoadData(page) {
+			var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+                   '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+                   '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+                   '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+			if (arguments.length > 0) {
+				grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
+			}
+			else {
+				try {
+
+				} catch (e) {
+					ShowAlert(e.message);
+					console.log(e);
+					document.body.style.cursor = 'default';
+				}
+				$("div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+					'width': 'inherit'
+				})
+			}		
+		};
+
+		var SearchData = NA.common.SearchData;
+		SearchData.setDefaultSearchData('goods', 'varchar', 'like');
+		LoadData();
+
+		NA.common.doc.title = 'Entry Data Goods Outwards';
+		//disablekan save dan help karena saat ini tidak di pakai
+		btnSave.setAttribute('disable', true);
+		btnHelp.setAttribute('disable', true);
+		NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
+		NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css", "CommonEntry");//Load Style buat form sebelum di pakai
+		NA.common.dialog.initDialog(containerMenu, 'Nufarm Entry Goods Outwards - Transactions');//inistialisasi menu
+
+		//==========================GROUP Function Declaration================================
+		function GetServerFormatDate(parsedDate) {//dd/mm/yy value -->yyyy-mm-dd
+			var d = new Date(parsedDate),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+			if (month.length < 2) month = '0' + month;
+			if (day.length < 2) day = '0' + day;
+
+			return [year, month, day].join('-');
+		};
+		function formatDate(theDate) {//date/month/year
+			var date = new Date(theDate),
+              year = date.getFullYear(),
+              month = (date.getMonth() + 1).toString(),
+              formatedMonth = (month.length === 1) ? ("0" + month) : month,
+              day = date.getDate().toString(),
+              formatedDay = (day.length === 1) ? ("0" + day) : day;
+			return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
+		};
+
+		function getGridCellValue(thegrid, CeltoGet) {
+			var reccount = thegrid.jqGrid('getGridParam', 'reccount');
+			var rowId, rowData, colData;
+			if (reccount > 0) {
+				rowId = thegrid.jqGrid('getGridParam', 'selrow');
+				if (rowId) {
+					rowData = thegrid.getRowData(rowId);
+					colData = rowData[CeltoGet];
+				}
+			}
+			return colData;
+		};
+		function showConfirmation(message, title, callbackYess, calBackNO) {
+			BootstrapDialog.confirm({
+				title: title || NA.common.message.titleInfo,
+				message: message,
+				type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+				size: BootstrapDialog.SIZE_SMALL,
+				animate: false,
+				cssClass: 'login-dialog',
+				closeByBackdrop: false,
+				closeByKeyboard: false,
+				closable: false, // <-- Default value is false
+				draggable: true, // <-- Default value is false
+				btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
+				btnOKLabel: 'Yes.', // <-- Default value is 'OK',
+				btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
+				callback: function (result) {
+					// result will be true if button was click, while it will be false if users close the dialog directly.
+					if (result) {
+						if (callbackYess) {
+							callbackYess();
+						}
+						return true;
+					}
+					else {
+						if (calBackNO) {
+							calBackNO();
+						}
+					}
+				},
+				onshown: function (dialogRef) {
+					NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons button.btn.btn-success').focus();
+				}
+			});
+		};
+		function ShowAlert(message, title, callbackFunc, calbackOnHide) {
+			return BootstrapDialog.alert({
+				title: title || NA.common.message.titleInfo,
+				message: message,
+				size: (message.length > 200) ? BootstrapDialog.SIZE_NORMAL : BootstrapDialog.SIZE_SMALL,
+				//animate:false,
+				cssClass: 'login-dialog',
+				closeByBackdrop: false,
+				closeByKeyboard: false,
+				type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+				closable: false, // <-- Default value is false
+				draggable: true, // <-- Default value is false
+				buttonLabel: 'OK', // <-- Default value is 'OK',
+				callback: function (result) {
+					// result will be true if button was click, while it will be false if users close the dialog directly.
+					if (result) {
+						if (callbackFunc) {
+							callbackFunc();
+						}
+						return true;
+					}
+				},
+				onhidden: function (dialogRef) {
+					if (calbackOnHide) {
+						calbackOnHide();
+					}
+				}
+			});
+		};
+		function XhrError(xhr) {
+			try {
+				var messageErr = xhr.responseText;
+				var contentype = xhr.getResponseHeader('Content-Type')
+				if (contentype === 'application/json') {
+					messageErr = JSON.parse(xhr.responseText);
+				}
+				var message = xhr.responseText;
+				if (messageErr) {
+					message = messageErr.message;
+					if (message.indexOf('!DOCTYPE html') > 0) {
+						//error bawaan dari python django
+						//redirect to error web
+						//untuk sekarang tampilkan saja error codenya saja
+						ShowAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+						document.body.style.cursor = 'default';
+						return false;
+					}
+					else if (xhr.status >= 500) {
+						ShowAlert('Unknown Server error occurred: ' + '\n' + message + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+						document.body.style.cursor = 'default';
+						return false;
+					}
+					else if (message) {
+						ShowAlert('An error occurred: ' + message);
+					}
+					else {
+						ShowAlert('An error occurred: ' + messageErr);
+					}
+				}
+				else if (message) {
+					ShowAlert('An error occurred: ' + message);
+				}
+				document.body.style.cursor = 'default';
+			} catch (e) {
+				ShowAlert('An error occurred: ' + e + '\n' + e.message);
+				document.body.style.cursor = 'default';
+			}
+			return false;
+		};
+		function EraseElHidden() {
+			var UlHiddenAuto = NA.common.doc.querySelector('ul.ui-menu.ui-widget.ui-widget-content.ui-autocomplete.ui-front');
+			var divAutoComplete = NA.common.doc.querySelector('div.ui-helper-hidden-accessible');
+			if (UlHiddenAuto) { UlHiddenAuto.parentNode.removeChild(UlHiddenAuto); }
+			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
+		};
+
+	});
+</script>
+{% endblock %}
