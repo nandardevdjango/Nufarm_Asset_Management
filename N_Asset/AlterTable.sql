@@ -355,3 +355,5 @@ ALTER TABLE `n_a_goods_lost`
 ALTER TABLE n_a_goods_Outwards DROP COLUMN Qty;
 ALTER TABLE n_a_goods_outwards ADD FK_Return INT(11) NULL;
 ALTER TABLE n_a_goods_outwards ADD FK_Receive INT(11) NULL;
+ALTER TABLE n_a_goods_outwards ADD createdby VARCHAR(100) NOT NULL;
+ALTER TABLE n_a_goods_outwards ADD createddate DATETIME NOT NULL;
