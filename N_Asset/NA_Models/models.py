@@ -8,6 +8,7 @@ from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
+from NA_DataLayer.NA_Goods_Return_BR import NA_BR_Goods_Return
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 from django.contrib.auth.models import AbstractUser
@@ -258,6 +259,7 @@ class NAGoodsReturn(models.Model):
     modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)  # Field name made lowercase.
     modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)  # Field name made lowercase.
 
+    objects = NA_BR_Goods_Return()
     class Meta:
         managed = True
         db_table = 'n_a_goods_return'

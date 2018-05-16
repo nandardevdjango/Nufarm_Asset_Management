@@ -47,7 +47,7 @@ class NA_BR_GoodsLost(models.Manager):
         cur = connection.cursor()
         cur.execute("DROP TEMPORARY TABLE IF EXISTS T_GoodsLost_Manager")
         #rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-        Query = """CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS(SELECT gls.idapp, gls.fk_fromgoods, gls.serialnumber,
+        Query = """CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS(SELECT gls.idapp, gls.fromgoods, gls.serialnumber,
         em.employee_name AS lost_by,gls.datelost, gls.reason, gls.fk_goods_outwards,gls.fk_goods_lending,
         gls.descriptions, gls.createddate, gls.createdby, CONCAT(g.goodsname, ' ',g.brandname, ' ',gls.typeapp) as goods, g.itemcode 
         FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON gls.fk_goods = g.idapp LEFT JOIN employee em ON gls.fk_lostby = em.idapp)""" # INNER JOIN  n_a_goods_outwards ngo ON 
@@ -57,23 +57,23 @@ class NA_BR_GoodsLost(models.Manager):
         cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager)""")
         if cur.fetchone()[0] == 0:
             return Data.Empty
-        check_exists_outwards = False
-        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GO\')""")
-        if cur.fetchone()[0] > 0:
-            check_exists_outwards = True
-        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GL\')""")
-        check_exists_lending = False
-        if cur.fetchone()[0] > 0:
-            check_exists_lending = True
-        cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fk_fromgoods=\'GM\')""")
-        check_exists_maintenance = False
-        if cur.fetchone()[0] > 0:
-            check_exists_maintenance = True
-        Query_orig = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
-        Query = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
-        if check_exists_outwards:
-            Query = Query + """LEFT OUTER JOIN n_a_goods_outwards ngo ON tgm.fk_goods_outwards = ngo.idapp 
-            AND tgm.fk_fromgoods = \'GO\' INNER JOIN employee em ON ngo.fk_employee = em.idapp"""
+        #check_exists_outwards = False
+        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GO\')""")
+        #if cur.fetchone()[0] > 0:
+        #    check_exists_outwards = True
+        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GL\')""")
+        #check_exists_lending = False
+        #if cur.fetchone()[0] > 0:
+        #    check_exists_lending = True
+        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GM\')""")
+        #check_exists_maintenance = False
+        #if cur.fetchone()[0] > 0:
+        #    check_exists_maintenance = True
+        #Query_orig = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
+        #Query = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
+        #if check_exists_outwards:
+        #    Query = Query + """LEFT OUTER JOIN n_a_goods_outwards ngo ON tgm.fk_goods_outwards = ngo.idapp 
+        #    AND tgm.fk_fromgoods = \'GO\' INNER JOIN employee em ON ngo.fk_employee = em.idapp"""
         #if check_exists_outwards and check_exists_lending:
         #    Query = Query + """ UNION """ + Query_orig
         #if check_exists_lending:
@@ -82,9 +82,8 @@ class NA_BR_GoodsLost(models.Manager):
         #if check_exists_maintenance:
         #    Query = Query + """INNER JOIN n_a_goods_lending ngl ON tgm.fk_goods_lending = ngl.idapp 
         #    AND tgm.fk_fromgoods = \'GL\' INNER JOIN employee em ON ngl.fk_employee = em.idapp"""
-        cur.execute(Query)
+        #cur.execute(Query)
         result = query.dictfetchall(cur)
-        print(Query)
         #cur.close()
         return result
 

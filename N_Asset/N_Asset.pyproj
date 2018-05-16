@@ -46,6 +46,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\NA_Goods_Receive_View.py" />
+    <Compile Include="app\NA_Views\NA_Goods_Return_View.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\NA_Views\NA_Goods_View.py">
       <SubType>Code</SubType>
     </Compile>
@@ -81,6 +84,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
+    <Compile Include="NA_DataLayer\NA_Goods_Return_BR.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="NA_DataLayer\NA_Maintenance_BR.py" />
     <Compile Include="NA_DataLayer\NA_Priviledge_BR.py" />
     <Compile Include="NA_DataLayer\NA_Suplier.py">
@@ -195,6 +201,7 @@
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Return.html" />
     <Content Include="app\templates\app\UserControl\customFilter.html" />
     <Content Include="NA_DataLayer\common.py" />
     <Content Include="requirements.txt" />
