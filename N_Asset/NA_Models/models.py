@@ -7,6 +7,7 @@ from NA_DataLayer.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierMa
 from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
+from NA_DataLayer.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
 from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
@@ -218,7 +219,7 @@ class NAGoodsOutwards(models.Model):
     class Meta:
         managed = True
         db_table = 'n_a_goods_outwards'
-
+    objects = NA_BR_Goods_Outwards()
 
 class NAGoodsReceive(models.Model):
 	idapp = models.AutoField(db_column='IDApp', primary_key=True)

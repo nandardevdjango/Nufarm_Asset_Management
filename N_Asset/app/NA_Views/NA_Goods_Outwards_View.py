@@ -35,7 +35,7 @@ def NA_Goods_Outwards(request):
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Outwards.html',{'populateColumn':populate_combo})
-def NA_Goods_Lending_Search(request):
+def NA_Goods_Outwards_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
 		IvalueKey =  request.GET.get('valueKey')

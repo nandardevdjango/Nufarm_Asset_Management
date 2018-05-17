@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.NA_Views import NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,\
  NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,NA_Maintenance_View,\
- NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View,NA_Priviledge_View
+ NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,NA_Goods_Lending_View,NA_Priviledge_View,NA_Goods_Outwards_View
 import app.views
 from django.views.generic import RedirectView
 # Uncomment the next lines to enable the admin:
@@ -90,6 +90,10 @@ urlpatterns = [
 	url(r'^NA_Goods_Lending/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
 	url(r'^NA_Goods_Lending/SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
 	url(r'^NA_Goods_Lending/customFilter/$',NA_Goods_Lending_View.ShowCustomFilter,name='SowCustomFilter_Lending'),
+
+    #NA_Goods_Outwards
+    url(r'NA_Goods_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='GoodsOutwards'),
+    url(r'NA_Goods_Outwards/NA_Goods_Outwards_Search/$',NA_Goods_Outwards_View.NA_Goods_Outwards_Search,name='GoodsOutwardManager'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

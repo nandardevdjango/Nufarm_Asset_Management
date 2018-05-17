@@ -344,11 +344,16 @@
                             cm = $self.jqGrid("getGridParam", "colModel");
 							if (cm[iCol].name === "status") {
 								var ostatus = $(e.target).text;
-								if (ostatus == 'Return') {oriStatus = "R"
+								if (ostatus == 'Return') {
+									oriStatus = "R"
 								} else { oriStatus = "L" }
+								grid.setGridParam({ cellEdit: true, cellsubmit: 'clientArray' });
+							}
+							else {
+								grid.setGridParam({ cellEdit: false, cellsubmit: 'clientArray' });
 							}
 						},
-						cellEdit: true,cellsubmit:'clientArray',
+						//cellEdit: true,cellsubmit:'clientArray',
 						gridComplete: function () {
 							document.body.style.cursor = 'default';
 						},

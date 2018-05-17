@@ -147,7 +147,7 @@
 		});
 
 	})(DivSearch);
-});
+})();
 </script>
 <!--SETUP Jquery grid-->
 <!-- The jQuery library is a prerequisite for all jqSuite products -->
@@ -277,16 +277,51 @@
 							{ name: 'fk_sender', index: 'fk_sender', hidden: true, },
 							{ name: 'senderby', index: 'senderby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_stock', index: 'fk_stock', hidden: true, },
-							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'right', },
+							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'left', },
 							{ name: 'descriptions', index: 'descriptions', width: 140, sortable: true, editable: false, align: 'left', },
                             { name: 'createddate', index: 'createddate', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
 						],
+						ondblClickRow: function (rowId) {
+							//var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
+							//if (btnOpen) {
+							//	btnOpen.click();
+							//}
+						},
+						gridComplete: function () {
+							document.body.style.cursor = 'default';
+						},
+						loadError: function (xhr, st, err) {
+							win.document.body.style.cursor = 'default'; XhrError(xhr);
+						},
+						//cellEdit: false,
+						height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
+						rowNum: 300,
+						rowList: [20, 50, 100, 200, 300, 500],
+						sortname: "idapp",
+						sortorder: "desc",
+						multiSort: true,
+						shrinkToFit: false,
+						iconSet: "fontAwesome",
+						forceFit: true,
+						toolbar: true,
+						scrollrows: true,
+						hidegrid: true,
+						caption: "Transactions ---Goods Outwards",
+						pager: "#jqGrid_NA_F_Goods_Outwards_Pager"
 					});
+					grid.navGrid("#jqGrid_NA_F_Goods_Outwards_Pager", {
+						search: false, // show search button on the toolbar
+						add: false,
+						edit: false,
+						del: false,
+						refresh: true
+					});
+
 				} catch (e) {
 					ShowAlert(e.message);
 					console.log(e);
-					document.body.style.cursor = 'default';
+					win.document.body.style.cursor = 'default';
 				}
 				$("div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
 					'width': 'inherit'
@@ -450,6 +485,6 @@
 			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
 		};
 
-	});
+	})();
 </script>
 {% endblock %}

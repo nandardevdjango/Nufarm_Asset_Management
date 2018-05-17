@@ -37,26 +37,26 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Outwards_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		"""  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
-			nga.isnew,nga.fk_employee,e.employee_name as for_employee,nga.fk_usedemployee,
-			CASE 
-				WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
-				END AS eks_employee,nga.fk_responsibleperson,emp1.responsible_by,nga.fk_sender,emp2.senderby,nga.fk_stock,
-			ref.refgoodsfrom,nga.createdby,nga.createddate,nga.descriptions
-			FROM n_a_goods_outwards nga INNER JOIN n_a_goods g ON g.IDApp = nga.FK_Goods 
-			INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = nga.FK_Goods
-			INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
-			AND nga.SerialNumber = ngd.SerialNumber
-			INNER JOIN (SELECT ng.IDApp,CASE
-									WHEN (ng.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'
-									WHEN (ng.FK_RETURN IS NOT NULL) THEN 'RETURN Eks Employee'
-									WHEN (ng.FK_FromMaintenance IS NOT NULL) THEN 'After Service(Maintenance)'
-									WHEN (ng.FK_Lending IS NOT NULL) THEN 'RETURN (After being Lent)'
-									ELSE 'Other (Uncategorized)'
-									END AS refgoodsfrom FROM n_a_goods_Outwards ng)ref ON Ref.IDApp = nga.IDApp
-				INNER JOIN employee e on e.IDApp = nga.FK_Employee
-				LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp1 ON emp1.idapp = nga.FK_ResponsiblePerson
-				LEFT OUTER JOIN (SELECT idapp,employee_name AS senderby FROM employee) emp2 ON emp2.idapp = nga.FK_Sender WHERE """ + colKey + rs.Sql() + ")"
+		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
+		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,nga.fk_usedemployee,
+		        CASE 
+			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
+			        END AS eks_employee,nga.fk_responsibleperson,emp1.responsible_by,nga.fk_sender,emp2.senderby,nga.fk_stock,
+		        ref.refgoodsfrom,nga.createdby,nga.createddate,nga.descriptions
+		        FROM n_a_goods_outwards nga INNER JOIN n_a_goods g ON g.IDApp = nga.FK_Goods 
+		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = nga.FK_Goods
+		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
+		        AND nga.SerialNumber = ngd.SerialNumber
+		        INNER JOIN (SELECT ng.IDApp,CASE
+								        WHEN (ng.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'
+								        WHEN (ng.FK_RETURN IS NOT NULL) THEN 'RETURN Eks Employee'
+								        WHEN (ng.FK_FromMaintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+								        WHEN (ng.FK_Lending IS NOT NULL) THEN 'RETURN (After being Lent)'
+								        ELSE 'Other (Uncategorized)'
+								        END AS refgoodsfrom FROM n_a_goods_Outwards ng)ref ON Ref.IDApp = nga.IDApp
+			        INNER JOIN employee e on e.IDApp = nga.FK_Employee
+			        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp1 ON emp1.idapp = nga.FK_ResponsiblePerson
+			        LEFT OUTER JOIN (SELECT idapp,employee_name AS senderby FROM employee) emp2 ON emp2.idapp = nga.FK_Sender WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
 		strLimit = '300'
 		if int(PageIndex) <= 1:
