@@ -9,7 +9,7 @@ from django import forms
 from datetime import datetime
 
 def NA_Goods_Return(request):
-    return render(request,'app/MasterData/NA_F_Goods_Return.html')
+    return render(request,'app/Transactions/NA_F_Goods_Return.html')
 def NA_Goods_ReturnGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey =  request.GET.get('valueKey')
@@ -21,7 +21,12 @@ def NA_Goods_ReturnGetData(request):
     Ipage = request.GET.get('page')
     criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
     dataType = ResolveCriteria.getDataType(IdataType)
-    getColumn = commonFunct.retriveColumn(table=[NAGoodsReturn,goods],resolve=IcolumnName,initial_name=['m','g'])
+    getColumn = commonFunct.retriveColumn(
+        table=[NAGoodsReturn,goods],
+        resolve=IcolumnName,
+        initial_name=['ngr','g','emp1','emp2'],
+        custom_fields=[['fromemployee'],['usedemployee']]
+        )
     maintenanceData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
     totalRecords = len(maintenanceData)
     paginator = Paginator(maintenanceData,Ilimit)
@@ -33,9 +38,9 @@ def NA_Goods_ReturnGetData(request):
     i = 0
     for row in dataRows.object_list:
         i+=1
-        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['requestdate'],\
-            row['startdate'],row['isstillguarantee'],row['expense'],row['maintenanceby'],row['personalname'],row['enddate'],row['issucced'],\
-            row['descriptions'],row['createddate'],row['createdby']]}
+        #idapp,fk_goods,datereturn,condition,fk_fromemployee,fk_usedemployee,iscompleted,minus,fk_goods_lend,descriptions,createddate,createdby
+        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['serialnumber'],row['fromemployee'],\
+            row['usedemployee'],row['datereturn'],row['minusDesc'],row['iscompleted'],row['descriptions'],row['createddate'],row['createdby']]}
         rows.append(datarow)
     results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecords,"rows": rows }
     return HttpResponse(json.dumps(results,cls=DjangoJSONEncoder),content_type='application/json')
