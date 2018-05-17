@@ -26,7 +26,7 @@ def NA_Goods_ReturnGetData(request):
         resolve=IcolumnName,
         initial_name=['ngr','g','emp1','emp2'],
         custom_fields=[['fromemployee'],['usedemployee']]
-        )
+    )
     maintenanceData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
     totalRecords = len(maintenanceData)
     paginator = Paginator(maintenanceData,Ilimit)
@@ -38,50 +38,53 @@ def NA_Goods_ReturnGetData(request):
     i = 0
     for row in dataRows.object_list:
         i+=1
-        #idapp,fk_goods,datereturn,condition,fk_fromemployee,fk_usedemployee,iscompleted,minus,fk_goods_lend,descriptions,createddate,createdby
-        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['serialnumber'],row['fromemployee'],\
-            row['usedemployee'],row['datereturn'],row['minusDesc'],row['iscompleted'],row['descriptions'],row['createddate'],row['createdby']]}
+        datarow = {
+            "id" :row['idapp'], "cell" :[
+                row['idapp'],i,row['goods'],row['serialnumber'],row['fromemployee'],row['usedemployee'],row['datereturn'],
+                row['conditions'],row['minusDesc'],row['iscompleted'],row['descriptions'],row['createddate'],row['createdby']
+                ]
+            }
         rows.append(datarow)
     results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecords,"rows": rows }
     return HttpResponse(json.dumps(results,cls=DjangoJSONEncoder),content_type='application/json')
 
 def getFormData(request,form):
     clData = form.cleaned_data
-    data = {'fk_goods':clData['fk_goods'],'typeApp':clData['typeApp'],'serialNum':clData['serialNum'],'itemcode':clData['itemcode'],'goods':clData['goods'],
-            'requestdate':clData['requestdate'],'startdate':clData['startdate'],'isstillguarantee':clData['isstillguarantee'],'expense':clData['expense'],
-            'maintenanceby':clData['maintenanceby'],'personalname':clData['personalname'],'issucced':clData['issucced'],'enddate':clData['enddate'],
-            'descriptions':clData['descriptions']}
+    data = {
+        'fk_goods':clData['fk_goods'],'typeApp':clData['typeApp'],'serialNumber':clData['serialNumber'],'itemcode':clData['itemcode'],'goods':clData['goods'],
+        'requestdate':clData['requestdate'],'startdate':clData['startdate'],'isstillguarantee':clData['isstillguarantee'],'expense':clData['expense'],
+        'maintenanceby':clData['maintenanceby'],'personalname':clData['personalname'],'issucced':clData['issucced'],'enddate':clData['enddate'],
+        'descriptions':clData['descriptions']
+        }
     return data
 class NA_Goods_Return_Form(forms.Form):
     fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
-    itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Item code','style':'width:110px;'}))
-    goods = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
-    typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'type of goods','style':'width:110px;'}))
-    serialNum = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:180px;'}))
-    minus = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:228px;'}))
-    requestdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Request Date','style':'width:110px;'}))
-    startdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Start Date','style':'width:110px;'}))
-    isstillguarantee = forms.BooleanField(required=False,widget=forms.CheckboxInput(attrs={
-        'style':'margin-left:15px;position:absolute','disabled':'disabled'}))
-    expense = forms.DecimalField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Expense','style':'width:180px;'}))
-    maintenanceby = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Maintenance By','style':'width:228px;'}))
-    personalname = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Personal Name','style':'width:180px;'}))
-    issucced = forms.BooleanField(required=False,widget=forms.CheckboxInput(attrs={
-        'style':'margin-left:15px;position:absolute'}))
-    enddate = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'End Date','style':'width:110px;'}))
-    descriptions = forms.CharField(required=True,widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:415px;height:45px;max-width:415px'}))
+    itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','placeholder':'Item code','style':'width:110px;'}))
+    goods = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
+    typeApp = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'type of goods','style':'width:110px;'}))
+    serialNumber = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:180px;'}))
+    fromemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee','style':'width:180px;'}))
+    usedemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:180px;'}))
+    datereturn = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','placeholder':'Date Return','style':'width:110px;'}))
+    condition = forms.ChoiceField(widget=forms.Select(
+        attrs={'class': 'NA-Form-Control select','style':'width:256px;margin-left:auto;'}),choices=(
+            ('SL', 'Straight Line Method'),('DDB','Double Declining Balance'),
+            ('STYD','Sum of The Year Digit'),
+            ('SH','Service Hours')
+            ))
+    minus = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:228px;'}))
+    iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
+        attrs={'style':'margin-left:15px;position:absolute'}))
+    descriptions = forms.CharField(required=True,widget=forms.Textarea(
+        attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:415px;height:45px;max-width:415px'}))
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def Entry_GoodsReturn(request):
@@ -119,10 +122,10 @@ def Entry_GoodsReturn(request):
                 data[1][0]['startdate'] = data[1][0]['startdate'].strftime('%d/%m/%Y')
                 data[1][0]['enddate'] = data[1][0]['enddate'].strftime('%d/%m/%Y')
                 form = NA_Goods_Return_Form(initial=data[1][0])
-                return render(request,'app/MasterData/NA_Entry_Maintenance.html',{'form':form})
+                return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
         else:
             form = NA_Goods_Return_Form()
-        return render(request,'app/MasterData/NA_Entry_Maintenance.html',{'form':form})
+        return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
 
 def Delete_M_data(request):
     if request.user.is_authenticated() and request.method == 'POST':

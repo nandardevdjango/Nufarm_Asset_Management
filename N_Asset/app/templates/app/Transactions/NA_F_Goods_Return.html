@@ -102,21 +102,23 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp', 'No', 'Goods', 'Item code','Serial Number', 'Request Date', 'Start Date', 'Is Still Guarantee', 'Expense', 'Maintenance By', 'Personal Name', 'End Date', 'Is Succed', 'Descriptions', 'Createddate', 'Createdby'],
+					//idapp,goods,serialnumber,fromemployee,usedemployee,datereturn,condition,minus,iscompleted,fk_goods_lend,descriptions,createddate,createdby
+                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'From Employee', 'Used Employee', 'Date Return', 'Condition', 'Minus', 'Is Completed', 'Descriptions', 'Descriptions', 'Createddate', 'Createdby'],
                     colModel: [
                         { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true, editoptions: { dataInit: function (element) { jq(element).attr("readonly", "readonly"); } } },
                         { name: 'no', index: 'no', width: 45, align: 'center' },
                         { name: 'goods', index: 'goodsname', width: 150, editable: true, search: false, sortable: true },
-                        //{ name: 'brandname', index: 'brandname', width: 150, editable: true, sortable: true },
-                        { name: 'itemcode', index: 'typeapp', width: 80, align: 'left', editable: false, search: false },
                         { name: 'serialnumber', index: 'serialnumber', width: 150, align: 'left', editable: false, search: false },
+						{ name: 'fromemployee', index: 'fromemployee', width: 150, align: 'left', editable: false, search: false },
+						{ name: 'usedemployee', index: 'usedemployee', width: 150, align: 'left', editable: false, search: false },
                         {
-                            name: 'requestdate', index: 'requestdate', width: 110, align: 'left', formatter: 'date',
+                            name: 'datereturn', index: 'datereturn', width: 110, align: 'left', formatter: 'date',
                             formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
                         },
-                        { name: 'startdate', index: 'startdate', width: 110, align: 'left', editable: true, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+						{ name: 'condition', index: 'condition', width: 150, align: 'left', editable: false, search: false },
+						{ name: 'minus', index: 'minus', width: 150, align: 'left', editable: false, search: false },
                         {
-                            name: 'isstillguarantee', index: 'isstillguarante', width: 110, editable: true, search: false,
+                            name: 'iscompleted', index: 'iscompleted', width: 110, editable: true, search: false,
                             formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' },align:'center'
                         },
                         {
@@ -125,21 +127,11 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 decimalPlaces: 2, prefix: "Rp "
                             }
                         },
-                        { name: 'maintenanceby', index: 'maintenanceby', width: 120, editable: false },
-                        { name: 'personalname', index: 'personalname', width: 120, editable: false },
-                        {
-                            name: 'enddate', index: 'enddate', width: 120, editable: false, formatter: 'date',
-                            formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
-                        },
-                        {
-                            name: 'issucced', index: 'issucced', width: 120, editable: false,align:'center',
-                            formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' }
-                        },
                         { name: 'descriptions', index: 'descriptions', width: 200, editable: true, search: false },
                         {
                             name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false,
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' }
-                        },//,formatter: "date",formatoptions: { srcformat: "ISO8601Long", newformat: "Y/m/d H:i" }
+                        },
                         { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false, editoptions: { dataInit: function (element) { jq(element).attr("readonly", "readonly"); } } },
                     ],
                     jsonreader: {

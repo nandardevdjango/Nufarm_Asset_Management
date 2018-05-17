@@ -25,66 +25,26 @@ class NA_BR_GoodsLost(models.Manager):
         elif criteria==CriteriaSearch.Like:
             filterfield = columnKey + '__icontains'
 
-        #qs = super(NA_BR_GoodsLost,self).get_queryset().annotate(goods=Concat(F('fk_goods__goodsname'), Value(' '), \
-        #                                                                    F('fk_goods__brandname'), Value(' '), F('fk_goods__typeapp')),
-        #                                                         itemcode=F('fk_goods__itemcode'),
-        #                                                         lost_by=Case(When(fk_lostby=None,then=Value('N/A')),
-        #                                                                      default=F('fk_lostby__employee_name'),
-        #                                                                      output_field=CharField()))
-        #_getGoods_lending = qs.select_related('fk_goods_lending').annotate(used_by=F('fk_goods_lending__fk_employee__employee_name'),
-        #                                                               resp_person=F('fk_goods_lending__fk_responsibleperson__employee_name')).values(
-        #                                                                   'idapp','goods','itemcode','serialnumber','fk_fromgoods','used_by','lost_by',
-        #                                                                   'resp_person','descriptions','createddate','createdby')
-        #_getGoods_outwards = qs.select_related('fk_goods_outwards').annotate(used_by=F('fk_goods_outwards__fk_employee__employee_name'),
-        #                                                               resp_person=F('fk_goods_outwards__fk_responsibleperson__employee_name')).values(
-        #                                                                   'idapp','goods','itemcode','serialnumber','fk_fromgoods','used_by','lost_by','resp_person',
-        #                                                                   'descriptions','createddate','createdby')
-        #_getMaintenance = qs.select_related('fk_maintenance').annotate(used_by=F('fk_goods_maintenance__fk_employee__employee_name'),
-        #                                                               resp_person=F('fk_goods_outwards__fk_responsibleperson__employee_name')).values(
-        #                                                                   'idapp','goods','itemcode','serialnumber','fk_fromgoods','used_by','lost_by','resp_person',
-        #                                                                   'descriptions','createddate','createdby')
-        #goods_data = _getGoods_lending.union(_getGoods_outwards)
+      
         cur = connection.cursor()
         cur.execute("DROP TEMPORARY TABLE IF EXISTS T_GoodsLost_Manager")
-        #rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
+        rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
         Query = """CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS(SELECT gls.idapp, gls.fromgoods, gls.serialnumber,
-        em.employee_name AS lost_by,gls.datelost, gls.reason, gls.fk_goods_outwards,gls.fk_goods_lending,
-        gls.descriptions, gls.createddate, gls.createdby, CONCAT(g.goodsname, ' ',g.brandname, ' ',gls.typeapp) as goods, g.itemcode 
-        FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON gls.fk_goods = g.idapp LEFT JOIN employee em ON gls.fk_lostby = em.idapp)""" # INNER JOIN  n_a_goods_outwards ngo ON 
-        #gls.fk_goods_outwards=ngo.idapp AND gls.fk_goods_outwards IS NOT NULL WHERE
-        #Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + " " + sord + ")"
+        em.employee_name AS lost_by,gls.datelost, gls.reason,gls.descriptions, gls.createddate, gls.createdby, 
+        CONCAT(g.goodsname, ' ',g.brandname, ' ',gls.typeapp) as goods, g.itemcode,emp1.used_by,emp2.resp_person 
+        FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON gls.fk_goods = g.idapp LEFT JOIN employee em ON gls.fk_lostby = em.idapp
+        LEFT OUTER JOIN (SELECT idapp,employee_name AS used_by FROM employee) AS emp1 ON gls.fk_usedby = emp1.idapp
+        LEFT OUTER JOIN (SELECT idapp,employee_name AS resp_person FROM employee) AS emp2 ON gls.fk_responsibleperson = emp2.idapp
+        WHERE """
+        Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + " " + sord + ")"
         cur.execute(Query)
         cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager)""")
         if cur.fetchone()[0] == 0:
             return Data.Empty
-        #check_exists_outwards = False
-        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GO\')""")
-        #if cur.fetchone()[0] > 0:
-        #    check_exists_outwards = True
-        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GL\')""")
-        #check_exists_lending = False
-        #if cur.fetchone()[0] > 0:
-        #    check_exists_lending = True
-        #cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager WHERE fromgoods=\'GM\')""")
-        #check_exists_maintenance = False
-        #if cur.fetchone()[0] > 0:
-        #    check_exists_maintenance = True
-        #Query_orig = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
-        #Query = """SELECT tgm.*,em.employee_name AS used_by FROM T_GoodsLost_Manager tgm """
-        #if check_exists_outwards:
-        #    Query = Query + """LEFT OUTER JOIN n_a_goods_outwards ngo ON tgm.fk_goods_outwards = ngo.idapp 
-        #    AND tgm.fk_fromgoods = \'GO\' INNER JOIN employee em ON ngo.fk_employee = em.idapp"""
-        #if check_exists_outwards and check_exists_lending:
-        #    Query = Query + """ UNION """ + Query_orig
-        #if check_exists_lending:
-        #    Query = Query + """OUTER JOIN n_a_goods_lending ngl ON tgm.fk_goods_lending = ngl.idapp 
-        #    AND tgm.fk_fromgoods = \'GL\' INNER JOIN employee em ON ngl.fk_employee = em.idapp"""
-        #if check_exists_maintenance:
-        #    Query = Query + """INNER JOIN n_a_goods_lending ngl ON tgm.fk_goods_lending = ngl.idapp 
-        #    AND tgm.fk_fromgoods = \'GL\' INNER JOIN employee em ON ngl.fk_employee = em.idapp"""
-        #cur.execute(Query)
+        Query = """SELECT * FROM T_GoodsLost_Manager"""
+        cur.execute(Query)
         result = query.dictfetchall(cur)
-        #cur.close()
+        cur.close()
         return result
 
     def SaveData(self, statusForm=StatusForm.Input, **data):
@@ -98,7 +58,7 @@ class NA_BR_GoodsLost(models.Manager):
             else:
                 Params['CreatedDate'] = data['createddate']
                 Params['CreatedBy'] = data['createdby']
-                Query = """INSERT INTO n_a_goods_lost(fk_goods, fk_fromgoods, serialnumber, typeapp, fk_goods_outwards,fk_goods_lending,fk_maintenance,fk_lostby,reason,descriptions,
+                Query = """INSERT INTO n_a_goods_lost(fk_goods, fromgoods, serialnumber, typeapp, fk_goods_outwards,fk_goods_lending,fk_maintenance,fk_lostby,reason,descriptions,
                 createddate, createdby) VALUES(%(FK_Goods)s, %(FK_FromGoods)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Goods_Outwards)s, %(FK_Goods_Lending)s, %(FK_Maintenance)s, %(FK_LostBy)s,
                 %(Reason)s,%(Descriptions)s, %(CreatedDate)s, %(CreatedBy)s)"""
         elif statusForm == StatusForm.Edit:
@@ -106,7 +66,7 @@ class NA_BR_GoodsLost(models.Manager):
             Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
             Params['Status'] = data['status_goods']
-            Query = """UPDATE n_a_goods_lost SET fk_goods=%(FK_Goods)s, fk_fromgoods=%(FK_FromGoods)s, serialnumber=%(SerialNumber)s,typeapp=%(TypeApp)s,
+            Query = """UPDATE n_a_goods_lost SET fk_goods=%(FK_Goods)s, fromgoods=%(FK_FromGoods)s, serialnumber=%(SerialNumber)s,typeapp=%(TypeApp)s,
             fk_goods_outwards=%(FK_Goods_Outwards)s, fk_goods_lending=%(FK_Goods_Lending)s, fk_maintenance=%(FK_Maintenance)s,fk_lostby=%(FK_LostBy)s,
             status=%(Status)s,descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,modifiedby=%(ModifiedBy)s
             WHERE idapp = %(IDApp)s"""

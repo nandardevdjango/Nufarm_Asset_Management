@@ -37,7 +37,7 @@ def NA_GoodsLost_GetData(request):
     i = 0
     for row in dataRows.object_list:
         i +=1
-        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['fk_fromgoods'],row['used_by'],\
+        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['fromgoods'],row['used_by'],\
             row['lost_by'],row['resp_person'],row['descriptions'],row['createddate'],row['createdby']]}
         rows.append(datarow)
     results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
