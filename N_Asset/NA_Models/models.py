@@ -201,25 +201,7 @@ class goods(models.Model):
 		return self.goodsname
 
 
-class NAGoodsOutwards(models.Model):
-    idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
-    isnew = models.IntegerField(db_column='IsNew')  # Field name made lowercase.
-    qty = models.IntegerField(db_column='Qty', blank=True, null=True)  # Field name made lowercase.
-    daterequest = models.DateTimeField(db_column='DateRequest')  # Field name made lowercase.
-    datereleased = models.DateTimeField(db_column='DateReleased')  # Field name made lowercase.
-    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50, blank=True, null=True,related_name='used_by_outwards')  # Field name made lowercase.
-    fk_usedemployee = models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    fk_frommaintenance = models.IntegerField(db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
-    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='resp_person_outwards')  # Field name made lowercase.
-    fk_sender = models.CharField(db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
-    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
 
-    class Meta:
-        managed = True
-        db_table = 'n_a_goods_outwards'
-    objects = NA_BR_Goods_Outwards()
 
 class NAGoodsReceive(models.Model):
 	idapp = models.AutoField(db_column='IDApp', primary_key=True)
@@ -309,32 +291,57 @@ class NAStock(models.Model):
         managed = True
         db_table = 'n_a_stock'
 class NAGoodsLending(models.Model):
-	idapp = models.AutoField(db_column='IDApp', primary_key=True)
-	fk_goods = models.ForeignKey(goods,db_column='FK_Goods')
-	isnew = models.IntegerField(db_column='IsNew')
-	fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', related_name='fk_gl_employee_used_by')
-	datelending = models.DateField(db_column='DateLending', blank=True, null=True)
-	fk_stock = models.ForeignKey(NAStock, db_column='FK_Stock',related_name='fk_gl_stock')
-	fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', blank=True, null=True,related_name='fk_gl_employee_resp_person')
-	interests = models.CharField(db_column='interests', max_length=150, blank=True, null=True)
-	fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
-	statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
-	createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
-	createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
-	modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
-	modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
-	typeapp = models.CharField(db_column='TypeApp',max_length=32)
-	serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
-	fk_maintenance = models.ForeignKey(NAMaintenance, db_column="FK_Maintenance", blank=True, null=True,related_name='fk_gl_maintenance')
-	fk_return = models.ForeignKey(NAGoodsReturn, db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
-	fk_receive = models.ForeignKey(NAGoodsReceive, db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
-	fk_currentapp =models.ForeignKey('self', db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
-	lastinfo = models.CharField(db_column='lastinfos', max_length=150, blank=True, null=True) 
-	descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)  # Field name made lowercase.
-	class Meta:
-		managed = True
-		db_table = 'n_a_goods_lending'
-	objects = NA_BR_Goods_Lending()
+    idapp = models.AutoField(db_column='IDApp', primary_key=True)
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods')
+    isnew = models.IntegerField(db_column='IsNew')
+    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', related_name='fk_gl_employee_used_by')
+    datelending = models.DateField(db_column='DateLending', blank=True, null=True)
+    fk_stock = models.ForeignKey(NAStock, db_column='FK_Stock',related_name='fk_gl_stock')
+    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', blank=True, null=True,related_name='fk_gl_employee_resp_person')
+    interests = models.CharField(db_column='interests', max_length=150, blank=True, null=True)
+    fk_sender = models.ForeignKey(Employee,db_column='FK_Sender',  blank=True, null=True,related_name='fk_gl_employee_sender')
+    statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
+    createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+    modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
+    typeapp = models.CharField(db_column='TypeApp',max_length=32)
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+    fk_maintenance = models.ForeignKey(NAMaintenance, db_column="FK_Maintenance", blank=True, null=True,related_name='fk_gl_maintenance')
+    fk_return = models.ForeignKey(NAGoodsReturn, db_column='FK_RETURN',blank=True,null=True,related_name='fk_gl_goods_return')
+    fk_receive = models.ForeignKey(NAGoodsReceive, db_column='FK_Receive',blank=True,null=True,related_name='fk_gl_goods_receive')
+    fk_currentapp =models.ForeignKey('self', db_column='FK_CurrentApp',blank=True,null=True,related_name='fk_gl_parent')
+    lastinfo = models.CharField(db_column='lastinfos', max_length=150, blank=True, null=True) 
+    descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)  # Field name made lowercase.
+
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_goods_lending'
+    objects = NA_BR_Goods_Lending()
+class NAGoodsOutwards(models.Model):
+    idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    isnew = models.BooleanField(db_column='IsNew')  # Field name made lowercase.
+    daterequest = models.DateTimeField(db_column='DateRequest')  # Field name made lowercase.
+    datereleased = models.DateTimeField(db_column='DateReleased')  # Field name made lowercase.
+    fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50, blank=True, null=True,related_name='used_by_outwards')  # Field name made lowercase.
+    fk_usedemployee = models.ForeignKey(Employee,db_column,'FK_UsedEmployee',related_name='rel_used_employee_outwards',null=True)# models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_frommaintenance = models.ForeignKey(Employee, 'rel_maintenance_outwards',db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
+    fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='rel_resp_person_outwards')  # Field name made lowercase.
+    fk_sender = models.ForeignKey(Employee,'rel_sender_outwards', db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_stock = models.ForeignKey(NAStock,related_name='rel_stock_outwards', db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
+    typeapp = models.CharField(db_column='TypeApp',max_length='32')
+    fk_lending = models.ForeignKey(NAGoodsLending,db_column='FK_Lending',related_name='rel_lending_outwards')
+    fk_return = models.ForeignKey(NAGoodsLending,db_column='FK_Return',related_name='rel_return_outwards',null=True)
+    fk_receive = models.ForeignKey(NAGoodsReceive,db_column='FK_Receive',related_name='rel_receive_outward',null=True)
+    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+    modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)
+    class Meta:
+        managed = True
+        db_table = 'n_a_goods_outwards'
+    objects = NA_BR_Goods_Outwards()
 class NAGoodsLost(models.Model):
     idapp = models.AutoField(db_column='IDApp',primary_key=True)
     fk_goods = models.ForeignKey(goods,db_column='FK_Goods')

@@ -70,3 +70,56 @@ def NA_Goods_Outwards_Search(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+class NA_Goods_Outwards_Form(forms.Form):
+    idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
+    isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)
+    goods = forms.CharField(max_length=100,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																					    'placeholder': 'goods name','data-value':'goods name','tittle':'goods name is required'}))
+    idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_employee = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
+                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+    idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																						    'placeholder': 'employee who uses goods','data-value':'employee who uses goods','tittle':'employee who uses goods is required'}))
+    daterequest = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
+                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date request','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
+    datereleased = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
+                                'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
+  
+
+    fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
+                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+    idapp_fk_responsibleperson = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+
+    fk_responsibleperson_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																						    'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
+    fk_sender = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
+                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':3,
+                                    'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+    idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																			    'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
+    descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
+  																	    'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
+    fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+
+    #info
+    fk_usedemployee = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=False)
+    idapp_fk_usedemployee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_usedemployee_employee = forms.CharField(max_length=100, widget=forms.HiddenInput(),required=False)
+    lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
+    typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
+    serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
+                                    'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)   
+    brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
+
+    fk_frommaintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_lending = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+  
+    initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
+    hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
