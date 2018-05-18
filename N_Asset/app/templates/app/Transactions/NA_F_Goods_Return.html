@@ -372,17 +372,14 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             fk_goods: qs('input#id_fk_goods').value.trim(),
             itemcode: qs('input#id_itemcode').value.trim(),
             goods: qs('input#id_goods').value.trim(),
-            typeApp: qs('input#id_typeApp').value.trim(),
-            serialNum: qs('input#id_serialNum').value.trim(),
+            serialNumber: qs('input#id_serialNumber').value.trim(),
             minus: qs('input#id_minus').value.trim(),
-            requestdate: qs('input#id_requestdate').value.trim(),
-            startdate: qs('input#id_startdate').value.trim(),
-            isstillguarantee: qs('input#id_isstillguarantee').checked,
-            maintenanceby: qs('input#id_maintenanceby').value.trim() === '' ? 'N/A' : qs('input#id_maintenanceby').value.trim(),
-            personalname: qs('input#id_personalname').value.trim() === '' ? 'N/A' : qs('input#id_personalname').value.trim(),
-            expense: qs('input#id_expense').value.trim().split(',').join(''),
-            enddate: qs('input#id_enddate').value.trim(),
-            issucced: qs('input#id_issucced').checked,
+            idapp_usedemployee: qs('input#id_idapp_usedemployee').value.trim(),
+            idapp_fromemployee: qs('input#id_idapp_fromemployee').value.trim(),
+            datereturn: qs('input#id_datereturn').value.trim(),
+            condition: qs('select#id_condition').value.trim(),
+			iscompleted:qs('input#id_iscompleted').checked,
+            minus: qs('input#id_minus').value.trim(),
             descriptions: qs('textarea#id_descriptions').value.trim()
         };
         return data
@@ -478,16 +475,14 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         return [year, month, day].join('-');
     };
     status = status || window.status
-    function MaintenanceSubmit() {
+    function G_ReturnSubmit() {
         var dialog = qs("div.containerDialog");
         function sendData() {
             var valuesForm = getValues_Form()
             var format_date = function (date) {
                 return $.datepicker.parseDate('dd/mm/yy', date)
             };
-            valuesForm['requestdate'] = GetServerFormatDate(format_date(valuesForm['requestdate']));
-            valuesForm['startdate'] = GetServerFormatDate(format_date(valuesForm['startdate']));
-            valuesForm['enddate'] = GetServerFormatDate(format_date(valuesForm['enddate']));
+            valuesForm['datereturn'] = GetServerFormatDate(format_date(valuesForm['datereturn']));
             var idapp;
             if (win.status.trim() == 'Edit') {
                 idapp = getGridId()
@@ -508,7 +503,8 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     },
                     data: sendData(),
                     success: function (data) {
-                        $('div.containerDialog, div#dropSheet').remove()
+                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                    	NA.common.dialog.closeDialog(dialog);
                         goods_return_grid.trigger('reloadGrid');
                         if (status.trim() == 'Add' || status.trim() == 'Edit') {
                             setTimeout(function () {
@@ -539,11 +535,11 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
                         //NA.NAEvent.preventDefault(event);                                          
-                        var inputbtn = NA.common.getElementID('maintenance_submit');
+                        var inputbtn = NA.common.getElementID('gReturn_submit');
                         inputbtn.click();
                     }
                     else {
-                        MaintenanceSubmit();
+                        G_ReturnSubmit();
                     }
                     break;
                 }
@@ -559,10 +555,10 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 function () {
                                     if (!frmEntry.checkValidity()) {
                                         //NA.NAEvent.preventDefault(event);   
-                                        var inputbtn = NA.common.getElementID('maintenance_submit');
+                                        var inputbtn = NA.common.getElementID('gReturn_submit');
                                         inputbtn.click();
                                     } else {
-                                        MaintenanceSubmit();
+                                        G_ReturnSubmit();
                                     }
                                 },
                                 function () {

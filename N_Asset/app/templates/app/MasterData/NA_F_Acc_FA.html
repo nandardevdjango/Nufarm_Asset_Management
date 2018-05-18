@@ -516,7 +516,8 @@ div#gbox_NA_Acc_grid,div#gview_NA_Acc_grid,div#NA_Acc_pager,div.ui-jqgrid-titleb
                     },
                     data: sendData(),
                     success: function (data) {
-                        $('div.containerDialog, div#dropSheet').remove()
+                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                    	NA.common.dialog.closeDialog(dialog);
                         acc_grid.trigger('reloadGrid');
                         setTimeout(function () {
                             acc_grid.setSelection(data['message'], true)

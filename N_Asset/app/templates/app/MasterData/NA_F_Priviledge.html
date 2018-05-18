@@ -482,7 +482,8 @@
             },
             data: sendData(),
             success: function (data) {
-                $('div.containerDialog, div#dropSheet').remove()
+            	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+            	NA.common.dialog.closeDialog(dialog);
                 priviledge_grid.trigger('reloadGrid');
                 setTimeout(function () {
                     priviledge_grid.setSelection(data['message'], true)

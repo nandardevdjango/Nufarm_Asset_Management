@@ -501,7 +501,8 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     },
                     data: sendData(),
                     success: function (data) {
-                        $('div.containerDialog, div#dropSheet').remove()
+                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                    	NA.common.dialog.closeDialog(dialog);
                         employee_grid.trigger('reloadGrid');
                         if (status.trim() == 'Add' || status.trim() == 'Edit') {
                             setTimeout(function () {
