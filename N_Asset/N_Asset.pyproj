@@ -199,6 +199,7 @@
     <Content Include="app\templates\app\Search\BySearch.html" />
     <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Lending.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Return.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Return.html" />
