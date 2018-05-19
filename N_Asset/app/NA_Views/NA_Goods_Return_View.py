@@ -61,23 +61,23 @@ def getFormData(request,form):
 class NA_Goods_Return_Form(forms.Form):
     fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
     itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','placeholder':'Item code','style':'width:150px;'}))
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:110px;'}))
     goods = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:150px;'}))
+        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'serial number','style':'width:325px;'}))
     fromemployee = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
     nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'nik','style':'width:150px;'}))
+        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:110px;'}))
     usedemployee = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:210px;'}))
     nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'nik','style':'width:150px;'}))
+        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:110px;'}))
     datereturn = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','placeholder':'Date Return','style':'width:110px;'}))
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:110px;'}))
     condition = forms.ChoiceField(widget=forms.Select(
-        attrs={'class': 'NA-Form-Control select','style':'width:120px;margin-left:auto;'}),
+        attrs={'class': 'NA-Form-Control select inline-field','style':'width:110px;margin-left:auto;'}),
                                   choices=(
                                       ('C1', 'Condition 1'),
                                       ('C2', 'Condition 2'),
@@ -85,11 +85,11 @@ class NA_Goods_Return_Form(forms.Form):
                                       )
                                   )
     minus = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','placeholder':'minus','style':'width:210px;'}))
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'minus','style':'width:325px;'}))
     iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
         attrs={'style':'margin-left:15px;position:absolute'}))
     descriptions = forms.CharField(required=True,widget=forms.Textarea(
-        attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:365px;height:45px;max-width:365px'}))
+        attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:426px;height:45px;max-width:426px;max-height:90px;'}))
     idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
     idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)

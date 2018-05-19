@@ -1,17 +1,16 @@
 ﻿<style>
-	div.containerDialog{
-		width:410px;
+    .inline-field {
+		display:inline-block
 	}
 </style>
-<form action="ShowEntry/" method="post" style="width:420px;height:365px;" id="gReturn_form" onsubmit="return false">
+<form action="ShowEntry/" method="post" style="max-height:365px;" id="gReturn_form" onsubmit="return false">
     {% csrf_token %}
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_itemcode" class="NA-Entry-label;">Item code</label>
+            <label for="id_itemcode" class="inline-field" style="margin-right: 36px;">Item code</label>
             {{ form.itemcode }}
         </div>
         <div class="NA-Entry-inlinve-div">
-            <label for="id_goods" class="NA-Entry-label;">Search goods</label>
             <div class="input-group" style="display: inline-flex; width: 210px;">
                 {{ form.goods }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
@@ -23,33 +22,28 @@
 
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_minus">Used By</label>
+            <label for="id_nik_usedemployee" class="inline-field" style="margin-right: 46px;">Used By</label>
             {{form.nik_usedemployee}}
         </div>
         <div class="NA-Entry-inlinve-div">
-            <label for="id_serialNum">Employee</label>
             {{form.usedemployee}}
         </div>
     </div>
 
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_serialNum">Serial Number</label>
+            <label for="id_serialNum" class="inline-field" style="margin-right: 10px;">Serial Number</label>
             {{form.serialNumber}}
         </div>
-        <div class="NA-Entry-inlinve-div">
-            <label for="id_minus">Minus</label>
-            {{form.minus}}
-        </div>
+        
     </div>
 
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_itemcode" class="NA-Entry-label;">From Employee</label>
+            <label for="id_itemcode" class="inline-field" style="margin-right: 36px;">Return By</label>
             {{ form.nik_fromemployee }}
         </div>
         <div class="NA-Entry-inlinve-div">
-            <label for="id_goods" class="NA-Entry-label;">Employee</label>
             <div class="input-group" style="display: inline-flex; width: 210px;">
                 {{ form.fromemployee }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
@@ -61,20 +55,28 @@
 
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_enddate" class="NA-Entry-label;">Date Return</label>
-            {{ form.datereturn }}
-        </div>
-        <div class="NA-Entry-inlinve-div">
-            <label for="id_personalname">Condition</label>
+            <label for="id_condition" class="inline-field" style="margin-right: 39px;">Condition</label>
             {{ form.condition }}
         </div>
-        <div class="NA-Entry-inlinve-div">
-            <label for="id_maintenanceby">Is Completed
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_iscompleted" style="margin-left: 20px;">Is Completed
 				{{ form.iscompleted }}
             </label>
-            
         </div>
     </div>
+	<div class="NA-Entry-div-row">
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_minus" class="inline-field" style="margin-right: 62px;">Minus</label>
+            {{form.minus}}
+        </div>
+	</div>
+	
+	<div class="NA-Entry-div-row">
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_datereturn" class="inline-field" style="margin-right: 22px;">Date Return</label>
+            {{ form.datereturn }}
+        </div>
+	</div>
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
             <label for="id_descriptions">Descriptions</label>

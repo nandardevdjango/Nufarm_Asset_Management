@@ -807,9 +807,11 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 var fk_goods = qs('input#id_fk_goods'),
                                     itemcode = qs('input#id_itemcode'),
                                     goods = qs('input#id_goods'),
-                                    serialNum = qs('input#id_serialNumber'),
+                                    serialNumber = qs('input#id_serialNumber'),
                                     minus = qs('input#id_minus'),
-                                    btn_fkGoods = qs('button#FK_goods')
+                                    btn_fkGoods = qs('button#FK_goods'),
+									usedemployee = qs('input#id_usedemployee'),
+									nik_usedemployee = qs('input#nik_usedemployee');
 
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
@@ -971,9 +973,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                                                     fk_goods.value = idapp;
                                                                     itemcode.value = data['itemcode'];
                                                                     goods.value = data['goodsname'] + ' ' + data['brandname'];
-                                                                    typeApp.value = data['typeapp'];
-                                                                    data['still_guarantee'] === 'True' ? still_guarantee.checked = true : still_guarantee.checked = false;
-                                                                    serialNum.value = data['serialnumber'];
+                                                                    serialNumber.value = data['serialnumber'];
                                                                     minus.value = data['minusdesc'];
                                                                     minus.title = data['minusdesc'];
                                                                     dialogRef.close();
