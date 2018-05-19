@@ -1358,6 +1358,9 @@ NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad,
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
+    //======= To determine if request is ajax =======
+    this.XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
     //==============================================================
     if (OnBeforeSend) { OnBeforeSend.call(this.XHR); }
     this.XHR.send(null);
@@ -1384,6 +1387,10 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
+
+    //======= To determine if request is ajax =======
+    this.XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
     //==============================================================
     this.XHR.send(NA.common.serializeForm(FormElement));
     return true;

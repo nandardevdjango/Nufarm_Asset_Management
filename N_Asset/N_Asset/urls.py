@@ -100,6 +100,7 @@ urlpatterns = [
     url(r'^NA_Goods_Return/getData/$',NA_Goods_Return_View.NA_Goods_ReturnGetData),
     url(r'^NA_Goods_Return/ShowEntry/$',NA_Goods_Return_View.Entry_GoodsReturn),
     url(r'^NA_Goods_Return/SearchGoodsByForm/$',NA_Goods_Return_View.SearchGoodsbyForm),
+    url(r'^NA_Goods_Return/getGoods/$',NA_Goods_Return_View.get_GoodsData),
 
 	#NA Acc FA
 	url(r'^NA_Acc_FA/$',NA_Acc_Fa_View.NA_Acc_FA, name='NA_Acc'),

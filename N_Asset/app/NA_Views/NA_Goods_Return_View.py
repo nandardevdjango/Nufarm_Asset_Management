@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 import json
-from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm, Data
+from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm, Data, decorators
 from NA_Models.models import NAGoodsReturn,goods
 from django import forms
 from datetime import datetime
@@ -109,7 +109,6 @@ def Entry_GoodsReturn(request):
             elif statusForm == 'Edit':
                 idapp = request.POST['idapp']
                 data['idapp'] = idapp
-                #data['issucced'] = 1 if data['issucced'] == 'true' else 0
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = getUser
                 result = NAGoodsReturn.objects.SaveData(StatusForm.Edit,**data)
@@ -134,14 +133,19 @@ def Entry_GoodsReturn(request):
             form = NA_Goods_Return_Form()
         return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
 
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
 def Delete_M_data(request):
-    if request.user.is_authenticated() and request.method == 'POST':
+    if request.user.is_authenticated():
         idapp = request.POST['idapp']
         result = NAGoodsReturn.objects.DeleteData(idapp)
         statusResp = 200
         if result[0] == Data.Lost:
             statusResp = 500
         return HttpResponse(result[1],status=statusResp)
+
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def SearchGoodsbyForm(request):
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
@@ -168,16 +172,17 @@ def SearchGoodsbyForm(request):
             i+=1
             datarow = {
                 "id" :str(row['idapp']) +'_fk_goods', "cell" :[
-                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']
+                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['fromgoods']
                     ]
                 }
             rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def get_GoodsData(request):
-    if request.method == 'GET':
-        idapp = request.GET['idapp']
-        serialnumber = request.GET['serialnumber']
-        result = NAGoodsReturn.objects.getGoods_data(idapp,serialnumber)
-        return commonFunct.response_default(result)
+    idapp = request.GET['idapp']
+    fromgoods = request.GET['fromgoods']
+    result = NAGoodsReturn.objects.getGoods_data(idapp,fromgoods)
+    return commonFunct.response_default(result)

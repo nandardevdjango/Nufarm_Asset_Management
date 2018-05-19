@@ -385,12 +385,12 @@ class decorators:
                     if request.method == 'POST':
                         return func(request,*args, **kwargs)
                 elif arguments == 'GET':
-                    if request.method == 'POST':
+                    if request.method == 'GET':
                         return func(request,*args, **kwargs)
                 return HttpResponse(
                     json.dumps({'message':'Method Not Allowed'}),
                     status=405,content_type='application/json'
-                    )
+                )
             return wrapper
         return real_decorator
 
@@ -404,7 +404,7 @@ class query:
         ]
 class commonFunct:
     def str2bool(v):
-        if type(v) == int:
+        if isinstance(v,int):
             v = str(v)
         v = v.lower()
         if v in ("yes", "true", "t", "1"):
