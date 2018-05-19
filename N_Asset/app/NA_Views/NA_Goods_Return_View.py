@@ -77,13 +77,15 @@ class NA_Goods_Return_Form(forms.Form):
     datereturn = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','placeholder':'Date Return','style':'width:110px;'}))
     condition = forms.ChoiceField(widget=forms.Select(
-        attrs={'class': 'NA-Form-Control select','style':'width:120px;margin-left:auto;'}),choices=(
-            ('C1', 'Condition 1'),
-            ('C2', 'Condition 2'),
-            ('C3', 'Condition 3')
-            ))
+        attrs={'class': 'NA-Form-Control select','style':'width:120px;margin-left:auto;'}),
+                                  choices=(
+                                      ('C1', 'Condition 1'),
+                                      ('C2', 'Condition 2'),
+                                      ('C3', 'Condition 3')
+                                      )
+                                  )
     minus = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:210px;'}))
+        attrs={'class':'NA-Form-Control','placeholder':'minus','style':'width:210px;'}))
     iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
         attrs={'style':'margin-left:15px;position:absolute'}))
     descriptions = forms.CharField(required=True,widget=forms.Textarea(
@@ -145,7 +147,7 @@ def SearchGoodsbyForm(request):
     Isord = request.GET.get('sord', '')
     goodsFilter = request.GET.get('goods_filter')
     Ilimit = request.GET.get('rows', '')
-    NAData = NAGoodsReturn.objects.search_M_ByForm(goodsFilter)
+    NAData = NAGoodsReturn.objects.SearchGoods_byForm(goodsFilter)
     if NAData == []:
         results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
     else:
@@ -164,8 +166,11 @@ def SearchGoodsbyForm(request):
         i = 0;#idapp,itemcode,goods
         for row in dataRows.object_list:
             i+=1
-            datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['conditions'],\
-                row['still_guarantee'],row['serialnumber'],row['minusdesc']]}
+            datarow = {
+                "id" :str(row['idapp']) +'_fk_goods', "cell" :[
+                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']
+                    ]
+                }
             rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

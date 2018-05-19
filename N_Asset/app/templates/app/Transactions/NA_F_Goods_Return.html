@@ -150,7 +150,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     iconSet: "fontAwesome",
                     hidegrid: true,
                     shrinkToFit: false,
-                    caption: 'Nufarm -- Goods Maintenance',
+                    caption: 'Transaction -- Goods Return',
                     shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
@@ -348,7 +348,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
     NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");
     NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");
 
-    NA.common.dialog.initDialog(containerMenu,'Nufarm Entry Goods - Maintenance');
+    NA.common.dialog.initDialog(containerMenu,'Nufarm Entry Goods Return - Transaction');
 
     var elementMenus = [];
     var menus = NA.common.doc.querySelectorAll('div.sidebar ul.list-sidebar.bg-defoult li ul li a');
@@ -495,40 +495,40 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             }, valuesForm, {'idapp':idapp})
             return snData
         }
-                $.ajax({
-                    url: 'ShowEntry/',
-                    method: 'POST',
-                    beforeSend: function (jqXHR) {
-                        jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
-                    },
-                    data: sendData(),
-                    success: function (data) {
-                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-                    	NA.common.dialog.closeDialog(dialog);
-                        goods_return_grid.trigger('reloadGrid');
-                        if (status.trim() == 'Add' || status.trim() == 'Edit') {
-                            setTimeout(function () {
-                                goods_return_grid.setSelection(data['message'], true)
-                            }, 1000);
-                        }
-                    },
-                    complete: function (data, status) {
-                        if (data.status !== 200) {
-                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                                if (data.status == 404) {
-                                    var dialog = qs("div.containerDialog");
-                                    NA.common.dialog.closeDialog(dialog);
-                                };
-                                return goods_return_grid.trigger('reloadGrid');
-                            });
-                        }
-                    }
-                });
+        $.ajax({
+            url: 'ShowEntry/',
+            method: 'POST',
+            beforeSend: function (jqXHR) {
+                jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
+            },
+            data: sendData(),
+            success: function (data) {
+                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                NA.common.dialog.closeDialog(dialog);
+                goods_return_grid.trigger('reloadGrid');
+                if (status.trim() == 'Add' || status.trim() == 'Edit') {
+                    setTimeout(function () {
+                        goods_return_grid.setSelection(data['message'], true)
+                    }, 1000);
+                }
+            },
+            complete: function (data, status) {
+                if (data.status !== 200) {
+                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
+                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
+                        if (data.status == 404) {
+                            var dialog = qs("div.containerDialog");
+                            NA.common.dialog.closeDialog(dialog);
+                        };
+                        return goods_return_grid.trigger('reloadGrid');
+                    });
+                }
+            }
+        });
     };
     function ExecuteHandler(TextElement) {
         var dialog = qs("div.containerDialog");
-        var frmEntry = qs('form#maintenance_form');
+        var frmEntry = qs('form#gReturn_form');
         var emailForm = qs('form#email_data');
         if (frmEntry) {
             switch (TextElement) {
@@ -780,7 +780,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 }
                             };
                             if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit       
-                                $('input#id_requestdate').datepicker({
+                                $('input#id_datereturn').datepicker({
                                     dateFormat: 'dd/mm/yy',
                                     changeMonth: true,
                                     changeYear: true,
@@ -790,74 +790,16 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                     currentText: 'Now',
                                     maxDate: 1
                                 });
-                                $('input#id_startdate').datepicker({
-                                    dateFormat: 'dd/mm/yy',
-                                    changeMonth: true,
-                                    changeYear: true,
-                                    dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
-                                    showButtonPanel: true,
-                                    closeText: "Close",
-                                    currentText: 'Now'
-                                });
-                                $('input#id_enddate').datepicker({
-                                    dateFormat: 'dd/mm/yy',
-                                    changeMonth: true,
-                                    changeYear: true,
-                                    dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
-                                    showButtonPanel: true,
-                                    closeText: "Close",
-                                    currentText: 'Now',
-                                });
+                                
                                 //simpan original data di initializeForm
                                 var originalData = JSON.stringify(getValues_Form());
                                 var fk_goods = qs('input#id_fk_goods'),
                                     itemcode = qs('input#id_itemcode'),
                                     goods = qs('input#id_goods'),
-                                    typeApp = qs('input#id_typeApp'),
-                                    still_guarantee = qs('input#id_isstillguarantee'),
-                                    serialNum = qs('input#id_serialNum'),
+                                    serialNum = qs('input#id_serialNumber'),
                                     minus = qs('input#id_minus'),
-                                    btn_fkGoods = qs('button#M_FK_goods'),
-                                    maintenance_by = qs('input#id_maintenanceby'),
-                                    personalname = qs('input#id_personalname'),
-                                    expense = qs('input#id_expense');
+                                    btn_fkGoods = qs('button#FK_goods')
 
-                                NA.NAEvent.addHandler(expense, 'keydown', function (event) {
-                                    if (NA.common.numberInput(event)) {
-                                        if (this.value.length > 1) {
-                                            this.value = NA.common.FormatNumber(parseInt(this.value.split(',').join('')));
-                                        }
-                                        
-                                    } else {
-                                        NA.NAEvent.preventDefault(event);
-                                        return false
-                                    }
-                                });
-                                //NA.NAEvent.addHandler(expense, 'change', function (event) {
-                                //    if (this.value === '') {
-                                //        NA.NAEvent.preventDefault(event);
-                                //    } else {
-                                //        return this.value = NA.common.FormatNumber(parseInt(this.value));
-                                //    };
-                                //});
-                                NA.NAEvent.addHandler(maintenance_by, 'change', function (event) {
-                                    if (this.value !== '') {
-                                        personalname.required = false
-                                    } else if (this.value === '') {
-                                        personalname.required = true
-                                    };
-                                });
-                                if (personalname.required === true) {
-                                    NA.NAEvent.addHandler(personalname, 'change', function (event) {
-                                        if (this.value !== '') {
-                                            maintenance_by.required = false
-                                        } else {
-                                            maintenance_by.required = true
-                                        };
-                                    });
-                                } else {
-                                    return false;
-                                }
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
                                         draggable: true,

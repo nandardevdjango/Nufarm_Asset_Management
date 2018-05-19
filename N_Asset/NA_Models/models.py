@@ -252,6 +252,7 @@ class NAGoodsReturn(models.Model):
     fk_usedemployee = models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
     iscompleted = models.IntegerField(db_column='IsCompleted')  # Field name made lowercase.
     minusDesc = models.CharField(db_column='MinusDesc', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    fk_goods_outwards = models.IntegerField(db_column='FK_Goods_Outwards')
     fk_goods_lend = models.IntegerField(db_column='FK_Goods_Lend', blank=True, null=True)  # Field name made lowercase.
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)  # Field name made lowercase.
     createddate = models.DateTimeField(db_column='CreatedDate')  # Field name made lowercase.
