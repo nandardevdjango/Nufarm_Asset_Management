@@ -51,15 +51,24 @@ def NA_Goods_ReturnGetData(request):
 def getFormData(request,form):
     clData = form.cleaned_data
     data = {
-        'fk_goods':clData['fk_goods'],'typeApp':clData['typeApp'],'serialNumber':clData['serialNumber'],'itemcode':clData['itemcode'],'goods':clData['goods'],
-        'requestdate':clData['requestdate'],'startdate':clData['startdate'],'isstillguarantee':clData['isstillguarantee'],'expense':clData['expense'],
-        'maintenanceby':clData['maintenanceby'],'personalname':clData['personalname'],'issucced':clData['issucced'],'enddate':clData['enddate'],
-        'descriptions':clData['descriptions']
+        'fk_goods':clData['fk_goods'],'serialNumber':clData['serialNumber'],'condition':clData['condition'],
+        'minus':clData['minus'],'datereturn':clData['datereturn'],'iscompleted':clData['iscompleted'],
+        'idapp_fromemployee':clData['idapp_fromemployee'],'idapp_usedemployee':clData['idapp_usedemployee'],
+        'typeApp':clData['typeApp'],'descriptions':clData['descriptions']
         }
+    fk_goods_outwards = clData.get('idapp_fk_goods_outwards')
+    if fk_goods_outwards == '' or fk_goods_outwards is None:
+        fk_goods_outwards = 'NULL'
+    fk_goods_lend = clData.get('idapp_fk_goods_lend')
+    if fk_goods_lend == '' or fk_goods_lend is None:
+        fk_goods_lend = 'NULL'
+    data['fk_goods_outwards'] = fk_goods_outwards
+    data['fk_goods_lend'] = fk_goods_lend
     return data
 
 class NA_Goods_Return_Form(forms.Form):
     fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
+    typeApp = forms.CharField(widget=forms.HiddenInput(),required=True)
     itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
         attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:110px;'}))
     goods = forms.CharField(required=True,widget=forms.TextInput(
@@ -69,7 +78,7 @@ class NA_Goods_Return_Form(forms.Form):
     fromemployee = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
     nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:110px;'}))
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'nik','style':'width:110px;'}))
     usedemployee = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:210px;'}))
     nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
@@ -79,9 +88,9 @@ class NA_Goods_Return_Form(forms.Form):
     condition = forms.ChoiceField(widget=forms.Select(
         attrs={'class': 'NA-Form-Control select inline-field','style':'width:110px;margin-left:auto;'}),
                                   choices=(
-                                      ('C1', 'Condition 1'),
-                                      ('C2', 'Condition 2'),
-                                      ('C3', 'Condition 3')
+                                      ('1', 'Condition 1'),
+                                      ('2', 'Condition 2'),
+                                      ('3', 'Condition 3')
                                       )
                                   )
     minus = forms.CharField(required=True,widget=forms.TextInput(
@@ -92,6 +101,8 @@ class NA_Goods_Return_Form(forms.Form):
         attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:426px;height:45px;max-width:426px;max-height:90px;'}))
     idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
     idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
+    idapp_fk_goods_outwards = forms.CharField(widget=forms.HiddenInput(),required=False)
+    idapp_fk_goods_lend = forms.CharField(widget=forms.HiddenInput(),required=False)
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def Entry_GoodsReturn(request):
@@ -172,7 +183,7 @@ def SearchGoodsbyForm(request):
             i+=1
             datarow = {
                 "id" :str(row['idapp']) +'_fk_goods', "cell" :[
-                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['fromgoods']
+                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['fromgoods'],row['fk_goods'],row['typeapp']
                     ]
                 }
             rows.append(datarow)

@@ -21,16 +21,28 @@ class NA_BR_Goods_Return(models.Manager):
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()
         Params = {
-            'FK_Goods':data['fk_goods'],'DateReturn':data['datereturn'],'Conditions':data['condition'],
-            'FK_fromeployee':data['fk_fromemployee'],'FK_usedemployee':data['fk_usedemployee'],
-            'IsCompleted':data['iscompleted'],'MinusDesc':data['minusDesc'],'FK_goods_outwards':data['fk_goods_outwards'],
-            'FK_goods_lend':data['fk_goods_lend'],'Descriptions':data['descriptions']
+            'FK_Goods':data['fk_goods'],'TypeApp':data['typeApp'],'SerialNumber':data['serialNumber'],
+            'DateReturn':data['datereturn'],'Conditions':data['condition'],
+            'FK_fromeployee':data['idapp_fromemployee'],'FK_usedemployee':data['idapp_usedemployee'],
+            'IsCompleted':data['iscompleted'],'MinusDesc':data['minus'],
+            'Descriptions':data['descriptions']
             }
         if statusForm == StatusForm.Input:
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
-            Query = """INSERT INTO n_a_goods_return (fk_goods,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,fk_goods_outwards,
-            fk_goods_lend,descriptions,createddate,createdby) VALUES({})""".format(','.join('%('+i+')s' for i in Params))
+            fromgoods = None
+            value_fromgoods = None
+            if data['fk_goods_outwards'] != 'NULL' and data['fk_goods_outwards'] != '':
+                fromgoods = 'FK_goods_outwards'
+                value_fromgoods = data['fk_goods_outwards']
+            elif data['fk_goods_lend'] != 'NULL' and data['fk_goods_lend'] != '':
+                fromgoods = 'FK_goods_lend'
+                value_fromgoods = data['fk_goods_lend']
+            Params[fromgoods] = value_fromgoods
+            Query = """INSERT INTO n_a_goods_return 
+            (fk_goods,typeapp,serialnumber,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,
+            descriptions,createddate,createdby,""" + fromgoods + ")" 
+            Query += """VALUES({})""".format(','.join('%('+i+')s' for i in Params))
         elif statusForm == StatusForm.Edit:
             pass
             Params['ModifiedDate'] = data['modifiedate']
@@ -45,13 +57,13 @@ class NA_BR_Goods_Return(models.Manager):
     def SearchGoods_byForm(self,value):
         cur = connection.cursor()
         Query = """
-        (SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.serialnumber,g.itemcode,
-        @fromgoods := 'GO' AS fromgoods FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp WHERE NOT EXISTS 
-        (SELECT idapp FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp))
+        (SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.fk_goods, ngo.serialnumber,g.itemcode,
+        ngo.typeapp,@fromgoods := 'GO' AS fromgoods FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp 
+        WHERE NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp))
         UNION
-        (SELECT ngl.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp) AS goods, ngl.serialnumber,g.itemcode,
-        @fromgoods := 'GL' AS fromgoods FROM n_a_goods_lending ngl INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp WHERE NOT EXISTS
-        (SELECT idapp FROM n_a_goods_return WHERE fk_goods_lend = ngl.idapp))
+        (SELECT ngl.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp) AS goods, ngl.fk_goods, ngl.serialnumber,g.itemcode,
+        ngl.typeapp,@fromgoods := 'GL' AS fromgoods FROM n_a_goods_lending ngl INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp 
+        WHERE NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_lend = ngl.idapp))
         """
         cur.execute(Query)
         result = query.dictfetchall(cur)
@@ -62,11 +74,15 @@ class NA_BR_Goods_Return(models.Manager):
         cur = connection.cursor()
         if fromgoods == 'GO':
             Query = """SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.serialnumber,g.itemcode,
-            @fromgoods := 'GO' AS fromgoods FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp WHERE
+            @fromgoods := 'GO' AS fromgoods,emp1.idapp_used_by,emp1.used_by,emp1.nik_used_by FROM n_a_goods_outwards ngo 
+            INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp LEFT OUTER JOIN (SELECT idapp AS idapp_used_by,nik AS nik_used_by,
+            employee_name AS used_by FROM employee) AS emp1 ON ngo.fk_employee = emp1.idapp_used_by WHERE
             ngo.idapp = %(IDApp)s"""
         elif fromgoods == 'GL':
             Query = """SELECT ngl.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp) AS goods, ngl.serialnumber,g.itemcode,
-            @fromgoods := 'GL' AS fromgoods FROM n_a_goods_lending ngl INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp WHERE 
+            @fromgoods := 'GL' AS fromgoods,emp1.idapp_used_by,emp1.used_by,emp1.nik_used_by FROM n_a_goods_lending ngl 
+            INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp LEFT OUTER JOIN (SELECT idapp AS idapp_used_by,nik AS nik_used_by,
+            employee_name AS used_by FROM employee) AS emp1 ON ngl.fk_employee = emp1.idapp_used_by WHERE 
             ngl.idapp = %(IDApp)s"""
         cur.execute(Query,{'IDApp':idapp})
         result = query.dictfetchall(cur)

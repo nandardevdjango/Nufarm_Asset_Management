@@ -188,32 +188,3 @@ def SearchGoodsbyForm(request):
                 rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
-
-def SearchEmployeebyform(request):
-	searchText = request.GET.get('employee_filter')
-	Ilimit = request.GET.get('rows', '')
-	Isidx = request.GET.get('sidx', '')
-	Isord = request.GET.get('sord', '')
-	if(Isord is not None and str(Isord) != ''):
-		NAData = Employee.customManager.getEmloyeebyForm(searchText).order_by('-' + str(Isidx))
-	else:
-		NAData = Employee.customManager.getEmloyeebyForm(searchText)
-	totalRecord = NAData.count()
-	paginator = Paginator(NAData, int(Ilimit)) 
-	try:
-		page = request.GET.get('page', '1')
-	except ValueError:
-		page = 1
-	try:
-		dataRows = paginator.page(page)
-	except (EmptyPage, InvalidPage):
-		dataRows = paginator.page(paginator.num_pages)
-		
-	rows = []
-	i = 0;
-	for row in dataRows.object_list:
-		i+=1
-		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['nik'],row['employee_name']]}
-		rows.append(datarow)
-	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

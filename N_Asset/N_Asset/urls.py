@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^NA_Employee/customFilter/$', NA_Employee_View.ShowCustomFilter),
     url(r'^NA_Employee/getData/$', NA_Employee_View.NA_EmployeeGetData, name='NA_Employee_data'),
     url(r'^NA_Employee/setInActive/$',NA_Employee_View.Set_InActive),
+    url(r'^NA_Employee/SearchEmployeeByForm/$',NA_Employee_View.SearchEmployeebyform),
 
     #NA_Suplier
     url(r'^NA_Suplier/$', NA_Suplier_View.NA_Suplier, name='NA_Suplier'),
@@ -123,7 +124,6 @@ urlpatterns = [
     url(r'^NA_GoodsLost/getData/$',NA_GoodsLost_View.NA_GoodsLost_GetData),
     url(r'^NA_GoodsLost/ShowEntry/$',NA_GoodsLost_View.EntryGoods_Lost),
     url(r'^NA_GoodsLost/SearchGoodsByForm/',NA_GoodsLost_View.SearchGoodsbyForm),
-    url(r'^NA_GoodsLost/SearchEmployeeByForm/$',NA_GoodsLost_View.SearchEmployeebyform),
 	url(r'^NA_GoodsLost/customFilter/$',NA_GoodsLost_View.ShowCustomFilter),
 
     #NA Priviledge
