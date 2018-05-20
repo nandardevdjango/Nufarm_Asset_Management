@@ -51,7 +51,7 @@ def NA_Goods_ReturnGetData(request):
 def getFormData(request,form):
     clData = form.cleaned_data
     data = {
-        'fk_goods':clData['fk_goods'],'serialNumber':clData['serialNumber'],'condition':clData['condition'],
+        'fk_goods':clData['fk_goods'],'serialNumber':clData['serialNumber'],'conditions':clData['conditions'],
         'minus':clData['minus'],'datereturn':clData['datereturn'],'iscompleted':clData['iscompleted'],
         'idapp_fromemployee':clData['idapp_fromemployee'],'idapp_usedemployee':clData['idapp_usedemployee'],
         'typeApp':clData['typeApp'],'descriptions':clData['descriptions']
@@ -85,7 +85,7 @@ class NA_Goods_Return_Form(forms.Form):
         attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:110px;'}))
     datereturn = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:110px;'}))
-    condition = forms.ChoiceField(widget=forms.Select(
+    conditions = forms.ChoiceField(widget=forms.Select(
         attrs={'class': 'NA-Form-Control select inline-field','style':'width:110px;margin-left:auto;'}),
                                   choices=(
                                       ('1', 'Condition 1'),
@@ -128,18 +128,14 @@ def Entry_GoodsReturn(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data = NAGoodsReturn.objects.retriveData(idapp) #tuple data
-            statusResp = 200
-            if data[0] == Data.Lost:
-                statusResp = 404
-                return HttpResponse('Lost',status=statusResp)
-            if statusResp == 200:
-                data[1][0]['issucced'] = True if data[1][0]['issucced'] == 1 else False
-                data[1][0]['requestdate'] = data[1][0]['requestdate'].strftime('%d/%m/%Y')
-                data[1][0]['startdate'] = data[1][0]['startdate'].strftime('%d/%m/%Y')
-                data[1][0]['enddate'] = data[1][0]['enddate'].strftime('%d/%m/%Y')
-                form = NA_Goods_Return_Form(initial=data[1][0])
-                return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
+            data = NAGoodsReturn.objects.retrieveData(idapp) #tuple data
+            iscompleted = data['iscompleted']
+            if iscompleted == 1:
+                data['iscompleted'] = True
+            else:
+                data['iscompleted'] = False
+            form = NA_Goods_Return_Form(initial=data)
+            return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
         else:
             form = NA_Goods_Return_Form()
         return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})

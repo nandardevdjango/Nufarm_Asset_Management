@@ -5,10 +5,11 @@
 <li><a href="#" data-tipe="varchar" data-column="itemcode">Item code</a></li>
 <li><a href="#" data-tipe="varchar" data-column="brandname">Brand name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="serialnumber">Serial number</a></li>
-<li><a href="#" data-tipe="varchar" data-column="requestdate">Request Date</a></li>
-<li><a href="#" data-tipe="varchar" data-column="startdate">Start Date</a></li>
-<!--<li class="divider"></li>-->
-<li><a href="#" data-tipe="varchar" data-column="inactive">InActive</a></li>
+<li><a href="#" data-tipe="varchar" data-column="fromemployee">Return By</a></li>
+<li><a href="#" data-tipe="varchar" data-column="usedemployee">Used By</a></li>
+<li><a href="#" data-tipe="varchar" data-column="datereturn">Date Return</a></li>
+<li><a href="#" data-tipe="varchar" data-column="conditions">Conditions</a></li>
+<li><a href="#" data-tipe="varchar" data-column="minusDesc">Minus</a></li>
 <li><a id="custSearch" href="#">Custom Search</a></li>
 <!--<li class="divider"></li>-->
 {% endblock %}
@@ -102,8 +103,8 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-					//idapp,goods,serialnumber,fromemployee,usedemployee,datereturn,condition,minus,iscompleted,fk_goods_lend,descriptions,createddate,createdby
-                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'From Employee', 'Used Employee', 'Date Return', 'Condition', 'Minus', 'Is Completed', 'Descriptions', 'Createddate', 'Createdby'],
+					//idapp,goods,serialnumber,fromemployee,usedemployee,datereturn,conditions,minus,iscompleted,fk_goods_lend,descriptions,createddate,createdby
+                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'Return By', 'Used By', 'Date Return', 'conditions', 'Minus', 'Is Completed', 'Descriptions', 'Createddate', 'Createdby'],
                     colModel: [
                         {
                         	name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true, editoptions: {
@@ -123,7 +124,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                             	srcformat: 'Y-m-d', newformat: 'd F Y'
                             }
                         },
-						{ name: 'condition', index: 'condition', width: 150, align: 'left', editable: false, search: false },
+						{ name: 'conditions', index: 'conditions', width: 150, align: 'left', editable: false, search: false },
 						{ name: 'minus', index: 'minus', width: 150, align: 'left', editable: false, search: false },
                         {
                             name: 'iscompleted', index: 'iscompleted', width: 110, editable: true, search: false,
@@ -395,7 +396,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             nik_fromemployee: qs('input#id_nik_fromemployee').value.trim(),
 			fromemployee:qs('input#id_fromemployee').value.trim(),
             datereturn: qs('input#id_datereturn').value.trim(),
-            condition: qs('select#id_condition').value.trim(),
+            conditions: qs('select#id_conditions').value.trim(),
 			iscompleted:qs('input#id_iscompleted').checked,
             minus: qs('input#id_minus').value.trim(),
             descriptions: qs('textarea#id_descriptions').value.trim()
@@ -797,25 +798,14 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                     break;
                                 }
                             };
-                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit       
-                                
-
+                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit     
+                            	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_datereturn').datepicker({
                                 	dateFormat: 'dd/mm/yy',
                                 	changeMonth: true,
                                 	changeYear: true,
                                 	dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
                                 	beforeShowDay: $.datepicker.noWeekends,
-                                	minDate: (function (g) {
-                                		if (g.status === 'Edit') {
-                                			var eloriginalData = JSON.parse(originalData),
-												hasRef = eloriginalData['hasRefData'];
-                                			if (hasRef) { return 1; }
-                                			valDateReceived = new Date(eloriginalData.datereceived);
-                                			return valDateReceived;
-                                		}
-                                		//get date datereceived
-                                	})(win),
                                 	maxDate: 1,
                                 	showButtonPanel: true,
                                 	closeText: "Close",
@@ -823,7 +813,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 });
                                 
                                 //simpan original data di initializeForm
-                                var originalData = JSON.stringify(getValues_Form());
+                                
                             	var fk_goods = qs('input#id_fk_goods'),
 									typeApp = qs('input#id_typeApp'),
                                     itemcode = qs('input#id_itemcode'),

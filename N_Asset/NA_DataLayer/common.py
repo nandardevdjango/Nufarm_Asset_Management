@@ -512,7 +512,7 @@ class commonFunct:
 
     def retriveColumn(**kwargs):
         table = kwargs['table']
-        resolve = kwargs['resolve']
+        resolve = kwargs['resolve'].lower()
         initialname = kwargs['initial_name']
         fields = []
         if type(table) == list:

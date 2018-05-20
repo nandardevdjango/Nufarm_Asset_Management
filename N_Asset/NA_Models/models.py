@@ -246,6 +246,8 @@ class NAGoodsReceive(models.Model):
 class NAGoodsReturn(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
     fk_goods = models.CharField(db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    serialnumber = models.CharField(db_column='SerialNumber',max_length=100)
+    typeApp = models.CharField(db_column='typeApp',max_length=32)
     datereturn = models.DateTimeField(db_column='DateReturn')  # Field name made lowercase.
     conditions = models.CharField(db_column='Conditions', max_length=1)  # Field name made lowercase.
     fk_fromemployee = models.CharField(db_column='FK_FromEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
