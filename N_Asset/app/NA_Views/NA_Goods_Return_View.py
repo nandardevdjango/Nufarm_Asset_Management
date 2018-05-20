@@ -134,6 +134,7 @@ def Entry_GoodsReturn(request):
                 data['iscompleted'] = True
             else:
                 data['iscompleted'] = False
+            data['datereturn'] = data['datereturn'].strftime('%d/%m/%Y')
             form = NA_Goods_Return_Form(initial=data)
             return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
         else:
@@ -142,14 +143,11 @@ def Entry_GoodsReturn(request):
 
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-def Delete_M_data(request):
+def Delete_data(request):
     if request.user.is_authenticated():
         idapp = request.POST['idapp']
         result = NAGoodsReturn.objects.DeleteData(idapp)
-        statusResp = 200
-        if result[0] == Data.Lost:
-            statusResp = 500
-        return HttpResponse(result[1],status=statusResp)
+        return HttpResponse('success')
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')

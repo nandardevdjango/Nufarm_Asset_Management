@@ -23,7 +23,7 @@ class NA_BR_Goods_Return(models.Manager):
         Params = {
             'FK_Goods':data['fk_goods'],'TypeApp':data['typeApp'],'SerialNumber':data['serialNumber'],
             'DateReturn':data['datereturn'],'Conditions':data['conditions'],
-            'FK_fromeployee':data['idapp_fromemployee'],'FK_usedemployee':data['idapp_usedemployee'],
+            'FK_fromemployee':data['idapp_fromemployee'],'FK_usedemployee':data['idapp_usedemployee'],
             'IsCompleted':data['iscompleted'],'MinusDesc':data['minus'],
             'Descriptions':data['descriptions']
             }
@@ -44,26 +44,39 @@ class NA_BR_Goods_Return(models.Manager):
             descriptions,createddate,createdby,""" + fromgoods + ")" 
             Query += """VALUES({})""".format(','.join('%('+i+')s' for i in Params))
         elif statusForm == StatusForm.Edit:
-            pass
-            Params['ModifiedDate'] = data['modifiedate']
+            Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
-            Query = """"UPDATE n_a_goods_return SET"""
-        
+            Params['IDApp'] = data['idapp']
+            Query = """UPDATE n_a_goods_return SET fk_goods=%(FK_Goods)s, typeapp=%(TypeApp)s, serialnumber=%(SerialNumber)s,
+            datereturn=%(DateReturn)s, conditions=%(Conditions)s, fk_fromemployee=%(FK_fromemployee)s, fk_usedemployee=%(FK_usedemployee)s,
+            iscompleted=%(IsCompleted)s, minusDesc=%(MinusDesc)s, descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,
+            modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
+        print(Query)
+        print(Params)
         cur.execute(Query,Params)
         cur.close()
         return (Data.Success,)
 
+    def DeleteData(self,idapp):
+        cur = connection.cursor()
+        Query = """DELETE FROM n_a_goods_return WHERE idapp=%(IDApp)s"""
+        cur.execute(Query,{'IDApp':idapp})
+        return 'success'
+
     def retrieveData(self,idapp):
         cur = connection.cursor()
-        Query = """SELECT ngr.idapp,ngr.typeApp,ngr.serialNumber,ngr.fk_goods,ngr.datereturn,ngr.conditions,
-        ngr.minusDesc AS minus, ngr.iscompleted,ngr.fk_goods_outwards,ngr.fk_goods_lend, ngr.descriptions,
+        Query = """SELECT ngr.typeApp,ngr.serialNumber,ngr.fk_goods,ngr.datereturn,ngr.conditions,
+        ngr.minusDesc AS minus, ngr.iscompleted,ngr.fk_goods_outwards AS idapp_fk_goods_outwards,
+        ngr.fk_goods_lend AS idapp_fk_goods_outwards, ngr.descriptions,
         CONCAT(g.goodsname, ' ',g.brandname, ' ',ngr.typeapp) AS goods,g.itemcode,emp1.fromemployee,
         emp1.nik_fromemployee,emp1.idapp_fromemployee,emp2.usedemployee,emp2.nik_usedemployee,
         emp2.idapp_usedemployee FROM n_a_goods_return ngr INNER JOIN n_a_goods g ON ngr.fk_goods = g.idapp 
-        LEFT OUTER JOIN (SELECT idapp AS idapp_fromemployee,nik AS nik_fromemployee,employee_name AS fromemployee FROM employee)
-        AS emp1 ON ngr.fk_fromemployee = emp1.idapp_fromemployee LEFT OUTER JOIN (SELECT idapp AS idapp_usedemployee,
-        nik AS nik_usedemployee,employee_name AS usedemployee FROM employee) AS emp2 ON ngr.fk_usedemployee = emp2.idapp_usedemployee
-        WHERE ngr.idapp = %(IDApp)s"""
+        LEFT OUTER JOIN 
+        (SELECT idapp AS idapp_fromemployee,nik AS nik_fromemployee,employee_name AS fromemployee FROM employee)
+        AS emp1 ON ngr.fk_fromemployee = emp1.idapp_fromemployee 
+        LEFT OUTER JOIN 
+        (SELECT idapp AS idapp_usedemployee, nik AS nik_usedemployee,employee_name AS usedemployee FROM employee) 
+        AS emp2 ON ngr.fk_usedemployee = emp2.idapp_usedemployee WHERE ngr.idapp = %(IDApp)s"""
         cur.execute(Query,{'IDApp':idapp})
         result = query.dictfetchall(cur)
         cur.close()
@@ -103,3 +116,7 @@ class NA_BR_Goods_Return(models.Manager):
         result = query.dictfetchall(cur)
         cur.close()
         return (Data.Success,result)
+
+    def dataExists(self,**kwargs):
+        idapp = kwargs.get('idapp')
+        return super(NA_BR_Goods_Return,self).get_queryset().filter(idapp=idapp).exists()

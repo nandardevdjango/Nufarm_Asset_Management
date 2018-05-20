@@ -245,7 +245,7 @@ class NAGoodsReceive(models.Model):
 
 class NAGoodsReturn(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)  # Field name made lowercase.
-    fk_goods = models.CharField(db_column='FK_Goods', max_length=30)  # Field name made lowercase.
+    fk_goods = models.ForeignKey(goods,db_column='FK_Goods', max_length=30)  # Field name made lowercase.
     serialnumber = models.CharField(db_column='SerialNumber',max_length=100)
     typeApp = models.CharField(db_column='typeApp',max_length=32)
     datereturn = models.DateTimeField(db_column='DateReturn')  # Field name made lowercase.
@@ -266,6 +266,8 @@ class NAGoodsReturn(models.Model):
     class Meta:
         managed = True
         db_table = 'n_a_goods_return'
+    def __str__(self):
+        return self.fk_goods.goodsname
 
 
 class NAMaintenance(models.Model):

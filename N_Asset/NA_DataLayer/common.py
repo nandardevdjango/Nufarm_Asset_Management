@@ -517,9 +517,9 @@ class commonFunct:
         fields = []
         if type(table) == list:
             for i in range(len(table)):
-                fields.append([j.name for j in table[i]._meta.local_fields])
+                fields.append([j.name.lower() for j in table[i]._meta.local_fields])
         else:
-            fields = [i.name for i in table._meta.local_fields]
+            fields = [i.name.lower() for i in table._meta.local_fields]
         exclude = None
         if 'exclude' in kwargs:
             exclude = kwargs['exclude']
@@ -536,7 +536,7 @@ class commonFunct:
                 for i in cust_fields:
                     fields.append(i)
             else:
-                if type(cust_fields[0]) == list:
+                if isinstance(cust_fields[0],list):
                     fields.append(cust_fields[0])
                 else:
                     fields.append([kwargs['custom_fields']])
@@ -557,7 +557,7 @@ class commonFunct:
 
     def response_default(data):
         statusResp = 200
-        if type(data) is tuple:
+        if isinstance(data,tuple):
             message = None
             if data[0] == Data.Success:
                 if len(data) > 1:
