@@ -70,6 +70,15 @@ def NA_Goods_Outwards_Search(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+@ensure_csrf_cookie
+def ShowEntry_Outwards(request):
+    authentication_classes = []
+    status = 'Add'
+    initializationForm={}
+    statuscode = 200
+    data = None
+    hasRefData = False
+
 class NA_Goods_Outwards_Form(forms.Form):
     idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
     fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)

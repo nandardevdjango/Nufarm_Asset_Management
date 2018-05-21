@@ -1321,32 +1321,35 @@
 						closeDialog(); win.document.body.style.cursor = 'default'; return false;
 					}
 					try {
-
+						if (win.status !== 'Open') {
+							var textElem = event.target.innerText;
+							if (textElem === 'OK') {
+								ExecuteHandler('OK');
+							} else {
+								ExecuteHandler('Close');
+							}
+						}
+						if (event) {
+							NA.NAEvent.stopPropagation(event);
+						}
+						win.document.body.style.cursor = 'default';
 					} catch (e) {
 						ShowAlert(e.message);
-					}
-					if (win.status !== 'Open') {
-
-						var textElem = event.target.innerText;
-						if (textElem === 'OK') {
-							ExecuteHandler('OK');
-						} else {
-							ExecuteHandler('Close');
-						}
-					}
-					if (event) {
-						NA.NAEvent.stopPropagation(event);
-					}
-					win.document.body.style.cursor = 'default';
+					}					
 					return false;
 				});
 			});
 			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
 			    NA.NAEvent.preventDefault(event);
-                //==============uncommment this after debugging=============
+				//==============uncommment this after debugging=============
+				
 			    if (hasLoadDialog) {
-			        ExecuteHandler('Close');
-			    }				
+			    	try {
+			    		ExecuteHandler('Close');
+			    	} catch (e) {
+			    		ShowAlert(e.message);
+			    	}			    
+			    }
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}

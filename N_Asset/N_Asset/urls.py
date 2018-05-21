@@ -87,13 +87,15 @@ urlpatterns = [
 	url(r'^NA_Goods_Lending/geInterests/$',NA_Goods_Lending_View.getInterest,name='getinterests'),
 	url(r'^NA_Goods_Lending/getLastTransGoods/$',NA_Goods_Lending_View.getLastTransGoods,name='getlastTransGoods'),
 	url(r'^NA_Goods_Lending/getGoodsWithHistory/$',NA_Goods_Lending_View.getGoodsWithHistory,name='getGoodsWithHistory'),
-	url(r'^NA_Goods_Lending/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
-	url(r'^NA_Goods_Lending/SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
+	url(r'^NA_Goods_Lending/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee-from-lending'),#ambil funtion yang sudah ada di receive view
+	url(r'^NA_Goods_Lending/SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform-from-lending'),#ambil funtion yang sudah ada di receive view
 	url(r'^NA_Goods_Lending/customFilter/$',NA_Goods_Lending_View.ShowCustomFilter,name='SowCustomFilter_Lending'),
 
     #NA_Goods_Outwards
     url(r'NA_Goods_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='GoodsOutwards'),
     url(r'NA_Goods_Outwards/NA_Goods_Outwards_Search/$',NA_Goods_Outwards_View.NA_Goods_Outwards_Search,name='GoodsOutwardManager'),
+    url(r'NA_Goods_Outwards/ShowEntry_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='ShowEntryOutwards'),
+    url(r'NA_Goods_Outwards/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee-from-outwards'),#ambil funtion yang sudah ada di receive view
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
