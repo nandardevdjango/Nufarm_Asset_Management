@@ -172,7 +172,7 @@ def SearchGoodsbyForm(request):
             dataRows = paginator.page(paginator.num_pages)
         
         rows = []
-        i = 0;#idapp,itemcode,goods
+        i = 0
         for row in dataRows.object_list:
             i+=1
             datarow = {

@@ -123,10 +123,7 @@ def Delete_M_data(request):
     if request.user.is_authenticated() and request.method == 'POST':
         idapp = request.POST['idapp']
         result = NAMaintenance.objects.DeleteData(idapp)
-        statusResp = 200
-        if result[0] == Data.Lost:
-            statusResp = 500
-        return HttpResponse(result[1],status=statusResp)
+        return commonFunct.response_default(result)
 def SearchGoodsbyForm(request):
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')

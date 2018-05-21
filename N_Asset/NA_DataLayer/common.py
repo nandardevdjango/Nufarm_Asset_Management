@@ -47,6 +47,10 @@ class Message(Enum):
 
     @staticmethod
     def get_specific_exists(table,column,data):
+        """
+        param:
+        return message existed data : e.g (Suplier with supliercode 0012a has existed)
+        """
         return '{0} with {1} {2} has existed'.format(table,column,data)
 
     @classmethod
@@ -364,6 +368,10 @@ class ResolveCriteria:
             return CriteriaSearch.Like
 
 class decorators:
+    """
+    to ensure if request is ajax
+    and request Header must set X-Requested-With : XMLHttpRequest
+    """
     def ajax_required(func):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
@@ -376,7 +384,7 @@ class decorators:
     def detail_request_method(arguments):
         """
         usage @detail_request_method('POST')
-        return status 405(Method not allowed) if request method in did not same as your specific method
+        return status 405(Method not allowed) if request method did not same as your specific method
         """
         def real_decorator(func):
             @wraps(func)
@@ -547,6 +555,17 @@ class commonFunct:
         return result
 
     def get_log_data(**kwargs):
+        """
+        to get log event data, use it to get date informations if data has deleted, existed or updated
+        param
+        action: e.g (deleted,updated)
+        action for getting type of log event
+
+        PK: primary key e.g (IDApp,SuplierCode)
+        table: to determine , which table to get
+        usage :: get_log_data(action='deleted',pk=2,table='employee')
+        """
+
         cur = connection.cursor()
         action = kwargs['action']
         Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$."""+action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%""" #PK (Primary Key)
@@ -556,6 +575,12 @@ class commonFunct:
         return query.dictfetchall(cur)
 
     def response_default(data):
+        """
+        this is default HttpResponse, use it to correct and neat response
+        param
+        must instance of tuple
+        e.g (Data.Success,Message.Success) or (Data.Exists,Message.get_exists_info)
+        """
         statusResp = 200
         if isinstance(data,tuple):
             message = None

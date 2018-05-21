@@ -1,4 +1,4 @@
-from django.db import models, connection
+from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch,DataType,ResolveCriteria, query,
                                  StatusForm,Data)
 
@@ -39,10 +39,22 @@ class NA_BR_Goods_Return(models.Manager):
                 fromgoods = 'FK_goods_lend'
                 value_fromgoods = data['fk_goods_lend']
             Params[fromgoods] = value_fromgoods
-            Query = """INSERT INTO n_a_goods_return 
-            (fk_goods,typeapp,serialnumber,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,
-            descriptions,createddate,createdby,""" + fromgoods + ")" 
-            Query += """VALUES({})""".format(','.join('%('+i+')s' for i in Params))
+
+            with transaction.atomic():
+                Query = """INSERT INTO n_a_goods_return 
+                (fk_goods,typeapp,serialnumber,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,
+                descriptions,createddate,createdby,""" + fromgoods + ")" 
+                Query += """VALUES({})""".format(','.join('%('+i+')s' for i in Params))
+                cur.execute(Query,Params)
+                Query = """INSERT INTO n_a_goods_history (FK_Goods, TypeApp, SerialNumber,FK_RETURN, CreatedDate, CreatedBy)
+                VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Return)s, %(CreatedDate)s, %(CreatedBy)s)"""
+                cur.execute("""SELECT last_insert_id()""")
+                idapp = cur.fetchone()[0]
+                Params = {
+                    'FK_Goods':data['fk_goods'],'TypeApp':data['typeApp'],'SerialNumber':data['serialNumber'],
+                    'FK_Return':idapp,'CreatedDate':data['createddate'],'CreatedBy':data['createdby']
+                    }
+                cur.execute(Query,Params)
         elif statusForm == StatusForm.Edit:
             Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
@@ -51,10 +63,8 @@ class NA_BR_Goods_Return(models.Manager):
             datereturn=%(DateReturn)s, conditions=%(Conditions)s, fk_fromemployee=%(FK_fromemployee)s, fk_usedemployee=%(FK_usedemployee)s,
             iscompleted=%(IsCompleted)s, minusDesc=%(MinusDesc)s, descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,
             modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
-        print(Query)
-        print(Params)
-        cur.execute(Query,Params)
-        cur.close()
+            cur.execute(Query,Params)
+            cur.close()
         return (Data.Success,)
 
     def DeleteData(self,idapp):
@@ -119,4 +129,6 @@ class NA_BR_Goods_Return(models.Manager):
 
     def dataExists(self,**kwargs):
         idapp = kwargs.get('idapp')
-        return super(NA_BR_Goods_Return,self).get_queryset().filter(idapp=idapp).exists()
+        if idapp is not None:
+            return super(NA_BR_Goods_Return,self).get_queryset().filter(idapp=idapp).exists()
+        serialnumber = kwargs.get('serialnumber')
