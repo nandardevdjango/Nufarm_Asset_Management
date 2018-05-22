@@ -843,7 +843,8 @@ NA.common.dialog = {
         if (!dialog) {
             dialog = this.doc.createElement("div");
             dialog.className = 'containerDialog';
-            dialog.classList.add("draggable");
+            dialog.style.padding = '0px'
+            //dialog.classList.add("draggable");
         }
         dialog.style.visibility = "hidden";
         dialog.style.position = "absolute";

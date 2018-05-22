@@ -368,11 +368,12 @@ class ResolveCriteria:
             return CriteriaSearch.Like
 
 class decorators:
-    """
-    to ensure if request is ajax
-    and request Header must set X-Requested-With : XMLHttpRequest
-    """
+
     def ajax_required(func):
+        """
+        to ensure if request is ajax
+        and request Header must set X-Requested-With : XMLHttpRequest
+        """
         @wraps(func)
         def wrapper(request, *args, **kwargs):
             if request.is_ajax():

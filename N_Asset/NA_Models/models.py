@@ -9,6 +9,7 @@ from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
 from NA_DataLayer.NA_Goods_Return_BR import NA_BR_Goods_Return
+from NA_DataLayer.NA_Goods_Receive_Other_BR import NA_BR_Receive_other
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 from django.contrib.auth.models import AbstractUser
@@ -412,3 +413,24 @@ class NASysPriviledge(models.Model):
 
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
+
+class NAGoodsReceive_other(models.Model):
+    idapp = models.AutoField(db_column='IDApp', primary_key=True)
+    idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods')
+    datereceived = models.DateTimeField(db_column='DateReceived')
+    fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier')
+    totalpurchase = models.SmallIntegerField(db_column='TotalPurchase')
+    totalreceived = models.SmallIntegerField(db_column='TotalReceived')
+    fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy_other')  # Field name made lowercase.
+    fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by_other')
+    createddate = models.DateTimeField(db_column='CreatedDate')
+    createdby = models.CharField(db_column='Createdby', max_length=50)
+    modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
+    modifiedby = models.CharField(db_column='ModifiedBy', max_length=50, blank=True, null=True)
+    descriptions =  models.CharField(db_column='Descriptions', max_length=250, blank=True, null=True)# Field name made lowercase.
+    descbysystem =  models.CharField(db_column='DescBySystem', max_length=250, blank=True, null=True)# Field name made lowercase.
+    refno =  models.CharField(db_column='REFNO', max_length=50)# Field name made lowercase.
+
+    objects = NA_BR_Receive_other()
+    class Meta:
+        db_table = 'n_a_goods_receive_other'

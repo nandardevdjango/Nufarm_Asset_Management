@@ -27,9 +27,9 @@ def NA_Goods_ReturnGetData(request):
         initial_name=['ngr','g','emp1','emp2'],
         custom_fields=[['fromemployee'],['usedemployee']]
     )
-    maintenanceData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
-    totalRecords = len(maintenanceData)
-    paginator = Paginator(maintenanceData,Ilimit)
+    returnData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
+    totalRecords = len(returnData)
+    paginator = Paginator(returnData,Ilimit)
     try:
         dataRows = paginator.page(Ipage)
     except EmptyPage:
