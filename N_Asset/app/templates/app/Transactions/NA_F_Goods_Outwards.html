@@ -933,7 +933,6 @@
 					}
 					try {
 						if (win.status !== 'Open') {
-
 							var textElem = event.target.innerText;
 							if (textElem === 'OK') {
 								//ExecuteHandler('OK');
@@ -1127,7 +1126,6 @@
 											var valDatelent = new Date(eloriginalData.daterequest);
 											return valDatelent;
 										}
-										//get date datelending
 									})(win),
 									//maxDate: 0,
 									//showOn: "button",
@@ -1149,7 +1147,6 @@
 											var valDatelent = new Date(eloriginalData.datereleased);
 											return valDatelent;
 										}
-										//get date datelending
 									})(win),
 									//maxDate: 0,
 									//showOn: "button",
@@ -1209,7 +1206,167 @@
 
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
-								//==============date lending======================
+							
+								//======================event handler BUTTONS Search================================================ 
+								var btnFindGoods = NA.common.getElementID('FE_fk_goods');
+								NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
+									BootstrapDialog.show({
+										draggable: true,
+										title: 'Find goods',
+										type: BootstrapDialog.TYPE_INFO,
+										size: BootstrapDialog.SIZE_SMALL,
+										message: function (dialogRef) {
+											var placeHolder = 'Enter goods name or brandname or (exact serialnumber) to search for';
+											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
+											function (e) {//event for blur
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === '') {
+														this.setAttribute('placeholder', placeHolder);
+													}
+												}
+											},
+											function (e) {//event for focus
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === placeHolder) {
+														this.setAttribute('placeholder', '');
+													}
+												}
+											},
+											function (e) {//even for keydown txtSearch													
+												if (e.keyCode === 13) {
+													NA.NAEvent.preventDefault(e);
+													win.document.body.style.cursor = 'wait';
+													//cek posisi keur dina tab mana
+													//cari data ke database
+													var url = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(e.target.value.trim());
+													if (gridTbl) {
+														jQuery(gridTbl).setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+													}
+													win.document.body.style.cursor = 'default';
+													NA.NAEvent.stopPropagation(e);
+												}
+											}, function (e) {
+												txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+												NA.common.triggerKeyboardEvent(txtSearch, 13);
+											});
+											var children = containerMessage.childNodes;
+											var mainContainer = null, txtSearch = null;
+											for (var i = 0, len = children.length; i < len; i++) {
+												if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
+													mainContainer = children[i]; break;
+												}
+											};
+											//loads Data into JqueryGrid
+											gridTbl = NA.common.doc.createElement('table');
+											gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods';
+											gridPager = NA.common.doc.createElement('div');
+											gridPager.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager';
+											mainContainer.appendChild(gridTbl);
+											mainContainer.appendChild(gridPager);
+											return containerMessage;
+										},
+										onshown: function (dialogRef) {
+											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+											gridTbl = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods');
+											gridPager = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager');
+											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+											gridTbl.jqGrid({
+												url: urlGoods,
+												mtype: "GET",
+												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
+												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
+												colModel: [
+														{ name: 'idapp', index: 'idapp', hidden: true, },
+														{ name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },
+														{ name: 'fk_goods', index: 'fk_goods', hidden: true, },
+														{ name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
+														{ name: 'brandname', index: 'brandname', width: 120, sortable: true, editable: false, align: 'left', },
+														{ name: 'type', index: 'type', width: 90, sortable: true, editable: false, align: 'left', },
+														{ name: 'serialnumber', index: 'serialnumber', width: 100, sortable: true, editable: false, align: 'left', },
+														{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true },
+														{ name: 'usedemployee', index: 'usedemployee', hidden: true },
+														{ name: 'lastinfo', index: 'lastinfo', width: 200, sortable: false, editable: false, align: 'left', },
+														{ name: 'fk_receive', index: 'fk_receive', hidden: true, },
+														{ name: 'fk_outwards', index: 'fk_outwards', hidden: true, },
+														{ name: 'fk_lending', index: 'fk_lending', hidden: true, },
+														{ name: 'fk_return', index: 'fk_return', hidden: true, },
+														{ name: 'fk_maintenance', index: 'fk_maintenance', hidden: true, },
+												],
+												ondblClickRow: function (rowId) {
+													//fire button OK
+													var btnOK = dialogRef.getButton('btnOKFindGoods');
+													btnOK.click();
+												},
+												gridComplete: function () {
+													document.body.style.cursor = 'default';
+												},
+												loadError: function (xhr, textStatus, errorThrown) {
+													var error_msg = xhr.responseText
+													var msg = "Some errors occurred during processing:"
+													msg += '\n\n' + error_msg
+													ShowAlert(msg)
+												},
+												cellEdit: false,
+												height: '200px',
+												rowNum: 500,
+												rowList: [20, 50, 100, 200, 300, 500],
+												sortname: "brandname",
+												sortorder: "asc",
+												multiSort: true,
+												//shrinkToFit: false,
+												iconSet: "fontAwesome",
+												//forceFit: true,
+												//toolbar: true,
+												scrollrows: true,
+												//hidegrid: true,
+												pager: "#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager"
+											});
+											gridTbl.navGrid(gridPager, {
+												search: false, // show search button on the toolbar
+												add: false,
+												edit: false,
+												del: false,
+												refresh: false
+											});
+										},
+										closable: false,
+										animate: false,
+										closeByBackdrop: false,
+										closeByKeyboard: false,
+										buttons: [{
+											label: 'Cancel',
+											icon: 'glyphicon glyphicon-remove',
+											cssClass: 'btn-success',
+											action: function (dialogRef) {
+												dialogRef.close();
+											},
+										}, {
+											label: 'OK',
+											id: 'btnOKFindGoods',
+											icon: 'glyphicon glyphicon-ok',
+											cssClass: 'btn-success',
+											action: function (dialogRef) {
+												var idapp = getGridCellValue(gridTbl, 'idapp');
+												if (idapp) {//cell di select sama user
+													//tempelkan data row di fk_goods, dan valuenya di goods_desc;
+													var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
+													var lastinfo = rowData['lastinfo'] // goods is able to use
+													var validInfo = ['goods is able to use', 'not yet used'];
+													if (validInfo.indexOf(lastinfo) >= 0) {
+														fillGoodsInfo(rowData);
+														dialogRef.close();
+													}
+													else {
+														ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
+														return false;
+													}
+
+												}
+											}
+										}]
+									});
+								});
+								//====================== End event handler BUTTONS Search================================================ 
 
 							}//end if (win.status !== 'Open' && win.status !== '')
 						}

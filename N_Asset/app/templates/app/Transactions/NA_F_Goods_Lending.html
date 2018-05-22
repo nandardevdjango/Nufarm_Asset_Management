@@ -1607,11 +1607,11 @@
 													NA.NAEvent.stopPropagation(e);
 												}
 											}, function (e) {
-												txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+												var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
 												NA.common.triggerKeyboardEvent(txtSearch, 13);
 											});
 											var children = containerMessage.childNodes;
-											var mainContainer = null, txtSearch = null;
+											var mainContainer = null;
 											for (var i = 0, len = children.length; i < len; i++) {
 												if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
 													mainContainer = children[i]; break;
@@ -1627,7 +1627,7 @@
 											return containerMessage;
 										},
 										onshown: function (dialogRef) {
-											txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
 											//loads Data into JqueryGrid 
 											gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
 											gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
@@ -1785,9 +1785,12 @@
                                                             }
                                                             win.document.body.style.cursor = 'default';
                                                         }
+                                                    }, function (e) {
+                                                    	var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                                                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
                                                     });
 								                    var children = containerMessage.childNodes;
-								                    var mainContainer = null, txtSearch = null;
+								                    var mainContainer = null;
 								                    for (var i = 0, len = children.length; i < len; i++) {
 								                        if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
 								                            mainContainer = children[i]; break;
