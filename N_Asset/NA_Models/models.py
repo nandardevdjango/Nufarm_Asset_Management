@@ -416,7 +416,7 @@ class NASysPriviledge(models.Model):
 
 class NAGoodsReceive_other(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
-    idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods')
+    fk_goods =models.ForeignKey(goods,db_column='fk_goods')
     datereceived = models.DateTimeField(db_column='DateReceived')
     fk_suplier = models.ForeignKey(NASuplier,db_column='FK_Suplier')
     totalpurchase = models.SmallIntegerField(db_column='TotalPurchase')

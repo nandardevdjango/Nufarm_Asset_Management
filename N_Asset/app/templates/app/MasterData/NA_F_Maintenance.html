@@ -516,7 +516,8 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
                     },
                     data: sendData(),
                     success: function (data) {
-                        var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                    	NA.common.dialog.closeDialog(dialog);
                         maintenance_grid.trigger('reloadGrid');
                         if (status.trim() == 'Add' || status.trim() == 'Edit') {
                             setTimeout(function () {

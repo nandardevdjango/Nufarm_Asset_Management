@@ -191,3 +191,17 @@ def get_GoodsData(request):
     fromgoods = request.GET['fromgoods']
     result = NAGoodsReturn.objects.getGoods_data(idapp,fromgoods)
     return commonFunct.response_default(result)
+
+@decorators.ajax_required
+def ShowCustomFilter(request):
+    cols = []
+    cols.append({'name':'goodsname','value':'goodsname','selected':'True','dataType':'varchar','text':'Goods Name'})
+    cols.append({'name':'brandname','value':'brandname','selected':'','dataType':'varchar','text':'Brand Name'})
+    cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
+    cols.append({'name':'fromemployee','value':'fromemployee','selected':'','dataType':'varchar','text':'Return By'})
+    cols.append({'name':'usedemployee','value':'usedemployee','selected':'','dataType':'varchar','text':'Used By'})
+    cols.append({'name':'datereturn','value':'datereturn','selected':'','dataType':'varchar','text':'Date Return'})
+    cols.append({'name':'conditions','value':'conditions','selected':'','dataType':'varchar','text':'Conditions'})
+    cols.append({'name':'minusDesc','value':'minusDesc','selected':'','dataType':'varchar','text':'Minus'})
+
+    return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
