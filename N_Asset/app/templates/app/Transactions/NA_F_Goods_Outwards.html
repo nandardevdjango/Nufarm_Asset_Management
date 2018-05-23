@@ -494,7 +494,7 @@
 			}
 		};
 
-		function fillGoodsInfo(rowData, serialnumber) {
+		function fillGoodsInfo(rowData, serialnumber,IsFromTextBox) {
 			 //form.idapp_fk_goods 
 
 			 //form.fk_frommaintenance 
@@ -508,7 +508,7 @@
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 			elidapp_fk_goods.value = rowData['idapp'] || null;//idapp di grid adalah idapp_fkgoods
 
-			//    form.fk_maintenance 
+			//    form.fk_frommaintenance 
 			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance ');
 			elfk_maintenance.value = rowData['fk_frommaintenance '] || null;
 
@@ -563,7 +563,13 @@
 				var elserialnumber = NA.common.getElementID('id_serialnumber');
 				elserialnumber.value = rowData['serialnumber'] || '';
 			}
-			elgoods.attributes['placeholder'] = '';
+			elgoods.attributes['placeholder'] = '';			
+			if (IsFromTextBox) {
+				NA.common.getElementID('lastUsedInfo').style.display = 'none';
+			}
+			else {
+				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+			}
 			NA.common.getElementID('difInfo').style.display = 'block';
 		};
 		function fillEmployeeName(event, elmID) {
@@ -1089,7 +1095,7 @@
                                                         	}
                                                         	else {
                                                         		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                        		fillGoodsInfo(data, this.id);
+                                                        		fillGoodsInfo(data, this.id,true);
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1366,6 +1372,7 @@
 										}]
 									});
 								});
+
 								//====================== End event handler BUTTONS Search================================================ 
 
 							}//end if (win.status !== 'Open' && win.status !== '')

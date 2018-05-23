@@ -78,6 +78,17 @@ def ShowEntry_Outwards(request):
     statuscode = 200
     data = None
     hasRefData = False
+def getLastTransGoods(request):
+	serialNO = request.GET.get('serialno')
+	try:
+		#result = NAGoodsLending.objects.getLastTrans(serialNO)
+		#idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost
+		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
+								  'lastinfo':result[5],'fk_receive':result[6],'fk_return':result[7],'fk_lending':result[8],'fk_outwards':[9],'fk_maintenance':result[10],
+								  }),status = 200, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getGoodsWithHistory(request):
 	try:
 		searchText = request.GET.get('searchData')
