@@ -205,19 +205,19 @@ class NA_BR_Goods_Outwards(models.Manager):
 				if row[5] is not None:
 					fklost = row[5]
 			if int(fklending)>0:
-				Query = """SELECT e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
+				Query = """SELECT e.nik,e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
 							WHERE ngl.IDApp = %s"""
 				cur.execute(Query,[fklending])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+					lastInfo = 'Last used by ' + str(row[0]) + '|' +  str(row[1]) + ', date lent ' + str(parse(row[2]).strftime('%d %B %Y')) + ', interests ' + str(row[3])
 			elif int(fkoutwards) > 0:
-				Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
+				Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
 							WHERE ngo.IDApp = %s"""
 				cur.execute(Query,[fkoutwards])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+					lastInfo = 'Last used by ' + str(row[0]) + '|' + str(row[1]) + ', date released ' + str(parse(row[2]).strftime('%d %B %Y')) + ', ' + str(row[3]) + ' (goods is still in use)'
 			elif int(fkreturn) > 0:
 				Query = """SELECT e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.NIK = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
