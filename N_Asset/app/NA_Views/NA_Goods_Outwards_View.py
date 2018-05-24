@@ -81,10 +81,11 @@ def ShowEntry_Outwards(request):
 def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:
-		#result = NAGoodsLending.objects.getLastTrans(serialNO)
-		#idapp,itemcode,goodsname,brandname,typeapp,lastInfo,fkreturn,fklending,fkoutwards,fkmaintenance,fkdisposal,fklost
+		result = NAGoodsOutwards.objects.getLastTrans(serialNO)
+		#return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
-								  'lastinfo':result[5],'fk_receive':result[6],'fk_return':result[7],'fk_lending':result[8],'fk_outwards':[9],'fk_maintenance':result[10],
+								  'fk_usedemployee':result[5],'usedemployee':result[6],'lastinfo':result[7],'fk_receive':result[8],'fk_return':result[9],
+                                  'fk_lending':result[10],'fk_outwards':[11],'fk_maintenance':result[12],
 								  }),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)

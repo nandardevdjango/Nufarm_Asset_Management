@@ -326,8 +326,8 @@ class NAGoodsOutwards(models.Model):
     daterequest = models.DateTimeField(db_column='DateRequest')  # Field name made lowercase.
     datereleased = models.DateTimeField(db_column='DateReleased')  # Field name made lowercase.
     fk_employee = models.ForeignKey(Employee,db_column='FK_Employee', max_length=50, blank=True, null=True,related_name='used_by_outwards')  # Field name made lowercase.
-    fk_usedemployee = models.ForeignKey(Employee,db_column,'FK_UsedEmployee',related_name='rel_used_employee_outwards',null=True)# models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    fk_frommaintenance = models.ForeignKey(Employee, 'rel_maintenance_outwards',db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
+    fk_usedemployee = models.ForeignKey(Employee,db_column='FK_UsedEmployee',related_name='rel_used_employee_outwards',null=True)# models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_frommaintenance = models.ForeignKey(Employee, related_name='rel_maintenance_outwards',db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
     fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='rel_resp_person_outwards')  # Field name made lowercase.
     fk_sender = models.ForeignKey(Employee,'rel_sender_outwards', db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_stock = models.ForeignKey(NAStock,related_name='rel_stock_outwards', db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
