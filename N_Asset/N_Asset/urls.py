@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from app.NA_Views import (NA_Goods_View, NA_User_View, NA_Employee_View, NA_LogEvent_View,
                           NA_Suplier_View, NA_EmailData_View, NA_Acc_Fa_View,NA_Goods_Receive_View,
                           NA_Maintenance_View,NA_GoodsLost_View, NA_Report_View,NA_GoodsLost_View,
-                          NA_Goods_Lending_View,NA_Priviledge_View,NA_Goods_Return_View)
+                          NA_Goods_Lending_View,NA_Priviledge_View,NA_Goods_Return_View,NA_Goods_Receive_Other_View)
 import app.views
 from django.views.generic import RedirectView
 # Uncomment the next lines to enable the admin:
@@ -79,6 +79,12 @@ urlpatterns = [
 	url(r'^NA_Goods_Receive/getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^NA_Goods_Receive/deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
 	url(r'^NA_Goods_Receive/customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter_Receiving'),
+
+    #NA Goods Receive
+    url(r'^NA_Goods_Receive_other/$',NA_Goods_Receive_Other_View.NA_Goods_Receive_other,name='NA_Goods_Receive_other'),
+    url(r'^NA_Goods_Receive_other/getData/$',NA_Goods_Receive_Other_View.NA_Goods_Receive_otherGetData),
+    url(r'^NA_Goods_Receive_other/ShowEntry/$',NA_Goods_Receive_Other_View.Entry_Goods_Receive_other),
+
 
 	#NA_Goods_Lending
 	url(r'^NA_Goods_Lending/$',NA_Goods_Lending_View.NA_Goods_Lending,name='GoodsLending'),

@@ -103,48 +103,36 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-					//idapp,goods,serialnumber,fromemployee,usedemployee,datereturn,conditions,minus,iscompleted,fk_goods_lend,descriptions,createddate,createdby
-                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'Return By', 'Used By', 'Date Return', 'conditions', 'Minus', 'Is Completed', 'Descriptions', 'Createddate', 'Createdby'],
+					//idapp,refno,fk_goods,datereceived,fk_suplier,totalpurchase,totalreceived,fk_receivedby,fk_p_r_by,descriptions,createddate,createdby
+                    colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'Received By', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
                     colModel: [
-                        {
-                        	name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true, editoptions: {
-                        		dataInit: function (element) {
-                        			jq(element).attr("readonly", "readonly");
-                        		}
-                        	}
-                        },
-                        { name: 'no', index: 'no', width: 45, align: 'center' },
-                        { name: 'goods', index: 'goodsname', width: 150, editable: true, search: false, sortable: true },
-                        { name: 'serialnumber', index: 'serialnumber', width: 150, align: 'left', editable: false, search: false },
-						{ name: 'fromemployee', index: 'fromemployee', width: 150, align: 'left', editable: false, search: false },
-						{ name: 'usedemployee', index: 'usedemployee', width: 150, align: 'left', editable: false, search: false },
-                        {
-                            name: 'datereturn', index: 'datereturn', width: 110, align: 'left', formatter: 'date',
-                            formatoptions: {
-                            	srcformat: 'Y-m-d', newformat: 'd F Y'
-                            }
-                        },
-						{ name: 'conditions', index: 'conditions', width: 150, align: 'left', editable: false, search: false },
-						{ name: 'minus', index: 'minus', width: 150, align: 'left', editable: false, search: false },
-                        {
-                            name: 'iscompleted', index: 'iscompleted', width: 110, editable: true, search: false,
-                            formatter: 'checkbox', edittype: 'checkbox', editoptions: {
-                            	value: '1:0'
+							{ name: 'idapp', key: true, hidden: true, align: 'left' },
+                            { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+							{ name: 'refno', width: 80, index: 'refno', align: 'left', sortable: true, editable: false, },
+                            { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
+                            {
+                            	name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date',
+                            	formatoptions: {
+                            		srcformat: 'Y-m-d', newformat: 'd F Y'
+                            	}
                             },
-                            align: 'center'
-                        },
-                        { name: 'descriptions', index: 'descriptions', width: 200, editable: true, search: false },
-                        {
-                            name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false,
-                            formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' }
-                        },
-                        {
-                        	name: 'createdby', index: 'createdby', width: 115, search: false, editable: false, editoptions: {
-                        		dataInit: function (element) {
-                        			jq(element).attr("readonly", "readonly");
-                        		}
-                        	}
-                        },
+                            { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
+                            { name: 'receivedby', index: 'receivedby', width: 120, sortable: true, editable: false, align: 'left', },
+                            { name: 'pr_by', index: 'pr_by', width: 120, sortable: true, editable: false, align: 'left', },
+                            {
+                            	name: 'totalpurchase', index: 'totalpurchase', width: 100, sortable: true, align: 'right',
+                            },
+                            {
+                            	name: 'totalreceived', index: 'totalreceived', width: 100, sortable: true, align: 'right',
+                            },
+							{ name: 'descriptions', index: 'descriptions', width: 120, sortable: true, editable: false, align: 'left', },
+                            {
+                            	name: 'createddate', index: 'CreatedDate', sortable: true, width: 120, formatter: 'date',
+                            	formatoptions: {
+                            		srcformat: 'Y-m-d', newformat: 'd F Y'
+                            	}
+                            },
+                            { name: 'createdby', index: 'CreatedBy', sortable: true, width: 110, editable: false, },
                     ],
                     jsonreader: {
                         repeatitems: false,
@@ -162,7 +150,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                     iconSet: "fontAwesome",
                     hidegrid: true,
                     shrinkToFit: false,
-                    caption: 'Transaction -- Goods Return',
+                    caption: 'Transaction -- Goods Receive',
                     shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
@@ -360,7 +348,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
     NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");
     NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");
 
-    NA.common.dialog.initDialog(containerMenu,'Nufarm Entry Goods Return - Transaction');
+    NA.common.dialog.initDialog(containerMenu,'Nufarm Entry Goods Receive - Transaction');
 
     var elementMenus = [];
     var menus = NA.common.doc.querySelectorAll('div.sidebar ul.list-sidebar.bg-defoult li ul li a');
@@ -380,28 +368,62 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
         return col
     }
     function getValues_Form() {
-        var data = {
-            fk_goods: qs('input#id_fk_goods').value.trim(),
-            itemcode: qs('input#id_itemcode').value.trim(),
-			typeApp:qs('input#id_typeApp').value.trim(),
-            goods: qs('input#id_goods').value.trim(),
-            idapp_fk_goods_outwards: qs('input#id_idapp_fk_goods_outwards').value.trim(),
-			idapp_fk_goods_lend:qs('input#id_idapp_fk_goods_lend').value.trim(),
-            serialNumber: qs('input#id_serialNumber').value.trim(),
-            minus: qs('input#id_minus').value.trim(),
-            idapp_usedemployee: qs('input#id_idapp_usedemployee').value.trim(),
-			nik_usedemployee:qs('input#id_nik_usedemployee').value.trim(),
-            usedemployee: qs('input#id_usedemployee').value.trim(),
-            idapp_fromemployee: qs('input#id_idapp_fromemployee').value.trim(),
-            nik_fromemployee: qs('input#id_nik_fromemployee').value.trim(),
-			fromemployee:qs('input#id_fromemployee').value.trim(),
-            datereturn: qs('input#id_datereturn').value.trim(),
-            conditions: qs('select#id_conditions').value.trim(),
-			iscompleted:qs('input#id_iscompleted').checked,
-            minus: qs('input#id_minus').value.trim(),
-            descriptions: qs('textarea#id_descriptions').value.trim()
-        };
-        return data
+    	//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+    	var elidapp = qs('#id_idapp'),
+			idapp = elidapp.value.trim();
+    	var elRefNO = qs('#id_refno'),
+			RefNO = elRefNO.value.trim();
+    	var elidapp_fk_goods = qs('#id_idapp_fk_goods'),
+			idapp_fk_goods = elidapp_fk_goods.value.trim();
+    	var elfk_goods = qs('#id_fk_goods'),
+			fk_goods = elfk_goods.value.trim();
+    	var elgoods_desc = qs('#id_goods_desc'),
+			goods_desc = elgoods_desc.value.trim();
+    	var eldatereceived = qs('#id_datereceived'),
+			datereceived = eldatereceived.value.toString().trim();
+    	var elfk_suplier = qs('#id_fk_suplier'),
+			fk_suplier = elfk_suplier.value.trim();
+    	var elsupliername = qs('#id_supliername'),
+			supliername = elsupliername.value.trim();
+    	var eltotalpurchase = qs('#id_totalpurchase'),
+			totalpurchase = eltotalpurchase.value.trim();
+    	var eltotalreceived = qs('#id_totalreceived'),
+			totalreceived = eltotalreceived.value.trim();
+    	var elidapp_fk_p_r_by = qs('#id_idapp_fk_p_r_by'),
+			idapp_fk_p_r_by = elidapp_fk_p_r_by.value.trim();
+    	var elfk_p_r_by = qs('#id_fk_p_r_by'),
+			fk_p_r_by = elfk_p_r_by.value.trim();
+    	var elemployee_pr = qs('#id_employee_pr'),
+			employee_pr = elemployee_pr.value.trim();
+    	var elidapp_fk_receivedby = qs('#id_idapp_fk_receivedby'),
+			idapp_fk_receivedby = elidapp_fk_receivedby.value.trim();
+    	var elfk_receivedby = qs('#id_fk_receivedby'),
+			fk_receivedby = elfk_receivedby.value.trim();
+    	var elemployee_received = qs('#id_employee_received'),
+			employee_received = elemployee_received.value.trim();
+    	var eldescriptions = qs('#id_descriptions'),
+			descriptions = eldescriptions.value.trim();
+    	var status = win.status || qs('id_status').value.trim();
+    	return {
+    		idapp: idapp,
+    		idapp_fk_goods: idapp_fk_goods,
+    		fk_goods: fk_goods,
+    		refno: RefNO,
+    		goods_desc: goods_desc,
+    		datereceived: datereceived,
+    		fk_suplier: fk_suplier,
+    		supliername: supliername,
+    		totalpurchase: totalpurchase,
+    		totalreceived: totalreceived,
+    		idapp_fk_p_r_by: idapp_fk_p_r_by,
+    		fk_p_r_by: fk_p_r_by,
+    		employee_pr: employee_pr,
+    		idapp_fk_receivedby: idapp_fk_receivedby,
+    		fk_receivedby: fk_receivedby,
+    		employee_received: employee_received,
+    		descriptions: descriptions,
+    		status: status
+    	};
     };
     
 
@@ -505,7 +527,6 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
             var idapp;
             if (win.status.trim() == 'Edit') {
             	idapp = getGridId()
-				console.log(idapp)
             } else {
                 idapp = ''
             }
@@ -548,14 +569,14 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
     };
     function ExecuteHandler(TextElement) {
         var dialog = qs("div.containerDialog");
-        var frmEntry = qs('form#gReturn_form');
+        var frmEntry = qs('form#gReceive_other_form');
         var emailForm = qs('form#email_data');
         if (frmEntry) {
             switch (TextElement) {
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
                         //NA.NAEvent.preventDefault(event);                                          
-                        var inputbtn = NA.common.getElementID('gReturn_submit');
+                        var inputbtn = NA.common.getElementID('goods_receive_other_submit');
                         inputbtn.click();
                     }
                     else {
@@ -575,7 +596,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 function () {
                                     if (!frmEntry.checkValidity()) {
                                         //NA.NAEvent.preventDefault(event);   
-                                        var inputbtn = NA.common.getElementID('gReturn_submit');
+                                        var inputbtn = NA.common.getElementID('goods_receive_other_submit');
                                         inputbtn.click();
                                     } else {
                                         G_Receive_otherSubmit();
@@ -817,20 +838,14 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 
                             	var fk_goods = qs('input#id_fk_goods'),
 									typeApp = qs('input#id_typeApp'),
-                                    itemcode = qs('input#id_itemcode'),
-                                    goods = qs('input#id_goods'),
-                                    serialNumber = qs('input#id_serialNumber'),
-                                    btn_fkGoods = qs('button#FK_goods'),
-									usedemployee = qs('input#id_usedemployee'),
-									nik_usedemployee = qs('input#id_nik_usedemployee'),
-									idapp_usedemployee = qs('input#id_idapp_usedemployee'),
-									idapp_fk_goods_outwards = qs('input#id_idapp_fk_goods_outwards'),
-									idapp_fk_goods_lend = qs('input#id_idapp_fk_goods_lend');
+                                    itemcode = qs('input#id_goods_desc'),
+                                    serialNumber = qs('input#id_serialNumber')
+                                    
 
-                                var btn_fkEmployee = qs('button#FK_fromemployee'),
-									nik_fromemployee = qs('input#id_nik_fromemployee'),
-									fromemployee = qs('input#id_fromemployee'),
-									idapp_fromemployee = qs('input#id_idapp_fromemployee');
+                            	var btn_fk_goods = qs('button#btn_fk_goods'),
+									btn_fk_suplier = qs('button#btn_fk_suplier'),
+									btn_fk_p_r_by = qs('button#btn_fk_p_r_by'),
+									btn_fk_receivedby = qs('button#btn_fk_receivedby');
 
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
@@ -1166,11 +1181,11 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                         searchGoods(event);
                                     }
                                 });
-                                NA.NAEvent.addHandler(btn_fkGoods, 'click', function (event) {
+                                NA.NAEvent.addHandler(btn_fk_goods, 'click', function (event) {
                                     searchGoods(event);
                                 });
 
-                                NA.NAEvent.addHandler(btn_fkEmployee, 'click', function (event) {
+                                NA.NAEvent.addHandler(btn_fk_p_r_by, 'click', function (event) {
                                 	searchEmployee(event);
                                 });
 

@@ -9,7 +9,7 @@ from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
 from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
 from NA_DataLayer.NA_Goods_Return_BR import NA_BR_Goods_Return
-from NA_DataLayer.NA_Goods_Receive_Other_BR import NA_BR_Receive_other
+from NA_DataLayer.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 from django.contrib.auth.models import AbstractUser
@@ -431,6 +431,6 @@ class NAGoodsReceive_other(models.Model):
     descbysystem =  models.CharField(db_column='DescBySystem', max_length=250, blank=True, null=True)# Field name made lowercase.
     refno =  models.CharField(db_column='REFNO', max_length=50)# Field name made lowercase.
 
-    objects = NA_BR_Receive_other()
+    objects = NA_BR_Goods_Receive_other()
     class Meta:
         db_table = 'n_a_goods_receive_other'

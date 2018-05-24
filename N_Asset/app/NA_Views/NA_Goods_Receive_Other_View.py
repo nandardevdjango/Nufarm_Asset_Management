@@ -9,9 +9,8 @@ from .NA_Goods_Receive_View import NA_Goods_Receive_Form
 from datetime import datetime
 
 def NA_Goods_Receive_other(request):
-    return render(request,'Transactions/NA_F_Goods_Receive_other.html')
+    return render(request,'app/Transactions/NA_F_Goods_Receive_other.html')
 
-#idapp,refno,fk_goods,datereceived,fk_suplier,totalpurchase,totalreceived,fk_receivedby,fk_p_r_by,descriptions,createddate,createdby
 def NA_Goods_Receive_otherGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey =  request.GET.get('valueKey')
@@ -43,7 +42,7 @@ def NA_Goods_Receive_otherGetData(request):
         datarow = {
 			"id" :row['IDApp'], "cell" :[
 				row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],
-				row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'],row['pr_by'],row['totalpurchase'],
+				row['receivedby'],row['pr_by'],row['totalpurchase'],
 				row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']
 				]
 			}
@@ -88,4 +87,4 @@ def Entry_Goods_Receive_other(request):
 			form = NA_Goods_Receive_other_Form(initial=data)
 		else:
 			form = NA_Goods_Receive_other_Form()
-		return render(request,'Transactions/NA_Entry_Goods_Receive_other.html',{'form':form})
+		return render(request,'app/Transactions/NA_Entry_Goods_Receive_other.html',{'form':form})

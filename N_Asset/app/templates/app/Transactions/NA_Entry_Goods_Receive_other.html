@@ -17,7 +17,7 @@
             <div class="input-group" style="display: inline-flex; width: 46%;">
                 {{ form.goods_desc }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                    <button class="btn btn-success" type="button" id="FE_fk_goods" style="padding:4px 8px;height: 28px">
+                    <button class="btn btn-success" type="button" id="btn_fk_goods" style="padding:4px 8px;height: 28px">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
                 </span>
@@ -29,7 +29,7 @@
             <div class="input-group" style="display:inline-flex; width:46%;">
                 {{ form.supliername }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                    <button class="btn btn-success" type="button" id="FE_fk_suplier" style="padding:4px 8px;height: 28px;">
+                    <button class="btn btn-success" type="button" id="btn_fk_suplier" style="padding:4px 8px;height: 28px;">
                         <i class="glyphicon glyphicon-search"></i>
                     </button>
                 </span>
@@ -52,7 +52,7 @@
             <div class="input-group" style="display:inline-flex;width:46%;">
                 {{ form.employee_pr }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                    <button class="btn btn-success" type="button" id="FE_fk_pr_by" style="padding:4px 8px;height: 28px;">
+                    <button class="btn btn-success" type="button" id="btn_fk_pr_by" style="padding:4px 8px;height: 28px;">
                         <i class="glyphicon glyphicon-search"></i>
                     </button>
                 </span>
@@ -64,7 +64,7 @@
             <div class="input-group" style="display:inline-flex;width:46%;">
                 {{ form.employee_received }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                    <button class="btn btn-success" type="button" id="FE_fk_receivedby" style="padding:4px 8px;height: 28px;">
+                    <button class="btn btn-success" type="button" id="btn_fk_receivedby" style="padding:4px 8px;height: 28px;">
                         <i class="glyphicon glyphicon-search"></i>
                     </button>
                 </span>
@@ -76,7 +76,7 @@
                 {{ form.descriptions }}
             </div>
         </div>
-        <input type="submit" style="display:none" id="inputButton">
+        <input type="submit" style="display:none" id="goods_receive_other_submit">
         {{ form.initializeForm }}
         {{ form.idapp }}
         {{ form.idapp_fk_goods }}
