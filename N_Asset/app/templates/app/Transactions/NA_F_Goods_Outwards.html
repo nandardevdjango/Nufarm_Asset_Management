@@ -609,7 +609,7 @@
 			var elfk_return = NA.common.getElementID('id_fk_return'),
                 fk_return = elfk_return.value;
 			var elfk_lending = NA.common.getElementID('id_fk_lending'),
-                fk_lending = elfk_currentapp.value;
+                fk_lending = elfk_lending.value;
 			var elfk_receive = NA.common.getElementID('id_fk_receive'),
                 fk_receive = elfk_receive.value;
 			//var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
@@ -655,7 +655,7 @@
 
 			//    form.fk_frommaintenance 
 			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance ');
-			elfk_maintenance.value = rowData['fk_frommaintenance '] || null;
+			elfk_maintenance.value = rowData['fk_maintenance '] || null;
 
 			//      form.fk_return 
 			var elfk_return = NA.common.getElementID('id_fk_return');
@@ -1104,23 +1104,23 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
-				if (hasLoadDialog) {
-					try {
-						//ExecuteHandler('Close');
-					} catch (e) {
-						ShowAlert(e.message);
-					}					
-				}
-				if (evt) {
-					NA.NAEvent.stopPropagation(evt);
-				}
-				win.document.body.style.cursor = 'default';
-				if (!hasLoadDialog) {
-					closeDialog();
-				}
+				//if (hasLoadDialog) {
+				//	try {
+				//		//ExecuteHandler('Close');
+				//	} catch (e) {
+				//		ShowAlert(e.message);
+				//	}					
+				//}
+				//if (evt) {
+				//	NA.NAEvent.stopPropagation(evt);
+				//}
+				//win.document.body.style.cursor = 'default';
+				//if (!hasLoadDialog) {
+				//	closeDialog();
+				//}
 				//==============End uncommment this after debugging=============
 				//comment this after debugging
-				//NA.common.dialog.closeDialog(dialog);
+				closeDialog();
 				return false;
 			});
 
@@ -1425,7 +1425,7 @@
 												url: urlGoods,
 												mtype: "GET",
 												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
-												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_disposal', 'fk_lost'],
+												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
 												colModel: [
 														{ name: 'idapp', index: 'idapp', hidden: true, },
 														{ name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },

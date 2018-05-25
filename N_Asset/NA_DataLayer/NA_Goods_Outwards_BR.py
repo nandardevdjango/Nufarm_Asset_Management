@@ -87,15 +87,15 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.execute(Query)
 		
 		#Query new items
-		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, '' AS fk_usedemployee,'' AS usedemployee, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 		cur.execute(Query)
 	    # Query get last trans in history 		
-		Query = "CREATE TEMPORARY TABLE Temp_T_History_Outwards" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_History_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
                     CASE 
                         WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
-                        WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending) \
+                        WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
 						END AS fk_usedemployee,
                     CASE 
                     WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.employee_name FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
@@ -133,20 +133,20 @@ class NA_BR_Goods_Outwards(models.Manager):
 		else:
 			strLimit = str(int(PageIndex)*int(pageSize))
 		#gabungkan jadi satu
-		Query = "CREATE TEMPORARY TABLE Temp_F_" + userName + """ ENGINE=MyISAM AS (SELECT * FROM \
-				(SELECT * FROM Temp_T_Receive_""" + userName + """ \
+		Query = "CREATE TEMPORARY TABLE Temp_F_Outwards_" + userName + """ ENGINE=MyISAM AS (SELECT * FROM \
+				(SELECT * FROM Temp_T_Receive_Outwards_""" + userName + """ \
 					UNION \
-				 SELECT * FROM Temp_T_History_""" + userName + """\
+				 SELECT * FROM Temp_T_History_Outwards_""" + userName + """\
 				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s) OR (serialnumber = %s))"""
 		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%',searchText])
 		if orderFields == '':
-			Query  = "SELECT * FROM Temp_F_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
+			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
 		else:
-			Query  = "SELECT * FROM Temp_F_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
+			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
 		cur.execute(Query)
 		result = query.dictfetchall(cur)
 
-		Query = "SELECT COUNT(*) FROM Temp_F_" + userName
+		Query = "SELECT COUNT(*) FROM Temp_F_Outwards_" + userName
 		cur.execute(Query)
 		row = cur.fetchone()
 		totalRecords = row[0]

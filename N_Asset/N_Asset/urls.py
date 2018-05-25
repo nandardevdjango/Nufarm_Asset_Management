@@ -92,10 +92,10 @@ urlpatterns = [
 	url(r'^NA_Goods_Lending/customFilter/$',NA_Goods_Lending_View.ShowCustomFilter,name='SowCustomFilter_Lending'),
 
     #NA_Goods_Outwards
-    url(r'NA_Goods_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='GoodsOutwards'),
-    url(r'NA_Goods_Outwards/NA_Goods_Outwards_Search/$',NA_Goods_Outwards_View.NA_Goods_Outwards_Search,name='GoodsOutwardManager'),
-    url(r'NA_Goods_Outwards/ShowEntry_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='ShowEntryOutwards'),
-    url(r'NA_Goods_Outwards/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee-from-outwards'),#ambil funtion yang sudah ada di receive view
+    url(r'^NA_Goods_Outwards/$',NA_Goods_Outwards_View.NA_Goods_Outwards,name='GoodsOutwards'),
+    url(r'^NA_Goods_Outwards/NA_Goods_Outwards_Search/$',NA_Goods_Outwards_View.NA_Goods_Outwards_Search,name='GoodsOutwardManager'),
+    url(r'^NA_Goods_Outwards/ShowEntry_Outwards/$',NA_Goods_Outwards_View.ShowEntry_Outwards,name='ShowEntryOutwards'),
+    url(r'^NA_Goods_Outwards/getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee-from-outwards'),#ambil funtion yang sudah ada di receive view
     url(r'^NA_Goods_Outwards/SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform-from-outwards'),#ambil funtion yang sudah ada di receive view
     url(r'^NA_Goods_Outwards/getGoodsWithHistory/$',NA_Goods_Outwards_View.getGoodsWithHistory,name='getGoodsWithHistory_Outwards'),
     url(r'^NA_Goods_Outwards/getLastTransGoods/$',NA_Goods_Outwards_View.getLastTransGoods,name='getlastTransGoods'),
@@ -105,7 +105,7 @@ urlpatterns = [
 	#NA Acc FA
 	url(r'^NA_Acc_FA/$',NA_Acc_Fa_View.NA_Acc_FA, name='NA_Acc'),
 	url(r'^NA_Acc_FA/ShowEntry/$',NA_Acc_Fa_View.EntryAcc, name='NA_Acc_Entry'),
-    url(r'NA_Acc_FA/getData/$',NA_Acc_Fa_View.NA_AccGetData),
+    url(r'^NA_Acc_FA/getData/$',NA_Acc_Fa_View.NA_AccGetData),
 	url(r'^NA_Acc_FA/getGoods/$',NA_Acc_Fa_View.getGoods_data),
     url(r'^NA_Acc_FA/SearchGoodsByForm/$',NA_Acc_Fa_View.SearchGoodsbyForm),
     url(r'^NA_Acc_FA/customFilter/',NA_Acc_Fa_View.ShowCustomFilter),

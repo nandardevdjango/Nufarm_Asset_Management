@@ -157,7 +157,7 @@ def ShowEntry_Lending(request):
 			
 			status = data['status']
 			form = NA_Goods_Lending_Form(data)
-			resul = ''
+			result = ''
 			if form.is_valid():
 				form.clean()
 				data.update(isnew=strtobool(str(data['isnew'])))
@@ -291,7 +291,7 @@ class NA_Goods_Lending_Form(forms.Form):
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
-	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
+	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)

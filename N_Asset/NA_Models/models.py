@@ -329,10 +329,10 @@ class NAGoodsOutwards(models.Model):
     fk_usedemployee = models.ForeignKey(Employee,db_column='FK_UsedEmployee',related_name='rel_used_employee_outwards',null=True)# models.CharField(db_column='FK_UsedEmployee', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_frommaintenance = models.ForeignKey(Employee, related_name='rel_maintenance_outwards',db_column='FK_FromMaintenance', blank=True, null=True)  # Field name made lowercase.
     fk_responsibleperson = models.ForeignKey(Employee,db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True,related_name='rel_resp_person_outwards')  # Field name made lowercase.
-    fk_sender = models.ForeignKey(Employee,'rel_sender_outwards', db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    fk_sender = models.ForeignKey(Employee,related_name='rel_sender_outwards', db_column='FK_Sender', max_length=50, blank=True, null=True)  # Field name made lowercase.
     fk_stock = models.ForeignKey(NAStock,related_name='rel_stock_outwards', db_column='FK_Stock', blank=True, null=True)  # Field name made lowercase.
     serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
-    typeapp = models.CharField(db_column='TypeApp',max_length='32')
+    typeapp = models.CharField(db_column='TypeApp',max_length=32)
     fk_lending = models.ForeignKey(NAGoodsLending,db_column='FK_Lending',related_name='rel_lending_outwards')
     fk_return = models.ForeignKey(NAGoodsLending,db_column='FK_Return',related_name='rel_return_outwards',null=True)
     fk_receive = models.ForeignKey(NAGoodsReceive,db_column='FK_Receive',related_name='rel_receive_outward',null=True)
