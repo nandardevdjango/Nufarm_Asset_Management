@@ -32,8 +32,13 @@ def NA_AccGetData(request):
     i = 0
     for row in dataRows.object_list:
         i +=1
-        datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['year'],\
-            row['startdate'],row['depreciationmethod'],row['depr_expense'],row['depr_accumulation'],row['bookvalue'],row['createddate'],row['createdby']]}
+        datarow = {
+			"id" :row['idapp'], "cell" :[
+				row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['year'],
+				row['startdate'],row['depreciationmethod'],row['depr_expense'],
+				row['depr_accumulation'],row['bookvalue'],row['createddate'],row['createdby']
+				]
+			}
         rows.append(datarow)
     results = {"page": dataRows.number,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -192,8 +197,10 @@ def generate_acc(acc,values_insert):
     if month_of == 0:
         if depr_method == 'DDB':
             depr_expense = depr_expense*2
-        str_values = ['("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str(economiclife),str(startdate),str(depr_expense),
-                      '0.00',str('%0.2f' % price),acc['createddate'],acc['createdby']+'")']
+        str_values = [
+			'("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str(economiclife),str(startdate),
+			str(depr_expense),'0.00',str('%0.2f' % price),acc['createddate'],acc['createdby']+'")'
+		]
     else:
         total_rows = int(economiclife*12)
         if depr_method == 'SL' or depr_method == 'DDB':
@@ -212,8 +219,12 @@ def generate_acc(acc,values_insert):
             if depr_accumulation > price:
                 depr_accumulation = price
             bookvalue = price - depr_accumulation
-        str_values = ['("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),str('%0.2f' % residue_eccLife),str(startdate),str('%0.2f' % depr_expense),\
-            str('%0.2f' % depr_accumulation),str('%0.2f' % bookvalue),acc['createddate'],acc['createdby']+'")']
+        str_values = [
+			'("'+str(acc['fk_goods']),str(serialNumber),str(typeApp),
+			str('%0.2f' % residue_eccLife),str(startdate),str('%0.2f' % depr_expense),
+			str('%0.2f' % depr_accumulation),str('%0.2f' % bookvalue),acc['createddate'],
+			acc['createdby']+'")'
+		]
     str_values = '","'.join(str_values)
     return values_insert.insert(0,str_values)#(FK_Goods,Goods_Name,Year,StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
 def getGoods_data(request):
@@ -236,6 +247,10 @@ def SearchGoodsbyForm(request):
 		NAData = NAAccFa.objects.searchAcc_ByForm(goodsFilter)
 		if NAData == []:
 			results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
+			return HttpResponse(
+				json.dumps(results, indent=4,cls=DjangoJSONEncoder),
+				content_type='application/json'
+			)
 		else:
 			totalRecord = len(NAData)
 			paginator = Paginator(NAData, int(Ilimit))
@@ -247,7 +262,16 @@ def SearchGoodsbyForm(request):
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:
 		i+=1
-		datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']]}
+		datarow = {
+			"id" :str(row['idapp']) +'_fk_goods', "cell" :[
+				row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber']
+				]
+			}
 		rows.append(datarow)
-	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	results = {
+		"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows 
+		}
+	return HttpResponse(
+		json.dumps(results, indent=4,cls=DjangoJSONEncoder),
+		content_type='application/json'
+	)

@@ -822,7 +822,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                             };
                             if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit     
                             	var originalData = JSON.stringify(getValues_Form());
-                                $('input#id_datereturn').datepicker({
+                                $('input#id_datereceived').datepicker({
                                 	dateFormat: 'dd/mm/yy',
                                 	changeMonth: true,
                                 	changeYear: true,
@@ -836,12 +836,26 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 
                                 //simpan original data di initializeForm
                                 
-                            	var fk_goods = qs('input#id_fk_goods'),
+                                var fk_goods = qs('input#id_fk_goods'),
 									typeApp = qs('input#id_typeApp'),
-                                    itemcode = qs('input#id_goods_desc'),
-                                    serialNumber = qs('input#id_serialNumber')
-                                    
+                                    goods_desc = qs('input#id_goods_desc'),
+                                    refno = qs('input#id_refno'),
+									datereceived = qs('input#id_datereceived'),
 
+									fk_suplier = qs('input#id_fk_suplier'),
+									supliername = qs('input#id_supliername'),
+
+									total_purchase = qs('input#id_totalpurchase'),
+									total_received = qs('input#id_totalreceived'),
+
+									idapp_p_r_by = qs('input#id_idapp_fk_p_r_by'),
+									fk_p_r_by = qs('input#id_fk_p_r_by'),
+									employee_pr = qs('input#id_employee_pr'),
+
+									idapp_receivedby = qs('input#id_idapp_fk_receivedby'),
+                                    fk_receivedby = qs('input#id_fk_receivedby'),
+									employee_received = qs('input#id_employee_received');
+									
                             	var btn_fk_goods = qs('button#btn_fk_goods'),
 									btn_fk_suplier = qs('button#btn_fk_suplier'),
 									btn_fk_p_r_by = qs('button#btn_fk_p_r_by'),
@@ -875,7 +889,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                                     NA.NAEvent.preventDefault(e);
                                                     win.document.body.style.cursor = 'wait';
                                                     //cari data ke database
-                                                    var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                    var url = '/NA_Goods_Receive/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
                                                     if (gridTbl) {
                                                         jQuery(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                                     }
@@ -896,9 +910,9 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 
                                             //loads Data into JqueryGrid
                                             gridTbl = NA.common.doc.createElement('table');
-                                            gridTbl.id = 'NA_Goods_Return_FK_Goods';
+                                            gridTbl.id = 'NA_Goods_Receive_other_FK_Goods';
                                             gridPager = NA.common.doc.createElement('div');
-                                            gridPager.id = 'NA_Goods_Return_FK_Goods_Pager';
+                                            gridPager.id = 'NA_Goods_Receive_other_FK_Goods_Pager';
                                             mainContainer.appendChild(gridTbl);
                                             mainContainer.appendChild(gridPager);
                                             return containerMessage;
@@ -909,8 +923,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                             if (txtSearch != null) {
                                                 valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                             }
-                                            gridTbl = $('#NA_Goods_Return_FK_Goods');
-                                            var urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;
+                                            gridTbl = $('#NA_Goods_Receive_other_FK_Goods');
+                                            var urlFKGoods = '/NA_Goods_Receive/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + valSearch;
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
@@ -963,9 +977,9 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                                 scrollrows: true,
                                                 //hidegrid: true,
                                                 //caption: "Transactions ---Find goods",
-                                                pager: "#NA_Goods_Return_FK_Goods_Pager"
+                                                pager: "#NA_Goods_Receive_other_FK_Goods_Pager"
                                             });
-                                            gridTbl.navGrid('#NA_Goods_Return_FK_Goods_Pager', {
+                                            gridTbl.navGrid('#NA_Goods_Receive_other_FK_Goods_Pager', {
                                                 search: false, // show search button on the toolbar
                                                 add: false,
                                                 edit: false,
@@ -973,7 +987,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                                 refresh: false
                                             });
                                             restyleBoostrapDialog();
-                                            var elGrid = qsAll('div#gbox_NA_Goods_Return_FK_Goods,div#gview_NA_Goods_Return_FK_Goods,div#gview_NA_Goods_Return_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Return_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Return_FK_Goods_Pager')
+                                            var elGrid = qsAll('div#gbox_NA_Goods_Receive_other_FK_Goods,div#gview_NA_Goods_Receive_other_FK_Goods,div#gview_NA_Goods_Receive_other_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_other_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_other_FK_Goods_Pager')
                                             Array.prototype.forEach.call(elGrid, function (el) {
                                                 el.style.width = 'inherit';
                                             });
@@ -1083,9 +1097,9 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 
                                 			//loads Data into JqueryGrid
                                 			gridTbl = NA.common.doc.createElement('table');
-                                			gridTbl.id = 'NA_Goods_Return_FK_Employee';
+                                			gridTbl.id = 'NA_Goods_Receive_other_FK_Employee';
                                 			gridPager = NA.common.doc.createElement('div');
-                                			gridPager.id = 'NA_Goods_Return_FK_Employee_Pager';
+                                			gridPager.id = 'NA_Goods_Receive_other_FK_Employee_Pager';
                                 			mainContainer.appendChild(gridTbl);
                                 			mainContainer.appendChild(gridPager);
                                 			return containerMessage;
@@ -1096,7 +1110,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			if (txtSearch != null) {
                                 				valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                 			}
-                                			gridTbl = $('#NA_Goods_Return_FK_Employee');
+                                			gridTbl = $('#NA_Goods_Receive_other_FK_Employee');
                                 			var urlFKGoods = '/NA_Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
                                 			gridTbl.jqGrid({
                                 				url: urlFKGoods,
@@ -1132,9 +1146,9 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 				scrollrows: true,
                                 				//hidegrid: true,
                                 				//caption: "Transactions ---Find goods",
-                                				pager: "#NA_Goods_Return_FK_Employee_Pager"
+                                				pager: "#NA_Goods_Receive_other_FK_Employee_Pager"
                                 			});
-                                			gridTbl.navGrid('#NA_Goods_Return_FK_Employee_Pager', {
+                                			gridTbl.navGrid('#NA_Goods_Receive_other_FK_Employee_Pager', {
                                 				search: false, // show search button on the toolbar
                                 				add: false,
                                 				edit: false,
@@ -1142,7 +1156,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 				refresh: false
                                 			});
                                 			restyleBoostrapDialog();
-                                			var elGrid = qsAll('div#gbox_NA_Goods_Return_FK_Employee,div#gview_NA_Goods_Return_FK_Employee,div#gview_NA_Goods_Return_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Return_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Return_FK_Employee_Pager')
+                                			var elGrid = qsAll('div#gbox_NA_Goods_Receive_other_FK_Employee,div#gview_NA_Goods_Receive_other_FK_Employee,div#gview_NA_Goods_Receive_other_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_other_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_other_FK_Employee_Pager')
                                 			Array.prototype.forEach.call(elGrid, function (el) {
                                 				el.style.width = 'inherit';
                                 			});
@@ -1164,19 +1178,168 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			icon: 'glyphicon glyphicon-ok',
                                 			cssClass: 'btn-success',
                                 			action: function (dialogRef) {
-                                				var rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
-                                                    rowData = gridTbl.getRowData(rowId),
-                                                    target = NA.NAEvent.getTarget(event);
-                                				idapp_fromemployee.value = rowId,
-												nik_fromemployee.value = rowData['nik'],
-												fromemployee.value = rowData['employee_name'];
+                                				var target = NA.NAEvent.getTarget(event),
+													rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
+                                                    rowData = gridTbl.getRowData(rowId);
+                                				if (target.id == 'btn_fk_p_r_by' || target.id == 'id_fk_p_r_by') {
+                                					fk_p_r_by.value = rowData['nik'],
+													employee_pr.value = rowData['employee_name'];
+                                					idapp_p_r_by.value = rowId;
+                                				} else if (target.id == 'btn_fk_receivedby' || target.id == 'id_fk_receivedby') {
+                                					fk_receivedby.value = rowData['nik'],
+													employee_received.value = rowData['employee_name'],
+													idapp_receivedby.value = rowId;
+                                				}
+                                				
                                 				dialogRef.close();
                                 			}
                                 		}]
                                 	});
                                 }
 
-                                NA.NAEvent.addHandler(itemcode, 'keydown', function (event) {
+                                function searchSuplier(event) {
+                                	BootstrapDialog.show({
+                                		draggable: true,
+                                		type: BootstrapDialog.TYPE_INFO,
+                                		size: BootstrapDialog.SIZE_SMALL,
+                                		message: function (dialogRef) {
+                                			var placeHolder = 'Enter text to search for .. .';
+                                			var containerMessage = NA.common.dialog.createFormContainer('fk_suplier', placeHolder,
+											function (e) {//event for blur
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === '') {
+														this.setAttribute('placeholder', placeHolder);
+													}
+												}
+											},
+											function (e) {//event for focus
+												if (this.value === '') {
+													if (this.getAttribute('placeholder') === placeHolder) {
+														this.setAttribute('placeholder', '');
+													}
+												}
+											},
+											function (e) {//even for keydown txtSearch
+												if (e.keyCode === 13) {
+													win.document.body.style.cursor = 'wait';
+													//cari data ke database
+													var url = '/NA_Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
+
+													if (gridTbl) {
+														gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+													}
+													win.document.body.style.cursor = 'default';
+												}
+											});
+                                			var children = containerMessage.childNodes;
+                                			var mainContainer = null, txtSearch = null;
+                                			for (var i = 0, len = children.length; i < len; i++) {
+                                				if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_suplier') {
+                                					mainContainer = children[i]; break;
+                                				}
+                                			};
+                                			//loads Data into JqueryGrid
+                                			gridTbl = NA.common.doc.createElement('table');
+                                			gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier';
+                                			gridPager = NA.common.doc.createElement('div');
+                                			gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier_Pager';
+                                			mainContainer.appendChild(gridTbl);
+                                			mainContainer.appendChild(gridPager);
+                                			return containerMessage;
+                                		},
+                                		onshown: function (dialogRef) {
+                                			txtSearch = NA.common.getElementID('txtsearch_fk_suplier');
+                                			//loads Data into JqueryGrid 
+                                			gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
+                                			gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
+                                			var urlFKSuplier = '/NA_Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                                			gridTbl.jqGrid({
+                                				url: urlFKSuplier,
+                                				mtype: "GET",
+                                				datatype: "json",//column idapp, no,supliercode,supliername
+                                				colNames: ['NO', 'Suplier Code', 'Suplier Name', 'Address'],
+                                				colModel: [
+													{ name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
+													{ name: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
+													{ name: 'supliername', index: 'supliername', width: 130, sortable: true, editable: false, align: 'left', },
+													{name:'address',index:'address',width:250}
+                                				],
+                                				ondblClickRow: function (rowId) {
+                                					//fire button OK
+                                					var btnOK = dialogRef.getButton('btnOKFindsuplier');
+                                					btnOK.click();
+                                				},
+                                				gridComplete: function () {
+                                					document.body.style.cursor = 'default';
+                                				},
+                                				loadError: function (xhr, textStatus, errorThrown) {
+                                					var error_msg = xhr.responseText
+                                					var msg = "Some errors occurred during processing:"
+                                					msg += '\n\n' + error_msg
+                                					dialogAlert(msg,NA.common.message.titleInfo)
+                                				},
+                                				cellEdit: false,
+                                				height: '150px',
+                                				rowNum: 500,
+                                				rowList: [20, 50, 100, 200, 300, 500],
+                                				sortname: "supliername",
+                                				sortorder: "asc",
+                                				multiSort: true,
+                                				//shrinkToFit: false,
+                                				iconSet: "fontAwesome",
+                                				//forceFit: true,
+                                				//toolbar: true,
+                                				scrollrows: true,
+                                				//hidegrid: true,
+                                				pager: "#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager"
+                                			});
+                                			gridTbl.navGrid(gridPager, {
+                                				search: false, // show search button on the toolbar
+                                				add: false,
+                                				edit: false,
+                                				del: false,
+                                				refresh: false
+                                			});
+                                		},
+                                		closable: false,
+                                		animate: false,
+                                		closeByBackdrop: false,
+                                		closeByKeyboard: false,
+                                		buttons: [{
+                                			label: 'Cancel',
+                                			icon: 'glyphicon glyphicon-remove',
+                                			cssClass: 'btn-success',
+                                			action: function (dialogRef) {
+                                				dialogRef.close();
+                                			},
+                                		}, {
+                                			label: 'OK',
+                                			id: 'btnOKFindsuplier',
+                                			icon: 'glyphicon glyphicon-ok',
+                                			cssClass: 'btn-success',
+                                			action: function (dialogRef) {
+                                				var supliercode = getGridCellValue(gridTbl, 'supliercode');
+                                				if (supliercode) {//cell di select sama user
+                                					//tempelkan data row di fk_goods, dan valuenya di goods_desc;
+                                					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                                					var rowData = gridTbl.getRowData(rowId);
+                                					var supliername = rowData['supliername'];
+                                					var txtid_fk_suplier = NA.common.getElementID('id_fk_suplier');
+                                					txtid_fk_suplier.value = supliercode;
+                                					txtid_fk_suplier.attributes['placeholder'] = '';
+                                					var txtsupliername = NA.common.getElementID('id_supliername');
+                                					txtsupliername.value = supliername;
+                                					txtsupliername.attributes['placeholder'] = '';
+                                				}
+                                				dialogRef.close();
+                                			}
+                                		}]
+                                	});
+                                	//Atur tampilan                        			
+                                	restyleBoostrapDialog();
+                                };
+
+                                NA.NAEvent.addHandler(fk_goods, 'keydown', function (event) {
                                     if (event.keyCode == 13) {
                                         searchGoods(event);
                                     }
@@ -1185,11 +1348,25 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                     searchGoods(event);
                                 });
 
+                                NA.NAEvent.addHandler(btn_fk_suplier, 'click', function (event) {
+                                	searchSuplier(event);
+                                });
+
                                 NA.NAEvent.addHandler(btn_fk_p_r_by, 'click', function (event) {
                                 	searchEmployee(event);
                                 });
 
-                                NA.NAEvent.addHandler(nik_fromemployee, 'keydown', function (event) {
+                                NA.NAEvent.addHandler(employee_pr, 'keydown', function (event) {
+                                	if (event.keyCode == 13) {
+                                		searchEmployee(event);
+                                	}
+                                });
+
+                                NA.NAEvent.addHandler(btn_fk_receivedby, 'click', function (event) {
+                                	searchEmployee(event);
+                                });
+
+                                NA.NAEvent.addHandler(fk_receivedby, 'keydown', function (event) {
                                 	if (event.keyCode == 13) {
                                 		searchEmployee(event);
                                 	}

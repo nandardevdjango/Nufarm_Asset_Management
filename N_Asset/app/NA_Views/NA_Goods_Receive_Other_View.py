@@ -61,8 +61,10 @@ def getFormData(form):
 		 }
 	return data
 
+
 class NA_Goods_Receive_other_Form(NA_Goods_Receive_Form):
 	pass
+
 
 def Entry_Goods_Receive_other(request):
 	if request.method == 'POST':

@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^NA_Suplier/EntrySuplier/$', NA_Suplier_View.EntrySuplier),
     url(r'^NA_Suplier/getData/', NA_Suplier_View.NA_SuplierGetData,name='NA_Suplier_data'),
     url(r'^NA_Suplier/customFilter/$', NA_Suplier_View.ShowCustomFilter),
+    url(r'^NA_Suplier/SearchSuplierbyForm/$',NA_Suplier_View.SearchSuplierbyForm),
 
     #NA_EmailData
     url(r'^NA_EmailData/$', NA_EmailData_View.NA_EmailData, name='NA_EmailData'),

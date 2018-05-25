@@ -162,3 +162,16 @@ class NA_BR_Suplier(models.Manager):
         else:
             cur.close()
             return False
+
+    def getSuplierByForm(self,q):
+        data = super(NA_BR_Suplier,self).get_queryset()\
+            .values('supliercode','supliername','address')\
+            .filter(
+                Q(supliercode__icontains=q) |
+                Q(supliername__icontains=q) |
+                Q(address__icontains=q)
+            )
+        if data.exists():
+            return data
+        else:
+            return Data.Empty

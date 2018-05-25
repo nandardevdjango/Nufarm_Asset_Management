@@ -3,7 +3,8 @@ from NA_Models.models import NASuplier, LogEvent
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 import datetime
-from NA_DataLayer.common import CriteriaSearch, StatusForm, ResolveCriteria, Data, Message, commonFunct
+from NA_DataLayer.common import (CriteriaSearch, StatusForm, ResolveCriteria, Data, 
+								 Message, commonFunct,decorators)
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -13,6 +14,8 @@ from django import forms
 def NA_Suplier(request):
     return render(request, 'app/MasterData/NA_F_Suplier.html')
 
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def NA_SuplierGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey =  request.GET.get('valueKey')
@@ -115,22 +118,74 @@ def EntrySuplier(request):
             form = NA_Suplier_form()
             return render(request, 'app/MasterData/NA_Entry_Suplier.html', {'form':form})
 
-
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def ShowCustomFilter(request):
-	if request.is_ajax():
-		cols = []
-		cols.append({'name':'supliercode','value':'supliercode','selected':'','dataType':'varchar','text':'Suplier Code'})
-		cols.append({'name':'supliername','value':'supliername','selected':'True','dataType':'varchar','text':'Suplier Name'})
-		cols.append({'name':'address','value':'address','selected':'','dataType':'varchar','text':'Address'})
-		cols.append({'name':'telp','value':'telp','selected':'','dataType':'varchar','text':'Telp'})
-		cols.append({'name':'hp','value':'hp','selected':'','dataType':'varchar','text':'Hp'})
-		cols.append({'name':'contactperson','value':'contactperson','selected':'','dataType':'varchar','text':'Contact Person'})
-		cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
-		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+	cols = []
+	cols.append({'name':'supliercode','value':'supliercode','selected':'','dataType':'varchar','text':'Suplier Code'})
+	cols.append({'name':'supliername','value':'supliername','selected':'True','dataType':'varchar','text':'Suplier Name'})
+	cols.append({'name':'address','value':'address','selected':'','dataType':'varchar','text':'Address'})
+	cols.append({'name':'telp','value':'telp','selected':'','dataType':'varchar','text':'Telp'})
+	cols.append({'name':'hp','value':'hp','selected':'','dataType':'varchar','text':'Hp'})
+	cols.append({'name':'contactperson','value':'contactperson','selected':'','dataType':'varchar','text':'Contact Person'})
+	cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
 def NA_Suplier_delete(request):
     if request.user.is_authenticated():
-        if request.method == 'POST':
-            get_supcode = request.POST.get('supliercode')
-            deleteObj = NASuplier.objects.delete_suplier(supliercode=get_supcode,NA_User=request.user.username)
-            return commonFunct.response_default(deleteObj)
+        get_supcode = request.POST.get('supliercode')
+        deleteObj = NASuplier.objects.delete_suplier(supliercode=get_supcode,NA_User=request.user.username)
+        return commonFunct.response_default(deleteObj)
+
+def SearchSuplierbyForm(request):
+	"""get suplier data for grid return suplier code,supliername, criteria = icontains"""
+	searchText = request.GET.get('supliername')
+	Ilimit = request.GET.get('rows')
+	Isidx = request.GET.get('sidx')
+	Isord = request.GET.get('sord')
+	NAData = NASuplier.objects.getSuplierByForm(searchText)
+	if NAData == Data.Empty:
+		results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
+		return HttpResponse(
+			json.dumps(results, indent=4,cls=DjangoJSONEncoder),
+			content_type='application/json'
+		)
+	print(Isidx)
+	print(Isidx == None)
+	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
+		#if ',' in Isidx:
+		#	multi_sort = []
+		#	Isidx = Isidx.split(',')
+		#	for i in Isidx:
+		#		multi_sort.append({'column':})
+		#		if len(i.split(' ')) > 1:
+
+		sort = str(Isidx)
+		if Isord == 'desc':
+			sort = '-' + sort
+		NAData = NAData.order_by(sort)
+	totalRecord = NAData.count()
+	paginator = Paginator(NAData, int(Ilimit)) 
+	try:
+		page = request.GET.get('page', '1')
+	except ValueError:
+		page = 1
+	try:
+		dataRows = paginator.page(page)
+	except (EmptyPage, InvalidPage):
+		dataRows = paginator.page(paginator.num_pages)
+		
+	rows = []
+	i = 0;#idapp,itemcode,goods
+	for row in dataRows.object_list:
+		i+=1
+		datarow = {
+			"id" :row['supliercode'], "cell" :[
+				i,row['supliercode'],row['supliername'],row['address']
+				]
+			}
+		rows.append(datarow)
+	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
