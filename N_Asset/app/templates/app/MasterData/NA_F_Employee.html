@@ -1,14 +1,17 @@
 ﻿{% extends 'app/layout.html' %}
 
 {% block SearchData %}
-<li><a href="#" data-tipe="varchar" data-column="employee_name">Employee Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="nik">Nik</a></li>
+<li><a href="#" data-tipe="varchar" data-column="employee_name">Employee Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="typeapp">Employee Type</a></li>
 <li><a href="#" data-tipe="varchar" data-column="jobtype">Job Type</a></li>
+<li><a href="#" data-tipe="varchar" data-column="gender">Gender</a></li>
+<li><a href="#" data-tipe="varchar" data-column="status">Status</a></li>
+<li><a href="#" data-tipe="varchar" data-column="telphp">Telp/HP</a></li>
 <li><a href="#" data-tipe="varchar" data-column="territory">Territory</a></li>
-<!--<li class="divider"></li>-->
 <li><a href="#" data-tipe="varchar" data-column="inactive">InActive</a></li>
+<li><a href="#" data-tipe="varchar" data-column="descriptions">Descriptions</a></li>
 <li><a id="custSearch" href="#">Custom Search</a></li>
-<!--<li class="divider"></li>-->
 {% endblock %}
 
 {% block javascriptAndUI %}
@@ -99,16 +102,26 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp','No', 'Nik', 'Employee Name', 'Type App', 'Jobtype', 'Gender', 'Status', 'Telp/Hp', 'Territory', 'Descriptions', 'Inactive', 'Createddate', 'Createdby'],
+                    colNames: ['idapp','No', 'Nik', 'Employee Name', 'Employee Type', 'Jobtype', 'Gender', 'Status', 'Telp/Hp', 'Territory', 'Descriptions', 'Inactive', 'Createddate', 'Createdby'],
                     colModel: [
                         { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true },
                         { name: 'no', index: 'no', width: 45 ,align:'center'},
                         { name: 'nik', index: 'nik', width: 170, editable: false, search: false, sortable: true },
                         { name: 'employee_name', index: 'employee_name', width: 150, editable: false, editrules: { required: true }, sortable: true },
-                        { name: 'typeapp', index: 'typeapp', width: 80, align: 'left', editable: false, search: false },
+                        {
+                        	name: 'typeapp', index: 'typeapp', width: 100, align: 'left', editable: false, search: false, formatter: 'select',
+                        	editoptions: {
+                        		value: 'C:Casual;K:Kontrak;P:Permanent'
+                        	}
+                        },
                         { name: 'jobtype', index: 'jobtype', width: 130, align: 'left', editable: true, editrules: { required: true } },
-                        { name: 'gender', index: 'gender', width: 60, align: 'left', editable: true, search: false, formatter: 'select', editoptions: { value: 'M:Male;F:Female' } },
-                        { name: 'status', index: 'status', width: 60, editable: true, search: false, edittype: 'select', formatter: 'select', editoptions: { value: 'S:Single;M:Married' } },
+                        {
+                        	name: 'gender', index: 'gender', width: 100, align: 'left', editable: true, search: false, formatter: 'select',
+                        	editoptions: {
+                        		value: 'M:Male;F:Female'
+                        	}
+                        },
+                        { name: 'status', index: 'status', width: 80, editable: true, search: false, edittype: 'select', formatter: 'select', editoptions: { value: 'S:Single;M:Married' } },
                         { name: 'telphp', index: 'telphp', width: 150, editable: false, search: false },
                         { name: 'territory', index: 'territory', width: 120, editable: true, editrules: { required: true } },
                         { name: 'descriptions', index: 'descriptions', width: 200, editable: false, search: false },
@@ -123,7 +136,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     },
                     pager: $('#NA_Employee_pager'),
                     rowList: [20, 50, 100, 200, 300, 500],
-                    rowNum: 5,
+                    rowNum: 20,
                     loadui: 'disable', // Disable Loading Text
                     cellEdit: false,
                     sortname: 'idapp',

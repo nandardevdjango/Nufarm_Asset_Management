@@ -151,16 +151,31 @@ def NA_Employee_delete(request):
             result = Employee.objects.delete_employee(idapp=get_idapp,NA_User=request.user.username)
             return commonFunct.response_default(result)
 
-#for common search employee by form
+
 def SearchEmployeebyform(request):
+	"""
+	for common search employee by form
+	"""
 	searchText = request.GET.get('employee_filter')
 	Ilimit = request.GET.get('rows', '')
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
-	if(Isord is not None and str(Isord) != ''):
-		NAData = Employee.customManager.getEmloyeebyForm(searchText).order_by('-' + str(Isidx))
+	NAData = Employee.objects.getEmloyeebyForm(searchText)
+
+	#if data is empty.. don't use Paginator and looping, to improve performance
+	if NAData == Data.Empty:
+		results = {"page": "1","total": 0,"records": 0,"rows": [] }
+		return HttpResponse(
+			json.dumps(results, indent=4,cls=DjangoJSONEncoder),
+			content_type='application/json'
+		)
+
+	try:
+		multi_sort = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)
+	except ValueError:
+		multi_sort = NAData
 	else:
-		NAData = Employee.customManager.getEmloyeebyForm(searchText)
+		NAData = multi_sort
 	totalRecord = NAData.count()
 	paginator = Paginator(NAData, int(Ilimit)) 
 	try:
@@ -176,7 +191,11 @@ def SearchEmployeebyform(request):
 	i = 0;
 	for row in dataRows.object_list:
 		i+=1
-		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['nik'],row['employee_name']]}
+		datarow = {
+            "id" :row['idapp'], "cell" :[
+                row['idapp'],i,row['nik'],row['employee_name']
+                ]
+            }
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

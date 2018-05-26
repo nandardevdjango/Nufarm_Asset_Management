@@ -5,7 +5,7 @@ from django.db import transaction;
 from django.db import connection
 from django.core import exceptions
 from decimal import Decimal, DecimalException
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models.functions import Concat
 class NA_BR_Goods(models.Manager):
 	def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
@@ -126,8 +126,15 @@ class NA_BR_Goods(models.Manager):
 class CustomManager(models.Manager):
 	def getGoods(self,itemCode):
 		return super(CustomManager,self).raw("SELECT IDApp,CONCAT(goodsname,' ', brandname,' ',IFNULL(typeapp,' ')) as goods FROM n_a_goods WHERE itemcode = %(itemCode)s",{'itemCode':itemCode})
-	def searchGoodsByForm(self,goods_desc):#values('m', 'b').annotate(n=F('m'), a=F('b'))/renameValue=F('goods')).values('idapp,itemcode,goods')
-		#get_queryset().filter(goods__icontains=goods_desc)..values('idapp,itemcode,goods')
-		data = super(CustomManager,self).get_queryset().annotate(goods=F('goodsname'))
-		data = data.filter(goods__icontains=goods_desc).values('idapp','itemcode','goods')
-		return data
+	def searchGoodsByForm(self,q):
+		data = super(CustomManager,self).get_queryset()\
+            .annotate(goods=Concat(F('goodsname'), Value(' '), F('brandname'), Value(' '), F('typeapp')))\
+            .values('idapp','itemcode','goods','typeapp','descriptions')\
+            .filter(
+                Q(goods__icontains=q) |
+                Q(itemcode__icontains=q)
+            )
+		if data.exists():
+			return data
+		else:
+			return Data.Empty

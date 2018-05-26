@@ -7,7 +7,7 @@ from NA_Models.models import goods, LogEvent
 from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
-from NA_DataLayer.common import StatusForm
+from NA_DataLayer.common import StatusForm, Data, commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -320,3 +320,48 @@ class NA_Goods_Form(forms.Form):
 			economiclife = self.cleaned_data.get('economiclife')
 			placement = self.cleaned_data.get('placement')
 			descriptions = self.cleaned_data.get('descriptions')
+
+def SearchGoodsbyForm(request):
+	"""get goods data for grid searching, retusn idapp,itemcode,goods criteria = icontains"""
+	Isidx = request.GET.get('sidx', '')
+	Isord = request.GET.get('sord', '')
+	
+			
+	searchText = request.GET.get('goods_desc')
+	Ilimit = request.GET.get('rows', '')
+	NAData = goods.customs.searchGoodsByForm(searchText)
+	if NAData == Data.Empty:
+		results = {"page": "1","total": 0,"records": 0,"rows": [] }
+		return HttpResponse(
+			json.dumps(results, indent=4,cls=DjangoJSONEncoder),
+			content_type='application/json'
+		)
+	try:
+		multi_sort = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)
+	except ValueError:
+		multi_sort = NAData
+	else:
+		NAData = multi_sort
+	totalRecord = NAData.count()
+	paginator = Paginator(NAData, int(Ilimit)) 
+	try:
+		page = request.GET.get('page', '1')
+	except ValueError:
+		page = 1
+	try:
+		dataRows = paginator.page(page)
+	except (EmptyPage, InvalidPage):
+		dataRows = paginator.page(paginator.num_pages)
+		
+	rows = []
+	i = 0;#idapp,itemcode,goods
+	for row in dataRows.object_list:
+		i+=1
+		datarow = {
+            "id" :str(row['idapp']) +'_fk_goods', "cell" :[
+                row['idapp'],i,row['itemcode'],row['goods'],row['descriptions'],row['typeapp']
+                ]
+            }
+		rows.append(datarow)
+	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

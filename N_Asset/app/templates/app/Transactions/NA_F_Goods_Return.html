@@ -1047,7 +1047,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                             		NA.NAEvent.preventDefault(e);
                                             		win.document.body.style.cursor = 'wait';
                                             		//cari data ke database
-                                            		var url = '/NA_Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                            		var url = '/MasterData/Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
                                             		if (gridTbl) {
                                             			$(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                             		}
@@ -1082,7 +1082,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 				valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                 			}
                                 			gridTbl = $('#NA_Goods_Return_FK_Employee');
-                                			var urlFKGoods = '/NA_Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
+                                			var urlFKGoods = '/MasterData/Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
                                 			gridTbl.jqGrid({
                                 				url: urlFKGoods,
                                 				mtype: "GET",

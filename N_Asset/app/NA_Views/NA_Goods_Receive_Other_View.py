@@ -7,6 +7,7 @@ from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm
 from NA_Models.models import NAGoodsReceive_other,goods,NASuplier
 from .NA_Goods_Receive_View import NA_Goods_Receive_Form
 from datetime import datetime
+from django import forms
 
 def NA_Goods_Receive_other(request):
     return render(request,'app/Transactions/NA_F_Goods_Receive_other.html')
@@ -63,7 +64,7 @@ def getFormData(form):
 
 
 class NA_Goods_Receive_other_Form(NA_Goods_Receive_Form):
-	pass
+	typeApp = forms.CharField(widget=forms.HiddenInput())
 
 
 def Entry_Goods_Receive_other(request):

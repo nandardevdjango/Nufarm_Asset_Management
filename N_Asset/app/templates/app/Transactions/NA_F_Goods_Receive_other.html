@@ -836,7 +836,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 
                                 //simpan original data di initializeForm
                                 
-                                var fk_goods = qs('input#id_fk_goods'),
+                                var idapp_fk_goods = qs('input#id_idapp_fk_goods'),
+									fk_goods = qs('input#id_fk_goods'),
 									typeApp = qs('input#id_typeApp'),
                                     goods_desc = qs('input#id_goods_desc'),
                                     refno = qs('input#id_refno'),
@@ -924,25 +925,18 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                                 valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                             }
                                             gridTbl = $('#NA_Goods_Receive_other_FK_Goods');
-                                            var urlFKGoods = '/NA_Goods_Receive/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + valSearch;
+                                            var urlFKGoods = '/MasterData/Goods/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + valSearch;
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
                                                 datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
-                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'From Goods','FK goods','Type App'],
+                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description','Descriptions','Type App'],
                                                 colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
                                                     { name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
                                                     { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
                                                     { name: 'goods', index: 'goods', width: 180, sortable: true, editable: false, align: 'left' },
-                                                    { name: 'serialnumber', index: 'serialnumber', width: 130, sortable: true, editable: false, align: 'left' },
-                                                    {
-                                                    	name: 'fromgoods', index: 'fromgoods', width: 150, sortable: true, editable: false, align: 'left', formatter: 'select',
-                                                    	editoptions: {
-                                                    		value: 'GO:Goods Outwards;GL:Goods Lending'
-                                                    	}
-                                                    },
-													{ name: 'fk_goods', index: 'fk_goods', hidden: true },
+													{ name: 'descriptions', index: 'descriptions', width: 210, sortable: true, editable: false, align: 'left' },
 													{ name: 'typeApp', index: 'typeApp', hidden: true }
                                                 ],
                                                 ondblClickRow: function (rowId) {
@@ -1009,40 +1003,13 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                             icon: 'glyphicon glyphicon-ok',
                                             cssClass: 'btn-success',
                                             action: function (dialogRef) {
-                                            	var grid_idapp = getGridCellValue(gridTbl, 'idapp'),
-													grid_fk_goods = getGridCellValue(gridTbl, 'fk_goods'),
-													grid_typeApp = getGridCellValue(gridTbl,'typeApp'),
-                                            		grid_fromgoods = getGridCellValue(gridTbl, 'fromgoods');
-                                            	NA_Ajax.GET('getGoods/?' + win.encodeURIComponent('idapp') + '=' + grid_idapp + '&'
-													+ win.encodeURIComponent('fromgoods') + '=' + win.encodeURIComponent(grid_fromgoods), 'application/json', function (e) {
-														window.document.body.style.cursor = 'wait';
-													},
-                                                            null,
-                                                            function (e) {//function executed after data has been returned by server(XHR.onload)
-                                                            	var data = JSON.parse(this.responseText);
-                                                            	if (data && this.status == 200) {
-																	data = data['message'][0]
-																	fk_goods.value = grid_fk_goods;
-																	typeApp.value = grid_typeApp;
-                                                                    itemcode.value = data['itemcode'];
-                                                                    goods.value = data['goods'];
-                                                                    serialNumber.value = data['serialnumber'];
-                                                                    usedemployee.value = data['used_by'];
-                                                                    nik_usedemployee.value = data['nik_used_by'];
-                                                                    idapp_usedemployee.value = data['idapp_used_by'];
-                                                                    if (grid_fromgoods == 'GO') {
-                                                                    	idapp_fk_goods_outwards.value = grid_idapp;
-                                                                    	idapp_fk_goods_lend.value = '';
-                                                                    } else if (grid_fromgoods == 'GL') {
-                                                                    	idapp_fk_goods_lend.value = grid_idapp;
-                                                                    	idapp_fk_goods_outwards.value = '';
-                                                                    };
-                                                                    dialogRef.close();
-                                                                }
-                                                            }, null, function (e) {
-                                                                throw new Error(this.responseText + '\nStatus code :' + this.statusText);
-                                                            }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
-                                                            null);
+                                            	rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
+                                                rowData = gridTbl.getRowData(rowId);
+                                            	idapp_fk_goods.value = rowId,
+                                            	fk_goods.value = rowData['itemcode'],
+												typeApp.value = rowData['typeApp'],
+												goods_desc.value = rowData['goods'];
+                                            	dialogRef.close();
                                             }
                                         }]
                                     });
@@ -1076,7 +1043,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                             		NA.NAEvent.preventDefault(e);
                                             		win.document.body.style.cursor = 'wait';
                                             		//cari data ke database
-                                            		var url = '/NA_Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                            		var url = '/MasterData/Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
                                             		if (gridTbl) {
                                             			$(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                             		}
@@ -1111,7 +1078,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 				valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                 			}
                                 			gridTbl = $('#NA_Goods_Receive_other_FK_Employee');
-                                			var urlFKGoods = '/NA_Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
+                                			var urlFKGoods = '/MasterData/Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
                                 			gridTbl.jqGrid({
                                 				url: urlFKGoods,
                                 				mtype: "GET",
@@ -1223,7 +1190,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 												if (e.keyCode === 13) {
 													win.document.body.style.cursor = 'wait';
 													//cari data ke database
-													var url = '/NA_Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
+													var url = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
 
 													if (gridTbl) {
 														gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
@@ -1252,7 +1219,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			//loads Data into JqueryGrid 
                                 			gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
                                 			gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
-                                			var urlFKSuplier = '/NA_Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                                			var urlFKSuplier = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                                 			gridTbl.jqGrid({
                                 				url: urlFKSuplier,
                                 				mtype: "GET",

@@ -9,4 +9,5 @@ urlpatterns = [
 	url(r'^customFilter',NA_Goods_View.ShowCustomFilter,name='ShowCustomFilter'),
 	url(r'^Delete/$',NA_Goods_View.deleteItem,name='DeleteGoods'),
 	url(r'^setInActive/$',NA_Goods_View.setInActive,name='SetInActive'),
+    url(r'^SearchGoodsbyForm/$',NA_Goods_View.SearchGoodsbyForm)
 ]

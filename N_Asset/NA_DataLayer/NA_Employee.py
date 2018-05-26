@@ -1,5 +1,6 @@
 ﻿from django.db import models, connection, transaction
 from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data, Message, commonFunct
+from django.db.models import Q
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
@@ -155,3 +156,15 @@ class NA_BR_Employee(models.Manager):
                 return (Data.Success,)
         else:
             return (Data.Lost,Message.get_lost_info(pk=idapp,table='employee'))
+
+    def getEmloyeebyForm(self,q):
+        data = super(NA_BR_Employee,self).get_queryset()\
+            .values('idapp','nik','employee_name')\
+            .filter(
+                Q(nik__icontains=q) |
+                Q(employee_name__icontains=q)
+            )
+        if data.exists():
+            return data
+        else:
+            return Data.Empty

@@ -603,3 +603,36 @@ class commonFunct:
                 else:
                     message = Message.Empty.value
             return HttpResponse(json.dumps({'message':message}),status=statusResp,content_type='application/json')
+
+    def multi_sort_queryset(queryset,Isidx,Isord):
+        if (Isord is not None and Isord != '') \
+        and (Isidx is not None and Isidx != ''):
+            if ',' in Isidx:
+                multi_sort = []
+                Isidx = Isidx.split(',')
+                sorts = []
+                for i in Isidx:
+                    sorts.append(i.lstrip()) # trim left whitespace
+
+                for i in sorts:
+                    i_split = i.split(' ') #simpan di variable bila sering digunakan, kamar boleh acak2 an ,tapi coding harus rapi :D
+                    i_len_split = len(i_split)
+                    if i_len_split > 1:
+                        if i_split[1] == 'desc':
+                            sort_by = '-'
+                        elif i_split[1] == 'asc':
+                            sort_by = ''
+                    elif i_len_split == 1:
+                        if Isord == 'desc':
+                            sort_by = '-'
+                        elif Isord == 'asc':
+                            sort_by = ''
+                    multi_sort.append(sort_by+i.split(' ')[0])
+                return queryset.order_by(*multi_sort)
+            else:
+                sort = str(Isidx)
+                if Isord == 'desc':
+                    sort = '-' + sort
+                return queryset.order_by(sort)
+        else:
+            raise ValueError('Cannot assign "None" type object \n make sure if arguments/parameter is not None')
