@@ -76,11 +76,11 @@
                         <ul class="sub-menu collapse" id="dashboard" aria-expanded="false" style="">
 
 
-                            <li><a href="{% url 'NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
-                            <li><a href="{% url 'NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
-                            <li><a href="{% url 'GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
+                            <li><a href="{% url 'MasterData:NA_Suplier:NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
+                            <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
+                            <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
                             <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-                            <li><a href="{% url 'NA_Priviledge' %}" {% if url_name == 'NA_Priviledge' %} class="active" {% endif %}><i class="fa fa-user"></i> User Priviledge</a></li>
+                            <li><a href="{% url 'MasterData:NA_Priviledge:NA_Priviledge' %}" {% if url_name == 'NA_Priviledge' %} class="active" {% endif %}><i class="fa fa-user"></i> User Priviledge</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
@@ -97,21 +97,21 @@
                                 <span class="fa fa-angle-down pull-right"></span>
                             </a>
                             <ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
-								<li class="active"><a href="{% url 'GoodsReceive' %}">IT</a></li>
-								<li class="active"><a href="{% url 'NA_Goods_Receive_other' %}">Accessories</a></li>
+								<li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
+								<li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
 							</ul>
                             
                             <li><a href="#">Goods Outwords</a></li>
-                            <li><a href="{% url 'GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
-                            <li><a href="{% url 'GoodsReturn' %}">Goods Returned</a></li>
-                            <li><a href="{% url 'NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+                            <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
+                            <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
+                            <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                         </ul>
                     </li>
-                    <li> <a href="{% url 'NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
-                    <li> <a href="{% url 'NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
+                    <li> <a href="{% url 'Transactions:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
+                    <li> <a href="{% url 'Transactions:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
                     <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
                     <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
                 </ul>
@@ -176,31 +176,25 @@
                 <div id="content-0">
                     <script>
                            function url_logEvent() {
-                               return '{% url 'NA_LogEvent' %}'
+                               return '{% url 'OtherPages:NA_Log_Event:NA_LogEvent' %}'
                            };
                            function url_logDesc(){
-                               return '{% url 'NA_LogEvent_descriptions' %}'
+                               return '{% url 'OtherPages:NA_Log_Event:NA_LogEvent_descriptions' %}'
                            };
                            function url_register(){
                                return '{% url 'NA_User_Register' %}'
                            };
                            function url_emailData(){
-                               return '{% url 'NA_EmailData' %}'
+                               return '{% url 'OtherPages:NA_Email_Data:NA_EmailData' %}'
                            };
                            function url_searchBio(){
-                               return '{% url 'NA_EmailData_searchBiodata' %}'
-                           };
-                           function url_emplData(){
-                               return '{% url 'NA_Employee_data' %}'
+                               return '{% url 'OtherPages:NA_Email_Data:NA_EmailData_searchBiodata' %}'
                            };
                            function url_emailUpl(){
-                               return '{% url 'NA_EmailUplData' %}'
-                           };
-                           function url_suplData(){
-                               return '{% url 'NA_Suplier_data' %}'
+                               return '{% url 'OtherPages:NA_Email_Data:NA_EmailUplData' %}'
                            };
                            function url_retriveBio(){
-                               return '{% url 'NA_Email_retriveBio' %}'
+                               return '{% url 'OtherPages:NA_Email_Data:NA_Email_retriveBio' %}'
                            };
                     </script>
                     <script>

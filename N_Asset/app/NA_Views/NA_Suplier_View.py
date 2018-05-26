@@ -152,20 +152,31 @@ def SearchSuplierbyForm(request):
 			json.dumps(results, indent=4,cls=DjangoJSONEncoder),
 			content_type='application/json'
 		)
-	print(Isidx)
-	print(Isidx == None)
 	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
-		#if ',' in Isidx:
-		#	multi_sort = []
-		#	Isidx = Isidx.split(',')
-		#	for i in Isidx:
-		#		multi_sort.append({'column':})
-		#		if len(i.split(' ')) > 1:
-
-		sort = str(Isidx)
-		if Isord == 'desc':
-			sort = '-' + sort
-		NAData = NAData.order_by(sort)
+		if ',' in Isidx:
+			multi_sort = []
+			Isidx = Isidx.split(',')
+			sorts = []
+			for i in Isidx:
+				sorts.append(i.lstrip()) # trim left whitespace
+			for i in sorts:
+				if len(i.split(' ')) > 1:
+					if i.split(' ')[1] == 'desc':
+						sort_by = '-'
+					elif i.split(' ')[1] == 'asc':
+						sort_by = ''
+				elif len(i.split(' ')) == 1:
+					if Isord == 'desc':
+						sort_by = '-'
+					elif Isord == 'asc':
+						sort_by = ''
+				multi_sort.append(sort_by+i.split(' ')[0])
+			NAData = NAData.order_by(*multi_sort)
+		else:
+			sort = str(Isidx)
+			if Isord == 'desc':
+				sort = '-' + sort
+			NAData = NAData.order_by(sort)
 	totalRecord = NAData.count()
 	paginator = Paginator(NAData, int(Ilimit)) 
 	try:
