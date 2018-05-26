@@ -1,13 +1,9 @@
 from django.db import models
 from NA_DataLayer.common import *
-from django.db.models import Count, Case, When,Value, CharField
 from django.db import transaction;
 from django.db import connection
-from django.core import exceptions
-from decimal import Decimal, DecimalException
-from django.db.models import F
-from django.db.models import Q
 from decimal import Decimal
+from django.db.models import Q
 from NA_DataLayer.common import commonFunct
 from distutils.util import strtobool
 class NA_BR_Goods_Lending(models.Manager):
@@ -94,9 +90,9 @@ class NA_BR_Goods_Lending(models.Manager):
 			FKGoods = int(row[0])
 
 			if newVal == "R":
-				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NOW() """
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s, datereturn = NOW() WHERE idapp = %(idapp)s """
 			else:
-				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s WHERE idapp = %(idapp)s, datereturn = NULL """
+				Query = """UPDATE n_a_goods_lending SET status = %(newVal)s, datereturn = NULL WHERE idapp = %(idapp)s """
 			cur.execute(Query,{'newVal':newVal,'idapp':idapp})				
 
 			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R' 

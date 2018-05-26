@@ -275,7 +275,7 @@
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Lent By', 'Sent By', 'Lent Date', 'Interests', 'Responsible By', 'Ref Goods From', 'IsNew', 'Status', 'Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Lent By', 'Sent By', 'Lent Date', 'Date Returned', 'Interests', 'Responsible By', 'Ref Goods From', 'IsNew', 'Status', 'Descriptions', 'Created Date', 'Created By'],
 						colModel: [
                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -310,8 +310,8 @@
                                         		url = NA.common.addURLParam(url, 'newVal', NewVal);
                                         		//set data 
                                         		$.post(url, function (data, status, xhr) {
-                                        			if (parseInt(status) != 200) {
-                                        				if (parseInt(status) >= 500) {
+                                        			if (parseInt(xhr.status) != 200) {
+                                        				if (parseInt(xhr.status) >= 500) {
                                         					//reset value
                                         					grid.jqGrid('setColProp', 'status', { editoptions: { value: { 'L': 'Lent', 'R': 'Return' } } });
                                         					win.document.body.style.cursor = 'default'; XhrError(xhr);
@@ -344,11 +344,16 @@
                             cm = $self.jqGrid("getGridParam", "colModel");
 							if (cm[iCol].name === "status") {
 								var ostatus = $(e.target).text;
-								if (ostatus == 'Return') {oriStatus = "R"
+								if (ostatus == 'Return') {
+									oriStatus = "R"
 								} else { oriStatus = "L" }
+								grid.setGridParam({ cellEdit: true, cellsubmit: 'clientArray' });
+							}
+							else {
+								grid.setGridParam({ cellEdit: false, cellsubmit: 'clientArray' });
 							}
 						},
-						cellEdit: true,cellsubmit:'clientArray',
+						//cellEdit: true,cellsubmit:'clientArray',
 						gridComplete: function () {
 							document.body.style.cursor = 'default';
 						},
@@ -1316,32 +1321,35 @@
 						closeDialog(); win.document.body.style.cursor = 'default'; return false;
 					}
 					try {
-
+						if (win.status !== 'Open') {
+							var textElem = event.target.innerText;
+							if (textElem === 'OK') {
+								ExecuteHandler('OK');
+							} else {
+								ExecuteHandler('Close');
+							}
+						}
+						if (event) {
+							NA.NAEvent.stopPropagation(event);
+						}
+						win.document.body.style.cursor = 'default';
 					} catch (e) {
 						ShowAlert(e.message);
-					}
-					if (win.status !== 'Open') {
-
-						var textElem = event.target.innerText;
-						if (textElem === 'OK') {
-							ExecuteHandler('OK');
-						} else {
-							ExecuteHandler('Close');
-						}
-					}
-					if (event) {
-						NA.NAEvent.stopPropagation(event);
-					}
-					win.document.body.style.cursor = 'default';
+					}					
 					return false;
 				});
 			});
 			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
 			    NA.NAEvent.preventDefault(event);
-                //==============uncommment this after debugging=============
+				//==============uncommment this after debugging=============
+				
 			    if (hasLoadDialog) {
-			        ExecuteHandler('Close');
-			    }				
+			    	try {
+			    		ExecuteHandler('Close');
+			    	} catch (e) {
+			    		ShowAlert(e.message);
+			    	}			    
+			    }
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
 				}
@@ -1599,11 +1607,11 @@
 													NA.NAEvent.stopPropagation(e);
 												}
 											}, function (e) {
-												txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+												var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
 												NA.common.triggerKeyboardEvent(txtSearch, 13);
 											});
 											var children = containerMessage.childNodes;
-											var mainContainer = null, txtSearch = null;
+											var mainContainer = null;
 											for (var i = 0, len = children.length; i < len; i++) {
 												if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
 													mainContainer = children[i]; break;
@@ -1619,7 +1627,7 @@
 											return containerMessage;
 										},
 										onshown: function (dialogRef) {
-											txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
 											//loads Data into JqueryGrid 
 											gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
 											gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
@@ -1777,9 +1785,12 @@
                                                             }
                                                             win.document.body.style.cursor = 'default';
                                                         }
+                                                    }, function (e) {
+                                                    	var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                                                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
                                                     });
 								                    var children = containerMessage.childNodes;
-								                    var mainContainer = null, txtSearch = null;
+								                    var mainContainer = null;
 								                    for (var i = 0, len = children.length; i < len; i++) {
 								                        if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
 								                            mainContainer = children[i]; break;

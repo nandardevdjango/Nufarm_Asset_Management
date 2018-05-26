@@ -351,3 +351,12 @@ ALTER TABLE `n_a_goods_lost`
   ALTER TABLE n_a_goods_lending CHANGE FK_Responsible_Person FK_ResponsiblePerson INT(11) UNSIGNED NULL;
   ALTER TABLE n_a_disposal CHANGE FK_Responsible_Person FK_ResponsiblePerson INT(11) UNSIGNED NULL;
     ALTER TABLE n_a_goods_lending ADD DateReturn DATETIME  NULL
+
+ALTER TABLE n_a_goods_Outwards DROP COLUMN Qty;
+ALTER TABLE n_a_goods_outwards ADD FK_Return INT(11) NULL;
+ALTER TABLE n_a_goods_outwards ADD FK_Receive INT(11) NULL;
+ALTER TABLE n_a_goods_outwards ADD CreatedBy VARCHAR(100) NOT NULL;
+ALTER TABLE n_a_goods_outwards ADD CreatedDate DATETIME NOT NULL;
+ALTER TABLE n_a_goods_outwards ADD ModifiedDate DATETIME NULL;
+ALTER TABLE n_a_goods_outwards ADD ModifiedBy  VARCHAR(100) NULL;
+ALTER TABLE n_a_goods_outwards ADD lastinfo VARCHAR(150) NULL;

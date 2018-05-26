@@ -1,10 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpRequest
-from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
 from NA_Models.models import NAGoodsLending
-from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
@@ -14,11 +12,9 @@ from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
-from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
-from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal
@@ -161,7 +157,7 @@ def ShowEntry_Lending(request):
 			
 			status = data['status']
 			form = NA_Goods_Lending_Form(data)
-			resul = ''
+			result = ''
 			if form.is_valid():
 				form.clean()
 				data.update(isnew=strtobool(str(data['isnew'])))
@@ -272,6 +268,8 @@ class NA_Goods_Lending_Form(forms.Form):
 	
 	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
+	#datereturn = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
+ #                                  'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
                                    'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
@@ -293,7 +291,7 @@ class NA_Goods_Lending_Form(forms.Form):
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
-	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
+	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
                                    'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
