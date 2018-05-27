@@ -379,6 +379,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 			fk_goods = elfk_goods.value.trim();
     	var elgoods_desc = qs('#id_goods_desc'),
 			goods_desc = elgoods_desc.value.trim();
+    	var eltypeApp = qs('input#id_typeApp'),
+			typeApp = eltypeApp.value.trim();
     	var eldatereceived = qs('#id_datereceived'),
 			datereceived = eldatereceived.value.toString().trim();
     	var elfk_suplier = qs('#id_fk_suplier'),
@@ -408,6 +410,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
     		idapp: idapp,
     		idapp_fk_goods: idapp_fk_goods,
     		fk_goods: fk_goods,
+			typeApp:typeApp,
     		refno: RefNO,
     		goods_desc: goods_desc,
     		datereceived: datereceived,
@@ -523,7 +526,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
             var format_date = function (date) {
                 return $.datepicker.parseDate('dd/mm/yy', date)
             };
-            valuesForm['datereturn'] = GetServerFormatDate(format_date(valuesForm['datereturn']));
+            valuesForm['datereceived'] = GetServerFormatDate(format_date(valuesForm['datereceived']));
             var idapp;
             if (win.status.trim() == 'Edit') {
             	idapp = getGridId()

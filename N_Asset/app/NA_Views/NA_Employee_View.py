@@ -121,7 +121,7 @@ def EntryEmployee(request):
             result = Employee.objects.retriveData(idapp)
             if result[0] == Data.Lost:
                 return HttpResponse(json.dumps({'message':result[0]}),status=404,content_type='application/json')
-            form = NA_Employee_form(initial=result[1][0])
+            form = NA_Employee_form(initial=result[1])
             form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
             form = NA_Employee_form()

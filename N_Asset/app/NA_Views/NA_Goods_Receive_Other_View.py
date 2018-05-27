@@ -3,7 +3,7 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator,EmptyPage
 from django.shortcuts import render
-from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm
+from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm, Data
 from NA_Models.models import NAGoodsReceive_other,goods,NASuplier
 from .NA_Goods_Receive_View import NA_Goods_Receive_Form
 from datetime import datetime
@@ -86,8 +86,13 @@ def Entry_Goods_Receive_other(request):
 		statusForm = request.GET['statusForm']
 		if statusForm == 'Edit' or statusForm == 'Open':
 			idapp = request.GET['idapp']
-			data = NAGoodsReceive_other.objects.retrieveData(idapp)
-			form = NA_Goods_Receive_other_Form(initial=data)
+			data,result = NAGoodsReceive_other.objects.retrieveData(idapp)
+			if data == Data.Success:
+				if isinstance(result['datereceived'],datetime):
+					result['datereceived'] = result['datereceived'].strftime('%d/%m/%Y')
+				form = NA_Goods_Receive_other_Form(initial=result)
+			elif data == Data.Lost:
+				return commonFunct.response_default((data,result))
 		else:
 			form = NA_Goods_Receive_other_Form()
 		return render(request,'app/Transactions/NA_Entry_Goods_Receive_other.html',{'form':form})

@@ -1,19 +1,22 @@
 ﻿from django.db import models, connection, transaction
 from NA_DataLayer.common import CriteriaSearch, DataType, StatusForm, Data, Message, commonFunct
 from django.db.models import Q
+from datetime import datetime
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-        employeeData = None
+        employeeData = super(NA_BR_Employee,self).get_queryset()\
+            .values('idapp','nik','employee_name','typeapp','jobtype','gender',\
+            'status','telphp','territory','descriptions','inactive','createddate','createdby')
         filterfield = columnKey
         if criteria==CriteriaSearch.NotEqual or criteria==CriteriaSearch.NotIn:
             if criteria==CriteriaSearch.NotIn:
                 filterfield = columnKey + '__in'
             else:
                 filterfield = columnKey + '__iexact'
-            employeeData = super(NA_BR_Employee,self).get_queryset().exclude(**{filterfield:[ValueKey]}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
+            employeeData = employeeData.exclude(**{filterfield:[ValueKey]})
         if criteria==CriteriaSearch.Equal:
-            return super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: ValueKey}).values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
+            employeeData = employeeData.filter(**{filterfield: ValueKey})
         elif criteria==CriteriaSearch.Greater:
             filterfield = columnKey + '__gt'
         elif criteria==CriteriaSearch.GreaterOrEqual:
@@ -26,12 +29,10 @@ class NA_BR_Employee(models.Manager):
             filterfield = columnKey + '__lte'
         elif criteria==CriteriaSearch.Like:
             filterfield = columnKey + '__icontains'
-            employeeData = super(NA_BR_Employee,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
+            employeeData = employeeData.filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
         if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
             rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-            employeeData = super(NA_BR_Employee,self).get_queryset().filter(**rs.DefaultModel())
-
-        employeeData = employeeData.values('idapp','nik','employee_name','typeapp','jobtype','gender','status','telphp','territory','descriptions','inactive','createddate','createdby')
+            employeeData = employeeData.filter(**rs.DefaultModel())
         return employeeData
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
@@ -74,9 +75,12 @@ class NA_BR_Employee(models.Manager):
                 cur = connection.cursor()
                 #============== INSERT INTO LOG EVENT ================
                 data = self.retriveData(get_idapp,False)[1]
-                dataPrms = {'Nik':data['nik'],'Employee_Name':data['employee_name'],'Typeapp':data['typeapp'],'Jobtype':data['typeapp'],
-                            'Gender':data['gender'],'Status':data['status'],'Telphp':data['telphp'],'Territory':data['territory'],
-                            'Descriptions':data['descriptions']}
+                dataPrms = {
+                    'Nik':data['nik'],'Employee_Name':data['employee_name'],'Typeapp':data['typeapp'],
+                    'Jobtype':data['typeapp'],'Gender':data['gender'],'Status':data['status'],
+                    'Telphp':data['telphp'],'Territory':data['territory'],
+                    'Descriptions':data['descriptions']
+                    }
                 createddate = data['createddate']
                 modifieddate = data.get('modifieddate')
                 if isinstance(createddate,datetime):
@@ -85,20 +89,18 @@ class NA_BR_Employee(models.Manager):
                 if modifieddate is not None:
                     dataPrms['ModifiedDate'] = modifieddate
                     dataPrms['ModifiedBy'] = data['modifiedby']
-                dataPrms['NA_User'] = NA_User
+                
                 Query = """INSERT INTO logevent (nameapp,descriptions,createddate,createdby) VALUES(\'Deleted Employee\',
-                JSON_OBJECT({}),NOW(),""".format(','.join('%('+i+')s') for i in dataPrms)
-                Query = Query + NA_User +")"
-                try:
-                    with transaction.atomic():
-                        cur.execute(Query,dataPrms)
-                        #============= End INSERT INTO LOG EVENT ==============
-                        cur.execute('''DELETE FROM employee WHERE idapp=%s''',[get_idapp])
-                        cur.close()
-                except Exception:
-                    transaction.rollback()
-                    connection.close()
-                    raise
+                JSON_OBJECT({}),NOW(),""".format(','.join('%('+i+')s' for i in dataPrms))
+                dataPrms['NA_User'] = NA_User
+                Query = Query + "%(NA_User)s)"
+                print(dataPrms)
+                print(Query)
+                with transaction.atomic():
+                    cur.execute(Query,dataPrms)
+                    #============= End INSERT INTO LOG EVENT ==============
+                    cur.execute('''DELETE FROM employee WHERE idapp=%s''',[get_idapp])
+                    cur.close()
                 return (Data.Success,Message.Success.value)
         else:
             return (Data.Lost,Message.get_lost_info(get_idapp))
@@ -111,11 +113,11 @@ class NA_BR_Employee(models.Manager):
                             'status','telphp','territory','descriptions','createddate','createdby')
         if must_check:
             if self.dataExist(idapp=get_idapp):
-                return (Data.Success,get_data())
+                return (Data.Success,get_data()[0])
             else:
                 return (Data.Lost,Message.get_lost_info(pk=get_idapp,table='employee'))
         else:
-            return (Data.Success,get_data())
+            return (Data.Success,get_data()[0])
 
     def dataExist(self, **kwargs):
         idapp = kwargs.get('idapp')
@@ -135,8 +137,10 @@ class NA_BR_Employee(models.Manager):
 
     def hasRef(self,idapp):
         cur = connection.cursor()
-        Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
-        OR fk_sender=%(IDApp)s UNION SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
+        Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending WHERE fk_employee=%(IDApp)s
+        OR fk_responsibleperson=%(IDApp)s OR fk_sender=%(IDApp)s 
+        UNION 
+        SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR fk_responsibleperson=%(IDApp)s
         OR fk_sender=%(IDApp)s OR fk_usedemployee=%(IDApp)s)"""
         cur.execute(Query,{'IDApp':idapp})
         if cur.fetchone()[0] > 0:

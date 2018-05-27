@@ -22,11 +22,11 @@ class NA_BR_Goods_Receive_other(models.Manager):
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()
         Params = {
-            'RefNO':data['refno'],'FK_goods':data['idapp_fk_goods'], 'DateReceived':data['datereceived'], 
+            'RefNO':data['refno'],'FK_goods':data['fk_goods'], 'DateReceived':data['datereceived'], 
             'FK_Suplier':data['fk_suplier'], 'TotalPurchase':data['totalpurchase'],
-            'TotalReceived':data['totalreceived'],'FK_ReceivedBy':data['idapp_fk_receivedby'],
-            'FK_P_R_By':data['idapp_fk_p_r_by'],'Descriptions':data['descriptions'],
-            'descbysystem':data['descbysystem']
+            'TotalReceived':data['totalreceived'],'FK_ReceivedBy':data['fk_receivedby'],
+            'FK_P_R_By':data['fk_p_r_by'],'Descriptions':data['descriptions'],
+            #'descbysystem':data['descbysystem']
             }
         if statusForm == StatusForm.Input:
             Params['CreatedDate'] = data['createddate']
@@ -48,15 +48,24 @@ class NA_BR_Goods_Receive_other(models.Manager):
             return (Data.Success,Message.Success.value)
 
     def retrieveData(self,idapp):
-        cur = connection.cursor()
-        Query = """SELECT ngr.idapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS fk_goods, goodsname as goods_desc,
-        g.economiclife,ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,
-        emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,
-        ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier 
-        LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS emp1 ON emp1.IDApp = ngr.FK_ReceivedBy 
-        LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS emp2 ON emp2.IDApp = ngr.FK_P_R_By
-        INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %(IDApp)s"""
+        if self.dataExists(idapp=idapp):
+            cur = connection.cursor()
+            Query = """SELECT ngr.idapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS fk_goods, goodsname as goods_desc,
+            g.economiclife,ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,
+            emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,
+            ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive_other AS ngr INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier 
+            LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS emp1 ON emp1.IDApp = ngr.FK_ReceivedBy 
+            LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS emp2 ON emp2.IDApp = ngr.FK_P_R_By
+            INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %(IDApp)s"""
 
-        cur.execute(Query,{'IDApp':idapp})
-        result = query.dictfetchall(cur)
-        return (Data.Success,result[0])
+            cur.execute(Query,{'IDApp':idapp})
+            result = query.dictfetchall(cur)
+            return (Data.Success,result[0])
+        else:
+            return (Data.Lost,Message.get_lost_info(pk=idapp,table='n_a_goods_receive_other'))
+
+    def dataExists(self,**kwargs):
+        idapp = kwargs.get('idapp')
+        if idapp is not None:
+            return super(NA_BR_Goods_Receive_other,self).get_queryset()\
+                .filter(idapp=idapp).exists()
