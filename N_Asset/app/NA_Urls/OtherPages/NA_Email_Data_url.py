@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_EmailData_View
+from app.NA_Views.OtherPages import NA_EmailData_View
 
 urlpatterns = [
 	url(r'^NA_EmailData/$', NA_EmailData_View.NA_EmailData, name='NA_EmailData'),

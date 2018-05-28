@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_Maintenance_View
+from app.NA_Views.OtherPages import NA_Maintenance_View
 
 urlpatterns = [
 	url(r'^$',NA_Maintenance_View.NA_Maintenance,name='NA_Maintenance'),

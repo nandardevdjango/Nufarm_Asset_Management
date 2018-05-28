@@ -1,16 +1,22 @@
 ﻿from django.db import models, connections
-from datetime import datetime
-from NA_DataLayer.NA_Goods_BR import NA_BR_Goods
 from django_mysql.models import JSONField
-from NA_DataLayer.NA_Goods_BR import NA_BR_Goods,CustomManager
-from NA_DataLayer.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
-from NA_DataLayer.NA_Maintenance_BR import NA_BR_Maintenance
-from NA_DataLayer.NA_GoodsLost_BR import NA_BR_GoodsLost
-from NA_DataLayer.NA_Goods_Lending_BR import NA_BR_Goods_Lending
-from NA_DataLayer.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
-from NA_DataLayer.NA_Priviledge_BR import NA_BR_Priviledge
-from NA_DataLayer.NA_Goods_Return_BR import NA_BR_Goods_Return
-from NA_DataLayer.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
+from datetime import datetime
+from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods
+from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods,CustomManager
+from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
+from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
+from NA_DataLayer.MasterData.NA_Priviledge_BR import NA_BR_Priviledge
+
+from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
+from NA_DataLayer.Transactions.NA_GoodsLost_BR import NA_BR_GoodsLost
+from NA_DataLayer.Transactions.NA_Goods_Lending_BR import NA_BR_Goods_Lending
+from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
+from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
+from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
+
+from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
+from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
+
 from django.core import checks
 from django_mysql.utils import connection_is_mariadb
 from django.contrib.auth.models import AbstractUser
@@ -74,8 +80,6 @@ class Employee(models.Model):
     modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)  # Field name made lowercase.
     modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)  # Field name made lowercase.
 
-    from NA_DataLayer.NA_Employee import NA_BR_Employee
-
     objects = NA_BR_Employee()
     customManager = custEmpManager()
     ##objects = models.Manager() #default manager
@@ -102,8 +106,6 @@ class NASuplier(models.Model):
     def __str__(self):
         return self.supliername
 
-    from NA_DataLayer.NA_Suplier import NA_BR_Suplier
-
     #NA = NA_BR_Suplier()
     objects = NA_BR_Suplier() #default manager
     customManager = CustomSuplierManager()
@@ -125,7 +127,6 @@ class NAAccFa(models.Model):
     createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)  # Field name made lowercase.
     lastupdated = models.DateTimeField(db_column='LastUpdated', blank=True, null=True)  # Field name made lowercase.
 
-    from NA_DataLayer.NA_Acc_FA import NA_Acc_FA_BR
     objects = NA_Acc_FA_BR()
     class Meta:
         managed = True

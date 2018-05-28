@@ -47,6 +47,18 @@ class NA_BR_Goods_Receive_other(models.Manager):
             cur.execute(Query,Params)
             return (Data.Success,Message.Success.value)
 
+    def DeleteData(self,idapp):
+        if self.dataExists(idapp=idapp):
+            if self.hasRef(idapp):
+                return (Data.HasRef,Message.HasRef_del.value)
+            else:
+                cur = connection.cursor()
+                Query = """DELETE FROM n_a_goods_receive_other WHERE idapp=%(IDApp)s"""
+                cur.execute(Query,{'IDApp':idapp})
+                return (Data.Success,)
+        else:
+            return (Data.Lost,)
+
     def retrieveData(self,idapp):
         if self.dataExists(idapp=idapp):
             cur = connection.cursor()
@@ -69,3 +81,6 @@ class NA_BR_Goods_Receive_other(models.Manager):
         if idapp is not None:
             return super(NA_BR_Goods_Receive_other,self).get_queryset()\
                 .filter(idapp=idapp).exists()
+
+    def hasRef(self,idapp):
+        return False

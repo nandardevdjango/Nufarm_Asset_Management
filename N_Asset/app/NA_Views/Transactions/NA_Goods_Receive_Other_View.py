@@ -3,7 +3,7 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator,EmptyPage
 from django.shortcuts import render
-from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm, Data
+from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm, Data,decorators
 from NA_Models.models import NAGoodsReceive_other,goods,NASuplier
 from .NA_Goods_Receive_View import NA_Goods_Receive_Form
 from datetime import datetime
@@ -96,3 +96,25 @@ def Entry_Goods_Receive_other(request):
 		else:
 			form = NA_Goods_Receive_other_Form()
 		return render(request,'app/Transactions/NA_Entry_Goods_Receive_other.html',{'form':form})
+
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def Delete_data(request):
+    idapp = request.POST['idapp']
+    result = NAGoodsReceive_other.objects.DeleteData(idapp)
+    return commonFunct.response_default(result)
+
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def ShowCustomFilter(request):
+	cols = []
+	cols.append({'name':'refno','value':'refno','selected':'','dataType':'varchar','text':'RefNO'})
+	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'goods name'})
+	cols.append({'name':'datereceived','value':'datereceived','selected':'','dataType':'datetime','text':'Date Received'})
+	cols.append({'name':'supliername','value':'supliername','selected':'','dataType':'varchar','text':'type of brand'})
+	cols.append({'name':'receivedby','value':'receivedby','selected':'','dataType':'varchar','text':'Received By'})
+	cols.append({'name':'pr_by','value':'pr_by','selected':'','dataType':'varchar','text':'Purchase Request By'})
+	cols.append({'name':'totalpurchase','value':'totalpurchase','selected':'','dataType':'int','text':'Total Purchased'})
+	cols.append({'name':'totalreceived','value':'totalreceived','selected':'','dataType':'int','text':'Total Received'})
+	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
