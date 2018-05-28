@@ -99,7 +99,7 @@
 								<li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
 							</ul>
                             
-                            <li><a href="#">Goods Outwords</a></li>
+                            <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
