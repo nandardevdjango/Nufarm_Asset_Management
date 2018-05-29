@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_Goods_Outwards_View
+from app.NA_Views.Transactions import NA_Goods_Outwards_View
 from django.views.generic import RedirectView
 
 urlpatterns = [

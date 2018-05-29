@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_Goods_Return_View
+from app.NA_Views.Transactions import NA_Goods_Return_View
 
 urlpatterns = [
 	url(r'^$',NA_Goods_Return_View.NA_Goods_Return,name='GoodsReturn'),

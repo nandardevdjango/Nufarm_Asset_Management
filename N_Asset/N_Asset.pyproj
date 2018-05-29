@@ -60,13 +60,16 @@
     <Compile Include="app\NA_Urls\OtherPages_url.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Urls\Transactions\NA_Acc_FA_url.py">
+    <Compile Include="app\NA_Urls\OtherPages\NA_Acc_FA_url.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lending_url.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lost_url.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\NA_Urls\Transactions\NA_Goods_Outwards_url.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Receive_other_url.py">
@@ -78,43 +81,42 @@
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Return_url.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Urls\Transactions\NA_Maintenance_url.py">
+    <Compile Include="app\NA_Urls\OtherPages\NA_Maintenance_url.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Urls\Transactions_url.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\jasperclient.py" />
-    <Compile Include="app\NA_Views\NA_Acc_Fa_View.py" />
-    <Compile Include="app\NA_Views\NA_EmailData_View.py">
+    <Compile Include="app\NA_Views\OtherPages\NA_Acc_Fa_View.py" />
+    <Compile Include="app\NA_Views\OtherPages\NA_EmailData_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\NA_GoodsLost_View.py" />
-    <Compile Include="app\NA_Views\NA_Goods_Lending_View.py">
+    <Compile Include="app\NA_Views\Transactions\NA_GoodsLost_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Lending_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\NA_Goods_Outwards_View.py" />
-    <Compile Include="app\NA_Views\NA_Goods_Receive_Other_View.py" />
-    <Compile Include="app\NA_Views\NA_Goods_Receive_View.py" />
-    <Compile Include="app\NA_Views\NA_Goods_Return_View.py">
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Other_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Return_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\NA_Goods_View.py">
+    <Compile Include="app\NA_Views\MasterData\NA_Goods_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\NA_LogEvent_View.py">
+    <Compile Include="app\NA_Views\OtherPages\NA_LogEvent_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Views\NA_Maintenance_View.py" />
-    <Compile Include="app\NA_Views\NA_Priviledge_View.py" />
+    <Compile Include="app\NA_Views\OtherPages\NA_Maintenance_View.py" />
+    <Compile Include="app\NA_Views\MasterData\NA_Priviledge_View.py" />
     <Compile Include="app\NA_Views\NA_Report_View.py" />
-    <Compile Include="app\NA_Views\NA_Suplier_View.py" />
+    <Compile Include="app\NA_Views\MasterData\NA_Suplier_View.py" />
     <Compile Include="app\NA_Views\NA_To_Grids.py" />
     <Compile Include="app\NA_Views\NA_User_View.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\__init__.py" />
-    <Compile Include="app\NA_Views\NA_Employee_View.py">
+    <Compile Include="app\NA_Views\MasterData\NA_Employee_View.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\tests.py" />
@@ -122,26 +124,25 @@
     <Compile Include="app\__init__.py" />
     <Compile Include="manage.py" />
     <Compile Include="NA_DataLayer\admin.py" />
-    <Compile Include="app\NA_Views\jqgrid.py" />
-    <Compile Include="NA_DataLayer\NA_Acc_FA.py">
+    <Compile Include="NA_DataLayer\OtherPages\NA_Acc_FA.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NA_DataLayer\NA_GoodsLost_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Goods_BR.py">
+    <Compile Include="NA_DataLayer\Transactions\NA_GoodsLost_BR.py" />
+    <Compile Include="NA_DataLayer\MasterData\NA_Goods_BR.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NA_DataLayer\NA_Goods_Lending_BR.py">
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Lending_BR.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NA_DataLayer\NA_Goods_Outwards_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Goods_Receive_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Goods_Receive_Other_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Goods_Return_BR.py">
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Outwards_BR.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_BR.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_Other_BR.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Return_BR.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NA_DataLayer\NA_Maintenance_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Priviledge_BR.py" />
-    <Compile Include="NA_DataLayer\NA_Suplier.py">
+    <Compile Include="NA_DataLayer\OtherPages\NA_Maintenance_BR.py" />
+    <Compile Include="NA_DataLayer\MasterData\NA_Priviledge_BR.py" />
+    <Compile Include="NA_DataLayer\MasterData\NA_Suplier.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_User\models.py" />
@@ -150,7 +151,7 @@
     </Compile>
     <Compile Include="NA_DataLayer\NA_User\__init__.py" />
     <Compile Include="NA_DataLayer\__init__.py" />
-    <Compile Include="NA_DataLayer\NA_Employee.py">
+    <Compile Include="NA_DataLayer\MasterData\NA_Employee.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_Domain\NA_Goods.py">
@@ -175,6 +176,9 @@
     <Folder Include="app\NA_Urls\Transactions\" />
     <Folder Include="app\NA_Views\" />
     <Folder Include="app\NA_Urls\" />
+    <Folder Include="app\NA_Views\MasterData\" />
+    <Folder Include="app\NA_Views\OtherPages\" />
+    <Folder Include="app\NA_Views\Transactions\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />
     <Folder Include="app\static\app\content\" />
@@ -196,6 +200,9 @@
     <Folder Include="app\templates\app\UserControl\" />
     <Folder Include="NA_DataLayer\" />
     <Folder Include="NA_DataLayer\NA_User\" />
+    <Folder Include="NA_DataLayer\MasterData\" />
+    <Folder Include="NA_DataLayer\OtherPages\" />
+    <Folder Include="NA_DataLayer\Transactions\" />
     <Folder Include="NA_Domain\" />
     <Folder Include="NA_Models\" />
     <Folder Include="N_Asset\" />

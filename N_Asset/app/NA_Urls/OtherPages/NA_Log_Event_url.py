@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_LogEvent_View
+from app.NA_Views.OtherPages import NA_LogEvent_View
 
 urlpatterns = [
 	url(r'^NA_LogEvent/$', NA_LogEvent_View.NA_LogEvent_data, name='NA_LogEvent'),

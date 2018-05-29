@@ -8,7 +8,5 @@ urlpatterns = [
 	url(r'^Goods_Lending/',include('app.NA_Urls.Transactions.NA_Goods_Lending_url',namespace='NA_Goods_Lending')),
 
 	url(r'^Goods_Return/',include('app.NA_Urls.Transactions.NA_Goods_Return_url',namespace='NA_Goods_Return')),
-	url(r'^Goods_Lost/',include('app.NA_Urls.Transactions.NA_Goods_Lost_url',namespace='NA_Goods_Lost')),
-	url(r'^Assets_Depreciation/',include('app.NA_Urls.Transactions.NA_Acc_FA_url',namespace='NA_Acc_FA')),
-	url(r'^Maintenance/',include('app.NA_Urls.Transactions.NA_Maintenance_url',namespace='NA_Maintenance'))
+	url(r'^Goods_Lost/',include('app.NA_Urls.Transactions.NA_Goods_Lost_url',namespace='NA_Goods_Lost'))
 ]

@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_Suplier_View
+from app.NA_Views.MasterData import NA_Suplier_View
 
 urlpatterns = [
 	url(r'^$', NA_Suplier_View.NA_Suplier, name='NA_Suplier'),

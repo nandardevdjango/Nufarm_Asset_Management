@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views import NA_Priviledge_View
+from app.NA_Views.MasterData import NA_Priviledge_View
 
 urlpatterns = [
 	url(r'^$',NA_Priviledge_View.NA_Priviledge,name='NA_Priviledge'),
