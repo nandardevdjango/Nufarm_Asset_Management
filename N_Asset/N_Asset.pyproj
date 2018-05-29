@@ -87,8 +87,14 @@
     <Compile Include="app\NA_Urls\Transactions_url.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\MasterData\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\NA_Views\OtherPages\NA_Acc_Fa_View.py" />
     <Compile Include="app\NA_Views\OtherPages\NA_EmailData_View.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\NA_Views\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\Transactions\NA_GoodsLost_View.py" />
@@ -115,6 +121,9 @@
     <Compile Include="app\NA_Views\NA_User_View.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\Transactions\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\NA_Views\__init__.py" />
     <Compile Include="app\NA_Views\MasterData\NA_Employee_View.py">
       <SubType>Code</SubType>
@@ -124,7 +133,13 @@
     <Compile Include="app\__init__.py" />
     <Compile Include="manage.py" />
     <Compile Include="NA_DataLayer\admin.py" />
+    <Compile Include="NA_DataLayer\MasterData\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="NA_DataLayer\OtherPages\NA_Acc_FA.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NA_DataLayer\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\Transactions\NA_GoodsLost_BR.py" />
@@ -150,6 +165,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_User\__init__.py" />
+    <Compile Include="NA_DataLayer\Transactions\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="NA_DataLayer\__init__.py" />
     <Compile Include="NA_DataLayer\MasterData\NA_Employee.py">
       <SubType>Code</SubType>
