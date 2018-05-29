@@ -698,7 +698,7 @@
                         return false
                     }
                 };
-                $('div.maindialogContent').load("EntrySuplier/?" + win.encodeURIComponent('supliercode') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('mode')
+                $('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
                     + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
                         if (statusTxt == "success" || xhr.status == 200) {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                             var dialog = qs("div.containerDialog"),

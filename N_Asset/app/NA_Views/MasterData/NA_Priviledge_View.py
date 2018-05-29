@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 import json
 from django.core.serializers.json import DjangoJSONEncoder
+from django import forms
 
 
 def NA_Priviledge(request):
@@ -77,3 +78,47 @@ def NA_Priviledge_sys(request):
             else:
                 i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
     return HttpResponse(json.dumps(data,cls=DjangoJSONEncoder),content_type='application/json')
+
+def Entry_Priviledge(request):
+    if request.method == 'POST':
+        form = NA_Priviledge_Form(request.POST)
+        if form.is_valid():
+            form.save()
+    elif request.method == 'GET':
+        statusForm = request.GET['statusForm']
+        if statusForm == 'Edit' or statusForm == 'Open':
+            idapp = request.GET['idapp']
+        else:
+            form = NA_Priviledge_Form()
+        return render(request,'app/MasterData/NA_Entry_Priviledge.html',{'form':form})
+
+
+class NA_Priviledge_Form(forms.Form):
+    first_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(
+        attrs={'class':'form-control','placeholder':'First Name','style':'height:unset'}))
+    last_name = forms.CharField(max_length=30,required=False,widget=forms.TextInput(
+        attrs={'class':'form-control','placeholder':'Last Name','style':'height:unset'}))
+    username = forms.CharField(max_length=30,required=True,widget=forms.TextInput(
+        attrs={'class':'form-control','placeholder':'User Name','style':'height:unset'}))
+    email = forms.CharField(max_length=30,required=True,widget=forms.EmailInput(
+        attrs={'class':'form-control','placeholder':'Email'}))
+    divisi = forms.ChoiceField(widget=forms.Select(
+        attrs={'class':'NA-Form-Control select'}),choices=(
+        ('IT','IT'),
+        ('GA','GA')
+        ))
+    password = forms.CharField(max_length=30,required=True,widget=forms.PasswordInput(
+        attrs={'class':'form-control','placeholder':'Password','style':'height:unset'}))
+    confirm_password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
+        attrs={'class':'form-control','placeholder':'Confirm Password','style':'height:unset'}))
+
+    def save(self):
+        user = NAPriviledge()
+        user.first_name = self.first_name
+        user.last_name = self.last_name
+        user.username = self.username
+        user.email = self.email
+        user.divisi = self.divisi
+        user.set_password(self.password)
+        user.save()
+        return user
