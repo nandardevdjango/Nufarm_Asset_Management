@@ -1,12 +1,12 @@
 from django.http import HttpResponse
-from NA_Models.models import NAPriviledge
+from NA_Models.models import NAPriviledge, NASysPriviledge,NAPriviledge_form
 from NA_DataLayer.common import ResolveCriteria
 from django.core.paginator import Paginator
 from django.shortcuts import render
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
-
+from django.db import transaction
 
 def NA_Priviledge(request):
     return render(request,'app/MasterData/NA_F_Priviledge.html')
@@ -103,7 +103,7 @@ class NA_Priviledge_Form(forms.Form):
     email = forms.CharField(max_length=30,required=True,widget=forms.EmailInput(
         attrs={'class':'form-control','placeholder':'Email'}))
     divisi = forms.ChoiceField(widget=forms.Select(
-        attrs={'class':'NA-Form-Control select'}),choices=(
+        attrs={'class':'form-control'}),choices=(
         ('IT','IT'),
         ('GA','GA')
         ))
@@ -111,14 +111,43 @@ class NA_Priviledge_Form(forms.Form):
         attrs={'class':'form-control','placeholder':'Password','style':'height:unset'}))
     confirm_password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
         attrs={'class':'form-control','placeholder':'Confirm Password','style':'height:unset'}))
+    initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
     def save(self):
-        user = NAPriviledge()
-        user.first_name = self.first_name
-        user.last_name = self.last_name
-        user.username = self.username
-        user.email = self.email
-        user.divisi = self.divisi
-        user.set_password(self.password)
-        user.save()
+        with transaction.atomic():
+            user = NAPriviledge()
+            user.first_name = self.first_name
+            user.last_name = self.last_name
+            user.username = self.username
+            user.email = self.email
+            user.divisi = self.divisi
+            user.set_password(self.password)
+            user.save()
+            fk_form = NAPriviledge_form.get_form_IT()
+            data = []
+            for i in fk_form:
+                priviledge_form = NAPriviledge_form.objects.get(idapp=i)
+                data.append({
+                    'fk_p_form':priviledge_form,
+                    'permission':'Allow View',
+                    'user_id': user
+                })
+                data.append({
+                    'fk_p_form':priviledge_form,
+                    'permission':'Allow Add',
+                    'user_id': user
+                })
+                data.append({
+                    'fk_p_form':priviledge_form,
+                    'permission':'Allow Edit',
+                    'user_id': user
+                })
+                data.append({
+                    'fk_p_form':priviledge_form,
+                    'permission':'Allow Delete',
+                    'user_id': user
+                })
+            sys_priviledge = NASysPriviledge.objects.bulk_create([
+                NASysPriviledge(**q) for q in data
+            ])
         return user

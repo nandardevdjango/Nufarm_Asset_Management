@@ -1,4 +1,5 @@
 ﻿from django.db import models, connections
+from django.db.models import Q
 from django_mysql.models import JSONField
 from datetime import datetime
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods
@@ -415,14 +416,34 @@ class NAPriviledge_form(models.Model):
     class Meta:
         db_table = 'N_A_Priviledge_form'
 
+    def __str__(self):
+        return self.form_name
+
+    @staticmethod
+    def get_form_IT():
+        idapp_form = []
+        fk_form = NAPriviledge_form.objects\
+            .values_list('idapp',flat=True)\
+            .filter(
+                Q(form_name_ori='goods') |
+                Q(form_name_ori='n_a_suplier') |
+                Q(form_name_ori='employee')
+            )
+        for i in fk_form:
+            idapp_form.append(i)
+        return idapp_form
+
 class NASysPriviledge(models.Model):
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
-    fk_p_form = models.IntegerField(db_column='FK_PForm')
+    fk_p_form = models.ForeignKey(NAPriviledge_form,db_column='FK_PForm')
     permission = models.CharField(max_length=50,db_column='Permission')
-    user_id = models.IntegerField(db_column='User_id')
+    user_id = models.ForeignKey(NAPriviledge,db_column='User_id')
 
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
+
+    def __str__(self):
+        return '{0} : {1}'.format(self.user_id.username,self.fk_p_form.form_name)
 
 class NAGoodsReceive_other(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)

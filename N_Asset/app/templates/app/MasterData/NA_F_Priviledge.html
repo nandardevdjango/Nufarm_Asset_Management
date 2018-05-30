@@ -118,7 +118,7 @@
                     viewrecords: true,
                     loadui: 'disable',
                     shrinkToFit: false,
-                    caption: 'Master Data -- Suplier',
+                    caption: 'Master Data -- User Priviledge',
                     shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
@@ -216,7 +216,7 @@
             return false;
         }
     });
-    NA.common.doc.title = 'Nufarm - Suplier';
+    NA.common.doc.title = 'MasterData - User Priviledge';
     priviledge_grid.navGrid('#NA_Priviledge_pager',{
         edit: true,
         add: true,
@@ -317,7 +317,7 @@
         if (event) {
             var target = NA.NAEvent.getTarget(event);
         }
-        NA.common.SearchData.setDefaultSearchData('supliername', 'varchar', 'like');
+        NA.common.SearchData.setDefaultSearchData('username', 'varchar', 'like');
         NA.common.SearchData.setValue('');
         LoadData(1);
         window.document.body.style.cursor = 'default';
@@ -387,13 +387,13 @@
     }
     function getValues_suplForm() {
         var data = {
-            supliercode: qs('input#id_supliercode').value.trim(),
-            supliername: qs('input#id_supliername').value.trim(),
-            address: qs('textarea#id_address').value.trim(),
-            telp: qs('input#id_telp').value.trim(),
-            hp: qs('input#id_hp').value.trim(),
-            contactperson: qs('input#id_contactperson').value.trim(),
-            inactive: qs('input#id_inactive').checked,
+            first_name: qs('input#id_first_name').value.trim(),
+            last_name: qs('input#id_last_name').value.trim(),
+            username: qs('input#id_username').value.trim(),
+            divisi: qs('select#id_divisi').value.trim(),
+            email: qs('input#id_email').value.trim(),
+            password: qs('input#id_password').value.trim(),
+            confirm_password: qs('input#id_confirm_password').value.trim(),
         };
         return data
     }
