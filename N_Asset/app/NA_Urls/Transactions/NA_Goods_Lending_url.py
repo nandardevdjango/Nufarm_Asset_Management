@@ -12,7 +12,8 @@ urlpatterns = [
 	url(r'^geInterests/$',NA_Goods_Lending_View.getInterest,name='getinterests'),
 	url(r'^getLastTransGoods/$',NA_Goods_Lending_View.getLastTransGoods,name='getlastTransGoods'),
 	url(r'^getGoodsWithHistory/$',NA_Goods_Lending_View.getGoodsWithHistory,name='getGoodsWithHistory'),
-	url(r'^getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
-	url(r'^SearchEmployeebyform/$',RedirectView.as_view(url='/NA_Goods_Receive/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
+    url(r'^getEmployee/$', RedirectView.as_view(url='/Transactions/Goods_Receive/IT/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
+	#url(r'^getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
+	url(r'^SearchEmployeebyform/$',RedirectView.as_view(url='/Transactions/Goods_Receive/IT/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
 	url(r'^customFilter/$',NA_Goods_Lending_View.ShowCustomFilter,name='SowCustomFilter_Lending'),
 ]
