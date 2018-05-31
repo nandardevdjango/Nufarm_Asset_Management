@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from NA_Models.models import NAPriviledge, NASysPriviledge,NAPriviledge_form
-from NA_DataLayer.common import ResolveCriteria
+from NA_DataLayer.common import ResolveCriteria, Data, commonFunct
 from django.core.paginator import Paginator
 from django.shortcuts import render
 import json
@@ -83,7 +83,8 @@ def Entry_Priviledge(request):
     if request.method == 'POST':
         form = NA_Priviledge_Form(request.POST)
         if form.is_valid():
-            form.save()
+            result = form.save()
+            return commonFunct.response_default(result)
     elif request.method == 'GET':
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
@@ -91,6 +92,11 @@ def Entry_Priviledge(request):
         else:
             form = NA_Priviledge_Form()
         return render(request,'app/MasterData/NA_Entry_Priviledge.html',{'form':form})
+
+def Delete_user(request):
+    idapp = request.POST['idapp']
+    result = NAPriviledge.objects.Delete(idapp)
+    return commonFunct.response_default(result)
 
 
 class NA_Priviledge_Form(forms.Form):
@@ -116,38 +122,12 @@ class NA_Priviledge_Form(forms.Form):
     def save(self):
         with transaction.atomic():
             user = NAPriviledge()
-            user.first_name = self.first_name
-            user.last_name = self.last_name
-            user.username = self.username
-            user.email = self.email
-            user.divisi = self.divisi
-            user.set_password(self.password)
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
+            user.username = self.cleaned_data['username']
+            user.email = self.cleaned_data['email']
+            user.divisi = self.cleaned_data['divisi']
+            user.set_password(self.cleaned_data['password'])
             user.save()
-            fk_form = NAPriviledge_form.get_form_IT()
-            data = []
-            for i in fk_form:
-                priviledge_form = NAPriviledge_form.objects.get(idapp=i)
-                data.append({
-                    'fk_p_form':priviledge_form,
-                    'permission':'Allow View',
-                    'user_id': user
-                })
-                data.append({
-                    'fk_p_form':priviledge_form,
-                    'permission':'Allow Add',
-                    'user_id': user
-                })
-                data.append({
-                    'fk_p_form':priviledge_form,
-                    'permission':'Allow Edit',
-                    'user_id': user
-                })
-                data.append({
-                    'fk_p_form':priviledge_form,
-                    'permission':'Allow Delete',
-                    'user_id': user
-                })
-            sys_priviledge = NASysPriviledge.objects.bulk_create([
-                NASysPriviledge(**q) for q in data
-            ])
-        return user
+            NASysPriviledge.set_permission(user)
+        return (Data.Success,)

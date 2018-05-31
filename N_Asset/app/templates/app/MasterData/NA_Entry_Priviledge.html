@@ -29,7 +29,7 @@ input::-webkit-input-placeholder {
 	font-size: 11px;
 	text-align: center;
 }
-#form_user {
+#priviledge_form {
     background:none;
     width:450px;
     margin:10px 0 30px 0;
@@ -47,15 +47,15 @@ span.input-group-addon {
     color:#4CAF50;
 	transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
-form#form_user input.form-control {
+form#priviledge_form input.form-control {
     box-shadow:none
 }
-form#form_user input.form-control:focus,select.form-control:focus {
+form#priviledge_form input.form-control:focus,select.form-control:focus {
     border-color:#4CAF50;
     box-shadow:none
 }
 </style>
-<form class="form-horizontal" method="post" action="{% url 'NA_User_Register' %}" id="form_user" enctype="multipart/form-data">
+<form class="form-horizontal" method="post" id="priviledge_form" onsubmit="return false">
     {% csrf_token %}
 	<div class="row">
 		<div class="col-sm-6">

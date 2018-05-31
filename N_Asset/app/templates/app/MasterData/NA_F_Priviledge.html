@@ -208,7 +208,6 @@
 
     priviledge_grid.on("keyup", "tr", function (e) {
         //var rowid = parseInt($(this).attr("id"));
-        console.log('deleted')
         var rowId = priviledge_grid.jqGrid('getGridParam', 'selrow');
         if (e.keyCode == 46) {
             var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
@@ -399,7 +398,7 @@
     }
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)')
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
-        var get_supliercode = getGridId()
+        var get_idapp = getGridId()
         if (getGridId()) {
             NA.NAEvent.preventDefault(event);
             return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
@@ -408,7 +407,7 @@
                     method: 'POST',
                     data: {
                         'csrfmiddlewaretoken': get_csrf(),
-                        'supliercode': get_supliercode
+                        'idapp': get_idapp
                     },
                     success: function (data) {
                         var rowNum = priviledge_grid.getGridParam('rowNum'),
@@ -461,21 +460,22 @@
     });
 
     status = status || window.status;
-    function SuplierSubmit() {
+    function PriviledgeSubmit() {
         function sendData() {
             var valuesForm = getValues_suplForm()
-            var supCode;
+            var idapp;
             if (window.status.trim() == 'Edit' || window.status == 'Open') {
-                supCode = getGridId()
+                idapp = getGridId()
             }
             var snData = Object.assign({
                 'csrfmiddlewaretoken': get_csrf(),
                 'mode': window.status,
+				'idapp':idapp
             }, valuesForm)
             return snData
         }
         $.ajax({
-            url: 'EntrySuplier/',
+            url: 'ShowEntry/',
             method: 'POST',
             beforeSend: function (jqXHR) {
                 jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
@@ -507,21 +507,21 @@
     function ExecuteHandler(TextElement) {
         var initializeForm = NA.common.getElementID('id_initializeForm');
         var dialog = qs("div.containerDialog"),
-        frmEntry = qs('form#suplier_form'),
+        frmEntry = qs('form#priviledge_form'),
         emailForm = qs('form#email_data'),
         originalData = status !== 'Open' ? JSON.parse(initializeForm.Value) : '',
         valuesForm = getValues_suplForm();
 
 
         if (frmEntry) {
-            var inputbtn = NA.common.getElementID('suplier_submit');
+            var inputbtn = NA.common.getElementID('priviledge_submit');
             switch (TextElement) {
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
                         inputbtn.click();
                     }else {
                         if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                            SuplierSubmit();
+                            PriviledgeSubmit();
                         } else {
                             NA.common.dialog.closeDialog(dialog);
                         }
@@ -539,7 +539,7 @@
                                     inputbtn.click();
                                 }
                                 else {
-                                    SuplierSubmit();
+                                    PriviledgeSubmit();
                                 }
                             },
                             function () {

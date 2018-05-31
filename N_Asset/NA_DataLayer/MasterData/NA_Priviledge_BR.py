@@ -1,6 +1,6 @@
 from django.contrib.auth.models import UserManager
 from NA_DataLayer.common import (ResolveCriteria,CriteriaSearch, DataType,
-                                 query)
+                                 query,Data)
 from django.db import connection
 
 
@@ -43,3 +43,8 @@ class NA_BR_Priviledge(UserManager):
         WHERE ps.user_id=%(User_id)s"""
         cur.execute(Query,{'User_id':user_id})
         return query.dictfetchall(cur)
+
+    def Delete(self,idapp):
+        data = super(NA_BR_Priviledge,self).get_queryset().filter(idapp=idapp)
+        data.delete()
+        return (Data.Success,)
