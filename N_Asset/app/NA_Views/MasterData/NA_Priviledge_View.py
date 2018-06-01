@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from NA_Models.models import NAPriviledge, NASysPriviledge,NAPriviledge_form
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.shortcuts import render
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -58,6 +58,11 @@ def NA_PriviledgeGetData(request):
 def NA_Priviledge_sys(request):
     user_id = request.GET['user_id']
     data = NAPriviledge.objects.Get_Priviledge_Sys(user_id)
+    totalRecords = len(data)
+    page = request.GET.get('page','1')
+    limit_row = request.GET.get('rows','10')
+    paginator = Paginator(data,int(limit_row))
+    data = paginator.page(page).object_list
     same_data = {}
     len_data = len(data)
     for index,j in enumerate(data):
@@ -82,7 +87,11 @@ def NA_Priviledge_sys(request):
                     i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
             else:
                 i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
-    return HttpResponse(json.dumps(data,cls=DjangoJSONEncoder),content_type='application/json')
+    
+    return HttpResponse(
+        json.dumps({"page": page,"total": paginator.num_pages ,"records": totalRecords,"rows": data },cls=DjangoJSONEncoder),
+        content_type='application/json'
+    )
 
 def Entry_Priviledge(request):
     if request.method == 'POST':
@@ -90,6 +99,8 @@ def Entry_Priviledge(request):
         if form.is_valid():
             result = form.save()
             return commonFunct.response_default(result)
+        else:
+            raise forms.ValidationError(form.errors)
     elif request.method == 'GET':
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
@@ -98,6 +109,8 @@ def Entry_Priviledge(request):
             form = NA_Priviledge_Form(initial=data)
         else:
             form = NA_Priviledge_Form()
+            form.fields['password'].widget.attrs['required'] = ''
+            form.fields['confirm_password'].widget.attrs['required'] = ''
         return render(request,'app/MasterData/NA_Entry_Priviledge.html',{'form':form})
 
 def Delete_user(request):
@@ -120,13 +133,46 @@ class NA_Priviledge_Form(forms.Form):
         ('IT','IT'),
         ('GA','GA')
         ))
-    password = forms.CharField(max_length=30,required=True,widget=forms.PasswordInput(
+    statusForm = forms.CharField(widget=forms.TextInput(
+        attrs={'style':'display:none'}),required=True)
+    password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
         attrs={'class':'form-control','placeholder':'Password','style':'height:unset'}))
     confirm_password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
         attrs={'class':'form-control','placeholder':'Confirm Password','style':'height:unset'}))
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
-    statusForm = forms.CharField(widget=forms.TextInput(
-        attrs={'style':'display:none'}),required=True)
+
+    def clean_password(self):
+        if self.cleaned_data['statusForm'] == 'Add':
+            password = self.cleaned_data.get('password')
+            if password is None or password == '':
+                raise forms.ValidationError(
+                    'Please fill out password'
+                )
+
+    def clean_confirm_password(self):
+        if self.cleaned_data['statusForm'] == 'Add':
+            confirm_password = self.cleaned_data.get('confirm_password')
+            if confirm_password is None or confirm_password == '':
+                raise forms.ValidationError(
+                    'Please fill out confirm password'
+                )
+
+    def clean(self):
+        confirm_password = self.cleaned_data.get('confirm_password')
+        password = self.cleaned_data.get('password')
+        if password != confirm_password:
+            raise forms.ValidationError(
+                'Password didn\'t match with confirm password'
+            )
+
+    def getFormData(self):
+        return {
+            'first_name':self.cleaned_data.get('first_name'),
+            'last_name':self.cleaned_data.get('last_name'),
+            'username':self.cleaned_data.get('username'),
+            'email':self.cleaned_data.get('email'),
+            'divisi':self.cleaned_data.get('divisi')
+        }
 
     def save(self):
         statusForm = self.cleaned_data.get('statusForm')
@@ -148,5 +194,17 @@ class NA_Priviledge_Form(forms.Form):
                     NASysPriviledge.set_permission(user)
 
             elif statusForm == 'Edit':
-                pass
+                data = NAPriviledge.objects.filter(idapp=idapp)
+                if data.exists():
+                    data_init = {
+                        'first_name': data['first_name'],
+                        'last_name': data['last_name'],
+                        'username':data['username'],
+                        'email': data['email'],
+                        'divisi':data['divisi']
+                    }
+                    data_form = self.getFormData()
+                    same = [k for k in data_form if data_form[k] == data_init[k]]
+                    data_form.pop(*same)
+                    data.update(**data_form)
         return (Data.Success,)

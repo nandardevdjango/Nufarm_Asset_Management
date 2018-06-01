@@ -57,9 +57,15 @@
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 <style>
-    div#content-0 {
+div#content-0 {
     overflow:hidden;
-    }
+}
+div[id*=gbox_NA_Priviledge_grid],div[id*=gview_NA_Priviledge_grid],
+div[id*=NA_Priviledge_pager],div.ui-jqgrid-titlebar,
+div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,
+div[id*=NA_Priviledge_grid]{
+    border-radius: 0px
+}
 </style>
 {% endblock %}
 
@@ -133,8 +139,16 @@
                             btnOpen.click();
                         }
                     },
+                    onSelectRow: function (rowId, status, event) {
+                    	$('#NA_Priviledge_grid_' + rowId + '_table').jqGrid('resetSelection');
+                    },
                     subGrid: true,
-					subGridRowExpanded: showChildGrid
+                    subGridRowExpanded: showChildGrid,
+                    subGridOptions: {
+                    	"plusicon": "ui-icon-triangle-1-e",
+                    	"minusicon": "ui-icon-triangle-1-s",
+                    	"openicon": "ui-icon-arrowreturn-1-e"
+                    }
                 });
             }
         };
@@ -155,7 +169,6 @@
         	var childGridPagerID = parentRowID + "_pager";
 
         	// send the parent row primary key to the server so that we know which grid to show
-        	var childGridURL = parentRowKey + ".json";
         	//var data = [{ "idapp": 1, "form_name": "Suplier Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 2, "form_name": "Suplier Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 5, "form_name": "Suplier Form", "permission": "Allow Add", "attr": { "display": "none" } }, { "idapp": 3, "form_name": "Employee Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 4, "form_name": "Employee Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 6, "form_name": "Employee Form", "permission": "Allow Add", "attr": { "display": "none" } }]
         	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
         	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
@@ -170,12 +183,24 @@
                     { label: 'Form Name', name: 'form_name',align:'center', width: 10, cellattr: showPermissions },
                     { label: 'Permissions', name: 'permission', width: 10 }
         		],
-        		loadonce: true,
+        		viewrecords: true,
+				rowNum:10,
         		width: 320,
         		height: '100%',
-        		pager: "#" + childGridPagerID
+        		pager: "#" + childGridPagerID,
+        		onSelectRow: function (rowId, status, event) {
+        			priviledge_grid.jqGrid('resetSelection');
+        		}
         	});
-
+        	$('#' + childGridID).on("keyup", "tr", function (event) {
+        		NA.NAEvent.preventDefault(event);
+        		var rowId = priviledge_grid.jqGrid('getGridParam', 'selrow');
+        		if (event.keyCode == 46) {
+        			var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
+        			btnDelete.click();
+        			return false;
+        		}
+        	});
         };
 
 
@@ -389,7 +414,7 @@
         var col = grid.jqGrid('getCell', jqgId, column);
         return col
     }
-    function getValues_suplForm() {
+    function getValues_form() {
         var data = {
             first_name: qs('input#id_first_name').value.trim(),
             last_name: qs('input#id_last_name').value.trim(),
@@ -468,8 +493,7 @@
     status = status || window.status;
     function PriviledgeSubmit() {
         function sendData() {
-        	var valuesForm = getValues_suplForm()
-        	valuesForm['statusForm'] = status;
+        	var valuesForm = getValues_form();
             var idapp;
             if (window.status.trim() == 'Edit' || window.status == 'Open') {
                 idapp = getGridId()
@@ -516,13 +540,20 @@
         frmEntry = qs('form#priviledge_form'),
         emailForm = qs('form#email_data'),
         originalData = status !== 'Open' ? JSON.parse(initializeForm.Value) : '',
-        valuesForm = getValues_suplForm();
+        valuesForm = getValues_form();
 
 
         if (frmEntry) {
             var inputbtn = NA.common.getElementID('priviledge_submit');
             switch (TextElement) {
-                case 'OK': {
+            	case 'OK': {
+            		var password = qs('input#id_password');
+            		var confirm_password = qs('input#id_confirm_password');
+            		if (password.value != confirm_password.value) {
+            			confirm_password.setCustomValidity('confirm password didn\'t match with password');
+            		} else {
+            			confirm_password.setCustomValidity('');
+            		}
                     if (!frmEntry.checkValidity()) {
                         inputbtn.click();
                     }else {
@@ -711,6 +742,8 @@
                                 btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
                                 btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
 
+                            statusForm = qs('input#id_statusForm');
+                            statusForm.value = status;
                             dialog.style.top = '10px';
                             Array.prototype.forEach.call(btnOkCancel, function (elem) {
                                 NA.NAEvent.addHandler(elem, 'click', function (event) {
@@ -753,7 +786,7 @@
                                 }
                             };
                             if (status !== 'Open' && status !== '') {
-                                var originalData = JSON.stringify(getValues_suplForm());
+                                var originalData = JSON.stringify(getValues_form());
                                 initializeForm = NA.common.getElementID('id_initializeForm');
                                 initializeForm.Value = originalData;
                             }
