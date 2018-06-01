@@ -1,11 +1,13 @@
 ﻿{% extends 'app/layout.html' %}
 
 {% block SearchData %}
-<li><a href="#" data-tipe="varchar" data-column="supliercode">Suplier Code</a></li>
-<li><a href="#" data-tipe="varchar" data-column="supliername">Suplier Name</a></li>
-<li><a href="#" data-tipe="varchar" data-column="address">Address</a></li>
+<li><a href="#" data-tipe="varchar" data-column="first_name">First Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="last_name">Last Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="username">Username</a></li>
 <!--<li class="divider"></li>-->
-<li><a href="#" data-tipe="varchar" data-column="inactive">InActive</a></li>
+<li><a href="#" data-tipe="varchar" data-column="email">Email</a></li>
+<li><a href="#" data-tipe="varchar" data-column="divisi">Divisi</a></li>
+<li><a href="#" data-tipe="varchar" data-column="last_form">Last Form</a></li>
 <li><a id="custSearch" href="#">Custom Search</a></li>
 <!--<li class="divider"></li>-->
 {% endblock %}
@@ -93,16 +95,19 @@
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['No','IDApp', 'User Name', 'Email', 'Password', 'Last Login', 'Last Form', 'Inactive', 'Createddate', 'Createdby'],
+                    colNames: ['No','IDApp', 'First Name', 'Last Name','User Name', 'Email', 'Password', 'Divisi','Last Login', 'Last Form', 'Inactive', 'Createddate', 'Createdby'],
                     colModel: [
                         {name: 'no', index:'no',width:45, align:'center'},
-                        { name: 'idapp', index: 'supliercode', width: 125, search: false, key: true, hidden:true },//
-                        { name: 'username', index: 'username', width: 170, editable: true, search: false, editrules: { required: true }, formoptions: { label: 'Suplier Name:' } },
-                        { name: 'email', index: 'email', width: 150, editable: true, editrules: { required: true }, formoptions: { label: 'Address:' } },
-                        { name: 'password', index: 'telp', width: 150, align: 'left', editable: true, search: false, editrules: { required: true }, formoptions: { label: 'Telp:' } },
-                        { name: 'last_login', index: 'hp', width: 150, align: 'left', editable: true, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },
-                        { name: 'last_form', index: 'contactperson', width: 110, editable: true, search: false, formoptions: { label: 'Contact Person:' } },
-                        { name: 'inactive', index: 'inactive', width: 65,align:'center', editable: true, formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: 'Yes:No' }, formoptions: { label: 'Inactive:' } },
+                        { name: 'idapp', index: 'idapp', width: 125, search: false, key: true, hidden: true },//
+						{ name: 'first_name', index: 'first_name', width: 120, editable: true, search: false, },
+						{ name: 'last_name', index: 'last_name', width: 120, editable: true, search: false },
+                        { name: 'username', index: 'username', width: 130, editable: true, search: false },
+                        { name: 'email', index: 'email', width: 160, editable: true },
+                        { name: 'password', index: 'password', width: 160, align: 'left' },
+						{ name: 'divisi', index: 'divisi', width: 70, editable: true, search: false, align:'center' },
+                        { name: 'last_login', index: 'last_login', width: 150, align: 'left', editable: true, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },
+                        { name: 'last_form', index: 'last_form', width: 110, editable: true, search: false },
+                        { name: 'inactive', index: 'inactive', width: 65,align:'center', editable: true, formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } },
                         { name: 'createddate', index: 'createddate', width: 155, editable: false, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },//,formatter: "date",formatoptions: { srcformat: "ISO8601Long", newformat: "Y/m/d H:i" }
                         { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false, editoptions: { dataInit: function (element) { jq(element).attr("readonly", "readonly"); } } },
                     ],
@@ -188,7 +193,7 @@
                 SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
                 SearchInput = NA.common.doc.querySelector('input[name=q]');;
                 if (SearchBy.trim() == 'By') {
-                    NA.common.SearchData.setDefaultSearchData('supliername', 'Varchar', 'like');
+                    NA.common.SearchData.setDefaultSearchData('username', 'Varchar', 'like');
                     var curPage = parseInt(priviledge_grid.getGridParam('page'));
                     window.document.body.style.cursor = 'wait';
                     NA.common.SearchData.setValue(SearchInput.value);
@@ -365,7 +370,7 @@
     NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
     NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css", "CommonEntry");//Load Style buat form sebelum di pakai
 
-    NA.common.dialog.initDialog(containerMenu, 'Nufarm Entry Goods - Master Data');//inistialisasi menu
+    NA.common.dialog.initDialog(containerMenu, 'Nufarm Entry User - Master Data');//inistialisasi menu
 
     var elementMenus = [];
     var menus = NA.common.doc.querySelectorAll('div.sidebar ul.list-sidebar.bg-defoult li ul li a');
@@ -393,6 +398,7 @@
             email: qs('input#id_email').value.trim(),
             password: qs('input#id_password').value.trim(),
             confirm_password: qs('input#id_confirm_password').value.trim(),
+			statusForm:qs('input#id_statusForm').value.trim()
         };
         return data
     }
@@ -462,14 +468,14 @@
     status = status || window.status;
     function PriviledgeSubmit() {
         function sendData() {
-            var valuesForm = getValues_suplForm()
+        	var valuesForm = getValues_suplForm()
+        	valuesForm['statusForm'] = status;
             var idapp;
             if (window.status.trim() == 'Edit' || window.status == 'Open') {
                 idapp = getGridId()
             }
             var snData = Object.assign({
                 'csrfmiddlewaretoken': get_csrf(),
-                'mode': window.status,
 				'idapp':idapp
             }, valuesForm)
             return snData
@@ -704,6 +710,8 @@
                             var dialog = qs("div.containerDialog"),
                                 btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
                                 btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+
+                            dialog.style.top = '10px';
                             Array.prototype.forEach.call(btnOkCancel, function (elem) {
                                 NA.NAEvent.addHandler(elem, 'click', function (event) {
                                     var target = NA.NAEvent.getTarget(event);

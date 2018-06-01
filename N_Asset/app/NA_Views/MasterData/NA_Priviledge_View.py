@@ -44,8 +44,13 @@ def NA_PriviledgeGetData(request):
     i = 0
     for row in dataRows.object_list:
         i += 1
-        datarow = {"id" :row['idapp'], "cell" :[i,row['idapp'],row['username'],row['email'],row['password'],row['last_login'],row['last_form'], \
-		    row['is_active'],row['date_joined'],row['createdby']]}
+        datarow = {
+            "id" :row['idapp'], "cell" :[
+                i,row['idapp'],row['first_name'],row['last_name'],row['username'],
+                row['email'],row['password'],row['divisi'],row['last_login'],row['last_form'],
+                row['is_active'],row['date_joined'],row['createdby']
+                ]
+            }
         rows.append(datarow)
     results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -89,6 +94,8 @@ def Entry_Priviledge(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
+            data = NAPriviledge.objects.retrieveData(idapp)
+            form = NA_Priviledge_Form(initial=data)
         else:
             form = NA_Priviledge_Form()
         return render(request,'app/MasterData/NA_Entry_Priviledge.html',{'form':form})
@@ -118,16 +125,28 @@ class NA_Priviledge_Form(forms.Form):
     confirm_password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
         attrs={'class':'form-control','placeholder':'Confirm Password','style':'height:unset'}))
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
+    statusForm = forms.CharField(widget=forms.TextInput(
+        attrs={'style':'display:none'}),required=True)
 
     def save(self):
-        with transaction.atomic():
-            user = NAPriviledge()
-            user.first_name = self.cleaned_data['first_name']
-            user.last_name = self.cleaned_data['last_name']
-            user.username = self.cleaned_data['username']
-            user.email = self.cleaned_data['email']
-            user.divisi = self.cleaned_data['divisi']
-            user.set_password(self.cleaned_data['password'])
-            user.save()
-            NASysPriviledge.set_permission(user)
+        statusForm = self.cleaned_data.get('statusForm')
+        if statusForm is None or statusForm == '':
+            raise forms.ValidationError(
+                'Status Form cannot be null'
+            )
+        else:
+            if statusForm == 'Add':
+                with transaction.atomic():
+                    user = NAPriviledge()
+                    user.first_name = self.cleaned_data['first_name']
+                    user.last_name = self.cleaned_data['last_name']
+                    user.username = self.cleaned_data['username']
+                    user.email = self.cleaned_data['email']
+                    user.divisi = self.cleaned_data['divisi']
+                    user.set_password(self.cleaned_data['password'])
+                    user.save()
+                    NASysPriviledge.set_permission(user)
+
+            elif statusForm == 'Edit':
+                pass
         return (Data.Success,)
