@@ -180,27 +180,114 @@ div[id*=NA_Priviledge_grid]{
         		page: 1,
         		colModel: [
                     { label: 'IDApp', name: 'idapp', key: true, width: 75,hidden:true },
-                    { label: 'Form Name', name: 'form_name',align:'center', width: 10, cellattr: showPermissions },
-                    { label: 'Permissions', name: 'permission', width: 10 }
+                    { label: 'Form Name', name: 'form_name',align:'center', width: 70, cellattr: showPermissions },
+                    { label: 'Permissions', name: 'permission', width: 70 },
+					{
+						label: 'Inactive', name: 'inactive', width:40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+						editoptions: { value: '1:0' },
+						formatoptions: { disabled: false }
+					}
         		],
         		viewrecords: true,
 				rowNum:10,
-        		width: 320,
+        		width: 450,
         		height: '100%',
         		pager: "#" + childGridPagerID,
+        		ondblClickRow: function (rowId, iRow, iCol, event) {
+        			NA.NAEvent.preventDefault(event);
+        			NA.NAEvent.stopPropagation(event);
+        		},
         		onSelectRow: function (rowId, status, event) {
         			priviledge_grid.jqGrid('resetSelection');
+        		},
+        		beforeSelectRow: function (rowid, e) {
+        			var $self = $(this),
+						iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+					cm = $self.jqGrid("getGridParam", "colModel");
+        			//localData = $self.jqGrid("getLocalRow", rowid);
+        			if (cm[iCol].name === "inactive") {
+        				var checked = $(e.target).is(":checked");
+        				oriChecked = !checked;
+        				var tr = $(e.target).closest('tr');
+        				idapp = tr[0].id;
+						var permission_url = 'permission/' + idapp + '/setInActive/'
+        				if (parseInt(idapp) != -1) {
+        					$.ajax({
+        						url: permission_url,
+        						method: 'POST',
+        						beforeSend: function (xhr) {
+        							xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+        						},
+        						data: {
+        							'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken'),
+        							'inactive': checked
+        						},
+        						complete: function (data) {
+        							if (data.status !== 200) {
+        								$(e.target).prop('checked', oriChecked);
+        								var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+        								return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        							}
+        						}
+        					});
+        				}
+        			}
+        			return true; // allow selection
         		}
         	});
-        	$('#' + childGridID).on("keyup", "tr", function (event) {
-        		NA.NAEvent.preventDefault(event);
-        		var rowId = priviledge_grid.jqGrid('getGridParam', 'selrow');
-        		if (event.keyCode == 46) {
-        			var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
-        			btnDelete.click();
-        			return false;
-        		}
-        	});
+
+        	function getChildGridId() {
+        		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
+        	}
+        	$('#' + childGridID).navGrid('#'+childGridPagerID, {
+        		edit: false,
+        		add: false,
+        		del: false,
+        		search: false,
+        		refresh: false,
+        		cloneToTop: false
+        	}).navButtonAdd('#'+childGridPagerID,{
+        		caption: "",
+        		buttonicon: "ui-icon-plus",
+        		onClickButton: function () {
+        			alert("Adding Row");
+        		},
+        		position: "first"
+        	}).navButtonAdd('#' + childGridPagerID, {
+        		caption: "",
+        		buttonicon: "ui-icon-pencil",
+        		onClickButton: function () {
+
+        			alert(getChildGridId());
+        		},
+        		position: "last"
+        	}).navButtonAdd('#' + childGridPagerID, {
+        		caption: "",
+        		buttonicon: "ui-icon-trash",
+        		onClickButton: function () {
+        			return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+        				var idapp = getChildGridId();
+        				var permission_url_delete = 'permission/' + idapp + '/delete/';
+        				$.ajax({
+        					url: permission_url_delete,
+        					method: 'POST',
+        					beforeSend: function (xhr) {
+        						xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+        					},
+        					data: {
+        						'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken')
+        					},
+        					complete: function (data) {
+        						if (data.status !== 200) {
+        							var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+        							return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        						}
+        					}
+        				})
+        			})
+        		},
+        		position: "last"
+        	})
         };
 
 
@@ -415,7 +502,8 @@ div[id*=NA_Priviledge_grid]{
         return col
     }
     function getValues_form() {
-        var data = {
+    	var data = {
+    		idapp:qs('input#id_idapp').value.trim(),
             first_name: qs('input#id_first_name').value.trim(),
             last_name: qs('input#id_last_name').value.trim(),
             username: qs('input#id_username').value.trim(),
@@ -499,8 +587,7 @@ div[id*=NA_Priviledge_grid]{
                 idapp = getGridId()
             }
             var snData = Object.assign({
-                'csrfmiddlewaretoken': get_csrf(),
-				'idapp':idapp
+                'csrfmiddlewaretoken': get_csrf()
             }, valuesForm)
             return snData
         }

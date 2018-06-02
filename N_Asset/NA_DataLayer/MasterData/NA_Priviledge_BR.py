@@ -40,7 +40,7 @@ class NA_BR_Priviledge(UserManager):
 
     def Get_Priviledge_Sys(self,user_id):
         cur = connection.cursor()
-        Query = """SELECT ps.idapp,pf.form_name,ps.permission FROM n_a_sys_priviledge ps 
+        Query = """SELECT ps.idapp,pf.form_name,ps.permission,ps.inactive FROM n_a_sys_priviledge ps 
         INNER JOIN n_a_priviledge_form pf ON ps.fk_pform = pf.idapp
         WHERE ps.user_id=%(User_id)s"""
         cur.execute(Query,{'User_id':user_id})
@@ -53,6 +53,6 @@ class NA_BR_Priviledge(UserManager):
 
     def retrieveData(self,idapp):
         data = super(NA_BR_Priviledge,self).get_queryset()\
-            .values('first_name','last_name','username','divisi','email')\
+            .values('idapp','first_name','last_name','username','divisi','email')\
             .filter(idapp=idapp)
         return data[0]

@@ -7,6 +7,7 @@ from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods,CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Priviledge_BR import NA_BR_Priviledge
+from NA_DataLayer.MasterData.NA_Sys_Priviledge_BR import NA_BR_Sys_Priviledge
 
 from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
 from NA_DataLayer.Transactions.NA_GoodsLost_BR import NA_BR_GoodsLost
@@ -379,8 +380,10 @@ class NAPriviledge(AbstractUser):
 
     IT = 'IT'
     GA = 'GA'
+    Guest = 'Guest'
 
     DIVISI_CHOICES = (
+        ('Guest','Guest'),
         (IT,'IT'),
         (GA,'GA')
     )
@@ -399,7 +402,7 @@ class NAPriviledge(AbstractUser):
     ip_address = models.CharField(max_length=20,db_column='IP_Address')
     is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
     is_staff = models.BooleanField(default=False,db_column='Is_Staff')
-    is_active = models.BooleanField(default=True,db_column='InActive')
+    is_active = models.BooleanField(default=True,db_column='Is_Active')
     USERNAME_FIELD = 'email' # use email to log in
     REQUIRED_FIELDS = ['username'] # required when user is created
     date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
@@ -425,7 +428,11 @@ class NAPriviledge(AbstractUser):
 
         return boolean
         """
+        if action not in NASysPriviledge.ALL_PERMISSION:
+            raise ValueError('uncategorize, cannot resolve action %s' % action)
 
+        if form_name_ori not in NAPriviledge_form.ALL_FORM:
+            raise ValueError('uncategorize, cannot resolve form %s' % form_name_ori)
 
         is_has = self.nasyspriviledge_set.filter(
             fk_p_form__form_name_ori=form_name_ori,
@@ -442,6 +449,8 @@ class NAPriviledge_form(models.Model):
     Employee_form = 'employee'
     Suplier_form = 'n_a_suplier'
     Goods_form = 'goods'
+
+    ALL_FORM = [Employee_form,Suplier_form,Goods_form]
 
     FORM_NAME_ORI_CHOICES = (
         (Employee_form,'employee'),
@@ -490,6 +499,8 @@ class NASysPriviledge(models.Model):
     Allow_Edit = 'Allow Edit'
     Allow_Delete = 'Allow Delete'
 
+    ALL_PERMISSION = [Allow_View,Allow_Add,Allow_Edit,Allow_Delete]
+
     PERMISSION_CHOICES = (
         (Allow_View,'Allow View'),
         (Allow_Add,'Allow Add'),
@@ -501,7 +512,9 @@ class NASysPriviledge(models.Model):
     fk_p_form = models.ForeignKey(NAPriviledge_form,db_column='FK_PForm')
     permission = models.CharField(max_length=50,db_column='Permission',choices=PERMISSION_CHOICES)
     user_id = models.ForeignKey(NAPriviledge,db_column='User_id',on_delete=models.CASCADE)
+    inactive = models.IntegerField(db_column='InActive',null=True,blank=True)
 
+    objects = NA_BR_Sys_Priviledge()
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
 
@@ -533,7 +546,7 @@ class NASysPriviledge(models.Model):
             for permission in NASysPriviledge\
                 .default_permission_IT(fk_form.form_name_ori):
                     data.append({
-                        'fk_p_form':fk_form,
+                        'fk_p_form':fk_form, #foreign key in models must be instance
                         'permission':permission,
                         'user_id': user
                     })

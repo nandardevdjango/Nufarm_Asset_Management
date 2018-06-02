@@ -134,7 +134,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.github.GithubOAuth2',
     'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
-
+    'NA_DataLayer.NA_Auth.NA_AuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 

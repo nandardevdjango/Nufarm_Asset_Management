@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from NA_Models.models import NAPriviledge, NASysPriviledge,NAPriviledge_form
-from NA_DataLayer.common import ResolveCriteria, Data, commonFunct
+from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.shortcuts import render
 import json
@@ -54,6 +54,19 @@ def NA_PriviledgeGetData(request):
         rows.append(datarow)
     results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def ShowCustomFilter(request):
+	cols = []
+	cols.append({'name':'first_name','value':'first_name','selected':'True','dataType':'varchar','text':'First Name'})
+	cols.append({'name':'last_name','value':'last_name','selected':'','dataType':'varchar','text':'Last Name'})
+	cols.append({'name':'username','value':'username','selected':'','dataType':'varchar','text':'User Name'})
+	cols.append({'name':'email','value':'email','selected':'','dataType':'varchar','text':'Email'})
+	cols.append({'name':'divisi','value':'divisi','selected':'','dataType':'varchar','text':'Divisi'})
+	cols.append({'name':'last_form','value':'last_form','selected':'','dataType':'varchar','text':'Last Form'})
+	cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 def NA_Priviledge_sys(request):
     user_id = request.GET['user_id']
@@ -120,6 +133,7 @@ def Delete_user(request):
 
 
 class NA_Priviledge_Form(forms.Form):
+    idapp = forms.IntegerField(widget=forms.HiddenInput())
     first_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(
         attrs={'class':'form-control','placeholder':'First Name','style':'height:unset'}))
     last_name = forms.CharField(max_length=30,required=False,widget=forms.TextInput(
@@ -130,6 +144,7 @@ class NA_Priviledge_Form(forms.Form):
         attrs={'class':'form-control','placeholder':'Email'}))
     divisi = forms.ChoiceField(widget=forms.Select(
         attrs={'class':'form-control'}),choices=(
+        ('Guest','Guest'),
         ('IT','IT'),
         ('GA','GA')
         ))
@@ -191,11 +206,15 @@ class NA_Priviledge_Form(forms.Form):
                     user.divisi = self.cleaned_data['divisi']
                     user.set_password(self.cleaned_data['password'])
                     user.save()
-                    NASysPriviledge.set_permission(user)
+                    if user.divisi != NAPriviledge.Guest:
+                        NASysPriviledge.set_permission(user)
 
             elif statusForm == 'Edit':
-                data = NAPriviledge.objects.filter(idapp=idapp)
+                idapp = self.cleaned_data.get('idapp')
+                data = NAPriviledge.objects.values('first_name','last_name','username','email','divisi')\
+                    .filter(idapp=idapp)
                 if data.exists():
+                    data = data[0]
                     data_init = {
                         'first_name': data['first_name'],
                         'last_name': data['last_name'],
@@ -204,7 +223,71 @@ class NA_Priviledge_Form(forms.Form):
                         'divisi':data['divisi']
                     }
                     data_form = self.getFormData()
-                    same = [k for k in data_form if data_form[k] == data_init[k]]
-                    data_form.pop(*same)
-                    data.update(**data_form)
+                    sames = [k for k in data_form if data_form[k] == data_init[k]]
+                    for same in sames:
+                        data_form.pop(same)
+                    print(data_form)
+                    NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
         return (Data.Success,)
+
+@decorators.admin_required_action('change')
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def NA_Sys_Priviledge_setInactive(request,idapp):
+    inactive = request.POST['inactive']
+    result = NASysPriviledge.objects.setInActive(idapp)
+    return commonFunct.response_default(result)
+
+@decorators.admin_required_action('delete')
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def NA_Sys_Priviledge_delete(request,idapp):
+    result = NASysPriviledge.objects.filter(idapp=idapp)
+    return commonFunct.response_default(result)
+
+
+def NA_Priviledge_login(request):
+    if request.user.is_authenticated:
+        return redirect(request.GET.get('next'))
+    else:
+        title = "Login"
+        form = NA_Priviledge_Login_Form(request.POST or None)
+        if form.is_valid():
+            email = form.cleaned_data.get("email")
+            password = form.cleaned_data.get("password")
+            # authenticates Email & Password
+            user = authenticate(email=email, password=password) 
+            login(request, user)
+            next_action = request.GET.get('next')
+            if next_action is not None:
+                return redirect(next_action)
+            else:
+                return redirect('home')
+        else:
+            raise forms.ValidationError(form.errors)
+
+        return render(
+            request, 
+            "app/layout.html", 
+            {"form":form,"title":title}
+        )
+
+class NA_Priviledge_Login_Form(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    next = forms.CharField(widget=forms.HiddenInput())
+
+    def clean(self, *args, **kwargs):
+        email = self.cleaned_data.get("email")
+        password = self.cleaned_data.get("password")
+
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if not user:
+                raise forms.ValidationError("User Does Not Exist.")
+            if not user.check_password(password):
+                raise forms.ValidationError("Password Does not Match.")
+            if not user.is_active:
+                raise forms.ValidationError("User is not Active.")
+
+        return super(UserLoginForm, self).clean(*args, **kwargs)

@@ -8,6 +8,7 @@ import json
 from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria,
                                  StatusForm, commonFunct, Data,decorators)
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django import forms
 
 #@login_required
 def NA_Employee(request):
@@ -52,7 +53,6 @@ def NA_EmployeeGetData(request):
     results = {"page": data.number,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 
-from django import forms
 class NA_Employee_form(forms.Form):
     nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
         'class':'NA-Form-Control', 'placeholder':'Enter Nik'}))
@@ -128,28 +128,29 @@ def EntryEmployee(request):
             del form.fields['inactive']
         return render(request, 'app/MasterData/NA_Entry_Employee.html', {'form':form})
 
-
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def ShowCustomFilter(request):
-	if request.is_ajax():
-		cols = []
-		cols.append({'name':'nik','value':'nik','selected':'','dataType':'varchar','text':'Nik'})
-		cols.append({'name':'employee_name','value':'employee_name','selected':'True','dataType':'varchar','text':'Employee Name'})
-		cols.append({'name':'typeapp','value':'typeapp','selected':'','dataType':'varchar','text':'type of brand'})
-		cols.append({'name':'jobtype','value':'jobtype','selected':'','dataType':'varchar','text':'Job type'})
-		cols.append({'name':'gender','value':'gender','selected':'','dataType':'varchar','text':'Gender'})
-		cols.append({'name':'status','value':'status','selected':'','dataType':'varchar','text':'Status'})
-		cols.append({'name':'telphp','value':'telphp','selected':'','dataType':'varchar','text':'Telp/Hp'})
-		cols.append({'name':'territory','value':'territory','selected':'','dataType':'varchar','text':'Territory'})
-		cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'Descriptions'})
-		cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
-		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+	cols = []
+	cols.append({'name':'nik','value':'nik','selected':'','dataType':'varchar','text':'Nik'})
+	cols.append({'name':'employee_name','value':'employee_name','selected':'True','dataType':'varchar','text':'Employee Name'})
+	cols.append({'name':'typeapp','value':'typeapp','selected':'','dataType':'varchar','text':'type of brand'})
+	cols.append({'name':'jobtype','value':'jobtype','selected':'','dataType':'varchar','text':'Job type'})
+	cols.append({'name':'gender','value':'gender','selected':'','dataType':'varchar','text':'Gender'})
+	cols.append({'name':'status','value':'status','selected':'','dataType':'varchar','text':'Status'})
+	cols.append({'name':'telphp','value':'telphp','selected':'','dataType':'varchar','text':'Telp/Hp'})
+	cols.append({'name':'territory','value':'territory','selected':'','dataType':'varchar','text':'Territory'})
+	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'Descriptions'})
+	cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
 def NA_Employee_delete(request):
     if request.user.is_authenticated():
-        if request.method == 'POST':
-            get_idapp = request.POST.get('idapp')
-            result = Employee.objects.delete_employee(idapp=get_idapp,NA_User=request.user.username)
-            return commonFunct.response_default(result)
+        get_idapp = request.POST.get('idapp')
+        result = Employee.objects.delete_employee(idapp=get_idapp,NA_User=request.user.username)
+        return commonFunct.response_default(result)
 
 
 def SearchEmployeebyform(request):
