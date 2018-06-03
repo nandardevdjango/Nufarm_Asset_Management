@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^delete/$',NA_Priviledge_View.Delete_user),
     url(r'^customFilter/$',NA_Priviledge_View.ShowCustomFilter),
     url(r'^permission/(?P<idapp>\d+)/setInActive/$',NA_Priviledge_View.NA_Sys_Priviledge_setInactive),
-    url(r'^permission/(?P<idapp>\d+)/delete/$',NA_Priviledge_View.NA_Sys_Priviledge_delete)
+    url(r'^permission/(?P<idapp>\d+)/delete/$',NA_Priviledge_View.NA_Sys_Priviledge_delete),
+    url(r'^permission/(?P<email>[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})/add/$',NA_Priviledge_View.NA_Sys_Priviledge_add)
 ]

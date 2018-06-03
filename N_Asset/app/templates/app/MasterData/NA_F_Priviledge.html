@@ -101,7 +101,7 @@ div[id*=NA_Priviledge_grid]{
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['No','IDApp', 'First Name', 'Last Name','User Name', 'Email', 'Password', 'Divisi','Last Login', 'Last Form', 'Inactive', 'Createddate', 'Createdby'],
+                    colNames: ['No','IDApp', 'First Name', 'Last Name','User Name', 'Email', 'Divisi', 'Role','Password','Last Login', 'Last Form', 'Inactive', 'Createddate', 'Createdby'],
                     colModel: [
                         {name: 'no', index:'no',width:45, align:'center'},
                         { name: 'idapp', index: 'idapp', width: 125, search: false, key: true, hidden: true },//
@@ -109,8 +109,14 @@ div[id*=NA_Priviledge_grid]{
 						{ name: 'last_name', index: 'last_name', width: 120, editable: true, search: false },
                         { name: 'username', index: 'username', width: 130, editable: true, search: false },
                         { name: 'email', index: 'email', width: 160, editable: true },
+						{ name: 'divisi', index: 'divisi', width: 70, editable: true, search: false, align: 'center' },
+						{
+							name: 'role', index: 'role', width: 70, editable: true, search: false, align: 'center', formatter: 'select',
+							editoptions: {
+								value: '1:Super User;2:User;3:Guest'
+							}
+						},
                         { name: 'password', index: 'password', width: 160, align: 'left' },
-						{ name: 'divisi', index: 'divisi', width: 70, editable: true, search: false, align:'center' },
                         { name: 'last_login', index: 'last_login', width: 150, align: 'left', editable: true, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },
                         { name: 'last_form', index: 'last_form', width: 110, editable: true, search: false },
                         { name: 'inactive', index: 'inactive', width: 65,align:'center', editable: true, formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } },
@@ -154,6 +160,7 @@ div[id*=NA_Priviledge_grid]{
         };
 
         showPermissions = function (rowId, val, rawObject, cm) {
+        	if (typeof rawObject.attr == 'undefined') return;
         	var attr = rawObject.attr[cm.name], result;
         	if (attr.rowspan) {
         		result = ' rowspan=' + '"' + attr.rowspan + '"';
@@ -239,18 +246,42 @@ div[id*=NA_Priviledge_grid]{
         	function getChildGridId() {
         		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
         	}
-        	$('#' + childGridID).navGrid('#'+childGridPagerID, {
+        	var rowData = priviledge_grid.getRowData(parentRowKey);
+        	var email = rowData['email'];
+        	$('#' + childGridID).navGrid('#' + childGridPagerID, {
         		edit: false,
         		add: false,
         		del: false,
         		search: false,
         		refresh: false,
         		cloneToTop: false
-        	}).navButtonAdd('#'+childGridPagerID,{
+        	}).navButtonAdd('#' + childGridPagerID, {
+				id:'btn_add_for_parent_'+parentRowKey,
         		caption: "",
         		buttonicon: "ui-icon-plus",
-        		onClickButton: function () {
-        			alert("Adding Row");
+        		onClickButton: function (event) {
+        			$('div.maindialogContent').load("permission/" + win.encodeURIComponent(email) + '/add/', function (responseTxt, statusTxt, xhr) {
+        				var dialog = qs("div.containerDialog"),
+                            btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
+                            btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+        				qs('.ui-dialog-title').textContent += email;
+        				qs('input#id_user_id').value = parentRowKey;
+        				NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+        					NA.common.dialog.closeDialog(dialog);
+        				});
+        				var initialize_permissionForm = qs('input#id_initialize_permissionForm');
+        				initialize_permissionForm.value = JSON.stringify(getValues_formPermission());
+        				dialog.style.top = '40px';
+        				Array.prototype.forEach.call(btnOkCancel, function (elem) {
+        					NA.NAEvent.addHandler(elem, 'click', function (event) {
+        						var target = NA.NAEvent.getTarget(event);
+        						executeHandler_permission(target.innerText);
+        						if (event) {
+        							NA.NAEvent.stopPropagation(event);
+        						}
+        					});
+        				});
+                    });
         		},
         		position: "first"
         	}).navButtonAdd('#' + childGridPagerID, {
@@ -277,6 +308,9 @@ div[id*=NA_Priviledge_grid]{
         					data: {
         						'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken')
         					},
+        					success: function (data) {
+        						$("#" + childGridID).trigger('reloadGrid');
+        					},
         					complete: function (data) {
         						if (data.status !== 200) {
         							var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
@@ -287,7 +321,86 @@ div[id*=NA_Priviledge_grid]{
         			})
         		},
         		position: "last"
-        	})
+        	});
+
+        	var btn_add = $('#' + childGridPagerID).find('td#btn_add_for_parent_'+parentRowKey)[0];
+        	NA.common.dialog.initDialog(null, 'Nufarm Add Permission - ', [btn_add]);
+        	NA.NAEvent.addHandler(btn_add, 'click', function (event) {
+        		$('#' + childGridPagerID).find('span.ui-icon.ui-icon-plus').click();
+        	});
+
+        	function PermissionSubmit() {
+        		$.ajax({
+        			url: "permission/" + win.encodeURIComponent(email) + "/add/",
+        			method: "POST",
+        			beforeSend: function (xhr) {
+        				xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+        			},
+        			data: getValues_formPermission(),
+        			success: function (data) {
+        				var dialog = qs("div.containerDialog");
+        				NA.common.dialog.closeDialog(dialog);
+        				$("#" + childGridID).trigger('reloadGrid');
+        			}
+        		})
+        	}
+
+        	function getValues_formPermission() {
+        		return {
+        			fk_form: qs('select#id_fk_form').value.trim(),
+					user_id:qs('input#id_user_id').value.trim(),
+        			allow_view: qs('input#id_allow_view').checked,
+        			allow_add: qs('input#id_allow_add').checked,
+        			allow_edit: qs('input#id_allow_edit').checked,
+        			allow_delete: qs('input#id_allow_delete').checked
+        		}
+        	};
+        	function executeHandler_permission(TextElement) {
+        		var initializeForm = NA.common.getElementID('id_initialize_permissionForm');
+        		var dialog = qs("div.containerDialog"),
+				frmEntry = qs('form#permission_form'),
+				originalData = JSON.parse(initializeForm.value),
+				valuesForm = getValues_formPermission();
+
+
+        		if (frmEntry) {
+        			var inputbtn = NA.common.getElementID('permission_submit');
+        			switch (TextElement) {
+        				case 'OK': {
+        					if (!frmEntry.checkValidity()) {
+        						inputbtn.click();
+        					} else {
+        						if (NA.common.detectInputChanges(originalData, valuesForm)) {
+        							PermissionSubmit();
+        						} else {
+        							NA.common.dialog.closeDialog(dialog);
+        						}
+        					}
+        					break;
+        				}
+        				case 'Cancel':
+        				case 'Close': {
+        					if (status === 'Open') { NA.common.dialog.closeDialog(dialog); return false; }
+        					if (NA.common.detectInputChanges(originalData, valuesForm)) {
+        						return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
+									function () {
+										if (!frmEntry.checkValidity()) {
+											inputbtn.click();
+										}
+										else {
+											PermissionSubmit();
+										}
+									},
+									function () {
+										NA.common.dialog.closeDialog(dialog);
+									});
+        					} else {
+        						NA.common.dialog.closeDialog(dialog);
+        					}
+        				}
+        			};
+        		}
+        	}
         };
 
 
@@ -303,7 +416,7 @@ div[id*=NA_Priviledge_grid]{
                 NA.NAEvent.preventDefault(event);
                 var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
                 SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
-                SearchInput = NA.common.doc.querySelector('input[name=q]');;
+                SearchInput = NA.common.doc.querySelector('input[name=q]');
                 if (SearchBy.trim() == 'By') {
                     NA.common.SearchData.setDefaultSearchData('username', 'Varchar', 'like');
                     var curPage = parseInt(priviledge_grid.getGridParam('page'));
@@ -508,6 +621,7 @@ div[id*=NA_Priviledge_grid]{
             last_name: qs('input#id_last_name').value.trim(),
             username: qs('input#id_username').value.trim(),
             divisi: qs('select#id_divisi').value.trim(),
+			role: qs('select#id_role').value.trim(),
             email: qs('input#id_email').value.trim(),
             password: qs('input#id_password').value.trim(),
             confirm_password: qs('input#id_confirm_password').value.trim(),
@@ -769,22 +883,22 @@ div[id*=NA_Priviledge_grid]{
         var target = NA.NAEvent.getTarget(event);
         try {
 
-            if (target.innerText === 'Email Data') {
-                var btn_mailExport = qs('div.dialogButtonRightOther a.btn-link:nth-child(2)'),
+        	if (target.innerText === 'Email Data') {
+        		var btn_mailExport = qs('div.dialogButtonRightOther a.btn-link:nth-child(2)'),
                     btn_mailPreview = qs('div.dialogButtonRightOther a.btn-link:nth-child(1)');
-                NA.common.NA_setAttr(btn_mailExport, {
-                    "style": "cursor: pointer;pointer-events: all;width: auto;margin-right:5px"
-                });
-                btn_mailExport.textContent = 'Export To PDF';
-                NA.common.NA_setAttr(btn_mailPreview, {
-                    "style": "cursor: pointer;pointer-events: all;width: auto;"
-                });
-                btn_mailPreview.textContent = 'Preview PDF';
-                var btnToPDF = qs('div.bottomDialogContent a.btn-link:nth-child(1)');
-                //====================================== Display Email Data Dialog =========================================
-                $('div.maindialogContent').load(url_emailData(), function (response, status, xhr) {
-                    if (status == "success") {
-                        var jspdf = "../../../static/app/scripts/jspdf.js",
+        		NA.common.NA_setAttr(btn_mailExport, {
+        			"style": "cursor: pointer;pointer-events: all;width: auto;margin-right:5px"
+        		});
+        		btn_mailExport.textContent = 'Export To PDF';
+        		NA.common.NA_setAttr(btn_mailPreview, {
+        			"style": "cursor: pointer;pointer-events: all;width: auto;"
+        		});
+        		btn_mailPreview.textContent = 'Preview PDF';
+        		var btnToPDF = qs('div.bottomDialogContent a.btn-link:nth-child(1)');
+        		//====================================== Display Email Data Dialog =========================================
+        		$('div.maindialogContent').load(url_emailData(), function (response, status, xhr) {
+        			if (status == "success") {
+        				var jspdf = "../../../static/app/scripts/jspdf.js",
                         sfm = "../../../static/app/scripts/standard_fonts_metrics.js",
                         stz = "../../../static/app/scripts/split_text_to_size.js",
                         jspdf_autoTable = "../../../static/app/scripts/jspdf.plugin.autotable.min.js",
@@ -792,103 +906,103 @@ div[id*=NA_Priviledge_grid]{
                         autoComp = "../../../static/app/scripts/autocomplete.js",
                         emailDataJS = "../../../static/app/scripts/NA_EmailData.js",
                         content_0 = qs('div#content-0');
-                        if (qs('script#jspdf') == null) {
-                            NA.common.loadScript(jspdf, content_0, 'jspdf');
-                            NA.common.loadScript(sfm, content_0, 'sfm');
-                            NA.common.loadScript(stz, content_0, 'stz');
-                            NA.common.loadScript(jspdf_autoTable, content_0, 'jspdf_autoTable');
-                            NA.common.loadScript(emailDataJS, content_0, 'emailData_scripts');
-                        };
-                        var originalData = getValues_emailForm();
-                        var initializeEmail = NA.common.getElementID('initializeEmail');
-                        initializeEmail.Value = originalData;
+        				if (qs('script#jspdf') == null) {
+        					NA.common.loadScript(jspdf, content_0, 'jspdf');
+        					NA.common.loadScript(sfm, content_0, 'sfm');
+        					NA.common.loadScript(stz, content_0, 'stz');
+        					NA.common.loadScript(jspdf_autoTable, content_0, 'jspdf_autoTable');
+        					NA.common.loadScript(emailDataJS, content_0, 'emailData_scripts');
+        				};
+        				var originalData = getValues_emailForm();
+        				var initializeEmail = NA.common.getElementID('initializeEmail');
+        				initializeEmail.Value = originalData;
 
-                        //=========================================== End Display Email Data Dialog ===========================================
-                    }
+        				//=========================================== End Display Email Data Dialog ===========================================
+        			}
 
-                });
+        		});
 
-                //if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
-                //return false;
-            } else if (target.innerText.trim() === 'Add' || target.innerText.trim() === 'Edit' || target.innerText.trim() == 'Open') {
-                if (target.innerText.trim() == 'Edit' || target.innerText.trim() == 'Open') {
-                    var supCode = getGridId();
-                    if (typeof supCode == 'undefined' || !supCode || supCode == '') {
-                        var dialog = qs("div.containerDialog");
-                        NA.common.dialog.closeDialog(dialog);
-                        return dialogAlert('Please Select data to Open or Edit !!', NA.common.message.titleInfo, function () {
-                            return false
-                        });
-                        return false
-                    }
-                };
-                $('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
+        		//if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
+        		//return false;
+        	} else if (target.innerText.trim() === 'Add' || target.innerText.trim() === 'Edit' || target.innerText.trim() == 'Open') {
+        		if (target.innerText.trim() == 'Edit' || target.innerText.trim() == 'Open') {
+        			var supCode = getGridId();
+        			if (typeof supCode == 'undefined' || !supCode || supCode == '') {
+        				var dialog = qs("div.containerDialog");
+        				NA.common.dialog.closeDialog(dialog);
+        				return dialogAlert('Please Select data to Open or Edit !!', NA.common.message.titleInfo, function () {
+        					return false
+        				});
+        				return false
+        			}
+        		};
+        		$('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
                     + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
-                        if (statusTxt == "success" || xhr.status == 200) {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
-                            var dialog = qs("div.containerDialog"),
+                    	if (statusTxt == "success" || xhr.status == 200) {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
+                    		var dialog = qs("div.containerDialog"),
                                 btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
                                 btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
 
-                            statusForm = qs('input#id_statusForm');
-                            statusForm.value = status;
-                            dialog.style.top = '10px';
-                            Array.prototype.forEach.call(btnOkCancel, function (elem) {
-                                NA.NAEvent.addHandler(elem, 'click', function (event) {
-                                    var target = NA.NAEvent.getTarget(event);
-                                    ExecuteHandler(target.innerText);
-                                    if (event) {
-                                        NA.NAEvent.stopPropagation(event);
-                                    }
-                                });
-                            });
-                            NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-                                ExecuteHandler('Close');
-                                if (event) {
-                                    NA.NAEvent.stopPropagation(event);
-                                };
-                            });
+                    		statusForm = qs('input#id_statusForm');
+                    		statusForm.value = status;
+                    		dialog.style.top = '10px';
+                    		Array.prototype.forEach.call(btnOkCancel, function (elem) {
+                    			NA.NAEvent.addHandler(elem, 'click', function (event) {
+                    				var target = NA.NAEvent.getTarget(event);
+                    				ExecuteHandler(target.innerText);
+                    				if (event) {
+                    					NA.NAEvent.stopPropagation(event);
+                    				}
+                    			});
+                    		});
+                    		NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+                    			ExecuteHandler('Close');
+                    			if (event) {
+                    				NA.NAEvent.stopPropagation(event);
+                    			};
+                    		});
 
-                            //remove attribute disable untuk button OK dan cancel bila statusnya Add
-                            switch (status) {
+                    		//remove attribute disable untuk button OK dan cancel bila statusnya Add
+                    		switch (status) {
 
-                                case 'Add':
-                                    {
-                                        break;
-                                    }
-                                case 'Edit':
-                                    {
-                                        setTimeout(function () {
-                                            $('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
-                                        }, 10)
+                    			case 'Add':
+                    				{
+                    					break;
+                    				}
+                    			case 'Edit':
+                    				{
+                    					setTimeout(function () {
+                    						$('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
+                    					}, 10)
 
 
-                                    }
-                                case 'Open': {
-                                    $('div.dialogButtonEntry>a.button').attr("disabled", true);
-                                    break;
-                                }
-                                case 'Delete': {
-                                    $('div.dialogButtonEntry>a.button').attr("disabled", true);
-                                    break;
-                                }
-                            };
-                            if (status !== 'Open' && status !== '') {
-                                var originalData = JSON.stringify(getValues_form());
-                                initializeForm = NA.common.getElementID('id_initializeForm');
-                                initializeForm.Value = originalData;
-                            }
+                    				}
+                    			case 'Open': {
+                    				$('div.dialogButtonEntry>a.button').attr("disabled", true);
+                    				break;
+                    			}
+                    			case 'Delete': {
+                    				$('div.dialogButtonEntry>a.button').attr("disabled", true);
+                    				break;
+                    			}
+                    		};
+                    		if (status !== 'Open' && status !== '') {
+                    			var originalData = JSON.stringify(getValues_form());
+                    			initializeForm = NA.common.getElementID('id_initializeForm');
+                    			initializeForm.Value = originalData;
+                    		}
 
-                        } else if (xhr.status != 200 || responseTxt == '__lost') {
-                            return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
-                                var dialog = qs("div.containerDialog");
-                                NA.common.dialog.closeDialog(dialog);
-                                return priviledge_grid.trigger('reloadGrid');
-                            });
-                        };
-                        NA.NAEvent.preventDefault(event);
-                        if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
+                    	} else if (xhr.status != 200 || responseTxt == '__lost') {
+                    		return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
+                    			var dialog = qs("div.containerDialog");
+                    			NA.common.dialog.closeDialog(dialog);
+                    			return priviledge_grid.trigger('reloadGrid');
+                    		});
+                    	};
+                    	NA.NAEvent.preventDefault(event);
+                    	if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
                     });
-            }
+        	};
 
 
         } catch (e) {

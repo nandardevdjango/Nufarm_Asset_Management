@@ -8,7 +8,7 @@ from django.db import connection
 class NA_BR_Priviledge(UserManager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
         priviledgeData = super(NA_BR_Priviledge,self).get_queryset()\
-            .values('idapp','first_name','last_name','username','divisi',
+            .values('idapp','first_name','last_name','username','divisi','role',
                     'email','password','last_login','last_form','is_active',
                     'date_joined','createdby')
         filterfield = columnKey
@@ -53,6 +53,6 @@ class NA_BR_Priviledge(UserManager):
 
     def retrieveData(self,idapp):
         data = super(NA_BR_Priviledge,self).get_queryset()\
-            .values('idapp','first_name','last_name','username','divisi','email')\
+            .values('idapp','first_name','last_name','username','divisi','role','email')\
             .filter(idapp=idapp)
         return data[0]

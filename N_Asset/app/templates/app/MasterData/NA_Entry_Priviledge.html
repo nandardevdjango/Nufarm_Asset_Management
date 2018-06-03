@@ -90,11 +90,18 @@ form#priviledge_form input.form-control:focus,select.form-control:focus {
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-12">
+		<div class="col-sm-6">
             <label for="email" class="control-label" style="text-align: left;font-weight:bold">Email :</label>
 			<div class="input-group">
 				<span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
 				{{form.email}}
+			</div>
+		</div>
+		<div class="col-sm-6" style="padding:0 15px 0 0;">
+            <label for="id_role" class="control-label" style="text-align: left;font-weight:bold">Role :</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-id-card" aria-hidden="true"></i></span>
+				{{form.role}}
 			</div>
 		</div>
 	</div>

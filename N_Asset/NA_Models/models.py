@@ -380,12 +380,20 @@ class NAPriviledge(AbstractUser):
 
     IT = 'IT'
     GA = 'GA'
-    Guest = 'Guest'
 
     DIVISI_CHOICES = (
-        ('Guest','Guest'),
         (IT,'IT'),
         (GA,'GA')
+    )
+
+    SUPER_USER = 1
+    USER = 2
+    GUEST = 3
+
+    ROLE_CHOICES = (
+        (SUPER_USER,'Super User'),
+        (USER,'User'),
+        (GUEST,'Guest')
     )
 
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
@@ -400,6 +408,8 @@ class NAPriviledge(AbstractUser):
     last_form = models.CharField(max_length=50,db_column='Last_form')
     computer_name = models.CharField(max_length=50,db_column='Computer_Name')
     ip_address = models.CharField(max_length=20,db_column='IP_Address')
+
+    role = models.IntegerField(choices=ROLE_CHOICES,default=GUEST,db_column='Role')
     is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
     is_staff = models.BooleanField(default=False,db_column='Is_Staff')
     is_active = models.BooleanField(default=True,db_column='Is_Active')
@@ -512,7 +522,7 @@ class NASysPriviledge(models.Model):
     fk_p_form = models.ForeignKey(NAPriviledge_form,db_column='FK_PForm')
     permission = models.CharField(max_length=50,db_column='Permission',choices=PERMISSION_CHOICES)
     user_id = models.ForeignKey(NAPriviledge,db_column='User_id',on_delete=models.CASCADE)
-    inactive = models.IntegerField(db_column='InActive',null=True,blank=True)
+    inactive = models.IntegerField(db_column='InActive',null=True,blank=True,default=0)
 
     objects = NA_BR_Sys_Priviledge()
     class Meta:
@@ -556,6 +566,31 @@ class NASysPriviledge(models.Model):
         ])
         return 'successfully added permission'
 
+    @staticmethod
+    def set_custom_permission(user_id,fk_form,permissions):
+        user = NAPriviledge.objects.get(idapp=user_id)
+        fk_p_form = NAPriviledge_form.objects.get(idapp=fk_form)
+        len_permissions = len(permissions)
+        if len_permissions > 1:
+            data = []
+            for permission in permissions:
+                data.append({
+                    'fk_p_form':fk_p_form,
+                    'permission':permission,
+                    'user_id':user
+                })
+            sys_priviledge = NASysPriviledge.objects.bulk_create([
+                NASysPriviledge(**field) for field in data
+            ])
+        elif len_permissions == 1:
+            sys_priviledge = NASysPriviledge()
+            sys_priviledge.fk_p_form = fk_p_form
+            sys_priviledge.permission = permissions[0]
+            sys_priviledge.user_id = user
+            sys_priviledge.save()
+        elif len_permissions < 1:
+            raise ValueError('permission cannot be null')
+        return 'successfully added custom permission'
 
 class NAGoodsReceive_other(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
