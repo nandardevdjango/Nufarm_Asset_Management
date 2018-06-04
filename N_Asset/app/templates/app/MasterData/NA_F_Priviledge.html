@@ -267,7 +267,7 @@ div[id*=NA_Priviledge_grid]{
         				qs('.ui-dialog-title').textContent += email;
         				qs('input#id_user_id').value = parentRowKey;
         				NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-        					NA.common.dialog.closeDialog(dialog);
+        					executeHandler_permission('Close');
         				});
         				var initialize_permissionForm = qs('input#id_initialize_permissionForm');
         				initialize_permissionForm.value = JSON.stringify(getValues_formPermission());

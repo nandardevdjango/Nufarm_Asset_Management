@@ -1416,7 +1416,7 @@ Object.defineProperties(NA.Priviledge, {
     },
     UserName: {
         get: function () { return this._userName; },
-        set: function (newValue) { this._userName = newValue; },
+        set: function (newValue) { this._rolename = newValue; },
     },
     password: {
         get: function () { return this._password; },

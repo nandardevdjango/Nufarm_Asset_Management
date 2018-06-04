@@ -377,6 +377,9 @@ class NAGoodsLost(models.Model):
         db_table = 'n_a_goods_lost'
 
 class NAPriviledge(AbstractUser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print(self.nasyspriviledge_set.all())
 
     IT = 'IT'
     GA = 'GA'
@@ -449,6 +452,12 @@ class NAPriviledge(AbstractUser):
             permission=action
         ).exists()
         return is_has
+    #@property
+    #def has_permssions_allow_view_employee(self):
+    #    return self.has_permission(
+    #        NASysPriviledge.Allow_View,
+    #        NAPriviledge_form.Employee_form
+    #    )
 
     class Meta:
         managed = True

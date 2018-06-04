@@ -75,7 +75,11 @@ def NA_Priviledge_sys(request):
     page = request.GET.get('page','1')
     limit_row = request.GET.get('rows','10')
     paginator = Paginator(data,int(limit_row))
-    data = paginator.page(page).object_list
+    try:
+        page = paginator.page(page)
+    except (EmptyPage,InvalidPage):
+        page = paginator.page(paginator.num_pages)
+    data = page.object_list
     same_data = {}
     len_data = len(data)
     for index,j in enumerate(data):
@@ -102,7 +106,7 @@ def NA_Priviledge_sys(request):
                 i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
     
     return HttpResponse(
-        json.dumps({"page": page,"total": paginator.num_pages ,"records": totalRecords,"rows": data },cls=DjangoJSONEncoder),
+        json.dumps({"page": page.number,"total": paginator.num_pages ,"records": totalRecords,"rows": data },cls=DjangoJSONEncoder),
         content_type='application/json'
     )
 
