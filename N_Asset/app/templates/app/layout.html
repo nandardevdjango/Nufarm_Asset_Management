@@ -77,8 +77,6 @@
                             <span class="nav-label"> Master Data </span> <span class="fa fa-angle-down pull-right"></span>
                         </a>
                         <ul class="sub-menu collapse" id="dashboard" aria-expanded="false" style="">
-
-
                             <li><a href="{% url 'MasterData:NA_Suplier:NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
                             <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
                             <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
@@ -93,15 +91,19 @@
                     <li>
                         <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false"> <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span> </a>
                         <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
-                            <a href="#" data-toggle="collapse" data-target="#goods_receive_dropdown" class="active collapsed" aria-expanded="false">
+							<li>
+								<a href="#" data-toggle="collapse" data-target="#goods_receive_dropdown" class="active collapsed" aria-expanded="false">
                                 <span class="nav-label">Goods Receiving</span>
                                 <span class="fa fa-angle-down pull-right"></span>
                             </a>
-                            <ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
-								<li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
-								<li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
-							</ul>
-                            
+							</li>
+                          <li>
+								<ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
+                                <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
+                                <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
+                            </ul>
+						  </li>                          
+
                             <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
@@ -161,7 +163,7 @@
                                             <div class="input-group" style="display:inline-flex;position:relative">
                                                 <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" type="text">
                                                 <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                                                    <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                                    <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
                                                 </div>
                                             </div>
                                         </form>
@@ -247,18 +249,19 @@
                             <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
                         </div>
                         <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
-                            <div class="row" style="margin:15px;height:110px;">
-                                <div class="col-md-4" style="padding:0px;margin-right:17px">
-                                    <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+                            <li>
+                                <div class="row" style="margin:15px;height:110px;">
+                                    <div class="col-md-4" style="padding:0px;margin-right:17px">
+                                        <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7" style="font-size:13px;padding:0px;">
+                                        <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                                        <div class="email">{{ request.user.email }}</div>
+                                        <button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>
                                     </div>
                                 </div>
-                                <div class="col-md-7" style="font-size:13px;padding:0px;">
-                                    <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                                    <div class="email">{{ request.user.email }}</div>
-									<div>{{request.user.divisi}}</div>
-									
-                                </div>
-                            </div>
+                            </li>
                             <li class="divider"></li>
                             <li>
                                 <a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>
@@ -283,7 +286,7 @@
                             <li>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <form class="form" role="form" method="post" action="{% url 'login' %}" accept-charset="UTF-8" id="login-nav">
+                                        <form class="form" role="form" method="post" action="" accept-charset="UTF-8" id="login-nav">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <label class="sr-only" for="exampleInputEmail2">Email address</label>
@@ -298,8 +301,6 @@
                                                     <input type="checkbox"> Remember me
                                                 </label>
                                             </div>
-
-											<input type="hidden" id="next" name="next" />
 
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-success btn-block">Sign in</button>
@@ -457,14 +458,6 @@
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
-			var win = win || window
-			//=========== for getting next action after login
-    		var cur_location = win.location.href;
-    		var sub_location = cur_location.replace(win.location.origin,'');
-    		var next_action = $('input#next[type="hidden"]');
-    		next_action.val(sub_location);
-			//===========
-
     		function showDescriptionsLog(args) {//title, content, classContent, textToContent
     			var body = NA.common.doc.body;
     			var pageDimensions = NA.common.dialog.getPageDimensions();

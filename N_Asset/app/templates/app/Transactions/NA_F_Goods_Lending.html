@@ -1800,7 +1800,7 @@
 								                    gridTbl = NA.common.doc.createElement('table');
 								                    gridTbl.id = 'jqGrid_NA_F_Goods_Lending_fk_employee';
 								                    gridPager = NA.common.doc.createElement('div');
-								                    gridPager.id = 'jqGrid_NA_F_Goods_Lending_fk_employeey_Pager';
+								                    gridPager.id = 'jqGrid_NA_F_Goods_Lending_fk_employee_Pager';
 								                    mainContainer.appendChild(gridTbl);
 								                    mainContainer.appendChild(gridPager);
 								                    return containerMessage;
@@ -1809,7 +1809,7 @@
 								                    var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
 								                    //loads Data into JqueryGrid
 								                    gridTbl = $('#jqGrid_NA_F_Goods_Lending_fk_employee');
-								                    gridPager = $('jqGrid_NA_F_Goods_Lending_fk_employeey_Pager');
+								                    gridPager = $('jqGrid_NA_F_Goods_Lending_fk_employee_Pager');
 								                    var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
 								                    gridTbl.jqGrid({
 								                        url: urlPR,
@@ -1842,7 +1842,7 @@
 								                        //forceFit: true,
 								                        //toolbar: true,
 								                        scrollrows: true,
-								                        pager: "#jqGrid_NA_F_Goods_Lending_fk_employeey_Pager"
+								                        pager: "#jqGrid_NA_F_Goods_Lending_fk_employee_Pager"
 								                    });
 								                    gridTbl.navGrid(gridPager, {
 								                        search: false, // show search button on the toolbar
