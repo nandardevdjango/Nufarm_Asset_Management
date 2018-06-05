@@ -152,11 +152,7 @@ class NA_Priviledge_Form(forms.Form):
         ('GA','GA')
         ))
     role = forms.ChoiceField(widget=forms.Select(
-        attrs={'class':'form-control'}),choices=(
-            (1,'Super User'),
-            (2,'User'),
-            (3,'Guest')
-            ))
+        attrs={'class':'form-control'}),choices=(NAPriviledge.ROLE_CHOICES))
     statusForm = forms.CharField(widget=forms.TextInput(
         attrs={'style':'display:none'}),required=True)
     password = forms.CharField(max_length=30,required=False,widget=forms.PasswordInput(
@@ -222,8 +218,7 @@ class NA_Priviledge_Form(forms.Form):
                     user.role = self.cleaned_data['role']
                     user.set_password(self.cleaned_data['password'])
                     user.save()
-                    if int(user.role) != NAPriviledge.GUEST:
-                        NASysPriviledge.set_permission(user)
+                    NASysPriviledge.set_permission(user)
 
             elif statusForm == 'Edit':
                 idapp = self.cleaned_data.get('idapp')
@@ -257,6 +252,7 @@ class NA_Priviledge_Form(forms.Form):
 @decorators.detail_request_method('POST')
 def NA_Sys_Priviledge_setInactive(request,idapp):
     inactive = request.POST['inactive']
+    del request.user.allow_view_employee
     result = NASysPriviledge.objects.setInActive(idapp,inactive)
     return commonFunct.response_default(result)
 
@@ -297,10 +293,10 @@ class NA_Permission_Form(forms.Form):
     def save(self):
         user_id = self.cleaned_data['user_id']
         fk_form = self.cleaned_data['fk_form']
-        allow_view = commonFunct.str2bool(self.cleaned_data['allow_view'])
-        allow_add = commonFunct.str2bool(self.cleaned_data['allow_add'])
-        allow_edit = commonFunct.str2bool(self.cleaned_data['allow_edit'])
-        allow_delete = commonFunct.str2bool(self.cleaned_data['allow_delete'])
+        allow_view = self.cleaned_data['allow_view']
+        allow_add = self.cleaned_data['allow_add']
+        allow_edit = self.cleaned_data['allow_edit']
+        allow_delete = self.cleaned_data['allow_delete']
         permissions = {
             'Allow View':allow_view,
             'Allow Add':allow_add,

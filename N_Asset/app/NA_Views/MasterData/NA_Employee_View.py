@@ -12,7 +12,6 @@ from django import forms
 
 #@login_required
 def NA_Employee(request):
-    print(request.user.has_permssions_allow_view_employee)
     return render(request, 'app/MasterData/NA_F_Employee.html')
 
 def NA_EmployeeGetData(request):
