@@ -161,7 +161,7 @@
                                             <div class="input-group" style="display:inline-flex;position:relative">
                                                 <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" type="text">
                                                 <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                                                    <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                                                    <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
                                                 </div>
                                             </div>
                                         </form>
@@ -255,7 +255,8 @@
                                 <div class="col-md-7" style="font-size:13px;padding:0px;">
                                     <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
                                     <div class="email">{{ request.user.email }}</div>
-                                    <button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>
+									<div>{{request.user.divisi}}</div>
+									
                                 </div>
                             </div>
                             <li class="divider"></li>
@@ -282,7 +283,7 @@
                             <li>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <form class="form" role="form" method="post" action="" accept-charset="UTF-8" id="login-nav">
+                                        <form class="form" role="form" method="post" action="{% url 'login' %}" accept-charset="UTF-8" id="login-nav">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <label class="sr-only" for="exampleInputEmail2">Email address</label>
@@ -297,6 +298,8 @@
                                                     <input type="checkbox"> Remember me
                                                 </label>
                                             </div>
+
+											<input type="hidden" id="next" name="next" />
 
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-success btn-block">Sign in</button>
@@ -454,6 +457,14 @@
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
+			var win = win || window
+			//=========== for getting next action after login
+    		var cur_location = win.location.href;
+    		var sub_location = cur_location.replace(win.location.origin,'');
+    		var next_action = $('input#next[type="hidden"]');
+    		next_action.val(sub_location);
+			//===========
+
     		function showDescriptionsLog(args) {//title, content, classContent, textToContent
     			var body = NA.common.doc.body;
     			var pageDimensions = NA.common.dialog.getPageDimensions();

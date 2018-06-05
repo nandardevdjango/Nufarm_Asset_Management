@@ -134,7 +134,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.github.GithubOAuth2',
     'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
-
+    'NA_DataLayer.NA_Auth.NA_AuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -170,25 +170,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 
-# django-debug-toolbar
-
-#DEBUG_TOOLBAR_PANELS = [
-#    'debug_toolbar.panels.versions.VersionsPanel',
-#    'debug_toolbar.panels.timer.TimerPanel',
-#    'debug_toolbar.panels.settings.SettingsPanel',
-#    'debug_toolbar.panels.headers.HeadersPanel',
-#    'debug_toolbar.panels.request.RequestPanel',
-#    'debug_toolbar.panels.sql.SQLPanel',
-#    'debug_toolbar.panels.templates.TemplatesPanel',
-#    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-#    'debug_toolbar.panels.cache.CachePanel',
-#    'debug_toolbar.panels.signals.SignalsPanel',
-#    'debug_toolbar.panels.logging.LoggingPanel',
-#    'debug_toolbar.panels.redirects.RedirectsPanel',
-#    'debug_toolbar.panels.profiling.ProfilingPanel',
-#]
-
-#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 EMAIL_USE_TLS=True
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'

@@ -1,4 +1,5 @@
 ﻿from django.db import models, connections
+from django.db.models import Q
 from django_mysql.models import JSONField
 from datetime import datetime
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods
@@ -6,6 +7,7 @@ from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods,CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Priviledge_BR import NA_BR_Priviledge
+from NA_DataLayer.MasterData.NA_Sys_Priviledge_BR import NA_BR_Sys_Priviledge
 
 from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive,CustomSuplierManager,custEmpManager
 from NA_DataLayer.Transactions.NA_GoodsLost_BR import NA_BR_GoodsLost
@@ -375,21 +377,42 @@ class NAGoodsLost(models.Model):
         db_table = 'n_a_goods_lost'
 
 class NAPriviledge(AbstractUser):
+
+    IT = 'IT'
+    GA = 'GA'
+
+    DIVISI_CHOICES = (
+        (IT,'IT'),
+        (GA,'GA')
+    )
+
+    SUPER_USER = 1
+    USER = 2
+    GUEST = 3
+
+    ROLE_CHOICES = (
+        (SUPER_USER,'Super User'),
+        (USER,'User'),
+        (GUEST,'Guest')
+    )
+
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     username = models.CharField(max_length=250,unique=True, blank=False,db_column='UserName')
     email = models.EmailField(unique=True, blank=True,db_column='Email')
-    divisi = models.CharField(max_length=5,db_column='Divisi')
+    divisi = models.CharField(max_length=5,db_column='Divisi',choices=DIVISI_CHOICES)
     password = models.CharField(max_length=128,db_column='Password')
     picture = models.ImageField(null=True, blank=True, default='default.png',db_column='Picture')
     last_login=models.DateTimeField(db_column='Last_login')
     last_form = models.CharField(max_length=50,db_column='Last_form')
     computer_name = models.CharField(max_length=50,db_column='Computer_Name')
     ip_address = models.CharField(max_length=20,db_column='IP_Address')
+
+    role = models.IntegerField(choices=ROLE_CHOICES,default=GUEST,db_column='Role')
     is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
     is_staff = models.BooleanField(default=False,db_column='Is_Staff')
-    is_active = models.BooleanField(default=True,db_column='InActive')
+    is_active = models.BooleanField(default=True,db_column='Is_Active')
     USERNAME_FIELD = 'email' # use email to log in
     REQUIRED_FIELDS = ['username'] # required when user is created
     date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
@@ -402,27 +425,172 @@ class NAPriviledge(AbstractUser):
     def __str__(self):
         return self.username
 
+    def has_permission(self,action,form_name_ori):
+        """
+        this function for check if user has permission
+        param
+        :action: ==> e.g (Allow View,Allow Edit .. etc) use attribute NASysPriviledge.Allow_View .. etc
+        :form_name_ori: this is form name ori e.g (n_a_suplier) use attribute NAPriviledge_form.Suplier_form .. etc
+
+        usage : must be instance of model
+        rimba = NAPriviledge.objects.get(username='rimba47prayoga') or from request : request.user.has_permission
+        rimba.has_permission(NASysPriviledge.Allow_Add,NAPriviledge_form.Suplier_form)
+
+        return boolean
+        """
+        if action not in NASysPriviledge.ALL_PERMISSION:
+            raise ValueError('uncategorize, cannot resolve action %s' % action)
+
+        if form_name_ori not in NAPriviledge_form.ALL_FORM:
+            raise ValueError('uncategorize, cannot resolve form %s' % form_name_ori)
+
+        is_has = self.nasyspriviledge_set.filter(
+            fk_p_form__form_name_ori=form_name_ori,
+            permission=action
+        ).exists()
+        return is_has
+
     class Meta:
         managed = True
         db_table = 'N_A_Priviledge'
 
 class NAPriviledge_form(models.Model):
+
+    Employee_form = 'employee'
+    Suplier_form = 'n_a_suplier'
+    Goods_form = 'goods'
+
+    ALL_FORM = [Employee_form,Suplier_form,Goods_form]
+
+    FORM_NAME_ORI_CHOICES = (
+        (Employee_form,'employee'),
+        (Suplier_form,'n_a_suplier'),
+        (Goods_form,'goods')
+    )
+
+    MASTER_DATA_FORM = [Employee_form,Suplier_form,Goods_form]
+
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
     form_id = models.CharField(max_length=20,db_column='Form_id')
     form_name = models.CharField(max_length=30,db_column='Form_name')
-    form_name_ori = models.CharField(max_length=50,db_column='Form_name_ori')
+    form_name_ori = models.CharField(
+        max_length=50,
+        db_column='Form_name_ori',
+        choices=FORM_NAME_ORI_CHOICES
+    )
 
     class Meta:
         db_table = 'N_A_Priviledge_form'
 
-class NASysPriviledge(models.Model):
-    idapp = models.AutoField(primary_key=True,db_column='IDApp')
-    fk_p_form = models.IntegerField(db_column='FK_PForm')
-    permission = models.CharField(max_length=50,db_column='Permission')
-    user_id = models.IntegerField(db_column='User_id')
+    def __str__(self):
+        return self.form_name
 
+    @staticmethod
+    def get_form_IT():
+        fk_form = NAPriviledge_form.objects\
+            .filter(
+                Q(form_name_ori='goods') |
+                Q(form_name_ori='n_a_suplier') |
+                Q(form_name_ori='employee')
+            )
+        return fk_form
+
+    @staticmethod
+    def get_form_GA():
+        """
+        not yet determine
+        """
+        raise NotImplementedError
+
+class NASysPriviledge(models.Model):
+
+    Allow_View = 'Allow View'
+    Allow_Add = 'Allow Add'
+    Allow_Edit = 'Allow Edit'
+    Allow_Delete = 'Allow Delete'
+
+    ALL_PERMISSION = [Allow_View,Allow_Add,Allow_Edit,Allow_Delete]
+
+    PERMISSION_CHOICES = (
+        (Allow_View,'Allow View'),
+        (Allow_Add,'Allow Add'),
+        (Allow_Edit,'Allow Edit'),
+        (Allow_Delete,'Allow Delete')
+    )
+
+    idapp = models.AutoField(primary_key=True,db_column='IDApp')
+    fk_p_form = models.ForeignKey(NAPriviledge_form,db_column='FK_PForm')
+    permission = models.CharField(max_length=50,db_column='Permission',choices=PERMISSION_CHOICES)
+    user_id = models.ForeignKey(NAPriviledge,db_column='User_id',on_delete=models.CASCADE)
+    inactive = models.IntegerField(db_column='InActive',null=True,blank=True,default=0)
+
+    objects = NA_BR_Sys_Priviledge()
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
+
+    def __str__(self):
+        return '{username} : {form_name} - {permission}'.format(
+            username=self.user_id.username,
+            form_name=self.fk_p_form.form_name,
+            permission=self.permission
+        )
+
+    @staticmethod
+    def default_permission_IT(form_name_ori):
+        permissions = []
+        if form_name_ori in NAPriviledge_form.MASTER_DATA_FORM:
+            permissions.append(NASysPriviledge.Allow_View)
+            permissions.append(NASysPriviledge.Allow_Add)
+            permissions.append(NASysPriviledge.Allow_Edit)
+            permissions.append(NASysPriviledge.Allow_Delete)
+            return permissions
+
+    @staticmethod
+    def set_permission(user):
+        if user.divisi == NAPriviledge.IT:
+            fk_forms = NAPriviledge_form.get_form_IT()
+        elif user.divisi == NAPriviledge.GA:
+            fk_forms = NAPriviledge_form.get_form_GA()
+        data = []
+        for fk_form in fk_forms:
+            for permission in NASysPriviledge\
+                .default_permission_IT(fk_form.form_name_ori):
+                    data.append({
+                        'fk_p_form':fk_form, #foreign key in models must be instance
+                        'permission':permission,
+                        'user_id': user
+                    })
+            
+        sys_priviledge = NASysPriviledge.objects.bulk_create([
+            NASysPriviledge(**field) for field in data
+        ])
+        return 'successfully added permission'
+
+    @staticmethod
+    def set_custom_permission(user_id,fk_form,permissions):
+        user = NAPriviledge.objects.get(idapp=user_id)
+        fk_p_form = NAPriviledge_form.objects.get(idapp=fk_form)
+        len_permissions = len(permissions)
+        if len_permissions > 1:
+            data = []
+            for permission in permissions:
+                data.append({
+                    'fk_p_form':fk_p_form,
+                    'permission':permission,
+                    'user_id':user
+                })
+            sys_priviledge = NASysPriviledge.objects.bulk_create([
+                NASysPriviledge(**field) for field in data
+            ])
+        elif len_permissions == 1:
+            sys_priviledge = NASysPriviledge()
+            sys_priviledge.fk_p_form = fk_p_form
+            sys_priviledge.permission = permissions[0]
+            sys_priviledge.user_id = user
+            sys_priviledge.save()
+        elif len_permissions < 1:
+            raise ValueError('permission cannot be null')
+        return 'successfully added custom permission'
 
 class NAGoodsReceive_other(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)

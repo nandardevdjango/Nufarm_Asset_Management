@@ -403,6 +403,23 @@ class decorators:
             return wrapper
         return real_decorator
 
+    def admin_required_action(arguments):
+        """
+        there are some actions that only the admin can do it
+        """
+        def real_decorator(func):
+            @wraps(func)
+            def wrapper(request, *args, **kwargs):
+                if request.user.is_superuser:
+                    return func(request, *args, **kwargs)
+                else:
+                    return HttpResponse(
+                        json.dumps({'message':'You don\'t have permission for %s this data' % arguments}),
+                        status=403,
+                        content_type='application/json'
+                    )
+            return wrapper
+        return real_decorator
 class query:
     def dictfetchall(cursor):
         "Return all rows from a cursor as a dict"

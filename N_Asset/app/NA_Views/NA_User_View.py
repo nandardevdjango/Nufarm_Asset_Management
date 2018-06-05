@@ -83,7 +83,8 @@ def login_view(request): # users will login with their Email & Password
             next_action = request.GET.get('next')
             if next_action is not None:
                 return redirect(next_action)
-            else :return redirect('home')
+            else:
+                return redirect('home')
         context = {"formLogin":formLogin,
                    "title":title
         }
