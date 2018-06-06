@@ -281,6 +281,12 @@ div[id*=NA_Priviledge_grid]{
         						}
         					});
         				});
+        				var fk_form = qs('select#id_fk_form');
+        				NA.NAEvent.addHandler(fk_form, 'change', function () {
+        					$.ajax({
+								url:'permission'
+        					})
+        				});
                     });
         		},
         		position: "first"
@@ -341,6 +347,70 @@ div[id*=NA_Priviledge_grid]{
         				var dialog = qs("div.containerDialog");
         				NA.common.dialog.closeDialog(dialog);
         				$("#" + childGridID).trigger('reloadGrid');
+        			},
+        			error: function (data) {
+        				console.log(data);
+        				var response;
+        				if (typeof data.responseJSON == "undefined") {
+        					try{
+        						response = JSON.parse(data.responseText);
+        					}catch(ex){
+        						response = data.responseText;
+        					}
+        					
+        				} else {
+        					response = data.responseJSON['message'];
+        				}
+        				response = NA.common.message.server(response);
+        				BootstrapDialog.show({
+        					draggable: true,
+        					type: BootstrapDialog.TYPE_SUCCESS,
+        					size: BootstrapDialog.SIZE_SMALL,
+        					title: NA.common.message.titleInfo,
+        					message: response,
+        					onshown: function (dialogRef) {
+        						return 
+        					},
+        					closable: false,
+        					animate: true,
+        					closeByBackdrop: false,
+        					closeByKeyboard: false,
+        					buttons: [{
+        						label: 'Set Allow View only',
+        						cssClass: 'btn-default',
+        						action: function (dialogRef) {
+        							var allow_add = $('input#id_allow_add'),
+										allow_edit = $('input#id_allow_edit'),
+										allow_delete = $('input#id_allow_delete');
+        							if (allow_add.prop('checked')) {
+        								allow_add.prop('checked', false)
+        							};
+        							if (allow_edit.prop('checked')) {
+        								allow_edit.prop('checked', false)
+        							};
+        							if (allow_delete.prop('checked')) {
+        								allow_delete.prop('checked', false)
+        							};
+        							executeHandler_permission('OK');
+        							dialogRef.close();
+        						},
+        					},{
+        						label: 'Change role',
+        						cssClass: 'btn-default',
+        						action: function (dialogRef) {
+        							dialogRef.close();
+        						},
+        					}, {
+        						label: 'OK',
+        						id: 'btnOKFindGoods',
+        						cssClass: 'btn-success',
+        						action: function (dialogRef) {
+        							
+        						}
+        					}]
+        				});
+
+
         			}
         		})
         	}

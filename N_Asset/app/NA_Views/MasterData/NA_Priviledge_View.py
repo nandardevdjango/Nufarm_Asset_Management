@@ -7,6 +7,8 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from django.db import transaction
+from datetime import datetime
+
 
 def NA_Priviledge(request):
     return render(request,'app/MasterData/NA_F_Priviledge.html')
@@ -114,7 +116,7 @@ def Entry_Priviledge(request):
     if request.method == 'POST':
         form = NA_Priviledge_Form(request.POST)
         if form.is_valid():
-            result = form.save()
+            result = form.save(request)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -200,7 +202,7 @@ class NA_Priviledge_Form(forms.Form):
             'role':self.cleaned_data.get('role')
         }
 
-    def save(self):
+    def save(self,request):
         statusForm = self.cleaned_data.get('statusForm')
         if statusForm is None or statusForm == '':
             raise forms.ValidationError(
@@ -217,6 +219,8 @@ class NA_Priviledge_Form(forms.Form):
                     user.divisi = self.cleaned_data['divisi']
                     user.role = self.cleaned_data['role']
                     user.set_password(self.cleaned_data['password'])
+                    user.date_joined = datetime.now()
+                    user.createdby = request.user.username
                     user.save()
                     NASysPriviledge.set_permission(user)
 
@@ -239,12 +243,14 @@ class NA_Priviledge_Form(forms.Form):
                     sames = [k for k in data_form if data_form[k] == data_init[k]]
                     for same in sames:
                         data_form.pop(same)
-                    NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
-                    if 'role' in data_form:
-                        if (data_form['role'] != NAPriviledge.GUEST 
-                            and user.role == NAPriviledge.GUEST):
-                            user.refresh_from_db()
-                            NASysPriviledge.set_permission(user)
+
+                    with transaction.atomic():
+                        NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
+                        if 'role' in data_form:
+                            if (data_form['role'] != NAPriviledge.GUEST 
+                                and user.role == NAPriviledge.GUEST):
+                                user.refresh_from_db()
+                                NASysPriviledge.set_permission(user)
         return (Data.Success,)
 
 @decorators.admin_required_action('change')
@@ -252,7 +258,6 @@ class NA_Priviledge_Form(forms.Form):
 @decorators.detail_request_method('POST')
 def NA_Sys_Priviledge_setInactive(request,idapp):
     inactive = request.POST['inactive']
-    del request.user.allow_view_employee
     result = NASysPriviledge.objects.setInActive(idapp,inactive)
     return commonFunct.response_default(result)
 
@@ -270,6 +275,8 @@ def NA_Sys_Priviledge_add(request,email):
         form = NA_Permission_Form(request.POST)
         if form.is_valid():
             result = form.save()
+            if isinstance(result, HttpResponse):
+                return result
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -277,6 +284,9 @@ def NA_Sys_Priviledge_add(request,email):
         form = NA_Permission_Form()
         return render(request,'app/MasterData/NA_Entry_Permission.html',{'form':form})
 
+def NA_Sys_Priviledge_check_permission(request,user_id):
+    fk_form = request.GET['fk_form']
+    data = NASysPriviledge.objects.filter()
 
 class NA_Permission_Form(forms.Form):
     fk_form = forms.ModelChoiceField(
@@ -303,10 +313,26 @@ class NA_Permission_Form(forms.Form):
             'Allow Edit':allow_edit,
             'Allow Delete':allow_delete
         }
+        user = NAPriviledge.objects.get(idapp=user_id)
+        if user.role == NAPriviledge.GUEST:
+            if allow_add or allow_edit or allow_delete:
+                message = '__cannot_add_other_permission_guest'
+                return HttpResponse(
+                    json.dumps({'message':message
+                    }),
+                    status=403,
+                    content_type='application/json'
+                )
+
+            permissions.pop('Allow Add')
+            permissions.pop('Allow Edit')
+            permissions.pop('Allow Delete')
+            
         data_permissions = []
         for k,v in permissions.items():
             if v:
                 data_permissions.append(k)
+        
         NASysPriviledge.set_custom_permission(user_id,fk_form.idapp,data_permissions)
         return (Data.Success,)
 def NA_Priviledge_login(request):

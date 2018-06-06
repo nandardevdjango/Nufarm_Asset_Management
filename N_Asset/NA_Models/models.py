@@ -415,7 +415,7 @@ class NAPriviledge(AbstractUser):
     is_active = models.BooleanField(default=True,db_column='Is_Active')
     USERNAME_FIELD = 'email' # use email to log in
     REQUIRED_FIELDS = ['username'] # required when user is created
-    date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+    date_joined = models.DateTimeField(db_column='Date_Joined', blank=True, null=True)
     createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)
     modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
     modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)
@@ -577,13 +577,13 @@ class NAPriviledge(AbstractUser):
             NAPriviledge_form.Priviledge_form
         )
     @property
-    def allow_edit_(self):
+    def allow_edit_priviledge(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Priviledge_form
         )
     @property
-    def allow_delete_(self):
+    def allow_delete_priviledge(self):
         return self.has_permission(
             NASysPriviledge.Allow_Delete,
             NAPriviledge_form.Priviledge_form
@@ -636,29 +636,35 @@ class NAPriviledge_form(models.Model):
     def __str__(self):
         return self.form_name
 
-    @staticmethod
-    def get_form_IT():
-        fk_form = NAPriviledge_form.objects\
+    @classmethod
+    def get_form_IT(cls,must_iterate=False):
+        fk_form = cls.objects\
             .filter(
                 Q(form_name_ori='goods') |
                 Q(form_name_ori='n_a_suplier') |
                 Q(form_name_ori='employee')
             )
+        if must_iterate:
+            fk_form = fk_form.iterator() #technic for loop queryset, improve performance
         return fk_form
 
     @staticmethod
-    def get_form_GA():
+    def get_form_GA(must_iterate):
         """
         not yet determine
         """
         raise NotImplementedError
 
     @classmethod
-    def get_user_form(cls,divisi):
+    def get_user_form(cls,divisi,must_iterate=False):
+        """
+        return queryset
+        """
+
         if divisi == NAPriviledge.IT:
-            return cls.get_form_IT()
+            return cls.get_form_IT(must_iterate)
         elif divisi == NAPriviledge.GA:
-            return cls.get_form_GA()
+            return cls.get_form_GA(must_iterate)
 
 class NASysPriviledge(models.Model):
 
@@ -700,6 +706,10 @@ class NASysPriviledge(models.Model):
 
     @staticmethod
     def default_permission_IT(form_name_ori):
+        """
+        return list of permissions [Allow View, Allow Add, etc.]
+        """
+
         permissions = []
         if form_name_ori in NAPriviledge_form.MASTER_DATA_FORM:
             permissions.append(NASysPriviledge.Allow_View)
@@ -723,6 +733,10 @@ class NASysPriviledge(models.Model):
 
     @classmethod
     def set_data_permission(cls,user,data):
+        """
+        not return anything, but append dict to paratemer list
+        to save memory
+        """
         permissions = None
         if int(user.role) == NAPriviledge.GUEST:
             permissions = cls.default_permission_Guest
@@ -732,8 +746,8 @@ class NASysPriviledge(models.Model):
             elif user.divisi == NAPriviledge.GA:
                 permissions = cls.default_permission_GA
 
-        fk_forms = NAPriviledge_form.get_user_form(user.divisi)
-        for fk_form in fk_forms:
+        fk_forms = NAPriviledge_form.get_user_form(user.divisi,must_iterate=True)
+        for fk_form in fk_forms: #loop queryset
             for permission in permissions(fk_form.form_name_ori):
                 data.append({
                     'fk_p_form':fk_form, #foreign key in models must be instance
