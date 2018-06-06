@@ -611,8 +611,7 @@
 		};
 		function ExecuteHandler(textElement) {
 		    if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
-		    var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-		    var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
+		   var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
 		    switch (textElement) {
 		        case 'OK': {
 		            if (!frmEntry.checkValidity()) {

@@ -484,10 +484,166 @@
 			if (divAutoComplete) { divAutoComplete.parentNode.removeChild(divAutoComplete); }
 		};
 		function ExecuteHandler(textElement) {
-
+			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
+			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
+			switch (textElement) {
+				case 'OK': {
+					if (!frmEntry.checkValidity()) {
+						//NA.NAEvent.preventDefault(event);                                          
+						var inputbtn = NA.common.getElementID('inputButton');
+						inputbtn.click();
+					}
+					else {
+						//check exists
+						//barang dan serial number dan lenddate
+						var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+						var elserialnumber = NA.common.getElementID('id_serialnumber');
+						var elDateReq = NA.common.getElementID('id_daterequest').value;
+						var elDateRel = NA.common.getElementID('id_datereleased').value;
+						dateRequest = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateReq));
+						dateReleased = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateRel));
+						var NAAjax = NA.common.AJAX;
+						if (win.status === 'Add') {
+							NAAjax.POST('HasExists/',
+                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest,'datereleased':dateReleased, 'serialnumber': elserialnumber.value }),
+                                'application/x-www-form-urlencoded', 'application/json',
+                                function () {
+                                	window.document.body.style.cursor = 'wait';
+                                }, null,
+                                function () {
+                                	if (this.status === 200) {
+                                		var confirmText = JSON.parse(this.responseText);
+                                		if (confirmText) {
+                                			confirmText = confirmText.message;
+                                			if (!confirmText) {
+                                				ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
+                                			}
+                                		}
+                                		else {
+                                			win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
+                                		}
+                                		if (confirmText === 'OK') {
+                                			win.document.body.style.cursor = 'wait';
+                                			valuesForm = getValuesForm();
+                                			submitForm(valuesForm);
+                                			win.document.body.style.cursor = 'default';
+                                		}
+                                		else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
+                                			return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
+                                				win.document.body.style.cursor = 'wait';
+                                				valuesForm = getValuesForm();
+                                				submitForm(valuesForm);
+                                				win.document.body.style.cursor = 'default';
+                                			});
+                                		}
+                                	}
+                                	else {
+                                		XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+                                	}
+                                }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+                                function () { win.document.body.style.cursor = 'default'; }
+                            );
+						}
+						else if (win.status == 'Edit') {
+							win.document.body.style.cursor = 'wait';
+							valuesForm = getValuesForm();
+							submitForm(valuesForm);
+							closeDialog();
+							win.document.body.style.cursor = 'default';
+						}
+					}
+					break;
+				}
+				case 'Cancel':
+				case 'Close': {
+					if (win.status != 'Open') {
+						var valuesForm = getValuesForm(); var retval = false;
+						if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+							showConfirmation(NA.common.message.dataHasChanged, 'Confirmation', function () {
+								if (!frmEntry.checkValidity()) {
+									var inputbtn = NA.common.getElementID('inputButton');
+									inputbtn.click();
+								}
+								else {
+									submitForm(valuesForm);
+								}
+								win.document.body.style.cursor = 'default';
+							}, function () {
+								closeDialog();
+								win.document.body.style.cursor = 'default';
+							});
+						}
+						else {
+							closeDialog();
+						}
+					} else {
+						closeDialog(); win.document.body.style.cursor = 'default';
+					}
+					break;
+				}
+			};
 		};
 		function submitForm(valuesForm) {
+			valuesForm['csrfmiddlewaretoken'] = (function () {
+				var el = document.getElementsByName("csrfmiddlewaretoken");
+				return el[0].getAttribute("value");
+			})();
+			var FDate = $('#id_daterequest').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
+			CDate = GetServerFormatDate(FDate);
+			valuesForm['daterequest'] = CDate;
 
+			FDate = $('#id_datereleased').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
+			CDate = GetServerFormatDate(FDate);
+			valuesForm['datereleased'] = CDate;
+			SuccesTrans = false;
+
+			var NAAjax = NA.common.AJAX;
+			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+			NAAjax.POST('ShowEntry_Outwards', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
+				function () {
+					win.document.body.style.cursor = 'wait';
+				},
+				null,
+				function (e) {
+					var Data = JSON.parse(this.responseText);
+					if (Data.message === "success") {
+						SuccesTrans = true;
+						switch (win.status) {
+							case 'Add': {
+								//    //clear kan semua data
+								//    //reloadGridMaster
+								win.document.body.style.cursor = 'wait';
+								grid.trigger("reloadGrid", [{ page: 1 }]);
+								clearEntry();
+								originalData = JSON.stringify(getValuesForm());
+								var initializeForm = NA.common.getElementID('id_initializeForm');
+								initializeForm.value = originalData;
+								//    //focus langsung ke 				    		
+								var elserialnumber = NA.common.getElementID('id_serialnumber');
+								elserialnumber.focus();
+								win.document.body.style.cursor = 'default';
+								break;
+							}
+							case 'Edit': {
+								win.document.body.style.cursor = 'wait';
+								closeDialog();
+								grid.trigger("reloadGrid", [{ page: 1 }]);
+								win.document.body.style.cursor = 'default';
+								break;
+							}
+						}
+						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
+					}
+					else {//error berarti
+						XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+					}
+					win.document.body.style.cursor = 'default';
+				}, null,
+				function (e) { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+				function (e) {
+					win.document.body.style.cursor = 'default';
+				});
+			return SuccesTrans;
 		};
 		function clearEntry() {
 			//idapp,fk_goods,isnew,goods,idapp_fk_goods,fk_employee,idapp_fk_employee,fk_employee_employee,daterequest,datereleased,
@@ -557,8 +713,9 @@
 			elfk_lending.value = originalData.fk_lending;
 			var elfk_receive = NA.common.getElementID('id_fk_receive');
 			elfk_receive.value = originalData.fK_receive;
-			//var elfk_disposal = NA.common.getElementID('id_fk_disposal');
-			//elfk_disposal.value = originalData.fk_disposal;
+
+			var ellastUsedInfo = NA.common.getElementID('lastUsedInfo'),
+						lastUsedInfo = ellastUsedInfo.textContent			//elfk_disposal.value = originalData.fk_disposal;
 			//var elfk_lost = NA.common.getElementID('id_fk_lost');
 			//elfk_lost.value = originalData.fk_lost;
 			var ellastinfo = NA.common.getElementID('LastInfoValue');
@@ -637,7 +794,18 @@
 				NA.common.dialog.closeDialog(dialog);
 			}
 		};
-
+		function restyleBoostrapDialog() {
+			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
+			BSDialogContent.style.cssText = 'width: 425px; height: 330px;';
+			var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
+			ContentBody.style.cssText = 'padding:0px;';
+			var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
+			contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
+			var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
+			mHeader.style.cssText = 'height:30px;padding:0px;';
+			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
+			footerButton.style.cssText = 'padding-top:8px;';
+		};
 		function fillGoodsInfo(rowData, serialnumber,IsFromTextBox) {
 			 //form.idapp_fk_goods 
 
@@ -1085,9 +1253,9 @@
 						if (win.status !== 'Open') {
 							var textElem = event.target.innerText;
 							if (textElem === 'OK') {
-								//ExecuteHandler('OK');
+								ExecuteHandler('OK');
 							} else {
-								//ExecuteHandler('Close');
+								ExecuteHandler('Close');
 							}
 						}
 					} catch (e) {
@@ -1103,23 +1271,23 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
-				//if (hasLoadDialog) {
-				//	try {
-				//		//ExecuteHandler('Close');
-				//	} catch (e) {
-				//		ShowAlert(e.message);
-				//	}					
-				//}
-				//if (evt) {
-				//	NA.NAEvent.stopPropagation(evt);
-				//}
-				//win.document.body.style.cursor = 'default';
-				//if (!hasLoadDialog) {
-				//	closeDialog();
-				//}
+				if (hasLoadDialog) {
+					try {
+						ExecuteHandler('Close');
+					} catch (e) {
+						ShowAlert(e.message);
+					}					
+				}
+				if (evt) {
+					NA.NAEvent.stopPropagation(evt);
+				}
+				win.document.body.style.cursor = 'default';
+				if (!hasLoadDialog) {
+					closeDialog();
+				}
 				//==============End uncommment this after debugging=============
 				//comment this after debugging
-				closeDialog();
+				//closeDialog();
 				return false;
 			});
 

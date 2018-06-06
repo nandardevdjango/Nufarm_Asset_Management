@@ -270,6 +270,7 @@
     <Content Include="app\templates\app\MasterData\NA_Entry_Employee.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_GoodsLost.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_Maintenance.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Permission.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_Priviledge.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_Suplier.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Acc_FA.html" />
