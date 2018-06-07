@@ -23,54 +23,11 @@ fieldset .col-md-3 {
             </div>
         </fieldset>
 
-		<div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
+		<div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);"></div>
 
-			<!--<div class="checkbox checkbox-success" style="padding:0px;text-align: left;margin-top:0px;display: inline-block;float: left;margin-left: 30px;">
-                <input id="suplier_email" value="suplier_emailData" type="checkbox"><label for="suplier_email">Suplier</label>-->
-            </div>
-
-        <fieldset style="margin-bottom:5px;margin-top:5px;">
+        <fieldset style="margin-bottom:5px;margin-top:5px;" id="fieldset_permission">
             <legend>Permission Set</legend>
-            <div class="col-md-12">
-                <div class="col-md-3">
-					<label>Allow View</label>
-                </div>
-                <div class="col-md-8">
-                    <div class="checkbox checkbox-success" style="padding:0;display: inline;float: left;margin-left: 20px;margin-top: 2px;">
-                        {{ form.allow_view }}<label for="id_allow_view"></label>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="col-md-3">
-					<label>Allow Add</label>
-                </div>
-                <div class="col-md-8">
-                    <div class="checkbox checkbox-success" style="padding:0;display: inline;float: left;margin-left: 20px;margin-top: 2px;">
-                        {{ form.allow_add }}<label for="id_allow_add"></label>
-                    </div>
-                </div>
-            </div>
-			<div class="col-md-12">
-                <div class="col-md-3">
-					<label>Allow Edit</label>
-                </div>
-                <div class="col-md-8">
-                    <div class="checkbox checkbox-success" style="padding:0;display: inline;float: left;margin-left: 20px;margin-top: 2px;">
-                        {{ form.allow_edit }}<label for="id_allow_edit"></label>
-                    </div>
-                </div>
-            </div>
-			<div class="col-md-12">
-                <div class="col-md-3">
-					<label>Allow Delete</label>
-                </div>
-                <div class="col-md-8">
-                    <div class="checkbox checkbox-success" style="padding:0;display: inline;float: left;margin-left: 20px;margin-top: 2px;">
-                        {{ form.allow_delete }}<label for="id_allow_delete"></label>
-                    </div>
-                </div>
-            </div>
+            
         </fieldset>
 		 {{form.user_id}}
 		 {{form.initialize_permissionForm}}

@@ -136,7 +136,6 @@ div[id*=NA_Priviledge_grid]{
                     loadui: 'disable',
                     shrinkToFit: false,
                     caption: 'Master Data -- User Priviledge',
-                    shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
                     ondblClickRow: function (rowId) {
@@ -281,12 +280,50 @@ div[id*=NA_Priviledge_grid]{
         						}
         					});
         				});
-        				var fk_form = qs('select#id_fk_form');
-        				NA.NAEvent.addHandler(fk_form, 'change', function () {
-        					$.ajax({
-								url:'permission'
-        					})
+
+        				var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
+        				var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
+
+        				$(NA_Permission_grid).jqGrid({
+        					datatype: "local",
+        					colNames: ['idapp', 'No', 'Permission', 'Set', 'In Active'],
+        					colModel: [
+								{ name: 'idapp', index: 'idapp', hidden: true },
+								{ name: 'no', index: 'no', width: 30 },
+								{ name: 'permission', index: 'permission', width: 70 },
+								{
+									name: 'set', index:'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+									editoptions: { value: '1:0' },
+									formatoptions: { disabled: false }
+								},
+								{
+									name: 'inactive', index:'inactive',width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+									editoptions: { value: '1:0' },
+									formatoptions: { disabled: false }
+								}
+        					],
+        					//shrinkToFit:false,
+        					width: 435,
+							height:'100%',
+        					viewrecords: true,
+							pager:'#NA_Permission_pager'
         				});
+        				var dummy_data = [
+							{ idapp: '1', no: '1', permission: 'Allow View', set: '0', inactive: '0' },
+							{ idapp: '2', no: '2', permission: 'Allow Add', set: '0', inactive: '0' },
+							{ idapp: '3', no: '3', permission: 'Allow Edit', set: '0', inactive: '0' },
+							{ idapp: '4', no: '4', permission: 'Allow Delete', set: '0', inactive: '0' }
+        				]
+        				for (var i = 0; i <= dummy_data.length; i++) {
+        					$(NA_Permission_grid).jqGrid('addRowData', i + 1, dummy_data[i]);
+        				}
+        					
+        				//var fk_form = qs('select#id_fk_form');
+        				//NA.NAEvent.addHandler(fk_form, 'change', function () {
+        				//	$.ajax({
+						//		url:'permission/'
+        				//	})
+        				//});
                     });
         		},
         		position: "first"
@@ -419,10 +456,10 @@ div[id*=NA_Priviledge_grid]{
         		return {
         			fk_form: qs('select#id_fk_form').value.trim(),
 					user_id:qs('input#id_user_id').value.trim(),
-        			allow_view: qs('input#id_allow_view').checked,
-        			allow_add: qs('input#id_allow_add').checked,
-        			allow_edit: qs('input#id_allow_edit').checked,
-        			allow_delete: qs('input#id_allow_delete').checked
+        			//allow_view: qs('input#id_allow_view').checked,
+        			//allow_add: qs('input#id_allow_add').checked,
+        			//allow_edit: qs('input#id_allow_edit').checked,
+        			//allow_delete: qs('input#id_allow_delete').checked
         		}
         	};
         	function executeHandler_permission(TextElement) {

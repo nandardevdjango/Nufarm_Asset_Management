@@ -335,6 +335,7 @@ class NA_Permission_Form(forms.Form):
         
         NASysPriviledge.set_custom_permission(user_id,fk_form.idapp,data_permissions)
         return (Data.Success,)
+
 def NA_Priviledge_login(request):
     if request.user.is_authenticated:
         return redirect(request.GET.get('next'))
