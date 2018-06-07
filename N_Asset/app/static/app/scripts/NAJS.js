@@ -1179,7 +1179,9 @@ NA.common.message = {
     _confirmInfo: 'Confirmation',
     _titleError: 'Unhandled system exception due to the following occurs',
     _dataHasLost: 'Data has Lost',
-    _unsupportedCriteria : 'Operator is not supported for this kind of data\nPlease change criteria or column name'
+    _unsupportedCriteria: 'Operator is not supported for this kind of data\nPlease change criteria or column name',
+
+    _canNotAddOtherPermsForGuest: 'This user is Guest, cannot add other permission except Allow View \n \n Hint : Change user\'s role if you want to add other permission'
 };
 //mang misalkan user1 teh aya di posisi kieu, user1 keur nga update data .. ehh ai pek teh data eta karek bieu dihapus ku user2 ... terus nga handle na bere pesan(message) bahwa data eta teh geus dihapus ku user lain terus bere keterangan waktu jeng user anu ngahapus na ???
 Object.defineProperties(NA.common.message, {
@@ -1247,6 +1249,11 @@ Object.defineProperties(NA.common.message, {
         get: function () {
             return this._unsupportedCriteria;
         }
+    },
+    canNotAddOtherPermsForGuest: {
+        get: function () {
+            return this._canNotAddOtherPermsForGuest;
+        }
     }
 });
     NA.common.message.server = function(message) {
@@ -1260,6 +1267,9 @@ Object.defineProperties(NA.common.message, {
                 break;
             case '__lost':
                 result = NA.common.message.dataHasLost;
+                break;
+            case '__cannot_add_other_permission_guest':
+                result = NA.common.message.canNotAddOtherPermsForGuest;
                 break;
             default:
                 result = message;
@@ -1416,7 +1426,7 @@ Object.defineProperties(NA.Priviledge, {
     },
     UserName: {
         get: function () { return this._userName; },
-        set: function (newValue) { this._userName = newValue; },
+        set: function (newValue) { this._rolename = newValue; },
     },
     password: {
         get: function () { return this._password; },

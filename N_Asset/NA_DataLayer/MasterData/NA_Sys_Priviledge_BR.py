@@ -1,5 +1,6 @@
 from django.db import models
 from NA_DataLayer.common import commonFunct, Data, Message
+from django.db.models import F
 
 class NA_BR_Sys_Priviledge(models.Manager):
     def setInActive(self,idapp,inactive):
@@ -19,3 +20,8 @@ class NA_BR_Sys_Priviledge(models.Manager):
             return (Data.Success,)
         else:
             return (Data.Lost,Message.Lost)
+
+    def CheckPermission(self,fk_form,user_id):
+        data = super(NA_BR_Sys_Priviledge, self).get_queryset()\
+            .annotate(form_name=F('fk_p_form__form_name'))\
+            .values('form_name','permission')
