@@ -331,7 +331,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         function getValuesForm() {
             //idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
             var elidapp = NA.common.getElementID('id_idapp'),
-				idapp = elidapp.value;
+				idapp = elidapp.value||0;
             var elRefNO = NA.common.getElementID('id_refno'),
                 RefNO = elRefNO.value;
             var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),

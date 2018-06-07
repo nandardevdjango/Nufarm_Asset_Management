@@ -391,9 +391,9 @@ class NAPriviledge(AbstractUser):
     GUEST = 3
 
     ROLE_CHOICES = (
-        (SUPER_USER,'Super User'),
+        (GUEST,'Guest'),
         (USER,'User'),
-        (GUEST,'Guest')
+        (SUPER_USER,'Super User')
     )
 
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
@@ -415,7 +415,7 @@ class NAPriviledge(AbstractUser):
     is_active = models.BooleanField(default=True,db_column='Is_Active')
     USERNAME_FIELD = 'email' # use email to log in
     REQUIRED_FIELDS = ['username'] # required when user is created
-    date_joined = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
+    date_joined = models.DateTimeField(db_column='Date_Joined', blank=True, null=True)
     createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)
     modifieddate = models.DateTimeField(db_column='ModifiedDate', blank=True, null=True)
     modifiedby = models.CharField(db_column='ModifiedBy', max_length=100, blank=True, null=True)
@@ -446,9 +446,148 @@ class NAPriviledge(AbstractUser):
 
         is_has = self.nasyspriviledge_set.filter(
             fk_p_form__form_name_ori=form_name_ori,
-            permission=action
+            permission=action,
+            inactive=False
         ).exists()
         return is_has
+
+    #============ Permission for Employee form =============
+    @property
+    def allow_view_employee(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_View,
+            NAPriviledge_form.Employee_form
+        )
+
+    @property
+    def allow_add_employee(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Add,
+            NAPriviledge_form.Employee_form
+        )
+    @property
+    def allow_edit_employee(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Edit,
+            NAPriviledge_form.Employee_form
+        )
+    @property
+    def allow_delete_employee(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Delete,
+            NAPriviledge_form.Employee_form
+        )
+
+
+    #============ Permission for Suplier form =============
+    @property
+    def allow_view_suplier(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_View,
+            NAPriviledge_form.Suplier_form
+        )
+
+    @property
+    def allow_add_suplier(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Add,
+            NAPriviledge_form.Suplier_form
+        )
+    @property
+    def allow_edit_suplier(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Edit,
+            NAPriviledge_form.Suplier_form
+        )
+    @property
+    def allow_delete_suplier(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Delete,
+            NAPriviledge_form.Suplier_form
+        )
+
+
+    #============ Permission for Goods form =============
+    @property
+    def allow_view_goods(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_View,
+            NAPriviledge_form.Goods_form
+        )
+
+    @property
+    def allow_add_goods(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Add,
+            NAPriviledge_form.Goods_form
+        )
+    @property
+    def allow_edit_goods(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Edit,
+            NAPriviledge_form.Goods_form
+        )
+    @property
+    def allow_delete_goods(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Delete,
+            NAPriviledge_form.Goods_form
+        )
+
+    #============ Permission for Goods form =============
+    @property
+    def allow_view_goods_receive(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_View,
+            NAPriviledge_form.Goods_Receive_form
+        )
+
+    @property
+    def allow_add_goods_receive(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Add,
+            NAPriviledge_form.Goods_Receive_form
+        )
+    @property
+    def allow_edit_goods_receive(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Edit,
+            NAPriviledge_form.Goods_Receive_form
+        )
+    @property
+    def allow_delete_goods_receive(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Delete,
+            NAPriviledge_form.Goods_Receive_form
+        )
+
+
+    #============ Permission for Goods form =============
+    @property
+    def allow_view_priviledge(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_View,
+            NAPriviledge_form.Priviledge_form
+        )
+
+    @property
+    def allow_add_priviledge(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Add,
+            NAPriviledge_form.Priviledge_form
+        )
+    @property
+    def allow_edit_priviledge(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Edit,
+            NAPriviledge_form.Priviledge_form
+        )
+    @property
+    def allow_delete_priviledge(self):
+        return self.has_permission(
+            NASysPriviledge.Allow_Delete,
+            NAPriviledge_form.Priviledge_form
+        )
 
     class Meta:
         managed = True
@@ -459,16 +598,28 @@ class NAPriviledge_form(models.Model):
     Employee_form = 'employee'
     Suplier_form = 'n_a_suplier'
     Goods_form = 'goods'
+    Goods_Receive_form = 'n_a_goods_receive'
+    Priviledge_form = 'n_a_priviledge'
 
-    ALL_FORM = [Employee_form,Suplier_form,Goods_form]
+    MASTER_DATA_FORM = [
+        Employee_form,
+        Suplier_form,
+        Goods_form,
+        Priviledge_form
+    ]
+    TRANSACTION_FORM = [
+        Goods_Receive_form
+    ]
+
+    ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM
 
     FORM_NAME_ORI_CHOICES = (
         (Employee_form,'employee'),
         (Suplier_form,'n_a_suplier'),
-        (Goods_form,'goods')
+        (Goods_form,'goods'),
+        (Goods_Receive_form,'n_a_goods_receive'),
+        (Priviledge_form,'n_a_priviledge')
     )
-
-    MASTER_DATA_FORM = [Employee_form,Suplier_form,Goods_form]
 
     idapp = models.AutoField(primary_key=True,db_column='IDApp')
     form_id = models.CharField(max_length=20,db_column='Form_id')
@@ -485,22 +636,35 @@ class NAPriviledge_form(models.Model):
     def __str__(self):
         return self.form_name
 
-    @staticmethod
-    def get_form_IT():
-        fk_form = NAPriviledge_form.objects\
+    @classmethod
+    def get_form_IT(cls,must_iterate=False):
+        fk_form = cls.objects\
             .filter(
                 Q(form_name_ori='goods') |
                 Q(form_name_ori='n_a_suplier') |
                 Q(form_name_ori='employee')
             )
+        if must_iterate:
+            fk_form = fk_form.iterator() #technic for loop queryset, improve performance
         return fk_form
 
     @staticmethod
-    def get_form_GA():
+    def get_form_GA(must_iterate):
         """
         not yet determine
         """
         raise NotImplementedError
+
+    @classmethod
+    def get_user_form(cls,divisi,must_iterate=False):
+        """
+        return queryset
+        """
+
+        if divisi == NAPriviledge.IT:
+            return cls.get_form_IT(must_iterate)
+        elif divisi == NAPriviledge.GA:
+            return cls.get_form_GA(must_iterate)
 
 class NASysPriviledge(models.Model):
 
@@ -509,7 +673,12 @@ class NASysPriviledge(models.Model):
     Allow_Edit = 'Allow Edit'
     Allow_Delete = 'Allow Delete'
 
-    ALL_PERMISSION = [Allow_View,Allow_Add,Allow_Edit,Allow_Delete]
+    ALL_PERMISSION = [
+        Allow_View,
+        Allow_Add,
+        Allow_Edit,
+        Allow_Delete
+    ]
 
     PERMISSION_CHOICES = (
         (Allow_View,'Allow View'),
@@ -537,6 +706,10 @@ class NASysPriviledge(models.Model):
 
     @staticmethod
     def default_permission_IT(form_name_ori):
+        """
+        return list of permissions [Allow View, Allow Add, etc.]
+        """
+
         permissions = []
         if form_name_ori in NAPriviledge_form.MASTER_DATA_FORM:
             permissions.append(NASysPriviledge.Allow_View)
@@ -544,30 +717,55 @@ class NASysPriviledge(models.Model):
             permissions.append(NASysPriviledge.Allow_Edit)
             permissions.append(NASysPriviledge.Allow_Delete)
             return permissions
+        else:
+            raise ValueError()
 
     @staticmethod
-    def set_permission(user):
-        if user.divisi == NAPriviledge.IT:
-            fk_forms = NAPriviledge_form.get_form_IT()
-        elif user.divisi == NAPriviledge.GA:
-            fk_forms = NAPriviledge_form.get_form_GA()
+    def default_permission_GA(form_name_ori):
+        """
+        not yet determine
+        """
+        raise NotImplementedError
+
+    @staticmethod
+    def default_permission_Guest(form_name_ori):
+        return [NASysPriviledge.Allow_View]
+
+    @classmethod
+    def set_data_permission(cls,user,data):
+        """
+        not return anything, but append dict to paratemer list
+        to save memory
+        """
+        permissions = None
+        if int(user.role) == NAPriviledge.GUEST:
+            permissions = cls.default_permission_Guest
+        else:
+            if user.divisi == NAPriviledge.IT:
+                permissions = cls.default_permission_IT
+            elif user.divisi == NAPriviledge.GA:
+                permissions = cls.default_permission_GA
+
+        fk_forms = NAPriviledge_form.get_user_form(user.divisi,must_iterate=True)
+        for fk_form in fk_forms: #loop queryset
+            for permission in permissions(fk_form.form_name_ori):
+                data.append({
+                    'fk_p_form':fk_form, #foreign key in models must be instance
+                    'permission':permission,
+                    'user_id': user
+                })
+
+    @classmethod
+    def set_permission(cls,user):
         data = []
-        for fk_form in fk_forms:
-            for permission in NASysPriviledge\
-                .default_permission_IT(fk_form.form_name_ori):
-                    data.append({
-                        'fk_p_form':fk_form, #foreign key in models must be instance
-                        'permission':permission,
-                        'user_id': user
-                    })
-            
-        sys_priviledge = NASysPriviledge.objects.bulk_create([
-            NASysPriviledge(**field) for field in data
+        cls.set_data_permission(user,data)
+        sys_priviledge = cls.objects.bulk_create([
+            cls(**field) for field in data
         ])
         return 'successfully added permission'
 
-    @staticmethod
-    def set_custom_permission(user_id,fk_form,permissions):
+    @classmethod
+    def set_custom_permission(cls,user_id,fk_form,permissions):
         user = NAPriviledge.objects.get(idapp=user_id)
         fk_p_form = NAPriviledge_form.objects.get(idapp=fk_form)
         len_permissions = len(permissions)
@@ -579,11 +777,11 @@ class NASysPriviledge(models.Model):
                     'permission':permission,
                     'user_id':user
                 })
-            sys_priviledge = NASysPriviledge.objects.bulk_create([
-                NASysPriviledge(**field) for field in data
+            sys_priviledge = cls.objects.bulk_create([
+                cls(**field) for field in data
             ])
         elif len_permissions == 1:
-            sys_priviledge = NASysPriviledge()
+            sys_priviledge = cls()
             sys_priviledge.fk_p_form = fk_p_form
             sys_priviledge.permission = permissions[0]
             sys_priviledge.user_id = user
