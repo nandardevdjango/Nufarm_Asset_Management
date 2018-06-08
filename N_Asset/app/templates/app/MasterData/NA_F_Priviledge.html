@@ -246,6 +246,7 @@ div[id*=NA_Priviledge_grid]{
         		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
         	}
         	var rowData = priviledge_grid.getRowData(parentRowKey);
+        	var idapp = rowData['idapp']; // user_id
         	var email = rowData['email'];
         	$('#' + childGridID).navGrid('#' + childGridPagerID, {
         		edit: false,
@@ -284,46 +285,80 @@ div[id*=NA_Priviledge_grid]{
         				var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
         				var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
 
-        				$(NA_Permission_grid).jqGrid({
-        					datatype: "local",
-        					colNames: ['idapp', 'No', 'Permission', 'Set', 'In Active'],
-        					colModel: [
-								{ name: 'idapp', index: 'idapp', hidden: true },
-								{ name: 'no', index: 'no', width: 30 },
-								{ name: 'permission', index: 'permission', width: 70 },
-								{
-									name: 'set', index:'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
-									editoptions: { value: '1:0' },
-									formatoptions: { disabled: false }
-								},
-								{
-									name: 'inactive', index:'inactive',width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
-									editoptions: { value: '1:0' },
-									formatoptions: { disabled: false }
-								}
-        					],
-        					//shrinkToFit:false,
-        					width: 435,
-							height:'100%',
-        					viewrecords: true,
-							pager:'#NA_Permission_pager'
-        				});
-        				var dummy_data = [
-							{ idapp: '1', no: '1', permission: 'Allow View', set: '0', inactive: '0' },
-							{ idapp: '2', no: '2', permission: 'Allow Add', set: '0', inactive: '0' },
-							{ idapp: '3', no: '3', permission: 'Allow Edit', set: '0', inactive: '0' },
-							{ idapp: '4', no: '4', permission: 'Allow Delete', set: '0', inactive: '0' }
-        				]
-        				for (var i = 0; i <= dummy_data.length; i++) {
-        					$(NA_Permission_grid).jqGrid('addRowData', i + 1, dummy_data[i]);
-        				}
+        				function LoadPermission_grid(fk_form) {
+        					var url = "permission/" + win.encodeURIComponent(idapp) + "/check_permission/?" + win.encodeURIComponent('fk_form') + '=' + win.encodeURIComponent(fk_form)
+        					if (fk_form != 'null') {
+        						$(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
+        					}
+        					$(NA_Permission_grid).jqGrid({
+        						url: url,
+        						datatype: "json",
+        						colNames: ['idapp', 'No', 'Permission', 'Set', 'In Active'],
+        						colModel: [
+									{ name: 'idapp', index: 'idapp', hidden: true },
+									{ name: 'no', index: 'no', width: 20, align: 'center' },
+									{ name: 'permission', index: 'permission', width: 70 },
+									{
+										name: 'set', index: 'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+										editoptions: { value: '1:0' },
+										formatoptions: { disabled: false }
+									},
+									{
+										name: 'inactive', index: 'inactive', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+										editoptions: { value: '1:0' },
+										formatoptions: { disabled: false }
+									}
+        						],
+        						//shrinkToFit:false,
+        						width: 435,
+        						height: '100%',
+        						viewrecords: true,
+        						pager: '#NA_Permission_pager'
+        					});
         					
-        				//var fk_form = qs('select#id_fk_form');
-        				//NA.NAEvent.addHandler(fk_form, 'change', function () {
-        				//	$.ajax({
-						//		url:'permission/'
-        				//	})
-        				//});
+        					$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
+        						edit: false,
+        						add: false,
+        						del: false,
+        						search: false,
+        						refresh: false,
+        						cloneToTop: false
+        					}).navButtonAdd('#NA_Permission_pager', {
+        						id: 'btn_add_permission_inline',
+        						caption: "",
+        						buttonicon: "ui-icon-plus",
+        						onClickButton: function (event) {
+        							var select_fk_form = qs('select#id_fk_form');
+        							if (select_fk_form.checkValidity()) {
+        								var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
+        								var row_count = $(NA_Permission_grid).getGridParam('reccount');
+        								if (row_count == 1) {
+        									dummy_data['no'] = 2
+        									dummy_data['permission'] = 'Allow Add'
+        								} else if (row_count == 2) {
+        									dummy_data['no'] = 3
+        									dummy_data['permission'] = 'Allow Edit'
+        								} else if (row_count == 3) {
+        									dummy_data['no'] = 4
+        									dummy_data['permission'] = 'Allow Delete'
+        								} else if (row_count > 3) {
+        									return false;
+        								}
+        								$(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
+        							} else {
+        								$('#permission_submit').click();
+        								return false;
+        							}
+        						}
+        					});
+        				};
+
+        				LoadPermission_grid('null');
+        				var select_fk_form = qs('select#id_fk_form');
+        				NA.NAEvent.addHandler(select_fk_form, 'change', function () {
+        					LoadPermission_grid(this.value);
+							console.log(this.value)
+        				});
                     });
         		},
         		position: "first"
@@ -386,68 +421,69 @@ div[id*=NA_Priviledge_grid]{
         				$("#" + childGridID).trigger('reloadGrid');
         			},
         			error: function (data) {
-        				console.log(data);
-        				var response;
-        				if (typeof data.responseJSON == "undefined") {
-        					try{
-        						response = JSON.parse(data.responseText);
-        					}catch(ex){
-        						response = data.responseText;
-        					}
-        					
-        				} else {
-        					response = data.responseJSON['message'];
-        				}
-        				response = NA.common.message.server(response);
-        				BootstrapDialog.show({
-        					draggable: true,
-        					type: BootstrapDialog.TYPE_SUCCESS,
-        					size: BootstrapDialog.SIZE_SMALL,
-        					title: NA.common.message.titleInfo,
-        					message: response,
-        					onshown: function (dialogRef) {
-        						return 
-        					},
-        					closable: false,
-        					animate: true,
-        					closeByBackdrop: false,
-        					closeByKeyboard: false,
-        					buttons: [{
-        						label: 'Set Allow View only',
-        						cssClass: 'btn-default',
-        						action: function (dialogRef) {
-        							var allow_add = $('input#id_allow_add'),
-										allow_edit = $('input#id_allow_edit'),
-										allow_delete = $('input#id_allow_delete');
-        							if (allow_add.prop('checked')) {
-        								allow_add.prop('checked', false)
-        							};
-        							if (allow_edit.prop('checked')) {
-        								allow_edit.prop('checked', false)
-        							};
-        							if (allow_delete.prop('checked')) {
-        								allow_delete.prop('checked', false)
-        							};
-        							executeHandler_permission('OK');
-        							dialogRef.close();
-        						},
-        					},{
-        						label: 'Change role',
-        						cssClass: 'btn-default',
-        						action: function (dialogRef) {
-        							dialogRef.close();
-        						},
-        					}, {
-        						label: 'OK',
-        						id: 'btnOKFindGoods',
-        						cssClass: 'btn-success',
-        						action: function (dialogRef) {
-        							
+        				if (data.status == 403) {
+        					var response;
+        					if (typeof data.responseJSON == "undefined") {
+        						try {
+        							response = JSON.parse(data.responseText);
+        						} catch (ex) {
+        							response = data.responseText;
         						}
-        					}]
-        				});
 
+        					} else {
+        						response = data.responseJSON['message'];
+        					}
+        					response = NA.common.message.server(response);
+        					BootstrapDialog.show({
+        						draggable: true,
+        						type: BootstrapDialog.TYPE_SUCCESS,
+        						size: BootstrapDialog.SIZE_SMALL,
+        						title: NA.common.message.titleInfo,
+        						message: response,
+        						onshown: function (dialogRef) {
+        							return
+        						},
+        						closable: false,
+        						animate: true,
+        						closeByBackdrop: false,
+        						closeByKeyboard: false,
+        						buttons: [{
+        							label: 'Set Allow View only',
+        							cssClass: 'btn-default',
+        							action: function (dialogRef) {
+        								var allow_add = $('input#id_allow_add'),
+											allow_edit = $('input#id_allow_edit'),
+											allow_delete = $('input#id_allow_delete');
+        								if (allow_add.prop('checked')) {
+        									allow_add.prop('checked', false)
+        								};
+        								if (allow_edit.prop('checked')) {
+        									allow_edit.prop('checked', false)
+        								};
+        								if (allow_delete.prop('checked')) {
+        									allow_delete.prop('checked', false)
+        								};
+        								executeHandler_permission('OK');
+        								dialogRef.close();
+        							},
+        						}, {
+        							label: 'Change role',
+        							cssClass: 'btn-default',
+        							action: function (dialogRef) {
+        								dialogRef.close();
+        							},
+        						}, {
+        							label: 'OK',
+        							id: 'btnOKFindGoods',
+        							cssClass: 'btn-success',
+        							action: function (dialogRef) {
 
+        							}
+        						}]
+        					});
+        				} else {
+							return dialogAlert(data.responseText,NA.common.message.titleError)
+        				}
         			}
         		})
         	}
@@ -1067,6 +1103,23 @@ div[id*=NA_Priviledge_grid]{
                     			if (event) {
                     				NA.NAEvent.stopPropagation(event);
                     			};
+                    		});
+
+                    		var select_role = qs('select#id_role'),
+							select_divisi = qs('select#id_divisi');
+                    		NA.NAEvent.addHandler(select_role, 'change', function (event) {
+                    			console.log(this);
+                    			if (this.value == 3) {
+                    				if (!select_divisi.hasAttribute('disabled')) {
+                    					select_divisi.setAttribute('disabled', '');
+                    					select_divisi.removeAttribute('required');
+                    				}
+                    			} else {
+                    				if (select_divisi.hasAttribute('disabled')) {
+                    					select_divisi.removeAttribute('disabled');
+                    					select_divisi.setAttribute('required','');
+                    				}
+                    			}
                     		});
 
                     		//remove attribute disable untuk button OK dan cancel bila statusnya Add

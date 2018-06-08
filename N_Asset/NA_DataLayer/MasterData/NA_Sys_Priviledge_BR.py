@@ -22,6 +22,12 @@ class NA_BR_Sys_Priviledge(models.Manager):
             return (Data.Lost,Message.Lost)
 
     def CheckPermission(self,fk_form,user_id):
+        if fk_form == 'null':
+            return Data.Empty
         data = super(NA_BR_Sys_Priviledge, self).get_queryset()\
-            .annotate(form_name=F('fk_p_form__form_name'))\
-            .values('form_name','permission').filter(fk_p_form=fk_form,user_id=user_id)
+            .values('idapp','permission','inactive')\
+            .filter(fk_p_form=fk_form,user_id=user_id)
+        if data.exists():
+            return data
+        else:
+            return Data.Empty

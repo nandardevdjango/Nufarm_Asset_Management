@@ -656,10 +656,24 @@ class NAPriviledge_form(models.Model):
         raise NotImplementedError
 
     @classmethod
-    def get_user_form(cls,divisi,must_iterate=False):
+    def get_form_Guest(cls,must_iterate=False):
+        fk_form = cls.objects\
+            .filter(
+                Q(form_name_ori='goods') |
+                Q(form_name_ori='n_a_suplier') |
+                Q(form_name_ori='employee')
+            )
+        if must_iterate:
+            fk_form = fk_form.iterator() #technic for loop queryset, improve performance
+        return fk_form
+
+    @classmethod
+    def get_user_form(cls,role,divisi,must_iterate=False):
         """
         return queryset
         """
+        if int(role) == NAPriviledge.GUEST:
+            return cls.get_form_Guest(must_iterate)
 
         if divisi == NAPriviledge.IT:
             return cls.get_form_IT(must_iterate)
@@ -746,14 +760,17 @@ class NASysPriviledge(models.Model):
             elif user.divisi == NAPriviledge.GA:
                 permissions = cls.default_permission_GA
 
-        fk_forms = NAPriviledge_form.get_user_form(user.divisi,must_iterate=True)
-        for fk_form in fk_forms: #loop queryset
-            for permission in permissions(fk_form.form_name_ori):
-                data.append({
-                    'fk_p_form':fk_form, #foreign key in models must be instance
-                    'permission':permission,
-                    'user_id': user
-                })
+        fk_forms = NAPriviledge_form.get_user_form(user.role,user.divisi,must_iterate=True)
+        if permissions is not None:
+            for fk_form in fk_forms: #loop queryset
+                for permission in permissions(fk_form.form_name_ori):
+                    data.append({
+                        'fk_p_form':fk_form, #foreign key in models must be instance
+                        'permission':permission,
+                        'user_id': user
+                    })
+        else:
+            raise ValueError('')
 
     @classmethod
     def set_permission(cls,user):

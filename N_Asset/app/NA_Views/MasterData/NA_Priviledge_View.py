@@ -148,8 +148,9 @@ class NA_Priviledge_Form(forms.Form):
         attrs={'class':'form-control','placeholder':'User Name','style':'height:unset'}))
     email = forms.CharField(max_length=30,required=True,widget=forms.EmailInput(
         attrs={'class':'form-control','placeholder':'Email'}))
-    divisi = forms.ChoiceField(widget=forms.Select(
-        attrs={'class':'form-control'}),choices=(
+    divisi = forms.ChoiceField(required=False,widget=forms.Select(
+        attrs={'class':'form-control','disabled':''}),choices=(
+        ('','-----------'),
         ('IT','IT'),
         ('GA','GA')
         ))
@@ -181,6 +182,13 @@ class NA_Priviledge_Form(forms.Form):
 
     def clean(self):
         statusForm = self.cleaned_data['statusForm']
+        role = self.cleaned_data['role']
+        if isinstance(role, str):
+            role = int(role)
+        if role != NAPriviledge.GUEST:
+            divisi = self.cleaned_data['divisi']
+            if divisi is None or divisi == '':
+                raise forms.ValidationError('Please fill out divisi');
         if statusForm == 'Edit':
             idapp = self.cleaned_data.get('idapp')
             if idapp is None or idapp == '':
@@ -191,7 +199,7 @@ class NA_Priviledge_Form(forms.Form):
             raise forms.ValidationError(
                 'Password didn\'t match with confirm password'
             )
-
+        return super(NA_Priviledge_Form, self).clean()
     def getFormData(self):
         return {
             'first_name':self.cleaned_data.get('first_name'),
@@ -216,8 +224,9 @@ class NA_Priviledge_Form(forms.Form):
                     user.last_name = self.cleaned_data['last_name']
                     user.username = self.cleaned_data['username']
                     user.email = self.cleaned_data['email']
-                    user.divisi = self.cleaned_data['divisi']
                     user.role = self.cleaned_data['role']
+                    if user.role != NAPriviledge.GUEST:
+                        user.divisi = self.cleaned_data['divisi']
                     user.set_password(self.cleaned_data['password'])
                     user.date_joined = datetime.now()
                     user.createdby = request.user.username
@@ -286,7 +295,28 @@ def NA_Sys_Priviledge_add(request,email):
 
 def NA_Sys_Priviledge_check_permission(request,user_id):
     fk_form = request.GET['fk_form']
-    data = NASysPriviledge.objects.filter()
+    data = NASysPriviledge.objects.CheckPermission(fk_form,user_id)
+    if data == Data.Empty:
+        return HttpResponse(
+            json.dumps(commonFunct.EmptyGrid()),
+            content_type='application/json'
+        )
+    dataRow = []
+    no = 0
+    for row in data:
+        no += 1
+        dataRow.append({
+            'idapp': row['idapp'],
+            'no':no,
+            'permission':row['permission'],
+            'set':'1',
+            'inactive': row['inactive'],
+            })
+    return HttpResponse(
+            json.dumps(dataRow),
+            content_type='application/json'
+    )
+
 
 class NA_Permission_Form(forms.Form):
     fk_form = forms.ModelChoiceField(
