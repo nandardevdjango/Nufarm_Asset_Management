@@ -90,6 +90,7 @@ def ShowEntry_Outwards(request):
 				form.clean()
 				data.update(isnew=strtobool(str(data['isnew'])))
 				data.update(fk_frommaintenance=(None if int(data['fk_frommaintenance']) == 0 else data['fk_frommaintenance']))
+				data.update(fk_usedemployee=(None if int(data['fk_usedemployee']) == 0 else data['fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
