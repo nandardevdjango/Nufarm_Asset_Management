@@ -147,6 +147,12 @@ div[id*=NA_Priviledge_grid]{
                     onSelectRow: function (rowId, status, event) {
                     	$('#NA_Priviledge_grid_' + rowId + '_table').jqGrid('resetSelection');
                     },
+                    gridComplete: function () {
+                        $('.ui-sgcollapsed').dblclick(function (event) {
+                            event.preventDefault();
+                            event.stopPropagation(); //stop/remove event double click in row
+                        });
+                    },
                     subGrid: true,
                     subGridRowExpanded: showChildGrid,
                     subGridOptions: {
@@ -187,16 +193,28 @@ div[id*=NA_Priviledge_grid]{
         		colModel: [
                     { label: 'IDApp', name: 'idapp', key: true, width: 75,hidden:true },
                     { label: 'Form Name', name: 'form_name',align:'center', width: 70, cellattr: showPermissions },
-                    { label: 'Permissions', name: 'permission', width: 70 },
+                    { label: 'Permissions', name: 'permission', width: 60 },
 					{
-						label: 'Inactive', name: 'inactive', width:40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+						label: 'Inactive', name: 'inactive', width:30, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
 						editoptions: { value: '1:0' },
 						formatoptions: { disabled: false }
-					}
+					},
+                    {
+                        label: 'Created Date', name: 'createddate', width: 80, align: 'center', editable: false, search: false, formatter: 'date',
+                        formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' }
+                    },
+                    {
+                        label: 'Created By', name: 'createdby', width: 60, search: false, editable: false,
+                        editoptions: {
+                            dataInit: function (element) {
+                                jq(element).attr("readonly", "readonly");
+                            }
+                        }
+                    }
         		],
         		viewrecords: true,
 				rowNum:10,
-        		width: 450,
+        		width: 550,
         		height: '100%',
         		pager: "#" + childGridPagerID,
         		ondblClickRow: function (rowId, iRow, iCol, event) {
@@ -285,11 +303,32 @@ div[id*=NA_Priviledge_grid]{
         				var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
         				var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
 
+        				(function ($) {
+        				    "use strict";
+        				    $.extend($.fn.fmatter, {
+        				        dynamic_checkbox: function (cellValue, options,
+                                        rowObject, action) {
+        				            if (rowObject.idapp == 'dummy_inline') {
+        				                options.checkbox.disabled = true;
+        				            } else {
+        				                options.checkbox.disabled = false;
+        				            }
+        				            return $.fn.fmatter.call(this, "checkbox",
+                                        cellValue, options, rowObject, action);
+        				        }
+        				    });
+        				}(jQuery));
+
         				function LoadPermission_grid(fk_form) {
         					var url = "permission/" + win.encodeURIComponent(idapp) + "/check_permission/?" + win.encodeURIComponent('fk_form') + '=' + win.encodeURIComponent(fk_form)
         					if (fk_form != 'null') {
-        						$(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
-        					}
+        					    $(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
+        					};
+
+        					var allow_view = qs('input#id_allow_view'),
+                                allow_add = qs('input#id_allow_add'),
+                                allow_edit = qs('input#id_allow_edit'),
+                                allow_delete = qs('input#id_allow_delete');
         					$(NA_Permission_grid).jqGrid({
         						url: url,
         						datatype: "json",
@@ -297,23 +336,44 @@ div[id*=NA_Priviledge_grid]{
         						colModel: [
 									{ name: 'idapp', index: 'idapp', hidden: true },
 									{ name: 'no', index: 'no', width: 20, align: 'center' },
-									{ name: 'permission', index: 'permission', width: 70 },
+									{ name: 'permission', index: 'permission', width: 70, key:true },
 									{
 										name: 'set', index: 'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
 										editoptions: { value: '1:0' },
 										formatoptions: { disabled: false }
 									},
 									{
-										name: 'inactive', index: 'inactive', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
-										editoptions: { value: '1:0' },
-										formatoptions: { disabled: false }
+									    name: 'inactive', index: 'inactive', width: 40, align: 'center', editable: true,
+									    formatter: "dynamic_checkbox", edittype: 'checkbox',
+										editoptions: { value: '1:0' }
 									}
         						],
-        						//shrinkToFit:false,
         						width: 435,
         						height: '100%',
         						viewrecords: true,
-        						pager: '#NA_Permission_pager'
+        						pager: '#NA_Permission_pager',
+        						beforeSelectRow: function (rowid, e) {
+        						    var $self = $(this),
+                                        iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+                                    cm = $self.jqGrid("getGridParam", "colModel");
+        						    if (cm[iCol].name === "set") {
+        						        var checked = $(e.target).is(":checked"),
+        						        oriChecked = !checked;
+        						        var tr = $(e.target).closest('tr');
+                                        var permission = $(e.target).parent().prev().text();
+                                        if (permission == "Allow View") {
+                                            allow_view.checked = checked;
+                                        } else if (permission == "Allow Add") {
+                                            allow_add.checked = checked;
+                                        } else if (permission == "Allow Edit") {
+                                            allow_edit.checked = checked;
+                                        } else if (permission == "Allow Delete") {
+                                            allow_delete.checked = checked;
+                                        }
+        						        var no = tr[0].id;
+        						    }
+        						    return true; // allow selection
+        						}
         					});
         					
         					$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
@@ -323,32 +383,37 @@ div[id*=NA_Priviledge_grid]{
         						search: false,
         						refresh: false,
         						cloneToTop: false
-        					}).navButtonAdd('#NA_Permission_pager', {
+        					}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
         						id: 'btn_add_permission_inline',
         						caption: "",
         						buttonicon: "ui-icon-plus",
         						onClickButton: function (event) {
         							var select_fk_form = qs('select#id_fk_form');
         							if (select_fk_form.checkValidity()) {
-        								var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
-        								var row_count = $(NA_Permission_grid).getGridParam('reccount');
-        								if (row_count == 1) {
-        									dummy_data['no'] = 2
-        									dummy_data['permission'] = 'Allow Add'
-        								} else if (row_count == 2) {
-        									dummy_data['no'] = 3
-        									dummy_data['permission'] = 'Allow Edit'
-        								} else if (row_count == 3) {
-        									dummy_data['no'] = 4
-        									dummy_data['permission'] = 'Allow Delete'
-        								} else if (row_count > 3) {
-        									return false;
-        								}
-        								$(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
+        							    var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
+        							    var row_count = $(NA_Permission_grid).getGridParam('reccount');
+        							    if (row_count == 1) {
+        							        var role = rowData['role'];
+        							        if (role == 3) { // 3  = Guest
+
+        							        }
+        							        dummy_data['no'] = 2
+        							        dummy_data['permission'] = 'Allow Add';
+        							    } else if (row_count == 2) {
+        							        dummy_data['no'] = 3
+        							        dummy_data['permission'] = 'Allow Edit';
+        							    } else if (row_count == 3) {
+        							        dummy_data['no'] = 4
+        							        dummy_data['permission'] = 'Allow Delete';
+        							    } else if (row_count > 3) {
+        							        return false;
+        							    }
+        							    $(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
         							} else {
-        								$('#permission_submit').click();
-        								return false;
-        							}
+        							    $('#permission_submit').click();
+        							    return false;
+        							};
+        							$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
         						}
         					});
         				};
@@ -356,8 +421,11 @@ div[id*=NA_Priviledge_grid]{
         				LoadPermission_grid('null');
         				var select_fk_form = qs('select#id_fk_form');
         				NA.NAEvent.addHandler(select_fk_form, 'change', function () {
-        					LoadPermission_grid(this.value);
-							console.log(this.value)
+        				    if (this.value == "") {
+        				        $(NA_Permission_grid).jqGrid("clearGridData", true);
+        				    } else {
+        				        LoadPermission_grid(this.value);
+        				    }
         				});
                     });
         		},
@@ -492,10 +560,10 @@ div[id*=NA_Priviledge_grid]{
         		return {
         			fk_form: qs('select#id_fk_form').value.trim(),
 					user_id:qs('input#id_user_id').value.trim(),
-        			//allow_view: qs('input#id_allow_view').checked,
-        			//allow_add: qs('input#id_allow_add').checked,
-        			//allow_edit: qs('input#id_allow_edit').checked,
-        			//allow_delete: qs('input#id_allow_delete').checked
+        			allow_view: qs('input#id_allow_view').checked,
+        			allow_add: qs('input#id_allow_add').checked,
+        			allow_edit: qs('input#id_allow_edit').checked,
+        			allow_delete: qs('input#id_allow_delete').checked
         		}
         	};
         	function executeHandler_permission(TextElement) {

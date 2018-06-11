@@ -108,7 +108,10 @@ def NA_Priviledge_sys(request):
                 i['attr']['form_name']['rowspan'] = same_data[i['form_name']]
     
     return HttpResponse(
-        json.dumps({"page": page.number,"total": paginator.num_pages ,"records": totalRecords,"rows": data },cls=DjangoJSONEncoder),
+        json.dumps(
+            {"page": page.number,"total": paginator.num_pages , "records": totalRecords,"rows": data },
+            cls=DjangoJSONEncoder
+        ),
         content_type='application/json'
     )
 
@@ -256,8 +259,8 @@ class NA_Priviledge_Form(forms.Form):
                     with transaction.atomic():
                         NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
                         if 'role' in data_form:
-                            if (data_form['role'] != NAPriviledge.GUEST 
-                                and user.role == NAPriviledge.GUEST):
+                            if (int(data_form['role']) != NAPriviledge.GUEST 
+                                and int(user.role) == NAPriviledge.GUEST):
                                 user.refresh_from_db()
                                 NASysPriviledge.set_permission(user)
         return (Data.Success,)
@@ -283,7 +286,7 @@ def NA_Sys_Priviledge_add(request,email):
     if request.method == 'POST':
         form = NA_Permission_Form(request.POST)
         if form.is_valid():
-            result = form.save()
+            result = form.save(request)
             if isinstance(result, HttpResponse):
                 return result
             return commonFunct.response_default(result)
@@ -324,13 +327,17 @@ class NA_Permission_Form(forms.Form):
         widget=forms.Select(attrs={'class':'form-control','style':'display:inline-block'})
     )
     user_id = forms.IntegerField(widget=forms.HiddenInput())
-    allow_view = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
-    allow_add = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
-    allow_edit = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
-    allow_delete = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
+    allow_view = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'style':'display:none'}),required=False)
+    allow_add = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'style':'display:none'}),required=False)
+    allow_edit = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'style':'display:none'}),required=False)
+    allow_delete = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'style':'display:none'}),required=False)
     initialize_permissionForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
-    def save(self):
+    def save(self,request):
         user_id = self.cleaned_data['user_id']
         fk_form = self.cleaned_data['fk_form']
         allow_view = self.cleaned_data['allow_view']
@@ -348,8 +355,7 @@ class NA_Permission_Form(forms.Form):
             if allow_add or allow_edit or allow_delete:
                 message = '__cannot_add_other_permission_guest'
                 return HttpResponse(
-                    json.dumps({'message':message
-                    }),
+                    json.dumps({'message':message}),
                     status=403,
                     content_type='application/json'
                 )
@@ -363,7 +369,12 @@ class NA_Permission_Form(forms.Form):
             if v:
                 data_permissions.append(k)
         
-        NASysPriviledge.set_custom_permission(user_id,fk_form.idapp,data_permissions)
+        NASysPriviledge.set_custom_permission(
+            user_id=user_id,
+            fk_form=fk_form.idapp,
+            permissions=data_permissions,
+            createdby=request.user.username
+        )
         return (Data.Success,)
 
 def NA_Priviledge_login(request):

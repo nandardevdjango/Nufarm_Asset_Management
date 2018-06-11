@@ -374,12 +374,17 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
     divisi = models.CharField(max_length=5,db_column='Divisi',choices=DIVISI_CHOICES)
     password = models.CharField(max_length=128,db_column='Password')
     picture = models.ImageField(null=True, blank=True, default='default.png',db_column='Picture')
-    last_login=models.DateTimeField(db_column='Last_login')
-    last_form = models.CharField(max_length=50,db_column='Last_form')
+    last_login=models.DateTimeField(db_column='Last_login',null=True)
+    last_form = models.CharField(max_length=50,db_column='Last_form',null=True)
     computer_name = models.CharField(max_length=50,db_column='Computer_Name')
     ip_address = models.CharField(max_length=20,db_column='IP_Address')
 
-    role = models.IntegerField(choices=ROLE_CHOICES,default=GUEST,db_column='Role')
+    role = models.IntegerField(
+        choices=ROLE_CHOICES,
+        default=GUEST,
+        db_column='Role',
+        null=True
+    )
     is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
     is_staff = models.BooleanField(default=False,db_column='Is_Staff')
     is_active = models.BooleanField(default=True,db_column='Is_Active')
@@ -605,12 +610,12 @@ class NAPriviledge_form(models.Model):
 
     @classmethod
     def get_form_IT(cls,must_iterate=False):
-        fk_form = cls.objects\
-            .filter(
-                Q(form_name_ori='goods') |
-                Q(form_name_ori='n_a_suplier') |
-                Q(form_name_ori='employee')
-            )
+        forms = MASTER_DATA_FORM
+        filter_data = [Q(form_name_ori=form) for form in forms]
+        query = filter_data.pop()
+        for form_name in filter_data:
+            query |= form_name
+        fk_form = cls.objects.filter(query)
         if must_iterate:
             fk_form = fk_form.iterator() #technic for loop queryset, improve performance
         return fk_form
@@ -726,14 +731,24 @@ class NASysPriviledge(NA_BaseModel):
             elif user.divisi == NAPriviledge.GA:
                 permissions = cls.default_permission_GA
 
-        fk_forms = NAPriviledge_form.get_user_form(user.role,user.divisi,must_iterate=True)
+        fk_forms = NAPriviledge_form.get_user_form(
+            user.role,
+            user.divisi,
+            must_iterate=True
+        )
         if permissions is not None:
             for fk_form in fk_forms: #loop queryset
                 for permission in permissions(fk_form.form_name_ori):
+                    if int(user.role) != NAPriviledge.SUPER_USER:
+                        if fk_form.form_name_ori == NAPriviledge_form.Priviledge_form:
+                            if permission != NASysPriviledge.Allow_View:
+                                continue
                     data.append({
                         'fk_p_form':fk_form, #foreign key in models must be instance
                         'permission':permission,
-                        'user_id': user
+                        'user_id': user,
+                        'createddate':datetime.now(),
+                        'createdby':user.createdby
                     })
         else:
             raise ValueError('')
@@ -748,7 +763,11 @@ class NASysPriviledge(NA_BaseModel):
         return 'successfully added permission'
 
     @classmethod
-    def set_custom_permission(cls,user_id,fk_form,permissions):
+    def set_custom_permission(cls,**kwargs):
+        user_id = kwargs['user_id']
+        fk_form = kwargs['fk_form']
+        permissions = kwargs['permissions']
+        createdby = kwargs['createdby']
         user = NAPriviledge.objects.get(idapp=user_id)
         fk_p_form = NAPriviledge_form.objects.get(idapp=fk_form)
         len_permissions = len(permissions)
@@ -758,7 +777,9 @@ class NASysPriviledge(NA_BaseModel):
                 data.append({
                     'fk_p_form':fk_p_form,
                     'permission':permission,
-                    'user_id':user
+                    'user_id':user,
+                    'createddate':datetime.now(),
+                    'createdby':createdby
                 })
             sys_priviledge = cls.objects.bulk_create([
                 cls(**field) for field in data
@@ -768,6 +789,8 @@ class NASysPriviledge(NA_BaseModel):
             sys_priviledge.fk_p_form = fk_p_form
             sys_priviledge.permission = permissions[0]
             sys_priviledge.user_id = user
+            sys_priviledge.createddate = datetime.now()
+            sys_priviledge.createdby = createdby
             sys_priviledge.save()
         elif len_permissions < 1:
             raise ValueError('permission cannot be null')
@@ -775,8 +798,20 @@ class NASysPriviledge(NA_BaseModel):
 
 class NAGoodsReceive_other(NA_GoodsReceiveModel):
     fk_goods =models.ForeignKey(goods,db_column='fk_goods')
-    fk_receivedby = models.ForeignKey(Employee, db_column='FK_ReceivedBy', max_length=50, related_name='fk_receivedBy_other')  # Field name made lowercase.
-    fk_p_r_by = models.ForeignKey(Employee,db_column='FK_P_R_By', max_length=50, blank=True, null=True, related_name='fk_p_r_by_other')
+    fk_receivedby = models.ForeignKey(
+        Employee, 
+        db_column='FK_ReceivedBy', 
+        max_length=50, 
+        related_name='fk_receivedBy_other'
+    )  # Field name made lowercase.
+    fk_p_r_by = models.ForeignKey(
+        Employee,
+        db_column='FK_P_R_By', 
+        max_length=50, 
+        blank=True, 
+        null=True, 
+        related_name='fk_p_r_by_other'
+    )
 
     objects = NA_BR_Goods_Receive_other()
     class Meta:
