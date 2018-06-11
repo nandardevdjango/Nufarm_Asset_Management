@@ -105,6 +105,13 @@ class Message(Enum):
 
     @classmethod
     def has_update_by_other(cls,**kwargs):
+        """
+        use it , if other user want to edit data .. but the data
+        has updated by other user
+        param:
+        pk(Primary Key):idapp or supliercode
+        table:table_name
+        """
         obj = commonFunct.get_log_data(pk=kwargs['pk'],table=kwargs['table'],action='updated')
         if obj == []:
             return None
@@ -406,6 +413,8 @@ class decorators:
     def admin_required_action(arguments):
         """
         there are some actions that only the admin can do it
+        usage @admin_required_action('Add')
+        param/argument is only for message
         """
         def real_decorator(func):
             @wraps(func)
@@ -622,6 +631,13 @@ class commonFunct:
             return HttpResponse(json.dumps({'message':message}),status=statusResp,content_type='application/json')
 
     def multi_sort_queryset(queryset,Isidx,Isord):
+        """
+        param:
+        queryset:must be queryset instance,
+        Isidx: which column you want to order_by
+        Isord: asc/desc
+        """
+
         if (Isord is not None and Isord != '') \
         and (Isidx is not None and Isidx != ''):
             if ',' in Isidx:
@@ -653,3 +669,6 @@ class commonFunct:
                 return queryset.order_by(sort)
         else:
             raise ValueError('Cannot assign "None" type object \n make sure if arguments/parameter is not None')
+
+    def EmptyGrid():
+        return {"page": "1","total": 0,"records": 0,"rows": [] }

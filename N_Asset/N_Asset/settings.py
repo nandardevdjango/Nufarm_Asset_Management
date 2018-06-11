@@ -45,19 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'debug_toolbar',
-    #'clear_cache',
 ]
 
-#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-#SESSION_CACHE_ALIAS = "default"
 
 MIDDLEWARE_CLASSES = [
-    #'django.middleware.cache.UpdateCacheMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,8 +59,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'app.middleware.GlobalUserMiddleware', #access user as Global scope for log event and another using signal built-in django, because the signal such as models they can't get request from HTTP 
-    #'django.middleware.cache.FetchFromCacheMiddleware',
 
     'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
@@ -103,11 +94,11 @@ WSGI_APPLICATION = 'N_Asset.wsgi.application'
 DATABASES = {
       'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'na_m_s',
-        'USER': 'root',
+        'NAME': '',
+        'USER': '',
         'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'HOST': '',
+        'PORT': '',
 		}
 }
 
@@ -171,13 +162,18 @@ from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 
 EMAIL_USE_TLS=True
-EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST='smtp.gmail.com'
+EMAIL_BACKEND=''
+EMAIL_HOST=''
 EMAIL_PORT=587
-EMAIL_HOST_USER='rimba16prayoga@gmail.com'
-EMAIL_HOST_PASSWORD='nufID2017'
+EMAIL_HOST_USER=''
+EMAIL_HOST_PASSWORD=''
 
-SOCIAL_AUTH_FACEBOOK_KEY = '2064088950480097'
-SOCIAL_AUTH_FACEBOOK_SECRET = '33a954803a9e26392f39464a550973a0'
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+try:
+    from .local_settings import *
+except (NameError, ImportError):
+    pass
