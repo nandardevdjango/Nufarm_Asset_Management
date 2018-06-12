@@ -423,6 +423,22 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         ).exists()
         return is_has
 
+    def is_have_permission(self):
+        return self.nasyspriviledge_set.exists()
+
+    def get_all_permission(self):
+        permissions = self.nasyspriviledge_set.values(
+            'fk_p_form__form_name_ori',
+            'permission'
+        ).iterator()
+        data = []
+        for permission in permissions:
+            data.append({
+                'form':permission['fk_p_form__form_name_ori'],
+                'permission':permission['permission']
+            })
+        return data
+
     #============ Permission for Employee form =============
     @property
     def allow_view_employee(self):
@@ -610,7 +626,7 @@ class NAPriviledge_form(models.Model):
 
     @classmethod
     def get_form_IT(cls,must_iterate=False):
-        forms = MASTER_DATA_FORM
+        forms = cls.MASTER_DATA_FORM
         filter_data = [Q(form_name_ori=form) for form in forms]
         query = filter_data.pop()
         for form_name in filter_data:
@@ -681,6 +697,7 @@ class NASysPriviledge(NA_BaseModel):
     objects = NA_BR_Sys_Priviledge()
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
+        unique_together = (('fk_p_form','permission','user_id'))
 
     def __str__(self):
         return '{username} : {form_name} - {permission}'.format(
@@ -737,12 +754,24 @@ class NASysPriviledge(NA_BaseModel):
             must_iterate=True
         )
         if permissions is not None:
+            is_have_permission = user.is_have_permission()
             for fk_form in fk_forms: #loop queryset
-                for permission in permissions(fk_form.form_name_ori):
+                form_name_ori = fk_form.form_name_ori
+                for permission in permissions(form_name_ori):
                     if int(user.role) != NAPriviledge.SUPER_USER:
                         if fk_form.form_name_ori == NAPriviledge_form.Priviledge_form:
                             if permission != NASysPriviledge.Allow_View:
                                 continue
+                    if is_have_permission:
+                        user_permissions = user.get_all_permission()
+                        must_continue = False
+                        for i in user_permissions:
+                            if i['form'] == form_name_ori \
+                            and permission == i['permission']:
+                                must_continue = True
+                                break
+                        if must_continue:
+                            continue
                     data.append({
                         'fk_p_form':fk_form, #foreign key in models must be instance
                         'permission':permission,

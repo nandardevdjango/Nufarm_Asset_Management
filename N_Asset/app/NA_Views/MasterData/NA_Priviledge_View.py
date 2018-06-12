@@ -129,16 +129,30 @@ def Entry_Priviledge(request):
             idapp = request.GET['idapp']
             data = NAPriviledge.objects.retrieveData(idapp)
             form = NA_Priviledge_Form(initial=data)
+            if int(data['role']) == NAPriviledge.GUEST:
+                form.fields['divisi'].widget.attrs['disabled'] = ''
         else:
             form = NA_Priviledge_Form()
             form.fields['password'].widget.attrs['required'] = ''
             form.fields['confirm_password'].widget.attrs['required'] = ''
+            form.fields['divisi'].widget.attrs['disabled'] = ''
         return render(request,'app/MasterData/NA_Entry_Priviledge.html',{'form':form})
 
 def Delete_user(request):
     idapp = request.POST['idapp']
     result = NAPriviledge.objects.Delete(idapp)
     return commonFunct.response_default(result)
+
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def ChangeRole(request,email):
+    user = NAPriviledge.objects.get(email=email)
+    role = request.POST['role']
+    divisi = request.POST['divisi']
+    user.role = role
+    user.divisi = divisi
+    user.save()
+    return commonFunct.response_default((Data.Success,))
 
 
 class NA_Priviledge_Form(forms.Form):
@@ -152,7 +166,7 @@ class NA_Priviledge_Form(forms.Form):
     email = forms.CharField(max_length=30,required=True,widget=forms.EmailInput(
         attrs={'class':'form-control','placeholder':'Email'}))
     divisi = forms.ChoiceField(required=False,widget=forms.Select(
-        attrs={'class':'form-control','disabled':''}),choices=(
+        attrs={'class':'form-control'}),choices=(
         ('','-----------'),
         ('IT','IT'),
         ('GA','GA')
@@ -314,11 +328,17 @@ def NA_Sys_Priviledge_check_permission(request,user_id):
             'permission':row['permission'],
             'set':'1',
             'inactive': row['inactive'],
-            })
+        })
     return HttpResponse(
             json.dumps(dataRow),
             content_type='application/json'
     )
+
+def NA_Sys_Priviledge_SetDefaultPermission(request,email):
+    user = NAPriviledge.objects.get(email=email)
+    if int(user.role) != NAPriviledge.GUEST:
+        NASysPriviledge.set_permission(user)
+        return commonFunct.response_default((Data.Success,))
 
 
 class NA_Permission_Form(forms.Form):

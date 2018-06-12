@@ -66,6 +66,9 @@ div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,
 div[id*=NA_Priviledge_grid]{
     border-radius: 0px
 }
+.form-dialog-change-role > .modal-dialog.modal-sm {
+    width: 400px;
+}
 </style>
 {% endblock %}
 
@@ -395,7 +398,144 @@ div[id*=NA_Priviledge_grid]{
         							    if (row_count == 1) {
         							        var role = rowData['role'];
         							        if (role == 3) { // 3  = Guest
+        							            var DialogChange_role = new BootstrapDialog({
+        							                draggable: true,
+        							                type: BootstrapDialog.TYPE_SUCCESS,
+        							                size: BootstrapDialog.SIZE_SMALL,
+        							                title: NA.common.message.titleInfo,
+        							                message: NA.common.message.canNotAddOtherPermsForGuest,
+        							                onshown: function (dialogRef) {
+        							                    return;
+        							                },
+        							                closable: false,
+        							                animate: true,
+        							                closeByBackdrop: false,
+        							                closeByKeyboard: false,
+        							                buttons: [{
+        							                    label: 'Change role',
+        							                    cssClass: 'btn-default',
+        							                    action: function (dialogRef) {
+        							                        BootstrapDialog.show({
+        							                            draggable: true,
+        							                            type: BootstrapDialog.TYPE_SUCCESS,
+        							                            size: BootstrapDialog.SIZE_SMALL,
+        							                            title: 'Change User\'s Role',
+        							                            cssClass: 'form-dialog-change-role',
+        							                            message: function (dialogRef) {
+        							                                var dummy_form = $('<form id="dummy_form" onsubmit="return false"></form>');
 
+        							                                var role = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_role" class="control-label" style="text-align: left;font-weight:bold">';
+        							                                role += 'Role :</label><div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        							                                role += '<select name="role" class="form-control" id="dummy_role"><option value="3">Guest</option><option value="2">User</option><option value="1">Super User</option></select></div></div>';
+        							                                $(role).appendTo(dummy_form);
+
+        							                                var divisi = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_divisi" class="control-label" style="text-align: left;font-weight:bold">Divisi :</label>';
+        							                                divisi += '<div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        							                                divisi += '<select name="divisi" class="form-control" id="dummy_divisi" required="">';
+        							                                divisi += '<option value="" selected="">-----------</option><option value="IT">IT</option><option value="GA">GA</option></select></div></div>';
+        							                                $(divisi).appendTo(dummy_form);
+
+        							                                $('<input type="submit" id="submit_dummy_form" style="display:none" />').appendTo(dummy_form);
+        							                                return dummy_form;
+        							                            },
+        							                            closable: false,
+        							                            animate: true,
+        							                            closeByBackdrop: false,
+        							                            closeByKeyboard: false,
+        							                            buttons: [{
+        							                                label: 'Cancel',
+        							                                cssClass: 'btn-default',
+        							                                action: function (dialogRef) {
+        							                                    dialogRef.close();
+        							                                }
+        							                            },{
+        							                                label: 'OK',
+        							                                cssClass: 'btn-success',
+        							                                action: function (dialogRef) {
+        							                                    var dummy_form = qs('form#dummy_form');
+        							                                    var role = qs('select#dummy_role'),
+                                                                            divisi = qs('select#dummy_divisi');
+        							                                    if (role.value == 3) {
+        							                                        role.setCustomValidity('Please change user\'s role');
+        							                                    } else {
+        							                                        role.setCustomValidity('');
+        							                                    };
+        							                                    if (!dummy_form.checkValidity()) {
+        							                                        $('#submit_dummy_form').click();
+        							                                        return false;
+        							                                    } else {
+        							                                        $.ajax({
+        							                                            url: 'change_role/' + win.encodeURIComponent(rowData['email']) + '/',
+        							                                            method: 'POST',
+        							                                            beforeSend: function (xhr) {
+        							                                                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+        							                                            },
+        							                                            data: {
+        							                                                'role': role.value.trim(),
+        							                                                'divisi': divisi.value.trim()
+        							                                            },
+        							                                            success: function (data) {
+        							                                                if (data['message'] == '__success') {
+        							                                                    dialogRef.close();
+        							                                                    BootstrapDialog.show({
+        							                                                        draggable: true,
+        							                                                        type: BootstrapDialog.TYPE_SUCCESS,
+        							                                                        size: BootstrapDialog.SIZE_SMALL,
+        							                                                        title: NA.common.message.titleInfo,
+        							                                                        cssClass: 'form-dialog-change-role',
+        							                                                        message: 'Successfully changed user\'s role \n System will be set default permission, \n but you can continue set your custom permission',
+        							                                                        closable: false,
+        							                                                        animate: true,
+        							                                                        closeByBackdrop: false,
+        							                                                        closeByKeyboard: false,
+        							                                                        buttons: [{
+        							                                                            label: 'Custom Permission',
+        							                                                            cssClass: 'btn-default',
+        							                                                            action: function (dialogRef) {
+        							                                                                dialogRef.close();
+        							                                                            }
+        							                                                        },{
+        							                                                            label: 'Default Permission',
+        							                                                            cssClass: 'btn-success',
+        							                                                            action: function (dialogRef) {
+        							                                                                $.ajax({
+        							                                                                    url: 'permission/' + rowData['email'] + '/set_default/',
+        							                                                                    method: 'POST',
+        							                                                                    beforeSend: function (xhr) {
+                                                                                                            xhr.setRequestHeader('X-CSRFToken',NA.CookieUtil.get('csrftoken'))
+        							                                                                    },
+        							                                                                    success: function (data) {
+        							                                                                        if (data['message'] == '__success') {
+        							                                                                            dialogRef.close();
+        							                                                                            var dialog = qs("div.containerDialog");
+        							                                                                            NA.common.dialog.closeDialog(dialog);
+        							                                                                            priviledge_grid.trigger('reloadGrid');
+        							                                                                        }
+        							                                                                    }
+        							                                                                })
+        							                                                            }
+        							                                                        }]
+        							                                                    });
+        							                                                }
+        							                                            }
+        							                                        })
+        							                                    }
+        							                                }
+        							                            }]
+        							                        });
+        							                        dialogRef.close();
+        							                    },
+        							                }, {
+        							                    label: 'OK',
+        							                    id: 'btnOK',
+        							                    cssClass: 'btn-success',
+        							                    action: function (dialogRef) {
+
+        							                    }
+        							                }]
+        							            });
+        							            DialogChange_role.open();
+        							            return false;
         							        }
         							        dummy_data['no'] = 2
         							        dummy_data['permission'] = 'Allow Add';
@@ -542,7 +682,7 @@ div[id*=NA_Priviledge_grid]{
         							},
         						}, {
         							label: 'OK',
-        							id: 'btnOKFindGoods',
+        							id: 'btnOK',
         							cssClass: 'btn-success',
         							action: function (dialogRef) {
 
@@ -1027,13 +1167,13 @@ div[id*=NA_Priviledge_grid]{
         }
 
     };
-    function dialogConfirm(message, title, callTrue, callFalse) {
+    function dialogConfirm(message, title, callTrue, callFalse, animate) {
         return BootstrapDialog.confirm({
             title: title || NA.common.message.titleInfo,
             message: message,
             type: BootstrapDialog.TYPE_WARNING,
             size: BootstrapDialog.SIZE_SMALL,
-            animate: false,
+            animate: animate || false,
             cssClass: 'login-dialog',
             closeByBackdrop: false,
             closeByKeyboard: false,
