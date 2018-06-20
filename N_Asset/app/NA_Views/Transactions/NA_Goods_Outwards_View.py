@@ -96,7 +96,7 @@ def ShowEntry_Outwards(request):
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
+					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					#if NAGoodsLending.objects.HasReference(data['idapp']):
