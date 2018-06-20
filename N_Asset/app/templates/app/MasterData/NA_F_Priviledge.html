@@ -396,8 +396,7 @@ div[id*=NA_Priviledge_grid]{
         							    var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
         							    var row_count = $(NA_Permission_grid).getGridParam('reccount');
         							    if (row_count == 1) {
-        							        var role = rowData['role'];
-        							        if (role == 3) { // 3  = Guest
+        							    	if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
         							            var DialogChange_role = new BootstrapDialog({
         							                draggable: true,
         							                type: BootstrapDialog.TYPE_SUCCESS,
@@ -492,6 +491,7 @@ div[id*=NA_Priviledge_grid]{
         							                                                            label: 'Custom Permission',
         							                                                            cssClass: 'btn-default',
         							                                                            action: function (dialogRef) {
+        							                                                            	priviledge_grid.trigger('reloadGrid');
         							                                                                dialogRef.close();
         							                                                            }
         							                                                        },{
@@ -530,7 +530,7 @@ div[id*=NA_Priviledge_grid]{
         							                    id: 'btnOK',
         							                    cssClass: 'btn-success',
         							                    action: function (dialogRef) {
-
+        							                    	dialogRef.close();
         							                    }
         							                }]
         							            });
