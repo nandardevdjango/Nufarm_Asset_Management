@@ -376,6 +376,23 @@ div[id*=NA_Priviledge_grid]{
         						        var no = tr[0].id;
         						    }
         						    return true; // allow selection
+        						},
+        						gridComplete: function () {
+        							var data = $(NA_Permission_grid).getRowData()
+        							if (data.length > 0) {
+        								for (var i = 0; i < data.length; i++) {
+        									if (data[i]['permission'] == 'Allow View') {
+        										qs('input#id_allow_view').checked = true;
+        									} else if (data[i]['permission'] == 'Allow Add') {
+        										qs('input#id_allow_add').checked = true;
+        									} else if (data[i]['permission'] == 'Allow Edit') {
+        										qs('input#id_allow_edit').checked = true;
+        									} else if (data[i]['permission'] == 'Allow Delete') {
+        										qs('input#id_allow_delete').checked = true;
+        									}
+        								};
+        								qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        							}
         						}
         					});
         					
@@ -622,7 +639,10 @@ div[id*=NA_Priviledge_grid]{
         			beforeSend: function (xhr) {
         				xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
         			},
-        			data: getValues_formPermission(),
+        			data: NA.common.AssignObject(
+						getValues_formPermission(),
+						{ 'fk_form': qs('select#id_fk_form').value.trim() }
+					),
         			success: function (data) {
         				var dialog = qs("div.containerDialog");
         				NA.common.dialog.closeDialog(dialog);
@@ -698,7 +718,6 @@ div[id*=NA_Priviledge_grid]{
 
         	function getValues_formPermission() {
         		return {
-        			fk_form: qs('select#id_fk_form').value.trim(),
 					user_id:qs('input#id_user_id').value.trim(),
         			allow_view: qs('input#id_allow_view').checked,
         			allow_add: qs('input#id_allow_add').checked,

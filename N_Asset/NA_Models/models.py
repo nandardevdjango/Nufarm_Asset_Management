@@ -1153,3 +1153,60 @@ class NAGoodsReceive_other(NA_GoodsReceiveModel):
     objects = NA_BR_Goods_Receive_other()
     class Meta:
         db_table = 'n_a_goods_receive_other'
+
+class NAGoodsHistory(NA_TransactionModel):
+    modifieddate = None
+    modifiedby = None
+    fk_employee = None
+
+    fk_lending = models.ForeignKey(
+        NAGoodsLending,
+        null=True,
+        blank=True,
+        db_column='FK_Lending',
+        db_constraint=False
+    )
+
+    fk_outwards = models.ForeignKey(
+        NAGoodsOutwards,
+        null=True,
+        blank=True,
+        db_column='FK_Outwards',
+        db_constraint=False
+    )
+
+    fk_return = models.ForeignKey(
+        NAGoodsReturn,
+        null=True,
+        blank=True,
+        db_column='FK_Return',
+        db_constraint=False
+    )
+
+    fk_maintenance = models.ForeignKey(
+        NAMaintenance,
+        null=True,
+        blank=True,
+        db_column='FK_Maintenance',
+        db_constraint=False
+    )
+
+    fk_disposal = models.ForeignKey(
+        NADisposal,
+        null=True,
+        blank=True,
+        db_column='FK_Disposal',
+        db_constraint=False
+    )
+
+    fk_lost = models.ForeignKey(
+        NAGoodsLost,
+        null=True,
+        blank=True,
+        db_column='FK_Lost',
+        db_constraint=False
+    )
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_goods_history'
