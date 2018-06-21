@@ -774,7 +774,7 @@
 			//    fk_lost = elfk_lost.value;
 			var ellastinfo = NA.common.getElementID('LastInfoValue'),
                 lastinfo = ellastinfo.textContent
-			var elfk_usedemployeeValue = NA.common.getElementID('idapp_fk_usedemployee')
+			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value;
 			//if(UsedEmployee.length > 0){
@@ -786,7 +786,7 @@
 			//fk_receive
 			return {
 				idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
-				idapp_fk_usedemployee :fk_usedemployee,
+				idapp_fk_usedemployee: idapp_fk_usedemployee,
 				daterequest: daterequest, datereleased : datereleased,fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
 				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender,descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_frommaintenance: fk_frommaintenance, fk_return: fk_return, fk_lending: fk_lending, fk_receive: fk_receive, lastinfo: lastinfo,

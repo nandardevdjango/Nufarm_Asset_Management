@@ -275,7 +275,17 @@ class NAStock(NA_BaseModel):
     class Meta:
         managed = True
         db_table = 'n_a_stock'
+class NAGoodsHistory(NA_TransactionModel):
+    fk_lending = models.IntegerField(db_column='FK_Lending', blank=True, null=True)  # Field name made lowercase.
+    fk_outwards = models.IntegerField(db_column='FK_Outwards', blank=True, null=True)  # Field name made lowercase.
+    fk_return = models.IntegerField(db_column='FK_RETURN', blank=True, null=True)  # Field name made lowercase.
+    fk_maintenance = models.IntegerField(db_column='FK_Maintenance', blank=True, null=True)  # Field name made lowercase.
+    fk_disposal = models.IntegerField(db_column='FK_Disposal', blank=True, null=True)  # Field name made lowercase.
+    fk_lost = models.IntegerField(db_column='FK_LOST', blank=True, null=True)  # Field name made lowercase.
 
+    class Meta:
+        managed = False
+        db_table = 'n_a_goods_history'
 class NAGoodsLending(NA_TransactionModel):
     isnew = models.IntegerField(db_column='IsNew')
     datelending = models.DateField(db_column='DateLending', blank=True, null=True)
