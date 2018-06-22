@@ -335,7 +335,7 @@ div[id*=NA_Priviledge_grid]{
         					$(NA_Permission_grid).jqGrid({
         						url: url,
         						datatype: "json",
-        						colNames: ['idapp', 'No', 'Permission', 'Set', 'In Active'],
+        						colNames: ['idapp', 'No', 'Permission', 'Set', ' '],
         						colModel: [
 									{ name: 'idapp', index: 'idapp', hidden: true },
 									{ name: 'no', index: 'no', width: 20, align: 'center' },
@@ -346,9 +346,20 @@ div[id*=NA_Priviledge_grid]{
 										formatoptions: { disabled: false }
 									},
 									{
-									    name: 'inactive', index: 'inactive', width: 40, align: 'center', editable: true,
-									    formatter: "dynamic_checkbox", edittype: 'checkbox',
-										editoptions: { value: '1:0' }
+										name: 'remove_dummy', index: 'remove_dummy', width: 40, align: 'center', formatter: "actions",
+										formatoptions: {
+											keys: true,
+											editbutton: false,
+											addbutton: false,
+											delOptions: {
+												buttons: {
+													click: function (event) {
+														console.log(event);
+													}
+												},
+												delicon: [true, "left", "ui-icon-plus"]
+											}
+										}
 									}
         						],
         						width: 435,
@@ -360,8 +371,7 @@ div[id*=NA_Priviledge_grid]{
                                         iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
                                     cm = $self.jqGrid("getGridParam", "colModel");
         						    if (cm[iCol].name === "set") {
-        						        var checked = $(e.target).is(":checked"),
-        						        oriChecked = !checked;
+        						    	var checked = $(e.target).is(":checked");
         						        var tr = $(e.target).closest('tr');
                                         var permission = $(e.target).parent().prev().text();
                                         if (permission == "Allow View") {
@@ -378,6 +388,7 @@ div[id*=NA_Priviledge_grid]{
         						    return true; // allow selection
         						},
         						gridComplete: function () {
+									console.log('============ grid complete')
         							var data = $(NA_Permission_grid).getRowData()
         							if (data.length > 0) {
         								for (var i = 0; i < data.length; i++) {
@@ -599,8 +610,11 @@ div[id*=NA_Priviledge_grid]{
         		caption: "",
         		buttonicon: "ui-icon-trash",
         		onClickButton: function () {
+        			var idapp = getChildGridId();
+        			if (idapp == null) {
+        				return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
+        			}
         			return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
-        				var idapp = getChildGridId();
         				var permission_url_delete = 'permission/' + idapp + '/delete/';
         				$.ajax({
         					url: permission_url_delete,

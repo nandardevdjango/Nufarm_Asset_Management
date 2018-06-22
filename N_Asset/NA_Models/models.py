@@ -1067,11 +1067,15 @@ class NASysPriviledge(NA_BaseModel):
                     if is_have_permission:
                         user_permissions = user.get_all_permission()
                         must_continue = False
+
+                        #aya bug didieu euy .. .
                         for i in user_permissions:
                             if i['form'] == form_name_ori \
                             and permission == i['permission']:
                                 must_continue = True
                                 break
+                            else:
+                                must_continue = False
                         if must_continue:
                             continue
                     data.append({

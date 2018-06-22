@@ -327,7 +327,7 @@ def NA_Sys_Priviledge_check_permission(request,user_id):
             'no':no,
             'permission':row['permission'],
             'set':'1',
-            'inactive': row['inactive'],
+            #'inactive': row['inactive'],
         })
     return HttpResponse(
             json.dumps(dataRow),
