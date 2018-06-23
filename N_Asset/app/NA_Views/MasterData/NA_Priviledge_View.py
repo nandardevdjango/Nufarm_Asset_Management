@@ -334,6 +334,13 @@ def NA_Sys_Priviledge_check_permission(request,user_id):
             content_type='application/json'
     )
 
+def NA_Sys_Priviledge_get_permission(request,user_id):
+    form_name_ori = request.GET['form_name']
+    user = NAPriviledge.objects.get(idapp=user_id)
+    return commonFunct.response_default(
+        (Data.Success,user.get_permission(form_name_ori))
+    )
+
 def NA_Sys_Priviledge_SetDefaultPermission(request,email):
     user = NAPriviledge.objects.get(email=email)
     if int(user.role) != NAPriviledge.GUEST:
@@ -359,7 +366,7 @@ class NA_Permission_Form(forms.Form):
 
     def save(self,request):
         user_id = self.cleaned_data['user_id']
-        fk_form = self.cleaned_data['fk_form']
+        fk_form = self.cleaned_data['fk_form'] #instance of NA_Priviledge_form
         allow_view = self.cleaned_data['allow_view']
         allow_add = self.cleaned_data['allow_add']
         allow_edit = self.cleaned_data['allow_edit']
@@ -388,6 +395,12 @@ class NA_Permission_Form(forms.Form):
         for k,v in permissions.items():
             if v:
                 data_permissions.append(k)
+
+        if user.is_have_permission(fk_form.form_name_ori):
+            users_permission = user.get_permission(fk_form.form_name_ori)
+            for i in users_permission:
+                if i['permission'] in data_permissions:
+                    data_permissions.pop(data_permissions.index(i['permission']))
         
         NASysPriviledge.set_custom_permission(
             user_id=user_id,

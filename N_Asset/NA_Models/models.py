@@ -712,14 +712,23 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         ).exists()
         return is_has
 
-    def is_have_permission(self):
+    def is_have_permission(self,form=None):
+        if form:
+            return self.nasyspriviledge_set.filter(
+                fk_p_form__form_name_ori=form
+            ).exists()
         return self.nasyspriviledge_set.exists()
 
-    def get_all_permission(self):
+    def get_all_permission(self,form=None):
         permissions = self.nasyspriviledge_set.values(
             'fk_p_form__form_name_ori',
             'permission'
-        ).iterator()
+        )
+        if form:
+            permissions = permissions.filter(
+                fk_p_form__form_name_ori=form
+            )
+        permissions = permissions.iterator()
         data = []
         for permission in permissions:
             data.append({
@@ -727,6 +736,11 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
                 'permission':permission['permission']
             })
         return data
+
+    def get_permission(self,form):
+        if form not in NAPriviledge_form.ALL_FORM:
+            raise ValueError('cannot find %s form' % form)
+        return self.get_all_permission(form)
 
     #============ Permission for Employee form =============
     @property

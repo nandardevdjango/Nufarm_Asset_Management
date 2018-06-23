@@ -90,6 +90,27 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
+    	NA.Priviledge.get_server_permissions({
+    		form_name: 'employee',
+    		email: NA.Priviledge.Email, // can beress didieu
+    		success: function (permission) {
+    			for (var i = 0; i < permission.length; i++) {
+    				if (permission[i]['permission'] == 'Allow View') {
+    					NA.Priviledge.Permissions.Allow_View = true;
+    				} else if (permission[i]['permission'] == 'Allow Add') {
+    					NA.Priviledge.Permissions.Allow_Add = true;
+    				} else if (permission[i]['permission'] == 'Allow Edit') {
+    					NA.Priviledge.Permissions.Allow_Edit = true;
+    				} else if (permission[i]['permission'] == 'Allow Delete') {
+    					NA.Priviledge.Permissions.Allow_Delete = true;
+    				}
+    			}
+    		},
+    		done: function () {
+    			Object.freeze(NA.Priviledge);
+    		}
+    	});
+
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +

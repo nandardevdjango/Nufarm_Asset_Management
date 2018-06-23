@@ -18,5 +18,6 @@ urlpatterns = [
         r'^permission/'+ patterns_email + '/set_default/',
         NA_Priviledge_View.NA_Sys_Priviledge_SetDefaultPermission
     ),
-    url(r'^permission/(?P<user_id>\d+)/check_permission/$',NA_Priviledge_View.NA_Sys_Priviledge_check_permission)
+    url(r'^permission/(?P<user_id>\d+)/check_permission/$',NA_Priviledge_View.NA_Sys_Priviledge_check_permission),
+     url(r'^permission/(?P<user_id>\d+)/get_permission/$',NA_Priviledge_View.NA_Sys_Priviledge_get_permission)
 ]

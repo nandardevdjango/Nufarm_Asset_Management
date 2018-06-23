@@ -323,7 +323,11 @@ div[id*=NA_Priviledge_grid]{
         				}(jQuery));
 
         				function LoadPermission_grid(fk_form) {
-        					var url = "permission/" + win.encodeURIComponent(idapp) + "/check_permission/?" + win.encodeURIComponent('fk_form') + '=' + win.encodeURIComponent(fk_form)
+        					var url = "permission/" + win.encodeURIComponent(
+									priviledge_grid.getRowData(parentRowKey)['idapp']
+								) + "/check_permission/?"
+								+ win.encodeURIComponent('fk_form')
+								+ '=' + win.encodeURIComponent(fk_form)
         					if (fk_form != 'null') {
         					    $(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
         					};
@@ -389,7 +393,7 @@ div[id*=NA_Priviledge_grid]{
         						},
         						gridComplete: function () {
 									console.log('============ grid complete')
-        							var data = $(NA_Permission_grid).getRowData()
+									var data = $(NA_Permission_grid).getRowData()
         							if (data.length > 0) {
         								for (var i = 0; i < data.length; i++) {
         									if (data[i]['permission'] == 'Allow View') {
@@ -402,7 +406,9 @@ div[id*=NA_Priviledge_grid]{
         										qs('input#id_allow_delete').checked = true;
         									}
         								};
-        								qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        								if (data[data.length - 1]['idapp'] != 'dummy_inline') {
+        									qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        								}
         							}
         						}
         					});

@@ -79,7 +79,7 @@ class NA_BR_Employee(models.Manager):
                     'Nik':data['nik'],'Employee_Name':data['employee_name'],'Typeapp':data['typeapp'],
                     'Jobtype':data['typeapp'],'Gender':data['gender'],'Status':data['status'],
                     'Telphp':data['telphp'],'Territory':data['territory'],
-                    'Descriptions':data['descriptions']
+                    'Descriptions':data['descriptions'],'Inactive':data['inactive']
                     }
                 createddate = data['createddate']
                 modifieddate = data.get('modifieddate')
@@ -91,7 +91,7 @@ class NA_BR_Employee(models.Manager):
                     dataPrms['ModifiedBy'] = data['modifiedby']
                 
                 Query = """INSERT INTO logevent (nameapp,descriptions,createddate,createdby) VALUES(\'Deleted Employee\',
-                JSON_OBJECT({}),NOW(),""".format(','.join('%('+i+')s' for i in dataPrms))
+                JSON_OBJECT(\'deleted\',JSON_ARRAY({})),NOW(),""".format(','.join('%('+i+')s' for i in dataPrms))
                 dataPrms['NA_User'] = NA_User
                 Query = Query + "%(NA_User)s)"
                 print(dataPrms)
@@ -110,7 +110,8 @@ class NA_BR_Employee(models.Manager):
             return super(NA_BR_Employee, self).get_queryset()\
                     .filter(idapp__exact=get_idapp)\
                     .values('idapp','nik','employee_name','typeapp','jobtype','gender',
-                            'status','telphp','territory','descriptions','createddate','createdby')
+                            'status','telphp','territory','descriptions',
+                            'inactive','createddate','createdby')
         if must_check:
             if self.dataExist(idapp=get_idapp):
                 return (Data.Success,get_data()[0])

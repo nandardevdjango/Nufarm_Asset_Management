@@ -1411,9 +1411,15 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
 NA.Priviledge = {
     _roleName: 'SysAdmin',
     _rolCode: 'SA',
-    _userName: 'Nandar',
+    _email: 'Nandar@yahoo.com',
     _password: '',
     _isAdmin: true,
+    _permissions: {
+        _allow_view: false,
+        _allow_add: false,
+        _allow_edit: false,
+        _allow_delete: false
+    }
 }
 Object.defineProperties(NA.Priviledge, {
     RoleName: {
@@ -1424,9 +1430,9 @@ Object.defineProperties(NA.Priviledge, {
         get: function () { return this._rolCode; },
         set: function (newValue) { this._rolCode = newValue; },
     },
-    UserName: {
-        get: function () { return this._userName; },
-        set: function (newValue) { this._rolename = newValue; },
+    Email: {
+        get: function () { return this._email; },
+        set: function (newValue) { this._email = newValue; },
     },
     password: {
         get: function () { return this._password; },
@@ -1435,7 +1441,63 @@ Object.defineProperties(NA.Priviledge, {
     IsAdmin: {
         get: function () { return this._isAdmin; },
         set: function (newValue) { this._isAdmin = newValue; },
+    },
+    Permissions: {
+        get: function () { return this._permissions }
     }
 });
+
+Object.defineProperties(NA.Priviledge.Permissions, {
+    Allow_View: {
+        get: function () {
+            return this._allow_view;
+        },
+        set: function (newValue) {
+            this._allow_view = newValue;
+        }
+    },
+    Allow_Add: {
+        get: function () {
+            return this._allow_add;
+        },
+        set: function (newValue) {
+            this._allow_add = newValue;
+        }
+    },
+    Allow_Edit: {
+        get: function () {
+            return this._allow_edit;
+        },
+        set: function (newValue) {
+            this._allow_edit = newValue;
+        }
+    },
+    Allow_Delete: {
+        get: function () {
+            return this._allow_delete;
+        },
+        set: function (newValue) {
+            this._allow_delete = newValue;
+        }
+    }
+})
+
+NA.Priviledge.get_server_permissions = function (kwargs) {
+    var form = kwargs['form_name'],
+        user_id = kwargs['user_id'],
+        success = kwargs['success'],
+        done = kwargs['done'];
+    var NAAjax = NA.common.AJAX;
+    var url = '/MasterData/Priviledge/permission/' + user_id + '/get_permission/?form_name=' + form;
+    NAAjax.GET(url, 'application/json', null, null,
+        function () {
+            if (this.status == 200) {
+                var response = JSON.parse(this.responseText)['message']
+                success(response);
+            };
+        },null,null,
+        function () {
+            done();
+        });
+};
 //=================================================================
-   
