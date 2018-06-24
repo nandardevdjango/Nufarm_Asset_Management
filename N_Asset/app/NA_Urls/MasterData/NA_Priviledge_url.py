@@ -11,13 +11,22 @@ urlpatterns = [
     url(r'^delete/$',NA_Priviledge_View.Delete_user),
     url(r'^customFilter/$',NA_Priviledge_View.ShowCustomFilter),
     url(r'^change_role/' + patterns_email + '/$', NA_Priviledge_View.ChangeRole),
-    url(r'^permission/(?P<idapp>\d+)/setInActive/$',NA_Priviledge_View.NA_Sys_Priviledge_setInactive),
+    url(
+        r'^permission/(?P<idapp>\d+)/setInActive/$',
+        NA_Priviledge_View.NA_Sys_Priviledge_setInactive
+    ),
     url(r'^permission/(?P<idapp>\d+)/delete/$',NA_Priviledge_View.NA_Sys_Priviledge_delete),
     url(r'^permission/'+ patterns_email +'/add/$',NA_Priviledge_View.NA_Sys_Priviledge_add),
     url(
         r'^permission/'+ patterns_email + '/set_default/',
         NA_Priviledge_View.NA_Sys_Priviledge_SetDefaultPermission
     ),
-    url(r'^permission/(?P<user_id>\d+)/check_permission/$',NA_Priviledge_View.NA_Sys_Priviledge_check_permission),
-     url(r'^permission/(?P<user_id>\d+)/get_permission/$',NA_Priviledge_View.NA_Sys_Priviledge_get_permission)
+    url(
+        r'^permission/(?P<user_id>\d+)/check_permission/$',
+        NA_Priviledge_View.NA_Sys_Priviledge_check_permission
+    ),
+    url(
+        r'^permission/'+ patterns_email +'/get_permission/$',
+        NA_Priviledge_View.NA_Sys_Priviledge_get_permission
+    )
 ]

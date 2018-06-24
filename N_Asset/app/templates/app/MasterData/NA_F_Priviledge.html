@@ -285,6 +285,13 @@ div[id*=NA_Priviledge_grid]{
         				var dialog = qs("div.containerDialog"),
                             btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
                             btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+        				if (xhr.status != 200) {
+        					return dialogAlert(NA.common.message.server(JSON.parse(responseTxt)['message']), NA.common.message.titleInfo, function () {
+        						var dialog = qs("div.containerDialog");
+        						NA.common.dialog.closeDialog(dialog);
+        						return priviledge_grid.trigger('reloadGrid');
+        					});
+        				};
         				qs('.ui-dialog-title').textContent += email;
         				qs('input#id_user_id').value = parentRowKey;
         				NA.NAEvent.addHandler(btnClose, 'click', function (event) {

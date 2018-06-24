@@ -334,9 +334,9 @@ def NA_Sys_Priviledge_check_permission(request,user_id):
             content_type='application/json'
     )
 
-def NA_Sys_Priviledge_get_permission(request,user_id):
+def NA_Sys_Priviledge_get_permission(request,email):
     form_name_ori = request.GET['form_name']
-    user = NAPriviledge.objects.get(idapp=user_id)
+    user = NAPriviledge.objects.get(email=email)
     return commonFunct.response_default(
         (Data.Success,user.get_permission(form_name_ori))
     )

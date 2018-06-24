@@ -429,6 +429,43 @@ class decorators:
                     )
             return wrapper
         return real_decorator
+
+    def read_permission(form_name,action=None):
+        """
+        there are some actions that only the admin can do it
+        usage @admin_required_action('Add')
+        param/argument is only for message
+        """
+        def real_decorator(func):
+            @wraps(func)
+            def wrapper(request, *args, **kwargs):
+                if request.method == 'POST':
+                    user = request.user
+                    permission_denied = commonFunct.permision_denied
+                    _action = request.POST.get('statusForm') or request.POST.get('mode')
+                    masterdata_form = ['employee','n_a_suplier','goods','n_a_priviledge']
+                    transaction_form = ['n_a_goods_receive']
+                    all_form = masterdata_form + transaction_form
+                    all_action = ['View', 'Add', 'Edit', 'Delete']
+                    if _action != 'Open' and \
+                    (_action not in all_action):
+                        raise ValueError(
+                            'uncategorize cannot resolve %s action' % _action
+                        )
+                    if action == 'View':
+                        _action = 'Allow View'
+                    elif _action == 'Add':
+                        _action = 'Allow Add'
+                    elif _action == 'Edit':
+                        _action = 'Allow Edit'
+                    elif _action == 'Delete' or action == 'Delete':
+                        _action = 'Allow Delete'
+                    if not user.has_permission(_action, form_name):
+                        return permission_denied()
+                return func(request, *args, **kwargs)
+            return wrapper
+        return real_decorator
+
 class query:
     def dictfetchall(cursor):
         "Return all rows from a cursor as a dict"
@@ -672,3 +709,6 @@ class commonFunct:
 
     def EmptyGrid():
         return {"page": "1","total": 0,"records": 0,"rows": [] }
+
+    def permision_denied():
+        return HttpResponse('You don\'t have permission for this action',status=403)
