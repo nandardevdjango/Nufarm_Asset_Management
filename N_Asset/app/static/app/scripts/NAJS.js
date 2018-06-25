@@ -1520,6 +1520,7 @@ NA.Priviledge.read_priviledge = function (form_name) {
         },
         done: function () {
             Object.freeze(NA.Priviledge);
+            var qs = qs || NA.common.qs
             var btn_add = qs('button#addData'),
 			btn_edit = qs('button#editData'),
 			btn_delete = qs('button#delData');

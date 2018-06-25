@@ -432,9 +432,11 @@ class decorators:
 
     def read_permission(form_name,action=None):
         """
-        there are some actions that only the admin can do it
-        usage @admin_required_action('Add')
-        param/argument is only for message
+        (backend security)
+        to ensure if user who don't have permission
+        cannot manipulate or access resource(url),
+        if user is crazy.. they will be request manually to server.
+        prevent it with this decorators
         """
         def real_decorator(func):
             @wraps(func)
@@ -442,7 +444,9 @@ class decorators:
                 if request.method == 'POST':
                     user = request.user
                     permission_denied = commonFunct.permision_denied
-                    _action = request.POST.get('statusForm') or request.POST.get('mode')
+                    _action = request.POST.get('statusForm') \
+                        or request.POST.get('mode') \
+                        or request.POST.get('status')
                     masterdata_form = ['employee','n_a_suplier','goods','n_a_priviledge']
                     transaction_form = ['n_a_goods_receive']
                     all_form = masterdata_form + transaction_form

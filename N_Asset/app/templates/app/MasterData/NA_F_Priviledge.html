@@ -92,6 +92,7 @@ div[id*=NA_Priviledge_grid]{
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
+    	NA.Priviledge.read_priviledge('n_a_priviledge');
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
@@ -183,6 +184,22 @@ div[id*=NA_Priviledge_grid]{
         	var childGridID = parentRowID + "_table";
         	var childGridPagerID = parentRowID + "_pager";
 
+        	(function ($) {
+        		"use strict";
+        		$.extend($.fn.fmatter, {
+        			dynamic_checkbox: function (cellValue, options,
+							rowObject, action) {
+        				if (NA.Priviledge.IsAdmin) {
+        					options.checkbox.disabled = false;
+        				} else {
+        					options.checkbox.disabled = true;
+        				}
+        				return $.fn.fmatter.call(this, "checkbox",
+							cellValue, options, rowObject, action);
+        			}
+        		});
+        	}(jQuery));
+
         	// send the parent row primary key to the server so that we know which grid to show
         	//var data = [{ "idapp": 1, "form_name": "Suplier Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 2, "form_name": "Suplier Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 5, "form_name": "Suplier Form", "permission": "Allow Add", "attr": { "display": "none" } }, { "idapp": 3, "form_name": "Employee Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 4, "form_name": "Employee Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 6, "form_name": "Employee Form", "permission": "Allow Add", "attr": { "display": "none" } }]
         	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
@@ -198,9 +215,9 @@ div[id*=NA_Priviledge_grid]{
                     { label: 'Form Name', name: 'form_name',align:'center', width: 70, cellattr: showPermissions },
                     { label: 'Permissions', name: 'permission', width: 60 },
 					{
-						label: 'Inactive', name: 'inactive', width:30, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+						label: 'Inactive', name: 'inactive', width:30, align: 'center', editable: true, formatter: 'dynamic_checkbox',
 						editoptions: { value: '1:0' },
-						formatoptions: { disabled: false }
+						//formatoptions: { disabled: false }
 					},
                     {
                         label: 'Created Date', name: 'createddate', width: 80, align: 'center', editable: false, search: false, formatter: 'date',
@@ -269,395 +286,382 @@ div[id*=NA_Priviledge_grid]{
         	var rowData = priviledge_grid.getRowData(parentRowKey);
         	var idapp = rowData['idapp']; // user_id
         	var email = rowData['email'];
-        	$('#' + childGridID).navGrid('#' + childGridPagerID, {
-        		edit: false,
-        		add: false,
-        		del: false,
-        		search: false,
-        		refresh: false,
-        		cloneToTop: false
-        	}).navButtonAdd('#' + childGridPagerID, {
-				id:'btn_add_for_parent_'+parentRowKey,
-        		caption: "",
-        		buttonicon: "ui-icon-plus",
-        		onClickButton: function (event) {
-        			$('div.maindialogContent').load("permission/" + win.encodeURIComponent(email) + '/add/', function (responseTxt, statusTxt, xhr) {
-        				var dialog = qs("div.containerDialog"),
-                            btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
-                            btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
-        				if (xhr.status != 200) {
-        					return dialogAlert(NA.common.message.server(JSON.parse(responseTxt)['message']), NA.common.message.titleInfo, function () {
-        						var dialog = qs("div.containerDialog");
-        						NA.common.dialog.closeDialog(dialog);
-        						return priviledge_grid.trigger('reloadGrid');
-        					});
-        				};
-        				qs('.ui-dialog-title').textContent += email;
-        				qs('input#id_user_id').value = parentRowKey;
-        				NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-        					executeHandler_permission('Close');
-        				});
-        				var initialize_permissionForm = qs('input#id_initialize_permissionForm');
-        				initialize_permissionForm.value = JSON.stringify(getValues_formPermission());
-        				dialog.style.top = '40px';
-        				Array.prototype.forEach.call(btnOkCancel, function (elem) {
-        					NA.NAEvent.addHandler(elem, 'click', function (event) {
-        						var target = NA.NAEvent.getTarget(event);
-        						executeHandler_permission(target.innerText);
-        						if (event) {
-        							NA.NAEvent.stopPropagation(event);
-        						}
-        					});
-        				});
-
-        				var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
-        				var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
-
-        				(function ($) {
-        				    "use strict";
-        				    $.extend($.fn.fmatter, {
-        				        dynamic_checkbox: function (cellValue, options,
-                                        rowObject, action) {
-        				            if (rowObject.idapp == 'dummy_inline') {
-        				                options.checkbox.disabled = true;
-        				            } else {
-        				                options.checkbox.disabled = false;
-        				            }
-        				            return $.fn.fmatter.call(this, "checkbox",
-                                        cellValue, options, rowObject, action);
-        				        }
-        				    });
-        				}(jQuery));
-
-        				function LoadPermission_grid(fk_form) {
-        					var url = "permission/" + win.encodeURIComponent(
-									priviledge_grid.getRowData(parentRowKey)['idapp']
-								) + "/check_permission/?"
-								+ win.encodeURIComponent('fk_form')
-								+ '=' + win.encodeURIComponent(fk_form)
-        					if (fk_form != 'null') {
-        					    $(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
+        	if (NA.Priviledge.IsAdmin) {
+        		$('#' + childGridID).navGrid('#' + childGridPagerID, {
+        			edit: false,
+        			add: false,
+        			del: false,
+        			search: false,
+        			refresh: false,
+        			cloneToTop: false
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			id: 'btn_add_for_parent_' + parentRowKey,
+        			caption: "",
+        			buttonicon: "ui-icon-plus",
+        			onClickButton: function (event) {
+        				$('div.maindialogContent').load("permission/" + win.encodeURIComponent(email) + '/add/', function (responseTxt, statusTxt, xhr) {
+        					var dialog = qs("div.containerDialog"),
+								btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
+								btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+        					if (xhr.status != 200) {
+        						return dialogAlert(NA.common.message.server(JSON.parse(responseTxt)['message']), NA.common.message.titleInfo, function () {
+        							var dialog = qs("div.containerDialog");
+        							NA.common.dialog.closeDialog(dialog);
+        							return priviledge_grid.trigger('reloadGrid');
+        						});
         					};
+        					qs('.ui-dialog-title').textContent += email;
+        					qs('input#id_user_id').value = parentRowKey;
+        					NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+        						executeHandler_permission('Close');
+        					});
+        					var initialize_permissionForm = qs('input#id_initialize_permissionForm');
+        					initialize_permissionForm.value = JSON.stringify(getValues_formPermission());
+        					dialog.style.top = '40px';
+        					Array.prototype.forEach.call(btnOkCancel, function (elem) {
+        						NA.NAEvent.addHandler(elem, 'click', function (event) {
+        							var target = NA.NAEvent.getTarget(event);
+        							executeHandler_permission(target.innerText);
+        							if (event) {
+        								NA.NAEvent.stopPropagation(event);
+        							}
+        						});
+        					});
 
-        					var allow_view = qs('input#id_allow_view'),
-                                allow_add = qs('input#id_allow_add'),
-                                allow_edit = qs('input#id_allow_edit'),
-                                allow_delete = qs('input#id_allow_delete');
-        					$(NA_Permission_grid).jqGrid({
-        						url: url,
-        						datatype: "json",
-        						colNames: ['idapp', 'No', 'Permission', 'Set', ' '],
-        						colModel: [
-									{ name: 'idapp', index: 'idapp', hidden: true },
-									{ name: 'no', index: 'no', width: 20, align: 'center' },
-									{ name: 'permission', index: 'permission', width: 70, key:true },
-									{
-										name: 'set', index: 'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
-										editoptions: { value: '1:0' },
-										formatoptions: { disabled: false }
-									},
-									{
-										name: 'remove_dummy', index: 'remove_dummy', width: 40, align: 'center', formatter: "actions",
-										formatoptions: {
-											keys: true,
-											editbutton: false,
-											addbutton: false,
-											delOptions: {
-												buttons: {
-													click: function (event) {
-														console.log(event);
-													}
-												},
-												delicon: [true, "left", "ui-icon-plus"]
+        					var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
+        					var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
+
+        					function LoadPermission_grid(fk_form) {
+        						var url = "permission/" + win.encodeURIComponent(
+										priviledge_grid.getRowData(parentRowKey)['idapp']
+									) + "/check_permission/?"
+									+ win.encodeURIComponent('fk_form')
+									+ '=' + win.encodeURIComponent(fk_form)
+        						if (fk_form != 'null') {
+        							$(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
+        						};
+
+        						var allow_view = qs('input#id_allow_view'),
+									allow_add = qs('input#id_allow_add'),
+									allow_edit = qs('input#id_allow_edit'),
+									allow_delete = qs('input#id_allow_delete');
+        						$(NA_Permission_grid).jqGrid({
+        							url: url,
+        							datatype: "json",
+        							colNames: ['idapp', 'No', 'Permission', 'Set', ' '],
+        							colModel: [
+										{ name: 'idapp', index: 'idapp', hidden: true },
+										{ name: 'no', index: 'no', width: 20, align: 'center' },
+										{ name: 'permission', index: 'permission', width: 70, key: true },
+										{
+											name: 'set', index: 'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+											editoptions: { value: '1:0' },
+											formatoptions: { disabled: false }
+										},
+										{
+											name: 'remove_dummy', index: 'remove_dummy', width: 40, align: 'center', formatter: "actions",
+											formatoptions: {
+												keys: true,
+												editbutton: false,
+												addbutton: false,
+												delOptions: {
+													buttons: {
+														click: function (event) {
+															console.log(event);
+														}
+													},
+													delicon: [true, "left", "ui-icon-plus"]
+												}
 											}
 										}
-									}
-        						],
-        						width: 435,
-        						height: '100%',
-        						viewrecords: true,
-        						pager: '#NA_Permission_pager',
-        						beforeSelectRow: function (rowid, e) {
-        						    var $self = $(this),
-                                        iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
-                                    cm = $self.jqGrid("getGridParam", "colModel");
-        						    if (cm[iCol].name === "set") {
-        						    	var checked = $(e.target).is(":checked");
-        						        var tr = $(e.target).closest('tr');
-                                        var permission = $(e.target).parent().prev().text();
-                                        if (permission == "Allow View") {
-                                            allow_view.checked = checked;
-                                        } else if (permission == "Allow Add") {
-                                            allow_add.checked = checked;
-                                        } else if (permission == "Allow Edit") {
-                                            allow_edit.checked = checked;
-                                        } else if (permission == "Allow Delete") {
-                                            allow_delete.checked = checked;
-                                        }
-        						        var no = tr[0].id;
-        						    }
-        						    return true; // allow selection
-        						},
-        						gridComplete: function () {
-									console.log('============ grid complete')
-									var data = $(NA_Permission_grid).getRowData()
-        							if (data.length > 0) {
-        								for (var i = 0; i < data.length; i++) {
-        									if (data[i]['permission'] == 'Allow View') {
-        										qs('input#id_allow_view').checked = true;
-        									} else if (data[i]['permission'] == 'Allow Add') {
-        										qs('input#id_allow_add').checked = true;
-        									} else if (data[i]['permission'] == 'Allow Edit') {
-        										qs('input#id_allow_edit').checked = true;
-        									} else if (data[i]['permission'] == 'Allow Delete') {
-        										qs('input#id_allow_delete').checked = true;
+        							],
+        							width: 435,
+        							height: '100%',
+        							viewrecords: true,
+        							pager: '#NA_Permission_pager',
+        							beforeSelectRow: function (rowid, e) {
+        								var $self = $(this),
+											iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+										cm = $self.jqGrid("getGridParam", "colModel");
+        								if (cm[iCol].name === "set") {
+        									var checked = $(e.target).is(":checked");
+        									var tr = $(e.target).closest('tr');
+        									var permission = $(e.target).parent().prev().text();
+        									if (permission == "Allow View") {
+        										allow_view.checked = checked;
+        									} else if (permission == "Allow Add") {
+        										allow_add.checked = checked;
+        									} else if (permission == "Allow Edit") {
+        										allow_edit.checked = checked;
+        									} else if (permission == "Allow Delete") {
+        										allow_delete.checked = checked;
         									}
-        								};
-        								if (data[data.length - 1]['idapp'] != 'dummy_inline') {
-        									qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        									var no = tr[0].id;
+        								}
+        								return true; // allow selection
+        							},
+        							gridComplete: function () {
+        								console.log('============ grid complete')
+        								var data = $(NA_Permission_grid).getRowData()
+        								if (data.length > 0) {
+        									for (var i = 0; i < data.length; i++) {
+        										if (data[i]['permission'] == 'Allow View') {
+        											qs('input#id_allow_view').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Add') {
+        											qs('input#id_allow_add').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Edit') {
+        											qs('input#id_allow_edit').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Delete') {
+        											qs('input#id_allow_delete').checked = true;
+        										}
+        									};
+        									if (data[data.length - 1]['idapp'] != 'dummy_inline') {
+        										qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        									}
         								}
         							}
+        						});
+
+        						$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
+        							edit: false,
+        							add: false,
+        							del: false,
+        							search: false,
+        							refresh: false,
+        							cloneToTop: false
+        						}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
+        							id: 'btn_add_permission_inline',
+        							caption: "",
+        							buttonicon: "ui-icon-plus",
+        							onClickButton: function (event) {
+        								var select_fk_form = qs('select#id_fk_form');
+        								if (select_fk_form.checkValidity()) {
+        									var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
+        									var row_count = $(NA_Permission_grid).getGridParam('reccount');
+        									if (row_count == 1) {
+        										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
+        											var DialogChange_role = new BootstrapDialog({
+        												draggable: true,
+        												type: BootstrapDialog.TYPE_SUCCESS,
+        												size: BootstrapDialog.SIZE_SMALL,
+        												title: NA.common.message.titleInfo,
+        												message: NA.common.message.canNotAddOtherPermsForGuest,
+        												onshown: function (dialogRef) {
+        													return;
+        												},
+        												closable: false,
+        												animate: true,
+        												closeByBackdrop: false,
+        												closeByKeyboard: false,
+        												buttons: [{
+        													label: 'Change role',
+        													cssClass: 'btn-default',
+        													action: function (dialogRef) {
+        														BootstrapDialog.show({
+        															draggable: true,
+        															type: BootstrapDialog.TYPE_SUCCESS,
+        															size: BootstrapDialog.SIZE_SMALL,
+        															title: 'Change User\'s Role',
+        															cssClass: 'form-dialog-change-role',
+        															message: function (dialogRef) {
+        																var dummy_form = $('<form id="dummy_form" onsubmit="return false"></form>');
+
+        																var role = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_role" class="control-label" style="text-align: left;font-weight:bold">';
+        																role += 'Role :</label><div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        																role += '<select name="role" class="form-control" id="dummy_role"><option value="3">Guest</option><option value="2">User</option><option value="1">Super User</option></select></div></div>';
+        																$(role).appendTo(dummy_form);
+
+        																var divisi = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_divisi" class="control-label" style="text-align: left;font-weight:bold">Divisi :</label>';
+        																divisi += '<div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        																divisi += '<select name="divisi" class="form-control" id="dummy_divisi" required="">';
+        																divisi += '<option value="" selected="">-----------</option><option value="IT">IT</option><option value="GA">GA</option></select></div></div>';
+        																$(divisi).appendTo(dummy_form);
+
+        																$('<input type="submit" id="submit_dummy_form" style="display:none" />').appendTo(dummy_form);
+        																return dummy_form;
+        															},
+        															closable: false,
+        															animate: true,
+        															closeByBackdrop: false,
+        															closeByKeyboard: false,
+        															buttons: [{
+        																label: 'Cancel',
+        																cssClass: 'btn-default',
+        																action: function (dialogRef) {
+        																	dialogRef.close();
+        																}
+        															}, {
+        																label: 'OK',
+        																cssClass: 'btn-success',
+        																action: function (dialogRef) {
+        																	var dummy_form = qs('form#dummy_form');
+        																	var role = qs('select#dummy_role'),
+																				divisi = qs('select#dummy_divisi');
+        																	if (role.value == 3) {
+        																		role.setCustomValidity('Please change user\'s role');
+        																	} else {
+        																		role.setCustomValidity('');
+        																	};
+        																	if (!dummy_form.checkValidity()) {
+        																		$('#submit_dummy_form').click();
+        																		return false;
+        																	} else {
+        																		$.ajax({
+        																			url: 'change_role/' + win.encodeURIComponent(rowData['email']) + '/',
+        																			method: 'POST',
+        																			beforeSend: function (xhr) {
+        																				xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+        																			},
+        																			data: {
+        																				'role': role.value.trim(),
+        																				'divisi': divisi.value.trim()
+        																			},
+        																			success: function (data) {
+        																				if (data['message'] == '__success') {
+        																					dialogRef.close();
+        																					BootstrapDialog.show({
+        																						draggable: true,
+        																						type: BootstrapDialog.TYPE_SUCCESS,
+        																						size: BootstrapDialog.SIZE_SMALL,
+        																						title: NA.common.message.titleInfo,
+        																						cssClass: 'form-dialog-change-role',
+        																						message: 'Successfully changed user\'s role \n System will be set default permission, \n but you can continue set your custom permission',
+        																						closable: false,
+        																						animate: true,
+        																						closeByBackdrop: false,
+        																						closeByKeyboard: false,
+        																						buttons: [{
+        																							label: 'Custom Permission',
+        																							cssClass: 'btn-default',
+        																							action: function (dialogRef) {
+        																								priviledge_grid.trigger('reloadGrid');
+        																								dialogRef.close();
+        																							}
+        																						}, {
+        																							label: 'Default Permission',
+        																							cssClass: 'btn-success',
+        																							action: function (dialogRef) {
+        																								$.ajax({
+        																									url: 'permission/' + rowData['email'] + '/set_default/',
+        																									method: 'POST',
+        																									beforeSend: function (xhr) {
+        																										xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+        																									},
+        																									success: function (data) {
+        																										if (data['message'] == '__success') {
+        																											dialogRef.close();
+        																											var dialog = qs("div.containerDialog");
+        																											NA.common.dialog.closeDialog(dialog);
+        																											priviledge_grid.trigger('reloadGrid');
+        																										}
+        																									}
+        																								})
+        																							}
+        																						}]
+        																					});
+        																				}
+        																			}
+        																		})
+        																	}
+        																}
+        															}]
+        														});
+        														dialogRef.close();
+        													},
+        												}, {
+        													label: 'OK',
+        													id: 'btnOK',
+        													cssClass: 'btn-success',
+        													action: function (dialogRef) {
+        														dialogRef.close();
+        													}
+        												}]
+        											});
+        											DialogChange_role.open();
+        											return false;
+        										}
+        										dummy_data['no'] = 2
+        										dummy_data['permission'] = 'Allow Add';
+        									} else if (row_count == 2) {
+        										dummy_data['no'] = 3
+        										dummy_data['permission'] = 'Allow Edit';
+        									} else if (row_count == 3) {
+        										dummy_data['no'] = 4
+        										dummy_data['permission'] = 'Allow Delete';
+        									} else if (row_count > 3) {
+        										return false;
+        									}
+        									$(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
+        								} else {
+        									$('#permission_submit').click();
+        									return false;
+        								};
+        								$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
+        							}
+        						});
+        					};
+
+        					LoadPermission_grid('null');
+        					var select_fk_form = qs('select#id_fk_form');
+        					NA.NAEvent.addHandler(select_fk_form, 'change', function () {
+        						if (this.value == "") {
+        							$(NA_Permission_grid).jqGrid("clearGridData", true);
+        						} else {
+        							LoadPermission_grid(this.value);
         						}
         					});
-        					
-        					$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
-        						edit: false,
-        						add: false,
-        						del: false,
-        						search: false,
-        						refresh: false,
-        						cloneToTop: false
-        					}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
-        						id: 'btn_add_permission_inline',
-        						caption: "",
-        						buttonicon: "ui-icon-plus",
-        						onClickButton: function (event) {
-        							var select_fk_form = qs('select#id_fk_form');
-        							if (select_fk_form.checkValidity()) {
-        							    var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
-        							    var row_count = $(NA_Permission_grid).getGridParam('reccount');
-        							    if (row_count == 1) {
-        							    	if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
-        							            var DialogChange_role = new BootstrapDialog({
-        							                draggable: true,
-        							                type: BootstrapDialog.TYPE_SUCCESS,
-        							                size: BootstrapDialog.SIZE_SMALL,
-        							                title: NA.common.message.titleInfo,
-        							                message: NA.common.message.canNotAddOtherPermsForGuest,
-        							                onshown: function (dialogRef) {
-        							                    return;
-        							                },
-        							                closable: false,
-        							                animate: true,
-        							                closeByBackdrop: false,
-        							                closeByKeyboard: false,
-        							                buttons: [{
-        							                    label: 'Change role',
-        							                    cssClass: 'btn-default',
-        							                    action: function (dialogRef) {
-        							                        BootstrapDialog.show({
-        							                            draggable: true,
-        							                            type: BootstrapDialog.TYPE_SUCCESS,
-        							                            size: BootstrapDialog.SIZE_SMALL,
-        							                            title: 'Change User\'s Role',
-        							                            cssClass: 'form-dialog-change-role',
-        							                            message: function (dialogRef) {
-        							                                var dummy_form = $('<form id="dummy_form" onsubmit="return false"></form>');
-
-        							                                var role = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_role" class="control-label" style="text-align: left;font-weight:bold">';
-        							                                role += 'Role :</label><div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
-        							                                role += '<select name="role" class="form-control" id="dummy_role"><option value="3">Guest</option><option value="2">User</option><option value="1">Super User</option></select></div></div>';
-        							                                $(role).appendTo(dummy_form);
-
-        							                                var divisi = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_divisi" class="control-label" style="text-align: left;font-weight:bold">Divisi :</label>';
-        							                                divisi += '<div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
-        							                                divisi += '<select name="divisi" class="form-control" id="dummy_divisi" required="">';
-        							                                divisi += '<option value="" selected="">-----------</option><option value="IT">IT</option><option value="GA">GA</option></select></div></div>';
-        							                                $(divisi).appendTo(dummy_form);
-
-        							                                $('<input type="submit" id="submit_dummy_form" style="display:none" />').appendTo(dummy_form);
-        							                                return dummy_form;
-        							                            },
-        							                            closable: false,
-        							                            animate: true,
-        							                            closeByBackdrop: false,
-        							                            closeByKeyboard: false,
-        							                            buttons: [{
-        							                                label: 'Cancel',
-        							                                cssClass: 'btn-default',
-        							                                action: function (dialogRef) {
-        							                                    dialogRef.close();
-        							                                }
-        							                            },{
-        							                                label: 'OK',
-        							                                cssClass: 'btn-success',
-        							                                action: function (dialogRef) {
-        							                                    var dummy_form = qs('form#dummy_form');
-        							                                    var role = qs('select#dummy_role'),
-                                                                            divisi = qs('select#dummy_divisi');
-        							                                    if (role.value == 3) {
-        							                                        role.setCustomValidity('Please change user\'s role');
-        							                                    } else {
-        							                                        role.setCustomValidity('');
-        							                                    };
-        							                                    if (!dummy_form.checkValidity()) {
-        							                                        $('#submit_dummy_form').click();
-        							                                        return false;
-        							                                    } else {
-        							                                        $.ajax({
-        							                                            url: 'change_role/' + win.encodeURIComponent(rowData['email']) + '/',
-        							                                            method: 'POST',
-        							                                            beforeSend: function (xhr) {
-        							                                                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
-        							                                            },
-        							                                            data: {
-        							                                                'role': role.value.trim(),
-        							                                                'divisi': divisi.value.trim()
-        							                                            },
-        							                                            success: function (data) {
-        							                                                if (data['message'] == '__success') {
-        							                                                    dialogRef.close();
-        							                                                    BootstrapDialog.show({
-        							                                                        draggable: true,
-        							                                                        type: BootstrapDialog.TYPE_SUCCESS,
-        							                                                        size: BootstrapDialog.SIZE_SMALL,
-        							                                                        title: NA.common.message.titleInfo,
-        							                                                        cssClass: 'form-dialog-change-role',
-        							                                                        message: 'Successfully changed user\'s role \n System will be set default permission, \n but you can continue set your custom permission',
-        							                                                        closable: false,
-        							                                                        animate: true,
-        							                                                        closeByBackdrop: false,
-        							                                                        closeByKeyboard: false,
-        							                                                        buttons: [{
-        							                                                            label: 'Custom Permission',
-        							                                                            cssClass: 'btn-default',
-        							                                                            action: function (dialogRef) {
-        							                                                            	priviledge_grid.trigger('reloadGrid');
-        							                                                                dialogRef.close();
-        							                                                            }
-        							                                                        },{
-        							                                                            label: 'Default Permission',
-        							                                                            cssClass: 'btn-success',
-        							                                                            action: function (dialogRef) {
-        							                                                                $.ajax({
-        							                                                                    url: 'permission/' + rowData['email'] + '/set_default/',
-        							                                                                    method: 'POST',
-        							                                                                    beforeSend: function (xhr) {
-                                                                                                            xhr.setRequestHeader('X-CSRFToken',NA.CookieUtil.get('csrftoken'))
-        							                                                                    },
-        							                                                                    success: function (data) {
-        							                                                                        if (data['message'] == '__success') {
-        							                                                                            dialogRef.close();
-        							                                                                            var dialog = qs("div.containerDialog");
-        							                                                                            NA.common.dialog.closeDialog(dialog);
-        							                                                                            priviledge_grid.trigger('reloadGrid');
-        							                                                                        }
-        							                                                                    }
-        							                                                                })
-        							                                                            }
-        							                                                        }]
-        							                                                    });
-        							                                                }
-        							                                            }
-        							                                        })
-        							                                    }
-        							                                }
-        							                            }]
-        							                        });
-        							                        dialogRef.close();
-        							                    },
-        							                }, {
-        							                    label: 'OK',
-        							                    id: 'btnOK',
-        							                    cssClass: 'btn-success',
-        							                    action: function (dialogRef) {
-        							                    	dialogRef.close();
-        							                    }
-        							                }]
-        							            });
-        							            DialogChange_role.open();
-        							            return false;
-        							        }
-        							        dummy_data['no'] = 2
-        							        dummy_data['permission'] = 'Allow Add';
-        							    } else if (row_count == 2) {
-        							        dummy_data['no'] = 3
-        							        dummy_data['permission'] = 'Allow Edit';
-        							    } else if (row_count == 3) {
-        							        dummy_data['no'] = 4
-        							        dummy_data['permission'] = 'Allow Delete';
-        							    } else if (row_count > 3) {
-        							        return false;
-        							    }
-        							    $(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
-        							} else {
-        							    $('#permission_submit').click();
-        							    return false;
-        							};
-        							$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
-        						}
-        					});
-        				};
-
-        				LoadPermission_grid('null');
-        				var select_fk_form = qs('select#id_fk_form');
-        				NA.NAEvent.addHandler(select_fk_form, 'change', function () {
-        				    if (this.value == "") {
-        				        $(NA_Permission_grid).jqGrid("clearGridData", true);
-        				    } else {
-        				        LoadPermission_grid(this.value);
-        				    }
         				});
-                    });
-        		},
-        		position: "first"
-        	}).navButtonAdd('#' + childGridPagerID, {
-        		caption: "",
-        		buttonicon: "ui-icon-pencil",
-        		onClickButton: function () {
+        			},
+        			position: "first"
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			caption: "",
+        			buttonicon: "ui-icon-pencil",
+        			onClickButton: function () {
 
-        			alert(getChildGridId());
-        		},
-        		position: "last"
-        	}).navButtonAdd('#' + childGridPagerID, {
-        		caption: "",
-        		buttonicon: "ui-icon-trash",
-        		onClickButton: function () {
-        			var idapp = getChildGridId();
-        			if (idapp == null) {
-        				return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
-        			}
-        			return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
-        				var permission_url_delete = 'permission/' + idapp + '/delete/';
-        				$.ajax({
-        					url: permission_url_delete,
-        					method: 'POST',
-        					beforeSend: function (xhr) {
-        						xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
-        					},
-        					data: {
-        						'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken')
-        					},
-        					success: function (data) {
-        						$("#" + childGridID).trigger('reloadGrid');
-        					},
-        					complete: function (data) {
-        						if (data.status !== 200) {
-        							var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
-        							return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        				alert(getChildGridId());
+        			},
+        			position: "last"
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			caption: "",
+        			buttonicon: "ui-icon-trash",
+        			onClickButton: function () {
+        				var idapp = getChildGridId();
+        				if (idapp == null) {
+        					return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
+        				}
+        				return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+        					var permission_url_delete = 'permission/' + idapp + '/delete/';
+        					$.ajax({
+        						url: permission_url_delete,
+        						method: 'POST',
+        						beforeSend: function (xhr) {
+        							xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+        						},
+        						data: {
+        							'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken')
+        						},
+        						success: function (data) {
+        							$("#" + childGridID).trigger('reloadGrid');
+        						},
+        						complete: function (data) {
+        							if (data.status !== 200) {
+        								var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+        								return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        							}
         						}
-        					}
+        					})
         				})
-        			})
-        		},
-        		position: "last"
-        	});
+        			},
+        			position: "last"
+        		});
 
-        	var btn_add = $('#' + childGridPagerID).find('td#btn_add_for_parent_'+parentRowKey)[0];
-        	NA.common.dialog.initDialog(null, 'Nufarm Add Permission - ', [btn_add]);
-        	NA.NAEvent.addHandler(btn_add, 'click', function (event) {
-        		$('#' + childGridPagerID).find('span.ui-icon.ui-icon-plus').click();
-        	});
+        		var btn_add = $('#' + childGridPagerID).find('td#btn_add_for_parent_' + parentRowKey)[0];
+        		NA.common.dialog.initDialog(null, 'Nufarm Add Permission - ', [btn_add]);
+        		NA.NAEvent.addHandler(btn_add, 'click', function (event) {
+        			$('#' + childGridPagerID).find('span.ui-icon.ui-icon-plus').click();
+        		});
+        	}
+        	
 
         	function PermissionSubmit() {
         		$.ajax({
