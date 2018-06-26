@@ -32,7 +32,7 @@ JSONField._check_mysql_version = forced_mariadb_connection
 
 class NA_BaseModel(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
-    createddate = models.DateTimeField(db_column='CreatedDate')
+    createddate = models.DateTimeField(db_column='CreatedDate',default=timezone.now)
     createdby = models.CharField(db_column='CreatedBy', max_length=100)
     modifieddate = models.DateTimeField(
         db_column='ModifiedDate',
@@ -75,7 +75,11 @@ class NA_TransactionModel(NA_BaseModel):
         db_constraint=False
     )
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    serialnumber = models.CharField(db_column='SerialNumber',max_length=100)
+    serialnumber = models.CharField(
+        db_column='SerialNumber',
+        max_length=100,
+        default='N/A'
+    )
 
     class Meta:
         abstract = True
@@ -228,10 +232,11 @@ class NAAppparams(models.Model):
         db_table = 'n_a_appparams'
         unique_together = (('idapp', 'codeapp'),)
 
-class NADisposal(NA_BaseModel):
+class NADisposal(NA_TransactionModel):
     modifiedby = None
     modifieddate = None
-    fk_goods = models.CharField(db_column='FK_Goods', max_length=30, blank=True, null=True)
+    fk_employee = None
+
     datedisposal = models.DateField(db_column='DateDisposal')
     ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
     issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
@@ -240,6 +245,13 @@ class NADisposal(NA_BaseModel):
     fk_acc_fa = models.CharField(db_column='FK_Acc_FA', max_length=50, blank=True, null=True)
     fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)
     bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+    fk_maintenance = models.ForeignKey(
+        'NAMaintenance',
+        null=True,
+        blank=True,
+        db_column='FK_Maintenance',
+        db_constraint=False
+    )
 
     class Meta:
         managed = True
@@ -321,7 +333,7 @@ class NAGoodsReturn(NA_TransactionModel):
         related_name='fk_ngr_usedemployee',
         db_constraint=False
     )
-    iscompleted = models.IntegerField(db_column='IsCompleted')
+    iscompleted = models.PositiveSmallIntegerField(db_column='IsCompleted')
     minusDesc = models.CharField(
         db_column='MinusDesc',
         max_length=100,
@@ -384,6 +396,7 @@ class NAMaintenance(NA_TransactionModel):
     enddate = models.DateField(db_column='EndDate', blank=True, null=True)
     typeapp = models.CharField(db_column='TypeApp',max_length=32)
     issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True)
+    isfinished = models.BooleanField(db_column='IsFinished', default=False)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
