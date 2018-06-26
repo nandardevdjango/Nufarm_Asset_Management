@@ -93,6 +93,7 @@ def Set_InActive(request):
     result = Employee.objects.setInActive(idapp,commonFunct.str2bool(inactive))
     return commonFunct.response_default(result)
 
+@decorators.read_permission(form_name='employee')
 def EntryEmployee(request):
     if request.method == 'POST':
         form = NA_Employee_form(request.POST)
@@ -113,7 +114,14 @@ def EntryEmployee(request):
                 return commonFunct.response_default(result)
             elif mode == 'Open':
                 if request.POST['employee_name']:
-                    return HttpResponse(json.dumps({'messages':'You\'re try to Edit this Data with Open Mode\nWith technic inspect element\n Lol :D'}),status=403,content_type='application/json')
+                    return HttpResponse(
+                        json.dumps({
+                            'messages':'You\'re try to Edit this Data \
+                            with Open Mode\nWith technic inspect element\n Lol :D'
+                        }),
+                        status=403,
+                        content_type='application/json'
+                     )
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']
@@ -144,6 +152,7 @@ def ShowCustomFilter(request):
 	cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
 	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
+@decorators.read_permission(form_name='employee',action='Delete')
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def NA_Employee_delete(request):

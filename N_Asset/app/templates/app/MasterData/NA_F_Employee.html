@@ -90,6 +90,8 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
+    	NA.Priviledge.read_priviledge('employee');
+    	
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +

@@ -85,7 +85,8 @@
 <script type="text/javascript">
 //=================================AJAX Setup===========================-->
 
-    $(function() {
+	$(function() {
+		NA.Priviledge.read_priviledge('goods');
         $.ajaxSetup({
             cache:false,                                 
             error: function(xhr, status, error) {

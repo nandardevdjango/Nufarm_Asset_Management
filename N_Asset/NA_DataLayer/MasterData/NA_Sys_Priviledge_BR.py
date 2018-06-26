@@ -22,7 +22,7 @@ class NA_BR_Sys_Priviledge(models.Manager):
             return (Data.Lost,Message.Lost)
 
     def CheckPermission(self,fk_form,user_id):
-        if fk_form == 'null':
+        if fk_form == 'null' or fk_form == '':
             return Data.Empty
         data = super(NA_BR_Sys_Priviledge, self).get_queryset()\
             .values('idapp','permission','inactive')\

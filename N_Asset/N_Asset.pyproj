@@ -188,6 +188,9 @@
     <Compile Include="NA_Models\apps.py" />
     <Compile Include="NA_Models\models.py" />
     <Compile Include="NA_Models\__init__.py" />
+    <Compile Include="N_Asset\local_settings.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="N_Asset\__init__.py" />
     <Compile Include="N_Asset\settings.py" />
     <Compile Include="N_Asset\urls.py" />

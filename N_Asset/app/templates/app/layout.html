@@ -91,18 +91,18 @@
                     <li>
                         <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false"> <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span> </a>
                         <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
-							<li>
-								<a href="#" data-toggle="collapse" data-target="#goods_receive_dropdown" class="active collapsed" aria-expanded="false">
-                                <span class="nav-label">Goods Receiving</span>
-                                <span class="fa fa-angle-down pull-right"></span>
-                            </a>
-							</li>
-                          <li>
-								<ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
-                                <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
-                                <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
-                            </ul>
-						  </li>                          
+                            <li>
+                                <a href="#" data-toggle="collapse" data-target="#goods_receive_dropdown" class="active collapsed" aria-expanded="false">
+                                    <span class="nav-label">Goods Receiving</span>
+                                    <span class="fa fa-angle-down pull-right"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
+                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
+                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
+                                </ul>
+                            </li>
 
                             <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                             <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
@@ -286,7 +286,7 @@
                             <li>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <form class="form" role="form" method="post" action="" accept-charset="UTF-8" id="login-nav">
+                                        <form class="form" role="form" method="post" action="/login/" accept-charset="UTF-8" id="login-nav">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <label class="sr-only" for="exampleInputEmail2">Email address</label>
@@ -336,8 +336,25 @@
         </aside>
         <div class="clearfloat"></div>
 
-        <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->\
-
+        <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->
+		{% if request.resolver_match.url_name != 'home' %}
+		<script>
+			NA.Priviledge.Email = '{{ request.user.email }}';
+			var roleCode = '{{ request.user.role }}';
+			if (roleCode == 1) {
+				NA.Priviledge.IsAdmin = true;
+				NA.Priviledge.RoleName = 'Super User';
+			} else {
+				if (roleCode == 2) {
+					NA.Priviledge.RoleName = 'User';
+				} else if (roleCode == 3) {
+					NA.Priviledge.RoleName = 'Guest';
+				}
+				NA.Priviledge.IsAdmin = false;
+			}
+			NA.Priviledge.password = '{{ request.user.password }}'
+		</script>
+		{% endif %}
         {% block DialogEntry %}
 
         {% endblock %}

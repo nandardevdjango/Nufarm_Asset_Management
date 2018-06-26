@@ -1411,9 +1411,15 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
 NA.Priviledge = {
     _roleName: 'SysAdmin',
     _rolCode: 'SA',
-    _userName: 'Nandar',
+    _email: 'Nandar@yahoo.com',
     _password: '',
     _isAdmin: true,
+    _permissions: {
+        _allow_view: false,
+        _allow_add: false,
+        _allow_edit: false,
+        _allow_delete: false
+    }
 }
 Object.defineProperties(NA.Priviledge, {
     RoleName: {
@@ -1424,9 +1430,9 @@ Object.defineProperties(NA.Priviledge, {
         get: function () { return this._rolCode; },
         set: function (newValue) { this._rolCode = newValue; },
     },
-    UserName: {
-        get: function () { return this._userName; },
-        set: function (newValue) { this._rolename = newValue; },
+    Email: {
+        get: function () { return this._email; },
+        set: function (newValue) { this._email = newValue; },
     },
     password: {
         get: function () { return this._password; },
@@ -1435,7 +1441,120 @@ Object.defineProperties(NA.Priviledge, {
     IsAdmin: {
         get: function () { return this._isAdmin; },
         set: function (newValue) { this._isAdmin = newValue; },
+    },
+    Permissions: {
+        get: function () { return this._permissions }
     }
 });
+
+Object.defineProperties(NA.Priviledge.Permissions, {
+    Allow_View: {
+        get: function () {
+            return this._allow_view;
+        },
+        set: function (newValue) {
+            this._allow_view = newValue;
+        }
+    },
+    Allow_Add: {
+        get: function () {
+            return this._allow_add;
+        },
+        set: function (newValue) {
+            this._allow_add = newValue;
+        }
+    },
+    Allow_Edit: {
+        get: function () {
+            return this._allow_edit;
+        },
+        set: function (newValue) {
+            this._allow_edit = newValue;
+        }
+    },
+    Allow_Delete: {
+        get: function () {
+            return this._allow_delete;
+        },
+        set: function (newValue) {
+            this._allow_delete = newValue;
+        }
+    }
+})
+
+NA.Priviledge.get_server_permissions = function (kwargs) {
+    var form = kwargs['form_name'],
+        email = kwargs['email'],
+        success = kwargs['success'],
+        done = kwargs['done'];
+    var NAAjax = NA.common.AJAX;
+    var url = '/MasterData/Priviledge/permission/' + email + '/get_permission/?form_name=' + form;
+    NAAjax.GET(url, 'application/json', null, null,
+        function () {
+            if (this.status == 200) {
+                var response = JSON.parse(this.responseText)['message']
+                success(response);
+            };
+        },null,null,
+        function () {
+            done();
+        });
+};
+
+NA.Priviledge.read_priviledge = function (form_name) {
+    return NA.Priviledge.get_server_permissions({
+        form_name: form_name,
+        email: NA.Priviledge.Email, // this is has declared in layout.html
+        success: function (permission) {
+            for (var i = 0; i < permission.length; i++) {
+                if (permission[i]['permission'] == 'Allow View') {
+                    NA.Priviledge.Permissions.Allow_View = true;
+                } else if (permission[i]['permission'] == 'Allow Add') {
+                    NA.Priviledge.Permissions.Allow_Add = true;
+                } else if (permission[i]['permission'] == 'Allow Edit') {
+                    NA.Priviledge.Permissions.Allow_Edit = true;
+                } else if (permission[i]['permission'] == 'Allow Delete') {
+                    NA.Priviledge.Permissions.Allow_Delete = true;
+                }
+            }
+        },
+        done: function () {
+            Object.freeze(NA.Priviledge);
+            var qs = qs || NA.common.qs
+            var btn_add = qs('button#addData'),
+			btn_edit = qs('button#editData'),
+			btn_delete = qs('button#delData');
+            if (!NA.Priviledge.Permissions.Allow_Add) {
+                btn_add.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_add, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_add.style.cursor = 'not-allowed';
+            };
+            if (!NA.Priviledge.Permissions.Allow_Edit) {
+                btn_edit.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_edit, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_edit.style.cursor = 'not-allowed';
+            };
+            if (!NA.Priviledge.Permissions.Allow_Delete) {
+                btn_delete.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_delete, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_delete.style.cursor = 'not-allowed';
+            }
+        }
+    });
+}
 //=================================================================
-   

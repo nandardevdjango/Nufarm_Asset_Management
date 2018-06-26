@@ -81,6 +81,7 @@
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
+    	NA.Priviledge.read_priviledge('n_a_suplier');
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
