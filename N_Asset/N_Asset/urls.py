@@ -4,6 +4,7 @@ Definition of urls for N_Asset.
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+from app.NA_Views.MasterData import NA_Priviledge_View
 from app.NA_Views import NA_User_View
 import app.views
 # Uncomment the next lines to enable the admin:
@@ -17,8 +18,8 @@ urlpatterns = [
     url(r'^about', app.views.about, name='about'),
 
     ##User's URL
-    url(r'^login/$', NA_User_View.login_view, name='login'),
-    url(r'^register/$', NA_User_View.NA_User_Register, name='NA_User_Register'),
+    url(r'^login/$', NA_Priviledge_View.NA_Priviledge_login, name='login'),
+    url(r'^register/$', NA_Priviledge_View.NA_Priviledge_register, name='NA_User_Register'),
     url(r'^profile/(?P<username>\w+)/edit/$', NA_User_View.user_profile, name='user_profile'),
     url(r'^logout/$', NA_User_View.logout_view, name='logout'),
 

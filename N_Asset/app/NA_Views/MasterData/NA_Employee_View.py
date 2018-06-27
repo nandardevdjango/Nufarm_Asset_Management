@@ -14,6 +14,7 @@ from django import forms
 def NA_Employee(request):
     return render(request, 'app/MasterData/NA_F_Employee.html')
 
+@decorators.ajax_required
 def NA_EmployeeGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey =  request.GET.get('valueKey')

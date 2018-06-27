@@ -2,12 +2,14 @@ from django.http import HttpResponse
 from NA_Models.models import NAPriviledge, NASysPriviledge,NAPriviledge_form
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from django.db import transaction
 from datetime import datetime
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, logout, authenticate
 
 
 def NA_Priviledge(request):
@@ -325,6 +327,7 @@ def NA_Sys_Priviledge_check_permission(request,user_id):
         dataRow.append({
             'idapp': row['idapp'],
             'no':no,
+            'form_name':row['form_name'],
             'permission':row['permission'],
             'set':'1',
             #'inactive': row['inactive'],
@@ -439,7 +442,7 @@ def NA_Priviledge_login(request):
 class NA_Priviledge_Login_Form(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
-    next = forms.CharField(widget=forms.HiddenInput())
+    next = forms.CharField(widget=forms.HiddenInput(),required=False)
 
     def clean(self, *args, **kwargs):
         email = self.cleaned_data.get("email")
@@ -454,4 +457,57 @@ class NA_Priviledge_Login_Form(forms.Form):
             if not user.is_active:
                 raise forms.ValidationError("User is not Active.")
 
-        return super(UserLoginForm, self).clean(*args, **kwargs)
+        return super(NA_Priviledge_Login_Form, self).clean(*args, **kwargs)
+
+def NA_Priviledge_register(request):
+    if request.method == 'POST':
+        form = NA_Priviledge_Register_Form(request.POST, request.FILES or None)
+        if form.is_valid():
+            user = form.save()
+            login(request, user, backend='NA_DataLayer.NA_Auth.NA_AuthBackend')
+            return redirect('home')
+    else:
+        form = NA_Priviledge_Register_Form()
+        return render(
+            request,
+            'app/MasterData/NA_Priviledge_Register.html',
+            {'form':form}
+        )
+
+def NA_Priviledge_logout(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    else:
+        logout(request)
+        return redirect('home')
+
+class NA_Priviledge_Register_Form(forms.Form):
+    first_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
+    'class':'form-control','placeholder':'Enter First Name'}))
+    last_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
+    'class':'form-control','placeholder':'Enter Last Name'}))
+    username = forms.CharField(required=True,widget=forms.TextInput(attrs={
+    'class':'form-control','placeholder':'Enter Username'}))
+    email = forms.CharField(required=True,widget=forms.EmailInput(attrs={
+    'class':'form-control','placeholder':'Email Address'}))
+    picture = forms.ImageField(required=False)
+    password1 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
+    'class':'form-control','placeholder':'Password'}))
+    password2 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
+    'class':'form-control','placeholder':'Confirm Password'}))
+    initializeForm_user = forms.CharField(required=False,widget=forms.HiddenInput())
+
+    def save(self):
+        with transaction.atomic():
+            user = NAPriviledge()
+            user.username = self.cleaned_data['username']
+            user.email = self.cleaned_data['email']
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
+            pict = self.cleaned_data.get('picture')
+            if pict:
+                user.picture = pict
+            user.set_password(self.cleaned_data['password1'])
+            user.save()
+            NASysPriviledge.set_permission(user)
+        return user

@@ -286,7 +286,7 @@ div[id*=NA_Priviledge_grid]{
         	var rowData = priviledge_grid.getRowData(parentRowKey);
         	var idapp = rowData['idapp']; // user_id
         	var email = rowData['email'];
-        	if (NA.Priviledge.IsAdmin) {
+        	if (NA.Priviledge.IsAdmin) { // only admin can manipulate user's permission
         		$('#' + childGridID).navGrid('#' + childGridPagerID, {
         			edit: false,
         			add: false,
@@ -328,7 +328,7 @@ div[id*=NA_Priviledge_grid]{
         						});
         					});
 
-        					var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;width:435px"></table>').appendTo('fieldset#fieldset_permission');
+        					var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;"></table>').appendTo('fieldset#fieldset_permission');
         					var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
 
         					function LoadPermission_grid(fk_form) {
@@ -348,37 +348,35 @@ div[id*=NA_Priviledge_grid]{
         						$(NA_Permission_grid).jqGrid({
         							url: url,
         							datatype: "json",
-        							colNames: ['idapp', 'No', 'Permission', 'Set', ' '],
+        							colNames: ['idapp', 'No', 'Form Name', 'Permission', 'Set', 'Remove'],
         							colModel: [
-										{ name: 'idapp', index: 'idapp', hidden: true },
-										{ name: 'no', index: 'no', width: 20, align: 'center' },
-										{ name: 'permission', index: 'permission', width: 70, key: true },
+										{ name: 'idapp', index: 'idapp', hidden: true, editable: false },
+										{ name: 'no', index: 'no', width: 40, align: 'center', key: true, editable: false },
+										{ name: 'form_name', index: 'form_name', width: 130, editable: false },
+										{ name: 'permission', index: 'permission', width: 130, editable: false },
 										{
-											name: 'set', index: 'set', width: 40, align: 'center', editable: true, formatter: 'checkbox', edittype: 'checkbox',
+											name: 'set', index: 'set', width: 70, align: 'center', editable: false, formatter: 'checkbox', edittype: 'checkbox',
 											editoptions: { value: '1:0' },
 											formatoptions: { disabled: false }
 										},
 										{
-											name: 'remove_dummy', index: 'remove_dummy', width: 40, align: 'center', formatter: "actions",
+											name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center', formatter: "actions",
 											formatoptions: {
 												keys: true,
 												editbutton: false,
 												addbutton: false,
 												delOptions: {
-													buttons: {
-														click: function (event) {
-															console.log(event);
-														}
-													},
-													delicon: [true, "left", "ui-icon-plus"]
+													modal: false,
+													jqModal: false
 												}
 											}
 										}
         							],
-        							width: 435,
-        							height: '100%',
+        							width: 'inherit',
+        							height: 102,
         							viewrecords: true,
         							pager: '#NA_Permission_pager',
+									shrinkToFit: false,
         							beforeSelectRow: function (rowid, e) {
         								var $self = $(this),
 											iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
@@ -401,7 +399,6 @@ div[id*=NA_Priviledge_grid]{
         								return true; // allow selection
         							},
         							gridComplete: function () {
-        								console.log('============ grid complete')
         								var data = $(NA_Permission_grid).getRowData()
         								if (data.length > 0) {
         									for (var i = 0; i < data.length; i++) {
@@ -419,7 +416,21 @@ div[id*=NA_Priviledge_grid]{
         										qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
         									}
         								}
-        							}
+        							},
+        							pgbuttons: false,
+        							pgtext: null,
+        						});
+
+        						$("div#gbox_NA_Permission_grid, div#gview_NA_Permission_grid, div#gview_NA_Permission_grid > div.ui-jqgrid-bdiv, div#gview_NA_Permission_grid > div.ui-jqgrid-hdiv, #NA_Permission_pager").css({
+        							'width': 'inherit'
+        						});
+        						$('div#gview_NA_Permission_grid div.ui-jqgrid-hbox').css('padding', '0');
+
+        						$('#NA_Permission_grid').on('click', 'div.ui-pg-div.ui-inline-del', function (event) {
+        							event.preventDefault();
+        							event.stopPropagation();
+        							var rowId = $(this).parents('tr')[0].id;
+        							$('#NA_Permission_grid').delRowData(rowId);
         						});
 
         						$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
@@ -436,7 +447,7 @@ div[id*=NA_Priviledge_grid]{
         							onClickButton: function (event) {
         								var select_fk_form = qs('select#id_fk_form');
         								if (select_fk_form.checkValidity()) {
-        									var dummy_data = { idapp: 'dummy_inline', no: '1', permission: 'Allow View', set: '0', inactive: '0' };
+        									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1', inactive: '0' };
         									var row_count = $(NA_Permission_grid).getGridParam('reccount');
         									if (row_count == 1) {
         										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)

@@ -25,7 +25,8 @@ class NA_BR_Sys_Priviledge(models.Manager):
         if fk_form == 'null' or fk_form == '':
             return Data.Empty
         data = super(NA_BR_Sys_Priviledge, self).get_queryset()\
-            .values('idapp','permission','inactive')\
+            .annotate(form_name=F('fk_p_form__form_name'))\
+            .values('idapp','form_name','permission','inactive')\
             .filter(fk_p_form=fk_form,user_id=user_id)
         if data.exists():
             return data

@@ -8,36 +8,21 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from NA_Models.models import NAPriviledge
 
-def require_ajax(view):
-    from functools import wraps
-    @wraps(view)
-    def _wrapped_view(request, *args, **kwargs):
-        if request.is_ajax():
-            return view(request, *args, **kwargs)
-        else:
-            raise PermissionDenied()
-    return _wrapped_view
 
 class NA_User_Form(UserCreationForm):
     first_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter First Name'
-    }))
+    'class':'form-control','placeholder':'Enter First Name'}))
     last_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter Last Name'
-    }))
+    'class':'form-control','placeholder':'Enter Last Name'}))
     username = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter Username'
-    }))
+    'class':'form-control','placeholder':'Enter Username'}))
     email = forms.CharField(required=True,widget=forms.EmailInput(attrs={
-    'class':'form-control','placeholder':'Email Address'
-    }))
+    'class':'form-control','placeholder':'Email Address'}))
     picture = forms.ImageField(required=False)
     password1 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
-    'class':'form-control','placeholder':'Password'
-    }))
+    'class':'form-control','placeholder':'Password'}))
     password2 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
-    'class':'form-control','placeholder':'Confirm Password'
-    }))
+    'class':'form-control','placeholder':'Confirm Password'}))
     initializeForm_user = forms.CharField(required=False,widget=forms.HiddenInput())
 
     def save(self, commit=True):
