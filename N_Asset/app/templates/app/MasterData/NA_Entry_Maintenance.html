@@ -1,0 +1,83 @@
+﻿<form action="ShowEntry/" method="post" style="width:420px;height:365px;" id="maintenance_form" onsubmit="return false">
+        {% csrf_token %}
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_itemcode" class="NA-Entry-label;">Item code</label>
+            {{ form.itemcode }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_typeApp">Type of goods</label>
+            {{form.typeApp}}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_goods" class="NA-Entry-label;">Search goods</label>
+            <div class="input-group" style="display: inline-flex; width: 180px;">
+                {{ form.goods }}
+                <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
+                    <button class="btn btn-success" type="button" id="M_FK_goods" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_minus">Minus</label>
+            {{form.minus}}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_serialNum">Serial Number</label>
+            {{form.serialNum}}
+        </div>
+    </div>
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_requestdate" class="NA-Entry-label;">Request Date</label>
+            {{ form.requestdate }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_startdate" class="NA-Entry-label;">Start Date</label>
+            {{ form.startdate }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_expense" class="NA-Entry-label;">Expense</label>
+            {{ form.expense }}
+        </div>
+    </div>
+    
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_maintenanceby">Maintenance By</label>
+            {{ form.maintenanceby }} 
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_personalname">Personal Name</label>
+            {{ form.personalname }}
+        </div>
+        
+    </div>
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_enddate" class="NA-Entry-label;">End Date</label>
+            {{ form.enddate }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_issucced" style="margin-left:10px">Is Succed
+                {{ form.issucced }}</label>
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_isstillguarantee" class="NA-Entry-label;"style="margin-left:50px;">Is Still Guarantee
+                {{ form.isstillguarantee }}
+            </label>
+        </div>
+        
+    </div>
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_descriptions">Descriptions</label>
+            {{form.descriptions}}
+        </div>
+    </div>
+    {{form.fk_goods}}
+    {{form.initializeForm}}
+    <input type="submit" style="display:none" id="maintenance_submit" />
+</form>

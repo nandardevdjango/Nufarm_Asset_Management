@@ -170,17 +170,9 @@
                                 }
                                 console.log(rowsEmployee)
                                 doc.autoTable(column, rowsEmployee, {
-                                    styles: {
-                                        fontSize: 9,
-                                    },
-                                    margin: 5,
-                                    columnStyles: {
-                                        'Nik': {
-                                            lineWidth: 2
-                                        }
-                                    }
+                                    headerStyles: { fillColor: [231, 76, 60] }
                                 });
-                                if (target.innerText.trim() == 'Export To PDF') {
+                                if (target.innerText.trim() == 'Export To PDF') {//5432
                                     var val_empl = btoa(doc.output());
                                     $.ajax({
                                         url: url_emailUpl(),
@@ -339,15 +331,7 @@
                                     return [[value.nik, value.employee_name, value.typeapp, value.jobtype, value.gender, value.status, value.telphp, value.territory]];
                                 });
                                 empl_doc.autoTable(column_empl, rows_empl, {
-                                    styles: {
-                                        fontSize: 9,
-                                    },
-                                    margin: 5,
-                                    columnStyles: {
-                                        'Nik': {
-                                            lineWidth: 2
-                                        }
-                                    }
+                                    headerStyles: { fillColor: [231, 76, 60] }
                                 });
                             };
                             var supl_doc = new jsPDF();

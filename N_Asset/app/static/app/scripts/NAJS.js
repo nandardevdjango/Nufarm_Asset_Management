@@ -336,6 +336,18 @@ NA.client = function () {
 }();
 
 NA.common = {
+    //assign Object cross browser
+    AssignObject: function () {
+        var resObj = {};
+        for (var i = 0; i < arguments.length; i++) {
+            var obj = arguments[i],
+                keys = Object.keys(obj);
+            for (var j = 0; j < keys.length; j++) {
+                resObj[keys[j]] = obj[keys[j]];
+            }
+        }
+        return resObj; //result Object
+    },
     doc: window.document,
     //============Validate Input Number========================
     numberInput: function (evt) {
@@ -433,7 +445,7 @@ NA.common = {
                     this.doc.body.appendChild(script)
                 }
                 else {
-                    elem.appendChild(script)
+                    Elem.appendChild(script)
                 }
             }
         }
@@ -442,7 +454,7 @@ NA.common = {
                 this.doc.body.appendChild(script)
             }
             else {
-                elem.appendChild(script)
+                Elem.appendChild(script)
             }
         }
     },
@@ -639,620 +651,25 @@ NA.common = {
             el.setAttribute(key, attrs[key]);
         }
     },
-
+    qs: function (el) {
+        if (typeof NA.common.doc.querySelector !== "undefined") {
+            return NA.common.doc.querySelector(el);
+        } else {
+            throw new Error("No way to retrieve element!");
+        }
+    },
+    qsAll: function (el) {
+        if (typeof NA.common.doc.querySelectorAll !== "undefined") {
+            return NA.common.doc.querySelectorAll(el);
+        } else {
+            throw new Error("No way to retrieve element!");
+        }
+    },
     
 
 };
 NA.common.dialog = {
-    showDescriptionsLog: function (args) {//title, content, classContent, textToContent
-
-        var body = this.doc.body;
-        var pageDimensions = this.getPageDimensions();
-        var viewportSize = this.getViewportSize();
-
-        if (viewportSize[1] > pageDimensions[1]) {
-            pageDimensions[1] = viewportSize[1];
-        }
-        var mnuContainer = this.doc.querySelector('nav.navbar.navbar-default')
-        if (mnuContainer) { mnuContainer.style.zIndex = "0"; }
-        var dropSheet = this.doc.createElement("div");
-
-        dropSheet.setAttribute("id", "dropSheet");
-        dropSheet.style.position = "absolute";
-        dropSheet.style.left = "0";
-        dropSheet.style.top = "0";
-
-        dropSheet.style.zIndex = 1;
-        dropSheet.style.width = pageDimensions[0] + "px";
-        dropSheet.style.height = pageDimensions[1] + "px";
-        body.appendChild(dropSheet);
-
-            var dialog = this.doc.querySelector("div.containerDialog");
-            if (!dialog) {
-                dialog = this.doc.createElement("div");
-                dialog.className = 'containerDialog';
-            }
-            //dialog.classList.add("draggable");
-            dialog.style.visibility = "hidden";
-            dialog.style.position = "absolute";
-            dialog.style.zIndex = "2";
-            //=============create Header Dialog======================
-
-            var headerDialog = this.doc.createElement("div");
-            headerDialog.className = "ui-dialog-titlebar"
-            headerDialog.classList.add("ui-corner-all");
-            headerDialog.classList.add("ui-widget-header");
-            headerDialog.classList.add("ui-helper-clearfix");
-            headerDialog.classList.add("ui-draggable-handle");
-            dialog.classList.add("draggable");
-            headerDialog.style.cursor = 'move'
-            //create Span element
-            var spanDialogTitle = this.doc.createElement('span');
-            spanDialogTitle.setAttribute('id', 'ui-id-18');
-
-            spanDialogTitle.className = "ui-dialog-title";
-
-            //get title value from parameter
-            //var dialogTitle = args['dialogTitle'];
-            spanDialogTitle.textContent =args['title'];
-
-
-            //create button element
-            var dialogCloseButton = this.doc.createElement("button");
-            dialogCloseButton.className = "ui-button";
-            dialogCloseButton.classList.add("ui-corner-all");
-            dialogCloseButton.classList.add("ui-widget");
-            dialogCloseButton.classList.add("ui-button-icon-only");
-            dialogCloseButton.classList.add("ui-dialog-titlebar-close");
-            dialogCloseButton.style.cssFloat = "right";
-            dialogCloseButton.style.marginTop = "3px";
-            dialogCloseButton.style.paddingLeft = ".5em";
-            dialogCloseButton.style.paddingRight = ".5em"
-            //create element spanDialogbutton close
-            var spandialogbuttonclose = this.doc.createElement("span");
-            spandialogbuttonclose.className = "ui-button-icon";
-            spandialogbuttonclose.classList.add("ui-icon");
-            spandialogbuttonclose.classList.add("ui-icon-closethick");
-           
-
-            var spanuibuttonIconSpace = this.doc.createElement("span");
-            spanuibuttonIconSpace.className = "ui-button-icon-space";
-            dialogCloseButton.appendChild(spanuibuttonIconSpace);
-            dialogCloseButton.appendChild(spandialogbuttonclose);
-
-            headerDialog.appendChild(spanDialogTitle);
-            headerDialog.appendChild(dialogCloseButton);//1
-
-            //===============create maincontendialog===============
-
-            var mainContentDialog = this.doc.createElement("div");
-            mainContentDialog.className = "maindialogContent";//2
-            //isi content di loag pakai ajax Jquery(diluar object ini) setelah dialog di create
-
-
-            //=============create bottom dialog=====================
-            var bottomDialog = this.doc.createElement("div");
-            bottomDialog.className = "bottomDialogContent";
-
-            var dialogButtonSet1 = this.doc.createElement("div");
-            dialogButtonSet1.className = "dialogButtonEntry";
-
-            //==========create tombol OK Cancel Print dan Export==================
-            //create dulu container untuk button OK Cancelnya
-            dialogButtonSet1.classList.add('dialogButtonOKCancel');
-            //Create tombol OK Cancel
-            var btnOK = this.doc.createElement("a");
-            btnOK.className = "button";
-            btnOK.nodeValue = "OK";
-            btnOK.textContent = "OK";
-            //var isDisableOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
-            btnOK.style.width = "80px";
-            //btnOK.disabled = isDisableOK.valueOf();
-
-            //btnOK.disabled = true;
-
-            var btnCancel = this.doc.createElement("a");
-            btnCancel.className = "button";
-            btnCancel.nodeValue = "Cancel";
-            btnCancel.textContent = "Cancel";
-            btnCancel.style.width = "80px";
-            //var isDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
-            //btnCancel.disabled = isDisabledCancel.valueOf();
-
-            dialogButtonSet1.appendChild(btnOK);
-            dialogButtonSet1.appendChild(btnCancel);
-
-
-            var dialogButtonSet2 = this.doc.createElement("div");
-            dialogButtonSet2.className = "dialogButtonEntry";
-            dialogButtonSet2.classList.add("dialogButtonRightOther");
-            //create tombol Print dan Export
-            var btnPrint = this.doc.createElement("a");
-            btnPrint.className = "btn-link";
-            btnPrint.nodeValue = "Print Preview";
-            btnPrint.textContent = "Print Preview";
-            btnPrint.style.width = "120px";
-            //var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
-            //btnPrint.disabled = isDisabledPrint.valueOf();
-            btnPrint.style.marginRight = "0";
-            btnPrint.style.paddingRight = "0";
-            var btnExport = this.doc.createElement("a");
-            btnExport.className = "btn-link";
-            btnExport.nodeValue = "Export";
-            btnExport.textContent = "Export"
-            btnExport.style.width = "100px";
-
-            //var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnPrintPreview"];
-            btnExport.style.marginRight = "0";
-            btnExport.style.paddingRight = "0";
-
-            //btnExport.disabled = isDisabledExport.valueOf()
-            dialogButtonSet2.appendChild(btnPrint);
-            dialogButtonSet2.appendChild(btnExport);
-
-
-            bottomDialog.appendChild(dialogButtonSet1);
-            bottomDialog.appendChild(dialogButtonSet2);//3
-
-            dialog.appendChild(headerDialog);
-            dialog.appendChild(mainContentDialog);
-            dialog.appendChild(bottomDialog);
-
-            var scrollingPosition = this.getScrollingPosition();
-            body.appendChild(dialog);
-            dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
-            dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2.5) - parseInt(dialog.offsetHeight) + "px";
-
-            dialog.style.visibility = 'visible';
-
-
-            //===============Enabled kan Dragdrop=================================
-            NA.common.dialog.DragDrop.enable();
-
-
-
-            var ParentContent = document.createElement('div');
-            NA.common.NA_setAttr(ParentContent, {
-                "class": args['parentClass'],
-                "id": "contentName",
-                "style":"width:"+args['width']+""
-            });
-            var contentElem;
-            for (var i = 0; i < args['textToContent'].length; i++) {
-                containerElem = document.createElement('div')
-                NA.common.NA_setAttr(containerElem, {
-                    'class': 'col-md-12',
-                    'id':'containerElem'
-                });
-
-                contentElem = document.createElement('div');
-                NA.common.NA_setAttr(contentElem, {
-                    'class': args['contentElem_Class'],
-                    'id': 'contentElem'
-
-                });
-                contentData = document.createElement('div');
-                NA.common.NA_setAttr(contentData, {
-                    'class': args['contentData_Class'],
-                    'id': 'contentData'
-
-                });
-                
-                var textContent = document.createTextNode(args['textToContent'][i]);
-                contentElem.appendChild(textContent);
-                var textData = document.createTextNode(args['get_text'][i]);
-                contentData.appendChild(textData)
-                containerElem.innerHTML += contentElem.outerHTML + contentData.outerHTML
-                
-                contentData.appendChild(textData);
-                
-                ParentContent.appendChild(containerElem);
-            };
-            mainContentDialog.appendChild(ParentContent);
-            var close_Dialog = this.doc.querySelector('button.ui-button.ui-dialog-titlebar-close')
-            var theDialog = this.doc.querySelector("div.containerDialog");
-            NA.NAEvent.addHandler(close_Dialog, 'click', function () {
-                NA.common.dialog.closeDialog(theDialog)
-            });
-            var cancelButton = this.doc.querySelector('div.dialogButtonOKCancel > a.button:nth-child(2)');
-            NA.NAEvent.addHandler(cancelButton, 'click', function () {
-                NA.common.dialog.closeDialog(theDialog)
-            });
-            var content_Name = NA.common.doc.querySelector('div#contentName');
-            if (args['mode'] == 'update') {
-                var main_Dialog = NA.common.doc.querySelector('div.maindialogContent');
-                var btnContainer = NA.common.doc.createElement('div');
-                NA.common.NA_setAttr(btnContainer, {
-                    'style': 'clear:left;padding-top:20px'
-                });
-                var prevBtn = NA.common.doc.createElement('button');
-                NA.common.NA_setAttr(prevBtn, {
-                    'id': 'prev',
-                    'class': 'btn btn-success'
-                });
-                var nextBtn = NA.common.doc.createElement('button');
-                NA.common.NA_setAttr(nextBtn, {
-                    'id': 'next',
-                    'class': 'btn btn-success'
-                });
-                var iconPrev = NA.common.doc.createElement('i');
-                NA.common.NA_setAttr(iconPrev, {
-                    'class': 'fa fa-angle-double-left'
-                });
-                var iconNext = NA.common.doc.createElement('i');
-                NA.common.NA_setAttr(iconNext, {
-                    'class': 'fa fa-angle-double-right'
-                });
-                prevBtn.appendChild(iconPrev)
-                nextBtn.appendChild(iconNext)
-                btnContainer.appendChild(prevBtn)
-                btnContainer.appendChild(nextBtn)
-                main_Dialog.appendChild(btnContainer);
-
-                var getPrev = NA.common.doc.querySelector('button#prev')
-                var getNext = NA.common.doc.querySelector('button#next')
-                var text_before = args['text_before']
-                var text_after = args['text_after'];
-
-                var changeText = function () {
-                    return $('div#contentData').text('');
-                };
-                NA.NAEvent.addHandler(getPrev, 'click', function () {
-                    changeText();
-                    if (text_before.length < text_after.length) {
-                        if ($('div.' + args['contentElem_Class'] + ':contains(Modified)').length == 0) {
-                            var container_Elem = NA.common.doc.createElement('div');
-                            NA.common.NA_setAttr(container_Elem, {
-                                'class': 'col-md-12',
-                                'id': 'containerElem'
-                            });
-                            var container_Elem2 = NA.common.doc.createElement('div');
-                            NA.common.NA_setAttr(container_Elem2, {
-                                'class': 'col-md-12',
-                                'id': 'containerElem'
-                            });
-                            var modifieddate = NA.common.doc.createElement('div');
-                            NA.common.NA_setAttr(modifieddate, {
-                                'class': args['contentElem_Class'],
-                                'id': 'contentElem'
-                            });
-                            modifieddate.textContent = 'Modified Date :'
-                            var modifiedby = NA.common.doc.createElement('div')
-                            NA.common.NA_setAttr(modifiedby, {
-                                'class': args['contentElem_Class'],
-                                'id': 'contentElem'
-                            });
-                            modifiedby.textContent = 'Modified By :'
-
-                            var data_modifiedDate = NA.common.doc.createElement('div');
-                            NA.common.NA_setAttr(data_modifiedDate, {
-                                'id': 'contentData',
-                                'class': args['contentData_Class']
-                            });
-                            var data_modifiedBy = NA.common.doc.createElement('div');
-                            NA.common.NA_setAttr(data_modifiedBy, {
-                                'id': 'contentData',
-                                'class': args['contentData_Class']
-                            })
-
-                            container_Elem.appendChild(modifieddate);
-                            container_Elem.appendChild(data_modifiedDate);
-                            container_Elem2.appendChild(modifiedby);
-                            container_Elem2.appendChild(data_modifiedBy);
-                            content_Name.appendChild(container_Elem);
-                            content_Name.appendChild(container_Elem2);
-                        }
-
-                    };
-                    for (var i = 0; i < text_after.length; i++) {
-                        $('div#contentData:eq(' + i + ')').text(text_after[i])
-                    };
-                });
-                NA.NAEvent.addHandler(getNext, 'click', function () {
-                    changeText();
-                    for (var i = 0; i < text_before.length; i++) {
-                        $('div#contentData:eq(' + i + ')').text(text_before[i])
-                    };
-                    if (text_before.length < text_after.length) {
-                        $('div.'+args['contentElem_Class']+':contains(Modified)').parent().remove()
-                    }
-
-                })
-            } else if (args['mode'] == 'emailData') {
-                function createElem(data,callback) {
-                    (function(data_args){
-                        var containerElem = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(containerElem, {
-                            'id': 'containerElem',
-                            'class': 'col-md-12'
-                        });
-                        var contentElem = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(contentElem, {
-                            'id': 'contentElem',
-                            'class': args['contentElem_Class']
-                        });
-                        var contentData = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(contentData, {
-                            'id': 'contentData',
-                            'class': args['contentData_Class']
-                        });
-                        contentElem.textContent = data_args['text_elem']
-                        contentData.textContent = data_args['text_data']
-                        if (data_args['type'] == 'tabular_data') {
-                            containerElem.appendChild(contentElem);
-                            containerElem.appendChild(contentData);
-                            content_Name.appendChild(containerElem);
-                        } else if (data_args['type'] == 'biodata') {
-                            callback(containerElem, contentElem, contentData);
-                        }
-                    })(data)
-                    
-                }
-                
-
-                var type_report = args['get_text'][4]
-                var data_report = args['get_text'][5]
-                var data_report_employee = data_report['bio_employee']
-                var data_report_suplier = data_report['bio_suplier']
-                var tabular_employee = data_report['tabular_data_employee']
-                var tabular_suplier = data_report['tabular_data_suplier']
-                if (type_report == 'biodata'||type_report == 'Biodata') {
-                    if (data_report_employee) {
-                        //createElem({
-                        //    'text_elem': 'Employee :',
-                        //    'text_data': 'Rimba',
-                        //    'type': 'biodata'
-                        //}, function (containerElem, contentElem, contentData) {
-                        //    for (var i = 0; i < data_report_employee.length; i++) {
-                        //        var ul = NA.common.doc.createElement('ul');
-                        //        for (var j in data_report_employee[i]) {
-                        //            var li = NA.common.doc.createElement('li');
-                        //            var text_li = NA.common.doc.createTextNode(data_report_employee[i][j])
-                        //            li.appendChild(text_li);
-                        //            ul.appendChild(li);
-                        //        }
-                        //    }
-                        //    containerElem.appendChild(contentElem);
-                        //    contentData.appendChild(ul)
-                        //    containerElem.appendChild(contentData);
-                        //    content_Name.appendChild(containerElem);
-                        //})
-                        var container_dataEmployee = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(container_dataEmployee, {
-                            'id': 'containerElem',
-                            'class': 'col-md-12'
-                        });
-                        var data_reportEmployee = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(data_reportEmployee, {
-                            'id': 'contentElem',
-                            'class': args['contentElem_Class']
-                        });
-                        var data_reportText = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(data_reportText, {
-                            'id': 'contentData',
-                            'class': args['contentData_Class']
-                        });
-
-                        data_reportEmployee.textContent = 'Employee :';
-                        var ul_bio = NA.common.doc.createElement('ul');
-                        NA.common.NA_setAttr(ul_bio, {
-                            'id': 'ul_container'
-                        });
-
-                        
-                            
-                        
-                        var create_elem_employee = function (i) {
-                            var bio = NA.common.doc.createElement('a');
-                            var li_bio = NA.common.doc.createElement('li');
-                            var ul_data_bio = NA.common.doc.createElement('ul');
-                            var li_bio_nik = NA.common.doc.createElement('li');
-                            var li_bio_typeapp = NA.common.doc.createElement('li');
-                            var li_bio_jobtype = NA.common.doc.createElement('li');
-                            var li_bio_gender = NA.common.doc.createElement('li');
-                            var li_bio_statusEmpl = NA.common.doc.createElement('li');
-                            var li_bio_telphp = NA.common.doc.createElement('li');
-                            var li_bio_territory = NA.common.doc.createElement('li');
-                            var li_bio_descriptions = NA.common.doc.createElement('li');
-                            var li_bio_inactive = NA.common.doc.createElement('li');
-                            NA.common.NA_setAttr(ul_data_bio, {
-                                'class': 'dropdown-menu triangle',
-                                'id': 'data-dropdown'
-                            });
-                            NA.common.NA_setAttr(li_bio, {
-                                'class': 'dropdown',
-                                'id': 'dropdown-bio'
-                            });
-                            NA.common.NA_setAttr(bio, {
-                                'href': '#',
-                                'class': 'dropdown-toggle',
-                                'data-toggle': 'dropdown'
-                            });
-
-                            var textBio = NA.common.doc.createTextNode(data_report_employee[i]['employee_name']);
-                            var text_nik = NA.common.doc.createTextNode('Nik :' + data_report_employee[i]['nik']);
-                            var text_typeapp = NA.common.doc.createTextNode('Type App :' + data_report_employee[i]['typeapp']);
-                            var text_jobtype = NA.common.doc.createTextNode('Job Type :' + data_report_employee[i]['jobtype']);
-                            var text_gender = NA.common.doc.createTextNode('Gender :' + data_report_employee[i]['gender']);
-                            var text_statusEmpl = NA.common.doc.createTextNode('Status :' + data_report_employee[i]['status']);
-                            var text_telphp = NA.common.doc.createTextNode('Telp/HP :' + data_report_employee[i]['telphp']);
-                            var text_territory = NA.common.doc.createTextNode('Territory :' + data_report_employee[i]['territory']);
-                            var text_descriptions = NA.common.doc.createTextNode('Descriptions :' + data_report_employee[i]['descriptions']);
-                            var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_employee[i]['inactive']);
-
-                            bio.appendChild(textBio);
-                            li_bio.appendChild(bio);
-                            li_bio_nik.appendChild(text_nik);
-                            li_bio_typeapp.appendChild(text_typeapp);
-                            li_bio_jobtype.appendChild(text_jobtype);
-                            li_bio_gender.appendChild(text_gender);
-                            li_bio_statusEmpl.appendChild(text_statusEmpl);
-                            li_bio_telphp.appendChild(text_telphp);
-                            li_bio_territory.appendChild(text_territory);
-                            li_bio_descriptions.appendChild(text_descriptions);
-                            li_bio_inactive.appendChild(text_inactive);
-                            ul_data_bio.appendChild(li_bio_nik);
-                            ul_data_bio.appendChild(li_bio_typeapp);
-                            ul_data_bio.appendChild(li_bio_jobtype);
-                            ul_data_bio.appendChild(li_bio_gender);
-                            ul_data_bio.appendChild(li_bio_statusEmpl);
-                            ul_data_bio.appendChild(li_bio_telphp);
-                            ul_data_bio.appendChild(li_bio_territory);
-                            ul_data_bio.appendChild(li_bio_descriptions);
-                            ul_data_bio.appendChild(li_bio_inactive);
-                            li_bio.appendChild(ul_data_bio);
-                            ul_bio.appendChild(li_bio)
-                            data_reportText.appendChild(ul_bio);
-                        }
-                        if (data_report_employee.length > 1) {
-                            for (var i = 0; i < data_report_employee.length; i++) {
-                                create_elem_employee(i);
-                            }
-                        } else if (data_report_employee.length == 1) {
-                            create_elem_employee(0)
-                        };
-                        container_dataEmployee.appendChild(data_reportEmployee);
-                        container_dataEmployee.appendChild(data_reportText);
-                        content_Name.appendChild(container_dataEmployee);
-
-                    };
-                    if (data_report_suplier) {
-                        var container_dataSuplier = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(container_dataSuplier, {
-                            'id': 'containerElem',
-                            'class': 'col-md-12'
-                        });
-                        var data_reportSuplier = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(data_reportSuplier, {
-                            'id': 'contentElem',
-                            'class': args['contentElem_Class']
-                        });
-                        var data_reportText = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(data_reportText, {
-                            'id': 'contentData',
-                            'class': args['contentData_Class']
-                        });
-
-                        data_reportSuplier.textContent = 'Suplier :';
-                        var ul_bio = NA.common.doc.createElement('ul');
-                        NA.common.NA_setAttr(ul_bio, {
-                            'id': 'ul_container'
-                        })
-                        var create_elem_suplier = function (i) {
-                            var bio = NA.common.doc.createElement('a');
-                            var li_bio = NA.common.doc.createElement('li');
-                            var ul_data_bio = NA.common.doc.createElement('ul');
-                            var li_bio_supliercode = NA.common.doc.createElement('li');
-                            var li_bio_supliername = NA.common.doc.createElement('li');
-                            var li_bio_telp = NA.common.doc.createElement('li');
-                            var li_bio_hp = NA.common.doc.createElement('li');
-                            var li_bio_contactperson = NA.common.doc.createElement('li');
-                            var li_bio_inactive = NA.common.doc.createElement('li');
-                            var li_bio_address = NA.common.doc.createElement('li');
-                            NA.common.NA_setAttr(ul_data_bio, {
-                                'class': 'dropdown-menu triangle',
-                                'id': 'data-dropdown'
-                            });
-                            NA.common.NA_setAttr(li_bio, {
-                                'class': 'dropdown',
-                                'id': 'dropdown-bio'
-                            });
-                            NA.common.NA_setAttr(bio, {
-                                'href': '#',
-                                'class': 'dropdown-toggle',
-                                'data-toggle': 'dropdown'
-                            });
-
-                            var textBio = NA.common.doc.createTextNode(data_report_suplier[i]['supliername']);
-                            var text_supliercode = NA.common.doc.createTextNode('Suplier Code :' + data_report_suplier[i]['supliercode']);
-                            var text_supliername = NA.common.doc.createTextNode('Suplier Name :' + data_report_suplier[i]['supliername']);
-                            var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_suplier[i]['telp']);
-                            var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_suplier[i]['hp']);
-                            var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_suplier[i]['contactperson']);
-                            var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_suplier[i]['inactive']);
-                            var text_address = NA.common.doc.createTextNode('Address :' + data_report_suplier[i]['address']);
-
-                            bio.appendChild(textBio);
-                            li_bio.appendChild(bio);
-                            li_bio_supliercode.appendChild(text_supliercode);
-                            li_bio_supliername.appendChild(text_supliername);
-                            li_bio_telp.appendChild(text_telp);
-                            li_bio_hp.appendChild(text_hp);
-                            li_bio_contactperson.appendChild(text_contactperson);
-                            li_bio_inactive.appendChild(text_inactive);
-                            li_bio_address.appendChild(text_address);
-                            ul_data_bio.appendChild(li_bio_supliercode);
-                            ul_data_bio.appendChild(li_bio_supliername);
-                            ul_data_bio.appendChild(li_bio_telp);
-                            ul_data_bio.appendChild(li_bio_hp);
-                            ul_data_bio.appendChild(li_bio_contactperson);
-                            ul_data_bio.appendChild(li_bio_inactive);
-                            ul_data_bio.appendChild(li_bio_address);
-                            li_bio.appendChild(ul_data_bio);
-                            ul_bio.appendChild(li_bio)
-                            data_reportText.appendChild(ul_bio);
-                        }
-                        if (data_report_suplier.length > 1) {
-                            for (var i = 0; i < data_report_suplier.length; i++) {
-                                create_elem_suplier(i);
-                            }
-                        } else if (data_report_suplier.length == 1) {
-                            create_elem_suplier(0)
-                        };
-                        container_dataSuplier.appendChild(data_reportSuplier);
-                        container_dataSuplier.appendChild(data_reportText);
-                        content_Name.appendChild(container_dataSuplier);
-                    }
-                } else if (type_report == 'tabular_data' || type_report == 'Tabular Data') {
-                    
-                    var tabular_employee = data_report['tabular_data_employee']
-                    var tabular_suplier = data_report['tabular_data_suplier']
-                    var create_tabular = function (tabular) {
-                        var containerElm = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(containerElm, {
-                            'class': 'col-md-12',
-                            'id': 'containerElem'
-                        });
-                        var contentElem_t = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(contentElem_t, {
-                            'class': args['contentElem_Class'],
-                            'id': 'contentElem'
-                        });
-                        contentElem_t.textContent = tabular['textContent']
-                        var contentData_t = NA.common.doc.createElement('div');
-                        NA.common.NA_setAttr(contentData_t, {
-                            'id': 'contentData',
-                            'class': args['contentData_Class']
-                        });
-                        contentData_t.textContent = tabular['textData'];
-                        containerElm.appendChild(contentElem_t);
-                        containerElm.appendChild(contentData_t);
-                        content_Name.appendChild(containerElm);
-                    };
-                    if (tabular_employee) {
-                        create_tabular({
-                            textContent: 'Total Employee :',
-                            textData: tabular_employee
-                        })
-                    };
-                    if (tabular_suplier) {
-                        create_tabular({
-                            textContent: 'Total Suplier :',
-                            textData: tabular_suplier
-                        })
-                    }
-                }
-                
-                
-                
-            }
-        
-    },
-
-
-
-
-
+    
     doc: window.document,
     getPageDimensions: function () {
         var body = this.doc.getElementsByTagName("body")[0];
@@ -1341,7 +758,7 @@ NA.common.dialog = {
         var containerForm = this.doc.createElement("div");
         containerForm.className = 'containerForm';
         containerForm.classList.add(IDForControl);
-        containerForm.style.cssText = 'margin:auto';
+        containerForm.style.cssText = 'margin:auto;';
         //create Header for Searching
         var HeaderSearching = this.doc.createElement('div');
         HeaderSearching.className = 'input-group';
@@ -1395,6 +812,7 @@ NA.common.dialog = {
 
         var mainContainer = this.doc.createElement('div');
         mainContainer.className = 'maincontainerForm';
+        mainContainer.style.cssText = 'overflow-x:auto;';
         mainContainer.classList.add(IDForControl);
         containerForm.appendChild(HeaderSearching);
         containerForm.appendChild(mainContainer);
@@ -1425,7 +843,8 @@ NA.common.dialog = {
         if (!dialog) {
             dialog = this.doc.createElement("div");
             dialog.className = 'containerDialog';
-            dialog.classList.add("draggable");
+            dialog.style.padding = '0px'
+            //dialog.classList.add("draggable");
         }
         dialog.style.visibility = "hidden";
         dialog.style.position = "absolute";
@@ -1749,16 +1168,22 @@ NA.common.dialog = {
 };
 NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
-    _canNotDelete: 'Can not delete data\Data has child-referenced',
+    _canNotDelete: 'Can not delete data\nData has child-referenced',
+    _canNotEdit: 'Can not edit data\nData has child-referenced',
     _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
-    _savingSucces: 'Data Saved Succesfuly.',
+    _savingSucces: 'Data saved succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
     _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',
     _existsData: 'Data has existed',
     _titleInfo: 'Information',
     _confirmInfo: 'Confirmation',
-    _titleError: 'Unhandled system exception due to the following occurs'
+    _titleError: 'Unhandled system exception due to the following occurs',
+    _dataHasLost: 'Data has Lost',
+    _unsupportedCriteria: 'Operator is not supported for this kind of data\nPlease change criteria or column name',
+
+    _canNotAddOtherPermsForGuest: 'This user is Guest, cannot add other permission except Allow View \n \n Hint : Change user\'s role if you want to add other permission'
 };
+//mang misalkan user1 teh aya di posisi kieu, user1 keur nga update data .. ehh ai pek teh data eta karek bieu dihapus ku user2 ... terus nga handle na bere pesan(message) bahwa data eta teh geus dihapus ku user lain terus bere keterangan waktu jeng user anu ngahapus na ???
 Object.defineProperties(NA.common.message, {
     confirmDelete: {
         get: function () {
@@ -1768,6 +1193,11 @@ Object.defineProperties(NA.common.message, {
     canNotDelete:{
         get:function(){
             return this._canNotDelete;
+        }
+    },
+    canNotEdit: {
+        get: function () {
+        return this._canNotEdit;
         }
     },
     clearData: {
@@ -1809,8 +1239,44 @@ Object.defineProperties(NA.common.message, {
         get: function () {
             return this._confirmInfo;
         }
+    },
+    dataHasLost: {
+        get: function () {
+            return this._dataHasLost;
+        }
+    },
+    unsupportedCriteria: {
+        get: function () {
+            return this._unsupportedCriteria;
+        }
+    },
+    canNotAddOtherPermsForGuest: {
+        get: function () {
+            return this._canNotAddOtherPermsForGuest;
+        }
     }
 });
+    NA.common.message.server = function(message) {
+        var result;
+        switch (message) {
+            case '__hasref_edit':
+                result = NA.common.message.canNotEdit;
+                break;
+            case '__hasref_del':
+                result = NA.common.message.canNotDelete;
+                break;
+            case '__lost':
+                result = NA.common.message.dataHasLost;
+                break;
+            case '__cannot_add_other_permission_guest':
+                result = NA.common.message.canNotAddOtherPermsForGuest;
+                break;
+            default:
+                result = message;
+                break;
+        }
+        return result;
+    }
 //=========================AJAX NAJS,(sudah test) =============================================
 NA.common.AJAX = {
     XHR: {},
@@ -1876,6 +1342,7 @@ NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBe
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
     this.XHR.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+    this.XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     //==============================================================
     //XHR.setRequestHeader('Accept :' + XdataType);
     if (OnBeforeSend) { OnBeforeSend.call(this.XHR); }
@@ -1903,6 +1370,9 @@ NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad,
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
+    //======= To determine if request is ajax =======
+    this.XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
     //==============================================================
     if (OnBeforeSend) { OnBeforeSend.call(this.XHR); }
     this.XHR.send(null);
@@ -1929,6 +1399,10 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     this.XHR.setRequestHeader('Pragma', 'no - cache');
     this.XHR.setRequestHeader('Expires', 'Thu, 19 Nov 1981 08:52:00 GMT');
+
+    //======= To determine if request is ajax =======
+    this.XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
     //==============================================================
     this.XHR.send(NA.common.serializeForm(FormElement));
     return true;
@@ -1937,9 +1411,15 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
 NA.Priviledge = {
     _roleName: 'SysAdmin',
     _rolCode: 'SA',
-    _userName: 'Nandar',
+    _email: 'Nandar@yahoo.com',
     _password: '',
     _isAdmin: true,
+    _permissions: {
+        _allow_view: false,
+        _allow_add: false,
+        _allow_edit: false,
+        _allow_delete: false
+    }
 }
 Object.defineProperties(NA.Priviledge, {
     RoleName: {
@@ -1950,9 +1430,9 @@ Object.defineProperties(NA.Priviledge, {
         get: function () { return this._rolCode; },
         set: function (newValue) { this._rolCode = newValue; },
     },
-    UserName: {
-        get: function () { return this._userName; },
-        set: function (newValue) { this._userName = newValue; },
+    Email: {
+        get: function () { return this._email; },
+        set: function (newValue) { this._email = newValue; },
     },
     password: {
         get: function () { return this._password; },
@@ -1961,7 +1441,120 @@ Object.defineProperties(NA.Priviledge, {
     IsAdmin: {
         get: function () { return this._isAdmin; },
         set: function (newValue) { this._isAdmin = newValue; },
+    },
+    Permissions: {
+        get: function () { return this._permissions }
     }
 });
+
+Object.defineProperties(NA.Priviledge.Permissions, {
+    Allow_View: {
+        get: function () {
+            return this._allow_view;
+        },
+        set: function (newValue) {
+            this._allow_view = newValue;
+        }
+    },
+    Allow_Add: {
+        get: function () {
+            return this._allow_add;
+        },
+        set: function (newValue) {
+            this._allow_add = newValue;
+        }
+    },
+    Allow_Edit: {
+        get: function () {
+            return this._allow_edit;
+        },
+        set: function (newValue) {
+            this._allow_edit = newValue;
+        }
+    },
+    Allow_Delete: {
+        get: function () {
+            return this._allow_delete;
+        },
+        set: function (newValue) {
+            this._allow_delete = newValue;
+        }
+    }
+})
+
+NA.Priviledge.get_server_permissions = function (kwargs) {
+    var form = kwargs['form_name'],
+        email = kwargs['email'],
+        success = kwargs['success'],
+        done = kwargs['done'];
+    var NAAjax = NA.common.AJAX;
+    var url = '/MasterData/Priviledge/permission/' + email + '/get_permission/?form_name=' + form;
+    NAAjax.GET(url, 'application/json', null, null,
+        function () {
+            if (this.status == 200) {
+                var response = JSON.parse(this.responseText)['message']
+                success(response);
+            };
+        },null,null,
+        function () {
+            done();
+        });
+};
+
+NA.Priviledge.read_priviledge = function (form_name) {
+    return NA.Priviledge.get_server_permissions({
+        form_name: form_name,
+        email: NA.Priviledge.Email, // this is has declared in layout.html
+        success: function (permission) {
+            for (var i = 0; i < permission.length; i++) {
+                if (permission[i]['permission'] == 'Allow View') {
+                    NA.Priviledge.Permissions.Allow_View = true;
+                } else if (permission[i]['permission'] == 'Allow Add') {
+                    NA.Priviledge.Permissions.Allow_Add = true;
+                } else if (permission[i]['permission'] == 'Allow Edit') {
+                    NA.Priviledge.Permissions.Allow_Edit = true;
+                } else if (permission[i]['permission'] == 'Allow Delete') {
+                    NA.Priviledge.Permissions.Allow_Delete = true;
+                }
+            }
+        },
+        done: function () {
+            Object.freeze(NA.Priviledge);
+            var qs = qs || NA.common.qs
+            var btn_add = qs('button#addData'),
+			btn_edit = qs('button#editData'),
+			btn_delete = qs('button#delData');
+            if (!NA.Priviledge.Permissions.Allow_Add) {
+                btn_add.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_add, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_add.style.cursor = 'not-allowed';
+            };
+            if (!NA.Priviledge.Permissions.Allow_Edit) {
+                btn_edit.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_edit, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_edit.style.cursor = 'not-allowed';
+            };
+            if (!NA.Priviledge.Permissions.Allow_Delete) {
+                btn_delete.setAttribute('disabled', '');
+                NA.NAEvent.addHandler(btn_delete, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    event.stopImmediatePropagation();
+                    return false;
+                });
+                btn_delete.style.cursor = 'not-allowed';
+            }
+        }
+    });
+}
 //=================================================================
-   

@@ -85,7 +85,8 @@
 <script type="text/javascript">
 //=================================AJAX Setup===========================-->
 
-    $(function() {
+	$(function() {
+		NA.Priviledge.read_priviledge('goods');
         $.ajaxSetup({
             cache:false,                                 
             error: function(xhr, status, error) {
@@ -145,11 +146,11 @@
                             '&' +  win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()),
                         mtype: "GET",
                         datatype: "json",
-                        colNames: ['IDapp','Item Code','Goods Name','Brand Name','Unit','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
+                        colNames: ['IDapp','Item Code','Goods Name','Unit','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
                         colModel: [
                             {name: 'idapp', key: true, hidden: true, width:70,align:'left'},
                             {name: 'itemcode', index:'itemcode', width: 80,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
-                            {name: 'brandname', index:'brandcame',width: 150,sortable:true,editable:false, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
+                            //{name: 'brandname', index:'brandcame',width: 150,sortable:true,editable:false,hidden: true,  filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             {name: 'goodsname',index:'goodsname', width: 150,sortable:true,editable:false, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] } },
                             {name:'unit',index:'unit',width:70,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
@@ -460,29 +461,27 @@
                 columnKey = elSearch.dataset.column
                 elDataType = elSearch.dataset.tipe;
                 criteria = 'like'                
-                if (!elSearch.dataset.column) {
-                    switch( elDataType){
-                        case "bigint":
-                        case "integer":
-                        case "money":
-                        case "float":
-                        case "decimal":
-                        case "boolean":
-                        case "datetime":{
-                            if(valueKey.toString().indexOf(',') > -1){
-                                criteria = 'in'
-                            }
-                            criteria = 'equal';
-                            break;
-                        }                      
-                    };
-                }
+                switch( elDataType){
+                	case "bigint":
+                	case "integer":
+                	case "money":
+                	case "float":
+                	case "decimal":
+                	case "boolean":
+                	case "datetime":{
+                		if(valueKey.toString().indexOf(',') > -1){
+                			criteria = 'in'
+                		}
+                		criteria = 'equal';
+                		break;
+                	}                      
+                };
             }
             
             NA.common.SearchData.setValue(valueKey);
             NA.common.SearchData.setColumnName(columnKey);
             NA.common.SearchData.setDataType(elDataType)
-            NA.common.SearchData.setCriteria(valCriteria);
+            NA.common.SearchData.setCriteria(criteria);
             window.document.body.style.cursor = 'wait';
             LoadData(1);
             document.body.style.cursor = 'default';
@@ -604,7 +603,7 @@
             // Always add "?debug=1" to every URL
             options.beforeSend = function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type)) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken());
                 }
             }     
         });

@@ -1,0 +1,1445 @@
+﻿{% extends 'app/layout.html' %}
+
+{% block SearchData %}
+<li><a href="#" data-tipe="varchar" data-column="first_name">First Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="last_name">Last Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="username">Username</a></li>
+<!--<li class="divider"></li>-->
+<li><a href="#" data-tipe="varchar" data-column="email">Email</a></li>
+<li><a href="#" data-tipe="varchar" data-column="divisi">Divisi</a></li>
+<li><a href="#" data-tipe="varchar" data-column="last_form">Last Form</a></li>
+<li><a id="custSearch" href="#">Custom Search</a></li>
+<!--<li class="divider"></li>-->
+{% endblock %}
+
+{% block javascriptAndUI %}
+{% load static %}
+
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<script type="text/javascript">
+
+    (function(){
+        var txtSearchMaster =  NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+            btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+        window.onunload = function(){
+            if (typeof txtSearchMaster.onclick == "function") {
+                NA.NAEvent.removeHandler(txtSearchMaster,'keydown',handlerSearchInput)
+            }
+            if (typeof btnSearchMaster.onclick == "function") {
+                NA.NAEvent.removeHandler(btnSearchMaster,'click',handlerSearchInput);
+            }
+        };
+//=================add Dynamic Styles=============================
+        NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
+        var doc = doc||window.document;
+        var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+        (function(elm){
+            var listElem = elm.children;
+            Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
+                if(item.firstChild.nodeValue != 'CustomSearch'){
+                    NA.NAEvent.addHandler(item,'click',function(event){
+                        event.preventDefault();
+                        if(item.firstChild.id === 'custSearch'){
+                            //=========='show dialog search'==================
+                            NA.common.dialog.createSearchDialog(event)
+                        }
+                        NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent;
+                    });
+                }
+            });
+        })(DivSearch);
+    })();
+</script>
+<script src="{% static 'app/scripts/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
+<script src="{% static 'app/scripts/jquery.jqGrid.min.js' %}"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+<style>
+div#content-0 {
+    overflow:hidden;
+}
+div[id*=gbox_NA_Priviledge_grid],div[id*=gview_NA_Priviledge_grid],
+div[id*=NA_Priviledge_pager],div.ui-jqgrid-titlebar,
+div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,
+div[id*=NA_Priviledge_grid]{
+    border-radius: 0px
+}
+.form-dialog-change-role > .modal-dialog.modal-sm {
+    width: 400px;
+}
+</style>
+{% endblock %}
+
+{% block content-0 %}
+<table id="NA_Priviledge_grid" style="overflow:auto"></table>
+<div id="NA_Priviledge_pager" class="scroll" style="text-align:center;"></div>
+{% endblock %}
+
+{% block DialogEntry %}
+<script>
+    function get_csrf(){
+        csrf_token = '{{csrf_token}}'
+        return csrf_token
+    }
+</script>
+<script type="text/javascript">
+    var win = win || window;
+    var priviledge_grid = $("#NA_Priviledge_grid");
+    var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+        btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+        qs = NA.common.qs,
+        qsAll = NA.common.qsAll;
+    $(document).ready(function () {
+    	NA.Priviledge.read_priviledge('n_a_priviledge');
+        function LoadData(page) {
+            var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+                          '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+                          '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+                          '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+            if (arguments.length > 0) {
+                priviledge_grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
+            } else {
+                priviledge_grid.jqGrid({
+                    url: url,
+                    datatype: 'json',
+                    mtype: 'GET',
+                    colNames: ['No','IDApp', 'First Name', 'Last Name','User Name', 'Email', 'Divisi', 'Role','Password','Last Login', 'Last Form', 'Inactive', 'Createddate', 'Createdby'],
+                    colModel: [
+                        {name: 'no', index:'no',width:45, align:'center'},
+                        { name: 'idapp', index: 'idapp', width: 125, search: false, key: true, hidden: true },//
+						{ name: 'first_name', index: 'first_name', width: 120, editable: true, search: false, },
+						{ name: 'last_name', index: 'last_name', width: 120, editable: true, search: false },
+                        { name: 'username', index: 'username', width: 130, editable: true, search: false },
+                        { name: 'email', index: 'email', width: 160, editable: true },
+						{ name: 'divisi', index: 'divisi', width: 70, editable: true, search: false, align: 'center' },
+						{
+							name: 'role', index: 'role', width: 70, editable: true, search: false, align: 'center', formatter: 'select',
+							editoptions: {
+								value: '1:Super User;2:User;3:Guest'
+							}
+						},
+                        { name: 'password', index: 'password', width: 160, align: 'left' },
+                        { name: 'last_login', index: 'last_login', width: 150, align: 'left', editable: true, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },
+                        { name: 'last_form', index: 'last_form', width: 110, editable: true, search: false },
+                        { name: 'inactive', index: 'inactive', width: 65,align:'center', editable: true, formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } },
+                        { name: 'createddate', index: 'createddate', width: 155, editable: false, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' } },//,formatter: "date",formatoptions: { srcformat: "ISO8601Long", newformat: "Y/m/d H:i" }
+                        { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false, editoptions: { dataInit: function (element) { jq(element).attr("readonly", "readonly"); } } },
+                    ],
+                    jsonreader: {
+                        repeatitems: false,
+                        root: 'rows'
+                    },
+                    pager: $('#NA_Priviledge_pager'),
+                    rowNum: 20,
+                    rowList: [10, 20, 30],
+                    sortname: 'idapp',
+                    sortorder: "asc",
+                    viewrecords: true,
+                    loadui: 'disable',
+                    shrinkToFit: false,
+                    caption: 'Master Data -- User Priviledge',
+                    height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
+                    width: 'inherit',
+                    ondblClickRow: function (rowId) {
+                        var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
+                        if (btnOpen) {
+                            btnOpen.click();
+                        }
+                    },
+                    onSelectRow: function (rowId, status, event) {
+                    	$('#NA_Priviledge_grid_' + rowId + '_table').jqGrid('resetSelection');
+                    },
+                    gridComplete: function () {
+                        $('.ui-sgcollapsed').dblclick(function (event) {
+                            event.preventDefault();
+                            event.stopPropagation(); //stop/remove event double click in row
+                        });
+                    },
+                    subGrid: true,
+                    subGridRowExpanded: showChildGrid,
+                    subGridOptions: {
+                    	"plusicon": "ui-icon-triangle-1-e",
+                    	"minusicon": "ui-icon-triangle-1-s",
+                    	"openicon": "ui-icon-arrowreturn-1-e"
+                    }
+                });
+            }
+        };
+
+        showPermissions = function (rowId, val, rawObject, cm) {
+        	if (typeof rawObject.attr == 'undefined') return;
+        	var attr = rawObject.attr[cm.name], result;
+        	if (attr.rowspan) {
+        		result = ' rowspan=' + '"' + attr.rowspan + '"';
+        	} else if (attr.display) {
+        		result = ' style="display:' + attr.display + '"';
+        	}
+        	return result;
+        };
+
+
+        function showChildGrid(parentRowID, parentRowKey) {
+        	var childGridID = parentRowID + "_table";
+        	var childGridPagerID = parentRowID + "_pager";
+
+        	(function ($) {
+        		"use strict";
+        		$.extend($.fn.fmatter, {
+        			dynamic_checkbox: function (cellValue, options,
+							rowObject, action) {
+        				if (NA.Priviledge.IsAdmin) {
+        					options.checkbox.disabled = false;
+        				} else {
+        					options.checkbox.disabled = true;
+        				}
+        				return $.fn.fmatter.call(this, "checkbox",
+							cellValue, options, rowObject, action);
+        			}
+        		});
+        	}(jQuery));
+
+        	// send the parent row primary key to the server so that we know which grid to show
+        	//var data = [{ "idapp": 1, "form_name": "Suplier Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 2, "form_name": "Suplier Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 5, "form_name": "Suplier Form", "permission": "Allow Add", "attr": { "display": "none" } }, { "idapp": 3, "form_name": "Employee Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 4, "form_name": "Employee Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 6, "form_name": "Employee Form", "permission": "Allow Add", "attr": { "display": "none" } }]
+        	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
+        	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
+
+        	$("#" + childGridID).jqGrid({
+        		url: 'sys/?' + win.encodeURIComponent('user_id') + '=' + parentRowKey,
+        		mtype: "GET",
+        		datatype: "json",
+        		page: 1,
+        		colModel: [
+                    { label: 'IDApp', name: 'idapp', key: true, width: 75,hidden:true },
+                    { label: 'Form Name', name: 'form_name',align:'center', width: 70, cellattr: showPermissions },
+                    { label: 'Permissions', name: 'permission', width: 60 },
+					{
+						label: 'Inactive', name: 'inactive', width:30, align: 'center', editable: true, formatter: 'dynamic_checkbox',
+						editoptions: { value: '1:0' },
+						//formatoptions: { disabled: false }
+					},
+                    {
+                        label: 'Created Date', name: 'createddate', width: 80, align: 'center', editable: false, search: false, formatter: 'date',
+                        formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' }
+                    },
+                    {
+                        label: 'Created By', name: 'createdby', width: 60, search: false, editable: false,
+                        editoptions: {
+                            dataInit: function (element) {
+                                jq(element).attr("readonly", "readonly");
+                            }
+                        }
+                    }
+        		],
+        		viewrecords: true,
+				rowNum:10,
+        		width: 550,
+        		height: '100%',
+        		pager: "#" + childGridPagerID,
+        		ondblClickRow: function (rowId, iRow, iCol, event) {
+        			NA.NAEvent.preventDefault(event);
+        			NA.NAEvent.stopPropagation(event);
+        		},
+        		onSelectRow: function (rowId, status, event) {
+        			priviledge_grid.jqGrid('resetSelection');
+        		},
+        		beforeSelectRow: function (rowid, e) {
+        			var $self = $(this),
+						iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+					cm = $self.jqGrid("getGridParam", "colModel");
+        			//localData = $self.jqGrid("getLocalRow", rowid);
+        			if (cm[iCol].name === "inactive") {
+        				var checked = $(e.target).is(":checked");
+        				oriChecked = !checked;
+        				var tr = $(e.target).closest('tr');
+        				idapp = tr[0].id;
+						var permission_url = 'permission/' + idapp + '/setInActive/'
+        				if (parseInt(idapp) != -1) {
+        					$.ajax({
+        						url: permission_url,
+        						method: 'POST',
+        						beforeSend: function (xhr) {
+        							xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+        						},
+        						data: {
+        							'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken'),
+        							'inactive': checked
+        						},
+        						complete: function (data) {
+        							if (data.status !== 200) {
+        								$(e.target).prop('checked', oriChecked);
+        								var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+        								return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        							}
+        						}
+        					});
+        				}
+        			}
+        			return true; // allow selection
+        		}
+        	});
+
+        	function getChildGridId() {
+        		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
+        	}
+        	var rowData = priviledge_grid.getRowData(parentRowKey);
+        	var idapp = rowData['idapp']; // user_id
+        	var email = rowData['email'];
+        	if (NA.Priviledge.IsAdmin) { // only admin can manipulate user's permission
+        		$('#' + childGridID).navGrid('#' + childGridPagerID, {
+        			edit: false,
+        			add: false,
+        			del: false,
+        			search: false,
+        			refresh: false,
+        			cloneToTop: false
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			id: 'btn_add_for_parent_' + parentRowKey,
+        			caption: "",
+        			buttonicon: "ui-icon-plus",
+        			onClickButton: function (event) {
+        				$('div.maindialogContent').load("permission/" + win.encodeURIComponent(email) + '/add/', function (responseTxt, statusTxt, xhr) {
+        					var dialog = qs("div.containerDialog"),
+								btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
+								btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+        					if (xhr.status != 200) {
+        						return dialogAlert(NA.common.message.server(JSON.parse(responseTxt)['message']), NA.common.message.titleInfo, function () {
+        							var dialog = qs("div.containerDialog");
+        							NA.common.dialog.closeDialog(dialog);
+        							return priviledge_grid.trigger('reloadGrid');
+        						});
+        					};
+        					qs('.ui-dialog-title').textContent += email;
+        					qs('input#id_user_id').value = parentRowKey;
+        					NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+        						executeHandler_permission('Close');
+        					});
+        					var initialize_permissionForm = qs('input#id_initialize_permissionForm');
+        					initialize_permissionForm.value = JSON.stringify(getValues_formPermission());
+        					dialog.style.top = '40px';
+        					Array.prototype.forEach.call(btnOkCancel, function (elem) {
+        						NA.NAEvent.addHandler(elem, 'click', function (event) {
+        							var target = NA.NAEvent.getTarget(event);
+        							executeHandler_permission(target.innerText);
+        							if (event) {
+        								NA.NAEvent.stopPropagation(event);
+        							}
+        						});
+        					});
+
+        					var NA_Permission_grid = $('<table id="NA_Permission_grid" style="overflow:auto;"></table>').appendTo('fieldset#fieldset_permission');
+        					var NA_Permission_pager = $('<div id="NA_Permission_pager" class="scroll" style="text-align:center;"></div>').appendTo('fieldset#fieldset_permission');
+
+        					function LoadPermission_grid(fk_form) {
+        						var url = "permission/" + win.encodeURIComponent(
+										priviledge_grid.getRowData(parentRowKey)['idapp']
+									) + "/check_permission/?"
+									+ win.encodeURIComponent('fk_form')
+									+ '=' + win.encodeURIComponent(fk_form)
+        						if (fk_form != 'null') {
+        							$(NA_Permission_grid).setGridParam({ url: url }).trigger("reloadGrid");
+        						};
+
+        						var allow_view = qs('input#id_allow_view'),
+									allow_add = qs('input#id_allow_add'),
+									allow_edit = qs('input#id_allow_edit'),
+									allow_delete = qs('input#id_allow_delete');
+        						$(NA_Permission_grid).jqGrid({
+        							url: url,
+        							datatype: "json",
+        							colNames: ['idapp', 'No', 'Form Name', 'Permission', 'Set', 'Remove'],
+        							colModel: [
+										{ name: 'idapp', index: 'idapp', hidden: true, editable: false },
+										{ name: 'no', index: 'no', width: 40, align: 'center', key: true, editable: false },
+										{ name: 'form_name', index: 'form_name', width: 130, editable: false },
+										{ name: 'permission', index: 'permission', width: 130, editable: false },
+										{
+											name: 'set', index: 'set', width: 70, align: 'center', editable: false, formatter: 'checkbox', edittype: 'checkbox',
+											editoptions: { value: '1:0' },
+											formatoptions: { disabled: false }
+										},
+										{
+											name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center', formatter: "actions",
+											formatoptions: {
+												keys: true,
+												editbutton: false,
+												addbutton: false,
+												delOptions: {
+													modal: false,
+													jqModal: false
+												}
+											}
+										}
+        							],
+        							width: 'inherit',
+        							height: 102,
+        							viewrecords: true,
+        							pager: '#NA_Permission_pager',
+									shrinkToFit: false,
+        							beforeSelectRow: function (rowid, e) {
+        								var $self = $(this),
+											iCol = $.jgrid.getCellIndex($(e.target).closest("td")[0]),
+										cm = $self.jqGrid("getGridParam", "colModel");
+        								if (cm[iCol].name === "set") {
+        									var checked = $(e.target).is(":checked");
+        									var tr = $(e.target).closest('tr');
+        									var permission = $(e.target).parent().prev().text();
+        									if (permission == "Allow View") {
+        										allow_view.checked = checked;
+        									} else if (permission == "Allow Add") {
+        										allow_add.checked = checked;
+        									} else if (permission == "Allow Edit") {
+        										allow_edit.checked = checked;
+        									} else if (permission == "Allow Delete") {
+        										allow_delete.checked = checked;
+        									}
+        									var no = tr[0].id;
+        								}
+        								return true; // allow selection
+        							},
+        							gridComplete: function () {
+        								var data = $(NA_Permission_grid).getRowData()
+        								if (data.length > 0) {
+        									for (var i = 0; i < data.length; i++) {
+        										if (data[i]['permission'] == 'Allow View') {
+        											qs('input#id_allow_view').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Add') {
+        											qs('input#id_allow_add').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Edit') {
+        											qs('input#id_allow_edit').checked = true;
+        										} else if (data[i]['permission'] == 'Allow Delete') {
+        											qs('input#id_allow_delete').checked = true;
+        										}
+        									};
+        									if (data[data.length - 1]['idapp'] != 'dummy_inline') {
+        										qs('input#id_initialize_permissionForm').value = JSON.stringify(getValues_formPermission());
+        									}
+        								}
+        							},
+        							pgbuttons: false,
+        							pgtext: null,
+        						});
+
+        						$("div#gbox_NA_Permission_grid, div#gview_NA_Permission_grid, div#gview_NA_Permission_grid > div.ui-jqgrid-bdiv, div#gview_NA_Permission_grid > div.ui-jqgrid-hdiv, #NA_Permission_pager").css({
+        							'width': 'inherit'
+        						});
+        						$('div#gview_NA_Permission_grid div.ui-jqgrid-hbox').css('padding', '0');
+
+        						$('#NA_Permission_grid').on('click', 'div.ui-pg-div.ui-inline-del', function (event) {
+        							event.preventDefault();
+        							event.stopPropagation();
+        							var rowId = $(this).parents('tr')[0].id;
+        							$('#NA_Permission_grid').delRowData(rowId);
+        						});
+
+        						$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
+        							edit: false,
+        							add: false,
+        							del: false,
+        							search: false,
+        							refresh: false,
+        							cloneToTop: false
+        						}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
+        							id: 'btn_add_permission_inline',
+        							caption: "",
+        							buttonicon: "ui-icon-plus",
+        							onClickButton: function (event) {
+        								var select_fk_form = qs('select#id_fk_form');
+        								if (select_fk_form.checkValidity()) {
+        									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1', inactive: '0' };
+        									var row_count = $(NA_Permission_grid).getGridParam('reccount');
+        									if (row_count == 1) {
+        										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
+        											var DialogChange_role = new BootstrapDialog({
+        												draggable: true,
+        												type: BootstrapDialog.TYPE_SUCCESS,
+        												size: BootstrapDialog.SIZE_SMALL,
+        												title: NA.common.message.titleInfo,
+        												message: NA.common.message.canNotAddOtherPermsForGuest,
+        												onshown: function (dialogRef) {
+        													return;
+        												},
+        												closable: false,
+        												animate: true,
+        												closeByBackdrop: false,
+        												closeByKeyboard: false,
+        												buttons: [{
+        													label: 'Change role',
+        													cssClass: 'btn-default',
+        													action: function (dialogRef) {
+        														BootstrapDialog.show({
+        															draggable: true,
+        															type: BootstrapDialog.TYPE_SUCCESS,
+        															size: BootstrapDialog.SIZE_SMALL,
+        															title: 'Change User\'s Role',
+        															cssClass: 'form-dialog-change-role',
+        															message: function (dialogRef) {
+        																var dummy_form = $('<form id="dummy_form" onsubmit="return false"></form>');
+
+        																var role = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_role" class="control-label" style="text-align: left;font-weight:bold">';
+        																role += 'Role :</label><div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        																role += '<select name="role" class="form-control" id="dummy_role"><option value="3">Guest</option><option value="2">User</option><option value="1">Super User</option></select></div></div>';
+        																$(role).appendTo(dummy_form);
+
+        																var divisi = '<div class="col-sm-12" style="padding:0 15px 0 0;"><label for="id_divisi" class="control-label" style="text-align: left;font-weight:bold">Divisi :</label>';
+        																divisi += '<div class="input-group"><span class="input-group-addon" style="color: rgb(175, 175, 175);"><i class="fa fa-id-card" aria-hidden="true"></i></span>';
+        																divisi += '<select name="divisi" class="form-control" id="dummy_divisi" required="">';
+        																divisi += '<option value="" selected="">-----------</option><option value="IT">IT</option><option value="GA">GA</option></select></div></div>';
+        																$(divisi).appendTo(dummy_form);
+
+        																$('<input type="submit" id="submit_dummy_form" style="display:none" />').appendTo(dummy_form);
+        																return dummy_form;
+        															},
+        															closable: false,
+        															animate: true,
+        															closeByBackdrop: false,
+        															closeByKeyboard: false,
+        															buttons: [{
+        																label: 'Cancel',
+        																cssClass: 'btn-default',
+        																action: function (dialogRef) {
+        																	dialogRef.close();
+        																}
+        															}, {
+        																label: 'OK',
+        																cssClass: 'btn-success',
+        																action: function (dialogRef) {
+        																	var dummy_form = qs('form#dummy_form');
+        																	var role = qs('select#dummy_role'),
+																				divisi = qs('select#dummy_divisi');
+        																	if (role.value == 3) {
+        																		role.setCustomValidity('Please change user\'s role');
+        																	} else {
+        																		role.setCustomValidity('');
+        																	};
+        																	if (!dummy_form.checkValidity()) {
+        																		$('#submit_dummy_form').click();
+        																		return false;
+        																	} else {
+        																		$.ajax({
+        																			url: 'change_role/' + win.encodeURIComponent(rowData['email']) + '/',
+        																			method: 'POST',
+        																			beforeSend: function (xhr) {
+        																				xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+        																			},
+        																			data: {
+        																				'role': role.value.trim(),
+        																				'divisi': divisi.value.trim()
+        																			},
+        																			success: function (data) {
+        																				if (data['message'] == '__success') {
+        																					dialogRef.close();
+        																					BootstrapDialog.show({
+        																						draggable: true,
+        																						type: BootstrapDialog.TYPE_SUCCESS,
+        																						size: BootstrapDialog.SIZE_SMALL,
+        																						title: NA.common.message.titleInfo,
+        																						cssClass: 'form-dialog-change-role',
+        																						message: 'Successfully changed user\'s role \n System will be set default permission, \n but you can continue set your custom permission',
+        																						closable: false,
+        																						animate: true,
+        																						closeByBackdrop: false,
+        																						closeByKeyboard: false,
+        																						buttons: [{
+        																							label: 'Custom Permission',
+        																							cssClass: 'btn-default',
+        																							action: function (dialogRef) {
+        																								priviledge_grid.trigger('reloadGrid');
+        																								dialogRef.close();
+        																							}
+        																						}, {
+        																							label: 'Default Permission',
+        																							cssClass: 'btn-success',
+        																							action: function (dialogRef) {
+        																								$.ajax({
+        																									url: 'permission/' + rowData['email'] + '/set_default/',
+        																									method: 'POST',
+        																									beforeSend: function (xhr) {
+        																										xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+        																									},
+        																									success: function (data) {
+        																										if (data['message'] == '__success') {
+        																											dialogRef.close();
+        																											var dialog = qs("div.containerDialog");
+        																											NA.common.dialog.closeDialog(dialog);
+        																											priviledge_grid.trigger('reloadGrid');
+        																										}
+        																									}
+        																								})
+        																							}
+        																						}]
+        																					});
+        																				}
+        																			}
+        																		})
+        																	}
+        																}
+        															}]
+        														});
+        														dialogRef.close();
+        													},
+        												}, {
+        													label: 'OK',
+        													id: 'btnOK',
+        													cssClass: 'btn-success',
+        													action: function (dialogRef) {
+        														dialogRef.close();
+        													}
+        												}]
+        											});
+        											DialogChange_role.open();
+        											return false;
+        										}
+        										dummy_data['no'] = 2
+        										dummy_data['permission'] = 'Allow Add';
+        									} else if (row_count == 2) {
+        										dummy_data['no'] = 3
+        										dummy_data['permission'] = 'Allow Edit';
+        									} else if (row_count == 3) {
+        										dummy_data['no'] = 4
+        										dummy_data['permission'] = 'Allow Delete';
+        									} else if (row_count > 3) {
+        										return false;
+        									}
+        									$(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
+        								} else {
+        									$('#permission_submit').click();
+        									return false;
+        								};
+        								$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
+        							}
+        						});
+        					};
+
+        					LoadPermission_grid('null');
+        					var select_fk_form = qs('select#id_fk_form');
+        					NA.NAEvent.addHandler(select_fk_form, 'change', function () {
+        						if (this.value == "") {
+        							$(NA_Permission_grid).jqGrid("clearGridData", true);
+        						} else {
+        							LoadPermission_grid(this.value);
+        						}
+        					});
+        				});
+        			},
+        			position: "first"
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			caption: "",
+        			buttonicon: "ui-icon-pencil",
+        			onClickButton: function () {
+
+        				alert(getChildGridId());
+        			},
+        			position: "last"
+        		}).navButtonAdd('#' + childGridPagerID, {
+        			caption: "",
+        			buttonicon: "ui-icon-trash",
+        			onClickButton: function () {
+        				var idapp = getChildGridId();
+        				if (idapp == null) {
+        					return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
+        				}
+        				return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+        					var permission_url_delete = 'permission/' + idapp + '/delete/';
+        					$.ajax({
+        						url: permission_url_delete,
+        						method: 'POST',
+        						beforeSend: function (xhr) {
+        							xhr.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'))
+        						},
+        						data: {
+        							'csrfmiddlewaretoken': NA.CookieUtil.get('csrftoken')
+        						},
+        						success: function (data) {
+        							$("#" + childGridID).trigger('reloadGrid');
+        						},
+        						complete: function (data) {
+        							if (data.status !== 200) {
+        								var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+        								return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+        							}
+        						}
+        					})
+        				})
+        			},
+        			position: "last"
+        		});
+
+        		var btn_add = $('#' + childGridPagerID).find('td#btn_add_for_parent_' + parentRowKey)[0];
+        		NA.common.dialog.initDialog(null, 'Nufarm Add Permission - ', [btn_add]);
+        		NA.NAEvent.addHandler(btn_add, 'click', function (event) {
+        			$('#' + childGridPagerID).find('span.ui-icon.ui-icon-plus').click();
+        		});
+        	}
+        	
+
+        	function PermissionSubmit() {
+        		$.ajax({
+        			url: "permission/" + win.encodeURIComponent(email) + "/add/",
+        			method: "POST",
+        			beforeSend: function (xhr) {
+        				xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
+        			},
+        			data: NA.common.AssignObject(
+						getValues_formPermission(),
+						{ 'fk_form': qs('select#id_fk_form').value.trim() }
+					),
+        			success: function (data) {
+        				var dialog = qs("div.containerDialog");
+        				NA.common.dialog.closeDialog(dialog);
+        				$("#" + childGridID).trigger('reloadGrid');
+        			},
+        			error: function (data) {
+        				if (data.status == 403) {
+        					var response;
+        					if (typeof data.responseJSON == "undefined") {
+        						try {
+        							response = JSON.parse(data.responseText);
+        						} catch (ex) {
+        							response = data.responseText;
+        						}
+
+        					} else {
+        						response = data.responseJSON['message'];
+        					}
+        					response = NA.common.message.server(response);
+        					BootstrapDialog.show({
+        						draggable: true,
+        						type: BootstrapDialog.TYPE_SUCCESS,
+        						size: BootstrapDialog.SIZE_SMALL,
+        						title: NA.common.message.titleInfo,
+        						message: response,
+        						onshown: function (dialogRef) {
+        							return
+        						},
+        						closable: false,
+        						animate: true,
+        						closeByBackdrop: false,
+        						closeByKeyboard: false,
+        						buttons: [{
+        							label: 'Set Allow View only',
+        							cssClass: 'btn-default',
+        							action: function (dialogRef) {
+        								var allow_add = $('input#id_allow_add'),
+											allow_edit = $('input#id_allow_edit'),
+											allow_delete = $('input#id_allow_delete');
+        								if (allow_add.prop('checked')) {
+        									allow_add.prop('checked', false)
+        								};
+        								if (allow_edit.prop('checked')) {
+        									allow_edit.prop('checked', false)
+        								};
+        								if (allow_delete.prop('checked')) {
+        									allow_delete.prop('checked', false)
+        								};
+        								executeHandler_permission('OK');
+        								dialogRef.close();
+        							},
+        						}, {
+        							label: 'Change role',
+        							cssClass: 'btn-default',
+        							action: function (dialogRef) {
+        								dialogRef.close();
+        							},
+        						}, {
+        							label: 'OK',
+        							id: 'btnOK',
+        							cssClass: 'btn-success',
+        							action: function (dialogRef) {
+
+        							}
+        						}]
+        					});
+        				} else {
+							return dialogAlert(data.responseText,NA.common.message.titleError)
+        				}
+        			}
+        		})
+        	}
+
+        	function getValues_formPermission() {
+        		return {
+					user_id:qs('input#id_user_id').value.trim(),
+        			allow_view: qs('input#id_allow_view').checked,
+        			allow_add: qs('input#id_allow_add').checked,
+        			allow_edit: qs('input#id_allow_edit').checked,
+        			allow_delete: qs('input#id_allow_delete').checked
+        		}
+        	};
+        	function executeHandler_permission(TextElement) {
+        		var initializeForm = NA.common.getElementID('id_initialize_permissionForm');
+        		var dialog = qs("div.containerDialog"),
+				frmEntry = qs('form#permission_form'),
+				originalData = JSON.parse(initializeForm.value),
+				valuesForm = getValues_formPermission();
+
+
+        		if (frmEntry) {
+        			var inputbtn = NA.common.getElementID('permission_submit');
+        			switch (TextElement) {
+        				case 'OK': {
+        					if (!frmEntry.checkValidity()) {
+        						inputbtn.click();
+        					} else {
+        						if (NA.common.detectInputChanges(originalData, valuesForm)) {
+        							PermissionSubmit();
+        						} else {
+        							NA.common.dialog.closeDialog(dialog);
+        						}
+        					}
+        					break;
+        				}
+        				case 'Cancel':
+        				case 'Close': {
+        					if (status === 'Open') { NA.common.dialog.closeDialog(dialog); return false; }
+        					if (NA.common.detectInputChanges(originalData, valuesForm)) {
+        						return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
+									function () {
+										if (!frmEntry.checkValidity()) {
+											inputbtn.click();
+										}
+										else {
+											PermissionSubmit();
+										}
+									},
+									function () {
+										NA.common.dialog.closeDialog(dialog);
+									});
+        					} else {
+        						NA.common.dialog.closeDialog(dialog);
+        					}
+        				}
+        			};
+        		}
+        	}
+        };
+
+
+
+        var SearchData = NA.common.SearchData;
+        SearchData.setDefaultSearchData('username', 'Varchar', 'like');
+        LoadData();
+
+
+        function handlerSearchInput(event) {
+            event = NA.NAEvent.getEvent(event);
+            if (event.target == btnSearchMaster) {
+                NA.NAEvent.preventDefault(event);
+                var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
+                SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
+                SearchInput = NA.common.doc.querySelector('input[name=q]');
+                if (SearchBy.trim() == 'By') {
+                    NA.common.SearchData.setDefaultSearchData('username', 'Varchar', 'like');
+                    var curPage = parseInt(priviledge_grid.getGridParam('page'));
+                    window.document.body.style.cursor = 'wait';
+                    NA.common.SearchData.setValue(SearchInput.value);
+                    LoadData(curPage);
+                }
+                else {
+                    //submit search
+                    submitSearch(event);
+                }
+                NA.NAEvent.stopPropagation(event);
+            }
+            window.document.body.style.cursor = '';
+        }
+        //=======================handler txt & button Search master keyboard event and click================================
+        NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
+        NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
+
+    priviledge_grid.on("keyup", "tr", function (e) {
+        //var rowid = parseInt($(this).attr("id"));
+        var rowId = priviledge_grid.jqGrid('getGridParam', 'selrow');
+        if (e.keyCode == 46) {
+            var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
+            btnDelete.click();
+            return false;
+        }
+    });
+    NA.common.doc.title = 'MasterData - User Priviledge';
+    priviledge_grid.navGrid('#NA_Priviledge_pager',{
+        edit: true,
+        add: true,
+        del: true,
+        search: true,
+        refresh: true,
+        view: true,
+        cloneToTop: false
+            });
+
+    $("div#gbox_NA_Priviledge_grid, div#gview_NA_Priviledge_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+        'width':'inherit'
+    });
+
+//================================ Search by ==============================//
+
+
+
+        //================================= End Search by ======================================//
+    function submitSearch(event) {
+        window.document.body.style.cursor = 'wait';
+        if (event)
+            NA.NAEvent.preventDefault(event);
+
+        var elementOption = null, columnKey = '', valueKey = '',
+        elCriteria = null,//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
+        valCriteria = '',//elCriteria.nodeValue;
+        elDataType = '';//elementOption.dataset.dataType;
+        if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
+            elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
+            columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
+            elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
+            criteria = elCriteria.value;
+            switch (criteria) {
+                case "eq": { valCriteria = 'equal'; break; }
+                case "ne": { valCriteria = 'notequal'; break; }
+                case "bw": { valCriteria = 'beginwith'; break; }
+                case "ew": { valCriteria = "endwith"; break; }
+                case "cn": { valCriteria = "like"; break; }
+                case "in": { valCriteria = "in"; break; }
+                case "ni": { valCriteria = "notin"; break; }
+                case "gt": { valCriteria = "greater"; break; }
+                case "le": { valCriteria = "less"; break; }
+                case "leq": { valCriteria = "lessorequal"; break; }
+                case "gtq": { valCriteria = "greaterorequal"; break; }
+                case "bw": { valCriteria = "between"; break; }
+            };
+            elDataType = elementOption.dataset.tipe;
+        }
+        else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
+            var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+            elSearch = null;
+            valueKey = txtSearchMaster.value.trim();
+            console.log(valueKey)
+            var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
+            var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+                if (item.firstChild.textContent === textToSearch) {
+                    elSearch = item.firstChild;
+                }
+            });
+            columnKey = elSearch.dataset.column
+            elDataType = elSearch.dataset.tipe;
+            ValCriteria = 'like'
+            if (!elSearch.dataset.column) {
+                switch (elDataType) {
+                    case "bigint":
+                    case "integer":
+                    case "money":
+                    case "float":
+                    case "decimal":
+                    case "boolean":
+                    case "datetime": {
+                        if (valueKey.toString().indexOf(',') > -1) {
+                            criteria = 'in'
+                        }
+                        criteria = 'equal';
+                        break;
+                    }
+                };
+            }
+        }
+
+        NA.common.SearchData.setValue(valueKey);
+        NA.common.SearchData.setColumnName(columnKey);
+        NA.common.SearchData.setDataType(elDataType)
+        NA.common.SearchData.setCriteria(valCriteria);
+        window.document.body.style.cursor = 'wait';
+        LoadData(1);
+        document.body.style.cursor = 'default';
+        priviledge_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
+    };
+
+        //function untuk Reset
+    function submitReset(event) {
+        //reload jqueryGrid
+        //check apakah target dari btn reset
+        if (event) {
+            var target = NA.NAEvent.getTarget(event);
+        }
+        NA.common.SearchData.setDefaultSearchData('username', 'varchar', 'like');
+        NA.common.SearchData.setValue('');
+        LoadData(1);
+        window.document.body.style.cursor = 'default';
+    };
+        //========================Function Untuk memanggil Custom Search========================
+    window.showDialogCustomSearch = function (event) {
+        $('div.containerDialog').load("customFilter/", function (responseTxt, statusTxt, xhr) {
+            if (statusTxt == "success") {
+                $(this).html(responseTxt);
+                var dialog = NA.common.doc.querySelector('div.containerDialog');
+                NA.common.getElementID('searchmodfbox').style.display = 'block';
+                var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
+                txtSearchCustom = NA.common.getElementID('jqg1');
+                NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+                    NA.common.dialog.closeDialog(dialog);
+                });
+                var btnFind = NA.common.getElementID('fbox_jqGrid_search');
+                NA.NAEvent.addHandler(btnFind, 'click', function (event) {
+                    submitSearch(event);
+                    if (event) {
+                        NA.NAEvent.stopPropagation(event);
+                    }
+                });
+                var btnReset = NA.common.getElementID('fbox_jqGrid_reset');
+                NA.NAEvent.addHandler(btnReset, 'click', function (event) {
+                    submitReset(event);
+                    if (event) {
+                        NA.NAEvent.stopPropagation(event);
+                    }
+                });
+                NA.NAEvent.addHandler(txtSearchCustom, 'keydown', function (event) {
+                    event = NA.NAEvent.getEvent(event);
+                    if (event.keyCode === 13) {
+                        submitSearch(event);
+                    }
+                    if (event) {
+                        NA.NAEvent.stopPropagation(event);
+                    }
+                });
+            }
+        });
+    };
+
+    var containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav');//inistialisasi menu
+        //load Dialog Style css
+    NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
+    NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css", "CommonEntry");//Load Style buat form sebelum di pakai
+
+    NA.common.dialog.initDialog(containerMenu, 'Nufarm Entry User - Master Data');//inistialisasi menu
+
+    var elementMenus = [];
+    var menus = NA.common.doc.querySelectorAll('div.sidebar ul.list-sidebar.bg-defoult li ul li a');
+    Array.prototype.forEach.call(menus, function (item) {
+        if (item.textContent.indexOf("Email Data") > -1) {
+            elementMenus.push(item);
+        }
+    });
+    NA.common.dialog.initDialog(null, 'Nufarm Send Email - Master Data', elementMenus);//inistialisasi menu
+
+    function getGridId() {
+        return $(priviledge_grid).jqGrid('getGridParam', 'selrow')
+    }
+
+    function getGridValue(grid, jqgId, column) {
+        var col = grid.jqGrid('getCell', jqgId, column);
+        return col
+    }
+    function getValues_form() {
+    	var data = {
+    		idapp:qs('input#id_idapp').value.trim(),
+            first_name: qs('input#id_first_name').value.trim(),
+            last_name: qs('input#id_last_name').value.trim(),
+            username: qs('input#id_username').value.trim(),
+            divisi: qs('select#id_divisi').value.trim(),
+			role: qs('select#id_role').value.trim(),
+            email: qs('input#id_email').value.trim(),
+            password: qs('input#id_password').value.trim(),
+            confirm_password: qs('input#id_confirm_password').value.trim(),
+			statusForm:qs('input#id_statusForm').value.trim()
+        };
+        return data
+    }
+    var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)')
+    NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
+        var get_idapp = getGridId()
+        if (getGridId()) {
+            NA.NAEvent.preventDefault(event);
+            return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+                $.ajax({
+                    url: 'delete/',
+                    method: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': get_csrf(),
+                        'idapp': get_idapp
+                    },
+                    success: function (data) {
+                        var rowNum = priviledge_grid.getGridParam('rowNum'),
+                         allRecords = priviledge_grid.getGridParam('records'),
+                         totalPages = parseInt((allRecords / rowNum) + 1),
+                         curPage = priviledge_grid.getGridParam('page'),
+                         rowId = priviledge_grid.jqGrid('getGridParam', 'selrow'),
+                            curRecount = priviledge_grid.jqGrid('getGridParam', 'reccount');
+                        mustReload = true;
+                        if (parseInt(curRecount) === 1) {
+                            if (totalPages > 1) {
+                                curPage--;
+                            }
+                            else {
+                                mustReload = false;
+                                priviledge_grid.delRowData(rowId);
+                            }
+                        }
+                        else if (parseInt(totalPages) === 1) {
+                            mustReload = false;
+                            priviledge_grid.delRowData(rowId);
+                        }
+                        else if (parseInt(curRecount) > 1) {
+                            mustReload = false;
+                            priviledge_grid.delRowData(rowId);
+                        }
+                        if (mustReload) {
+                            window.document.body.style.cursor = 'wait';
+                            priviledge_grid.trigger("reloadGrid", [{ page: curPage }]);
+                        }
+                        reload_LogEvent();
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200) {
+                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+                        }
+                    }
+                });
+            },
+            function () {
+                return false;
+            })
+        }
+        else {
+            document.body.style.cursor = 'default';
+            return dialogAlert('Please select data you want to delete',NA.common.message.titleInfo);
+        }
+        return false;
+    });
+
+    status = status || window.status;
+    function PriviledgeSubmit() {
+        function sendData() {
+        	var valuesForm = getValues_form();
+            var idapp;
+            if (window.status.trim() == 'Edit' || window.status == 'Open') {
+                idapp = getGridId()
+            }
+            var snData = Object.assign({
+                'csrfmiddlewaretoken': get_csrf()
+            }, valuesForm)
+            return snData
+        }
+        $.ajax({
+            url: 'ShowEntry/',
+            method: 'POST',
+            beforeSend: function (jqXHR) {
+                jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
+            },
+            data: sendData(),
+            success: function (data) {
+            	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+            	NA.common.dialog.closeDialog(dialog);
+                priviledge_grid.trigger('reloadGrid');
+                setTimeout(function () {
+                    priviledge_grid.setSelection(data['message'], true)
+                }, 1000);
+                reload_LogEvent();
+            },
+            complete: function (data) {
+                if (data.status !== 200) {
+                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
+                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
+                        if (data.status == 404) {
+                            var dialog = qs("div.containerDialog");
+                            NA.common.dialog.closeDialog(dialog);
+                        };
+                        return priviledge_grid.trigger('reloadGrid');
+                    });
+                }
+            }
+        });
+    };
+    function ExecuteHandler(TextElement) {
+        var initializeForm = NA.common.getElementID('id_initializeForm');
+        var dialog = qs("div.containerDialog"),
+        frmEntry = qs('form#priviledge_form'),
+        emailForm = qs('form#email_data'),
+        originalData = status !== 'Open' ? JSON.parse(initializeForm.Value) : '',
+        valuesForm = getValues_form();
+
+
+        if (frmEntry) {
+            var inputbtn = NA.common.getElementID('priviledge_submit');
+            switch (TextElement) {
+            	case 'OK': {
+            		var password = qs('input#id_password');
+            		var confirm_password = qs('input#id_confirm_password');
+            		if (password.value != confirm_password.value) {
+            			confirm_password.setCustomValidity('confirm password didn\'t match with password');
+            		} else {
+            			confirm_password.setCustomValidity('');
+            		}
+                    if (!frmEntry.checkValidity()) {
+                        inputbtn.click();
+                    }else {
+                        if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                            PriviledgeSubmit();
+                        } else {
+                            NA.common.dialog.closeDialog(dialog);
+                        }
+                    }
+                    break;
+                }
+                case 'Cancel':
+                case 'Close': {
+                    if (status === 'Open') { NA.common.dialog.closeDialog(dialog); return false; }
+                    if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                        return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
+                            function () {
+                                if (!frmEntry.checkValidity()) {
+                                    //NA.NAEvent.preventDefault(event);
+                                    inputbtn.click();
+                                }
+                                else {
+                                    PriviledgeSubmit();
+                                }
+                            },
+                            function () {
+                                NA.common.dialog.closeDialog(dialog);
+                            });
+                    } else {
+                        NA.common.dialog.closeDialog(dialog);
+                    }
+                }
+            };
+        } else if (emailForm) {
+            var inputbtn = NA.common.getElementID('emailData_submit');
+            switch (TextElement) {
+                case 'Cancel':
+                case 'Close': {
+                    var initializeEmail = NA.common.getElementID('initializeEmail');
+                    var originalData = initializeEmail.Value;
+                    var valuesForm = getValues_emailForm();
+
+                    if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                        if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
+                            if (!emailForm.checkValidity()) {
+                                inputbtn.click();
+                            } else {
+                                inputbtn.click();
+                            }
+                        } else {
+                            NA.common.dialog.closeDialog(dialog);
+                        }
+                    } else {
+                        NA.common.dialog.closeDialog(dialog);
+                    }
+                }
+
+            }
+        }
+
+    };
+    function dialogConfirm(message, title, callTrue, callFalse, animate) {
+        return BootstrapDialog.confirm({
+            title: title || NA.common.message.titleInfo,
+            message: message,
+            type: BootstrapDialog.TYPE_WARNING,
+            size: BootstrapDialog.SIZE_SMALL,
+            animate: animate || false,
+            cssClass: 'login-dialog',
+            closeByBackdrop: false,
+            closeByKeyboard: false,
+            closable: false,
+            draggable: true,
+            btnCancelLabel: 'NO.',
+            btnOKLabel: 'Yes.',
+            btnOKClass: 'btn-success',
+            callback: function (result) {
+                if (result) {
+                    if (callTrue) {
+                        callTrue();
+                    }
+                }
+                else {
+                    if (callFalse) {
+                        callFalse();
+                    }
+                }
+            },
+            onshown: function (dialogRef) {
+                var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+                divHeader.style.backgroundColor = 'green';
+            }
+        });
+    };
+
+    function dialogAlert(message, title, callback) {
+        return BootstrapDialog.alert({
+            title: title || NA.common.message.titleInfo,
+            message: message,
+            size: BootstrapDialog.SIZE_SMALL,
+            //animate:false,
+            cssClass: 'login-dialog',
+            closeByBackdrop: false,
+            closeByKeyboard: false,
+            type: BootstrapDialog.TYPE_INFO,
+            closable: false,
+            draggable: true,
+            buttonLabel: 'OK',
+            callback: function (result) {
+                if (result) {
+                    if (callback) {
+                        callback();
+                    }
+                    return true;
+                }
+            },
+            onshown: function (dialogRef) {
+                var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+                divHeader.style.backgroundColor = 'green';
+            }
+        });
+    };
+    window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
+        //add handler to btnOK untuk mengantisipasi form load gagal
+        var win = window
+        var target = NA.NAEvent.getTarget(event);
+        try {
+
+        	if (target.innerText === 'Email Data') {
+        		var btn_mailExport = qs('div.dialogButtonRightOther a.btn-link:nth-child(2)'),
+                    btn_mailPreview = qs('div.dialogButtonRightOther a.btn-link:nth-child(1)');
+        		NA.common.NA_setAttr(btn_mailExport, {
+        			"style": "cursor: pointer;pointer-events: all;width: auto;margin-right:5px"
+        		});
+        		btn_mailExport.textContent = 'Export To PDF';
+        		NA.common.NA_setAttr(btn_mailPreview, {
+        			"style": "cursor: pointer;pointer-events: all;width: auto;"
+        		});
+        		btn_mailPreview.textContent = 'Preview PDF';
+        		var btnToPDF = qs('div.bottomDialogContent a.btn-link:nth-child(1)');
+        		//====================================== Display Email Data Dialog =========================================
+        		$('div.maindialogContent').load(url_emailData(), function (response, status, xhr) {
+        			if (status == "success") {
+        				var jspdf = "../../../static/app/scripts/jspdf.js",
+                        sfm = "../../../static/app/scripts/standard_fonts_metrics.js",
+                        stz = "../../../static/app/scripts/split_text_to_size.js",
+                        jspdf_autoTable = "../../../static/app/scripts/jspdf.plugin.autotable.min.js",
+                        jqUI = "../../../static/app/scripts/jquery-ui.min.js",
+                        autoComp = "../../../static/app/scripts/autocomplete.js",
+                        emailDataJS = "../../../static/app/scripts/NA_EmailData.js",
+                        content_0 = qs('div#content-0');
+        				if (qs('script#jspdf') == null) {
+        					NA.common.loadScript(jspdf, content_0, 'jspdf');
+        					NA.common.loadScript(sfm, content_0, 'sfm');
+        					NA.common.loadScript(stz, content_0, 'stz');
+        					NA.common.loadScript(jspdf_autoTable, content_0, 'jspdf_autoTable');
+        					NA.common.loadScript(emailDataJS, content_0, 'emailData_scripts');
+        				};
+        				var originalData = getValues_emailForm();
+        				var initializeEmail = NA.common.getElementID('initializeEmail');
+        				initializeEmail.Value = originalData;
+
+        				//=========================================== End Display Email Data Dialog ===========================================
+        			}
+
+        		});
+
+        		//if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
+        		//return false;
+        	} else if (target.innerText.trim() === 'Add' || target.innerText.trim() === 'Edit' || target.innerText.trim() == 'Open') {
+        		if (target.innerText.trim() == 'Edit' || target.innerText.trim() == 'Open') {
+        			var supCode = getGridId();
+        			if (typeof supCode == 'undefined' || !supCode || supCode == '') {
+        				var dialog = qs("div.containerDialog");
+        				NA.common.dialog.closeDialog(dialog);
+        				return dialogAlert('Please Select data to Open or Edit !!', NA.common.message.titleInfo, function () {
+        					return false
+        				});
+        				return false
+        			}
+        		};
+        		$('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
+                    + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
+                    	if (statusTxt == "success" || xhr.status == 200) {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
+                    		var dialog = qs("div.containerDialog"),
+                                btnOkCancel = qsAll('div.dialogButtonOKCancel>a.button'),
+                                btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
+
+                    		statusForm = qs('input#id_statusForm');
+                    		statusForm.value = status;
+                    		dialog.style.top = '10px';
+                    		Array.prototype.forEach.call(btnOkCancel, function (elem) {
+                    			NA.NAEvent.addHandler(elem, 'click', function (event) {
+                    				var target = NA.NAEvent.getTarget(event);
+                    				ExecuteHandler(target.innerText);
+                    				if (event) {
+                    					NA.NAEvent.stopPropagation(event);
+                    				}
+                    			});
+                    		});
+                    		NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+                    			ExecuteHandler('Close');
+                    			if (event) {
+                    				NA.NAEvent.stopPropagation(event);
+                    			};
+                    		});
+
+                    		var select_role = qs('select#id_role'),
+							select_divisi = qs('select#id_divisi');
+                    		NA.NAEvent.addHandler(select_role, 'change', function (event) {
+                    			console.log(this);
+                    			if (this.value == 3) {
+                    				if (!select_divisi.hasAttribute('disabled')) {
+                    					select_divisi.setAttribute('disabled', '');
+                    					select_divisi.removeAttribute('required');
+                    				}
+                    			} else {
+                    				if (select_divisi.hasAttribute('disabled')) {
+                    					select_divisi.removeAttribute('disabled');
+                    					select_divisi.setAttribute('required','');
+                    				}
+                    			}
+                    		});
+
+                    		//remove attribute disable untuk button OK dan cancel bila statusnya Add
+                    		switch (status) {
+
+                    			case 'Add':
+                    				{
+                    					break;
+                    				}
+                    			case 'Edit':
+                    				{
+                    					setTimeout(function () {
+                    						$('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
+                    					}, 10)
+
+
+                    				}
+                    			case 'Open': {
+                    				$('div.dialogButtonEntry>a.button').attr("disabled", true);
+                    				break;
+                    			}
+                    			case 'Delete': {
+                    				$('div.dialogButtonEntry>a.button').attr("disabled", true);
+                    				break;
+                    			}
+                    		};
+                    		if (status !== 'Open' && status !== '') {
+                    			var originalData = JSON.stringify(getValues_form());
+                    			initializeForm = NA.common.getElementID('id_initializeForm');
+                    			initializeForm.Value = originalData;
+                    		}
+
+                    	} else if (xhr.status != 200 || responseTxt == '__lost') {
+                    		return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
+                    			var dialog = qs("div.containerDialog");
+                    			NA.common.dialog.closeDialog(dialog);
+                    			return priviledge_grid.trigger('reloadGrid');
+                    		});
+                    	};
+                    	NA.NAEvent.preventDefault(event);
+                    	if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
+                    });
+        	};
+
+
+        } catch (e) {
+            dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+            if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
+            alert(e);
+        }
+    };
+});
+</script>
+{% endblock %}

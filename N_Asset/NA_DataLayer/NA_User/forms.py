@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.forms.extras.widgets import SelectDateWidget
-from .models import User
+#from .models import User
 
 
 class UserLoginForm(forms.Form):
@@ -31,7 +31,7 @@ class UserLoginForm(forms.Form):
 
 class UserRegistrationForm(UserCreationForm):
     class Meta:
-        model = User
+        #model = User
         fields = ("first_name",
                   "last_name", 
                   "username", 
@@ -54,7 +54,7 @@ class UserRegistrationForm(UserCreationForm):
 class UserProfileUpdateForm(forms.ModelForm, forms.Form):
     confirm_password = forms.CharField(widget=forms.PasswordInput)
     class Meta:
-        model = User 
+        #model = User 
         fields = ("first_name", 
                   "last_name", 
                   "email", 

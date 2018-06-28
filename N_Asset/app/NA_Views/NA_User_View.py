@@ -1,42 +1,28 @@
 ﻿from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from NA_DataLayer.NA_User.models import User
 from NA_DataLayer.NA_User.forms import UserLoginForm, UserRegistrationForm, UserProfileUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-def require_ajax(view):
-    from functools import wraps
-    @wraps(view)
-    def _wrapped_view(request, *args, **kwargs):
-        if request.is_ajax():
-            return view(request, *args, **kwargs)
-        else:
-            raise PermissionDenied()
-    return _wrapped_view
+from NA_Models.models import NAPriviledge
+
 
 class NA_User_Form(UserCreationForm):
     first_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter First Name'
-    }))
+    'class':'form-control','placeholder':'Enter First Name'}))
     last_name = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter Last Name'
-    }))
+    'class':'form-control','placeholder':'Enter Last Name'}))
     username = forms.CharField(required=True,widget=forms.TextInput(attrs={
-    'class':'form-control','placeholder':'Enter Username'
-    }))
+    'class':'form-control','placeholder':'Enter Username'}))
     email = forms.CharField(required=True,widget=forms.EmailInput(attrs={
-    'class':'form-control','placeholder':'Email Address'
-    }))
+    'class':'form-control','placeholder':'Email Address'}))
     picture = forms.ImageField(required=False)
     password1 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
-    'class':'form-control','placeholder':'Password'
-    }))
+    'class':'form-control','placeholder':'Password'}))
     password2 = forms.CharField(required=True,widget=forms.PasswordInput(attrs={
-    'class':'form-control','placeholder':'Confirm Password'
-    }))
+    'class':'form-control','placeholder':'Confirm Password'}))
     initializeForm_user = forms.CharField(required=False,widget=forms.HiddenInput())
 
     def save(self, commit=True):
@@ -50,7 +36,7 @@ class NA_User_Form(UserCreationForm):
         return user
 
     class Meta:
-        model = User
+        model = NAPriviledge
         fields = ('first_name','last_name','username','email','picture','password1','password2')
 
 def NA_User_Register(request):
@@ -79,7 +65,11 @@ def login_view(request): # users will login with their Email & Password
             # authenticates Email & Password
             user = authenticate(email=email, password=password) 
             login(request, user)
-            return redirect(request.GET.get('next'))
+            next_action = request.GET.get('next')
+            if next_action is not None:
+                return redirect(next_action)
+            else:
+                return redirect('home')
         context = {"formLogin":formLogin,
                    "title":title
         }

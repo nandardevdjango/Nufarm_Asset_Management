@@ -34,7 +34,7 @@ form .NA-Entry-inlinve-div {
     }
 
 input[type="text"], input[type="password"], textarea {
-    height: 27px;
+    height: 28px;
 }
 
 input[type="text"], input[type="password"] {
@@ -45,26 +45,34 @@ input[type="text"], input[type="password"] {
 fieldset {
     padding: 0.1em 0.15em 0.15em;
     margin: 0 2px;
-    border: 1px solid #c0c0c0;
+    border: 1.5px solid  #4CAF50;
+       box-shadow: 1px 1px 1px  #4CAF50;
+       border-radius: 4px;
 }
 
 legend {
     margin-bottom: 2px;
-    font-size: 14px;
+    font-size: 1.1em;
+    font-weight:bold;
+   color: #0b9910;
     line-height: inherit;
-    color: #333333;
-    border: 1px solid #c0c0c0;
+    border: 1.5px solid   #4CAF50;
     /*border-bottom: 1px solid #0b9910;*/
     text-align: left;
+    border-radius: 4px;
 }
 table.ui-datepicker-calendar{
-    background-color:floralwhite;
+    background:#4CAF50 url(../images/JqueryImages/ui-bg_inset-soft_10_4CAF50_1x100.png) repeat-x 50% 50%;
      background-image:linear-gradient(linear-gradient(48deg,#E0E0E0,#FEFFFD,#8FBC8F)) !important;
        border-color: #0b9910;
         outline: 0;
         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px #4CAF50;
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px #4CAF50;
 }
+  .ui-datepicker select.ui-datepicker-month, .ui-datepicker select.ui-datepicker-year {
+        width: 45%;
+    }
+
 .NA-Form-Control:-moz-placeholder {
     color: #999999;
 }
@@ -125,10 +133,23 @@ table.ui-datepicker-calendar{
 ul[id*="ui-id-"]{
     background-image:linear-gradient(linear-gradient(48deg,#E0E0E0,#FEFFFD,#8FBC8F)) !important;
 }
+
 table.ui-datepicker-calendar tr td:first-child span.ui-state-default {
 color: red;
 font-weight: bold;
 }
+/* ======== jQUERY Error Info ==============*/
+div#info_dialog{
+	width: 290px;
+	height: auto;
+	z-index: 1050;
+	overflow: hidden;
+	top: 30%;
+	left: 45%;
+	display: block;
+	background: white;
+}
+
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }

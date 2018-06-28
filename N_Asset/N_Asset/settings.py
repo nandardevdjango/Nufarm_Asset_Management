@@ -34,11 +34,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'social_django',
+    'sslserver',
     'app',
 	'NA_DataLayer',
 	'NA_Domain',
 	'NA_Models',
-    'NA_DataLayer.NA_User',
     # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,16 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'debug_toolbar',
-    #'clear_cache',
 ]
 
-#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-#SESSION_CACHE_ALIAS = "default"
 
 MIDDLEWARE_CLASSES = [
-    #'django.middleware.cache.UpdateCacheMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,22 +59,13 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'app.middleware.GlobalUserMiddleware', #access user as Global scope for log event and another using signal built-in django, because the signal such as models they can't get request from HTTP 
-    #'django.middleware.cache.FetchFromCacheMiddleware',
 
-	  #'django.middleware.security.SecurityMiddleware',
-   # 'django.contrib.sessions.middleware.SessionMiddleware',
-   # 'django.middleware.common.CommonMiddleware',
-   # #'django.middleware.csrf.CsrfViewMiddleware',
-   # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-   # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-   # 'django.contrib.messages.middleware.MessageMiddleware',
-   # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'N_Asset.urls'
 
-AUTH_USER_MODEL = 'NA_User.User'
+AUTH_USER_MODEL = 'NA_Models.NAPriviledge'
 
 TEMPLATES = [
     {
@@ -92,6 +78,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -105,11 +94,11 @@ WSGI_APPLICATION = 'N_Asset.wsgi.application'
 DATABASES = {
       'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'na_m_s',
-        'USER': 'root',
+        'NAME': '',
+        'USER': '',
         'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'HOST': '',
+        'PORT': '',
 		}
 }
 
@@ -131,6 +120,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'NA_DataLayer.NA_Auth.NA_AuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 
 # Internationalization
@@ -161,32 +158,22 @@ MEDIA_URL = os.path.join(BASE_DIR, 'app/static/NA_User_Image/img/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 
-#from django.core.urlresolvers import reverse_lazy
-#LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 
-# django-debug-toolbar
-
-#DEBUG_TOOLBAR_PANELS = [
-#    'debug_toolbar.panels.versions.VersionsPanel',
-#    'debug_toolbar.panels.timer.TimerPanel',
-#    'debug_toolbar.panels.settings.SettingsPanel',
-#    'debug_toolbar.panels.headers.HeadersPanel',
-#    'debug_toolbar.panels.request.RequestPanel',
-#    'debug_toolbar.panels.sql.SQLPanel',
-#    'debug_toolbar.panels.templates.TemplatesPanel',
-#    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-#    'debug_toolbar.panels.cache.CachePanel',
-#    'debug_toolbar.panels.signals.SignalsPanel',
-#    'debug_toolbar.panels.logging.LoggingPanel',
-#    'debug_toolbar.panels.redirects.RedirectsPanel',
-#    'debug_toolbar.panels.profiling.ProfilingPanel',
-#]
-
-#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 EMAIL_USE_TLS=True
-EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST='smtp.gmail.com'
+EMAIL_BACKEND=''
+EMAIL_HOST=''
 EMAIL_PORT=587
-EMAIL_HOST_USER='rimba16prayoga@gmail.com'
-EMAIL_HOST_PASSWORD='nufID2017'
+EMAIL_HOST_USER=''
+EMAIL_HOST_PASSWORD=''
 
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+
+LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+try:
+    from .local_settings import *
+except (NameError, ImportError):
+    pass

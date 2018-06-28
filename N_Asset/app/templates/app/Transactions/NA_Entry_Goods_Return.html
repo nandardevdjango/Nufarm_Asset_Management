@@ -1,0 +1,94 @@
+﻿<style>
+    .inline-field {
+		display:inline-block
+	}
+</style>
+<form action="ShowEntry/" method="post" style="max-height:365px;" id="gReturn_form" onsubmit="return false">
+    {% csrf_token %}
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_itemcode" class="inline-field" style="margin-right: 36px;">Item code</label>
+            {{ form.itemcode }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <div class="input-group" style="display: inline-flex; width: 210px;">
+                {{ form.goods }}
+                <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
+                    <button class="btn btn-success" type="button" id="FK_goods" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_nik_usedemployee" class="inline-field" style="margin-right: 46px;">Used By</label>
+            {{form.nik_usedemployee}}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            {{form.usedemployee}}
+        </div>
+    </div>
+
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_serialNum" class="inline-field" style="margin-right: 10px;">Serial Number</label>
+            {{form.serialNumber}}
+        </div>
+        
+    </div>
+
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_itemcode" class="inline-field" style="margin-right: 36px;">Return By</label>
+            {{ form.nik_fromemployee }}
+        </div>
+        <div class="NA-Entry-inlinve-div">
+            <div class="input-group" style="display: inline-flex; width: 210px;">
+                {{ form.fromemployee }}
+                <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
+                    <button class="btn btn-success" type="button" id="FK_fromemployee" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_conditions" class="inline-field" style="margin-right: 32px;">Conditions</label>
+            {{ form.conditions }}
+        </div>
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_iscompleted" style="margin-left: 20px;">Is Completed
+				{{ form.iscompleted }}
+            </label>
+        </div>
+    </div>
+	<div class="NA-Entry-div-row">
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_minus" class="inline-field" style="margin-right: 62px;">Minus</label>
+            {{form.minus}}
+        </div>
+	</div>
+	
+	<div class="NA-Entry-div-row">
+		<div class="NA-Entry-inlinve-div">
+            <label for="id_datereturn" class="inline-field" style="margin-right: 22px;">Date Return</label>
+            {{ form.datereturn }}
+        </div>
+	</div>
+    <div class="NA-Entry-div-row">
+        <div class="NA-Entry-inlinve-div">
+            <label for="id_descriptions">Descriptions</label>
+            {{form.descriptions}}
+        </div>
+    </div>
+    {{form.fk_goods}}
+	{{form.typeApp}}
+	{{form.idapp_fromemployee}}
+	{{form.idapp_usedemployee}}
+	{{form.idapp_fk_goods_outwards}}
+	{{form.idapp_fk_goods_lend}}
+    {{form.initializeForm}}
+    <input type="submit" style="display:none" id="gReturn_submit" />
+</form>
