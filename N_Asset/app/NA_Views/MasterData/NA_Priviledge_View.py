@@ -511,3 +511,13 @@ class NA_Priviledge_Register_Form(forms.Form):
             user.save()
             NASysPriviledge.set_permission(user)
         return user
+
+def NA_Priviledge_change_picture(request, email):
+	if request.user.email != email:
+		return commonFunct.permision_denied('<h1>403 Forbidden</h1>');
+	user = NAPriviledge.objects.get(idapp=request.user.idapp)
+	picture = request.FILES['picture']
+	print(picture)
+	user.picture = picture
+	user.save()
+	return commonFunct.response_default((Data.Success,user.picture.name))

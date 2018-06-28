@@ -7,6 +7,9 @@ from django.http import HttpResponse
 import json
 from django.core.exceptions import PermissionDenied
 from functools import wraps
+from os import path, makedirs, remove
+import errno
+from django.conf import settings
 
 class CriteriaSearch(Enum):
     Equal = 1
@@ -714,5 +717,32 @@ class commonFunct:
     def EmptyGrid():
         return {"page": "1","total": 0,"records": 0,"rows": [] }
 
-    def permision_denied():
-        return HttpResponse('You don\'t have permission for this action',status=403)
+    def permision_denied(message=None):
+        _message = 'You don\'t have permission for this action'
+        if message:
+            _message = message
+        return HttpResponse(_message,status=403)
+
+    def check_file_exists(file_dir):
+        return path.exists(file_dir)
+
+    def check_dir_exists(dirr):
+        if path.isdir(dirr):
+            return path.exists(dirr)
+        else:
+            raise IsADirectoryError('this %s is not a directory' % dirr)
+
+    def create_dir(dirr):
+        try:
+            makedirs(dirr, exist_ok=True)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
+
+    @classmethod
+    def handle_image_upload(cls, username, image_name):
+        dir_user_image = settings.STATIC_ROOT + '/NA_User_Image/UploadImg/' + username
+        cls.create_dir(dir_user_image)
+        if cls.check_dir_exists(dir_user_image + image_name):
+            remove(dir_user_image)
+        #this is manually, but for good idea look at this is reference https://stackoverflow.com/questions/15885201/django-uploads-discard-uploaded-duplicates-use-existing-file-md5-based-check

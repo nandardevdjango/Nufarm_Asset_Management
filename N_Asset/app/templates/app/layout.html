@@ -266,8 +266,9 @@
                                     <div class="col-md-5" style="padding:0px;">
                                         <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
                                         </div>
-                                        <form id="form_change_user_picture" enctype="multipart/form-data">
-                                            <input id="user_picture" type="file" style="display:none;" />
+                                        <form id="form_change_user_picture" enctype="multipart/form-data" method="post" action="">
+                                            <input id="user_picture" type="file" style="display:none;" accept="image/*" />
+                                            <input type="submit" style="display:none" />
                                         </form>
 										<p id="change_user_picture" style="cursor:pointer;color:forestgreen;white-space:nowrap;text-align:center;width:105px">Change Picture</p>
                                     </div>
@@ -510,7 +511,47 @@
     				$('input#user_picture').click();
     			}
     		});
-			// tinggal beri event on change dan ajax
+    		$('input#user_picture').on('change',function(event){
+    		    var value = this.value
+    		    if (value.match(/jpe?g|png/) != null) {
+    		        if (value.match(/fakepath/) != null) {
+    		            value = value.replace(/C\:\\fakepath\\/, '')
+    		            this.is_correct = true;
+    		        };
+    		        if ($('p#not_correct_file').length > 0) {
+    		            $('p#not_correct_file').remove();
+    		        };
+    		    } else {
+    		        if ($('p#not_correct_file').length == 0) {
+    		            this.is_correct = false;
+    		            $(this).parents('li').next().next().append('<p id="not_correct_file" style="width:100%;color:red;">Please Insert Correct File!!</p>');
+    		        };
+    		        return false;
+    		    }
+            
+    		    if (this.is_correct) {
+    		        var formData = new FormData();
+    		        var file = this.files[0];
+    		        formData.append("picture", file);
+    		    
+    		        $.ajax({
+    		            url: '/MasterData/Priviledge/change_picture/' 
+                            + window.encodeURIComponent(NA.Priviledge.Email) + '/',
+    		            method: 'POST',
+    		            data: formData,
+    		            cache: false,
+    		            contentType: false,
+    		            processData: false,
+    		            beforeSend: function(xhr){
+    		                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+    		            },
+    		            success: function (data) {
+    		                $('div.profile-circle.medium, div.profile-circle.shadow')
+                                .css('background-image', 'url(/static/NA_User_Image/UploadImg/' + data['message']);
+    		            }
+    		        })
+    		    }
+    		});
     		function showDescriptionsLog(args) {//title, content, classContent, textToContent
     			var body = NA.common.doc.body;
     			var pageDimensions = NA.common.dialog.getPageDimensions();

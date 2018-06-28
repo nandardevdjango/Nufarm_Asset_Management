@@ -28,5 +28,6 @@ urlpatterns = [
     url(
         r'^permission/'+ patterns_email +'/get_permission/$',
         NA_Priviledge_View.NA_Sys_Priviledge_get_permission
-    )
+    ),
+	url(r'^change_picture/'+ patterns_email +'/', NA_Priviledge_View.NA_Priviledge_change_picture)
 ]
