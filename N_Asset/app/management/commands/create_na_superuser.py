@@ -13,20 +13,24 @@ class Command(BaseCommand):
         while email_exists:
             print('\t User with this Email has exists')
             email = input('Email: ')
+
         while not re.match(patterns_email, email):
             print('\t Please enter correct email address')
             email = input('Email: ')
+
         username = input('Username: ')
         username_exists = NAPriviledge.objects.filter(username=username).exists()
         while username_exists:
             print('\t User with this Username has exists')
             username = input('Username: ')
+
         password = getpass.getpass(prompt='Password: ')
         confirm_password = getpass.getpass(prompt='Confirm Password: ')
         while password != confirm_password:
             print('Password didn\'t match')
             password = getpass.getpass(prompt='Password: ')
             confirm_password = getpass.getpass(prompt='Confirm Password: ')
+
         with transaction.atomic():
             user = NAPriviledge()
             user.email = email

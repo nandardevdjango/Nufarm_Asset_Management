@@ -258,33 +258,33 @@
                     {% if request.user.is_authenticated %}
                     <li class="dropdown" style="position: absolute;right: 40px;top: 8px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
-                            <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
+                            <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
                         </div>
                         <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
                             <li>
                                 <div class="row" style="margin:15px;height:110px;">
                                     <div class="col-md-5" style="padding:0px;">
-                                        <div class="profile-circle medium" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.picture }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+                                        <div class="profile-circle medium" style="border:none;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
                                         </div>
                                         <form id="form_change_user_picture" enctype="multipart/form-data" method="post" action="">
                                             <input id="user_picture" type="file" style="display:none;" accept="image/*" />
                                             <input type="submit" style="display:none" />
                                         </form>
-										<p id="change_user_picture" style="cursor:pointer;color:forestgreen;white-space:nowrap;text-align:center;width:105px">Change Picture</p>
+										<p class="profile-text-green" id="change_user_picture" style="text-align:center;width:105px">Change Picture</p>
                                     </div>
                                     <div class="col-md-7" style="font-size:13px;padding:5px;">
                                         <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
                                         <div class="email">{{ request.user.email }}</div>
                                         <!--<button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>-->
-										<div>{{ request.user.divisi }}</div>
-										<div>{{ request.user.get_role_display }}</div>
+										<div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
+										<div><p class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
                                     </div>
                                 </div>
                             </li>
                             <li class="divider" style="margin-bottom:1px;"></li>
                             <li style="height:47px;background:#f5f5f5;">
                                 <!--<a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>-->
-								<button class="btn btn-default pull-right" style="margin:7px;">Sign out</button>
+								<button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign out</button>
                             </li>
                         </ul>
                     </li>
@@ -499,12 +499,6 @@
     			event.stopPropagation();
     		});
     		$('p#change_user_picture').on({
-    			'mouseover': function(event){
-    				this.style.textDecoration = 'underline';
-    			},
-    			'mouseleave': function(event){
-    				this.style.textDecoration = 'none';
-    			},
     			'click': function(event){
     				NA.NAEvent.preventDefault(event);
     				NA.NAEvent.stopPropagation(event);
@@ -551,6 +545,9 @@
     		            }
     		        })
     		    }
+    		});
+    		$('button#btn_sign_out').click(function(event){
+                window.location.href = '/logout/'
     		});
     		function showDescriptionsLog(args) {//title, content, classContent, textToContent
     			var body = NA.common.doc.body;

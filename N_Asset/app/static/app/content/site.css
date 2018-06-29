@@ -48,6 +48,15 @@ div#gbox_NA_Priviledge_grid,div#gview_NA_Priviledge_grid, div.ui-jqgrid-titlebar
       height:105px
   }
 
+.profile-text-green {
+    cursor:pointer;
+    color:forestgreen;
+    white-space:nowrap;
+}
+.profile-text-green:hover{
+    text-decoration:underline;
+}
+
 .username {
     font-weight:bold;
     overflow:hidden;

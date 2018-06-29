@@ -23,6 +23,8 @@ from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from os import path
+from NA_DataLayer.file_storage import NAFileStorage
 
 def forced_mariadb_connection(self):
     errors = []
@@ -647,6 +649,9 @@ class NAGoodsLost(NA_TransactionModel):
         managed = True
         db_table = 'n_a_goods_lost'
 
+def upload_to_each_dir(instance, filename):
+    return instance.get_dir_image(filename)
+
 class NAPriviledge(AbstractUser,NA_BaseModel):
 
     IT = 'IT'
@@ -675,7 +680,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
     email = models.EmailField(unique=True, blank=True,db_column='Email')
     divisi = models.CharField(max_length=5,db_column='Divisi',choices=DIVISI_CHOICES)
     password = models.CharField(max_length=128,db_column='Password')
-    picture = models.ImageField(null=True, blank=True, default='default.png',db_column='Picture')
+    picture = models.ImageField(
+        null=True, 
+        blank=True, 
+        default='default.png',
+        db_column='Picture',
+        upload_to=upload_to_each_dir,
+        storage=NAFileStorage()
+     )
     last_login=models.DateTimeField(db_column='Last_login',null=True)
     last_form = models.CharField(max_length=50,db_column='Last_form',null=True)
     computer_name = models.CharField(max_length=50,db_column='Computer_Name')
@@ -698,6 +710,21 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
 
     def __str__(self):
         return self.username
+
+    def get_dir_image(self, filename):
+        return path.join(
+            'dir_for_{username}'.format(
+                username=self.username
+             ),
+            filename
+        )
+
+    def get_picture_name(self):
+        pict_name = self.picture.name
+        if '\\' in list(pict_name):
+            dir_user, filename = pict_name.split('\\')
+            pict_name = dir_user + '/' + filename
+        return pict_name
 
     def has_permission(self,action,form_name_ori):
         """

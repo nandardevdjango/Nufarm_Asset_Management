@@ -517,7 +517,6 @@ def NA_Priviledge_change_picture(request, email):
 		return commonFunct.permision_denied('<h1>403 Forbidden</h1>');
 	user = NAPriviledge.objects.get(idapp=request.user.idapp)
 	picture = request.FILES['picture']
-	print(picture)
 	user.picture = picture
 	user.save()
-	return commonFunct.response_default((Data.Success,user.picture.name))
+	return commonFunct.response_default((Data.Success, user.get_picture_name()))
