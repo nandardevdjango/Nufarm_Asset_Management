@@ -359,18 +359,25 @@ div[id*=NA_Priviledge_grid]{
 											editoptions: { value: '1:0' },
 											formatoptions: { disabled: false }
 										},
-										{
-											name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center', formatter: "actions",
-											formatoptions: {
-												keys: true,
-												editbutton: false,
-												addbutton: false,
-												delOptions: {
-													modal: false,
-													jqModal: false
-												}
-											}
-										}
+										//{
+										//	name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center', formatter: "actions",
+										//	formatoptions: {
+										//		keys: true,
+										//		editbutton: false,
+										//		addbutton: false,
+										//		delOptions: {
+										//			modal: false,
+										//			jqModal: false
+										//		}
+										//	}
+										//},
+                                        {
+                                            name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center',
+                                            formatter: function (cellValue, options, rowObject) {
+                                                return '<div class="ui-pg-div" style="display:inline-block;" id="remove_dummy" data-idapp="'
+                                                    + rowObject.idapp + '" data-rowId="' + options.rowId + '" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseleave="$(this).removeClass(\'ui-state-hover\')"><span class="ui-icon ui-icon-trash"></span></div>';
+                                            }
+                                        }
         							],
         							width: 'inherit',
         							height: 102,
@@ -399,17 +406,25 @@ div[id*=NA_Priviledge_grid]{
         								return true; // allow selection
         							},
         							gridComplete: function () {
+        							    var input_allow_view = qs('input#id_allow_view'),
+                                            input_allow_add = qs('input#id_allow_add'),
+                                            input_allow_edit = qs('input#id_allow_edit'),
+                                            input_allow_delete = qs('input#id_allow_delete');
+        							    input_allow_view.checked = false,
+                                        input_allow_add.checked = false,
+                                        input_allow_edit = false,
+                                        input_allow_delete = false;
         								var data = $(NA_Permission_grid).getRowData()
         								if (data.length > 0) {
         									for (var i = 0; i < data.length; i++) {
         										if (data[i]['permission'] == 'Allow View') {
-        											qs('input#id_allow_view').checked = true;
+        										    input_allow_view.checked = true;
         										} else if (data[i]['permission'] == 'Allow Add') {
-        											qs('input#id_allow_add').checked = true;
+        										    input_allow_add.checked = true;
         										} else if (data[i]['permission'] == 'Allow Edit') {
-        											qs('input#id_allow_edit').checked = true;
+        										    input_allow_edit.checked = true;
         										} else if (data[i]['permission'] == 'Allow Delete') {
-        											qs('input#id_allow_delete').checked = true;
+        										    input_allow_delete.checked = true;
         										}
         									};
         									if (data[data.length - 1]['idapp'] != 'dummy_inline') {
@@ -421,17 +436,24 @@ div[id*=NA_Priviledge_grid]{
         							pgtext: null,
         						});
 
+        						$(document).on('click', 'div#remove_dummy', function () {
+        						    var rowId = $(this).parents('tr')[0].id;
+        						    $('#NA_Permission_grid').delRowData(rowId);
+        						});
+        						//$(document).on('mouseover', 'div#remove_dummy', function (event) {
+        						//    console.log(event);
+        						//    event.preventDefault();
+        						//    event.stopPropagation();
+        						//    $(this).addClass('ui-state-hover');
+        						//});
+        						//$(document).on('mouseover', 'div#remove_dummy', function () {
+        						//    $(this).removeClass('ui-state-hover');
+        						//});
+
         						$("div#gbox_NA_Permission_grid, div#gview_NA_Permission_grid, div#gview_NA_Permission_grid > div.ui-jqgrid-bdiv, div#gview_NA_Permission_grid > div.ui-jqgrid-hdiv, #NA_Permission_pager").css({
         							'width': 'inherit'
         						});
         						$('div#gview_NA_Permission_grid div.ui-jqgrid-hbox').css('padding', '0');
-
-        						$('#NA_Permission_grid').on('click', 'div.ui-pg-div.ui-inline-del', function (event) {
-        							event.preventDefault();
-        							event.stopPropagation();
-        							var rowId = $(this).parents('tr')[0].id;
-        							$('#NA_Permission_grid').delRowData(rowId);
-        						});
 
         						$(NA_Permission_grid).navGrid('#NA_Permission_pager', {
         							edit: false,
@@ -1377,7 +1399,6 @@ div[id*=NA_Priviledge_grid]{
                     		var select_role = qs('select#id_role'),
 							select_divisi = qs('select#id_divisi');
                     		NA.NAEvent.addHandler(select_role, 'change', function (event) {
-                    			console.log(this);
                     			if (this.value == 3) {
                     				if (!select_divisi.hasAttribute('disabled')) {
                     					select_divisi.setAttribute('disabled', '');

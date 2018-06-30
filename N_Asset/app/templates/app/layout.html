@@ -72,11 +72,11 @@
                         <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
                     </li>
                     <li>
-                        <a href="#" data-toggle="collapse" data-target="#dashboard" class="active collapsed" aria-expanded="false">
+                        <a href="#" data-toggle="collapse" data-target="#dashboard" class="active{% if not request.user.role == 3 %} collapsed{% endif %}" aria-expanded="false">
                             <i class="fa fa-address-card" aria-hidden="true"></i>
-                            <span class="nav-label"> Master Data </span> <span class="fa fa-angle-down pull-right"></span>
+                            <span class="nav-label"> Master Data </span> <span class="fa{% if not request.user.role == 3 %} fa-angle-down{% else %} fa-angle-up{% endif %} pull-right"></span>
                         </a>
-                        <ul class="sub-menu collapse" id="dashboard" aria-expanded="false" style="">
+                        <ul class="sub-menu{% if not request.user.role == 3 %} collapse{% else %} in{% endif %}" id="dashboard" aria-expanded="false" style="">
 							{% if request.user.allow_view_suplier %}
                             <li><a href="{% url 'MasterData:NA_Suplier:NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
 							{% endif %}
@@ -281,7 +281,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="divider" style="margin-bottom:1px;"></li>
+                            <li class="divider" style="margin-bottom:0px;"></li>
                             <li style="height:47px;background:#f5f5f5;">
                                 <!--<a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>-->
 								<button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign out</button>
@@ -394,7 +394,9 @@
     	var btnRegister = NA.common.doc.querySelector('button#register')
     	NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
     	window.showDialogEntry = function(event){
-    		$('div.maindialogContent').load(url_register(), function (response, status, xhr) {
+    	    $('div.maindialogContent').load(url_register(), function (response, status, xhr) {
+    	        var dialog = document.querySelector("div.containerDialog");
+    	        dialog.style.top = '20px';
     			function getData_User() {
     				data = {
     					first_name: $('input#id_first_name').val(),
@@ -410,77 +412,83 @@
     			var initializeForm_user = NA.common.getElementID('id_initializeForm_user');
     			initializeForm_user.Value = JSON.stringify(getData_User());
     			function NA_UserSubmit() {
-    				$('form#form_user').submit(function (event) {
-    					$.ajax({
-    						url: $(this).attr('action'),
-    						method: 'POST',
-    						data: new FormData(this),
-    						cache: false,
-    						contentType: false,
-    						processData: false,
-    						success: function (data) {
-    							console.log(data)
-    						}
-    					})
-    				});
+    			    var send_data = getData_User();
+    			    if(send_data['picture'] != ""){
+    			        send_data['picture'] = $('input#id_picture')[0].files[0];
+    			    };
+    			    
+    			    send_data['csrfmiddlewaretoken'] = $('form#form_user input[name="csrfmiddlewaretoken"]').val();
+    			    user_form_data = new FormData()
+    			    for ( var key in send_data ) {
+    			        user_form_data.append(key, send_data[key]);
+    			    }
+    			    $.ajax({
+    			        url: $('form#form_user').attr('action'),
+    			        method: 'POST',
+    			        data: user_form_data,
+    			        cache: false,
+    			        contentType: false,
+    			        processData: false,
+    			        success: function (data) {
+    			            window.location.href = '/'
+    			        }
+    			    });
     			};
     			var form_user = NA.common.getElementID('form_user');
     			var dialog_user = NA.common.dialog.doc.querySelector("div.containerDialog");
     			var btn_input = NA.common.getElementID('user_submit');
-    			function detectDifference_pass() {
-    				var container_msg = NA.common.doc.createElement('p');
-    				var message = NA.common.doc.createTextNode('Password didn\'t match .. . Please check again!!');
-    				container_msg.appendChild(message);
-    				return {
-    					check: function () {
-    						return $('form#form_user > #id_password1').val() !== $('form#form_user > #id_password2').val();
-    					},
-    					showMessage: function () {
-    						return form_user.appendChild(container_msg);
-    					}
-    				};
-    			};
-    			function closeForm_user() {
-    				var originalData = JSON.parse(initializeForm_user.Value);
-    				var valuesForm = getData_User();
-    				if (NA.common.detectInputChanges(originalData, valuesForm)) {
-    					if (confirm('Data has changed, \nSave data before closing form ?')) {
-    						if (detectDifference_pass().check()) {
-    							detectDifference_pass().showMessage();
-    							form_user.onsubmit('return false')
-    						} else {
-    							btn_input.click();
-    						}
-
-    					} else {
-    						NA.common.dialog.closeDialog(dialog_user);
-    					}
-    				} else {
-    					NA.common.dialog.closeDialog(dialog_user);
-    				}
-    			};
     			$('div.dialogButtonOKCancel>a.button').click(function (event) {
-    				var target = NA.NAEvent.getTarget(event);
-    				if (target.innerText.trim() == 'OK') {
-    					UserHandler('OK');
-    				} else if (target.innerText.trim() == 'Cancel') {
-    					UserHandler('Cancel', closeForm_user);
-    				}
+    			    var target = NA.NAEvent.getTarget(event);
+    			    UserHandler(target.innerText);
     			});
     			$('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
-
-    				UserHandler('Close', closeForm_user);
-    				NA.NAEvent.preventDefault(event);
+    				UserHandler('Close');
     			});
-
-    			function UserHandler(text, closeForm) {
-    				if (text == 'OK') {
-    					btn_input.click();
-    				} else if (text == 'Cancel' || text == 'Close') {
-    					if (form_user) {
-    						closeForm();
-    					}
-    				}
+    			function UserHandler(TextElement){
+    			    var dialog = document.querySelector("div.containerDialog"),
+                    originalData = JSON.parse(initializeForm_user.Value);
+                    valuesForm = getData_User();
+    			    switch (TextElement) {
+    			        case 'OK': {
+    			            var password = document.querySelector('input#id_password1');
+    			            var confirm_password = document.querySelector('input#id_password2');
+    			            if (password.value != confirm_password.value) {
+    			                confirm_password.setCustomValidity('confirm password didn\'t match with password');
+    			            } else {
+    			                confirm_password.setCustomValidity('');
+    			            }
+    			            if (!form_user.checkValidity()) {
+    			                btn_input.click();
+    			            }else {
+    			                if (NA.common.detectInputChanges(originalData, valuesForm)) {
+    			                    NA_UserSubmit();
+    			                } else {
+    			                    NA.common.dialog.closeDialog(dialog);
+    			                }
+    			            }
+    			            break;
+    			        }
+    			        case 'Cancel':
+    			        case 'Close': {
+    			            if (NA.common.detectInputChanges(originalData, valuesForm)) {
+    			                return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
+                                    function () {
+                                        if (!form_user.checkValidity()) {
+                                            //NA.NAEvent.preventDefault(event);
+                                            btn_input.click();
+                                        }
+                                        else {
+                                            NA_UserSubmit();
+                                        }
+                                    },
+                                    function () {
+                                        NA.common.dialog.closeDialog(dialog);
+                                    });
+    			            } else {
+    			                NA.common.dialog.closeDialog(dialog);
+    			            }
+    			        }
+    			    }
     			}
     		});
 

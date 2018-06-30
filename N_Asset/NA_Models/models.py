@@ -1268,3 +1268,37 @@ class NAGoodsHistory(NA_TransactionModel):
     class Meta:
         managed = True
         db_table = 'n_a_goods_history'
+
+class NaGaDetail(NA_BaseModel):
+    brand = models.CharField(db_column='Brand', max_length=100)
+    invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
+    fk_app = models.IntegerField(db_column='FK_App')
+    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
+    machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
+    chasis_no = models.CharField(db_column='Chasis_No', max_length=50)
+    year_made = models.DateField(db_column='Year_Made')
+    colour = models.CharField(max_length=20)
+    model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)
+    kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
+    cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
+    fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
+    equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True)
+    add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
+    descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'na_ga_detail'
+
+
+class NaGaVnHistory(NA_BaseModel):
+    reg_no = models.CharField(db_column='Reg_No', max_length=50)
+    fk_app = models.IntegerField(db_column='FK_App')
+    expired_reg = models.DateField(db_column='Expired_Reg')
+    date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
+    bpkp_expired = models.DateField(db_column='BPKP_Expired')
+    descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'na_ga_vn_history'
