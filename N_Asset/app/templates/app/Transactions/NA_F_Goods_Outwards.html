@@ -485,7 +485,7 @@
 		};
 		function ExecuteHandler(textElement) {
 			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
-			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
+			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Outwards');
 			switch (textElement) {
 				case 'OK': {
 					if (!frmEntry.checkValidity()) {
@@ -1257,7 +1257,7 @@
 					}
 					try {
 						if (win.status !== 'Open') {
-							var textElem = event.target.innerText;
+							var textElem = evt.target.innerText;
 							if (textElem === 'OK') {
 								ExecuteHandler('OK');
 							} else {
