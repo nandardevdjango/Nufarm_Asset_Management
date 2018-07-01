@@ -485,7 +485,7 @@
 		};
 		function ExecuteHandler(textElement) {
 			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
-			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Lending');
+			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Outwards');
 			switch (textElement) {
 				case 'OK': {
 					if (!frmEntry.checkValidity()) {
@@ -774,13 +774,19 @@
 			//    fk_lost = elfk_lost.value;
 			var ellastinfo = NA.common.getElementID('LastInfoValue'),
                 lastinfo = ellastinfo.textContent
-
+			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
+			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
+			var idapp_fk_usedemployee = elfk_usedemployeeValue.value;
+			//if(UsedEmployee.length > 0){
+			//	fk_usedemployee = UsedEmployee[0];
+			//}
 			//idapp,fk_goods,isnew,goods,idapp_fk_goods,fk_employee,idapp_fk_employee,daterequest,datereleased,
 			//fk_responsibleperson,idapp_fk_responsibleperson,fk_responsibleperson_employee,fk_sender,idapp_fk_sender,fk_sender_employee,descriptions,
 			//lastinfo,serialnumber,fk_frommaintenance,fk_return,fk_lending
 			//fk_receive
 			return {
 				idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
+				idapp_fk_usedemployee: idapp_fk_usedemployee,
 				daterequest: daterequest, datereleased : datereleased,fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
 				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender,descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_frommaintenance: fk_frommaintenance, fk_return: fk_return, fk_lending: fk_lending, fk_receive: fk_receive, lastinfo: lastinfo,
@@ -821,8 +827,8 @@
 			elidapp_fk_goods.value = rowData['idapp'] || null;//idapp di grid adalah idapp_fkgoods
 
 			//    form.fk_frommaintenance 
-			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance ');
-			elfk_maintenance.value = rowData['fk_maintenance '] || null;
+			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
+			elfk_maintenance.value = rowData['fk_maintenance'] || null;
 
 			//      form.fk_return 
 			var elfk_return = NA.common.getElementID('id_fk_return');
@@ -859,7 +865,7 @@
 			ellastinfo.textContent = rowData['lastinfo'] || '';
 
 			//fk_usedemployee & fk_usedemployee_employee
-			var elfk_usedemployeeValue = NA.common.getElementID('id_fk_usedemployeeValue');
+			var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 			elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];
 
 			////form.serialnumber
@@ -1251,7 +1257,7 @@
 					}
 					try {
 						if (win.status !== 'Open') {
-							var textElem = event.target.innerText;
+							var textElem = evt.target.innerText;
 							if (textElem === 'OK') {
 								ExecuteHandler('OK');
 							} else {

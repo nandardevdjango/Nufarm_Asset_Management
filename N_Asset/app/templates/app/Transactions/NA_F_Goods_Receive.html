@@ -453,9 +453,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         };
         function clearEntry() {
             //if (oInit){
-            var elidapp = NA.common.getElementID('id_idapp'); elidapp.value = originalData.idapp;
+            var elidapp = NA.common.getElementID('id_idapp'); elidapp.value = originalData.idapp||null;
             var elRefNO = NA.common.getElementID('id_refno'); elRefNO.value = originalData.refno||'';
-            var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'); elidapp_fk_goods.value = originalData.idapp_fk_goods;
+            var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'); elidapp_fk_goods.value = originalData.idapp_fk_goods||null;
             var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.value = originalData.idapp_fk_goods||'';
             var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.value = originalData.goods_desc||'';
             var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.value = originalData.datereceived||'';
@@ -463,10 +463,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.value = originalData.supliername||'';
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.value = originalData.totalpurchase||'';
             var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.value = originalData.totalreceived||'';
-            var elidapp_fk_p_r_by = NA.common.getElementID('id_idapp_fk_p_r_by'); elidapp_fk_p_r_by.value = originalData.idapp_fk_p_r_by;
+            var elidapp_fk_p_r_by = NA.common.getElementID('id_idapp_fk_p_r_by'); elidapp_fk_p_r_by.value = originalData.idapp_fk_p_r_by||null;
             var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.value = originalData.fk_p_r_by || '';
             var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.value = originalData.employee_pr||'';
-            var elidapp_fk_receivedby = NA.common.getElementID('id_idapp_fk_receivedby'); elidapp_fk_receivedby.value = originalData.idapp_fk_receivedby;
+            var elidapp_fk_receivedby = NA.common.getElementID('id_idapp_fk_receivedby'); elidapp_fk_receivedby.value = originalData.idapp_fk_receivedby||null;
             var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.value = originalData.fk_receivedby||'';
             var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.value = originalData.employee_received||'';
             var eldescriptions = NA.common.getElementID('id_descriptions'); eldescriptions.value = originalData.descriptions||'';
@@ -1242,7 +1242,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         NValEndOfWarranty = NDate;
                         //var NVal = FDate.getDate(
                     	//set grid cell
-                        debugger;
                         var dtStr = formatDate(NDate)
                         gridTbl.jqGrid('setCell', rowid, 'endofwarranty', dtStr);
                         // now change the internal local data
