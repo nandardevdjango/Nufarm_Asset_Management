@@ -41,4 +41,4 @@ class Command(BaseCommand):
             user.is_superuser = True
             user.save()
             NASysPriviledge.set_permission(user)
-        return 'NA User Created Successfully'
+        return 'NA Super User Created Successfully'

@@ -200,9 +200,6 @@ div[id*=NA_Priviledge_grid]{
         		});
         	}(jQuery));
 
-        	// send the parent row primary key to the server so that we know which grid to show
-        	//var data = [{ "idapp": 1, "form_name": "Suplier Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 2, "form_name": "Suplier Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 5, "form_name": "Suplier Form", "permission": "Allow Add", "attr": { "display": "none" } }, { "idapp": 3, "form_name": "Employee Form", "permission": "Allow View", "attr": { "rowspan": 3 } }, { "idapp": 4, "form_name": "Employee Form", "permission": "Allow Edit", "attr": { "display": "none" } }, { "idapp": 6, "form_name": "Employee Form", "permission": "Allow Add", "attr": { "display": "none" } }]
-        	// add a table and pager HTML elements to the parent grid row - we will render the child grid here
         	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
 
         	$("#" + childGridID).jqGrid({
@@ -359,23 +356,11 @@ div[id*=NA_Priviledge_grid]{
 											editoptions: { value: '1:0' },
 											formatoptions: { disabled: false }
 										},
-										//{
-										//	name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center', formatter: "actions",
-										//	formatoptions: {
-										//		keys: true,
-										//		editbutton: false,
-										//		addbutton: false,
-										//		delOptions: {
-										//			modal: false,
-										//			jqModal: false
-										//		}
-										//	}
-										//},
                                         {
                                             name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center',
                                             formatter: function (cellValue, options, rowObject) {
                                                 return '<div class="ui-pg-div" style="display:inline-block;" id="remove_dummy" data-idapp="'
-                                                    + rowObject.idapp + '" data-rowId="' + options.rowId + '" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseleave="$(this).removeClass(\'ui-state-hover\')"><span class="ui-icon ui-icon-trash"></span></div>';
+                                                    + rowObject.idapp + '" data-rowid="' + options.rowId + '" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseleave="$(this).removeClass(\'ui-state-hover\')"><span class="ui-icon ui-icon-trash"></span></div>';
                                             }
                                         }
         							],
@@ -412,9 +397,10 @@ div[id*=NA_Priviledge_grid]{
                                             input_allow_delete = qs('input#id_allow_delete');
         							    input_allow_view.checked = false,
                                         input_allow_add.checked = false,
-                                        input_allow_edit = false,
-                                        input_allow_delete = false;
-        								var data = $(NA_Permission_grid).getRowData()
+                                        input_allow_edit.checked = false,
+                                        input_allow_delete.checked = false;
+        							    var data = $(NA_Permission_grid).getRowData();
+										console.log('==================== Grid Completed')
         								if (data.length > 0) {
         									for (var i = 0; i < data.length; i++) {
         										if (data[i]['permission'] == 'Allow View') {
@@ -436,19 +422,21 @@ div[id*=NA_Priviledge_grid]{
         							pgtext: null,
         						});
 
-        						$(document).on('click', 'div#remove_dummy', function () {
-        						    var rowId = $(this).parents('tr')[0].id;
+        						$(document).on('click', 'div#remove_dummy', function (event) {
+        							event.preventDefault();
+        							event.stopPropagation();
+        							var rowId = $(this).data('rowid');
+        							var rowData = $('#NA_Permission_grid').getRowData(rowId);
+        							if (rowData['idapp'] != 'dummy_inline') {
+        								var data_delete_dummy = qs('input#id_data_delete_dummy');
+										var permission = [] // ========= can beres didieu
+        								data_delete_dummy.value = JSON.stringify({
+        									'form_name': rowData['form_name'],
+											'permission':permission
+        								});
+        							}
         						    $('#NA_Permission_grid').delRowData(rowId);
         						});
-        						//$(document).on('mouseover', 'div#remove_dummy', function (event) {
-        						//    console.log(event);
-        						//    event.preventDefault();
-        						//    event.stopPropagation();
-        						//    $(this).addClass('ui-state-hover');
-        						//});
-        						//$(document).on('mouseover', 'div#remove_dummy', function () {
-        						//    $(this).removeClass('ui-state-hover');
-        						//});
 
         						$("div#gbox_NA_Permission_grid, div#gview_NA_Permission_grid, div#gview_NA_Permission_grid > div.ui-jqgrid-bdiv, div#gview_NA_Permission_grid > div.ui-jqgrid-hdiv, #NA_Permission_pager").css({
         							'width': 'inherit'
@@ -469,8 +457,10 @@ div[id*=NA_Priviledge_grid]{
         							onClickButton: function (event) {
         								var select_fk_form = qs('select#id_fk_form');
         								if (select_fk_form.checkValidity()) {
-        									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1', inactive: '0' };
+        									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1' };
         									var row_count = $(NA_Permission_grid).getGridParam('reccount');
+        									var permission_list = ['Allow View', 'Allow Add', 'Allow Edit', 'Allow Delete']
+											var cur_permission = []
         									if (row_count == 1) {
         										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
         											var DialogChange_role = new BootstrapDialog({
@@ -614,15 +604,24 @@ div[id*=NA_Priviledge_grid]{
         											return false;
         										}
         										dummy_data['no'] = 2
-        										dummy_data['permission'] = 'Allow Add';
         									} else if (row_count == 2) {
         										dummy_data['no'] = 3
-        										dummy_data['permission'] = 'Allow Edit';
         									} else if (row_count == 3) {
         										dummy_data['no'] = 4
-        										dummy_data['permission'] = 'Allow Delete';
         									} else if (row_count > 3) {
         										return false;
+        									}
+        									if (row_count >= 1 && row_count < 4) {
+        										var data = $('#NA_Permission_grid').getRowData()
+        										for (var i = 0; i < data.length; i++) {
+													cur_permission.push(data[i]['permission'])
+        										}
+        										for (var i = 0; i < permission_list.length; i++) {
+        											if (cur_permission.indexOf(permission_list[i]) == -1) {
+        												dummy_data['permission'] = permission_list[i];
+        												break;
+        											}
+        										}
         									}
         									$(NA_Permission_grid).jqGrid('addRowData', row_count + 1, dummy_data);
         								} else {
