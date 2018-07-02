@@ -84,13 +84,13 @@ def ShowEntry_Outwards(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
-			form = NA_Goods_Lending_Form(data)
+			form = NA_Goods_Outwards_Form(data)
 			result = ''
 			if form.is_valid():
 				form.clean()
 				data.update(isnew=strtobool(str(data['isnew'])))
 				data.update(fk_frommaintenance=(None if int(data['fk_frommaintenance']) == 0 else data['fk_frommaintenance']))
-				data.update(fk_usedemployee=(None if int(data['fk_usedemployee']) == 0 else data['fk_usedemployee']))
+				data.update(idapp_fk_usedemployee=(None if int(data['idapp_fk_usedemployee']) == 0 else data['idapp_fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
@@ -222,10 +222,9 @@ class NA_Goods_Outwards_Form(forms.Form):
 
 	def clean(self):
 		cleaned_data = super(NA_Goods_Outwards_Form,self).clean()
-		cleaned_data = super(NA_Goods_Outwards_Form,self).clean()
 		fk_employee = self.cleaned_data['fk_employee']
 		daterequest = self.cleaned_data['daterequest']
-		datereleased = self.clean_data['datereleased']
+		datereleased = self.cleaned_data['datereleased']
 		fk_responsibleperson = self.cleaned_data['fk_responsibleperson']
 		fk_sender = self.cleaned_data['fk_sender']
 		serialnumber = self.cleaned_data['serialnumber']

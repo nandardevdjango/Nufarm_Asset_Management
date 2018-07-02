@@ -761,13 +761,13 @@
             serialnumber = elserialnumber.value;
 			//brandvalue nggak usah
 			var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance'),
-                fk_frommaintenance = elfk_frommaintenance.value;
+                fk_frommaintenance = elfk_frommaintenance.value|0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),
-                fk_return = elfk_return.value;
+                fk_return = elfk_return.value|0;
 			var elfk_lending = NA.common.getElementID('id_fk_lending'),
-                fk_lending = elfk_lending.value;
+                fk_lending = elfk_lending.value|0;
 			var elfk_receive = NA.common.getElementID('id_fk_receive'),
-                fk_receive = elfk_receive.value;
+                fk_receive = elfk_receive.value|0;
 			//var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
 			//    fk_disposal = elfk_disposal.value;
 			//var elfk_lost = NA.common.getElementID('id_fk_lost'),
@@ -776,7 +776,7 @@
                 lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
-			var idapp_fk_usedemployee = elfk_usedemployeeValue.value;
+			var idapp_fk_usedemployee = elfk_usedemployeeValue.value|0;
 			//if(UsedEmployee.length > 0){
 			//	fk_usedemployee = UsedEmployee[0];
 			//}

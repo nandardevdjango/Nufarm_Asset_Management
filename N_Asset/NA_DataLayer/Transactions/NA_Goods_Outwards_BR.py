@@ -346,11 +346,11 @@ class NA_BR_Goods_Outwards(models.Manager):
 								`FK_Lending`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `lastinfo`) 
 								VALUES (%(FK_Goods)s,%(IsNew)s,%(DateRequest)s,%(DateReleased)s,%(FK_Employee)s,%(FK_UsedEmployee)s,%(FK_FromMaintenance)s,%(FK_ResponsiblePerson)s,%(FK_Sender)s,%(FK_Stock)s,%(SerialNumber)s,%(TypeApp)s,
 								%(FK_Lending)s, %(Descriptions)s, %(FK_Return)s, %(FK_Receive)s, NOW(), %(CreatedBy)s, %(lastinfo)s)"""
-					param = {'FK_Goods':Data['idaap_fk_goods'],'IsNew':Data['isnew'],'DateRequest':Data['daterequest'],'DateReleased':['datereleased'],
-							'FK_Employee':['idapp_fk_employee'],['FK_UsedEmployee']:Data['idapp_fk_usedemployee'],'FK_FromMaintenance':['fk_frommaintenance'],
-							'FK_ResponsiblePerson':['idapp_fk_responsibleperson'],'FK_Sender':['idapp_fk_sender'],'FK_Stock':fk_stock,'SerialNumber':['serialnumber'],
-							'TypeApp':['typeapp'],'FK_Lending':['fk_lending'], 'Descriptions':['descriptions'], 'FK_Return':['fk_return'],
-						    'FK_Receive':['fk_receive'], 'CreatedBy':Data['createdby'], 'lastinfo':['lastinfo']}
+					param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'DateRequest':Data['daterequest'],'DateReleased':Data['datereleased'],
+							'FK_Employee':Data['idapp_fk_employee'],'FK_UsedEmployee':Data['idapp_fk_usedemployee'],'FK_FromMaintenance':Data['fk_frommaintenance'],
+							'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],'FK_Sender':Data['idapp_fk_sender'],'FK_Stock':fk_stock,'SerialNumber':Data['serialnumber'],
+							'TypeApp':Data['typeapp'],'FK_Lending':Data['fk_lending'], 'Descriptions':Data['descriptions'], 'FK_Return':Data['fk_return'],
+						    'FK_Receive':Data['fk_receive'], 'CreatedBy':Data['createdby'], 'lastinfo':Data['lastinfo']}
 					cur.execute(Query,param)
 					cur.execute('SELECT last_insert_id()')
 					row = cur.fetchone()
@@ -363,7 +363,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 					Query = """ UPDATE n_a_goods_outwards SET FK_Employee=%(FK_Employee)s,DateRequest=%(DateRequest)s,DateReleased=%(DateReleased)s,FK_ResponsiblePerson=%(FK_ResponsiblePerson)s, \
 								FK_Sender=%(FK_Sender)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s,Descriptions=%(Descriptions)s \
 								WHERE idapp = %(idapp)s """
-					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateRequest':Data['daterequest'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],'interests':Data['interests'],
+					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateRequest':Data['daterequest'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],
 							'FK_Sender':Data['idapp_fk_sender'],'ModifiedBy':Data['modifiedby'],'Descriptions':Data['descriptions']}
 				cur.execute(Query,param)
 				who = Data['createdby'] if Status == StatusForm.Input else Data['modifiedby']
