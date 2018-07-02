@@ -427,14 +427,38 @@ div[id*=NA_Priviledge_grid]{
         							event.stopPropagation();
         							var rowId = $(this).data('rowid');
         							var rowData = $('#NA_Permission_grid').getRowData(rowId);
-        							if (rowData['idapp'] != 'dummy_inline') {
-        								var data_delete_dummy = qs('input#id_data_delete_dummy');
-										var permission = [] // ========= can beres didieu
-        								data_delete_dummy.value = JSON.stringify({
-        									'form_name': rowData['form_name'],
-											'permission':permission
-        								});
+        							if (typeof rowData['form_name'] != 'undefined') {
+        								if (rowData['idapp'] != 'dummy_inline') {
+        									var data_delete_dummy = $('input#id_data_delete_dummy');
+        									var permission_list = []; // ========= can beres didieu
+        									var permission = rowData['permission'];
+        									data_delete_dummy.data('formname', rowData['form_name']);
+        									if (permission == 'Allow View') {
+        										data_delete_dummy.data('allowview', true);
+        									} else if (permission == 'Allow Add') {
+        										data_delete_dummy.data('allowadd', true);
+        									} else if (permission == 'Allow Edit') {
+        										data_delete_dummy.data('allowedit', true);
+        									} else if (permission == 'Allow Delete') {
+        										data_delete_dummy.data('allowdelete', true);
+        									};
+        									if (data_delete_dummy.val() != '') {
+        										var cur_perms = JSON.parse(data_delete_dummy.val())['permission']
+        										for (var i = 0; i < cur_perms.length; i++) {
+        											permission_list.push(cur_perms[i]);
+        										}
+        									};
+        									if (permission_list.indexOf(permission) == -1) {
+        										permission_list.push(permission);
+        									};
+        									data_delete_dummy[0].value = JSON.stringify({
+        										'form_name': rowData['form_name'],
+        										'permission': permission_list
+        									});
+        								};
+        								$('#btn_undo_permission_inline').removeClass('ui-state-disabled');
         							}
+        							
         						    $('#NA_Permission_grid').delRowData(rowId);
         						});
 
@@ -452,7 +476,7 @@ div[id*=NA_Priviledge_grid]{
         							cloneToTop: false
         						}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
         							id: 'btn_add_permission_inline',
-        							caption: "",
+        							caption: "Add",
         							buttonicon: "ui-icon-plus",
         							onClickButton: function (event) {
         								var select_fk_form = qs('select#id_fk_form');
@@ -460,7 +484,7 @@ div[id*=NA_Priviledge_grid]{
         									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1' };
         									var row_count = $(NA_Permission_grid).getGridParam('reccount');
         									var permission_list = ['Allow View', 'Allow Add', 'Allow Edit', 'Allow Delete']
-											var cur_permission = []
+        									var cur_permission = []
         									if (row_count == 1) {
         										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
         											var DialogChange_role = new BootstrapDialog({
@@ -614,7 +638,7 @@ div[id*=NA_Priviledge_grid]{
         									if (row_count >= 1 && row_count < 4) {
         										var data = $('#NA_Permission_grid').getRowData()
         										for (var i = 0; i < data.length; i++) {
-													cur_permission.push(data[i]['permission'])
+        											cur_permission.push(data[i]['permission'])
         										}
         										for (var i = 0; i < permission_list.length; i++) {
         											if (cur_permission.indexOf(permission_list[i]) == -1) {
@@ -630,7 +654,15 @@ div[id*=NA_Priviledge_grid]{
         								};
         								$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
         							}
+        						}).navButtonAdd('#NA_Permission_pager', {
+        							id: 'btn_undo_permission_inline',
+        							caption: "Undo",
+        							buttonicon: "ui-icon-arrowreturnthick-1-w",
+        							onClickButton: function (event) {
+        								var data_delete_dummy = $('input#id_data_delete_dummy'); // can beres didieu
+        							}
         						});
+        						$('#btn_undo_permission_inline').addClass('ui-state-disabled');
         					};
 
         					LoadPermission_grid('null');

@@ -365,7 +365,9 @@ class NA_Permission_Form(forms.Form):
         attrs={'style':'display:none'}),required=False)
     allow_delete = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'style':'display:none'}),required=False)
-    data_delete_dummy = forms.CharField(widget=forms.HiddenInput(),required=False)
+    data_delete_dummy = forms.CharField(widget=forms.HiddenInput(
+        attrs={'data-formname':'','data-allowview':'false','data-allowadd':'false',
+               'data-allowedit':'false','data-allowdelete':'false'}),required=False)
     initialize_permissionForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
     def save(self,request):
