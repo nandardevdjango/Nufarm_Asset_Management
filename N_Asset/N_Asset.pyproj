@@ -32,6 +32,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\forms.py" />
+    <Compile Include="app\management\commands\create_na_superuser.py" />
+    <Compile Include="app\management\commands\__init__.py" />
+    <Compile Include="app\management\__init__.py" />
     <Compile Include="app\middleware.py">
       <SubType>Code</SubType>
     </Compile>
@@ -197,6 +200,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\management\" />
+    <Folder Include="app\management\commands\" />
+    <Folder Include="app\management\commands\__pycache__\" />
+    <Folder Include="app\management\__pycache__\" />
     <Folder Include="app\NA_Urls\MasterData\" />
     <Folder Include="app\NA_Urls\OtherPages\" />
     <Folder Include="app\NA_Urls\Transactions\" />
@@ -224,6 +231,7 @@
     <Folder Include="app\templates\app\Search\" />
     <Folder Include="app\templates\app\Transactions\" />
     <Folder Include="app\templates\app\UserControl\" />
+    <Folder Include="fixtures\" />
     <Folder Include="NA_DataLayer\" />
     <Folder Include="NA_DataLayer\NA_User\" />
     <Folder Include="NA_DataLayer\MasterData\" />
@@ -235,6 +243,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AlterTable.sql" />
+    <Content Include="app\management\commands\__pycache__\create_na_superuser.cpython-36.pyc" />
+    <Content Include="app\management\commands\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="app\management\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="app\static\app\content\Dialog.css" />
     <Content Include="app\static\app\content\jquery-ui.min.css" />
     <Content Include="app\static\app\content\MainLayouts.css" />
@@ -285,6 +296,7 @@
     <Content Include="app\templates\app\MasterData\NA_F_Maintenance.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Priviledge.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Suplier.html" />
+    <Content Include="app\templates\app\MasterData\NA_Priviledge_register.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
@@ -299,6 +311,7 @@
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive_other.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Return.html" />
     <Content Include="app\templates\app\UserControl\customFilter.html" />
+    <Content Include="fixtures\NA_Data.json" />
     <Content Include="NA_DataLayer\common.py" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />

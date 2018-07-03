@@ -359,6 +359,9 @@ div[id*=NA_Priviledge_grid]{
                                         {
                                             name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center',
                                             formatter: function (cellValue, options, rowObject) {
+                                            	if (rowObject.idapp != 'dummy_inline') {
+                                            		return '';
+                                            	}
                                                 return '<div class="ui-pg-div" style="display:inline-block;" id="remove_dummy" data-idapp="'
                                                     + rowObject.idapp + '" data-rowid="' + options.rowId + '" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseleave="$(this).removeClass(\'ui-state-hover\')"><span class="ui-icon ui-icon-trash"></span></div>';
                                             }
@@ -427,38 +430,16 @@ div[id*=NA_Priviledge_grid]{
         							event.stopPropagation();
         							var rowId = $(this).data('rowid');
         							var rowData = $('#NA_Permission_grid').getRowData(rowId);
-        							if (typeof rowData['form_name'] != 'undefined') {
-        								if (rowData['idapp'] != 'dummy_inline') {
-        									var data_delete_dummy = $('input#id_data_delete_dummy');
-        									var permission_list = []; // ========= can beres didieu
-        									var permission = rowData['permission'];
-        									data_delete_dummy.data('formname', rowData['form_name']);
-        									if (permission == 'Allow View') {
-        										data_delete_dummy.data('allowview', true);
-        									} else if (permission == 'Allow Add') {
-        										data_delete_dummy.data('allowadd', true);
-        									} else if (permission == 'Allow Edit') {
-        										data_delete_dummy.data('allowedit', true);
-        									} else if (permission == 'Allow Delete') {
-        										data_delete_dummy.data('allowdelete', true);
-        									};
-        									if (data_delete_dummy.val() != '') {
-        										var cur_perms = JSON.parse(data_delete_dummy.val())['permission']
-        										for (var i = 0; i < cur_perms.length; i++) {
-        											permission_list.push(cur_perms[i]);
-        										}
-        									};
-        									if (permission_list.indexOf(permission) == -1) {
-        										permission_list.push(permission);
-        									};
-        									data_delete_dummy[0].value = JSON.stringify({
-        										'form_name': rowData['form_name'],
-        										'permission': permission_list
-        									});
-        								};
-        								$('#btn_undo_permission_inline').removeClass('ui-state-disabled');
-        							}
-        							
+        							var permission = rowData['permission'];
+        							if (permission == 'Allow View') {
+        								allow_view.checked = false;
+        							} else if (permission == 'Allow Add') {
+        								allow_add.checked = false;
+        							} else if (permission == 'Allow Edit') {
+        								allow_edit.checked = false;
+        							} else if (permission == 'Allow Delete') {
+        								allow_delete.checked = false;
+        							};
         						    $('#NA_Permission_grid').delRowData(rowId);
         						});
 
@@ -654,15 +635,7 @@ div[id*=NA_Priviledge_grid]{
         								};
         								$(NA_Permission_grid).jqGrid('setColProp', 'inactive', { formatoptions: { disabled: true } });
         							}
-        						}).navButtonAdd('#NA_Permission_pager', {
-        							id: 'btn_undo_permission_inline',
-        							caption: "Undo",
-        							buttonicon: "ui-icon-arrowreturnthick-1-w",
-        							onClickButton: function (event) {
-        								var data_delete_dummy = $('input#id_data_delete_dummy'); // can beres didieu
-        							}
         						});
-        						$('#btn_undo_permission_inline').addClass('ui-state-disabled');
         					};
 
         					LoadPermission_grid('null');
