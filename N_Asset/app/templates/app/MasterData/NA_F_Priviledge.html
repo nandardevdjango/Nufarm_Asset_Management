@@ -359,6 +359,9 @@ div[id*=NA_Priviledge_grid]{
                                         {
                                             name: 'remove_dummy', index: 'remove_dummy', width: 70, align: 'center',
                                             formatter: function (cellValue, options, rowObject) {
+                                            	if (rowObject.idapp != 'dummy_inline') {
+                                            		return '';
+                                            	}
                                                 return '<div class="ui-pg-div" style="display:inline-block;" id="remove_dummy" data-idapp="'
                                                     + rowObject.idapp + '" data-rowid="' + options.rowId + '" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseleave="$(this).removeClass(\'ui-state-hover\')"><span class="ui-icon ui-icon-trash"></span></div>';
                                             }
@@ -427,14 +430,16 @@ div[id*=NA_Priviledge_grid]{
         							event.stopPropagation();
         							var rowId = $(this).data('rowid');
         							var rowData = $('#NA_Permission_grid').getRowData(rowId);
-        							if (rowData['idapp'] != 'dummy_inline') {
-        								var data_delete_dummy = qs('input#id_data_delete_dummy');
-										var permission = [] // ========= can beres didieu
-        								data_delete_dummy.value = JSON.stringify({
-        									'form_name': rowData['form_name'],
-											'permission':permission
-        								});
-        							}
+        							var permission = rowData['permission'];
+        							if (permission == 'Allow View') {
+        								allow_view.checked = false;
+        							} else if (permission == 'Allow Add') {
+        								allow_add.checked = false;
+        							} else if (permission == 'Allow Edit') {
+        								allow_edit.checked = false;
+        							} else if (permission == 'Allow Delete') {
+        								allow_delete.checked = false;
+        							};
         						    $('#NA_Permission_grid').delRowData(rowId);
         						});
 
@@ -452,7 +457,7 @@ div[id*=NA_Priviledge_grid]{
         							cloneToTop: false
         						}).navButtonAdd('#NA_Permission_pager', { //================ Add inline permission in form
         							id: 'btn_add_permission_inline',
-        							caption: "",
+        							caption: "Add",
         							buttonicon: "ui-icon-plus",
         							onClickButton: function (event) {
         								var select_fk_form = qs('select#id_fk_form');
@@ -460,7 +465,7 @@ div[id*=NA_Priviledge_grid]{
         									var dummy_data = { idapp: 'dummy_inline', no: '1', form_name: $('select#id_fk_form option:selected').text(), permission: 'Allow View', set: '1' };
         									var row_count = $(NA_Permission_grid).getGridParam('reccount');
         									var permission_list = ['Allow View', 'Allow Add', 'Allow Edit', 'Allow Delete']
-											var cur_permission = []
+        									var cur_permission = []
         									if (row_count == 1) {
         										if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
         											var DialogChange_role = new BootstrapDialog({
@@ -614,7 +619,7 @@ div[id*=NA_Priviledge_grid]{
         									if (row_count >= 1 && row_count < 4) {
         										var data = $('#NA_Permission_grid').getRowData()
         										for (var i = 0; i < data.length; i++) {
-													cur_permission.push(data[i]['permission'])
+        											cur_permission.push(data[i]['permission'])
         										}
         										for (var i = 0; i < permission_list.length; i++) {
         											if (cur_permission.indexOf(permission_list[i]) == -1) {
