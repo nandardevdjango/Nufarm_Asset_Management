@@ -1273,17 +1273,17 @@ class NaGaDetail(NA_BaseModel):
     brand = models.CharField(db_column='Brand', max_length=100)
     invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
     fk_app = models.IntegerField(db_column='FK_App')
-    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
-    machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
-    chasis_no = models.CharField(db_column='Chasis_No', max_length=50)
+    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True) #type kendaraan
+    machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50) #no mesin
+    chasis_no = models.CharField(db_column='Chasis_No', max_length=50)#no rangka mesin
     year_made = models.DateField(db_column='Year_Made')
     colour = models.CharField(max_length=20)
-    model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)
-    kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
-    cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
-    fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
-    equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True)
-    add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
+    model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)#model misalnya minibus / colback/spv
+    kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True) #jenis kendaraan
+    cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)#isi silinder 
+    fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True) #bahan bakar (pertamax solar premium)
+    #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
+    #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
 
     class Meta:
@@ -1292,9 +1292,9 @@ class NaGaDetail(NA_BaseModel):
 
 
 class NaGaVnHistory(NA_BaseModel):
-    reg_no = models.CharField(db_column='Reg_No', max_length=50)
-    fk_app = models.IntegerField(db_column='FK_App')
-    expired_reg = models.DateField(db_column='Expired_Reg')
+    reg_no = models.CharField(db_column='Reg_No', max_length=50)#no polisi / stnk
+    fk_app = models.IntegerField(db_column='FK_App') #stnk ini untuk kendaraan mana
+    expired_reg = models.DateField(db_column='Expired_Reg') #tanggal kadaluarsa satu tahun
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)

@@ -342,8 +342,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 					#daterequest:  datereleased : fk_responsibleperson:  idapp_fk_responsibleperson: 
 					#fk_sender:  idapp_fk_sender: descriptions:  typeapp: serialnumber: 
 					#fk_frommaintenance:  fk_return: fk_lending:  fk_receive:lastinfo: lastinfo,status:
-					Query = """INSERT INTO `n_a_goods_outwards`(`IDApp`, `FK_Goods`, `IsNew`, `DateRequest`, `DateReleased`, `FK_Employee`, `FK_UsedEmployee`, `FK_FromMaintenance`, `FK_ResponsiblePerson`, `FK_Sender`, `FK_Stock`, `SerialNumber`, `TypeApp`,
-								`FK_Lending`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `lastinfo`) 
+					Query = """INSERT INTO `n_a_goods_outwards`(`FK_Goods`, `IsNew`, `DateRequest`, `DateReleased`, `FK_Employee`, `FK_UsedEmployee`, `FK_FromMaintenance`, `FK_ResponsiblePerson`, `FK_Sender`, `FK_Stock`, `SerialNumber`, `TypeApp`,
+								`FK_Lending`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `lastinfo`) 
 								VALUES (%(FK_Goods)s,%(IsNew)s,%(DateRequest)s,%(DateReleased)s,%(FK_Employee)s,%(FK_UsedEmployee)s,%(FK_FromMaintenance)s,%(FK_ResponsiblePerson)s,%(FK_Sender)s,%(FK_Stock)s,%(SerialNumber)s,%(TypeApp)s,
 								%(FK_Lending)s, %(Descriptions)s, %(FK_Return)s, %(FK_Receive)s, NOW(), %(CreatedBy)s, %(lastinfo)s)"""
 					param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'DateRequest':Data['daterequest'],'DateReleased':Data['datereleased'],

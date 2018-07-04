@@ -264,7 +264,8 @@
                             <li>
                                 <div class="row" style="margin:15px;height:110px;">
                                     <div class="col-md-5" style="padding:0px;">
-                                        <div class="profile-circle medium" style="border:none;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+                                        <div class="profile-circle medium" style="border:none-
+                                             ;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
                                         </div>
                                         <form id="form_change_user_picture" enctype="multipart/form-data" method="post" action="">
                                             <input id="user_picture" type="file" style="display:none;" accept="image/*" />
