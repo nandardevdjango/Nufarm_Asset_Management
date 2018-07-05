@@ -63,11 +63,11 @@
             <div class="sidebar">
                 <ul class="list-sidebar bg-defoult">
                     <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
-                        <li><a href="#">Regular link</a></li>
-                        <li class="disabled"><a href="#">Disabled link</a></li>
-                        <li><a href="#">Another link</a></li>
-                    </ul> -->
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
+            <li><a href="#">Regular link</a></li>
+            <li class="disabled"><a href="#">Disabled link</a></li>
+            <li><a href="#">Another link</a></li>
+        </ul> -->
                     <li>
                         <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
                     </li>
@@ -77,58 +77,71 @@
                             <span class="nav-label"> Master Data </span> <span class="fa{% if not request.user.role == 3 %} fa-angle-down{% else %} fa-angle-up{% endif %} pull-right"></span>
                         </a>
                         <ul class="sub-menu{% if not request.user.role == 3 %} collapse{% else %} in{% endif %}" id="dashboard" aria-expanded="false" style="">
-							{% if request.user.allow_view_suplier %}
+                            {% if request.user.allow_view_suplier %}
                             <li><a href="{% url 'MasterData:NA_Suplier:NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
-							{% endif %}
+                            {% endif %}
 
-							{% if request.user.allow_view_employee %}
+                            {% if request.user.allow_view_employee %}
                             <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
-							{% endif %}
+                            {% endif %}
 
-							{% if request.user.allow_view_goods %}
+                            {% if request.user.allow_view_goods %}
                             <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
-							{% endif %}
+                            {% endif %}
                             <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-							{% if request.user.allow_view_priviledge %}
+                            {% if request.user.allow_view_priviledge %}
                             <li><a href="{% url 'MasterData:NA_Priviledge:NA_Priviledge' %}" {% if url_name == 'NA_Priviledge' %} class="active" {% endif %}><i class="fa fa-user"></i> User Priviledge</a></li>
-							{% endif %}
+                            {% endif %}
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
                         </ul>
                     </li>
-					{% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
+                    {% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
                     <li>
-                        <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false"> <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span> </a>
+                        <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false">
+                            <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span>
+                        </a>
                         <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
                             <li>
-                                <a href="#" data-toggle="collapse" data-target="#goods_receive_dropdown" class="active collapsed" aria-expanded="false">
-                                    <span class="nav-label">Goods Receiving</span>
+                                <a href="#" data-toggle="collapse" data-target="#it" class="active collapsed" aria-expanded="false">
+                                    <i class="fa fa-laptop"></i><span class="nav-label">IT</span>
                                     <span class="fa fa-angle-down pull-right"></span>
                                 </a>
                             </li>
                             <li>
-                                <ul class="sub-menu collapse" id="goods_receive_dropdown" aria-expanded="false" style="">
-                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">IT</a></li>
+                                <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
+                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
                                 </ul>
                             </li>
 
-                            <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
-                            <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
-                            <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
-                            <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
-                            <li><a href="#">Others Menu</a></li>
-                            <li><a href="#">Others Menu</a></li>
-                            <li><a href="#">Others Menu</a></li>
+							<li>
+                                <a href="#" data-toggle="collapse" data-target="#ga" class="active collapsed" aria-expanded="false">
+                                    <i class="fa fa-archive"></i><span class="nav-label">GA</span>
+                                    <span class="fa fa-angle-down pull-right"></span>
+                                </a>
+                            </li>
+							<li>
+                                <ul class="sub-menu collapse" id="ga" aria-expanded="false" style="">
+                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
+                                    <li><a href="#">Goods Outwords</a></li>
+                                    <li><a href="#">Goods Returned</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
                     <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
                     <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
                     <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
-					{% endif %}
+                    {% endif %}
                 </ul>
             </div>
             {% endwith %}

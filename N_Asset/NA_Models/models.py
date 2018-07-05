@@ -17,6 +17,7 @@ from NA_DataLayer.Transactions.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
+from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
 
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
@@ -1269,7 +1270,7 @@ class NAGoodsHistory(NA_TransactionModel):
         managed = True
         db_table = 'n_a_goods_history'
 
-class NaGaDetail(NA_BaseModel):
+class NAGaReceive(NA_BaseModel):
     brand = models.CharField(db_column='Brand', max_length=100)
     invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
     fk_app = models.IntegerField(db_column='FK_App')
@@ -1282,16 +1283,18 @@ class NaGaDetail(NA_BaseModel):
     kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
     cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
     fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
-    equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True)
-    add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
+    #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) move  to ga outwards
+    #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+
+    objects = NA_BR_Goods_Receive_GA()
 
     class Meta:
         managed = True
-        db_table = 'na_ga_detail'
+        db_table = 'na_ga_receive'
 
 
-class NaGaVnHistory(NA_BaseModel):
+class NAGaVnHistory(NA_BaseModel):
     reg_no = models.CharField(db_column='Reg_No', max_length=50)
     fk_app = models.IntegerField(db_column='FK_App')
     expired_reg = models.DateField(db_column='Expired_Reg')
