@@ -103,14 +103,27 @@ def ShowEntry_Outwards(request):
 					#	result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
 					#	return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
 				
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Outwards_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})
+		elif status == 'Edit':
+			IDApp = request.GET.get('idapp')
+			#Ndata = NAGoodsLending.objects.getData(IDApp)
+			#Ndata = Ndata[0]
+			#Ndata.update(idapp=IDApp)
+			#Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasRefData'])))
+			#Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
+			#form = NA_Goods_Lending_Form(data=Ndata)
+			#return render(request, 'app/Transactions/NA_Entry_Goods_Lending.html', {'form' : form})  
+						#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+			 #   //daterequest,datereleased, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+			# fk_sender, idapp_fk_sender, fk_sender_employee,  descriptions,fk_usedemployee,idapp_fk_usedemployee, typeapp, serialnumber,
+			 #   //brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData          
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

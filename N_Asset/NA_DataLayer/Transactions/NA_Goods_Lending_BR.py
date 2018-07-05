@@ -456,7 +456,8 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)
 
-		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s)"""
+		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s) 
+					OR EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Lending = %s) """
 		cur.execute(Query,[idapp])
 		row = cur.fetchone()
 		if row[0] > 0:
