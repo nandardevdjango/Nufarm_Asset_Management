@@ -363,7 +363,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 					Query = """ UPDATE n_a_goods_outwards SET FK_Employee=%(FK_Employee)s,DateRequest=%(DateRequest)s,DateReleased=%(DateReleased)s,FK_ResponsiblePerson=%(FK_ResponsiblePerson)s, \
 								FK_Sender=%(FK_Sender)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s,Descriptions=%(Descriptions)s \
 								WHERE idapp = %(idapp)s """
-					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateRequest':Data['daterequest'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],
+					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateRequest':Data['daterequest'],'DateReleased':Data['DateReleased'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],
 							'FK_Sender':Data['idapp_fk_sender'],'ModifiedBy':Data['modifiedby'],'Descriptions':Data['descriptions']}
 				cur.execute(Query,param)
 				who = Data['createdby'] if Status == StatusForm.Input else Data['modifiedby']
@@ -414,36 +414,27 @@ class NA_BR_Goods_Outwards(models.Manager):
 			return "success"
 	def getData(self,idapp):
 		cur = connection.cursor()
-		#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
-		#    //datelending, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
-		#    //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
-		#    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
-		Query = """SELECT g.itemcode AS fk_goods,ngl.isnew,g.goodsname AS goods,ngl.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
-					ngl.fk_employee AS idapp_fk_employee,		emp.employee_name AS fk_employee_employee,ngl.datelending,ngl.fk_stock,\
-					emp1.NIK AS fk_responsibleperson, ngl.FK_ResponsiblePerson AS idapp_fk_responsibleperson,ngl.interests,IFNULL(ngl.lastinfo,'not yet used') AS lastinfo, \
-					emp2.NIK AS fk_sender,ngl.fk_sender AS idapp_fk_sender,emp2.employee_name AS fk_sender_employee,ngl.status AS statuslent, \
-					ngl.descriptions,ngl.typeapp,ngl.serialnumber, 		emp1.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
-					IFNULL(ngl.fk_maintenance,0)AS fk_maintenance,IFNULL(ngl.fk_return,0) AS fk_return, \
-					IFNULL(ngl.fk_currentapp,0) AS fk_currentapp,IFNULL(fk_receive,0) AS fk_receive, \
-						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
-							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
+			#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+			#   //daterequest,datereleased, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+			# fk_sender, idapp_fk_sender, fk_sender_employee,  descriptions,fk_usedemployee,idapp_fk_usedemployee,fk_usedemployee_employee, typeapp, serialnumber,
+			#   //brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData  
+		Query = """SELECT g.itemcode AS fk_goods,ngo.isnew,g.goodsname AS goods,ngo.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
+					ngo.fk_employee AS idapp_fk_employee,emp.employee_name AS fk_employee_employee,ngo.daterequest,ngo.datereleased,ngo.fk_stock,\
+					emp1.NIK AS fk_responsibleperson, ngo.FK_ResponsiblePerson AS idapp_fk_responsibleperson,IFNULL(ngo.lastinfo,'not yet used') AS lastinfo, \
+					emp2.NIK AS fk_sender,ngo.fk_sender AS idapp_fk_sender,emp2.employee_name AS fk_sender_employee, \
+					ngo.descriptions,emp3.NIK AS fk_usedemployee,ngo.fk_usedemployee AS idapp_fk_usedemployee,emp3.employee_name AS fk_usedemployee_employee,ngo.typeapp,ngo.serialnumber, 		emp1.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
+					IFNULL(ngo.fk_frommaintenance,0)AS fk_frommaintenance,IFNULL(ngo.fk_return,0) AS fk_return, \
+					IFNULL(ngo.fk_lending,0) AS fk_lending,IFNULL(fk_receive,0) AS fk_receive, \
+						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngo.fk_goods AND serialnumber = ngo.serialnumber) THEN 1 
+							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE fk_goods_outwards = ngo.idapp) THEN 1 
 							 ELSE 0 
 					END AS hasRefData  
-					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON ngl.fk_goods = g.IDApp \
-					INNER JOIN employee emp ON emp.IDApp = ngl.fk_employee 	\
-					LEFT OUTER JOIN (SELECT IDApp, NIK,employee_name FROM employee)emp1 ON emp1.IDApp = ngl.fk_sender	\
-					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngl.FK_ResponsiblePerson WHERE ngl.idapp = %s""" 
+					FROM n_a_goods g INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = g.IDApp \
+					INNER JOIN employee emp ON emp.IDApp = ngo.fk_employee 	\
+					LEFT OUTER JOIN (SELECT IDApp, NIK,employee_name FROM employee)emp1 ON emp1.IDApp = ngo.fk_sender	\
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngo.FK_ResponsiblePerson 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = ngo.fk_usedemployee WHERE ngo.idapp = %s""" 
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)
-
-		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s) 
-					OR EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Lending = %s) """
-		cur.execute(Query,[idapp])
-		row = cur.fetchone()
-		if row[0] > 0:
-			data[0]['hasRefData'] = True
-		isnew =  commonFunct.str2bool(str(data[0]['isnew']))
-		data[0]['isnew'] = isnew
 		cur.close()
-
 		return data

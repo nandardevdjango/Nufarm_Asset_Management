@@ -153,8 +153,7 @@ def ShowEntry_Lending(request):
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
 		if request.POST:
 			data = request.body
-			data = json.loads(data)
-			
+			data = json.loads(data)			
 			status = data['status']
 			form = NA_Goods_Lending_Form(data)
 			result = ''
@@ -170,14 +169,13 @@ def ShowEntry_Lending(request):
 					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					if NAGoodsLending.objects.HasReference(data['idapp']):
-						result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
+					if NAGoodsLending.objects.HasReference(data['idapp']):					
 						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
-				
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+					result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)				
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Lending_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
