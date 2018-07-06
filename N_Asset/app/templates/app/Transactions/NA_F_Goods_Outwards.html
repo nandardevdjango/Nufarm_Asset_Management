@@ -282,10 +282,10 @@
                             { name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
 						],
 						ondblClickRow: function (rowId) {
-							//var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
-							//if (btnOpen) {
-							//	btnOpen.click();
-							//}
+							var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
+							if (btnOpen) {
+								btnOpen.click();
+							}
 						},
 						gridComplete: function () {
 							document.body.style.cursor = 'default';

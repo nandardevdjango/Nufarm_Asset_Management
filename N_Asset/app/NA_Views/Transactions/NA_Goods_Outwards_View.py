@@ -110,7 +110,7 @@ def ShowEntry_Outwards(request):
 			form = NA_Goods_Outwards_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})
-		elif status == 'Edit':
+		elif status == 'Edit' or status == 'Open':
 			IDApp = request.GET.get('idapp')
 			Ndata = NAGoodsOutwards.objects.getData(IDApp)
 			Ndata = Ndata[0]
