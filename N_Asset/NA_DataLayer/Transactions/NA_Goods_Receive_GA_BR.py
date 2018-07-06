@@ -1,23 +1,51 @@
 from django.db import models,transaction,connection
 from NA_DataLayer.common import (StatusForm,CriteriaSearch,query,ResolveCriteria,
                                  DataType,Data,Message)
+from django.db.models import F
 
 class NA_BR_Goods_Receive_GA(models.Manager):
 
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-        cur = connection.cursor()
-        rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-        Query = """CREATE TEMPORARY TABLE T_Receive_other ENGINE=InnoDB AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,
-	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,emp2.pr_by,ngr.totalpurchase,
-        ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, 
-        ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive_other AS ngr INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier 
-        LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS emp1 ON emp1.IDApp = ngr.FK_ReceivedBy 
-        LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS emp2 ON emp2.IDApp = ngr.FK_P_R_By 
-		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + columnKey + rs.Sql() + ")"
-        cur.execute(Query)
-        Query = """SELECT * FROM T_Receive_other"""
-        cur.execute(Query)
-        return query.dictfetchall(cur)
+        def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
+            gaData = super(NA_BR_Employee,self).get_queryset()\
+                .annotate(
+                    goodsname=F('fk_goods__goodsname'),
+                    itemcode=F('fk_goods__itemcode'),
+                    price=F('fk_goods__priceperunit'),
+                    supliername=F('fk_suplier__supliername'),
+                    received_by=F('fk_receivedby__employee_name'),
+                    pr_by=F('fk_p_r_by__employee_name')
+                )\
+                .values('idapp','goodsname','itemcode','typeapp','price','supliername',
+                        'datereceived','brand','invoice_no','machine_no','chasis_no', 'year_made',
+                        'colour','model','kind', 'cylinder', 'fuel', 'descriptions',
+                        'createddate','createdby')
+            filterfield = columnKey
+            if criteria==CriteriaSearch.NotEqual or criteria==CriteriaSearch.NotIn:
+                if criteria==CriteriaSearch.NotIn:
+                    filterfield = columnKey + '__in'
+                else:
+                    filterfield = columnKey + '__iexact'
+                gaData = gaData.exclude(**{filterfield:[ValueKey]})
+            if criteria==CriteriaSearch.Equal:
+                gaData = gaData.filter(**{filterfield: ValueKey})
+            elif criteria==CriteriaSearch.Greater:
+                filterfield = columnKey + '__gt'
+            elif criteria==CriteriaSearch.GreaterOrEqual:
+                filterfield = columnKey + '__gte'
+            elif criteria==CriteriaSearch.In:
+                filterfield = columnKey + '__in'
+            elif criteria==CriteriaSearch.Less:
+                filterfield = columnKey + '__lt'
+            elif criteria==CriteriaSearch.LessOrEqual:
+                filterfield = columnKey + '__lte'
+            elif criteria==CriteriaSearch.Like:
+                filterfield = columnKey + '__icontains'
+                gaData = gaData.filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
+            if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
+                rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
+                gaData = gaData.filter(**rs.DefaultModel())
+            return gaData
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()

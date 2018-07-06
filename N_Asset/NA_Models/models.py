@@ -161,8 +161,7 @@ class NASuplier(NA_MasterDataModel):
     def __str__(self):
         return self.supliername
 
-    #NA = NA_BR_Suplier()
-    objects = NA_BR_Suplier() #default manager
+    objects = NA_BR_Suplier()
     customManager = CustomSuplierManager()
     class Meta:
         managed = True
@@ -269,6 +268,13 @@ class goods(NA_MasterDataModel):
 	unit = models.CharField(db_column='Unit', max_length=30)
 	economiclife = models.DecimalField(db_column='EconomicLife', max_digits=10, decimal_places=2)
 	placement = models.CharField(db_column='Placement', max_length=50, blank=True, null=True)
+	category = models.CharField(
+        max_length=5,
+		db_column='category', null=True, choices=(
+			('IT', 'IT'),
+			('GA', 'GA')
+		)
+	)
 
 	class Meta:
 		db_table = 'n_a_goods'
@@ -1271,9 +1277,36 @@ class NAGoodsHistory(NA_TransactionModel):
         db_table = 'n_a_goods_history'
 
 class NAGaReceive(NA_BaseModel):
+    fk_goods = models.ForeignKey(
+        goods,
+        db_column='FK_Goods',
+        db_constraint=False
+    )
+    fk_receivedby = models.ForeignKey(
+        Employee, 
+        db_column='FK_ReceivedBy', 
+        max_length=50, 
+        related_name='fk_receivedBy_ga',
+        db_constraint=False
+    )
+    fk_p_r_by = models.ForeignKey(
+        Employee,
+        db_column='FK_P_R_By', 
+        max_length=50, 
+        blank=True, 
+        null=True, 
+        related_name='fk_p_r_by_ga',
+        db_constraint=False
+    )
+    fk_suplier = models.ForeignKey(
+        'NASuplier',
+        db_column='FK_Suplier',
+        db_constraint=False
+    )
+    datereceived = models.DateTimeField(db_column='DateReceived', default=timezone.now)
     brand = models.CharField(db_column='Brand', max_length=100)
     invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
-    fk_app = models.IntegerField(db_column='FK_App')
+    
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
     machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
     chasis_no = models.CharField(db_column='Chasis_No', max_length=50)
