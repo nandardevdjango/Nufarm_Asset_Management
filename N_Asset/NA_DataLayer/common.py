@@ -450,14 +450,15 @@ class decorators:
                     _action = request.POST.get('statusForm') \
                         or request.POST.get('mode') \
                         or request.POST.get('status')
+                    if _action == 'Open':
+                        return HttpResponse('cannot edit data with status open', status=403)
                     masterdata_form = ['employee','n_a_suplier','goods','n_a_priviledge']
                     transaction_form = ['n_a_goods_receive']
                     all_form = masterdata_form + transaction_form
                     form_action = ['Open', 'Add', 'Edit']
-                    all_action = ['View', 'Add', 'Edit', 'Delete'] # == can beres didieu
                     other_action = ['View', 'Delete']
-                    if _action != 'Open' and \
-                    (_action not in all_action):
+                    all_action = form_action + other_action
+                    if _action not in all_action:
                         raise ValueError(
                             'uncategorize cannot resolve %s action' % _action
                         )

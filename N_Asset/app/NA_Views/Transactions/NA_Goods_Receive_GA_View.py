@@ -78,6 +78,8 @@ class NA_Goods_Receive_GA_Form(forms.Form):
         attrs={'class':'NA-Form-Control', 'placeholder':'Received By'}))
     received_by_name = forms.CharField(widget=forms.TextInput(
         attrs={'class':'NA-Form-Control', 'placeholder':'Employee Name'}))
+    datereceived = forms.DateField(widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control', 'placeholder':'date received'}))
     brand = forms.CharField(required=False, widget=forms.TextInput(
         attrs={'class':'NA-Form-Control', 'placeholder':'brand'}))
     invoice_no = forms.CharField(widget=forms.TextInput(
@@ -102,7 +104,7 @@ class NA_Goods_Receive_GA_Form(forms.Form):
         attrs={'class':'NA-Form-Control', 'placeholder':'fuel'}))
     description = forms.CharField(widget=forms.Textarea(
         attrs={'class':'NA-Form-Control', 'placeholder':'description'}))
-
+    initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def Entry_Goods_Receive_GA(request):
 	if request.method == 'POST':
