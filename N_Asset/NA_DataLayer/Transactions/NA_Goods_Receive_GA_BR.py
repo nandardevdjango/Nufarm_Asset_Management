@@ -6,46 +6,44 @@ from django.db.models import F
 class NA_BR_Goods_Receive_GA(models.Manager):
 
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-        def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-            gaData = super(NA_BR_Employee,self).get_queryset()\
-                .annotate(
-                    goodsname=F('fk_goods__goodsname'),
-                    itemcode=F('fk_goods__itemcode'),
-                    price=F('fk_goods__priceperunit'),
-                    supliername=F('fk_suplier__supliername'),
-                    received_by=F('fk_receivedby__employee_name'),
-                    pr_by=F('fk_p_r_by__employee_name')
-                )\
-                .values('idapp','goodsname','itemcode','typeapp','price','supliername',
-                        'datereceived','brand','invoice_no','machine_no','chasis_no', 'year_made',
-                        'colour','model','kind', 'cylinder', 'fuel', 'descriptions',
-                        'createddate','createdby')
-            filterfield = columnKey
-            if criteria==CriteriaSearch.NotEqual or criteria==CriteriaSearch.NotIn:
-                if criteria==CriteriaSearch.NotIn:
-                    filterfield = columnKey + '__in'
-                else:
-                    filterfield = columnKey + '__iexact'
-                gaData = gaData.exclude(**{filterfield:[ValueKey]})
-            if criteria==CriteriaSearch.Equal:
-                gaData = gaData.filter(**{filterfield: ValueKey})
-            elif criteria==CriteriaSearch.Greater:
-                filterfield = columnKey + '__gt'
-            elif criteria==CriteriaSearch.GreaterOrEqual:
-                filterfield = columnKey + '__gte'
-            elif criteria==CriteriaSearch.In:
+        gaData = super(NA_BR_Goods_Receive_GA, self).get_queryset()\
+            .annotate(
+                goodsname=F('fk_goods__goodsname'),
+                price=F('fk_goods__priceperunit'),
+                supliername=F('fk_suplier__supliername'),
+                received_by=F('fk_receivedby__employee_name'),
+                pr_by=F('fk_p_r_by__employee_name')
+            )\
+            .values('idapp','goodsname','typeapp','price','supliername',
+                    'datereceived','brand','invoice_no','machine_no','chasis_no', 'year_made',
+                    'colour','model','kind', 'cylinder', 'fuel', 'descriptions',
+                    'createddate','createdby')
+        filterfield = columnKey
+        if criteria==CriteriaSearch.NotEqual or criteria==CriteriaSearch.NotIn:
+            if criteria==CriteriaSearch.NotIn:
                 filterfield = columnKey + '__in'
-            elif criteria==CriteriaSearch.Less:
-                filterfield = columnKey + '__lt'
-            elif criteria==CriteriaSearch.LessOrEqual:
-                filterfield = columnKey + '__lte'
-            elif criteria==CriteriaSearch.Like:
-                filterfield = columnKey + '__icontains'
-                gaData = gaData.filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
-            if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
-                rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
-                gaData = gaData.filter(**rs.DefaultModel())
-            return gaData
+            else:
+                filterfield = columnKey + '__iexact'
+            gaData = gaData.exclude(**{filterfield:[ValueKey]})
+        if criteria==CriteriaSearch.Equal:
+            gaData = gaData.filter(**{filterfield: ValueKey})
+        elif criteria==CriteriaSearch.Greater:
+            filterfield = columnKey + '__gt'
+        elif criteria==CriteriaSearch.GreaterOrEqual:
+            filterfield = columnKey + '__gte'
+        elif criteria==CriteriaSearch.In:
+            filterfield = columnKey + '__in'
+        elif criteria==CriteriaSearch.Less:
+            filterfield = columnKey + '__lt'
+        elif criteria==CriteriaSearch.LessOrEqual:
+            filterfield = columnKey + '__lte'
+        elif criteria==CriteriaSearch.Like:
+            filterfield = columnKey + '__icontains'
+            gaData = gaData.filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
+        if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
+            rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
+            gaData = gaData.filter(**rs.DefaultModel())
+        return gaData
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()

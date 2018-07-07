@@ -453,7 +453,9 @@ class decorators:
                     masterdata_form = ['employee','n_a_suplier','goods','n_a_priviledge']
                     transaction_form = ['n_a_goods_receive']
                     all_form = masterdata_form + transaction_form
-                    all_action = ['View', 'Add', 'Edit', 'Delete']
+                    form_action = ['Open', 'Add', 'Edit']
+                    all_action = ['View', 'Add', 'Edit', 'Delete'] # == can beres didieu
+                    other_action = ['View', 'Delete']
                     if _action != 'Open' and \
                     (_action not in all_action):
                         raise ValueError(

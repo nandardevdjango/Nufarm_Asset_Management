@@ -268,9 +268,9 @@ class goods(NA_MasterDataModel):
 	unit = models.CharField(db_column='Unit', max_length=30)
 	economiclife = models.DecimalField(db_column='EconomicLife', max_digits=10, decimal_places=2)
 	placement = models.CharField(db_column='Placement', max_length=50, blank=True, null=True)
-	category = models.CharField(
+	typeapp = models.CharField(
         max_length=5,
-		db_column='category', null=True, choices=(
+		db_column='typeapp', null=True, choices=(
 			('IT', 'IT'),
 			('GA', 'GA')
 		)
@@ -1305,7 +1305,7 @@ class NAGaReceive(NA_BaseModel):
     )
     datereceived = models.DateTimeField(db_column='DateReceived', default=timezone.now)
     brand = models.CharField(db_column='Brand', max_length=100)
-    invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
+    invoice_no = models.CharField(db_column='Invoice_No', max_length=100, blank=True, null=True)
     
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
     machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
@@ -1328,7 +1328,7 @@ class NAGaReceive(NA_BaseModel):
 
 
 class NAGaVnHistory(NA_BaseModel):
-    reg_no = models.CharField(db_column='Reg_No', max_length=50)
+    reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
     fk_app = models.IntegerField(db_column='FK_App')
     expired_reg = models.DateField(db_column='Expired_Reg')
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
