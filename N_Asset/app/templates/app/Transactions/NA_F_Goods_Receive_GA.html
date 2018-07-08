@@ -367,65 +367,30 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
         return col
     }
     function getValues_Form() {
-    	//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-    	var elidapp = qs('#id_idapp'),
-			idapp = elidapp.value.trim();
-    	var elRefNO = qs('#id_refno'),
-			RefNO = elRefNO.value.trim();
-    	var elidapp_fk_goods = qs('#id_idapp_fk_goods'),
-			idapp_fk_goods = elidapp_fk_goods.value.trim();
-    	var elfk_goods = qs('#id_fk_goods'),
-			fk_goods = elfk_goods.value.trim();
-    	var elgoods_desc = qs('#id_goods_desc'),
-			goods_desc = elgoods_desc.value.trim();
-    	var eltypeApp = qs('input#id_typeApp'),
-			typeApp = eltypeApp.value.trim();
-    	var eldatereceived = qs('#id_datereceived'),
-			datereceived = eldatereceived.value.toString().trim();
-    	var elfk_suplier = qs('#id_fk_suplier'),
-			fk_suplier = elfk_suplier.value.trim();
-    	var elsupliername = qs('#id_supliername'),
-			supliername = elsupliername.value.trim();
-    	var eltotalpurchase = qs('#id_totalpurchase'),
-			totalpurchase = eltotalpurchase.value.trim();
-    	var eltotalreceived = qs('#id_totalreceived'),
-			totalreceived = eltotalreceived.value.trim();
-    	var elidapp_fk_p_r_by = qs('#id_idapp_fk_p_r_by'),
-			idapp_fk_p_r_by = elidapp_fk_p_r_by.value.trim();
-    	var elfk_p_r_by = qs('#id_fk_p_r_by'),
-			fk_p_r_by = elfk_p_r_by.value.trim();
-    	var elemployee_pr = qs('#id_employee_pr'),
-			employee_pr = elemployee_pr.value.trim();
-    	var elidapp_fk_receivedby = qs('#id_idapp_fk_receivedby'),
-			idapp_fk_receivedby = elidapp_fk_receivedby.value.trim();
-    	var elfk_receivedby = qs('#id_fk_receivedby'),
-			fk_receivedby = elfk_receivedby.value.trim();
-    	var elemployee_received = qs('#id_employee_received'),
-			employee_received = elemployee_received.value.trim();
-    	var eldescriptions = qs('#id_descriptions'),
-			descriptions = eldescriptions.value.trim();
-    	var status = win.status || qs('id_status').value.trim();
     	return {
-    		idapp: idapp,
-    		idapp_fk_goods: idapp_fk_goods,
-    		fk_goods: fk_goods,
-			typeApp:typeApp,
-    		refno: RefNO,
-    		goods_desc: goods_desc,
-    		datereceived: datereceived,
-    		fk_suplier: fk_suplier,
-    		supliername: supliername,
-    		totalpurchase: totalpurchase,
-    		totalreceived: totalreceived,
-    		idapp_fk_p_r_by: idapp_fk_p_r_by,
-    		fk_p_r_by: fk_p_r_by,
-    		employee_pr: employee_pr,
-    		idapp_fk_receivedby: idapp_fk_receivedby,
-    		fk_receivedby: fk_receivedby,
-    		employee_received: employee_received,
-    		descriptions: descriptions,
-    		status: status
-    	};
+    		fk_goods: qs('#id_fk_goods').value.trim(),
+    		brand: qs('input#id_brand').value.trim(),
+    		invoice_no: qs('input#id_invoice_no').value.trim(),
+    		machine_no: qs('input#id_machine_no').value.trim(),
+    		chassis_no: qs('input#id_chassis_no').value.trim(),
+    		year_made: qs('input#id_year_made').value.trim(),
+    		colour: qs('input#id_colour').value.trim(),
+    		model: qs('input#id_model').value.trim(),
+    		kind: qs('input#id_kind').value.trim(),
+    		cylinder: qs('input#id_cylinder').value.trim(),
+    		fuel: qs('input#id_fule').value.trim(),
+    		goodsname: qs('#id_goodsname').value.trim(),
+    		typeapp: qs('input#id_typeapp').value.trim(),
+    		datereceived: qs('#id_datereceived').value.toString().trim(),
+    		supliercode: qs('#id_supliercode').value.trim(),
+    		supliername: qs('#id_supliername').value.trim(),
+    		pr_by: qs('#id_pr_by').value.trim(),
+    		pr_by_nik: qs('#id_pr_by_nik').value.trim(),
+    		received_by: qs('#id_received_by').value.trim(),
+    		received_by_nik: qs('#id_received_by_nik').value.trim(),
+    		descriptions: qs('#id_descriptions').value.trim(),
+    		status: win.status || qs('#id_status').value.trim()
+		};
     };
     
 
@@ -518,7 +483,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
         return [year, month, day].join('-');
     };
     status = status || window.status
-    function G_Receive_otherSubmit() {
+    function G_Receive_GASubmit() {
         var dialog = qs("div.containerDialog");
         function sendData() {
             var valuesForm = getValues_Form()
@@ -571,18 +536,18 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
     };
     function ExecuteHandler(TextElement) {
         var dialog = qs("div.containerDialog");
-        var frmEntry = qs('form#gReceive_other_form');
+        var frmEntry = qs('form#form_ga_receive');
         var emailForm = qs('form#email_data');
+        var inputbtn = NA.common.getElementID('submit_receive_ga');
         if (frmEntry) {
             switch (TextElement) {
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
                         //NA.NAEvent.preventDefault(event);                                          
-                        var inputbtn = NA.common.getElementID('goods_receive_other_submit');
                         inputbtn.click();
                     }
                     else {
-                        G_Receive_otherSubmit();
+                        G_Receive_GASubmit();
                     }
                     break;
                 }
@@ -598,10 +563,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 function () {
                                     if (!frmEntry.checkValidity()) {
                                         //NA.NAEvent.preventDefault(event);   
-                                        var inputbtn = NA.common.getElementID('goods_receive_other_submit');
                                         inputbtn.click();
                                     } else {
-                                        G_Receive_otherSubmit();
+                                        G_Receive_GASubmit();
                                     }
                                 },
                                 function () {
@@ -838,31 +802,27 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 
                                 //simpan original data di initializeForm
                                 
-                                var idapp_fk_goods = qs('input#id_idapp_fk_goods'),
-									fk_goods = qs('input#id_fk_goods'),
-									typeApp = qs('input#id_typeApp'),
-                                    goods_desc = qs('input#id_goods_desc'),
-                                    refno = qs('input#id_refno'),
+                            	var fk_goods = qs('input#id_fk_goods'),
+									itemcode = qs('input#id_itemcode'),
+									typeapp = qs('input#id_typeapp'),
+                                    goodsname = qs('input#id_goodsname'),
 									datereceived = qs('input#id_datereceived'),
 
-									fk_suplier = qs('input#id_fk_suplier'),
+									supliercode = qs('input#id_supliercode'),
 									supliername = qs('input#id_supliername'),
 
-									total_purchase = qs('input#id_totalpurchase'),
-									total_received = qs('input#id_totalreceived'),
+									pr_by = qs('input#id_pr_by'),
+									pr_by_nik = qs('input#id_pr_by_nik'),
+									pr_by_name = qs('input#id_pr_by_name'),
 
-									idapp_p_r_by = qs('input#id_idapp_fk_p_r_by'),
-									fk_p_r_by = qs('input#id_fk_p_r_by'),
-									employee_pr = qs('input#id_employee_pr'),
-
-									idapp_receivedby = qs('input#id_idapp_fk_receivedby'),
-                                    fk_receivedby = qs('input#id_fk_receivedby'),
-									employee_received = qs('input#id_employee_received');
+									received_by = qs('input#id_received_by'),
+                                    received_by_nik = qs('input#id_received_by_nik'),
+									received_by_name = qs('input#id_received_by_name');
 									
                             	var btn_fk_goods = qs('button#btn_fk_goods'),
 									btn_fk_suplier = qs('button#btn_fk_suplier'),
-									btn_fk_p_r_by = qs('button#btn_fk_p_r_by'),
-									btn_fk_receivedby = qs('button#btn_fk_receivedby');
+									btn_fk_pr_by = qs('button#btn_fk_pr_by'),
+									btn_fk_received_by = qs('button#btn_fk_received_by');
 
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
@@ -913,9 +873,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
 
                                             //loads Data into JqueryGrid
                                             gridTbl = NA.common.doc.createElement('table');
-                                            gridTbl.id = 'NA_Goods_Receive_other_FK_Goods';
+                                            gridTbl.id = 'NA_Goods_Receive_GA_FK_Goods';
                                             gridPager = NA.common.doc.createElement('div');
-                                            gridPager.id = 'NA_Goods_Receive_other_FK_Goods_Pager';
+                                            gridPager.id = 'NA_Goods_Receive_GA_FK_Goods_Pager';
                                             mainContainer.appendChild(gridTbl);
                                             mainContainer.appendChild(gridPager);
                                             return containerMessage;
@@ -926,8 +886,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                             if (txtSearch != null) {
                                                 valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                             }
-                                            gridTbl = $('#NA_Goods_Receive_other_FK_Goods');
-                                            var urlFKGoods = '/MasterData/Goods/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + valSearch;
+                                            gridTbl = $('#NA_Goods_Receive_GA_FK_Goods');
+                                            var urlFKGoods = '/MasterData/Goods/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc')
+												+ '=' + valSearch + '&' + 'type=GA';
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
@@ -973,9 +934,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                                 scrollrows: true,
                                                 //hidegrid: true,
                                                 //caption: "Transactions ---Find goods",
-                                                pager: "#NA_Goods_Receive_other_FK_Goods_Pager"
+                                                pager: "#NA_Goods_Receive_GA_FK_Goods_Pager"
                                             });
-                                            gridTbl.navGrid('#NA_Goods_Receive_other_FK_Goods_Pager', {
+                                            gridTbl.navGrid('#NA_Goods_Receive_GA_FK_Goods_Pager', {
                                                 search: false, // show search button on the toolbar
                                                 add: false,
                                                 edit: false,
@@ -983,7 +944,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                                 refresh: false
                                             });
                                             restyleBoostrapDialog();
-                                            var elGrid = qsAll('div#gbox_NA_Goods_Receive_other_FK_Goods,div#gview_NA_Goods_Receive_other_FK_Goods,div#gview_NA_Goods_Receive_other_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_other_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_other_FK_Goods_Pager')
+                                            var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Goods_Pager')
                                             Array.prototype.forEach.call(elGrid, function (el) {
                                                 el.style.width = 'inherit';
                                             });
@@ -1007,10 +968,10 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                             action: function (dialogRef) {
                                             	rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
                                                 rowData = gridTbl.getRowData(rowId);
-                                            	idapp_fk_goods.value = rowId,
-                                            	fk_goods.value = rowData['itemcode'],
-												typeApp.value = rowData['typeApp'],
-												goods_desc.value = rowData['goods'];
+                                            	fk_goods.value = rowData['idapp'],
+                                            	itemcode.value = rowData['itemcode'],
+												typeapp.value = rowData['typeApp'],
+												goodsname.value = rowData['goods'];
                                             	dialogRef.close();
                                             }
                                         }]
@@ -1321,21 +1282,21 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 	searchSuplier(event);
                                 });
 
-                                NA.NAEvent.addHandler(btn_fk_p_r_by, 'click', function (event) {
+                                NA.NAEvent.addHandler(btn_fk_pr_by, 'click', function (event) {
                                 	searchEmployee(event);
                                 });
 
-                                NA.NAEvent.addHandler(employee_pr, 'keydown', function (event) {
+                                NA.NAEvent.addHandler(pr_by_name, 'keydown', function (event) {
                                 	if (event.keyCode == 13) {
                                 		searchEmployee(event);
                                 	}
                                 });
 
-                                NA.NAEvent.addHandler(btn_fk_receivedby, 'click', function (event) {
+                                NA.NAEvent.addHandler(btn_fk_received_by, 'click', function (event) {
                                 	searchEmployee(event);
                                 });
 
-                                NA.NAEvent.addHandler(fk_receivedby, 'keydown', function (event) {
+                                NA.NAEvent.addHandler(received_by_name, 'keydown', function (event) {
                                 	if (event.keyCode == 13) {
                                 		searchEmployee(event);
                                 	}

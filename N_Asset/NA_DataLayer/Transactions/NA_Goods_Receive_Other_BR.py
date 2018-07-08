@@ -7,6 +7,7 @@ class NA_BR_Goods_Receive_other(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
         cur = connection.cursor()
         rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
+        
         Query = """CREATE TEMPORARY TABLE T_Receive_other ENGINE=InnoDB AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,
 	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,emp2.pr_by,ngr.totalpurchase,
         ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, 
@@ -17,7 +18,9 @@ class NA_BR_Goods_Receive_other(models.Manager):
         cur.execute(Query)
         Query = """SELECT * FROM T_Receive_other"""
         cur.execute(Query)
-        return query.dictfetchall(cur)
+        result = query.dictfetchall(cur)
+        cur.execute('DROP TEMPORARY TABLE IF EXISTS T_Receive_other')
+        return result
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()

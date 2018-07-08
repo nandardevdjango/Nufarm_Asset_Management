@@ -15,7 +15,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
                 pr_by=F('fk_p_r_by__employee_name')
             )\
             .values('idapp','goodsname','typeapp','price','supliername',
-                    'datereceived','brand','invoice_no','machine_no','chasis_no', 'year_made',
+                    'datereceived','brand','invoice_no','machine_no','chassis_no', 'year_made',
                     'colour','model','kind', 'cylinder', 'fuel', 'descriptions',
                     'createddate','createdby')
         filterfield = columnKey
@@ -48,12 +48,18 @@ class NA_BR_Goods_Receive_GA(models.Manager):
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()
         Params = {
-            'RefNO':data['refno'],'FK_goods':data['fk_goods'], 'DateReceived':data['datereceived'], 
-            'FK_Suplier':data['fk_suplier'], 'TotalPurchase':data['totalpurchase'],
-            'TotalReceived':data['totalreceived'],'FK_ReceivedBy':data['fk_receivedby'],
-            'FK_P_R_By':data['fk_p_r_by'],'Descriptions':data['descriptions'],
-            #'descbysystem':data['descbysystem']
-            }
+            'FK_goods': data['fk_goods'],
+		    'DateReceived': data['datereceived'], 
+            'FK_Suplier': data['fk_suplier'],
+			'FK_ReceivedBy': data['fk_receivedby'],
+            'FK_P_R_By': data['fk_p_r_by'],
+			'brand': data['brand'],
+			'typeapp': data['typeapp'],
+			'machine_no': data['machine_no'],
+			'chassis_no': data['chassis_no'],
+			'year_made': data['year_made'],
+			'Descriptions': data['descriptions']
+        }
         if statusForm == StatusForm.Input:
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']

@@ -1309,7 +1309,7 @@ class NAGaReceive(NA_BaseModel):
     
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
     machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
-    chasis_no = models.CharField(db_column='Chasis_No', max_length=50)
+    chassis_no = models.CharField(db_column='Chassis_No', max_length=50)
     year_made = models.DateField(db_column='Year_Made')
     colour = models.CharField(max_length=20)
     model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)
