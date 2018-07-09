@@ -11,6 +11,9 @@ class Command(BaseCommand):
 	python manage.py git_push -m 'your commit message'
 	OR
 	python manage.py git_push, and then you will see it "Enter commit message: "
+
+	NOTE: !!!
+	for git commit message don't use single quotes
 	"""
 	def add_arguments(self, parser):
 		parser.add_argument(
@@ -33,7 +36,7 @@ class Command(BaseCommand):
 		os.system('git add .')
 		os.system('git commit -m "%s"' % str(commit_message))
 		os.system('git push origin %s' % self.get_branch())
-		self.stdout.write(self.style.SUCCESS('Successfully push your work :D'))
+		self.stdout.write(self.style.SUCCESS('\n\nSuccessfully push your work :D'))
 
 	def get_branch(self):
 		proc = subprocess.check_output('git branch')
