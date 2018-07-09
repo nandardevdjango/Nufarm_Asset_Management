@@ -378,7 +378,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
     		model: qs('input#id_model').value.trim(),
     		kind: qs('input#id_kind').value.trim(),
     		cylinder: qs('input#id_cylinder').value.trim(),
-    		fuel: qs('input#id_fule').value.trim(),
+    		fuel: qs('input#id_fuel').value.trim(),
     		goodsname: qs('#id_goodsname').value.trim(),
     		typeapp: qs('input#id_typeapp').value.trim(),
     		datereceived: qs('#id_datereceived').value.toString().trim(),
@@ -1190,7 +1190,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 				colNames: ['NO', 'Suplier Code', 'Suplier Name', 'Address'],
                                 				colModel: [
 													{ name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-													{ name: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
+													{ name: 'supliercode', index:'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
 													{ name: 'supliername', index: 'supliername', width: 130, sortable: true, editable: false, align: 'left', },
 													{name:'address',index:'address',width:250}
                                 				],
@@ -1248,19 +1248,11 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 			icon: 'glyphicon glyphicon-ok',
                                 			cssClass: 'btn-success',
                                 			action: function (dialogRef) {
-                                				var supliercode = getGridCellValue(gridTbl, 'supliercode');
-                                				if (supliercode) {//cell di select sama user
-                                					//tempelkan data row di fk_goods, dan valuenya di goods_desc;
-                                					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                                					var rowData = gridTbl.getRowData(rowId);
-                                					var supliername = rowData['supliername'];
-                                					var txtid_fk_suplier = NA.common.getElementID('id_fk_suplier');
-                                					txtid_fk_suplier.value = supliercode;
-                                					txtid_fk_suplier.attributes['placeholder'] = '';
-                                					var txtsupliername = NA.common.getElementID('id_supliername');
-                                					txtsupliername.value = supliername;
-                                					txtsupliername.attributes['placeholder'] = '';
-                                				}
+                                				//tempelkan data row di fk_goods, dan valuenya di goods_desc;
+                                				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                                				var rowData = gridTbl.getRowData(rowId);
+												supliercode.value = rowData['supliercode'];
+                                				supliername.value = rowData['supliername'];
                                 				dialogRef.close();
                                 			}
                                 		}]
