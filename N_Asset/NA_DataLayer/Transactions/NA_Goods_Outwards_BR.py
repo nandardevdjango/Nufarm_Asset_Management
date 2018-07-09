@@ -391,26 +391,40 @@ class NA_BR_Goods_Outwards(models.Manager):
 			return False
 	def Delete(self,idapp,username):
 		cur = connection.cursor()
-		Query = """SELECT ns.IDApp,ngo.fk_goods FROM n_a_stock ns INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = ns.fk_goods WHERE ngo.IDApp = %s LIMIT 1"""
+		Query = """SELECT ns.IDApp,ngo.fk_goods,ngo.serialnumber,ngo.fk_outwards FROM n_a_stock ns INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = ns.fk_goods WHERE ngo.IDApp = %s LIMIT 1"""
 		cur.execute(Query,[idapp])
+		fk_stock = None
+		fk_goods = None
+		serialnumber = None
+		fk_outwards = None
 
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			fk_stock = row[0]
-			fk_goods = row[1]
-			with transaction.atomic():
-				Query = """DELETE FROM n_a_goods_lending WHERE idapp = %s"""
+		with transaction.atomic():
+			if cur.rowcount > 0:
+				row = cur.fetchone()
+				fk_stock = row[0]
+				fk_goods = row[1]
+				serialnumber = row[2]
+				fk_outwards = row[3]
+			else:
+				Query = """SELECT ngr.fk_goods,ngd.serialnumber,ngd.idapp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = ngr.fk_goods 
+							INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp AND ngo.serialnumber = ngd.serialnumber =  WHERE ngo.idapp =  %s"""
 				cur.execute(Query,[idapp])
-				Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_lending = %s"""
-				cur.execute(Query,[fk_goods,serialnumber,idapp])
-				(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(fk_goods,cur,username)
+				row = cur.fetchone()
+				fk_goods = row[1]
+				serialnumber = row[2]
+				fk_outwards = row[3]
+				Query = """DELETE FROM n_a_goods_outwards WHERE idapp = %s"""
+				cur.execute(Query,[idapp])
+				Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_outwards = %s"""
+			cur.execute(Query,[fk_goods,serialnumber,idapp])
+			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(fk_goods,cur,username)
 
-				#Update n_a_stock
-				Query = """UPDATE n_a_stock SET T_Goods_Spare=%(T_Goods_Spare)s,TIsUsed=%(TIsUsed)s,TIsNew=%(TIsNew)s,TIsRenew=%(TIsRenew)s,TGoods_Return=%(TGoods_Return)s,
-						TGoods_Received=%(TGoods_Received)s,TMaintenance=%(TMaintenance)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s WHERE IDApp= = %(fk_stock)s"""
-				param = {'fk_stock':fk_stock,'T_Goods_Spare':TotalSpare,'TIsUsed':totalUsed,'TIsNew':totalNew,'TIsRenew':totalRenew,'TGoods_Return':totalReturn,
-						'TGoods_Received':totalReceived,'TMaintenance':totalMaintenance,'ModifiedBy':who}
-				cur.execute(Query,param)
+			#Update n_a_stock
+			Query = """UPDATE n_a_stock SET T_Goods_Spare=%(T_Goods_Spare)s,TIsUsed=%(TIsUsed)s,TIsNew=%(TIsNew)s,TIsRenew=%(TIsRenew)s,TGoods_Return=%(TGoods_Return)s,
+					TGoods_Received=%(TGoods_Received)s,TMaintenance=%(TMaintenance)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s WHERE IDApp= = %(fk_stock)s"""
+			param = {'fk_stock':fk_stock,'T_Goods_Spare':TotalSpare,'TIsUsed':totalUsed,'TIsNew':totalNew,'TIsRenew':totalRenew,'TGoods_Return':totalReturn,
+					'TGoods_Received':totalReceived,'TMaintenance':totalMaintenance,'ModifiedBy':who}
+			cur.execute(Query,param)
 			return "success"
 	def getData(self,idapp):
 		cur = connection.cursor()
