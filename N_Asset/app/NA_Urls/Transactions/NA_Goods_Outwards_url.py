@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^SearchEmployeebyform/$',RedirectView.as_view(url='/Transactions/Goods_Receive/IT/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform-from-outwards'),#ambil funtion yang sudah ada di receive view
     url(r'^getGoodsWithHistory/$',NA_Goods_Outwards_View.getGoodsWithHistory,name='getGoodsWithHistory_Outwards'),
     url(r'^getLastTransGoods/$',NA_Goods_Outwards_View.getLastTransGoods,name='getlastTransGoods'),
-    url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists)
+    url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists),
+	url(r'^Delete/$',NA_Goods_Outwards_View.Delete),
+	url(r'^customFilter/$',NA_Goods_Outwards_View.ShowCustomFilter)
 ]

@@ -254,7 +254,7 @@ class ResolveCriteria:
                             rowFilter += ","
                     rowFilter += ")"
                     ResolveCriteria.__query = rowFilter
-            if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+            elif self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
                 ResolveCriteria.__query = " IN ('{0!s}')".format(str(self.valueData))
             elif self.typeofData==DataType.DateTime:
             #format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses
@@ -291,7 +291,7 @@ class ResolveCriteria:
                             rowFilter += ","
                     rowFilter += ")"
                     ResolveCriteria.__query = rowFilter
-            if self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
+            elif self.typeofData==DataType.Char or self.typeofData==DataType.VarChar or self.typeofData==DataType.NVarChar:
                 ResolveCriteria.__query = " NOT IN ('{0!s}')".format(str(self.valueData))
             elif self.typeofData==DataType.DateTime:
             #format data yang di masukan di valueData mesti dijadikan tahun-bulan-tanggal sebelum di proses

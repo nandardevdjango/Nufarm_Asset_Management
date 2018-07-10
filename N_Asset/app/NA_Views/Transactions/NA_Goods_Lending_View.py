@@ -53,10 +53,8 @@ def ShowCustomFilter(request):
 	cols.append({'name':'datereturn','value':'datereturn','selected':'','dataType':'datetime','text':'Date Returned'})
 	cols.append({'name':'interests','value':'interests','selected':'','dataType':'varchar','text':'Interest of Lending'})
 	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
-
 	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
 	cols.append({'name':'isnew','value':'isnew','selected':'','dataType':'boolean','text':'Is New'})
-	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
 	cols.append({'name':'status','value':'status','selected':'','dataType':'int','text':'Status Lent'})
 	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
 	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
