@@ -8,32 +8,32 @@ from NA_DataLayer.common import commonFunct
 from distutils.util import strtobool
 class NA_BR_Goods_Outwards(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-		colKey = ''
+		colkey = ''
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		if columnKey == 'goods':
 			colKey = 'g.goodsname'
 		elif columnKey == 'goodstype':
 			colKey = 'ngd.TypeApp'
 		elif columnKey == 'serialnumber':
-			colkey = 'ngd.serialnumber'
+			colKey = 'ngd.serialnumber'
 		elif columnKey == 'daterequest':
-			colkey = 'nga.daterequest'
+			colKey = 'nga.daterequest'
 		elif columnKey == 'datereleased':
-			colkey = 'nga.datereleased'
+			colKey = 'nga.datereleased'
 		elif columnKey == 'isnew':
-			colkey = 'nga.isnew'
+			colKey = 'nga.isnew'
 		elif columnKey == 'for_employee':
-			colkey = 'e.employee_name'
+			colKey = 'e.employee_name'
 		elif columnKey == 'responsible_by':
-			colkey = 'emp1.responsible_by'
+			colKey = 'emp1.responsible_by'
 		elif columnKey == 'senderby':
-			colkey = 'emp2.senderby'
+			colKey = 'emp2.senderby'
 		elif columnKey == 'refgoodsfrom':
-			colkey = 'ref.refgoodsfrom'
+			colKey = 'ref.refgoodsfrom'
 		elif columnKey == 'createdby':
-			colkey = 'nga.createdby'
+			colKey = 'nga.createdby'
 		elif columnKey == 'createddate':
-			colkey = 'nga.ceateddate'
+			colKey = 'nga.ceateddate'
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Outwards_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
