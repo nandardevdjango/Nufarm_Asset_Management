@@ -38,8 +38,8 @@ def NA_Goods_Receive_GAGetData(request):
         datarow = {
 			"id" :row['idapp'], "cell" :[
 				row['idapp'],i,row['goodsname'], row['brand'],row['typeapp'],row['received_by'],row['pr_by'],
-				row['datereceived'],row['price'],row['supliername'],row['invoice_no'],row['chasis_no'],
-                row['year_made'],row['colour'], row['model'], row['kind'], row['cylinder'], row['fuel'],
+				row['datereceived'],row['price'],row['supliername'],row['invoice_no'], row['machine_no'],
+				row['chassis_no'],row['year_made'],row['colour'], row['model'], row['kind'], row['cylinder'], row['fuel'],
                 row['descriptions'], row['createddate'], row['createdby']
 				]
 			}
@@ -66,16 +66,18 @@ class NA_Goods_Receive_GA_Form(forms.Form):
     itemcode = forms.CharField(widget=forms.TextInput(
         attrs={'class':'NA-Form-Control', 'placeholder':'itemcode',
                'style':'width:120px;display:inline-block;margin-right: 5px;'}
-        ))
+        ),required=False)
     goodsname = forms.CharField(disabled=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control', 'placeholder':'goods name'}))
+        attrs={'class':'NA-Form-Control', 'placeholder':'goods name'}
+		),required=False)
 
     supliercode = forms.CharField(widget=forms.TextInput(
         attrs={'class':'NA-Form-Control', 'placeholder':'suplier code',
                'style':'width:120px;display:inline-block;margin-right: 5px;'}
         ))
     supliername = forms.CharField(disabled=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control', 'placeholder':'suplier name'}))
+        attrs={'class':'NA-Form-Control', 'placeholder':'suplier name'}
+		),required=False)
 
     pr_by = forms.CharField(widget=forms.HiddenInput())
     pr_by_nik = forms.CharField(widget=forms.TextInput(
@@ -83,7 +85,8 @@ class NA_Goods_Receive_GA_Form(forms.Form):
                'style':'width:120px;display:inline-block;margin-right: 5px;'}
         ))
     pr_by_name = forms.CharField(disabled=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control', 'placeholder': 'Employee Name'}))
+        attrs={'class':'NA-Form-Control', 'placeholder': 'Employee Name'}
+		),required=False)
 
     received_by = forms.CharField(widget=forms.HiddenInput())
     received_by_nik = forms.CharField(widget=forms.TextInput(
@@ -91,7 +94,8 @@ class NA_Goods_Receive_GA_Form(forms.Form):
                'style':'width:120px;display:inline-block;margin-right: 5px;'}
         ))
     received_by_name = forms.CharField(disabled=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control', 'placeholder':'Employee Name'}))
+        attrs={'class':'NA-Form-Control', 'placeholder':'Employee Name'}
+		),required=False)
 
     datereceived = forms.DateField(widget=forms.TextInput(
         attrs={'class':'NA-Form-Control', 'placeholder':'date received',
@@ -148,7 +152,7 @@ def Entry_Goods_Receive_GA(request):
 		form = NA_Goods_Receive_GA_Form(request.POST)
 		statusForm = request.POST['statusForm']
 		if form.is_valid():
-			data = getFormData(form)
+			data = form.cleaned_data
 			if statusForm == 'Add':
 				data['createddate'] = datetime.now()
 				data['createdby'] = request.user.username
@@ -157,6 +161,8 @@ def Entry_Goods_Receive_GA(request):
 				data['modifiedby'] = request.user.username
 			result = NAGaReceive.objects.SaveData(StatusForm.Input,**data)
 			return commonFunct.response_default(result)
+		else:
+			raise forms.ValidationError(form.errors)
 
 	elif request.method == 'GET':
 		statusForm = request.GET['statusForm']

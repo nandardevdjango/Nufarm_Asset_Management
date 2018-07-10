@@ -1324,7 +1324,7 @@ class NAGaReceive(NA_BaseModel):
 
     class Meta:
         managed = True
-        db_table = 'na_ga_receive'
+        db_table = 'n_a_ga_receive'
 
 
 class NAGaVnHistory(NA_BaseModel):

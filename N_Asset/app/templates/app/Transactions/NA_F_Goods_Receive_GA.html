@@ -1,7 +1,6 @@
 ﻿{% extends 'app/layout.html' %}
 
 {% block SearchData %}
-<li><a href="#" data-tipe="varchar" data-column="refno">RefNO</a></li>
 <li><a href="#" data-tipe="varchar" data-column="goods">Goods Name</a></li>
 <li><a href="#" data-tipe="datetime" data-column="datereceived">Date Received</a></li>
 <li><a href="#" data-tipe="varchar" data-column="supliername">Suplier Name</a></li>
@@ -103,27 +102,45 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'Received By', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
+                    colNames: ['idapp', 'NO', 'goods name', 'Brand', 'Type', 'Received By', 'Purchase Request By',
+						'Date Received', 'Price', 'Suplier Name', 'Invoice No', 'Machine No', 'Chassis No',
+						'Year Made', 'Colour', 'Model', 'Kind', 'Cylinder', 'Fuel','Descriptions', 'Created Date', 'Created By'],
                     colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
-							{ name: 'refno', width: 80, index: 'refno', align: 'left', sortable: true, editable: false, },
                             { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'brand', index: 'brand', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'typeapp', index: 'typeapp', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'received_by', index: 'received_by', width: 120, sortable: true, editable: false, align: 'left', },
+                            { name: 'pr_by', index: 'pr_by', width: 120, sortable: true, editable: false, align: 'left', },
                             {
                             	name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date',
                             	formatoptions: {
                             		srcformat: 'Y-m-d', newformat: 'd F Y'
                             	}
                             },
-                            { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
-                            { name: 'receivedby', index: 'receivedby', width: 120, sortable: true, editable: false, align: 'left', },
-                            { name: 'pr_by', index: 'pr_by', width: 120, sortable: true, editable: false, align: 'left', },
-                            {
-                            	name: 'totalpurchase', index: 'totalpurchase', width: 100, sortable: true, align: 'right',
-                            },
-                            {
-                            	name: 'totalreceived', index: 'totalreceived', width: 100, sortable: true, align: 'right',
-                            },
+							{
+								name: 'price', index: 'price', width: 150, sortable: true, align: 'right', formatter: 'currency',
+								formatoptions: {
+									decimalSeparator: ",",
+									thousandsSeparator: ".",
+									decimalPlaces: 2,
+									prefix: "Rp "
+								}, filter: {
+									type: 'textbox', condition: 'contains', listeners: ['keyup']
+								}
+							},
+                            { name: 'supliername', index: 'supliername', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'invoice_no', index: 'invoice_no', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'machine_no', index: 'machine_no', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'chassis_no', index: 'chassis_no', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'year_made', index: 'year_made', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'colour', index: 'colour', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'model', index: 'model', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'kind', index: 'kind', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'cylinder', index: 'cylinder', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'fuel', index: 'fuel', width: 120, sortable: true, editable: false, align: 'left', },
+                            
 							{ name: 'descriptions', index: 'descriptions', width: 120, sortable: true, editable: false, align: 'left', },
                             {
                             	name: 'createddate', index: 'CreatedDate', sortable: true, width: 120, formatter: 'date',
@@ -970,7 +987,6 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                                 rowData = gridTbl.getRowData(rowId);
                                             	fk_goods.value = rowData['idapp'],
                                             	itemcode.value = rowData['itemcode'],
-												typeapp.value = rowData['typeApp'],
 												goodsname.value = rowData['goods'];
                                             	dialogRef.close();
                                             }
@@ -1027,9 +1043,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
 
                                 			//loads Data into JqueryGrid
                                 			gridTbl = NA.common.doc.createElement('table');
-                                			gridTbl.id = 'NA_Goods_Receive_other_FK_Employee';
+                                			gridTbl.id = 'NA_Goods_Receive_GA_FK_Employee';
                                 			gridPager = NA.common.doc.createElement('div');
-                                			gridPager.id = 'NA_Goods_Receive_other_FK_Employee_Pager';
+                                			gridPager.id = 'NA_Goods_Receive_GA_FK_Employee_Pager';
                                 			mainContainer.appendChild(gridTbl);
                                 			mainContainer.appendChild(gridPager);
                                 			return containerMessage;
@@ -1040,7 +1056,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 			if (txtSearch != null) {
                                 				valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                 			}
-                                			gridTbl = $('#NA_Goods_Receive_other_FK_Employee');
+                                			gridTbl = $('#NA_Goods_Receive_GA_FK_Employee');
                                 			var urlFKGoods = '/MasterData/Employee/SearchEmployeeByForm/?' + win.encodeURIComponent('employee_filter') + '=' + valSearch;
                                 			gridTbl.jqGrid({
                                 				url: urlFKGoods,
@@ -1076,9 +1092,9 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 				scrollrows: true,
                                 				//hidegrid: true,
                                 				//caption: "Transactions ---Find goods",
-                                				pager: "#NA_Goods_Receive_other_FK_Employee_Pager"
+                                				pager: "#NA_Goods_Receive_GA_FK_Employee_Pager"
                                 			});
-                                			gridTbl.navGrid('#NA_Goods_Receive_other_FK_Employee_Pager', {
+                                			gridTbl.navGrid('#NA_Goods_Receive_GA_FK_Employee_Pager', {
                                 				search: false, // show search button on the toolbar
                                 				add: false,
                                 				edit: false,
@@ -1086,7 +1102,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 				refresh: false
                                 			});
                                 			restyleBoostrapDialog();
-                                			var elGrid = qsAll('div#gbox_NA_Goods_Receive_other_FK_Employee,div#gview_NA_Goods_Receive_other_FK_Employee,div#gview_NA_Goods_Receive_other_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_other_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_other_FK_Employee_Pager')
+                                			var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Employee_Pager')
                                 			Array.prototype.forEach.call(elGrid, function (el) {
                                 				el.style.width = 'inherit';
                                 			});
@@ -1111,14 +1127,14 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 				var target = NA.NAEvent.getTarget(event),
 													rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
                                                     rowData = gridTbl.getRowData(rowId);
-                                				if (target.id == 'btn_fk_p_r_by' || target.id == 'id_fk_p_r_by') {
-                                					fk_p_r_by.value = rowData['nik'],
-													employee_pr.value = rowData['employee_name'];
-                                					idapp_p_r_by.value = rowId;
-                                				} else if (target.id == 'btn_fk_receivedby' || target.id == 'id_fk_receivedby') {
-                                					fk_receivedby.value = rowData['nik'],
-													employee_received.value = rowData['employee_name'],
-													idapp_receivedby.value = rowId;
+                                				if (target.id == 'btn_fk_pr_by' || target.id == 'id_pr_by_nik') {
+                                					pr_by_nik.value = rowData['nik'],
+													pr_by_name.value = rowData['employee_name'];
+                                					pr_by.value = rowData['idapp'];
+                                				} else if (target.id == 'btn_fk_received_by' || target.id == 'id_received_by_nik') {
+                                					received_by_nik.value = rowData['nik'],
+													received_by_name.value = rowData['employee_name'],
+													received_by.value = rowId;
                                 				}
                                 				
                                 				dialogRef.close();

@@ -14,7 +14,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
                 received_by=F('fk_receivedby__employee_name'),
                 pr_by=F('fk_p_r_by__employee_name')
             )\
-            .values('idapp','goodsname','typeapp','price','supliername',
+            .values('idapp','goodsname','typeapp','price','received_by', 'pr_by','supliername',
                     'datereceived','brand','invoice_no','machine_no','chassis_no', 'year_made',
                     'colour','model','kind', 'cylinder', 'fuel', 'descriptions',
                     'createddate','createdby')
@@ -49,23 +49,30 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         cur = connection.cursor()
         Params = {
             'FK_goods': data['fk_goods'],
-		    'DateReceived': data['datereceived'], 
-            'FK_Suplier': data['fk_suplier'],
-			'FK_ReceivedBy': data['fk_receivedby'],
-            'FK_P_R_By': data['fk_p_r_by'],
+			'FK_ReceivedBy': data['received_by'],
+            'FK_P_R_By': data['pr_by'],
+			'FK_Suplier': data['supliercode'],
+			'DateReceived': data['datereceived'], 
 			'brand': data['brand'],
+			'invoice_no':data['invoice_no'],
 			'typeapp': data['typeapp'],
 			'machine_no': data['machine_no'],
 			'chassis_no': data['chassis_no'],
-			'year_made': data['year_made'],
+			'year_made': data['year_made'] + '-1-1',
+			'colour':data['colour'],
+			'model':data['model'],
+			'kind':data['kind'],
+			'cylinder':data['cylinder'],
+			'fuel':data['fuel'],
 			'Descriptions': data['descriptions']
         }
         if statusForm == StatusForm.Input:
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
-            Query = """INSERT INTO n_a_goods_receive_other 
-            (REFNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, 
-            FK_ReceivedBy, FK_P_R_By, Descriptions,CreatedDate, CreatedBy) 
+            Query = """INSERT INTO n_a_ga_receive
+            (FK_goods, FK_ReceivedBy, FK_P_R_By, FK_Suplier, DateReceived, Brand, Invoice_no,
+			TypeApp, Machine_no, Chassis_no, Year_made, Colour, Model,Kind, Cylinder, Fuel,
+            Descriptions,CreatedDate, CreatedBy) 
             VALUES ({})""".format(','.join('%('+i+')s' for i in Params))
             cur.execute(Query,Params)
             return (Data.Success,Message.Success.value)
