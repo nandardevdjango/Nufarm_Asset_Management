@@ -17,6 +17,7 @@ from NA_DataLayer.Transactions.NA_Goods_Lending_BR import NA_BR_Goods_Lending
 from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
+from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
 
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
@@ -160,8 +161,7 @@ class NASuplier(NA_MasterDataModel):
     def __str__(self):
         return self.supliername
 
-    #NA = NA_BR_Suplier()
-    objects = NA_BR_Suplier() #default manager
+    objects = NA_BR_Suplier()
     customManager = CustomSuplierManager()
     class Meta:
         managed = True
@@ -268,6 +268,13 @@ class goods(NA_MasterDataModel):
 	unit = models.CharField(db_column='Unit', max_length=30)
 	economiclife = models.DecimalField(db_column='EconomicLife', max_digits=10, decimal_places=2)
 	placement = models.CharField(db_column='Placement', max_length=50, blank=True, null=True)
+	typeapp = models.CharField(
+        max_length=5,
+		db_column='typeapp', null=True, choices=(
+			('IT', 'IT'),
+			('GA', 'GA')
+		)
+	)
 
 	class Meta:
 		db_table = 'n_a_goods'
@@ -1269,8 +1276,36 @@ class NAGoodsHistory(NA_TransactionModel):
         managed = True
         db_table = 'n_a_goods_history'
 
-class NaGaDetail(NA_BaseModel):
+class NAGaReceive(NA_BaseModel):
+    fk_goods = models.ForeignKey(
+        goods,
+        db_column='FK_Goods',
+        db_constraint=False
+    )
+    fk_receivedby = models.ForeignKey(
+        Employee, 
+        db_column='FK_ReceivedBy', 
+        max_length=50, 
+        related_name='fk_receivedBy_ga',
+        db_constraint=False
+    )
+    fk_p_r_by = models.ForeignKey(
+        Employee,
+        db_column='FK_P_R_By', 
+        max_length=50, 
+        blank=True, 
+        null=True, 
+        related_name='fk_p_r_by_ga',
+        db_constraint=False
+    )
+    fk_suplier = models.ForeignKey(
+        'NASuplier',
+        db_column='FK_Suplier',
+        db_constraint=False
+    )
+    datereceived = models.DateTimeField(db_column='DateReceived', default=timezone.now)
     brand = models.CharField(db_column='Brand', max_length=100)
+<<<<<<< HEAD
     invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
     fk_app = models.IntegerField(db_column='FK_App')
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True) #type kendaraan
@@ -1284,17 +1319,41 @@ class NaGaDetail(NA_BaseModel):
     fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True) #bahan bakar (pertamax solar premium)
     #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
     #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
+=======
+    invoice_no = models.CharField(db_column='Invoice_No', max_length=100, blank=True, null=True)
+    
+    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
+    machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
+    chassis_no = models.CharField(db_column='Chassis_No', max_length=50)
+    year_made = models.DateField(db_column='Year_Made')
+    colour = models.CharField(max_length=20)
+    model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)
+    kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
+    cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
+    fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
+    #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) move  to ga outwards
+    #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
+>>>>>>> 9c3c0ee03e07e6401bb9be14674b0a77209fc93d
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+
+    objects = NA_BR_Goods_Receive_GA()
 
     class Meta:
         managed = True
-        db_table = 'na_ga_detail'
+        db_table = 'n_a_ga_receive'
 
 
+<<<<<<< HEAD
 class NaGaVnHistory(NA_BaseModel):
     reg_no = models.CharField(db_column='Reg_No', max_length=50)#no polisi / stnk
     fk_app = models.IntegerField(db_column='FK_App') #stnk ini untuk kendaraan mana
     expired_reg = models.DateField(db_column='Expired_Reg') #tanggal kadaluarsa satu tahun
+=======
+class NAGaVnHistory(NA_BaseModel):
+    reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
+    fk_app = models.IntegerField(db_column='FK_App')
+    expired_reg = models.DateField(db_column='Expired_Reg')
+>>>>>>> 9c3c0ee03e07e6401bb9be14674b0a77209fc93d
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)

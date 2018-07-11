@@ -328,8 +328,9 @@ def SearchGoodsbyForm(request):
 	
 			
 	searchText = request.GET.get('goods_desc')
+	Type = request.GET.get('type')
 	Ilimit = request.GET.get('rows', '')
-	NAData = goods.customs.searchGoodsByForm(searchText)
+	NAData = goods.customs.searchGoodsByForm(searchText, Type)
 	if NAData == Data.Empty:
 		results = {"page": "1","total": 0,"records": 0,"rows": [] }
 		return HttpResponse(

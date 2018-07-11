@@ -168,7 +168,7 @@ class NA_BR_Employee(models.Manager):
             .filter(
                 Q(nik__icontains=q) |
                 Q(employee_name__icontains=q)
-            )
+             )
         if data.exists():
             return data
         else:

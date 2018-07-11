@@ -55,7 +55,7 @@ def getFormData(form):
 	clData = form.cleaned_data
 	data = {
 		'idapp':clData['idapp'],'refno':clData['refno'],'fk_goods':clData['idapp_fk_goods'],
-		'fk_goods':clData['fk_goods'],'datereceived':clData['datereceived'],'fk_suplier':clData['fk_suplier'],
+        'datereceived':clData['datereceived'],'fk_suplier':clData['fk_suplier'],
         'totalpurchase':clData['totalpurchase'],'totalreceived':clData['totalreceived'],
 		'fk_receivedby':clData['idapp_fk_receivedby'],'fk_p_r_by':clData['idapp_fk_p_r_by'],
         'descriptions':clData['descriptions']
