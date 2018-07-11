@@ -305,6 +305,7 @@
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Outwards.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Receive_other.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Return.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Disposal.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Outwards.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
