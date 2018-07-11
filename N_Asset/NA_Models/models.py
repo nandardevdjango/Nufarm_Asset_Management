@@ -1305,7 +1305,7 @@ class NAGaReceive(NA_BaseModel):
     )
     datereceived = models.DateTimeField(db_column='DateReceived', default=timezone.now)
     brand = models.CharField(db_column='Brand', max_length=100)
-<<<<<<< HEAD
+
     invoce_no = models.CharField(db_column='Invoce_No', max_length=100, blank=True, null=True)
     fk_app = models.IntegerField(db_column='FK_App')
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True) #type kendaraan
@@ -1319,7 +1319,7 @@ class NAGaReceive(NA_BaseModel):
     fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True) #bahan bakar (pertamax solar premium)
     #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
     #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True) pindahkan ke n_a_ga_outwards
-=======
+
     invoice_no = models.CharField(db_column='Invoice_No', max_length=100, blank=True, null=True)
     
     typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
@@ -1333,7 +1333,7 @@ class NAGaReceive(NA_BaseModel):
     fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
     #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) move  to ga outwards
     #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
->>>>>>> 9c3c0ee03e07e6401bb9be14674b0a77209fc93d
+
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
 
     objects = NA_BR_Goods_Receive_GA()
@@ -1342,18 +1342,11 @@ class NAGaReceive(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_receive'
 
-
-<<<<<<< HEAD
-class NaGaVnHistory(NA_BaseModel):
-    reg_no = models.CharField(db_column='Reg_No', max_length=50)#no polisi / stnk
-    fk_app = models.IntegerField(db_column='FK_App') #stnk ini untuk kendaraan mana
-    expired_reg = models.DateField(db_column='Expired_Reg') #tanggal kadaluarsa satu tahun
-=======
 class NAGaVnHistory(NA_BaseModel):
     reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
     fk_app = models.IntegerField(db_column='FK_App')
     expired_reg = models.DateField(db_column='Expired_Reg')
->>>>>>> 9c3c0ee03e07e6401bb9be14674b0a77209fc93d
+
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
     descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
