@@ -235,29 +235,45 @@ class NAAppparams(models.Model):
         unique_together = (('idapp', 'codeapp'),)
 
 class NADisposal(NA_TransactionModel):
-    modifiedby = None
-    modifieddate = None
-    fk_employee = None
+	fk_employee = None
 
-    datedisposal = models.DateField(db_column='DateDisposal')
-    ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
-    issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
-    sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
-    FK_ResponsiblePerson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
-    fk_acc_fa = models.CharField(db_column='FK_Acc_FA', max_length=50, blank=True, null=True)
-    fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)
-    bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
-    fk_maintenance = models.ForeignKey(
-        'NAMaintenance',
-        null=True,
-        blank=True,
-        db_column='FK_Maintenance',
+	datedisposal = models.DateField(db_column='DateDisposal')
+	ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
+	issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
+	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
+	fk_responsiblperson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
+	fk_acknowledge1 =  models.ForeignKey(
+		Employee, 
+		db_column='FK_Acknowledge1', 
+		related_name='fk_emp_ack1_disposal',
+		db_constraint=False
+	),
+	fk_acknowledge2 =  models.ForeignKey(
+        Employee, 
+        db_column='FK_Acknowledge1', 
+        related_name='fk_emp_ack2_disposal',
         db_constraint=False
-    )
+    ),
+	fk_approvedby =  models.ForeignKey(
+        Employee, 
+        db_column='FK_ApprovedBy', 
+        related_name='fk_emp_app_disposal',
+        db_constraint=False
+    ),
+	fk_acc_fa = models.ForeignKey(NAAccFa,related_name='fk_accfa_disposal', db_column='FK_Acc_FA', blank=True, null=True)
+	fk_stock = models.ForeignKey(NAStock,related_name='fk_stock_disposal', db_column='FK_Stock', blank=True, null=True)
+	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+	fk_maintenance = models.ForeignKey(
+		'NAMaintenance',
+		null=True,
+		blank=True,
+		db_column='FK_Maintenance',
+		db_constraint=False
+	)
 
-    class Meta:
-        managed = True
-        db_table = 'n_a_disposal'
+	class Meta:
+		managed = True
+		db_table = 'n_a_disposal'
 
 class goods(NA_MasterDataModel):
 	itemcode = models.CharField(db_column='ItemCode', max_length=30)

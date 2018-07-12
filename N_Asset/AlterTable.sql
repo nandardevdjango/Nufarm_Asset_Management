@@ -325,26 +325,26 @@ ALTER TABLE n_a_goods_outwards ADD Descriptions VARCHAR(200) NULL;
 ALTER TABLE n_a_maintenance CHANGE IsSucced IsSucced tinyint(1) NOT NULL DEFAULT 0;
 
 CREATE TABLE  IF NOT EXISTS n_a_goods_lost (
-  `IDApp` int(11) NOT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Goods_Outwards` int(11) DEFAULT NULL,
-  `FK_Goods_Lending` int(11) DEFAULT NULL,
-  `FK_Maintenance` int(11) DEFAULT NULL,
-  `FromGoods` varchar(30) NOT NULL,
-  `SerialNumber` varchar(50) NOT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `FK_LostBy` int(11) DEFAULT NULL,
-  `FK_UsedBy` int(11) DEFAULT NULL,
-  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
-  `Status` varchar(5) NOT NULL DEFAULT 'L',
-  `DateLost` DATETIME NOT NULL DEFAULT current_timestamp,
+  IDApp int(11) NOT NULL,
+  FK_Goods int(11) NOT NULL,
+  FK_Goods_Outwards int(11) DEFAULT NULL,
+  FK_Goods_Lending int(11) DEFAULT NULL,
+  FK_Maintenance int(11) DEFAULT NULL,
+  FromGoods varchar(30) NOT NULL,
+  SerialNumber varchar(50) NOT NULL,
+  TypeApp varchar(32) NOT NULL,
+  FK_LostBy int(11) DEFAULT NULL,
+  FK_UsedBy int(11) DEFAULT NULL,
+  FK_ResponsiblePerson int(11) DEFAULT NULL,
+  Status varchar(5) NOT NULL DEFAULT 'L',
+  DateLost DATETIME NOT NULL DEFAULT current_timestamp,
    Descriptions varchar(800) NOT NULL DEFAULT '',
    Reason VARCHAR(25) DEFAULT NULL
 ) ;
-ALTER TABLE `n_a_goods_lost`
-  MODIFY `IDApp` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE n_a_goods_lost
+  MODIFY IDApp int(11) NOT NULL AUTO_INCREMENT;
   
-  ALTER TABLE `n_a_goods_lost` ADD PRIMARY KEY (`IDApp`);
+  ALTER TABLE n_a_goods_lost ADD PRIMARY KEY (IDApp);
 
   ALTER TABLE n_a_goods_lending ADD lastinfo VARCHAR(150)  NULL
 
@@ -360,3 +360,16 @@ ALTER TABLE n_a_goods_outwards ADD CreatedDate DATETIME NOT NULL;
 ALTER TABLE n_a_goods_outwards ADD ModifiedDate DATETIME NULL;
 ALTER TABLE n_a_goods_outwards ADD ModifiedBy  VARCHAR(100) NULL;
 ALTER TABLE n_a_goods_outwards ADD lastinfo VARCHAR(150) NULL;
+
+ALTER TABLE n_a_disposal
+	ALTER FK_Goods DROP DEFAULT;
+ALTER TABLE n_a_disposal
+	ADD COLUMN ModifiedDate DATETIME NULL AFTER CreatedBy,
+	ADD COLUMN ModifiedBy VARCHAR(50) NULL AFTER ModifiedDate,
+	CHANGE COLUMN IsHasValue IsHasValue TINYINT(1) NULL DEFAULT NULL AFTER DateDisposal,
+	CHANGE COLUMN IsSold IsSold TINYINT(1) NULL DEFAULT NULL AFTER IsHasValue,
+	CHANGE COLUMN FK_ResponsiblePerson FK_ResponsiblePerson INT(11) NULL DEFAULT NULL COMMENT 'Diajukan/Penanggung jawab' AFTER SellingPrice,
+	CHANGE COLUMN FK_Goods FK_Goods INT(11) NOT NULL AFTER BookValue,
+	ADD COLUMN FK_Acknowledge1 INT(11) NULL COMMENT 'Diketahui sama siapa' AFTER FK_Maintenance,
+	ADD COLUMN FK_Acknowledge2 INT(11) NULL COMMENT 'Diketahui sama siapa' AFTER FK_Acknowledge1,
+	ADD COLUMN FK_ApprovedBy INT(11) NULL COMMENT 'Di setujui sama siapa' AFTER FK_Acknowledge2;

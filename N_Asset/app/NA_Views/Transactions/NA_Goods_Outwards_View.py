@@ -7,8 +7,6 @@ from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
 from NA_DataLayer.common import commonFunct
-#from NA_DataLayer.jqgrid import JqGrid
-from django.conf import settings 
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
