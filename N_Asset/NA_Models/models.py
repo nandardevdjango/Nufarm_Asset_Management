@@ -18,7 +18,7 @@ from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
-
+from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 
@@ -238,7 +238,7 @@ class NADisposal(NA_TransactionModel):
 	fk_employee = None
 
 	datedisposal = models.DateField(db_column='DateDisposal')
-	ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
+	#ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
 	issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
 	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
 	fk_responsiblperson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
@@ -270,7 +270,7 @@ class NADisposal(NA_TransactionModel):
 		db_column='FK_Maintenance',
 		db_constraint=False
 	)
-
+	objects = NA_BR_Goods_Disposal()
 	class Meta:
 		managed = True
 		db_table = 'n_a_disposal'

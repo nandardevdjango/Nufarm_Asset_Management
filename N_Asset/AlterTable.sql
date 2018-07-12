@@ -180,7 +180,7 @@ CREATE TABLE n_a_disposal (
   IDApp int(11) NOT NULL,
   FK_Goods int(11) DEFAULT NULL,
   DateDisposal date NOT NULL,
-  IsHasValue tinyint(1) DEFAULT NULL,
+  --IsHasValue tinyint(1) DEFAULT NULL,
   IsSold tinyint(1) DEFAULT NULL,
   SellingPrice decimal(30,4) DEFAULT NULL,
   FK_Responsible_Person int(11) DEFAULT NULL,--PERBAIKAN DI SINI 
@@ -373,3 +373,6 @@ ALTER TABLE n_a_disposal
 	ADD COLUMN FK_Acknowledge1 INT(11) NULL COMMENT 'Diketahui sama siapa' AFTER FK_Maintenance,
 	ADD COLUMN FK_Acknowledge2 INT(11) NULL COMMENT 'Diketahui sama siapa' AFTER FK_Acknowledge1,
 	ADD COLUMN FK_ApprovedBy INT(11) NULL COMMENT 'Di setujui sama siapa' AFTER FK_Acknowledge2;
+	ADD COLUMN `Descriptions` VARCHAR(250) NULL DEFAULT NULL AFTER `FK_ApprovedBy`;
+ALTER TABLE `n_a_disposal`
+	DROP COLUMN `IsHasValue`;

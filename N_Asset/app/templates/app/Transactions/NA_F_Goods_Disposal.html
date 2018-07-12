@@ -250,12 +250,12 @@
 			else {
 				try {
 					//			#column idapp,NO,goods,goodstype,serialnumber,    <-->
-					//idapp,goods,type,serialnumber,ishasvalue,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate									
+					//idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate									
 					grid.jqGrid({
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Removal', 'Has Repaired', 'Last Repaired From', 'Is Sold','Selling Price',
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value','Date Removal', 'Has Repaired', 'Last Repaired From', 'Is Sold','Selling Price',
 							'Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -263,6 +263,10 @@
 							{ name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
                             { name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
                             { name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
+                            {name :'bookvalue',index:'bookvalue',sortable: true, align: 'right', formatter: 'currency', formatoptions: {
+                                decimalSeparator: ",", thousandsSeparator: ".",
+                                decimalPlaces: 2, prefix: "Rp "}
+                            },
 							{ name: 'datedisposal', index: 'datedisposal', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
 							{ name: 'isrepaired', index: 'isrepaired', sortable: true, editable: false, width: 60, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'lastrepairedfrom',index:'lastrepairedfrom', width: 110, sortable: true, editable: false, align: 'left', },
