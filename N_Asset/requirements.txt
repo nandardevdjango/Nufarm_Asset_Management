@@ -1,2 +1,7 @@
 Django==1.11.2
 pytz==2017.2
+django-sslserver
+social-auth-app-django
+django_mysql
+python-dateutil
+Pillow

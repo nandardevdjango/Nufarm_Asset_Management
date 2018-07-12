@@ -3,7 +3,7 @@ from django.db.models import Q
 from django_mysql.models import JSONField
 from datetime import datetime
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods
-from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods,CustomManager
+from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Priviledge_BR import NA_BR_Priviledge

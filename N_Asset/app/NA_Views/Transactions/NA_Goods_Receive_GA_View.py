@@ -58,8 +58,7 @@ def getFormData(form):
         'descriptions':clData['descriptions']
 	}
 	return data
-
-#brand, invoice_no, fk_app, typeapp, machine_no, chasis_no, year_made, colour, model, kind, cylinder, fuel, description
+    
 
 class NA_Goods_Receive_GA_Form(forms.Form):
     fk_goods = forms.CharField(widget=forms.HiddenInput())
