@@ -33,6 +33,7 @@
     </Compile>
     <Compile Include="app\forms.py" />
     <Compile Include="app\management\commands\create_na_superuser.py" />
+    <Compile Include="app\management\commands\git_push.py" />
     <Compile Include="app\management\commands\__init__.py" />
     <Compile Include="app\management\__init__.py" />
     <Compile Include="app\middleware.py">
@@ -109,6 +110,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_GA.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_GA_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Other_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_View.py" />
@@ -160,6 +162,7 @@
     <Compile Include="NA_DataLayer\MasterData\NA_Goods_BR.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Disposal_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Lending_BR.py">
       <SubType>Code</SubType>
     </Compile>

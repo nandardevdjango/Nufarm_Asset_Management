@@ -1280,6 +1280,72 @@
 			try {
 				var target = NA.NAEvent.getTarget(event);
 				if (target.innerText === ' Add' || target.innerText === ' Edit' || target.innerText === ' Open') {
+				    var idapp = 0;
+				    if (target.innerText.trim() !== 'Add') {
+				        idapp = getGridCellValue(grid, 'idapp');
+				        if (typeof idapp == 'undefined' || idapp === '') {
+				            ShowAlert('Please select data to edit');
+				            closeDialog();
+				            if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
+				            return false;
+				        }
+				        else if (target.innerText.trim() === 'Open') {
+				            Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+				                if (!item.hasAttribute('disabled')) {
+				                    item.setAttribute('disabled', true);
+				                }
+				            });
+				        }
+				    }
+				    $('div.maindialogContent').load("ShowEntry_Outwards?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
+                       function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+                           if (statusTxt == "success") {
+                               $(this).html(responseTxt);
+                               switch (win.status.trim()) {
+                                   case 'Add': {
+                                       Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+                                           if (item.hasAttribute('disabled')) {
+                                               item.removeAttribute('disabled');
+                                           }//remove attribute disable untuk button OK dan cancel bila statusnya Add
+                                       });
+                                       NA.common.getElementID('difInfo').style.display = 'none';
+                                       break;
+                                   }
+                                   case 'Edit': {
+                                       var hasref = NA.common.getElementID('id_hasRefData').value
+                                       //NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                                       NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                                       NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                                       if (hasref.valueOf === true) {
+                                           //NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+                                           //NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+                                           //NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+                                           //NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+                                           //NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+                                           //NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+                                           //NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                                           NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                                       }
+                                       break;
+                                   }
+                                   case 'Open': {
+                                       //NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+                                       //NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+                                       //NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+                                       //NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+                                       //NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                                       NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
+                                       NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                                       break;
+                                   }
+                               };
+                           }
+                    });
 				}
 			} catch (e) {
 				BootstrapDialog.closeAll();

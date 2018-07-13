@@ -376,3 +376,9 @@ ALTER TABLE n_a_disposal
 	ADD COLUMN `Descriptions` VARCHAR(250) NULL DEFAULT NULL AFTER `FK_ApprovedBy`;
 ALTER TABLE `n_a_disposal`
 	DROP COLUMN `IsHasValue`;
+
+	ALTER TABLE `n_a_disposal`
+	ADD COLUMN `IsLost` TINYINT(1) NULL AFTER `DateDisposal`,
+	CHANGE COLUMN `FK_Acc_FA` `FK_Acc_FA` INT NULL DEFAULT NULL AFTER `FK_ResponsiblePerson`,
+	ADD COLUMN `FK_Lending` INT(11) NULL DEFAULT NULL AFTER `FK_Maintenance`,
+	ADD COLUMN `FK_Outwards` INT(11) NULL DEFAULT NULL AFTER `FK_Lending`;

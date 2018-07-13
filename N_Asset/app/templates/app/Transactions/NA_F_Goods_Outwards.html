@@ -1385,80 +1385,59 @@
 										NA.NAEvent.stopPropagation(evt);
 									});
 								});
-								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan 
-								//fk_goods, fk_employee, fk_sender, fk_responsibleperson_employee
-								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
-								Array.prototype.forEach.call(listFK, function (item) {
-									NA.NAEvent.addHandler(item, 'keydown', function (evt) {
-										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-											NA.NAEvent.preventDefault(evt);//prevent from submit
-											evt.stopImmediatePropagation();
-											return false;
-										}
-										if (evt.keyCode === 13) {//kalau menekan tombol enter
-											var NAAjax = NA.common.AJAX;
-											switch (this.id) {
-												case 'id_serialnumber': {
-													//ambil data terakhir transaksi
-													//jika tidak ada ambil di n_a_goods_receive_detail
-													//prevent default
-													NA.NAEvent.preventDefault(evt);//prevent from submit
-													NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
-                                                        'application/json',//overrideMimeType returned by the server
-                                                        function (e) { window.document.body.style.cursor = 'wait'; },
-                                                        null,//nggak usah di isi bila tidak perlu
-                                                        function (e) {//function executed after data has been returned by server(XHR.onload)
-                                                        	var data = JSON.parse(this.responseText);
-                                                        	if (data.message) {
-                                                        		window.document.body.style.cursor = 'default'; XhrError(this);
-                                                        	}
-                                                        	else {
-                                                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                        		fillGoodsInfo(data, this.id,true);
-                                                        	}
-                                                        }, null, function (e) {//function untuk ajax error
-                                                        	window.document.body.style.cursor = 'default'; XhrError(this);
-                                                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
-                                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                                                        );
-													break;
-												}
-												case 'id_fk_employee':
-												case 'id_fk_sender':
-												case 'id_fk_responsibleperson': {
-													NA.NAEvent.preventDefault(evt);//prevent from submit
-													fillEmployeeName(evt, this.id);
-													break;
-												}
-											};//end switch
-											evt.stopImmediatePropagation();
-										}//end if (evt.keyCode === 13)
-									});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
-								});//end Array.prototype.forEach.call(listFK, function (item)
+
+								//var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
+								//Array.prototype.forEach.call(listFK, function (item) {
+								//	NA.NAEvent.addHandler(item, 'keydown', function (evt) {
+								//		if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+								//			NA.NAEvent.preventDefault(evt);//prevent from submit
+								//			evt.stopImmediatePropagation();
+								//			return false;
+								//		}
+								//		if (evt.keyCode === 13) {//kalau menekan tombol enter
+								//			var NAAjax = NA.common.AJAX;
+								//			switch (this.id) {
+								//				case 'id_serialnumber': {
+								//					//ambil data terakhir transaksi
+								//					//jika tidak ada ambil di n_a_goods_receive_detail
+								//					//prevent default
+								//					NA.NAEvent.preventDefault(evt);//prevent from submit
+								//					NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
+                                //                        'application/json',//overrideMimeType returned by the server
+                                //                        function (e) { window.document.body.style.cursor = 'wait'; },
+                                //                        null,//nggak usah di isi bila tidak perlu
+                                //                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                                //                        	var data = JSON.parse(this.responseText);
+                                //                        	if (data.message) {
+                                //                        		window.document.body.style.cursor = 'default'; XhrError(this);
+                                //                        	}
+                                //                        	else {
+                                //                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
+                                //                        		fillGoodsInfo(data, this.id,true);
+                                //                        	}
+                                //                        }, null, function (e) {//function untuk ajax error
+                                //                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                                //                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                //                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                //                        );
+								//					break;
+								//				}
+								//				case 'id_fk_employee':
+								//				case 'id_fk_sender':
+								//				case 'id_fk_responsibleperson': {
+								//					NA.NAEvent.preventDefault(evt);//prevent from submit
+								//					fillEmployeeName(evt, this.id);
+								//					break;
+								//				}
+								//			};//end switch
+								//			evt.stopImmediatePropagation();
+								//		}//end if (evt.keyCode === 13)
+								//	});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
+								//});//end Array.prototype.forEach.call(listFK, function (item)
 								originalData = JSON.stringify(getValuesForm());
 
 								//==============date request=============
-								$('#id_daterequest').datepicker({
-									dateFormat: 'dd/mm/yy',
-									changeMonth: true,
-									changeYear: true,
-									beforeShowDay: $.datepicker.noWeekends,
-									minDate: (function (g) {
-										if (g.status === 'Edit') {
-											var eloriginalData = JSON.parse(originalData),
-                                                hasRef = eloriginalData['hasRefData'];
-											if (hasRef) { return 1; }
-											var valDateReq = new Date(eloriginalData.daterequest);
-											return valDateReq;
-										}
-									})(win),
-									//maxDate: 0,
-									//showOn: "button",
-									//showButtonPanel: true,
-									closeText: "Close",
-									currentText: 'Now',
-								});
-
+				
 								$('#id_datereleased').datepicker({
 									dateFormat: 'dd/mm/yy',
 									changeMonth: true,
@@ -1484,7 +1463,6 @@
 									$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
 								};
 								//setting Custom Validity
-								var elm = NA.common.doc.querySelector('#id_daterequest');
 								NA.NAEvent.addHandler(elm, 'input', function (event) {
 									var elpat = this.getAttribute('patern');
 									var patern = new RegExp(elpat, 'i');
@@ -1519,13 +1497,13 @@
 								});
 
 								if (win.status !== 'Add') {
-									var eloriginalData = JSON.parse(originalData);
-									var valDaterequest = new Date(eloriginalData.daterequest);
-									$("#id_daterequest").datepicker("setDate", valDaterequest);
+									//var eloriginalData = JSON.parse(originalData);
+									//var valDaterequest = new Date(eloriginalData.daterequest);
+									//$("#id_daterequest").datepicker("setDate", valDaterequest);
 
-									var eloriginalData = JSON.parse(originalData);
-									var valDatereleased = new Date(eloriginalData.datereleased);
-									$("#id_datereleased").datepicker("setDate", valDatereleased);
+									//var eloriginalData = JSON.parse(originalData);
+									//var valDatereleased = new Date(eloriginalData.datereleased);
+									//$("#id_datereleased").datepicker("setDate", valDatereleased);
 								}
 								originalData = JSON.stringify(getValuesForm());
 
@@ -1583,22 +1561,22 @@
 											};
 											//loads Data into JqueryGrid
 											gridTbl = NA.common.doc.createElement('table');
-											gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods';
+											gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_FK_Goods';
 											gridPager = NA.common.doc.createElement('div');
-											gridPager.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager';
+											gridPager.id = 'jqGrid_NA_F_Goods_Disposal_FK_Goods_Pager';
 											mainContainer.appendChild(gridTbl);
 											mainContainer.appendChild(gridPager);
 											return containerMessage;
 										},
 										onshown: function (dialogRef) {
 											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-											gridTbl = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods');
-											gridPager = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager');
+											gridTbl = $('#jqGrid_NA_F_Goods_Disposal_FK_Goods');
+											gridPager = $('#jqGrid_NA_F_Goods_Disposal_FK_Goods_Pager');
 											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
 											gridTbl.jqGrid({
 												url: urlGoods,
 												mtype: "GET",
-												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
+												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_lending,fk_return,fk_maintenance,
 												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
 												colModel: [
 														{ name: 'idapp', index: 'idapp', hidden: true, },

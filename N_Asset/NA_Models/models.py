@@ -636,8 +636,9 @@ class NADisposal(NA_TransactionModel):
 	fk_employee = None
 
 	datedisposal = models.DateField(db_column='DateDisposal')
+	islost = models.PositiveSmallIntegerField(db_column='IsLost')
 	#ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
-	issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
+	issold = models.PositiveSmallIntegerField(db_column='IsSold', blank=True, null=True)
 	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
 	fk_responsiblperson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
 	fk_acknowledge1 =  models.ForeignKey(
@@ -658,16 +659,33 @@ class NADisposal(NA_TransactionModel):
         related_name='fk_emp_app_disposal',
         db_constraint=False
     ),
-	fk_acc_fa = models.ForeignKey(NAAccFa,related_name='fk_accfa_disposal', db_column='FK_Acc_FA', blank=True, null=True)
-	fk_stock = models.ForeignKey(NAStock,related_name='fk_stock_disposal', db_column='FK_Stock', blank=True, null=True)
+	fk_acc_fa = models.ForeignKey(NAAccFa,related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
+	fk_stock = models.ForeignKey(NAStock,related_name='fk_disposal_stock', db_column='FK_Stock', blank=True, null=True)
 	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
 	fk_maintenance = models.ForeignKey(
 		'NAMaintenance',
 		null=True,
 		blank=True,
 		db_column='FK_Maintenance',
-		db_constraint=False
+		db_constraint=False,
+		related_name='fk_disposal_maintenance'
 	)
+	fk_outwards = models.ForeignKey(
+		'NAGoodsOutwards',
+		db_column='FK_Outwards',
+				null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_outwards'
+		),
+	fk_lending = models.ForeignKey(
+		'NAGoodsLending',
+		db_column='FK_Lending',
+				null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_lending'
+		)
 	objects = NA_BR_Goods_Disposal()
 	class Meta:
 		managed = True
