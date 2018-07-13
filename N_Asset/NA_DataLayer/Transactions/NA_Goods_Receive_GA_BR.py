@@ -100,18 +100,29 @@ class NA_BR_Goods_Receive_GA(models.Manager):
 
     def retrieveData(self,idapp):
         if self.dataExists(idapp=idapp):
-            cur = connection.cursor()
-            Query = """SELECT ngr.idapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS fk_goods, goodsname as goods_desc,
-            g.economiclife,ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,
-            emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,
-            ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive_other AS ngr INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier 
-            LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS emp1 ON emp1.IDApp = ngr.FK_ReceivedBy 
-            LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS emp2 ON emp2.IDApp = ngr.FK_P_R_By
-            INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %(IDApp)s"""
+#fk_goods,itemcode, goodsname, supliercode, supliername, pr_by, pr_by_nik , pr_by_name ,
+#received_by, received_by_name, datereceived
+#brand, invoice_no, typeapp, machine_no, chassis_no, year_made, colour, model, 
+#kind, cylinder, fuel, description
 
-            cur.execute(Query,{'IDApp':idapp})
-            result = query.dictfetchall(cur)
-            return (Data.Success,result[0])
+            data =  super(NA_BR_Goods_Receive_GA, self).get_queryset()\
+            .annotate(
+                goodsname=F('fk_goods__goodsname'),
+                itemcode=F('fk_goods__itemcode'),
+                supliercode=F('fk_suplier'),
+                supliername=F('fk_suplier__supliername'),
+                received_by=F('fk_receivedby'),
+                received_by_nik=F('fk_receivedby__nik'),
+                received_by_name=F('fk_receivedby__employee_name'),
+                pr_by=F('fk_p_r_by'),
+                pr_by_nik=F('fk_p_r_by__nik'),
+                pr_by_name=F('fk_p_r_by__employee_name'),
+            ).values('idapp','fk_goods','itemcode', 'goodsname', 'supliercode', 'supliername', 'pr_by', 
+            'pr_by_nik' , 'pr_by_name' ,'received_by', 'received_by_name', 'datereceived',
+            'brand', 'invoice_no', 'typeapp', 'machine_no', 'chassis_no', 'year_made', 'colour', 
+            'model', 'kind', 'cylinder', 'fuel', 'descriptions')
+            
+            return (Data.Success,data)
         else:
             return (Data.Lost,Message.get_lost_info(pk=idapp,table='n_a_goods_receive_other'))
 
