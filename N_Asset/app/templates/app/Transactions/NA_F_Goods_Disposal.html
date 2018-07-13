@@ -177,6 +177,7 @@
 <div id="jqGrid_NA_F_Goods_Disposal_Pager" class="scroll" style="text-align:center;"></div>
 
 {% endblock %}
+
 {% block DialogEntry %}
 <script type="text/javascript">
 	(function () {
@@ -1217,5 +1218,79 @@
 		NA.NAEvent.addHandler(btnPrint, 'click', printToPDF);
 
 		//=======================END GROUP ASSINGED HANDLER ========================================= 
+
+		//======================GROUP DIALOG ENTRY===============================================
+		window.showDialogEntry = function (event) {
+			var hasLoadDialog = false;
+			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"),
+        	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
+			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
+			//rubah dialog top nya jadi 10px saja
+			dialog.style.top = "10px";
+			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+				NA.NAEvent.addHandler(item, 'click', function (evt) {
+					NA.NAEvent.preventDefault(evt);
+					//==============uncommment this after debugging=============
+					//comment this after debugging
+					NA.common.dialog.closeDialog(dialog);
+					//if (!hasLoadDialog) {
+					//	closeDialog(); win.document.body.style.cursor = 'default'; return false;
+					//}
+					//try {
+					//	if (win.status !== 'Open') {
+					//		var textElem = evt.target.innerText;
+					//		if (textElem === 'OK') {
+					//			//ExecuteHandler('OK');
+					//		} else {
+					//			//ExecuteHandler('Close');
+					//		}
+					//	}
+					//} catch (e) {
+					//	ShowAlert(e.message);
+					//}
+					//if (evt) {
+					//	NA.NAEvent.stopPropagation(evt);
+					//}
+					win.document.body.style.cursor = 'default';
+					return false;
+				});
+			});
+			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
+				NA.NAEvent.preventDefault(evt);
+				//==============uncommment this after debugging=============
+				if (hasLoadDialog) {
+					try {
+						ExecuteHandler('Close');
+					} catch (e) {
+						ShowAlert(e.message);
+					}
+				}
+				if (evt) {
+					NA.NAEvent.stopPropagation(evt);
+				}
+				win.document.body.style.cursor = 'default';
+				if (!hasLoadDialog) {
+					closeDialog();
+				}
+				//==============End uncommment this after debugging=============
+				//comment this after debugging
+				//closeDialog();
+				return false;
+			});
+			try {
+				var target = NA.NAEvent.getTarget(event);
+				if (target.innerText === ' Add' || target.innerText === ' Edit' || target.innerText === ' Open') {
+				}
+			} catch (e) {
+				BootstrapDialog.closeAll();
+				closeDialog();
+				if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
+				ShowAlert(e);
+			}
+		};
+
+		//======================END GROUP DIALOG ENTRY===============================================
 	})();
 </script>
+
+{% endblock %}

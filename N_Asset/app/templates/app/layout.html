@@ -117,6 +117,7 @@
                                     <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+									<li><a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'GoodsDisposal' %} class="active" {% endif %}>Asset Deletion</a></li>
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
                                 </ul>
                             </li>
