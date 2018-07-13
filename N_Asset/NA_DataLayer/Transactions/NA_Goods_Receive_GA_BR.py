@@ -43,7 +43,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
             rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
             gaData = gaData.filter(**rs.DefaultModel())
-        return gaData
+        return gaData.order_by('idapp')
 
     def SaveData(self,statusForm=StatusForm.Input,**data):
         cur = connection.cursor()
@@ -79,9 +79,23 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         elif statusForm == StatusForm.Edit:
             Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
-            Query = """UPDATE n_a_goods_receive SET 
-            RefNO = %(RefNO)s,DateReceived = %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, 
-            FK_ReceivedBy = %(FK_ReceivedBy)s,FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = %(ModifiedDate)s,ModifiedBy = %(ModifiedBy)s,
+            Query = """UPDATE n_a_ga_receive SET 
+            FK_Goods = %(FK_goods)s,
+            DateReceived = %(DateReceived)s,
+            FK_Suplier = %(FK_Suplier)s,
+            FK_ReceivedBy = %(FK_ReceivedBy)s,
+            FK_P_R_By = %(FK_P_R_By)s,
+            brand = %(brand)s,invoice_no = %(invoice_no)s,
+            typeapp = %(typeapp)s,
+            machine_no = %(machine_no)s,
+            chassis_no = %(chassis_no)s,
+            year_made = %(year_made)s,
+            colour = %(colour)s,
+            model = %(model)s,
+            kind = %(kind)s,
+            cylinder = %(cylinder)s,
+            fuel = %(fuel)s,
+            ModifiedDate = %(ModifiedDate)s,ModifiedBy = %(ModifiedBy)s,
             Descriptions = %(Descriptions)s"""
             cur.execute(Query,Params)
             return (Data.Success,Message.Success.value)
@@ -100,12 +114,10 @@ class NA_BR_Goods_Receive_GA(models.Manager):
 
     def retrieveData(self,idapp):
         if self.dataExists(idapp=idapp):
-#fk_goods,itemcode, goodsname, supliercode, supliername, pr_by, pr_by_nik , pr_by_name ,
-#received_by, received_by_name, datereceived
-#brand, invoice_no, typeapp, machine_no, chassis_no, year_made, colour, model, 
-#kind, cylinder, fuel, description
-
+            if self.hasRef(idapp):
+                return (Data.HasRef, Message.HasRef_edit)
             data =  super(NA_BR_Goods_Receive_GA, self).get_queryset()\
+            .filter(idapp=idapp)\
             .annotate(
                 goodsname=F('fk_goods__goodsname'),
                 itemcode=F('fk_goods__itemcode'),
@@ -116,9 +128,9 @@ class NA_BR_Goods_Receive_GA(models.Manager):
                 received_by_name=F('fk_receivedby__employee_name'),
                 pr_by=F('fk_p_r_by'),
                 pr_by_nik=F('fk_p_r_by__nik'),
-                pr_by_name=F('fk_p_r_by__employee_name'),
-            ).values('idapp','fk_goods','itemcode', 'goodsname', 'supliercode', 'supliername', 'pr_by', 
-            'pr_by_nik' , 'pr_by_name' ,'received_by', 'received_by_name', 'datereceived',
+                pr_by_name=F('fk_p_r_by__employee_name'))\
+            .values('idapp','fk_goods','itemcode', 'goodsname', 'supliercode', 'supliername', 'pr_by', 
+            'pr_by_nik' , 'pr_by_name' ,'received_by', 'received_by_nik', 'received_by_name', 'datereceived',
             'brand', 'invoice_no', 'typeapp', 'machine_no', 'chassis_no', 'year_made', 'colour', 
             'model', 'kind', 'cylinder', 'fuel', 'descriptions')
             
