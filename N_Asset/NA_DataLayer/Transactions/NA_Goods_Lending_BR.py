@@ -446,7 +446,7 @@ class NA_BR_Goods_Lending(models.Manager):
 					IFNULL(ngl.fk_maintenance,0)AS fk_maintenance,IFNULL(ngl.fk_return,0) AS fk_return, \
 					IFNULL(ngl.fk_currentapp,0) AS fk_currentapp,IFNULL(fk_receive,0) AS fk_receive, \
 						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
-							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE fk_goods = ngl.fk_goods AND serialnumber = ngl.serialnumber) THEN 1 
+							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE FK_Goods_Lending ngl.idapp) THEN 1 
 							 ELSE 0 
 					END AS hasRefData  
 					FROM n_a_goods g INNER JOIN n_a_goods_lending ngl ON ngl.fk_goods = g.IDApp \
@@ -456,7 +456,8 @@ class NA_BR_Goods_Lending(models.Manager):
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)
 
-		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s)"""
+		Query = """SELECT EXISTS(SELECT IDApp  FROM n_a_goods_lending WHERE fk_currentapp = %s) 
+					OR EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Lending = %s) """
 		cur.execute(Query,[idapp])
 		row = cur.fetchone()
 		if row[0] > 0:

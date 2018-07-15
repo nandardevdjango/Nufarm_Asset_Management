@@ -22,7 +22,7 @@ from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
 from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
-
+from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
@@ -352,37 +352,6 @@ class NAAppparams(models.Model):
         managed = True
         db_table = 'n_a_appparams'
         unique_together = (('idapp', 'codeapp'),)
-
-
-class NADisposal(NA_TransactionModel):
-    modifiedby = None
-    modifieddate = None
-    fk_employee = None
-
-    datedisposal = models.DateField(db_column='DateDisposal')
-    ishasvalue = models.IntegerField(
-        db_column='IsHasValue', blank=True, null=True)
-    issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
-    sellingprice = models.DecimalField(
-        db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
-    FK_ResponsiblePerson = models.CharField(
-        db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
-    fk_acc_fa = models.CharField(
-        db_column='FK_Acc_FA', max_length=50, blank=True, null=True)
-    fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)
-    bookvalue = models.DecimalField(
-        db_column='BookValue', max_digits=10, decimal_places=4)
-    fk_maintenance = models.ForeignKey(
-        'NAMaintenance',
-        null=True,
-        blank=True,
-        db_column='FK_Maintenance',
-        db_constraint=False
-    )
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_disposal'
 
 
 class goods(NA_MasterDataModel):
@@ -740,6 +709,73 @@ class NAGoodsLost(NA_TransactionModel):
     class Meta:
         managed = True
         db_table = 'n_a_goods_lost'
+
+
+class NADisposal(NA_TransactionModel):
+    fk_employee = None
+
+    datedisposal = models.DateField(db_column='DateDisposal')
+    islost = models.PositiveSmallIntegerField(db_column='IsLost')
+    #ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
+    issold = models.PositiveSmallIntegerField(
+        db_column='IsSold', blank=True, null=True)
+    sellingprice = models.DecimalField(
+        db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
+    fk_responsiblperson = models.CharField(
+        db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
+    fk_acknowledge1 = models.ForeignKey(
+        Employee,
+        db_column='FK_Acknowledge1',
+        related_name='fk_emp_ack1_disposal',
+        db_constraint=False
+    ),
+    fk_acknowledge2 = models.ForeignKey(
+        Employee,
+        db_column='FK_Acknowledge1',
+        related_name='fk_emp_ack2_disposal',
+        db_constraint=False
+    ),
+    fk_approvedby = models.ForeignKey(
+        Employee,
+        db_column='FK_ApprovedBy',
+        related_name='fk_emp_app_disposal',
+        db_constraint=False
+    ),
+    fk_acc_fa = models.ForeignKey(
+        NAAccFa, related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
+    fk_stock = models.ForeignKey(
+        NAStock, related_name='fk_disposal_stock', db_column='FK_Stock', blank=True, null=True)
+    bookvalue = models.DecimalField(
+        db_column='BookValue', max_digits=10, decimal_places=4)
+    fk_maintenance = models.ForeignKey(
+        'NAMaintenance',
+        null=True,
+        blank=True,
+        db_column='FK_Maintenance',
+        db_constraint=False,
+        related_name='fk_disposal_maintenance'
+    )
+    fk_outwards = models.ForeignKey(
+        'NAGoodsOutwards',
+        db_column='FK_Outwards',
+        null=True,
+        blank=True,
+        db_constraint=False,
+        related_name='fk_disposal_outwards'
+    ),
+    fk_lending = models.ForeignKey(
+        'NAGoodsLending',
+        db_column='FK_Lending',
+        null=True,
+        blank=True,
+        db_constraint=False,
+        related_name='fk_disposal_lending'
+    )
+    objects = NA_BR_Goods_Disposal()
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_disposal'
 
 
 def upload_to_each_dir(instance, filename):
@@ -1449,6 +1485,7 @@ class NAGaVnHistory(NA_BaseModel):
     reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
     fk_app = models.IntegerField(db_column='FK_App')
     expired_reg = models.DateField(db_column='Expired_Reg')
+
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
     descriptions = models.CharField(

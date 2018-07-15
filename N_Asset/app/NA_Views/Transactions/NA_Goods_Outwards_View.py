@@ -7,8 +7,6 @@ from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
 from NA_DataLayer.common import commonFunct
-#from NA_DataLayer.jqgrid import JqGrid
-from django.conf import settings 
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
@@ -35,6 +33,24 @@ def NA_Goods_Outwards(request):
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Outwards.html',{'populateColumn':populate_combo})
+def ShowCustomFilter(request):
+	#goods,goodstype,serialnumber,daterequest,datereleased,isnew,for_employee,eks_employee,
+	#fk_responsibleperson,responsible_by,fk_sender,senderby,fk_stock,refgoodsfrom,descriptions,createdby,createddate
+	cols = []
+	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
+	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
+	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
+	cols.append({'name':'daterequest','value':'daterequest','selected':'','dataType':'datetime','text':'Date Requested'})
+	cols.append({'name':'datereleased','value':'datereleased','selected':'','dataType':'datetime','text':'Date Released'})
+	#cols.append({'name':'for_employee','value':'for_employee','selected':'','dataType':'varchar','text':'For Employee'})
+	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
+	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
+	cols.append({'name':'isnew','value':'isnew','selected':'','dataType':'boolean','text':'Is New'})
+	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
+	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
+	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+	cols.append({'name':'createddate','value':'createddate','selected':'','dataType':'datetime','text':'Created Date'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 def NA_Goods_Outwards_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
@@ -84,13 +100,13 @@ def ShowEntry_Outwards(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
-			form = NA_Goods_Lending_Form(data)
+			form = NA_Goods_Outwards_Form(data)
 			result = ''
 			if form.is_valid():
 				form.clean()
 				data.update(isnew=strtobool(str(data['isnew'])))
 				data.update(fk_frommaintenance=(None if int(data['fk_frommaintenance']) == 0 else data['fk_frommaintenance']))
-				data.update(fk_usedemployee=(None if int(data['fk_usedemployee']) == 0 else data['fk_usedemployee']))
+				data.update(idapp_fk_usedemployee=(None if int(data['idapp_fk_usedemployee']) == 0 else data['idapp_fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
@@ -99,18 +115,30 @@ def ShowEntry_Outwards(request):
 					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#if NAGoodsLending.objects.HasReference(data['idapp']):
-					#	result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
-					#	return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
-				
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+					if NAGoodsOutwards.objects.HasReference(data['idapp']):					
+						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
+					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Edit)
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Outwards_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})
+		elif status == 'Edit' or status == 'Open':
+			IDApp = request.GET.get('idapp')
+			Ndata = NAGoodsOutwards.objects.getData(IDApp)
+			Ndata = Ndata[0]
+			Ndata.update(idapp=IDApp)
+			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasRefData'])))
+			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
+			form = NA_Goods_Outwards_Form(data=Ndata)
+			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})  
+			#idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
+			#daterequest,datereleased, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
+			# fk_sender, idapp_fk_sender, fk_sender_employee,  descriptions,fk_usedemployee,idapp_fk_usedemployee,fk_usedemployee_employee, typeapp, serialnumber,
+			#brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData          
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -169,6 +197,22 @@ def getGoodsWithHistory(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
+def Delete(request):
+	result = ''
+	try:
+		statuscode = 200
+		#result=NAGoodsReceive.objects.delete(
+		data = request.body
+		data = json.loads(data)
+
+		IDApp = data['idapp']
+	
+		#check reference data
+		result = NAGoodsOutwards.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 class NA_Goods_Outwards_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
@@ -222,10 +266,9 @@ class NA_Goods_Outwards_Form(forms.Form):
 
 	def clean(self):
 		cleaned_data = super(NA_Goods_Outwards_Form,self).clean()
-		cleaned_data = super(NA_Goods_Outwards_Form,self).clean()
 		fk_employee = self.cleaned_data['fk_employee']
 		daterequest = self.cleaned_data['daterequest']
-		datereleased = self.clean_data['datereleased']
+		datereleased = self.cleaned_data['datereleased']
 		fk_responsibleperson = self.cleaned_data['fk_responsibleperson']
 		fk_sender = self.cleaned_data['fk_sender']
 		serialnumber = self.cleaned_data['serialnumber']
