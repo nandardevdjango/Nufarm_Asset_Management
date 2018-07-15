@@ -1366,6 +1366,7 @@ class NAGaReceive(NA_BaseModel):
     kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
     cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
     fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
+    # add price
     #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) move  to ga outwards
     #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
 

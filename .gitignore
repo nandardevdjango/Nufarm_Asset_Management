@@ -257,3 +257,5 @@ ModelManifest.xml
 /N_Asset/app/static/app/content/images/photothumb.db
 N_Asset/N_Asset/local_settings.py
 *.DS_Store
+.editorConfig
+.vscode
