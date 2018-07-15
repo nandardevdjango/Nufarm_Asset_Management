@@ -1,8 +1,11 @@
-﻿from django.db import models, connections
-from django.db.models import Q
-from django_mysql.models import JSONField
+﻿from os import path
 from datetime import datetime
-from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods
+from django.db import models
+from django.db.models import Q
+from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+from django_mysql.models import JSONField
+
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
@@ -18,24 +21,25 @@ from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
+from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
 
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
-
-from django.contrib.auth.models import AbstractUser
-from django.utils import timezone
-from os import path
 from NA_DataLayer.file_storage import NAFileStorage
+
 
 def forced_mariadb_connection(self):
     errors = []
     return errors
 
+
 JSONField._check_mysql_version = forced_mariadb_connection
+
 
 class NA_BaseModel(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
-    createddate = models.DateTimeField(db_column='CreatedDate',default=timezone.now)
+    createddate = models.DateTimeField(
+        db_column='CreatedDate', default=timezone.now)
     createdby = models.CharField(db_column='CreatedBy', max_length=100)
     modifieddate = models.DateTimeField(
         db_column='ModifiedDate',
@@ -45,12 +49,13 @@ class NA_BaseModel(models.Model):
     modifiedby = models.CharField(
         db_column='ModifiedBy',
         max_length=100,
-        blank=True, 
+        blank=True,
         null=True
     )
 
     class Meta:
         abstract = True
+
 
 class NA_MasterDataModel(NA_BaseModel):
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
@@ -65,10 +70,11 @@ class NA_MasterDataModel(NA_BaseModel):
     class Meta:
         abstract = True
 
+
 class NA_TransactionModel(NA_BaseModel):
     fk_goods = models.ForeignKey(
         'goods',
-        db_column='FK_Goods', 
+        db_column='FK_Goods',
         max_length=30,
         db_constraint=False
     )
@@ -87,6 +93,7 @@ class NA_TransactionModel(NA_BaseModel):
     class Meta:
         abstract = True
 
+
 class NA_GoodsReceiveModel(NA_BaseModel):
     datereceived = models.DateTimeField(db_column='DateReceived')
     fk_suplier = models.ForeignKey(
@@ -96,22 +103,103 @@ class NA_GoodsReceiveModel(NA_BaseModel):
     )
     totalpurchase = models.SmallIntegerField(db_column='TotalPurchase')
     totalreceived = models.SmallIntegerField(db_column='TotalReceived')
-    descriptions =  models.CharField(
+    descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
         blank=True,
         null=True
     )
-    descbysystem =  models.CharField(
+    descbysystem = models.CharField(
         db_column='DescBySystem',
         max_length=250,
         blank=True,
         null=True
     )
-    refno =  models.CharField(db_column='REFNO', max_length=50)
+    refno = models.CharField(db_column='REFNO', max_length=50)
 
     class Meta:
         abstract = True
+
+
+class NAGoodsOutwardsModel(NA_TransactionModel):
+    isnew = models.BooleanField(db_column='IsNew')
+    daterequest = models.DateTimeField(db_column='DateRequest')
+    datereleased = models.DateTimeField(db_column='DateReleased')
+    fk_usedemployee = models.ForeignKey(
+        'Employee',
+        db_column='FK_UsedEmployee',
+        related_name='rel_used_employee_%(class)s',
+        null=True,
+        db_constraint=False
+    )
+    fk_frommaintenance = models.ForeignKey(
+        'Employee',
+        related_name='rel_maintenance_%(class)s',
+        db_column='FK_FromMaintenance',
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
+    fk_responsibleperson = models.ForeignKey(
+        'Employee',
+        db_column='FK_ResponsiblePerson',
+        max_length=50,
+        blank=True,
+        null=True,
+        related_name='rel_resp_person_%(class)s',
+        db_constraint=False
+    )
+    fk_sender = models.ForeignKey(
+        'Employee',
+        related_name='rel_sender_%(class)s',
+        db_column='FK_Sender',
+        max_length=50,
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
+    fk_stock = models.ForeignKey(
+        'NAStock',
+        related_name='rel_stock_%(class)s',
+        db_column='FK_Stock',
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
+    fk_lending = models.ForeignKey(
+        'NAGoodsLending',
+        db_column='FK_Lending',
+        related_name='rel_lending_%(class)s',
+        null=True,
+        blank=True,
+        db_constraint=False
+    )
+    fk_return = models.ForeignKey(
+        'NAGoodsReturn',
+        db_column='FK_Return',
+        related_name='rel_return_%(class)s',
+        null=True,
+        db_constraint=False
+    )
+    fk_receive = models.ForeignKey(
+        'NAGoodsReceive',
+        db_column='FK_Receive',
+        related_name='rel_receive_%(class)s',
+        null=True,
+        db_constraint=False
+    )
+    lastinfo = models.CharField(
+        db_column='lastinfo', max_length=150, blank=True, null=True)
+    descriptions = models.CharField(
+        db_column='Descriptions',
+        max_length=250,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
 
 class LogEvent(NA_BaseModel):
     modifieddate = None
@@ -122,23 +210,31 @@ class LogEvent(NA_BaseModel):
 
     def __str__(self):
         return '{}'.format(self.nameapp)
+
     def __get_descriptions__(self):
         return self.descriptionsapp
+
     class Meta:
         managed = True
         db_table = 'LogEvent'
 
+
 class Employee(NA_MasterDataModel):
     nik = models.CharField(db_column='NIK', max_length=50)
-    employee_name = models.CharField(db_column='Employee_Name', max_length=150, blank=True, null=True)
-    jobtype = models.CharField(db_column='JobType', max_length=150, blank=True, null=True)
+    employee_name = models.CharField(
+        db_column='Employee_Name', max_length=150, blank=True, null=True)
+    jobtype = models.CharField(
+        db_column='JobType', max_length=150, blank=True, null=True)
     gender = models.CharField(db_column='Gender', max_length=1)
     status = models.CharField(db_column='Status', max_length=1)
-    telphp = models.CharField(db_column='TelpHP', max_length=20, blank=True, null=True)
-    territory = models.CharField(db_column='Territory', max_length=50, blank=True, null=True)
+    telphp = models.CharField(
+        db_column='TelpHP', max_length=20, blank=True, null=True)
+    territory = models.CharField(
+        db_column='Territory', max_length=50, blank=True, null=True)
 
     objects = NA_BR_Employee()
     customManager = custEmpManager()
+
     class Meta:
         managed = True
         db_table = 'employee'
@@ -146,40 +242,49 @@ class Employee(NA_MasterDataModel):
     def __str__(self):
         return self.employee_name
 
+
 class NASuplier(NA_MasterDataModel):
     idapp = None
     typeapp = None
     descriptions = None
 
-    supliercode = models.CharField(db_column='SuplierCode', primary_key=True, max_length=30)
-    supliername = models.CharField(db_column='SuplierName', max_length=100, blank=True, null=True)
-    address = models.CharField(db_column='Address', max_length=150, blank=True, null=True)
-    telp = models.CharField(db_column='Telp', max_length=20, blank=True, null=True)
+    supliercode = models.CharField(
+        db_column='SuplierCode', primary_key=True, max_length=30)
+    supliername = models.CharField(
+        db_column='SuplierName', max_length=100, blank=True, null=True)
+    address = models.CharField(
+        db_column='Address', max_length=150, blank=True, null=True)
+    telp = models.CharField(
+        db_column='Telp', max_length=20, blank=True, null=True)
     hp = models.CharField(db_column='HP', max_length=20, blank=True, null=True)
-    contactperson = models.CharField(db_column='ContactPerson', max_length=100, blank=True, null=True)
+    contactperson = models.CharField(
+        db_column='ContactPerson', max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.supliername
 
     objects = NA_BR_Suplier()
     customManager = CustomSuplierManager()
+
     class Meta:
         managed = True
         db_table = 'n_a_suplier'
+
 
 class NAAccFa(NA_BaseModel):
     modifieddate = None
     modifiedby = None
     fk_goods = models.ForeignKey(
         'goods',
-        db_column='FK_Goods', 
+        db_column='FK_Goods',
         related_name='AccFA_goods',
         to_field='idapp',
         db_constraint=False
     )
-    serialnumber = models.CharField(db_column='SerialNumber',max_length=50)
-    typeapp = models.CharField(db_column='TypeApp',max_length=32)
-    year = models.DecimalField(db_column='Year', max_digits=10, decimal_places=2)
+    serialnumber = models.CharField(db_column='SerialNumber', max_length=50)
+    typeapp = models.CharField(db_column='TypeApp', max_length=32)
+    year = models.DecimalField(
+        db_column='Year', max_digits=10, decimal_places=2)
     startdate = models.DateField(db_column='StartDate')
     depr_expense = models.DecimalField(
         db_column='Depr_Expense',
@@ -190,8 +295,8 @@ class NAAccFa(NA_BaseModel):
     )
     depr_accumulation = models.DecimalField(
         db_column='Depr_Accumulation',
-        max_digits=30, 
-        decimal_places=4, 
+        max_digits=30,
+        decimal_places=4,
         blank=True,
         null=True
     )
@@ -202,8 +307,10 @@ class NAAccFa(NA_BaseModel):
         blank=True,
         null=True
     )
-    lastupdated = models.DateTimeField(db_column='LastUpdated', blank=True, null=True)
+    lastupdated = models.DateTimeField(
+        db_column='LastUpdated', blank=True, null=True)
     objects = NA_Acc_FA_BR()
+
     class Meta:
         managed = True
         db_table = 'n_a_acc_fa'
@@ -211,28 +318,41 @@ class NAAccFa(NA_BaseModel):
     def __str__(self):
         return str(self.fk_goods)
 
+
 class NAAppparams(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
     codeapp = models.CharField(db_column='CodeApp', max_length=64)
-    nameapp = models.CharField(db_column='NameApp', max_length=100, blank=True, null=True)
-    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
+    nameapp = models.CharField(
+        db_column='NameApp', max_length=100, blank=True, null=True)
+    typeapp = models.CharField(
+        db_column='TypeApp', max_length=64, blank=True, null=True)
     startdate = models.DateField(db_column='StartDate', blank=True, null=True)
     enddate = models.DateField(db_column='EndDate', blank=True, null=True)
-    valuechar = models.CharField(db_column='ValueChar', max_length=50, blank=True, null=True)
-    fkidapp = models.SmallIntegerField(db_column='FKIDApp', blank=True, null=True)
-    fkcodeapp = models.CharField(db_column='FKCodeApp', max_length=64, blank=True, null=True)
-    attstrparams = models.CharField(db_column='AttStrParams', max_length=20, blank=True, null=True)
-    attdecparams = models.DecimalField(db_column='AttDecParams', max_digits=10, decimal_places=3, blank=True, null=True)
-    valuestrparams = models.CharField(db_column='ValueStrParams', max_length=50, blank=True, null=True)
-    valuedecparams = models.DecimalField(db_column='ValueDecParams', max_digits=10, decimal_places=3, blank=True, null=True)
+    valuechar = models.CharField(
+        db_column='ValueChar', max_length=50, blank=True, null=True)
+    fkidapp = models.SmallIntegerField(
+        db_column='FKIDApp', blank=True, null=True)
+    fkcodeapp = models.CharField(
+        db_column='FKCodeApp', max_length=64, blank=True, null=True)
+    attstrparams = models.CharField(
+        db_column='AttStrParams', max_length=20, blank=True, null=True)
+    attdecparams = models.DecimalField(
+        db_column='AttDecParams', max_digits=10, decimal_places=3, blank=True, null=True)
+    valuestrparams = models.CharField(
+        db_column='ValueStrParams', max_length=50, blank=True, null=True)
+    valuedecparams = models.DecimalField(
+        db_column='ValueDecParams', max_digits=10, decimal_places=3, blank=True, null=True)
     inactive = models.IntegerField(db_column='InActive')
-    createddate = models.DateTimeField(db_column='CreatedDate', blank=True, null=True)
-    createdby = models.CharField(db_column='CreatedBy', max_length=100, blank=True, null=True)
+    createddate = models.DateTimeField(
+        db_column='CreatedDate', blank=True, null=True)
+    createdby = models.CharField(
+        db_column='CreatedBy', max_length=100, blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'n_a_appparams'
         unique_together = (('idapp', 'codeapp'),)
+
 
 class NADisposal(NA_TransactionModel):
     modifiedby = None
@@ -240,13 +360,18 @@ class NADisposal(NA_TransactionModel):
     fk_employee = None
 
     datedisposal = models.DateField(db_column='DateDisposal')
-    ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
+    ishasvalue = models.IntegerField(
+        db_column='IsHasValue', blank=True, null=True)
     issold = models.IntegerField(db_column='IsSold', blank=True, null=True)
-    sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
-    FK_ResponsiblePerson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
-    fk_acc_fa = models.CharField(db_column='FK_Acc_FA', max_length=50, blank=True, null=True)
+    sellingprice = models.DecimalField(
+        db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
+    FK_ResponsiblePerson = models.CharField(
+        db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
+    fk_acc_fa = models.CharField(
+        db_column='FK_Acc_FA', max_length=50, blank=True, null=True)
     fk_stock = models.IntegerField(db_column='FK_Stock', blank=True, null=True)
-    bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+    bookvalue = models.DecimalField(
+        db_column='BookValue', max_digits=10, decimal_places=4)
     fk_maintenance = models.ForeignKey(
         'NAMaintenance',
         null=True,
@@ -259,65 +384,81 @@ class NADisposal(NA_TransactionModel):
         managed = True
         db_table = 'n_a_disposal'
 
-class goods(NA_MasterDataModel):
-	itemcode = models.CharField(db_column='ItemCode', max_length=30)
-	goodsname = models.CharField(db_column='GoodsName', max_length=150)
-	brandname = models.CharField(db_column='BrandName', max_length=100, blank=True, null=True)
-	priceperunit = models.DecimalField(db_column='PricePerUnit', max_digits=30, decimal_places=4)
-	depreciationmethod = models.CharField(db_column='DepreciationMethod', max_length=3)
-	unit = models.CharField(db_column='Unit', max_length=30)
-	economiclife = models.DecimalField(db_column='EconomicLife', max_digits=10, decimal_places=2)
-	placement = models.CharField(db_column='Placement', max_length=50, blank=True, null=True)
-	typeapp = models.CharField(
-        max_length=5,
-		db_column='typeapp', null=True, choices=(
-			('IT', 'IT'),
-			('GA', 'GA')
-		)
-	)
 
-	class Meta:
-		db_table = 'n_a_goods'
-		managed = True
-	objects =  NA_BR_Goods()
-	customs = CustomManager()
-	def __str__(self):
-		return self.goodsname
+class goods(NA_MasterDataModel):
+    itemcode = models.CharField(db_column='ItemCode', max_length=30)
+    goodsname = models.CharField(db_column='GoodsName', max_length=150)
+    brandname = models.CharField(
+        db_column='BrandName', max_length=100, blank=True, null=True)
+    priceperunit = models.DecimalField(
+        db_column='PricePerUnit', max_digits=30, decimal_places=4)
+    depreciationmethod = models.CharField(
+        db_column='DepreciationMethod', max_length=3)
+    unit = models.CharField(db_column='Unit', max_length=30)
+    economiclife = models.DecimalField(
+        db_column='EconomicLife', max_digits=10, decimal_places=2)
+    placement = models.CharField(
+        db_column='Placement', max_length=50, blank=True, null=True)
+    typeapp = models.CharField(
+        max_length=5,
+        db_column='typeapp', null=True, choices=(
+            ('IT', 'IT'),
+            ('GA', 'GA')
+        )
+    )
+
+    class Meta:
+        db_table = 'n_a_goods'
+        managed = True
+    objects = NA_BR_Goods()
+    customs = CustomManager()
+
+    def __str__(self):
+        return self.goodsname
+
 
 class NAGoodsReceive(NA_GoodsReceiveModel):
-	idapp_fk_goods =models.ForeignKey(goods,db_column='fk_goods',db_constraint=False)
-	idapp_fk_receivedby = models.ForeignKey(
-        Employee, 
-        db_column='FK_ReceivedBy', 
-        max_length=50, 
+    idapp_fk_goods = models.ForeignKey(
+        goods, db_column='fk_goods', db_constraint=False)
+    idapp_fk_receivedby = models.ForeignKey(
+        Employee,
+        db_column='FK_ReceivedBy',
+        max_length=50,
         related_name='fk_receivedBy',
         db_constraint=False
     )
-	idapp_fk_p_r_by = models.ForeignKey(
-        Employee, 
-        db_column = 'FK_P_R_By', 
-        max_length = 50, 
-        blank = True, 
-        null = True, 
-        related_name = 'fk_p_r_by',
+    idapp_fk_p_r_by = models.ForeignKey(
+        Employee,
+        db_column='FK_P_R_By',
+        max_length=50,
+        blank=True,
+        null=True,
+        related_name='fk_p_r_by',
         db_constraint=False
     )
-	class Meta:
-		managed = True
-		db_table = 'n_a_goods_receive'
-	objects = NA_BR_Goods_Receive()
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_goods_receive'
+    objects = NA_BR_Goods_Receive()
+
 
 class NA_GoodsReceive_detail(NA_BaseModel):
-    fk_app = models.ForeignKey(NAGoodsReceive, db_column='FK_App',db_constraint=False)
+    fk_app = models.ForeignKey(
+        NAGoodsReceive, db_column='FK_App', db_constraint=False)
     brandname = models.CharField(max_length=100, db_column='BrandName')
-    priceperunit = models.DecimalField(db_column='PricePerUnit', max_digits=30, decimal_places=4)
+    priceperunit = models.DecimalField(
+        db_column='PricePerUnit', max_digits=30, decimal_places=4)
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    warranty = models.DecimalField(max_digits=6, decimal_places=2, db_column='Warranty')
-    endofwarranty = models.DateTimeField(null=True, blank=True, db_column='EndOfWarranty')
-    serialnumber = models.CharField(db_column='SerialNumber',max_length=100)
+    warranty = models.DecimalField(
+        max_digits=6, decimal_places=2, db_column='Warranty')
+    endofwarranty = models.DateTimeField(
+        null=True, blank=True, db_column='EndOfWarranty')
+    serialnumber = models.CharField(db_column='SerialNumber', max_length=100)
 
     class Meta:
         db_table = 'n_a_goods_receive_detail'
+
 
 class NAGoodsReturn(NA_TransactionModel):
     fk_employee = None
@@ -371,11 +512,14 @@ class NAGoodsReturn(NA_TransactionModel):
     )
 
     objects = NA_BR_Goods_Return()
+
     class Meta:
         managed = True
         db_table = 'n_a_goods_return'
+
     def __str__(self):
         return self.fk_goods.goodsname
+
 
 class NAMaintenance(NA_TransactionModel):
     fk_employee = None
@@ -403,7 +547,7 @@ class NAMaintenance(NA_TransactionModel):
         null=True
     )
     enddate = models.DateField(db_column='EndDate', blank=True, null=True)
-    typeapp = models.CharField(db_column='TypeApp',max_length=32)
+    typeapp = models.CharField(db_column='TypeApp', max_length=32)
     issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True)
     isfinished = models.BooleanField(db_column='IsFinished', default=False)
     descriptions = models.CharField(
@@ -414,64 +558,75 @@ class NAMaintenance(NA_TransactionModel):
     )
 
     objects = NA_BR_Maintenance()
+
     class Meta:
         managed = True
         db_table = 'n_a_maintenance'
 
+
 class NAStock(NA_BaseModel):
-    fk_goods = models.ForeignKey(goods,db_column='FK_Goods',db_constraint=False)
-    t_goods_spare = models.PositiveSmallIntegerField(db_column='T_Goods_Spare',null=True)
-    totalqty = models.IntegerField(db_column='TotalQty',null=True)
-    tisused = models.IntegerField(db_column='TIsUsed',null=True)
-    tisnew = models.IntegerField(db_column='TIsNew',null=True)
-    tisrenew = models.IntegerField(db_column='TIsRenew',null=True)
-    isbroken = models.IntegerField(db_column='IsBroken',null=True)
-    tgoods_return = models.SmallIntegerField(db_column='TGoods_Return', blank=True, null=True)
-    tgoods_received = models.IntegerField(db_column='TGoods_Received', blank=True, null=True)
-    tmaintenance = models.SmallIntegerField(db_column='TMaintenance', blank=True, null=True)
+    fk_goods = models.ForeignKey(
+        goods, db_column='FK_Goods', db_constraint=False)
+    t_goods_spare = models.PositiveSmallIntegerField(
+        db_column='T_Goods_Spare', null=True)
+    totalqty = models.IntegerField(db_column='TotalQty', null=True)
+    tisused = models.IntegerField(db_column='TIsUsed', null=True)
+    tisnew = models.IntegerField(db_column='TIsNew', null=True)
+    tisrenew = models.IntegerField(db_column='TIsRenew', null=True)
+    isbroken = models.IntegerField(db_column='IsBroken', null=True)
+    tgoods_return = models.SmallIntegerField(
+        db_column='TGoods_Return', blank=True, null=True)
+    tgoods_received = models.IntegerField(
+        db_column='TGoods_Received', blank=True, null=True)
+    tmaintenance = models.SmallIntegerField(
+        db_column='TMaintenance', blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'n_a_stock'
 
+
 class NAGoodsLending(NA_TransactionModel):
     isnew = models.IntegerField(db_column='IsNew')
-    datelending = models.DateField(db_column='DateLending', blank=True, null=True)
-    datereturn = models.DateTimeField(db_column='DateReturn',null=True)
+    datelending = models.DateField(
+        db_column='DateLending', blank=True, null=True)
+    datereturn = models.DateTimeField(db_column='DateReturn', null=True)
     fk_stock = models.ForeignKey(
-        NAStock, 
+        NAStock,
         db_column='FK_Stock',
         related_name='fk_gl_stock',
         db_constraint=False
     )
     fk_responsibleperson = models.ForeignKey(
         Employee,
-        db_column='FK_ResponsiblePerson', 
-        blank=True, 
+        db_column='FK_ResponsiblePerson',
+        blank=True,
         null=True,
         related_name='fk_gl_employee_resp_person',
         db_constraint=False
     )
-    interests = models.CharField(db_column='interests', max_length=150, blank=True, null=True)
+    interests = models.CharField(
+        db_column='interests', max_length=150, blank=True, null=True)
     fk_sender = models.ForeignKey(
         Employee,
-        db_column='FK_Sender', 
-        blank=True, 
+        db_column='FK_Sender',
+        blank=True,
         null=True,
         related_name='fk_gl_employee_sender',
         db_constraint=False
     )
-    statuslent = models.CharField(db_column='Status', max_length=10, blank=True, null=True)
+    statuslent = models.CharField(
+        db_column='Status', max_length=10, blank=True, null=True)
     fk_maintenance = models.ForeignKey(
-        NAMaintenance, 
-        db_column="FK_Maintenance", 
-        blank=True, 
+        NAMaintenance,
+        db_column="FK_Maintenance",
+        blank=True,
         null=True,
         related_name='fk_gl_maintenance',
         db_constraint=False
     )
     fk_return = models.ForeignKey(
-        NAGoodsReturn, 
+        NAGoodsReturn,
         db_column='FK_RETURN',
         blank=True,
         null=True,
@@ -479,22 +634,23 @@ class NAGoodsLending(NA_TransactionModel):
         db_constraint=False
     )
     fk_receive = models.ForeignKey(
-        NAGoodsReceive, 
+        NAGoodsReceive,
         db_column='FK_Receive',
         blank=True,
         null=True,
         related_name='fk_gl_goods_receive',
         db_constraint=False
     )
-    fk_currentapp =models.ForeignKey(
-        'self', 
+    fk_currentapp = models.ForeignKey(
+        'self',
         db_column='FK_CurrentApp',
         blank=True,
         null=True,
         related_name='fk_gl_parent',
         db_constraint=False
     )
-    lastinfo = models.CharField(db_column='lastinfo', max_length=150, blank=True, null=True) 
+    lastinfo = models.CharField(
+        db_column='lastinfo', max_length=150, blank=True, null=True)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=200,
@@ -502,94 +658,22 @@ class NAGoodsLending(NA_TransactionModel):
         null=True
     )
 
-
     class Meta:
         managed = True
         db_table = 'n_a_goods_lending'
     objects = NA_BR_Goods_Lending()
 
-class NAGoodsOutwards(NA_TransactionModel):
-    isnew = models.BooleanField(db_column='IsNew')
-    daterequest = models.DateTimeField(db_column='DateRequest')
-    datereleased = models.DateTimeField(db_column='DateReleased')
-    fk_usedemployee = models.ForeignKey(
-        Employee,
-        db_column='FK_UsedEmployee',
-        related_name='rel_used_employee_outwards',
-        null=True,
-        db_constraint=False
-    )
-    fk_frommaintenance = models.ForeignKey(
-        Employee, 
-        related_name='rel_maintenance_outwards',
-        db_column='FK_FromMaintenance', 
-        blank=True, 
-        null=True,
-        db_constraint=False
-    )
-    fk_responsibleperson = models.ForeignKey(
-        Employee,
-        db_column='FK_ResponsiblePerson', 
-        max_length=50, 
-        blank=True, 
-        null=True,
-        related_name='rel_resp_person_outwards',
-        db_constraint=False
-    )
-    fk_sender = models.ForeignKey(
-        Employee,
-        related_name='rel_sender_outwards',
-        db_column='FK_Sender',
-        max_length=50,
-        blank=True,
-        null=True,
-        db_constraint=False
-    )
-    fk_stock = models.ForeignKey(
-        NAStock,
-        related_name='rel_stock_outwards',
-        db_column='FK_Stock',
-        blank=True,
-        null=True,
-        db_constraint=False
-    )
-    fk_lending = models.ForeignKey(
-        NAGoodsLending,
-        db_column='FK_Lending',
-        related_name='rel_lending_outwards',
-        null=True,
-        blank=True,
-        db_constraint=False
-    )
-    fk_return = models.ForeignKey(
-        NAGoodsLending,
-        db_column='FK_Return',
-        related_name='rel_return_outwards',
-        null=True,
-        db_constraint=False
-    )
-    fk_receive = models.ForeignKey(
-        NAGoodsReceive,
-        db_column='FK_Receive',
-        related_name='rel_receive_outward',
-        null=True,
-        db_constraint=False
-    )
-    lastinfo = models.CharField(db_column='lastinfo', max_length=150, blank=True, null=True)
-    descriptions = models.CharField(
-        db_column='Descriptions',
-        max_length=250,
-        blank=True,
-        null=True
-    )
+
+class NAGoodsOutwards(NAGoodsOutwardsModel):
     class Meta:
         managed = True
         db_table = 'n_a_goods_outwards'
     objects = NA_BR_Goods_Outwards()
 
+
 class NAGoodsLost(NA_TransactionModel):
     fk_employee = None
-    datelost = models.DateTimeField(db_column='DateLost',default=timezone.now)
+    datelost = models.DateTimeField(db_column='DateLost', default=timezone.now)
     fk_goods_outwards = models.ForeignKey(
         NAGoodsOutwards,
         db_column='FK_Goods_Outwards',
@@ -611,8 +695,8 @@ class NAGoodsLost(NA_TransactionModel):
         blank=True,
         db_constraint=False
     )
-    
-    fromgoods = models.CharField(db_column='FromGoods',max_length=10)
+
+    fromgoods = models.CharField(db_column='FromGoods', max_length=10)
     fk_lostby = models.ForeignKey(
         Employee,
         db_column='FK_LostBy',
@@ -631,13 +715,13 @@ class NAGoodsLost(NA_TransactionModel):
     )
     fk_responsibleperson = models.ForeignKey(
         Employee,
-        db_column='FK_ResponsiblePerson', 
-        blank=True, 
-        null=True, 
+        db_column='FK_ResponsiblePerson',
+        blank=True,
+        null=True,
         related_name='resp_person_goods_lost',
         db_constraint=False
     )
-    status = models.CharField(db_column='Status',max_length=5)
+    status = models.CharField(db_column='Status', max_length=5)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -652,21 +736,24 @@ class NAGoodsLost(NA_TransactionModel):
     )
 
     objects = NA_BR_GoodsLost()
+
     class Meta:
         managed = True
         db_table = 'n_a_goods_lost'
 
+
 def upload_to_each_dir(instance, filename):
     return instance.get_dir_image(filename)
 
-class NAPriviledge(AbstractUser,NA_BaseModel):
+
+class NAPriviledge(AbstractUser, NA_BaseModel):
 
     IT = 'IT'
     GA = 'GA'
 
     DIVISI_CHOICES = (
-        (IT,'IT'),
-        (GA,'GA')
+        (IT, 'IT'),
+        (GA, 'GA')
     )
 
     SUPER_USER = 1
@@ -674,31 +761,34 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
     GUEST = 3
 
     ROLE_CHOICES = (
-        (GUEST,'Guest'),
-        (USER,'User'),
-        (SUPER_USER,'Super User')
+        (GUEST, 'Guest'),
+        (USER, 'User'),
+        (SUPER_USER, 'Super User')
     )
 
     createddate = None
 
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    username = models.CharField(max_length=250,unique=True, blank=False,db_column='UserName')
-    email = models.EmailField(unique=True, blank=True,db_column='Email')
-    divisi = models.CharField(max_length=5,db_column='Divisi',choices=DIVISI_CHOICES)
-    password = models.CharField(max_length=128,db_column='Password')
+    username = models.CharField(
+        max_length=250, unique=True, blank=False, db_column='UserName')
+    email = models.EmailField(unique=True, blank=True, db_column='Email')
+    divisi = models.CharField(
+        max_length=5, db_column='Divisi', choices=DIVISI_CHOICES)
+    password = models.CharField(max_length=128, db_column='Password')
     picture = models.ImageField(
-        null=True, 
-        blank=True, 
+        null=True,
+        blank=True,
         default='default.png',
         db_column='Picture',
         upload_to=upload_to_each_dir,
         storage=NAFileStorage()
-     )
-    last_login=models.DateTimeField(db_column='Last_login',null=True)
-    last_form = models.CharField(max_length=50,db_column='Last_form',null=True)
-    computer_name = models.CharField(max_length=50,db_column='Computer_Name')
-    ip_address = models.CharField(max_length=20,db_column='IP_Address')
+    )
+    last_login = models.DateTimeField(db_column='Last_login', null=True)
+    last_form = models.CharField(
+        max_length=50, db_column='Last_form', null=True)
+    computer_name = models.CharField(max_length=50, db_column='Computer_Name')
+    ip_address = models.CharField(max_length=20, db_column='IP_Address')
 
     role = models.IntegerField(
         choices=ROLE_CHOICES,
@@ -706,12 +796,13 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         db_column='Role',
         null=True
     )
-    is_superuser = models.BooleanField(default=False,db_column='Is_SuperUser')
-    is_staff = models.BooleanField(default=False,db_column='Is_Staff')
-    is_active = models.BooleanField(default=True,db_column='Is_Active')
-    USERNAME_FIELD = 'email' # use email to log in
-    REQUIRED_FIELDS = ['username'] # required when user is created
-    date_joined = models.DateTimeField(db_column='Date_Joined', blank=True, null=True)
+    is_superuser = models.BooleanField(default=False, db_column='Is_SuperUser')
+    is_staff = models.BooleanField(default=False, db_column='Is_Staff')
+    is_active = models.BooleanField(default=True, db_column='Is_Active')
+    USERNAME_FIELD = 'email'  # use email to log in
+    REQUIRED_FIELDS = ['username']  # required when user is created
+    date_joined = models.DateTimeField(
+        db_column='Date_Joined', blank=True, null=True)
 
     objects = NA_BR_Priviledge()
 
@@ -722,7 +813,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         return path.join(
             'dir_for_{username}'.format(
                 username=self.username
-             ),
+            ),
             filename
         )
 
@@ -733,7 +824,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             pict_name = dir_user + '/' + filename
         return pict_name
 
-    def has_permission(self,action,form_name_ori):
+    def has_permission(self, action, form_name_ori):
         """
         this function for check if user has permission
         param
@@ -750,7 +841,8 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             raise ValueError('uncategorize, cannot resolve action %s' % action)
 
         if form_name_ori not in NAPriviledge_form.ALL_FORM:
-            raise ValueError('uncategorize, cannot resolve form %s' % form_name_ori)
+            raise ValueError(
+                'uncategorize, cannot resolve form %s' % form_name_ori)
 
         is_has = self.nasyspriviledge_set.filter(
             fk_p_form__form_name_ori=form_name_ori,
@@ -759,14 +851,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         ).exists()
         return is_has
 
-    def is_have_permission(self,form=None):
+    def is_have_permission(self, form=None):
         if form:
             return self.nasyspriviledge_set.filter(
                 fk_p_form__form_name_ori=form
             ).exists()
         return self.nasyspriviledge_set.exists()
 
-    def get_all_permission(self,form=None):
+    def get_all_permission(self, form=None):
         permissions = self.nasyspriviledge_set.values(
             'fk_p_form__form_name_ori',
             'permission'
@@ -779,17 +871,17 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
         data = []
         for permission in permissions:
             data.append({
-                'form':permission['fk_p_form__form_name_ori'],
-                'permission':permission['permission']
+                'form': permission['fk_p_form__form_name_ori'],
+                'permission': permission['permission']
             })
         return data
 
-    def get_permission(self,form):
+    def get_permission(self, form):
         if form not in NAPriviledge_form.ALL_FORM:
             raise ValueError('cannot find %s form' % form)
         return self.get_all_permission(form)
 
-    #============ Permission for Employee form =============
+    # ============ Permission for Employee form =============
     @property
     def allow_view_employee(self):
         return self.has_permission(
@@ -803,12 +895,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NASysPriviledge.Allow_Add,
             NAPriviledge_form.Employee_form
         )
+
     @property
     def allow_edit_employee(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Employee_form
         )
+
     @property
     def allow_delete_employee(self):
         return self.has_permission(
@@ -816,8 +910,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NAPriviledge_form.Employee_form
         )
 
-
-    #============ Permission for Suplier form =============
+    # ============ Permission for Suplier form =============
     @property
     def allow_view_suplier(self):
         return self.has_permission(
@@ -831,12 +924,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NASysPriviledge.Allow_Add,
             NAPriviledge_form.Suplier_form
         )
+
     @property
     def allow_edit_suplier(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Suplier_form
         )
+
     @property
     def allow_delete_suplier(self):
         return self.has_permission(
@@ -844,8 +939,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NAPriviledge_form.Suplier_form
         )
 
-
-    #============ Permission for Goods form =============
+    # ============ Permission for Goods form =============
     @property
     def allow_view_goods(self):
         return self.has_permission(
@@ -859,12 +953,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NASysPriviledge.Allow_Add,
             NAPriviledge_form.Goods_form
         )
+
     @property
     def allow_edit_goods(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Goods_form
         )
+
     @property
     def allow_delete_goods(self):
         return self.has_permission(
@@ -872,7 +968,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NAPriviledge_form.Goods_form
         )
 
-    #============ Permission for Goods form =============
+    # ============ Permission for Goods form =============
     @property
     def allow_view_goods_receive(self):
         return self.has_permission(
@@ -886,12 +982,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NASysPriviledge.Allow_Add,
             NAPriviledge_form.Goods_Receive_form
         )
+
     @property
     def allow_edit_goods_receive(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Goods_Receive_form
         )
+
     @property
     def allow_delete_goods_receive(self):
         return self.has_permission(
@@ -899,8 +997,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NAPriviledge_form.Goods_Receive_form
         )
 
-
-    #============ Permission for Goods form =============
+    # ============ Permission for Goods form =============
     @property
     def allow_view_priviledge(self):
         return self.has_permission(
@@ -914,12 +1011,14 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
             NASysPriviledge.Allow_Add,
             NAPriviledge_form.Priviledge_form
         )
+
     @property
     def allow_edit_priviledge(self):
         return self.has_permission(
             NASysPriviledge.Allow_Edit,
             NAPriviledge_form.Priviledge_form
         )
+
     @property
     def allow_delete_priviledge(self):
         return self.has_permission(
@@ -930,6 +1029,7 @@ class NAPriviledge(AbstractUser,NA_BaseModel):
     class Meta:
         managed = True
         db_table = 'N_A_Priviledge'
+
 
 class NAPriviledge_form(models.Model):
 
@@ -952,16 +1052,16 @@ class NAPriviledge_form(models.Model):
     ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM
 
     FORM_NAME_ORI_CHOICES = (
-        (Employee_form,'employee'),
-        (Suplier_form,'n_a_suplier'),
-        (Goods_form,'goods'),
-        (Goods_Receive_form,'n_a_goods_receive'),
-        (Priviledge_form,'n_a_priviledge')
+        (Employee_form, 'employee'),
+        (Suplier_form, 'n_a_suplier'),
+        (Goods_form, 'goods'),
+        (Goods_Receive_form, 'n_a_goods_receive'),
+        (Priviledge_form, 'n_a_priviledge')
     )
 
-    idapp = models.AutoField(primary_key=True,db_column='IDApp')
-    form_id = models.CharField(max_length=20,db_column='Form_id')
-    form_name = models.CharField(max_length=30,db_column='Form_name')
+    idapp = models.AutoField(primary_key=True, db_column='IDApp')
+    form_id = models.CharField(max_length=20, db_column='Form_id')
+    form_name = models.CharField(max_length=30, db_column='Form_name')
     form_name_ori = models.CharField(
         max_length=50,
         db_column='Form_name_ori',
@@ -975,7 +1075,7 @@ class NAPriviledge_form(models.Model):
         return self.form_name
 
     @classmethod
-    def get_form_IT(cls,must_iterate=False):
+    def get_form_IT(cls, must_iterate=False):
         forms = cls.MASTER_DATA_FORM
         filter_data = [Q(form_name_ori=form) for form in forms]
         query = filter_data.pop()
@@ -983,7 +1083,7 @@ class NAPriviledge_form(models.Model):
             query |= form_name
         fk_form = cls.objects.filter(query)
         if must_iterate:
-            fk_form = fk_form.iterator() #technic for loop queryset, improve performance
+            fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
 
     @staticmethod
@@ -994,7 +1094,7 @@ class NAPriviledge_form(models.Model):
         raise NotImplementedError
 
     @classmethod
-    def get_form_Guest(cls,must_iterate=False):
+    def get_form_Guest(cls, must_iterate=False):
         fk_form = cls.objects\
             .filter(
                 Q(form_name_ori='goods') |
@@ -1002,11 +1102,11 @@ class NAPriviledge_form(models.Model):
                 Q(form_name_ori='employee')
             )
         if must_iterate:
-            fk_form = fk_form.iterator() #technic for loop queryset, improve performance
+            fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
 
     @classmethod
-    def get_user_form(cls,role,divisi,must_iterate=False):
+    def get_user_form(cls, role, divisi, must_iterate=False):
         """
         return queryset
         """
@@ -1017,6 +1117,7 @@ class NAPriviledge_form(models.Model):
             return cls.get_form_IT(must_iterate)
         elif divisi == NAPriviledge.GA:
             return cls.get_form_GA(must_iterate)
+
 
 class NASysPriviledge(NA_BaseModel):
 
@@ -1033,10 +1134,10 @@ class NASysPriviledge(NA_BaseModel):
     ]
 
     PERMISSION_CHOICES = (
-        (Allow_View,'Allow View'),
-        (Allow_Add,'Allow Add'),
-        (Allow_Edit,'Allow Edit'),
-        (Allow_Delete,'Allow Delete')
+        (Allow_View, 'Allow View'),
+        (Allow_Add, 'Allow Add'),
+        (Allow_Edit, 'Allow Edit'),
+        (Allow_Delete, 'Allow Delete')
     )
 
     fk_p_form = models.ForeignKey(
@@ -1055,12 +1156,14 @@ class NASysPriviledge(NA_BaseModel):
         on_delete=models.CASCADE,
         db_constraint=False
     )
-    inactive = models.IntegerField(db_column='InActive',null=True,blank=True,default=0)
+    inactive = models.IntegerField(
+        db_column='InActive', null=True, blank=True, default=0)
 
     objects = NA_BR_Sys_Priviledge()
+
     class Meta:
         db_table = 'N_A_Sys_Priviledge'
-        unique_together = (('fk_p_form','permission','user_id'))
+        unique_together = (('fk_p_form', 'permission', 'user_id'))
 
     def __str__(self):
         return '{username} : {form_name} - {permission}'.format(
@@ -1097,7 +1200,7 @@ class NASysPriviledge(NA_BaseModel):
         return [NASysPriviledge.Allow_View]
 
     @classmethod
-    def set_data_permission(cls,user,data):
+    def set_data_permission(cls, user, data):
         """
         not return anything, but append dict to paratemer list
         to save memory
@@ -1118,7 +1221,7 @@ class NASysPriviledge(NA_BaseModel):
         )
         if permissions is not None:
             is_have_permission = user.is_have_permission()
-            for fk_form in fk_forms: #loop queryset
+            for fk_form in fk_forms:  # loop queryset
                 form_name_ori = fk_form.form_name_ori
                 for permission in permissions(form_name_ori):
                     if int(user.role) != NAPriviledge.SUPER_USER:
@@ -1129,10 +1232,10 @@ class NASysPriviledge(NA_BaseModel):
                         user_permissions = user.get_all_permission()
                         must_continue = False
 
-                        #aya bug didieu euy .. .
+                        # aya bug didieu euy .. .
                         for i in user_permissions:
                             if i['form'] == form_name_ori \
-                            and permission == i['permission']:
+                                    and permission == i['permission']:
                                 must_continue = True
                                 break
                             else:
@@ -1140,26 +1243,26 @@ class NASysPriviledge(NA_BaseModel):
                         if must_continue:
                             continue
                     data.append({
-                        'fk_p_form':fk_form, #foreign key in models must be instance
-                        'permission':permission,
+                        'fk_p_form': fk_form,  # foreign key in models must be instance
+                        'permission': permission,
                         'user_id': user,
-                        'createddate':datetime.now(),
-                        'createdby':user.createdby
+                        'createddate': datetime.now(),
+                        'createdby': user.createdby
                     })
         else:
             raise ValueError('')
 
     @classmethod
-    def set_permission(cls,user):
+    def set_permission(cls, user):
         data = []
-        cls.set_data_permission(user,data)
-        sys_priviledge = cls.objects.bulk_create([
+        cls.set_data_permission(user, data)
+        cls.objects.bulk_create([
             cls(**field) for field in data
         ])
         return 'successfully added permission'
 
     @classmethod
-    def set_custom_permission(cls,**kwargs):
+    def set_custom_permission(cls, **kwargs):
         user_id = kwargs['user_id']
         fk_form = kwargs['fk_form']
         permissions = kwargs['permissions']
@@ -1171,11 +1274,11 @@ class NASysPriviledge(NA_BaseModel):
             data = []
             for permission in permissions:
                 data.append({
-                    'fk_p_form':fk_p_form,
-                    'permission':permission,
-                    'user_id':user,
-                    'createddate':datetime.now(),
-                    'createdby':createdby
+                    'fk_p_form': fk_p_form,
+                    'permission': permission,
+                    'user_id': user,
+                    'createddate': datetime.now(),
+                    'createdby': createdby
                 })
             sys_priviledge = cls.objects.bulk_create([
                 cls(**field) for field in data
@@ -1192,32 +1295,35 @@ class NASysPriviledge(NA_BaseModel):
             raise ValueError('permission cannot be null')
         return 'successfully added custom permission'
 
+
 class NAGoodsReceive_other(NA_GoodsReceiveModel):
-    fk_goods =models.ForeignKey(
+    fk_goods = models.ForeignKey(
         goods,
         db_column='fk_goods',
         db_constraint=False
     )
     fk_receivedby = models.ForeignKey(
-        Employee, 
-        db_column='FK_ReceivedBy', 
-        max_length=50, 
+        Employee,
+        db_column='FK_ReceivedBy',
+        max_length=50,
         related_name='fk_receivedBy_other',
         db_constraint=False
     )
     fk_p_r_by = models.ForeignKey(
         Employee,
-        db_column='FK_P_R_By', 
-        max_length=50, 
-        blank=True, 
-        null=True, 
+        db_column='FK_P_R_By',
+        max_length=50,
+        blank=True,
+        null=True,
         related_name='fk_p_r_by_other',
         db_constraint=False
     )
 
     objects = NA_BR_Goods_Receive_other()
+
     class Meta:
         db_table = 'n_a_goods_receive_other'
+
 
 class NAGoodsHistory(NA_TransactionModel):
     modifieddate = None
@@ -1276,6 +1382,7 @@ class NAGoodsHistory(NA_TransactionModel):
         managed = True
         db_table = 'n_a_goods_history'
 
+
 class NAGaReceive(NA_BaseModel):
     fk_goods = models.ForeignKey(
         goods,
@@ -1283,18 +1390,18 @@ class NAGaReceive(NA_BaseModel):
         db_constraint=False
     )
     fk_receivedby = models.ForeignKey(
-        Employee, 
-        db_column='FK_ReceivedBy', 
-        max_length=50, 
+        Employee,
+        db_column='FK_ReceivedBy',
+        max_length=50,
         related_name='fk_receivedBy_ga',
         db_constraint=False
     )
     fk_p_r_by = models.ForeignKey(
         Employee,
-        db_column='FK_P_R_By', 
-        max_length=50, 
-        blank=True, 
-        null=True, 
+        db_column='FK_P_R_By',
+        max_length=50,
+        blank=True,
+        null=True,
         related_name='fk_p_r_by_ga',
         db_constraint=False
     )
@@ -1303,23 +1410,33 @@ class NAGaReceive(NA_BaseModel):
         db_column='FK_Suplier',
         db_constraint=False
     )
-    datereceived = models.DateTimeField(db_column='DateReceived', default=timezone.now)
+    datereceived = models.DateTimeField(
+        db_column='DateReceived', default=timezone.now)
     brand = models.CharField(db_column='Brand', max_length=100)
-    invoice_no = models.CharField(db_column='Invoice_No', max_length=100, blank=True, null=True)
-    
-    typeapp = models.CharField(db_column='TypeApp', max_length=64, blank=True, null=True)
-    machine_no = models.CharField(db_column='Machine_No', unique=True, max_length=50)
+    invoice_no = models.CharField(
+        db_column='Invoice_No', max_length=100, blank=True, null=True)
+
+    typeapp = models.CharField(
+        db_column='TypeApp', max_length=64, blank=True, null=True)
+    machine_no = models.CharField(
+        db_column='Machine_No', unique=True, max_length=50)
     chassis_no = models.CharField(db_column='Chassis_No', max_length=50)
     year_made = models.DateField(db_column='Year_Made')
     colour = models.CharField(max_length=20)
-    model = models.CharField(db_column='Model', max_length=100, blank=True, null=True)
-    kind = models.CharField(db_column='Kind', max_length=30, blank=True, null=True)
-    cylinder = models.CharField(db_column='Cylinder', max_length=20, blank=True, null=True)
-    fuel = models.CharField(db_column='Fuel', max_length=20, blank=True, null=True)
-    # add price
-    #equipment = models.CharField(db_column='Equipment', max_length=200, blank=True, null=True) move  to ga outwards
-    #add_equipment = models.CharField(db_column='Add_Equipment', max_length=200, blank=True, null=True)
-    descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+    model = models.CharField(
+        db_column='Model', max_length=100, blank=True, null=True)
+    kind = models.CharField(
+        db_column='Kind', max_length=30, blank=True, null=True)
+    cylinder = models.CharField(
+        db_column='Cylinder', max_length=20, blank=True, null=True)
+    fuel = models.CharField(
+        db_column='Fuel', max_length=20, blank=True, null=True)
+    price = models.DecimalField(
+        db_column='Price', max_digits=30, decimal_places=4
+    )
+
+    descriptions = models.CharField(
+        db_column='Descriptions', max_length=200, blank=True, null=True)
 
     objects = NA_BR_Goods_Receive_GA()
 
@@ -1334,8 +1451,34 @@ class NAGaVnHistory(NA_BaseModel):
     expired_reg = models.DateField(db_column='Expired_Reg')
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
-    descriptions = models.CharField(db_column='Descriptions', max_length=200, blank=True, null=True)
+    descriptions = models.CharField(
+        db_column='Descriptions', max_length=200, blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'na_ga_vn_history'
+        db_table = 'n_a_ga_vn_history'
+
+
+class NAGaOutwards(NAGoodsOutwardsModel):
+    fk_app = models.ForeignKey(
+        NAGaVnHistory,
+        db_column='fk_app',
+        db_constraint=False
+    )
+    equipment = models.CharField(
+        db_column='Equipment',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    add_equipment = models.CharField(
+        db_column='Add_Equipment',
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    objects = NABRGoodsOutwardsGA()
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_ga_outwards'

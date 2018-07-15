@@ -5,16 +5,16 @@ from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import NAGaReceive, goods, NASuplier
+from NA_Models.models import NAGaOutwards, goods, NASuplier
 from datetime import datetime, date
 from django import forms
 
 
-def NA_Goods_Receive_GA(request):
-    return render(request, 'app/Transactions/NA_F_Goods_Receive_GA.html')
+def NA_Goods_Outwards_GA(request):
+    return render(request, 'app/Transactions/NA_F_Goods_Outwards_GA.html')
 
 
-def NA_Goods_Receive_GAGetData(request):
+def NA_Goods_Outwards_GAGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
     IdataType = request.GET.get('dataType')
@@ -26,7 +26,7 @@ def NA_Goods_Receive_GAGetData(request):
     criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
     dataType = ResolveCriteria.getDataType(IdataType)
 
-    gaData = NAGaReceive.objects.PopulateQuery(
+    gaData = NAGaOutwards.objects.PopulateQuery(
         IcolumnName,
         IvalueKey,
         criteria,
@@ -51,8 +51,12 @@ def NA_Goods_Receive_GAGetData(request):
             ]
         }
         rows.append(datarow)
-    results = {"page": Ipage, "total": paginator.num_pages,
-               "records": totalRecords, "rows": rows}
+    results = {
+        "page": Ipage,
+        "total": paginator.num_pages,
+        "records": totalRecords,
+        "rows": rows
+    }
     return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder), content_type='application/json')
 
 
@@ -69,7 +73,7 @@ def getFormData(form):
     return data
 
 
-class NA_Goods_Receive_GA_Form(forms.Form):
+class NAGaOutwardsForm(forms.Form):
     fk_goods = forms.CharField(widget=forms.HiddenInput())
     itemcode = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'itemcode',
@@ -159,18 +163,18 @@ class NA_Goods_Receive_GA_Form(forms.Form):
 
 def Entry_Goods_Receive_GA(request):
     if request.method == 'POST':
-        form = NA_Goods_Receive_GA_Form(request.POST)
+        form = NAGaOutwardsForm(request.POST)
         statusForm = request.POST['statusForm']
         if form.is_valid():
             data = form.cleaned_data
             if statusForm == 'Add':
                 data['createddate'] = datetime.now()
                 data['createdby'] = request.user.username
-                result = NAGaReceive.objects.SaveData(StatusForm.Input, **data)
+                result = NAGaOutwards.objects.SaveData(StatusForm.Input, **data)
             elif statusForm == 'Edit':
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = request.user.username
-                result = NAGaReceive.objects.SaveData(StatusForm.Edit, **data)
+                result = NAGaOutwards.objects.SaveData(StatusForm.Edit, **data)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -179,7 +183,7 @@ def Entry_Goods_Receive_GA(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data, result = NAGaReceive.objects.retrieveData(idapp)
+            data, result = NAGaOutwards.objects.retrieveData(idapp)
             if data == Data.Success:
                 result = [i for i in result][0]
                 if isinstance(result['datereceived'], datetime):
@@ -188,11 +192,11 @@ def Entry_Goods_Receive_GA(request):
 
                 if isinstance(result['year_made'], date):
                     result['year_made'] = result['year_made'].strftime('%Y')
-                form = NA_Goods_Receive_GA_Form(initial=result)
+                form = NAGaOutwardsForm(initial=result)
             elif data == Data.Lost:
                 return commonFunct.response_default((data, result))
         else:
-            form = NA_Goods_Receive_GA_Form()
+            form = NAGaOutwardsForm()
         return render(request, 'app/Transactions/NA_Entry_Goods_Receive_GA.html', {'form': form})
 
 
@@ -200,7 +204,7 @@ def Entry_Goods_Receive_GA(request):
 @decorators.detail_request_method('POST')
 def Delete_data(request):
     idapp = request.POST['idapp']
-    result = NAGaReceive.objects.DeleteData(idapp)
+    result = NAGaOutwards.objects.DeleteData(idapp)
     return commonFunct.response_default(result)
 
 
