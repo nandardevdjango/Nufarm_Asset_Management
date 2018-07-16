@@ -640,7 +640,8 @@ class NADisposal(NA_TransactionModel):
 	#ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
 	issold = models.PositiveSmallIntegerField(db_column='IsSold', blank=True, null=True)
 	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
-	fk_responsiblperson = models.CharField(db_column='FK_ResponsiblePerson', max_length=50, blank=True, null=True)
+	fk_proposedby = models.ForeignKey('Employee',db_column='FK_ProposedBy',related_name='fk_disposal_emp_proposed', max_length=50, blank=True, null=True,
+		db_constraint=False)
 	fk_acknowledge1 =  models.ForeignKey(
 		Employee, 
 		db_column='FK_Acknowledge1', 
