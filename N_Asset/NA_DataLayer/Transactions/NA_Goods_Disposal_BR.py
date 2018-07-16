@@ -38,14 +38,21 @@ class NA_BR_Goods_Disposal(models.Manager):
 		cur.execute(Query)
 		#idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		Query = """  CREATE TEMPORARY TABLE T_Disposal_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngds.idapp,g.goodsname AS goods,ngd.typeApp AS goodstype,ngd.serialnumber,
-				ngds.bookvalue,CASE WHEN(ngds.fk_maintenance IS NULL) THEN 0 ELSE 1 END AS afterrepair, 
-				CASE WHEN (ngds.fk_maintenance IS NOT NULL) THEN(SELECT CONCAT(IFNULL(PersonalName,' '),', ',IFNULL(MaintenanceBy,'')) FROM n_a_maintenance WHERE idapp = ngds.fk_maintenance) ELSE '' END AS lastrepairfrom,
+				ngds.bookvalue,
+				CASE
+					WHEN (ngds.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'
+					WHEN (ngds.FK_RETURN IS NOT NULL) THEN 'RETURN Eks Employee'
+					WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+					WHEN (ngds.FK_Lending IS NOT NULL) THEN 'RETURN (After being Lent)'
+					ELSE 'Other (Uncategorized)'
+					END AS refgoodsfrom,
 				ngds.issold,ngds.sellingprice,IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
 				,ngds.descriptions,ngds.createdby,ngds.createddate		       
 		        FROM n_a_disposal ngds INNER JOIN n_a_goods g ON g.IDApp = ngds.FK_Goods 
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = ngds.FK_Goods
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 		        AND ngds.SerialNumber = ngd.SerialNumber
+
 		        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp ON emp.idapp = ngds.FK_ResponsiblePerson
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp1 ON emp1.idapp = ngds.FK_Acknowledge1
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp2 ON emp2.idapp = ngds.FK_Acknowledge2
@@ -71,23 +78,19 @@ class NA_BR_Goods_Disposal(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-	def getBrandForOutwards(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
+	def getBrandForDisposal(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		cur = connection.cursor()
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_Disposal_" + userName		
 		cur.execute(Query)
-				#Query new items
-		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, '' AS fk_usedemployee,'' AS usedemployee, '' as lastinfo,ngd.idapp as fk_receive, \
-					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
-					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
+		Query = " DROP TEMPORARY TABLE IF EXISTS Temp_F_Disposal_" + userName
 		cur.execute(Query)
 	    # Query get last trans in history 		
-		Query = "CREATE TEMPORARY TABLE Temp_T_History_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_History_Disposal_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
                     CASE 
                         WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
-                        WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
-						--tambahan join ke outwards
+                        WHEN (gh.fk_lending IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending) \
+						WHEN (gh.fk_lost IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lost ngls on ngls.FK_UsedBy = e.idapp WHERE ngls.idapp = gh.fk_lost) \
 						END AS fk_usedemployee,
-                    CASE 
                     WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.employee_name FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
                     END AS usedemployee,
 					CASE \
@@ -99,15 +102,14 @@ class NA_BR_Goods_Disposal(models.Manager):
 								END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance) \
 						WHEN(gh.fk_lending IS NOT NULL) THEN((CASE \
 																WHEN ((SELECT `status` FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
-																ELSE ('goods is able to use') \
+																ELSE ('goods is able to dispose/delete') \
 																END)) \
-						--lastrepairfrom,
 						WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee' \
 						WHEN (gh.fk_return IS NOT NULL) THEN '(goods is able to dispose/delete )' \
 						WHEN (gh.fk_disposal IS NOT NULL) THEN '(goods has been disposed/deleted )' \
 						WHEN (gh.fk_lost IS NOT NULL) THEN 'goods has lost' \
 						ELSE 'Unknown or uncategorized last goods position' \
-						END AS lastinfo,
+						END AS availability,
                         gh.fk_receive,gh.fk_outwards,gh.fk_lending,gh.fk_return,gh.fk_maintenance,gh.fk_disposal,gh.fk_lost  \
 						FROM(			\
 							SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.brandName) AS brandName,ngd.typeapp as 'type',ngd.serialnumber,ngd.idapp AS fk_receive,ngh.fk_outwards,ngh.fk_lending, \
@@ -123,3 +125,21 @@ class NA_BR_Goods_Disposal(models.Manager):
 			strLimit = '0'
 		else:
 			strLimit = str(int(PageIndex)*int(pageSize))
+		#gabungkan jadi satu
+		Query = "CREATE TEMPORARY TABLE Temp_F_Disposal_" + userName + """ ENGINE=MyISAM AS (
+				 SELECT * FROM Temp_T_History_Disposal_""" + userName + """\
+				  WHERE (goodsname LIKE %s OR brandname LIKE %s) OR (serialnumber = %s))"""
+		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%',searchText])
+		if orderFields == '':
+			Query  = "SELECT * FROM Temp_F_Disposal_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
+		else:
+			Query  = "SELECT * FROM Temp_F_Disposal_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
+		cur.execute(Query)
+		result = query.dictfetchall(cur)
+
+		Query = "SELECT COUNT(*) FROM Temp_F_Disposal_" + userName
+		cur.execute(Query)
+		row = cur.fetchone()
+		totalRecords = row[0]
+		cur.close()
+		return (result,totalRecords)

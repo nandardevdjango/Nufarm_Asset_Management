@@ -65,12 +65,36 @@ def NA_Goods_Disposal_Search(request):
 		for row in dataRows:
 			i = i+1
 			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],
-						row['afterrepair'],row['lastrepairfrom'],row['issold'],row['sellingprice'],row['proposedby'],row['acknowledgeby'],
+						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['proposedby'],row['acknowledgeby'],
 				row['approvedby'],row['descriptions'],row['createdby'],row['createddate']]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
 		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
 		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def getGoodsWithHistory(request):
+	try:
+		searchText = request.GET.get('searchData')
+		PageSize = request.GET.get('rows', '')
+		PageIndex = request.GET.get('page', '1')
+		Isidx = request.GET.get('sidx', '')
+		Isord = request.GET.get('sord', '')
+		NAData = NADisposal.objects.getBrandForDisposal(searchText,str(Isidx),Isord,PageSize,PageIndex, request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
+		totalRecord = NAData[1]
+		dataRows = NAData[0]
+		rows = []
+		i = 0;#idapp,itemcode,goods
+		for row in dataRows:
+			i+=1
+			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,lastrepairedfrom,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['fk_goods'],row['goodsname'],row['brandname'],row['type'],
+							row['serialnumber'],row['fk_usedemployee'],row['lastrepairedfrom'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
+			rows.append(datarow)
+		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
+		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

@@ -249,7 +249,7 @@ def ShowEntry_Receive(request):
 				for row in NADetailRows:
 					i = i+1
 					datarow = {'idapp':row['IDApp'],'.fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
-						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['warranty'],'endofwarranty':row['EndOfWarranty'], \
+						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'], \
 						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef']))}
 					rows.append(datarow)					
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }

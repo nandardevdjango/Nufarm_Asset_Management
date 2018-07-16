@@ -644,19 +644,19 @@ class NADisposal(NA_TransactionModel):
 	fk_acknowledge1 =  models.ForeignKey(
 		Employee, 
 		db_column='FK_Acknowledge1', 
-		related_name='fk_emp_ack1_disposal',
+		related_name='fk_disposal_emp_ack1',
 		db_constraint=False
 	),
 	fk_acknowledge2 =  models.ForeignKey(
         Employee, 
         db_column='FK_Acknowledge1', 
-        related_name='fk_emp_ack2_disposal',
+        related_name='fk_disposal_emp_ack2',
         db_constraint=False
     ),
 	fk_approvedby =  models.ForeignKey(
         Employee, 
         db_column='FK_ApprovedBy', 
-        related_name='fk_emp_app_disposal',
+        related_name='fk_disposal_emp_app',
         db_constraint=False
     ),
 	fk_acc_fa = models.ForeignKey(NAAccFa,related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
@@ -685,6 +685,14 @@ class NADisposal(NA_TransactionModel):
 		blank=True,
 		db_constraint=False,
 		related_name='fk_disposal_lending'
+		)
+	fk_usedemployee = models.ForeignKey(
+		'Employee',
+		db_column='FK_UsedEmployee',
+				null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_emp_used'
 		)
 	objects = NA_BR_Goods_Disposal()
 	class Meta:

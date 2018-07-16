@@ -85,7 +85,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.execute(Query)
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_Outwards_" + userName		
 		cur.execute(Query)
-		
+		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_F_Outwards_" + userName
+		cur.execute(Query)
 		#Query new items
 		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, '' AS fk_usedemployee,'' AS usedemployee, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
