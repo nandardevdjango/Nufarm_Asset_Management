@@ -1482,6 +1482,7 @@ class NAGaReceive(NA_BaseModel):
 
 
 class NAGaVnHistory(NA_BaseModel):
+
     reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
     fk_app = models.IntegerField(db_column='FK_App')
     expired_reg = models.DateField(db_column='Expired_Reg')
@@ -1495,8 +1496,14 @@ class NAGaVnHistory(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_vn_history'
 
+# idapp, fk_goods, fk_employee, typeapp, serialnumber, isnew, daterequest, daterealesed,
+# fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
+# fk_lending, fk_return, fk_receive, descriptions
+
 
 class NAGaOutwards(NAGoodsOutwardsModel):
+    fk_lending = None
+    serialnumber = None
     fk_app = models.ForeignKey(
         NAGaVnHistory,
         db_column='fk_app',

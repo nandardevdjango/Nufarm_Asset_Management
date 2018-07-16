@@ -1,13 +1,13 @@
-from django.http import HttpResponse
 import json
+from datetime import datetime, date
+from django import forms
+from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
 from NA_Models.models import NAGaOutwards, goods, NASuplier
-from datetime import datetime, date
-from django import forms
 
 
 def NA_Goods_Outwards_GA(request):
@@ -72,88 +72,77 @@ def getFormData(form):
     }
     return data
 
+# idapp, fk_goods, fk_employee, typeapp, isnew, daterequest, daterealesed,
+# fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
+# fk_lending, fk_return, fk_receive, descriptions
+
 
 class NAGaOutwardsForm(forms.Form):
     fk_goods = forms.CharField(widget=forms.HiddenInput())
+
     itemcode = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'itemcode',
                'style': 'width:120px;display:inline-block;margin-right: 5px;'}
     ), required=False)
+
     goodsname = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    supliercode = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier code',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
+    isnew = forms.BooleanField(widget=forms.CheckboxChoiceInput())
+
+    daterequest = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'date request'}
     ))
-    supliername = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier name'}
+
+    daterealesed = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'date realesed'}
+    ))
+
+    employee = forms.CharField(widget=forms.HiddenInput())
+
+    employee_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee'}
     ), required=False)
 
-    pr_by = forms.CharField(widget=forms.HiddenInput())
-    pr_by_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'PR By',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
-    ))
-    pr_by_name = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Employee Name'}
+    employee_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
-    received_by = forms.CharField(widget=forms.HiddenInput())
-    received_by_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Received By',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
-    ))
-    received_by_name = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Employee Name'}
+    used_by = forms.CharField(widget=forms.HiddenInput())
+
+    used_by_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'used by'}
     ), required=False)
 
-    datereceived = forms.DateField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'date received',
-               'style': 'width:120px;display:inline-block;'}))
-    brand = forms.CharField(required=False, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'brand',
-               'style': 'width:120px;display:inline-block;'}
-    ))
-    invoice_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'invoice no',
-               'style': 'width:120px;display:inline-block;'}
-    ))
+    used_by_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
+    resp_employee = forms.CharField(widget=forms.HiddenInput())
+
+    resp_employee_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'responsible person'}
+    ), required=False)
+
+    resp_employee_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
+    sender = forms.CharField(widget=forms.HiddenInput())
+
+    sender_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'sender'}
+    ), required=False)
+
+    sender_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
     typeapp = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'type',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    machine_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'machine no',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    chassis_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'chassis no',
-               'style': 'width:205px;display:inline-block;'}))
-    year_made = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'year made',
-               'style': 'width:120px;display:inline-block;'}))
-    colour = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'colour',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    model = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'model',
-               'style': 'width:120px;display:inline-block;'}
-    ))
-    kind = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'kind',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    cylinder = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'cylinder',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    fuel = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'fuel',
-               'style': 'width:120px;display:inline-block;'}
-    ))
+               'style': 'width:150px;display:inline-block;'}))
+
     descriptions = forms.CharField(widget=forms.Textarea(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'description',
                'style': 'max-width:485px;width:485px;height:50px;max-height:60px;'}))
