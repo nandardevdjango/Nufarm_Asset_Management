@@ -31,9 +31,10 @@
                     <label id="fk_bookvalueKey" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Book Value</label>
                     <label id="fk_bookvalueValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;">{{form.bookvalue.value}}</label>
                 </div>
+				<!--Availability di hide bila status edit /open-->
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
                     <label id="availabilityKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Availability</label>
-                    <label id="availabilityValue" class="NA-Entry-label;" style="margin-right: 5px;font-size: small;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.availability.value }}</label>
+                    <label id="availabilityValue" class="NA-Entry-label;" style="margin-right: 5px;font-size: small;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;"></label>
                 </div>
                 <div id="lastUsedInfo" style="margin-bottom:5px;margin-right:auto;display:flex;">
                     <label id="fk_usedemployeeKey" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Last Used By</label>
@@ -47,21 +48,19 @@
             </div>
         </fieldset>
         <div class="NA-Entry-div-row">
-            <label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date disposed/Deleted</label>
+            <label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date Deleted</label>
             {{ form.datedisposal }}
         </div>
         <div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
-            <fieldset style="margin-bottom:5px;">
+            <fieldset style="margin-bottom:5px;margin-top:5px">
                 <legend>
-                    purpuse for being sold ?
+                    purpose for being sold ?
                 </legend>
-                <div class="NA-Entry-inlinve-div">
-                    <div class="checkbox">
-                        <label>  {{ form.issold }} Yess </label>
-                    </div>
+                <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
+                     <label >  {{ form.issold }} Yess </label>
                 </div>
                 <div class="NA-Entry-inlinve-div" id="divSellingPrice">
-                    <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Selling Price</label>
+                    <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;width:120px;text-align: right;padding-right: 5px;">Selling Price</label>
                     {{ form.sellingprice}}
                 </div>
             </fieldset>
@@ -77,20 +76,20 @@
             </div>
         </div>
         <div style="margin-bottom:5px;margin-right:auto">
-            <label for="fk_Acknowledge1" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Acknowledge by(1)</label>
-            {{ form.fk_Acknowledge1 }}
+            <label for="fk_Acknowledge1" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;font-size: 0.85em;">Acknowledge by(1)</label>
+            {{ form.fk_acknowledge1 }}
             <div class="input-group" style="display:inline-flex;width:50%;">
-                {{ form.fk_Acknowledge1 }}
+                {{ form.fk_acknowledge1_employee }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                     <button class="btn btn-success" type="button" id="FE_fk_Acknowledge1" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
             </div>
         </div>
         <div style="margin-bottom:5px;margin-right:auto">
-            <label for="fk_Acknowledge2" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">ProposedBy</label>
-            {{ form.fk_Acknowledge2 }}
+            <label for="fk_Acknowledge2" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;font-size: 0.85em;">Acknowledge by(2)</label>
+            {{ form.fk_acknowledge2 }}
             <div class="input-group" style="display:inline-flex;width:50%;">
-                {{ form.fk_Acknowledge2_employee }}
+                {{ form.fk_acknowledge2_employee }}
                 <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                     <button class="btn btn-success" type="button" id="FE_fk_Acknowledge2" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                 </span>
@@ -101,13 +100,14 @@
             {{ form.descriptions }}
         </div>
         <input type="submit" style="display:none" id="inputButton">
+		<!--issold di isi bila barang yang akan di dispose sudah hilang,default null-->
 		{{ form.initializeForm }}
         {{ form.idapp }}
 		{{ form.idapp_fk_goods }}
         {{ form.islost }}
         {{ form.fk_stock }}
 		{{ form.idapp_fk_usedemployee }}
-        {{ form.idapp_fk_acc_fa }}
+        {{ form.fk_acc_fa }}
         {{ form.idapp_fk_proposedby }}
         {{ form.idapp_fk_acknowledge1 }}
         {{ form.idapp_fk_acknowledge2 }}
@@ -116,6 +116,6 @@
         {{ form.fk_return }}
         {{ form.fk_lending }}
         {{ form.fk_outwards }}
-        {{ form.hasRefData }}
+        {{ form.hasrefdata }}
     </form>
 </div>

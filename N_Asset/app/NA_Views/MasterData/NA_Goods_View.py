@@ -298,7 +298,7 @@ class NA_Goods_Form(forms.Form):
 		economiclife = forms.DecimalField(max_digits=4,decimal_places=2,required=True,widget=forms.NumberInput(attrs={'class':'NA-Form-Control','style':'width:92px;vertical-align:bottom','step':'0.5','tittle':'Please enter valid value'})) #ini manual saja pakai select combo models.DecimalField(db_column='EconomicLife', max_digits=10,decimal_places=2)  # Field name made lowercase.
 		placement = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control.select','style':'width:130px;'}),choices=(('Gudang IT','Gudang IT'),('Gudang 2','Gudang 2'),('Gudang 3','Gudang 3'))) # models.CharField(db_column='Placement', max_length=50, blank=True, null=True)  # Field name made lowercase.
 		descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods','data-value':'descriptions about goods'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
-		inactive = forms.BooleanField(widget=forms.CheckboxInput(),required=False)
+		inactive = forms.BooleanField(widget=forms.CheckboxInput(attrs={'style':'vertical-align: text-bottom;'}),required=False)
 		status = forms.CharField(widget=forms.HiddenInput(),required=False)
 		#initializeForm = forms.CharField(widget=forms.HiddenInput(attrs={'value':{'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False}}),required=False)
 		initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)

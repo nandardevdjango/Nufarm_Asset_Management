@@ -67,6 +67,7 @@
     <Compile Include="app\NA_Urls\OtherPages\NA_Acc_FA_url.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Urls\Transactions\NA_Goods_Disposal_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lending_url.py">
       <SubType>Code</SubType>
     </Compile>
@@ -311,6 +312,7 @@
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
     <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Disposal.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Outwards.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Receive_GA.html" />

@@ -38,14 +38,14 @@ class NA_BR_Goods_Disposal(models.Manager):
 		cur.execute(Query)
 		#idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		Query = """  CREATE TEMPORARY TABLE T_Disposal_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngds.idapp,g.goodsname AS goods,ngd.typeApp AS goodstype,ngd.serialnumber,
-				ngds.bookvalue,
-				CASE
-					WHEN (ngds.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'
-					WHEN (ngds.FK_RETURN IS NOT NULL) THEN 'RETURN Eks Employee'
+				ngds.bookvalue,	ngds.datedisposal,ngds.islost,	
+				CASE					
+					WHEN (ngds.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
 					WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
-					WHEN (ngds.FK_Lending IS NOT NULL) THEN 'RETURN (After being Lent)'
+					WHEN (ngds.FK_Lending IS NOT NULL) THEN '(After being Lent)'
+					WHEN (ngds.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
 					ELSE 'Other (Uncategorized)'
-					END AS refgoodsfrom,
+					END AS refgoodsfrom,							
 				ngds.issold,ngds.sellingprice,IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
 				,ngds.descriptions,ngds.createdby,ngds.createddate		       
 		        FROM n_a_disposal ngds INNER JOIN n_a_goods g ON g.IDApp = ngds.FK_Goods 
@@ -120,6 +120,10 @@ class NA_BR_Goods_Disposal(models.Manager):
                              )				
 				"""
 		cur.execute(Query)
+
+		#buat table temporary GA
+		#nunggu rimba di GA
+		#sementara yang ini saja dulu
 		strLimit = '300'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
@@ -143,3 +147,45 @@ class NA_BR_Goods_Disposal(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
+	def getLastTrans(self,SerialNO):
+		#ambil data brand dan typenya
+		Query = """SELECT g.idapp,g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
+					LEFT OUTER JOIN n_a_goods g ON g.IDApp = ngr.FK_Goods WHERE ngd.serialnumber = %s"""
+		cur = connection.cursor()
+		cur.execute(Query,[SerialNO])
+		#	#idapp_fk_goods,itemcode,islost,fk_stock,idapp_fk_usedemployee,fk_acc_fa,fk_maintenance,fk_return,fk_lending,fk_outwards,goods,brandname,typeapp,bookvalue,availalability
+		idapp_fk_goods = 0
+		itemcode = ''		
+		goodsname = ''
+		typeapp = ''
+		brandname = ''
+		serialnumber = ''
+		bookvalue = 0
+		availalability = 'unknown'
+		fk_usedemployee = 'NIK';usedemployee = 'unknown';	
+		#idapp_fk_goods,islost,idapp_fk_usedemployee,fk_acc_fa,fk_maintenance,fk_return,fk_lending,fk_outwards,goodsname,brandname,typeapp,bookvalue,availalability
+
+		fkaccfa = 0;fkreturn = 0;fklending = 0;fkoutwards = 0;fkmaintenance = 0;
+		row = []
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			typeapp = row[4]
+			brandname = row[3]
+			goodsname = row[2]
+			itemcode = row[1]
+			idapp = row[0]
+		else:
+			cur.close()
+			raise Exception('no such data')
+		#cek apakah data sudah di disposed sebelumnya
+		Query = """SELECT EXISTS(SELECT SerialNumber FROM n_a_disposal WHERE serialnumber =  %s)"""
+		cur.execute(Query,[SerialNO])
+		row = cur.fetchone()
+		if int(row[0]) >0:
+			cur.close()
+			raise Exception('asset has been disposed/deleted')
+		#cek apakah sudah ada transaksi untuk barang dengan serial number tsb
+		Query = """SELECT EXISTS(SELECT serialnumber FROM n_a_goods_history WHERE serialnumber = %s)"""
+		cur.execute(Query,[SerialNO])
+		row = cur.fetchone()
+		#if int(row[0]) > 0:

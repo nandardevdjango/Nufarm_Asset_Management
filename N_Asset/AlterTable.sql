@@ -385,3 +385,5 @@ ALTER TABLE `n_a_disposal`
 	ADD COLUMN FK_Usedemployee INT(11) NULL DEFAULT NULL AFTER BookValue;
 	ALTER TABLE `n_a_disposal`
 	CHANGE COLUMN `FK_ResponsiblePerson` `FK_ProposedBy` INT(11) NULL DEFAULT NULL COMMENT 'Diajukan/Penanggung jawab' AFTER `SellingPrice`;
+ALTER TABLE `n_a_disposal`
+	ADD COLUMN `FK_Return` INT(11) NULL DEFAULT NULL AFTER `FK_Outwards`;

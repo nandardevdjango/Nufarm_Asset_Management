@@ -1386,54 +1386,54 @@
 									});
 								});
 
-								//var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
-								//Array.prototype.forEach.call(listFK, function (item) {
-								//	NA.NAEvent.addHandler(item, 'keydown', function (evt) {
-								//		if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-								//			NA.NAEvent.preventDefault(evt);//prevent from submit
-								//			evt.stopImmediatePropagation();
-								//			return false;
-								//		}
-								//		if (evt.keyCode === 13) {//kalau menekan tombol enter
-								//			var NAAjax = NA.common.AJAX;
-								//			switch (this.id) {
-								//				case 'id_serialnumber': {
-								//					//ambil data terakhir transaksi
-								//					//jika tidak ada ambil di n_a_goods_receive_detail
-								//					//prevent default
-								//					NA.NAEvent.preventDefault(evt);//prevent from submit
-								//					NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
-                                //                        'application/json',//overrideMimeType returned by the server
-                                //                        function (e) { window.document.body.style.cursor = 'wait'; },
-                                //                        null,//nggak usah di isi bila tidak perlu
-                                //                        function (e) {//function executed after data has been returned by server(XHR.onload)
-                                //                        	var data = JSON.parse(this.responseText);
-                                //                        	if (data.message) {
-                                //                        		window.document.body.style.cursor = 'default'; XhrError(this);
-                                //                        	}
-                                //                        	else {
-                                //                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                //                        		fillGoodsInfo(data, this.id,true);
-                                //                        	}
-                                //                        }, null, function (e) {//function untuk ajax error
-                                //                        	window.document.body.style.cursor = 'default'; XhrError(this);
-                                //                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
-                                //                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                                //                        );
-								//					break;
-								//				}
-								//				case 'id_fk_employee':
-								//				case 'id_fk_sender':
-								//				case 'id_fk_responsibleperson': {
-								//					NA.NAEvent.preventDefault(evt);//prevent from submit
-								//					fillEmployeeName(evt, this.id);
-								//					break;
-								//				}
-								//			};//end switch
-								//			evt.stopImmediatePropagation();
-								//		}//end if (evt.keyCode === 13)
-								//	});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
-								//});//end Array.prototype.forEach.call(listFK, function (item)
+								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
+								Array.prototype.forEach.call(listFK, function (item) {
+									NA.NAEvent.addHandler(item, 'keydown', function (evt) {
+										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+											NA.NAEvent.preventDefault(evt);//prevent from submit
+											evt.stopImmediatePropagation();
+											return false;
+										}
+										if (evt.keyCode === 13) {//kalau menekan tombol enter
+											var NAAjax = NA.common.AJAX;
+											switch (this.id) {
+												case 'id_serialnumber': {
+													//ambil data terakhir transaksi
+													//jika tidak ada ambil di n_a_goods_receive_detail
+													//prevent default
+													NA.NAEvent.preventDefault(evt);//prevent from submit
+													NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
+                                                        'application/json',//overrideMimeType returned by the server
+                                                        function (e) { window.document.body.style.cursor = 'wait'; },
+                                                        null,//nggak usah di isi bila tidak perlu
+                                                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                                                        	var data = JSON.parse(this.responseText);
+                                                        	if (data.message) {
+                                                        		window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        	}
+                                                        	else {
+                                                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
+                                                        		fillGoodsInfo(data, this.id,true);
+                                                        	}
+                                                        }, null, function (e) {//function untuk ajax error
+                                                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                                        );
+													break;
+												}
+												case 'id_fk_employee':
+												case 'id_fk_sender':
+												case 'id_fk_responsibleperson': {
+													NA.NAEvent.preventDefault(evt);//prevent from submit
+													fillEmployeeName(evt, this.id);
+													break;
+												}
+											};//end switch
+											evt.stopImmediatePropagation();
+										}//end if (evt.keyCode === 13)
+									});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
+								});//end Array.prototype.forEach.call(listFK, function (item)
 								originalData = JSON.stringify(getValuesForm());
 
 								//==============date request=============

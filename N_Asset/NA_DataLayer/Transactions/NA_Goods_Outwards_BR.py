@@ -153,6 +153,15 @@ class NA_BR_Goods_Outwards(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
+	#def getbookvalue(self,**kwargs):
+		#if kwargs['idapp'] is not None:
+		#	#ambil economic life,star
+		#	#Query = """SELECT g.economiclife,af.startdate, CASE WHEN g.typeapp = 'GA' THEN (SELECT price FROM n_a_ga_receive WHERE 
+		#else:
+		#	#get idapp
+		#	Query = """SELECT g.idapp,g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
+		#	LEFT OUTER JOIN n_a_goods g ON g.IDApp = ngr.FK_Goods WHERE ngd.serialnumber = %s"""
+
 	def getLastTrans(self,SerialNO):
 		"""function untuk mengambil terakhir transaksi data, sebagai umpan balik ke user, barang ini terakhir di pake oleh siapa / belum di pakai sama sekali
 		param : SerialNO
@@ -188,7 +197,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 		row = cur.fetchone()
 		
 		if int(row[0]) > 0:
-			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance,disposal
+			#cek apakah data sudah di 
+			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance
 			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal,fk_lost FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
 			cur.execute(Query,[SerialNO])
 			row = cur.fetchone()

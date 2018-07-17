@@ -268,6 +268,7 @@ ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover
   -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
   -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
   transition: border 0.15s ease-in-out, color 0.15s ease-in-out; 
+  vertical-align: text-bottom;
 }
 .checkbox label::after {
   display: inline-block;

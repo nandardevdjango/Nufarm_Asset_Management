@@ -766,6 +766,13 @@ class NADisposal(NA_TransactionModel):
 		db_constraint=False,
 		related_name='fk_disposal_lending'
 		)
+	fk_return = models.ForeignKey('NAGoodsReturn',
+		db_column='FK_Return',
+				null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_return'
+							   )
 	fk_usedemployee = models.ForeignKey(
 		'Employee',
 		db_column='FK_UsedEmployee',

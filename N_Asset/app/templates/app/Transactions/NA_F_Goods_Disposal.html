@@ -256,7 +256,7 @@
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value','Date Removal', 'Ref Goods From', 'Is Sold','Selling Price',
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value','Date Removal','Is Lost', 'Ref Goods From', 'Is Sold','Selling Price',
 							'Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -269,6 +269,7 @@
                                 decimalPlaces: 2, prefix: "Rp "}
                             },
 							{ name: 'datedisposal', index: 'datedisposal', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							{ name: 'islost', index: 'islost', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'issold', index: 'issold', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{
@@ -1296,54 +1297,125 @@
 				            });
 				        }
 				    }
-				    $('div.maindialogContent').load("ShowEntry_Outwards?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
+				    $('div.maindialogContent').load("ShowEntry_Disposal?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
                        function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
-                           if (statusTxt == "success") {
-                               $(this).html(responseTxt);
-                               switch (win.status.trim()) {
-                                   case 'Add': {
-                                       Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
-                                           if (item.hasAttribute('disabled')) {
-                                               item.removeAttribute('disabled');
-                                           }//remove attribute disable untuk button OK dan cancel bila statusnya Add
-                                       });
-                                       NA.common.getElementID('difInfo').style.display = 'none';
-                                       break;
-                                   }
-                                   case 'Edit': {
-                                       var hasref = NA.common.getElementID('id_hasRefData').value
-                                       //NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                                       NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                                       NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                                       if (hasref.valueOf === true) {
-                                           //NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                                           //NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                                           //NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                                           //NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                                           //NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                                           //NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                                           //NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-                                           NA.common.getElementID('lastUsedInfo').style.display = 'block';
-                                       }
-                                       break;
-                                   }
-                                   case 'Open': {
-                                       //NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                                       //NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                                       //NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                                       //NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                                       //NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-                                       NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
-                                       NA.common.getElementID('lastUsedInfo').style.display = 'block';
-                                       break;
-                                   }
-                               };
-                           }
+                       	if (statusTxt == "success") {
+                       		$(this).html(responseTxt);
+                       		switch (win.status.trim()) {
+                       			case 'Add': {
+                       				Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+                       					if (item.hasAttribute('disabled')) {
+                       						item.removeAttribute('disabled');
+                       					}//remove attribute disable untuk button OK dan cancel bila statusnya Add
+                       				});
+                       				NA.common.getElementID('difInfo').style.display = 'none';
+                       				break;
+                       			}
+                       			case 'Edit': {
+                       				var hasref = NA.common.getElementID('id_hasRefData').value
+                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                       				if (hasref.valueOf === true) {
+                       					//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+                       					//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+                       					//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+                       					//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+                       					//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+                       					//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+                       					//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                       					NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				}
+                       				break;
+                       			}
+                       			case 'Open': {
+                       				//NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+                       				//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+                       				//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+                       				//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+                       				//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
+                       				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				break;
+                       			}
+                       		};
+                       		if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+                       			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
+                       				var valPlaceHolder = item.dataset.value;
+                       				NA.NAEvent.addHandler(item, 'focus', function (evt) {
+                       					if (this.value === '') {
+                       						if (this.getAttribute('placeholder') === valPlaceHolder) {
+                       							this.setAttribute('placeholder', '');
+                       						}
+                       					}
+                       					NA.NAEvent.stopPropagation(evt);
+                       				});
+                       				//============blur event================================
+                       				NA.NAEvent.addHandler(item, 'blur', function (evt) {
+                       					if (this.value === '') {
+                       						if (this.getAttribute('placeholder') === '') {
+                       							this.setAttribute('placeholder', valPlaceHolder);
+                       						}
+                       					}
+                       					NA.NAEvent.stopPropagation(evt);
+                       				});
+                       			});
+                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
+                       			Array.prototype.forEach.call(listFK, function (item) {
+                       				NA.NAEvent.addHandler(item, 'keydown', function (evt) {
+                       					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                       						NA.NAEvent.preventDefault(evt);//prevent from submit
+                       						evt.stopImmediatePropagation();
+                       						return false;
+                       					}
+                       					if (evt.keyCode === 13) {//kalau menekan tombol enter
+                       						var NAAjax = NA.common.AJAX;
+                       						switch (this.id) {
+                       							case 'id_serialnumber': {
+                       								//ambil data terakhir transaksi
+                       								//jika tidak ada ambil di n_a_goods_receive_detail
+                       								//prevent default
+                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                       								NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
+                                                        'application/json',//overrideMimeType returned by the server
+                                                        function (e) { window.document.body.style.cursor = 'wait'; },
+                                                        null,//nggak usah di isi bila tidak perlu
+                                                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                                                        	var data = JSON.parse(this.responseText);
+                                                        	if (data.message) {
+                                                        		window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        	}
+                                                        	else {
+                                                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
+                                                        		fillGoodsInfo(data, this.id, true);
+                                                        	}
+                                                        }, null, function (e) {//function untuk ajax error
+                                                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                                        );
+                       								break;
+                       							}
+                       							case 'id_fk_employee':
+                       							case 'id_fk_sender':
+                       							case 'id_fk_responsibleperson': {
+                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                       								fillEmployeeName(evt, this.id);
+                       								break;
+                       							}
+                       						};//end switch
+                       						evt.stopImmediatePropagation();
+                       					}//end if (evt.keyCode === 13)
+                       				});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
+                       			});//end Array.prototype.forEach.call(listFK, function (item)
+                       			originalData = JSON.stringify(getValuesForm());
+                       		}
+                       	}
                     });
 				}
 			} catch (e) {
