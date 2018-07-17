@@ -89,7 +89,7 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    isnew = forms.BooleanField(widget=forms.CheckboxChoiceInput())
+    isnew = forms.BooleanField(widget=forms.CheckboxInput())
 
     daterequest = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'date request'}
@@ -150,7 +150,7 @@ class NAGaOutwardsForm(forms.Form):
         widget=forms.HiddenInput(), required=False)
 
 
-def Entry_Goods_Receive_GA(request):
+def Entry_Goods_Outwards_GA(request):
     if request.method == 'POST':
         form = NAGaOutwardsForm(request.POST)
         statusForm = request.POST['statusForm']
@@ -186,7 +186,7 @@ def Entry_Goods_Receive_GA(request):
                 return commonFunct.response_default((data, result))
         else:
             form = NAGaOutwardsForm()
-        return render(request, 'app/Transactions/NA_Entry_Goods_Receive_GA.html', {'form': form})
+        return render(request, 'app/Transactions/NA_Entry_Goods_Outwards_GA.html', {'form': form})
 
 
 @decorators.ajax_required

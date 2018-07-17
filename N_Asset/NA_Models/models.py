@@ -286,6 +286,7 @@ class NAAccFa(NA_BaseModel):
     year = models.DecimalField(
         db_column='Year', max_digits=10, decimal_places=2)
     startdate = models.DateField(db_column='StartDate')
+    date_depreciation = models.DateField(db_column='DateDepreciation', null=True)
     depr_expense = models.DecimalField(
         db_column='Depr_Expense',
         max_digits=30,
