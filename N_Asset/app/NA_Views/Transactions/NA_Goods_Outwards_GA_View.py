@@ -1,20 +1,20 @@
-from django.http import HttpResponse
 import json
+from datetime import datetime, date
+from django import forms
+from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import NAGaReceive, goods, NASuplier
-from datetime import datetime, date
-from django import forms
+from NA_Models.models import NAGaOutwards, goods, NASuplier
 
 
-def NA_Goods_Receive_GA(request):
-    return render(request, 'app/Transactions/NA_F_Goods_Receive_GA.html')
+def NA_Goods_Outwards_GA(request):
+    return render(request, 'app/Transactions/NA_F_Goods_Outwards_GA.html')
 
 
-def NA_Goods_Receive_GAGetData(request):
+def NA_Goods_Outwards_GAGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
     IdataType = request.GET.get('dataType')
@@ -26,7 +26,7 @@ def NA_Goods_Receive_GAGetData(request):
     criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
     dataType = ResolveCriteria.getDataType(IdataType)
 
-    gaData = NAGaReceive.objects.PopulateQuery(
+    gaData = NAGaOutwards.objects.PopulateQuery(
         IcolumnName,
         IvalueKey,
         criteria,
@@ -51,8 +51,12 @@ def NA_Goods_Receive_GAGetData(request):
             ]
         }
         rows.append(datarow)
-    results = {"page": Ipage, "total": paginator.num_pages,
-               "records": totalRecords, "rows": rows}
+    results = {
+        "page": Ipage,
+        "total": paginator.num_pages,
+        "records": totalRecords,
+        "rows": rows
+    }
     return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder), content_type='application/json')
 
 
@@ -68,88 +72,77 @@ def getFormData(form):
     }
     return data
 
+# idapp, fk_goods, fk_employee, typeapp, isnew, daterequest, daterealesed,
+# fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
+# fk_lending, fk_return, fk_receive, descriptions
 
-class NA_Goods_Receive_GA_Form(forms.Form):
+
+class NAGaOutwardsForm(forms.Form):
     fk_goods = forms.CharField(widget=forms.HiddenInput())
+
     itemcode = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'itemcode',
                'style': 'width:120px;display:inline-block;margin-right: 5px;'}
     ), required=False)
+
     goodsname = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    supliercode = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier code',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
+    isnew = forms.BooleanField(widget=forms.CheckboxChoiceInput())
+
+    daterequest = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'date request'}
     ))
-    supliername = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier name'}
+
+    daterealesed = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'date realesed'}
+    ))
+
+    employee = forms.CharField(widget=forms.HiddenInput())
+
+    employee_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee'}
     ), required=False)
 
-    pr_by = forms.CharField(widget=forms.HiddenInput())
-    pr_by_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'PR By',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
-    ))
-    pr_by_name = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Employee Name'}
+    employee_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
-    received_by = forms.CharField(widget=forms.HiddenInput())
-    received_by_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Received By',
-               'style': 'width:120px;display:inline-block;margin-right: 5px;'}
-    ))
-    received_by_name = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'Employee Name'}
+    used_by = forms.CharField(widget=forms.HiddenInput())
+
+    used_by_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'used by'}
     ), required=False)
 
-    datereceived = forms.DateField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'date received',
-               'style': 'width:120px;display:inline-block;'}))
-    brand = forms.CharField(required=False, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'brand',
-               'style': 'width:120px;display:inline-block;'}
-    ))
-    invoice_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'invoice no',
-               'style': 'width:120px;display:inline-block;'}
-    ))
+    used_by_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
+    resp_employee = forms.CharField(widget=forms.HiddenInput())
+
+    resp_employee_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'responsible person'}
+    ), required=False)
+
+    resp_employee_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
+    sender = forms.CharField(widget=forms.HiddenInput())
+
+    sender_nik = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'sender'}
+    ), required=False)
+
+    sender_name = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    ), required=False)
+
     typeapp = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'type',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    machine_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'machine no',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    chassis_no = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'chassis no',
-               'style': 'width:205px;display:inline-block;'}))
-    year_made = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'year made',
-               'style': 'width:120px;display:inline-block;'}))
-    colour = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'colour',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    model = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'model',
-               'style': 'width:120px;display:inline-block;'}
-    ))
-    kind = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'kind',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    cylinder = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'cylinder',
-               'style': 'width:150px;display:inline-block;'}
-    ))
-    fuel = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'fuel',
-               'style': 'width:120px;display:inline-block;'}
-    ))
+               'style': 'width:150px;display:inline-block;'}))
+
     descriptions = forms.CharField(widget=forms.Textarea(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'description',
                'style': 'max-width:485px;width:485px;height:50px;max-height:60px;'}))
@@ -159,18 +152,18 @@ class NA_Goods_Receive_GA_Form(forms.Form):
 
 def Entry_Goods_Receive_GA(request):
     if request.method == 'POST':
-        form = NA_Goods_Receive_GA_Form(request.POST)
+        form = NAGaOutwardsForm(request.POST)
         statusForm = request.POST['statusForm']
         if form.is_valid():
             data = form.cleaned_data
             if statusForm == 'Add':
                 data['createddate'] = datetime.now()
                 data['createdby'] = request.user.username
-                result = NAGaReceive.objects.SaveData(StatusForm.Input, **data)
+                result = NAGaOutwards.objects.SaveData(StatusForm.Input, **data)
             elif statusForm == 'Edit':
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = request.user.username
-                result = NAGaReceive.objects.SaveData(StatusForm.Edit, **data)
+                result = NAGaOutwards.objects.SaveData(StatusForm.Edit, **data)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -179,7 +172,7 @@ def Entry_Goods_Receive_GA(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data, result = NAGaReceive.objects.retrieveData(idapp)
+            data, result = NAGaOutwards.objects.retrieveData(idapp)
             if data == Data.Success:
                 result = [i for i in result][0]
                 if isinstance(result['datereceived'], datetime):
@@ -188,11 +181,11 @@ def Entry_Goods_Receive_GA(request):
 
                 if isinstance(result['year_made'], date):
                     result['year_made'] = result['year_made'].strftime('%Y')
-                form = NA_Goods_Receive_GA_Form(initial=result)
+                form = NAGaOutwardsForm(initial=result)
             elif data == Data.Lost:
                 return commonFunct.response_default((data, result))
         else:
-            form = NA_Goods_Receive_GA_Form()
+            form = NAGaOutwardsForm()
         return render(request, 'app/Transactions/NA_Entry_Goods_Receive_GA.html', {'form': form})
 
 
@@ -200,7 +193,7 @@ def Entry_Goods_Receive_GA(request):
 @decorators.detail_request_method('POST')
 def Delete_data(request):
     idapp = request.POST['idapp']
-    result = NAGaReceive.objects.DeleteData(idapp)
+    result = NAGaOutwards.objects.DeleteData(idapp)
     return commonFunct.response_default(result)
 
 

@@ -1,11 +1,12 @@
 from django.db import models, connection, transaction
-from NA_DataLayer.common import (CriteriaSearch,DataType,ResolveCriteria, query,
-                                 StatusForm,Data)
+from NA_DataLayer.common import (CriteriaSearch, DataType, ResolveCriteria, query,
+                                 StatusForm, Data)
+
 
 class NA_BR_Goods_Return(models.Manager):
-    def PopulateQuery(self, columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
+    def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
         cur = connection.cursor()
-        rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
+        rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
         Query = """SELECT ngr.idapp,ngr.datereturn,ngr.conditions,ngr.iscompleted,ngr.minusDesc,ngr.typeapp,ngr.serialnumber,
         ngr.descriptions, ngr.createddate, ngr.createdby, CONCAT(g.goodsname, ' ',g.brandname,' ',g.typeapp) AS goods,emp1.fromemployee,
         emp2.usedemployee FROM n_a_goods_return ngr INNER JOIN n_a_goods g ON ngr.fk_goods = g.idapp LEFT OUTER JOIN 
@@ -17,16 +18,15 @@ class NA_BR_Goods_Return(models.Manager):
         cur.close()
         return result
 
-
-    def SaveData(self,statusForm=StatusForm.Input,**data):
+    def SaveData(self, statusForm=StatusForm.Input, **data):
         cur = connection.cursor()
         Params = {
-            'FK_Goods':data['fk_goods'],'TypeApp':data['typeApp'],'SerialNumber':data['serialNumber'],
-            'DateReturn':data['datereturn'],'Conditions':data['conditions'],
-            'FK_fromemployee':data['idapp_fromemployee'],'FK_usedemployee':data['idapp_usedemployee'],
-            'IsCompleted':data['iscompleted'],'MinusDesc':data['minus'],
-            'Descriptions':data['descriptions']
-            }
+            'FK_Goods': data['fk_goods'], 'TypeApp': data['typeApp'], 'SerialNumber': data['serialNumber'],
+            'DateReturn': data['datereturn'], 'Conditions': data['conditions'],
+            'FK_fromemployee': data['idapp_fromemployee'], 'FK_usedemployee': data['idapp_usedemployee'],
+            'IsCompleted': data['iscompleted'], 'MinusDesc': data['minus'],
+            'Descriptions': data['descriptions']
+        }
         if statusForm == StatusForm.Input:
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
@@ -43,18 +43,19 @@ class NA_BR_Goods_Return(models.Manager):
             with transaction.atomic():
                 Query = """INSERT INTO n_a_goods_return 
                 (fk_goods,typeapp,serialnumber,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,
-                descriptions,createddate,createdby,""" + fromgoods + ")" 
-                Query += """VALUES({})""".format(','.join('%('+i+')s' for i in Params))
-                cur.execute(Query,Params)
+                descriptions,createddate,createdby,""" + fromgoods + ")"
+                Query += """VALUES({})""".format(','.join('%(' +
+                                                          i+')s' for i in Params))
+                cur.execute(Query, Params)
                 Query = """INSERT INTO n_a_goods_history (FK_Goods, TypeApp, SerialNumber,FK_RETURN, CreatedDate, CreatedBy)
                 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, %(FK_Return)s, %(CreatedDate)s, %(CreatedBy)s)"""
                 cur.execute("""SELECT last_insert_id()""")
                 idapp = cur.fetchone()[0]
                 Params = {
-                    'FK_Goods':data['fk_goods'],'TypeApp':data['typeApp'],'SerialNumber':data['serialNumber'],
-                    'FK_Return':idapp,'CreatedDate':data['createddate'],'CreatedBy':data['createdby']
-                    }
-                cur.execute(Query,Params)
+                    'FK_Goods': data['fk_goods'], 'TypeApp': data['typeApp'], 'SerialNumber': data['serialNumber'],
+                    'FK_Return': idapp, 'CreatedDate': data['createddate'], 'CreatedBy': data['createdby']
+                }
+                cur.execute(Query, Params)
         elif statusForm == StatusForm.Edit:
             Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
@@ -63,17 +64,17 @@ class NA_BR_Goods_Return(models.Manager):
             datereturn=%(DateReturn)s, conditions=%(Conditions)s, fk_fromemployee=%(FK_fromemployee)s, fk_usedemployee=%(FK_usedemployee)s,
             iscompleted=%(IsCompleted)s, minusDesc=%(MinusDesc)s, descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,
             modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
-            cur.execute(Query,Params)
+            cur.execute(Query, Params)
             cur.close()
         return (Data.Success,)
 
-    def DeleteData(self,idapp):
+    def DeleteData(self, idapp):
         cur = connection.cursor()
         Query = """DELETE FROM n_a_goods_return WHERE idapp=%(IDApp)s"""
-        cur.execute(Query,{'IDApp':idapp})
+        cur.execute(Query, {'IDApp': idapp})
         return 'success'
 
-    def retrieveData(self,idapp):
+    def retrieveData(self, idapp):
         cur = connection.cursor()
         Query = """SELECT ngr.typeApp,ngr.serialNumber,ngr.fk_goods,ngr.datereturn,ngr.conditions,
         ngr.minusDesc AS minus, ngr.iscompleted,ngr.fk_goods_outwards AS idapp_fk_goods_outwards,
@@ -87,12 +88,12 @@ class NA_BR_Goods_Return(models.Manager):
         LEFT OUTER JOIN 
         (SELECT idapp AS idapp_usedemployee, nik AS nik_usedemployee,employee_name AS usedemployee FROM employee) 
         AS emp2 ON ngr.fk_usedemployee = emp2.idapp_usedemployee WHERE ngr.idapp = %(IDApp)s"""
-        cur.execute(Query,{'IDApp':idapp})
+        cur.execute(Query, {'IDApp': idapp})
         result = query.dictfetchall(cur)
         cur.close()
         return result[0]
 
-    def SearchGoods_byForm(self,value):
+    def SearchGoods_byForm(self, value):
         cur = connection.cursor()
         Query = """
         (SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.fk_goods, ngo.serialnumber,g.itemcode,
@@ -108,7 +109,7 @@ class NA_BR_Goods_Return(models.Manager):
         cur.close()
         return result
 
-    def getGoods_data(self,idapp,fromgoods):
+    def getGoods_data(self, idapp, fromgoods):
         cur = connection.cursor()
         if fromgoods == 'GO':
             Query = """SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.serialnumber,g.itemcode,
@@ -122,13 +123,13 @@ class NA_BR_Goods_Return(models.Manager):
             INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp LEFT OUTER JOIN (SELECT idapp AS idapp_used_by,nik AS nik_used_by,
             employee_name AS used_by FROM employee) AS emp1 ON ngl.fk_employee = emp1.idapp_used_by WHERE 
             ngl.idapp = %(IDApp)s"""
-        cur.execute(Query,{'IDApp':idapp})
+        cur.execute(Query, {'IDApp': idapp})
         result = query.dictfetchall(cur)
         cur.close()
-        return (Data.Success,result)
+        return (Data.Success, result)
 
-    def dataExists(self,**kwargs):
+    def dataExists(self, **kwargs):
         idapp = kwargs.get('idapp')
         if idapp is not None:
-            return super(NA_BR_Goods_Return,self).get_queryset().filter(idapp=idapp).exists()
+            return super(NA_BR_Goods_Return, self).get_queryset().filter(idapp=idapp).exists()
         serialnumber = kwargs.get('serialnumber')
