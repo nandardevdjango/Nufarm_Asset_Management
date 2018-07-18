@@ -26,7 +26,7 @@ def NA_Goods_Outwards_GAGetData(request):
     criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
     dataType = ResolveCriteria.getDataType(IdataType)
 
-    gaData = NAGaOutwards.objects.PopulateQuery(
+    gaData = NAGaOutwards.objects.populate_query(
         IcolumnName,
         IvalueKey,
         criteria,
@@ -89,23 +89,16 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    isnew = forms.BooleanField(widget=forms.CheckboxInput())
-
-    daterequest = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'date request'}
-    ))
-
-    daterealesed = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'date realesed'}
-    ))
-
     employee = forms.CharField(widget=forms.HiddenInput())
 
     employee_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee'}
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'employee',
+            'style': 'width:120px;display:inline-block;margin-right: 5px;'
+        }
     ), required=False)
 
-    employee_name = forms.CharField(widget=forms.TextInput(
+    employee_name = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
@@ -122,26 +115,68 @@ class NAGaOutwardsForm(forms.Form):
     resp_employee = forms.CharField(widget=forms.HiddenInput())
 
     resp_employee_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'responsible person'}
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'responsible person',
+            'style': 'width:120px;display:inline-block;margin-right: 5px;'
+        }
     ), required=False)
 
-    resp_employee_name = forms.CharField(widget=forms.TextInput(
+    resp_employee_name = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
     sender = forms.CharField(widget=forms.HiddenInput())
 
     sender_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'sender'}
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'sender',
+            'style': 'width:120px;display:inline-block;margin-right: 5px;'
+        }
     ), required=False)
 
-    sender_name = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
+    sender_name = forms.CharField(disabled=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'employee name'
+        }
     ), required=False)
+
+    isnew = forms.BooleanField(widget=forms.CheckboxInput())
+
+    daterequest = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control',
+            'placeholder': 'date request',
+            'style': 'display:inline-block;width:150px'
+        }
+    ))
+
+    datereleased = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control',
+            'placeholder': 'date released',
+            'style': 'display:inline-block;width:150px'
+        }
+    ))
 
     typeapp = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'type',
                'style': 'width:150px;display:inline-block;'}))
+    
+    equipment = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control',
+            'placeholder': 'equipment',
+            'style': 'width:150px;display:inline-block'
+        }
+    ))
+
+    add_equipment = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control',
+            'placeholder': 'add equipment',
+            'style': 'width:150px;display:inline-block'
+        }
+    ))
 
     descriptions = forms.CharField(widget=forms.Textarea(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'description',

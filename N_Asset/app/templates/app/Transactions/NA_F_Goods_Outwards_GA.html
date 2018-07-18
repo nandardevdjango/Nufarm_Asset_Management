@@ -386,29 +386,25 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
     function getValues_Form() {
     	return {
     		fk_goods: qs('#id_fk_goods').value.trim(),
-    		brand: qs('input#id_brand').value.trim(),
-    		invoice_no: qs('input#id_invoice_no').value.trim(),
-    		machine_no: qs('input#id_machine_no').value.trim(),
-    		chassis_no: qs('input#id_chassis_no').value.trim(),
-    		year_made: qs('input#id_year_made').value.trim(),
-    		colour: qs('input#id_colour').value.trim(),
-    		model: qs('input#id_model').value.trim(),
-    		kind: qs('input#id_kind').value.trim(),
-    		cylinder: qs('input#id_cylinder').value.trim(),
-    		fuel: qs('input#id_fuel').value.trim(),
-    		goodsname: qs('#id_goodsname').value.trim(),
+            goodsname: qs('#id_goodsname').value.trim(),
+            employee: qs('#id_employee').value.trim(),
+            employee_nik: qs('#id_employee_nik').value.trim(),
+            employee_name: qs('#id_employee_name').value.trim(),
+            sender: qs('#id_sender').value.trim(),
+            sender_nik: qs('#id_sender_nik').value.trim(),
+            sender_name: qs('#id_sender_name').value.trim(),
+            resp_employee: qs('#id_resp_employee').value.trim(),
+            resp_employee_nik: qs('#id_resp_employee_nik').value.trim(),
+            resp_employee_name: qs('#id_resp_employee_name').value.trim(),
     		typeapp: qs('input#id_typeapp').value.trim(),
-    		datereceived: qs('#id_datereceived').value.toString().trim(),
-    		supliercode: qs('#id_supliercode').value.trim(),
-    		supliername: qs('#id_supliername').value.trim(),
-    		pr_by: qs('#id_pr_by').value.trim(),
-    		pr_by_nik: qs('#id_pr_by_nik').value.trim(),
-    		received_by: qs('#id_received_by').value.trim(),
-    		received_by_nik: qs('#id_received_by_nik').value.trim(),
+            datereceived: qs('#id_datereceived').value.toString().trim(),
+            datereleased: qs('#id_datereleased').value.toString().trim(),
+            equipment: qs('#id_equipment').value.trim(),
+            add_equipment: qs('#id_add_equipment').value.trim(),
     		descriptions: qs('#id_descriptions').value.trim(),
     		status: win.status || qs('#id_status').value.trim()
 		};
-    };
+    }
     
 
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
@@ -500,7 +496,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
         return [year, month, day].join('-');
     };
     status = status || window.status
-    function G_Receive_GASubmit() {
+    function G_Outwards_GASubmit() {
         var dialog = qs("div.containerDialog");
         function sendData() {
             var valuesForm = getValues_Form()
@@ -564,7 +560,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                         inputbtn.click();
                     }
                     else {
-                        G_Receive_GASubmit();
+                        G_Outwards_GASubmit();
                     }
                     break;
                 }
@@ -582,7 +578,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                         //NA.NAEvent.preventDefault(event);   
                                         inputbtn.click();
                                     } else {
-                                        G_Receive_GASubmit();
+                                        G_Outwards_GASubmit();
                                     }
                                 },
                                 function () {
@@ -714,7 +710,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
     	//add handler to btnOK untuk mengantisipasi form load gagal
     	var dialog = qs('div.containerDialog');
     	dialog.style.top = '10px';
-        var win = window
+        var win = window;
         var target = NA.NAEvent.getTarget(event);
 
         try {
