@@ -79,11 +79,12 @@ class NA_BR_Goods_Disposal(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-	def getbookvalue(self,**kwargs):
+	def getBookValue(self,**kwargs):
 			"""Function untuk mengambil nilai buku
-			:param int idapp goods
+			:param int idapp = idapp_fk_goods
 			:param SerialNo
 			:param DateDisposal
+			return [int fk_acc_fa,float bookvalue]
 			"""
 			fk_goods = 0
 			serialno = ''
@@ -129,7 +130,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 																ELSE ('goods is able to dispose/delete') \
 																END)) \
 						WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee' \
-						WHEN (gh.fk_return IS NOT NULL) THEN '(goods is able to dispose/delete )' \
+						WHEN (gh.fk_return IS NOT NULL) THEN '(goods is able to dispose/delete)' \
 						WHEN (gh.fk_disposal IS NOT NULL) THEN '(goods has been disposed/deleted )' \
 						WHEN (gh.fk_lost IS NOT NULL) THEN 'goods has lost' \
 						ELSE 'Unknown or uncategorized last goods position' \
@@ -215,7 +216,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				raise Exception('no such data')
 		#ambil nilai buku,default ambil tanggal akhir = sekarang
 		
-		[bookvalue,fk_acc_fa] = getbookvalue({'idapp':idapp_fk_goods,'SerialNo':SerialNO,'DateDisposal':datetime.date.today()})
+		[bookvalue,fk_acc_fa] = getbookvalue({'idapp':idapp_fk_goods,'SerialNo':SerialNO,'DateDisposal':datetime.date().today()})
 		#cek apakah data sudah di disposed sebelumnya
 		Query = """SELECT EXISTS(SELECT SerialNumber FROM n_a_disposal WHERE serialnumber =  %s AND fk_goods = %s)"""
 		cur.execute(Query,[SerialNO,idapp_fk_goods])

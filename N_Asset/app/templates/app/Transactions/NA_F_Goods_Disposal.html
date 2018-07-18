@@ -797,8 +797,7 @@
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
-			//form.idapp_fk_goods 
-
+		    //form.idapp_fk_goods 
 			//form.fk_frommaintenance 
 			//form.fk_return 
 			//form.fk_lending 
@@ -807,8 +806,8 @@
 			//form.idapp di status edit/open
 
 			//  	form.idapp_fk_goods
-			//var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
-			//elidapp_fk_goods.value = rowData['idapp'] || null;//idapp di grid adalah idapp_fkgoods
+			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+			elidapp_fk_goods.value = rowData['idapp'] || null;
 
 			////    form.fk_frommaintenance 
 			//var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
@@ -850,28 +849,51 @@
 
 			////fk_usedemployee & fk_usedemployee_employee
 			//var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
-			//elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];
-
-			////form.serialnumber
-			//var elserialnumber = NA.common.getElementID('id_serialnumber');
-			//elserialnumber.value = rowData['serialnumber'];
-			//elserialnumber.attributes['placeholder'] = '';
+			//elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];            	
 
 			//form.goods
 			//var elgoods = NA.common.getElementID('id_goods');
 			//elgoods.value = rowData['goodsname'] || '';
 
-			//if (!serialnumber) {
-			//	var elserialnumber = NA.common.getElementID('id_serialnumber');
-			//	elserialnumber.value = rowData['serialnumber'] || '';
-			//}
+			if (!serialnumber) {
+				elserialnumber = NA.common.getElementID('id_serialnumber');
+				elserialnumber.value = rowData['serialnumber'] || '';
+				elserialnumber.attributes['placeholder'] = '';
+			}
 			//elgoods.attributes['placeholder'] = '';
-			//if (IsFromTextBox) {
-			//	NA.common.getElementID('lastUsedInfo').style.display = 'none';
-			//}
-			//else {
-			//	NA.common.getElementID('lastUsedInfo').style.display = 'block';
-			//}
+			if (IsFromTextBox) {
+				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+			}
+			else {
+			    NA.common.getElementID('lastUsedInfo').style.display = 'none';
+			    //check book value
+			    var NAAjax = NA.common.AJAX;
+                // hadeuh harus diserialize json
+			    var url = 'getBookValue/?' + win.encodeURIComponent('idapp_fk_goods') + '=' + win.encodeURIComponent(elidapp_fk_goods.value)
+			    '&' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(elserialnumber.value) +
+                '&' + win.encodeURIComponent('datedisposal') + '=' + 'datedisposal'
+			    NAAjax.GET(url,
+                            'application/json',//overrideMimeType returned by the server
+                            function () { window.document.body.style.cursor = 'wait'; },
+                            null,//nggak usah di isi bila tidak perlu
+                            function () {//function executed after data has been returned by server(XHR.onload)
+                                var data = JSON.parse(this.responseText);
+                                if (data) {
+                                    var mainID = elmID.substring(3);
+                                    //set employee_name
+                                    var elempname = NA.common.getElementID('id_' + mainID + '_employee');
+                                    var elidapp = NA.common.getElementID('id_idapp_' + mainID);
+                                    //var elFKEmp = NA.common.getElementID('id_' + mainID);
+                                    //elFKEmp.value = data['nik']||'';
+                                    elempname.value = data['employee_name'] || '';
+                                    elidapp.value = data['idapp'] || '';
+                                }
+                            }, null, function () {//function untuk ajax error
+                                window.document.body.style.cursor = 'default'; XhrError(this);
+                            }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+                            null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                            );
+			}
 			//NA.common.getElementID('difInfo').style.display = 'block';
 		};
 		function fillEmployeeName(event, elmID) {
@@ -1592,7 +1614,7 @@
                        								//tempelkan data row di fk_goods, dan valuenya di goods_desc;
                        								var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
                        								var lastinfo = rowData['lastinfo'] // goods is able to use
-                       								var validInfo = ['goods is able to use', 'not yet used'];
+                       								var validInfo = ['goods is able to dispose', 'goods has lost'];
                        								if (validInfo.indexOf(lastinfo) >= 0) {
                        									fillGoodsInfo(rowData);
                        									dialogRef.close();
@@ -1609,165 +1631,170 @@
                        			});
                        			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_Acknowledge1"],[id="FE_fk_Acknowledge2"],[id="FE_fk_approvedby"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
-                       				if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-                       					NA.NAEvent.preventDefault(event);//prevent from submit
-                       					event.stopImmediatePropagation();
-                       					return false;
-                       				}
-                       				else {
-                       					NA.NAEvent.addHandler(item, 'click', function (evt) {
-                       						BootstrapDialog.show({
-                       							draggable: true,
-                       							title: 'Find Employee',
-                       							type: BootstrapDialog.TYPE_INFO,
-                       							size: BootstrapDialog.SIZE_SMALL,
-                       							message: function (dialogRef) {
-                       								var placeHolder = 'Enter Employee name to search for';
-                       								//var gridTbl = null, gridPager = null;
-                       								var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
+                       			    if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                       			        win.document.body.style.cursor = 'default'; 
+                       			        return false;
+                       			    }
+                       			    else {
+                       			        NA.NAEvent.addHandler(item, 'click', function (evt) {
+                       			            BootstrapDialog.show({
+                       			                draggable: true,
+                       			                title: 'Find Employee',
+                       			                type: BootstrapDialog.TYPE_INFO,
+                       			                size: BootstrapDialog.SIZE_SMALL,
+                       			                message: function (dialogRef) {
+                       			                    var placeHolder = 'Enter Employee name to search for';
+                       			                    //var gridTbl = null, gridPager = null;
+                       			                    var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
                                                     function (e) {//event for blur
-                                                    	if (this.value === '') {
-                                                    		if (this.getAttribute('placeholder') === '') {
-                                                    			this.setAttribute('placeholder', placeHolder);
-                                                    		}
-                                                    	}
+                                                        if (this.value === '') {
+                                                            if (this.getAttribute('placeholder') === '') {
+                                                                this.setAttribute('placeholder', placeHolder);
+                                                            }
+                                                        }
                                                     },
                                                     function (e) {//event for focus
-                                                    	if (this.value === '') {
-                                                    		if (this.getAttribute('placeholder') === placeHolder) {
-                                                    			this.setAttribute('placeholder', '');
-                                                    		}
-                                                    	}
+                                                        if (this.value === '') {
+                                                            if (this.getAttribute('placeholder') === placeHolder) {
+                                                                this.setAttribute('placeholder', '');
+                                                            }
+                                                        }
                                                     },
                                                     function (e) {//even for keydown txtSearch
-                                                    	if (e.keyCode === 13) {
-                                                    		win.document.body.style.cursor = 'wait';
-                                                    		//cari data ke database
-                                                    		var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                        if (e.keyCode === 13) {
+                                                            win.document.body.style.cursor = 'wait';
+                                                            //cari data ke database
+                                                            var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
 
-                                                    		if (gridTbl) {
-                                                    			gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
-                                                    		}
-                                                    		win.document.body.style.cursor = 'default';
-                                                    	}
+                                                            if (gridTbl) {
+                                                                gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+                                                            }
+                                                            win.document.body.style.cursor = 'default';
+                                                        }
                                                     }, function (e) {
-                                                    	var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-                                                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
+                                                        var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                                                        NA.common.triggerKeyboardEvent(txtSearch, 13);
                                                     });
-                       								var children = containerMessage.childNodes;
-                       								var mainContainer = null;
-                       								for (var i = 0, len = children.length; i < len; i++) {
-                       									if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
-                       										mainContainer = children[i]; break;
-                       									}
-                       								};
-                       								//loads Data into JqueryGrid
-                       								gridTbl = NA.common.doc.createElement('table');
-                       								gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee';
-                       								gridPager = NA.common.doc.createElement('div');
-                       								gridPager.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee_Pager';
-                       								mainContainer.appendChild(gridTbl);
-                       								mainContainer.appendChild(gridPager);
-                       								return containerMessage;
-                       							},
-                       							onshown: function (dialogRef) {
-                       								var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-                       								//loads Data into JqueryGrid
-                       								gridTbl = $('#jqGrid_NA_F_Goods_Disposal_fk_employee');
-                       								gridPager = $('jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
-                       								var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-                       								gridTbl.jqGrid({
-                       									url: urlPR,
-                       									mtype: "GET",
-                       									datatype: "json",
-                       									colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
-                       									colModel: [
+                       			                    var children = containerMessage.childNodes;
+                       			                    var mainContainer = null;
+                       			                    for (var i = 0, len = children.length; i < len; i++) {
+                       			                        if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
+                       			                            mainContainer = children[i]; break;
+                       			                        }
+                       			                    };
+                       			                    //loads Data into JqueryGrid
+                       			                    gridTbl = NA.common.doc.createElement('table');
+                       			                    gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee';
+                       			                    gridPager = NA.common.doc.createElement('div');
+                       			                    gridPager.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee_Pager';
+                       			                    mainContainer.appendChild(gridTbl);
+                       			                    mainContainer.appendChild(gridPager);
+                       			                    return containerMessage;
+                       			                },
+                       			                onshown: function (dialogRef) {
+                       			                    var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                       			                    //loads Data into JqueryGrid
+                       			                    gridTbl = $('#jqGrid_NA_F_Goods_Disposal_fk_employee');
+                       			                    gridPager = $('jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
+                       			                    var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                       			                    gridTbl.jqGrid({
+                       			                        url: urlPR,
+                       			                        mtype: "GET",
+                       			                        datatype: "json",
+                       			                        colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
+                       			                        colModel: [
                                                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                                                             { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
                                                             { name: 'nik', width: 90, align: 'left', sortable: true, editable: false, },
                                                             { name: 'employee_name', index: 'employee_name', width: 290, sortable: true, editable: false, align: 'left', },
-                       									],
-                       									ondblClickRow: function (rowId) {
-                       										//fire button OK
-                       										var btnOK = dialogRef.getButton('btnOK');
-                       										btnOK.click();
-                       									},
-                       									gridComplete: function () {
-                       										document.body.style.cursor = 'default';
-                       									},
-                       									cellEdit: false,
-                       									height: '150px',
-                       									rowNum: 500,
-                       									rowList: [20, 50, 100, 200, 300, 500],
-                       									sortname: "employee_name",
-                       									sortorder: "asc",
-                       									multiSort: true,
-                       									//shrinkToFit: false,
-                       									iconSet: "fontAwesome",
-                       									//forceFit: true,
-                       									//toolbar: true,
-                       									scrollrows: true,
-                       									pager: "#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager"
-                       								});
-                       								gridTbl.navGrid(gridPager, {
-                       									search: false, // show search button on the toolbar
-                       									add: false,
-                       									edit: false,
-                       									del: false,
-                       									refresh: false
-                       								});
-                       							},
-                       							animate: false,
-                       							closable: false,
-                       							closeByBackdrop: false,
-                       							closeByKeyboard: false,
-                       							buttons: [{
-                       								label: 'Cancel',
-                       								icon: 'glyphicon glyphicon-remove',
-                       								cssClass: 'btn-success',
-                       								action: function (dialogRef) {
-                       									dialogRef.close();
-                       								},
-                       							}, {
-                       								label: 'OK',
-                       								id: 'btnOK',
-                       								icon: 'glyphicon glyphicon-ok',
-                       								cssClass: 'btn-success',
-                       								action: function (dialogRef) {
-                       									var nik = getGridCellValue(gridTbl, 'nik');
-                       									if (nik) {
-                       										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                       										var rowData = gridTbl.getRowData(rowId);
-                       										var employeeName = rowData['employee_name'];
-                       										var idapp = rowData['idapp'];
-                       										var mainIDbtn = item.getAttribute('id').substring(3);
-                       										//set nik
-                       										var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
-                       										//set employee_name
-                       										elfk_employee.value = rowData['nik'];
-                       										var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
-                       										elempname.value = employeeName;
-                       										var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
-                       										elidapp.value = idapp;
-                       										dialogRef.close();
-                       									}
-                       								}
-                       							}]
-                       						});
-                       						restyleBoostrapDialog();
-                       						//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-                       						//gbox.style.width = '432px';
-                       						//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-                       						//gview.style.width = '432px';
-                       						//var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
-                       						//tdInfo.style.width = '110px';
-                       						//var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
-                       						//pager.style.width = '430px';
-                       						evt.stopImmediatePropagation();
-                       					});
-                       				}
-
+                       			                        ],
+                       			                        ondblClickRow: function (rowId) {
+                       			                            //fire button OK
+                       			                            var btnOK = dialogRef.getButton('btnOK');
+                       			                            btnOK.click();
+                       			                        },
+                       			                        gridComplete: function () {
+                       			                            document.body.style.cursor = 'default';
+                       			                        },
+                       			                        cellEdit: false,
+                       			                        height: '150px',
+                       			                        rowNum: 500,
+                       			                        rowList: [20, 50, 100, 200, 300, 500],
+                       			                        sortname: "employee_name",
+                       			                        sortorder: "asc",
+                       			                        multiSort: true,
+                       			                        //shrinkToFit: false,
+                       			                        iconSet: "fontAwesome",
+                       			                        //forceFit: true,
+                       			                        //toolbar: true,
+                       			                        scrollrows: true,
+                       			                        pager: "#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager"
+                       			                    });
+                       			                    gridTbl.navGrid(gridPager, {
+                       			                        search: false, // show search button on the toolbar
+                       			                        add: false,
+                       			                        edit: false,
+                       			                        del: false,
+                       			                        refresh: false
+                       			                    });
+                       			                },
+                       			                animate: false,
+                       			                closable: false,
+                       			                closeByBackdrop: false,
+                       			                closeByKeyboard: false,
+                       			                buttons: [{
+                       			                    label: 'Cancel',
+                       			                    icon: 'glyphicon glyphicon-remove',
+                       			                    cssClass: 'btn-success',
+                       			                    action: function (dialogRef) {
+                       			                        dialogRef.close();
+                       			                    },
+                       			                }, {
+                       			                    label: 'OK',
+                       			                    id: 'btnOK',
+                       			                    icon: 'glyphicon glyphicon-ok',
+                       			                    cssClass: 'btn-success',
+                       			                    action: function (dialogRef) {
+                       			                        var nik = getGridCellValue(gridTbl, 'nik');
+                       			                        if (nik) {
+                       			                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                       			                            var rowData = gridTbl.getRowData(rowId);
+                       			                            var employeeName = rowData['employee_name'];
+                       			                            var idapp = rowData['idapp'];
+                       			                            var mainIDbtn = item.getAttribute('id').substring(3);
+                       			                            //set nik
+                       			                            var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
+                       			                            //set employee_name
+                       			                            elfk_employee.value = rowData['nik'];
+                       			                            var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
+                       			                            elempname.value = employeeName;
+                       			                            var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
+                       			                            elidapp.value = idapp;
+                       			                            dialogRef.close();
+                       			                        }
+                       			                    }
+                       			                }]
+                       			            });
+                       			            restyleBoostrapDialog();
+                       			            //var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+                       			            //gbox.style.width = '432px';
+                       			            //var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+                       			            //gview.style.width = '432px';
+                       			            //var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
+                       			            //tdInfo.style.width = '110px';
+                       			            //var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
+                       			            //pager.style.width = '430px';
+                       			            evt.stopImmediatePropagation();
+                       			        });
+                       			    }
                        			});
+                       			hasLoadDialog = true;
+                       			win.onbeforeunload = function (e) {
+                       			    var valuesForm = getValuesForm(); var retval = false;
+                       			    if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+                       			        return NA.common.message.dataHasChanged;
+                       			    }
+                       			}
                        		}
                        	}
                     });

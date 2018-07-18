@@ -42,6 +42,7 @@ def NA_Goods_Disposal(request):
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Disposal.html',{'populateColumn':populate_combo})
 
+
 def NA_Goods_Disposal_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
@@ -74,6 +75,7 @@ def NA_Goods_Disposal_Search(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+
 def getGoodsWithHistory(request):
 	try:
 		searchText = request.GET.get('searchData')
@@ -104,11 +106,26 @@ def getLastTransGoods(request):
 	try:
 		result = NADisposal.objects.getLastTrans(serialNO)
 		#return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
-		return HttpResponse(json.dumps({'idapp_fk_goods':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
+		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
 								  'islost':result[5],'fk_usedemployee':result[6],'usedemployee':result[7],'fk_acc_fa':result[8],'bookvalue':result[9],
 								  'lastinfo':result[10],'fk_maintenance':result[11],'fk_return':result[12],
                                   'fk_lending':result[13],'fk_outwards':result[14],
 								  }),status = 200, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+
+def getBookValue(request):
+	statuscode = 200
+	serialNO = request.GET.get('serialno')
+	idappFKGoods = request.GET.get('idapp_fk_goods')
+	dateDisposal = datetime.date().today() if request.GET.get('datedisposal') is None else request.GET.get('datedisposal')
+	try:
+		result = NADisposal.objects.getBookValue({'idapp':idappFKGoods,'SerialNo':serialNO,'DateDisposal':dateDisposal})
+		if result is None :
+			statuscode = 500
+			return HttpResponse(json.dumps({'message':'unknown book value'}),status = statuscode, content_type='application/json')
+		return json.dumps({'fk_acc_fa':result[0],'bookvalue':result[0]},cls=DjangoJSONEncoder,status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

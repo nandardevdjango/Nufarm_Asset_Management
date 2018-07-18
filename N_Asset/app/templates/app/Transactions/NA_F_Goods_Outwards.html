@@ -883,10 +883,10 @@
 			}
 			elgoods.attributes['placeholder'] = '';			
 			if (IsFromTextBox) {
-				NA.common.getElementID('lastUsedInfo').style.display = 'none';
+				NA.common.getElementID('lastUsedInfo').style.display = 'block';
 			}
 			else {
-				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+				NA.common.getElementID('lastUsedInfo').style.display = 'none';
 			}
 			NA.common.getElementID('difInfo').style.display = 'block';
 		};
@@ -1672,8 +1672,6 @@
 								var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_employee"],[id="FE_fk_sender"],[id="FE_fk_responsibleperson"]');
 								Array.prototype.forEach.call(listFK, function (item) {
 									if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-										NA.NAEvent.preventDefault(event);//prevent from submit
-										event.stopImmediatePropagation();
 										return false;
 									}
 									else {
