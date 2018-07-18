@@ -129,9 +129,9 @@
                                 </a>
                             </li>
 							<li>
-                                <ul class="sub-menu collapse" id="ga" aria-expanded="false" style="">
+                                <ul class="sub-menu collapse" id="ga" aria-expanded="false">
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
-                                    <li><a href="#">Goods Outwords</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="#">Goods Returned</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
                                 </ul>
