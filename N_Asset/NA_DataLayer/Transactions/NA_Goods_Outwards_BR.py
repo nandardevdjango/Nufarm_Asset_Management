@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.db.models import Q
 from NA_DataLayer.common import commonFunct
 from distutils.util import strtobool
+import math
 class NA_BR_Goods_Outwards(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		colkey = ''
@@ -153,14 +154,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-	#def getbookvalue(self,**kwargs):
-		#if kwargs['idapp'] is not None:
-		#	#ambil economic life,star
-		#	#Query = """SELECT g.economiclife,af.startdate, CASE WHEN g.typeapp = 'GA' THEN (SELECT price FROM n_a_ga_receive WHERE 
-		#else:
-		#	#get idapp
-		#	Query = """SELECT g.idapp,g.itemcode,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS BrandName,ngd.typeapp FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App \
-		#	LEFT OUTER JOIN n_a_goods g ON g.IDApp = ngr.FK_Goods WHERE ngd.serialnumber = %s"""
+
 
 	def getLastTrans(self,SerialNO):
 		"""function untuk mengambil terakhir transaksi data, sebagai umpan balik ke user, barang ini terakhir di pake oleh siapa / belum di pakai sama sekali
@@ -222,20 +216,26 @@ class NA_BR_Goods_Outwards(models.Manager):
 				if cur.rowcount > 0:
 					row = cur.fetchone()
 					lastInfo = 'Last used by ' + str(row[0]) + '|' +  str(row[1]) + ', date lent ' + str(parse(row[2]).strftime('%d %B %Y')) + ', interests ' + str(row[3])
+					fk_usedemployee = str(row[0])
+					usedemployee = str(row[1])
 			elif int(fkoutwards) > 0:
-				Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
+				Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngo.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
 							WHERE ngo.IDApp = %s"""
 				cur.execute(Query,[fkoutwards])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
 					lastInfo = 'Last used by ' + str(row[0]) + '|' + str(row[1]) + ', date released ' + str(parse(row[2]).strftime('%d %B %Y')) + ', ' + str(row[3]) + ' (goods is still in use)'
+					fk_usedemployee = str(row[0])
+					usedemployee = str(row[1])
 			elif int(fkreturn) > 0:
-				Query = """SELECT e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.NIK = ngt.FK_FromEmployee
+				Query = """SELECT e.nik,e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.NIK = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				cur.execute(Query,[fkreturn])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
 					lastInfo = 'Last used by ' + str(row[0]) + ', date returned ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is already returned)'
+					fk_usedemployee = str(row[0])
+					usedemployee = str(row[1])
 			elif int(fkmaintenance) > 0:
 				Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
 				cur.execute(Query,[fkmaintenance])
@@ -280,22 +280,26 @@ class NA_BR_Goods_Outwards(models.Manager):
 					lost_status = row[4]
 					if lost_status == "F":
 						if int(fk_lost_lending) > 0:
-							Query = """SELECT e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
+							Query = """SELECT e.NIK,e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.NIK = ngl.FK_Employee
 									WHERE ngl.IDApp = %s"""
 							cur.execute(Query,[fk_lost_lending])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
 								lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+								fk_usedemployee = str(row[0])
+								usedemployee = str(row[1])
 						elif int(fk_lost_outwards) > 0:
-							Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
+							Query = """SELECT e.NIK,e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
 									WHERE ngo.IDApp = %s"""
-							cur.execute(Query,[fkoutwards])
+							cur.execute(Query,[fk_lost_outwards])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
 								lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+								fk_usedemployee = str(row[0])
+								usedemployee = str(row[1])
 						elif int(fk_lost_maintenance) > 0:
 							Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
-							cur.execute(Query,[fkmaintenance])
+							cur.execute(Query,[fk_lost_maintenance])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
 								isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()

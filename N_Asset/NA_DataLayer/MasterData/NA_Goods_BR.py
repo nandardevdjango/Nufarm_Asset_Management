@@ -7,6 +7,7 @@ from django.core import exceptions
 from decimal import Decimal, DecimalException
 from django.db.models import F, Q
 from django.db.models.functions import Concat
+
 class NA_BR_Goods(models.Manager):
 	def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		NAData = None
@@ -114,7 +115,7 @@ class NA_BR_Goods(models.Manager):
 				return "success"
 			elif(Status==StatusForm.Edit):				
 				if(not self.HasExist(itemCode)):
-					raise exceptions('data has lost')		
+					raise Exception('data has lost')		
 				obj.save(force_update=True,using=self.db)
 				return "success"	
 		except Exception as e:					

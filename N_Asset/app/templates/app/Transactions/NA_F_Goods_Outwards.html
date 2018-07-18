@@ -1437,7 +1437,15 @@
 								originalData = JSON.stringify(getValuesForm());
 
 								//==============date request=============
-				
+								if (win.status !== 'Add') {
+									var eloriginalData = JSON.parse(originalData);
+									var valDaterequest = new Date(eloriginalData.daterequest);
+									$("#id_daterequest").datepicker("setDate", valDaterequest);
+
+									var eloriginalData = JSON.parse(originalData);
+									var valDatereleased = new Date(eloriginalData.datereleased);
+									$("#id_datereleased").datepicker("setDate", valDatereleased);
+								}
 								$('#id_datereleased').datepicker({
 									dateFormat: 'dd/mm/yy',
 									changeMonth: true,
@@ -1459,10 +1467,8 @@
 									currentText: 'Now',
 								});
 
-								$.datepicker._gotoToday = function (id) {
-									$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
-								};
 								//setting Custom Validity
+								var elm = NA.common.doc.querySelector('#id_daterequest');
 								NA.NAEvent.addHandler(elm, 'input', function (event) {
 									var elpat = this.getAttribute('patern');
 									var patern = new RegExp(elpat, 'i');
@@ -1478,7 +1484,7 @@
 										this.setCustomValidity(''); //clearkan error custom validity
 									}
 								});
-
+								
 								var elm = NA.common.doc.querySelector('#id_datereleased');
 								NA.NAEvent.addHandler(elm, 'input', function (event) {
 									var elpat = this.getAttribute('patern');
@@ -1496,15 +1502,9 @@
 									}
 								});
 
-								if (win.status !== 'Add') {
-									//var eloriginalData = JSON.parse(originalData);
-									//var valDaterequest = new Date(eloriginalData.daterequest);
-									//$("#id_daterequest").datepicker("setDate", valDaterequest);
-
-									//var eloriginalData = JSON.parse(originalData);
-									//var valDatereleased = new Date(eloriginalData.datereleased);
-									//$("#id_datereleased").datepicker("setDate", valDatereleased);
-								}
+								$.datepicker._gotoToday = function (id) {
+									$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
+								};
 								originalData = JSON.stringify(getValuesForm());
 
 								var initializeForm = NA.common.getElementID('id_initializeForm');
@@ -1561,17 +1561,17 @@
 											};
 											//loads Data into JqueryGrid
 											gridTbl = NA.common.doc.createElement('table');
-											gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_FK_Goods';
+											gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods';
 											gridPager = NA.common.doc.createElement('div');
-											gridPager.id = 'jqGrid_NA_F_Goods_Disposal_FK_Goods_Pager';
+											gridPager.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager';
 											mainContainer.appendChild(gridTbl);
 											mainContainer.appendChild(gridPager);
 											return containerMessage;
 										},
 										onshown: function (dialogRef) {
 											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-											gridTbl = $('#jqGrid_NA_F_Goods_Disposal_FK_Goods');
-											gridPager = $('#jqGrid_NA_F_Goods_Disposal_FK_Goods_Pager');
+											gridTbl = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods');
+											gridPager = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager');
 											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
 											gridTbl.jqGrid({
 												url: urlGoods,
@@ -1725,9 +1725,9 @@
 													};
 													//loads Data into JqueryGrid
 													gridTbl = NA.common.doc.createElement('table');
-													gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_employee';
+													gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_fk_employee';
 													gridPager = NA.common.doc.createElement('div');
-													gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_employee_Pager';
+													gridPager.id = 'jqGrid_NA_F_Goods_Outwards_fk_employee_Pager';
 													mainContainer.appendChild(gridTbl);
 													mainContainer.appendChild(gridPager);
 													return containerMessage;
@@ -1735,8 +1735,8 @@
 												onshown: function (dialogRef) {
 													var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
 													//loads Data into JqueryGrid
-													gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_employee');
-													gridPager = $('jqGrid_NA_F_Goods_Receive_fk_employee_Pager');
+													gridTbl = $('#jqGrid_NA_F_Goods_Outwards_fk_employee');
+													gridPager = $('jqGrid_NA_F_Goods_Outwards_fk_employee_Pager');
 													var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
 													gridTbl.jqGrid({
 														url: urlPR,
@@ -1769,7 +1769,7 @@
 														//forceFit: true,
 														//toolbar: true,
 														scrollrows: true,
-														pager: "#jqGrid_NA_F_Goods_Receive_fk_employee_Pager"
+														pager: "#jqGrid_NA_F_Goods_Outwards_fk_employee_Pager"
 													});
 													gridTbl.navGrid(gridPager, {
 														search: false, // show search button on the toolbar

@@ -99,6 +99,19 @@ def getGoodsWithHistory(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
+def getLastTransGoods(request):
+	serialNO = request.GET.get('serialno')
+	try:
+		result = NADisposal.objects.getLastTrans(serialNO)
+		#return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
+		return HttpResponse(json.dumps({'idapp_fk_goods':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
+								  'islost':result[5],'fk_usedemployee':result[6],'usedemployee':result[7],'fk_acc_fa':result[8],'bookvalue':result[9],
+								  'lastinfo':result[10],'fk_maintenance':result[11],'fk_return':result[12],
+                                  'fk_lending':result[13],'fk_outwards':result[14],
+								  }),status = 200, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 @ensure_csrf_cookie
 def ShowEntry_Disposal(request):
 	authentication_classes = []

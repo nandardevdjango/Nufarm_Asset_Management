@@ -22,8 +22,10 @@ from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
 from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
+from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
+
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
 
@@ -429,67 +431,66 @@ class NA_GoodsReceive_detail(NA_BaseModel):
     class Meta:
         db_table = 'n_a_goods_receive_detail'
 
+class NAGoodsReturnModel(NA_TransactionModel):
+	datereturn = models.DateTimeField(db_column='DateReturn')
+	conditions = models.CharField(db_column='Conditions', max_length=1)
+	fk_fromemployee = models.ForeignKey(
+		Employee,
+		db_column='FK_FromEmployee',
+		max_length=50,
+		blank=True,
+		null=True,
+		related_name='fk_ngr_fromemployee',
+		db_constraint=False
+	)
+	fk_usedemployee = models.ForeignKey(
+		Employee,
+		db_column='FK_UsedEmployee',
+		max_length=50,
+		blank=True,
+		null=True,
+		related_name='fk_ngr_usedemployee',
+		db_constraint=False
+	)
+	iscompleted = models.PositiveSmallIntegerField(db_column='IsCompleted')
+	minusDesc = models.CharField(
+		db_column='MinusDesc',
+		max_length=100,
+		blank=True,
+		null=True
+	)
+	fk_goods_outwards = models.ForeignKey(
+		'NAGoodsOutwards',
+		db_column='FK_Goods_Outwards',
+		null=True,
+		blank=True,
+		db_constraint=False
+	)
+	fk_goods_lend = models.ForeignKey(
+		'NAGoodsLending',
+		db_column='FK_Goods_Lend',
+		blank=True,
+		null=True,
+		db_constraint=False
+	)
+	descriptions = models.CharField(
+		db_column='Descriptions',
+		max_length=250,
+		blank=True,
+		null=True
+	)
+	class Meta:
+		abstract = True
 
-class NAGoodsReturn(NA_TransactionModel):
-    fk_employee = None
+class NAGoodsReturn(NAGoodsReturnModel):
+	fk_employee = None
+	objects = NA_BR_Goods_Return()
 
-    datereturn = models.DateTimeField(db_column='DateReturn')
-    conditions = models.CharField(db_column='Conditions', max_length=1)
-    fk_fromemployee = models.ForeignKey(
-        Employee,
-        db_column='FK_FromEmployee',
-        max_length=50,
-        blank=True,
-        null=True,
-        related_name='fk_ngr_fromemployee',
-        db_constraint=False
-    )
-    fk_usedemployee = models.ForeignKey(
-        Employee,
-        db_column='FK_UsedEmployee',
-        max_length=50,
-        blank=True,
-        null=True,
-        related_name='fk_ngr_usedemployee',
-        db_constraint=False
-    )
-    iscompleted = models.PositiveSmallIntegerField(db_column='IsCompleted')
-    minusDesc = models.CharField(
-        db_column='MinusDesc',
-        max_length=100,
-        blank=True,
-        null=True
-    )
-    fk_goods_outwards = models.ForeignKey(
-        'NAGoodsOutwards',
-        db_column='FK_Goods_Outwards',
-        null=True,
-        blank=True,
-        db_constraint=False
-    )
-    fk_goods_lend = models.ForeignKey(
-        'NAGoodsLending',
-        db_column='FK_Goods_Lend',
-        blank=True,
-        null=True,
-        db_constraint=False
-    )
-    descriptions = models.CharField(
-        db_column='Descriptions',
-        max_length=250,
-        blank=True,
-        null=True
-    )
-
-    objects = NA_BR_Goods_Return()
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_goods_return'
-
-    def __str__(self):
-        return self.fk_goods.goodsname
-
+	class Meta:
+		managed = True
+		db_table = 'n_a_goods_return'
+	def __str__(self):
+		return self.fk_goods.goodsname
 
 class NAMaintenance(NA_TransactionModel):
     fk_employee = None
@@ -533,7 +534,6 @@ class NAMaintenance(NA_TransactionModel):
         managed = True
         db_table = 'n_a_maintenance'
 
-
 class NAStock(NA_BaseModel):
     fk_goods = models.ForeignKey(
         goods, db_column='FK_Goods', db_constraint=False)
@@ -554,7 +554,6 @@ class NAStock(NA_BaseModel):
     class Meta:
         managed = True
         db_table = 'n_a_stock'
-
 
 class NAGoodsLending(NA_TransactionModel):
     isnew = models.IntegerField(db_column='IsNew')
@@ -633,7 +632,6 @@ class NAGoodsLending(NA_TransactionModel):
         db_table = 'n_a_goods_lending'
     objects = NA_BR_Goods_Lending()
 
-
 class NAGoodsOutwards(NAGoodsOutwardsModel):
     class Meta:
         managed = True
@@ -711,12 +709,11 @@ class NAGoodsLost(NA_TransactionModel):
         managed = True
         db_table = 'n_a_goods_lost'
 
-
 class NADisposal(NA_TransactionModel):
 	fk_employee = None
 
 	datedisposal = models.DateField(db_column='DateDisposal')
-	islost = models.PositiveSmallIntegerField(db_column='IsLost')
+	islost = models.PositiveSmallIntegerField(db_column='IsLost',default=0)
 	#ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
 	issold = models.PositiveSmallIntegerField(db_column='IsSold', blank=True, null=True)
 	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
@@ -787,10 +784,8 @@ class NADisposal(NA_TransactionModel):
 		managed = True
 		db_table = 'n_a_disposal'
 
-
 def upload_to_each_dir(instance, filename):
     return instance.get_dir_image(filename)
-
 
 class NAPriviledge(AbstractUser, NA_BaseModel):
 
@@ -1076,7 +1071,6 @@ class NAPriviledge(AbstractUser, NA_BaseModel):
         managed = True
         db_table = 'N_A_Priviledge'
 
-
 class NAPriviledge_form(models.Model):
 
     Employee_form = 'employee'
@@ -1163,7 +1157,6 @@ class NAPriviledge_form(models.Model):
             return cls.get_form_IT(must_iterate)
         elif divisi == NAPriviledge.GA:
             return cls.get_form_GA(must_iterate)
-
 
 class NASysPriviledge(NA_BaseModel):
 
@@ -1341,7 +1334,6 @@ class NASysPriviledge(NA_BaseModel):
             raise ValueError('permission cannot be null')
         return 'successfully added custom permission'
 
-
 class NAGoodsReceive_other(NA_GoodsReceiveModel):
     fk_goods = models.ForeignKey(
         goods,
@@ -1369,7 +1361,6 @@ class NAGoodsReceive_other(NA_GoodsReceiveModel):
 
     class Meta:
         db_table = 'n_a_goods_receive_other'
-
 
 class NAGoodsHistory(NA_TransactionModel):
     modifieddate = None
@@ -1427,7 +1418,6 @@ class NAGoodsHistory(NA_TransactionModel):
     class Meta:
         managed = True
         db_table = 'n_a_goods_history'
-
 
 class NAGaReceive(NA_BaseModel):
     fk_goods = models.ForeignKey(
@@ -1490,7 +1480,6 @@ class NAGaReceive(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_receive'
 
-
 class NAGaVnHistory(NA_BaseModel):
 
     reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
@@ -1509,7 +1498,6 @@ class NAGaVnHistory(NA_BaseModel):
 # idapp, fk_goods, fk_employee, typeapp, serialnumber, isnew, daterequest, daterealesed,
 # fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
 # fk_lending, fk_return, fk_receive, descriptions
-
 
 class NAGaOutwards(NAGoodsOutwardsModel):
     fk_lending = None
@@ -1536,3 +1524,16 @@ class NAGaOutwards(NAGoodsOutwardsModel):
     class Meta:
         managed = True
         db_table = 'n_a_ga_outwards'
+class NAGAReturn(NAGoodsReturnModel):
+	fk_employee = None
+	fk_goods_outwards = None
+	fk_goods_lend = None	
+
+	fk_ga_outwards = models.ForeignKey('NAGaOutwards',db_column='fk_ga_outwards',db_constraint=False,blank=True,null=True)
+
+	objects = NA_BR_Goods_Return_GA()
+	class Meta:
+		managed = True
+		db_table = 'n_a_ga_return'
+	def __str__(self):
+		return self.fk_goods.goodsname

@@ -168,6 +168,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Outwards_BR.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Outwards_GA_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_GA_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_Other_BR.py" />
@@ -184,6 +185,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_User\__init__.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Return_GA_BR.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="NA_DataLayer\Transactions\__init__.py">
       <SubType>Code</SubType>
     </Compile>

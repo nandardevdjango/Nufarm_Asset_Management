@@ -4,7 +4,9 @@ urlpatterns = [
 	url(r'^$',NA_Goods_Disposal_View.NA_Goods_Disposal,name='GoodsDisposal'),
     url(r'^NA_Goods_Disposal_Search/$',NA_Goods_Disposal_View.NA_Goods_Disposal_Search,name='GoodsDisposalManager'),
     url(r'^ShowEntry_Disposal',NA_Goods_Disposal_View.ShowEntry_Disposal,name='ShowEntryDisposal'),
- #   url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists),
+	url(r'^getLastTransGoods/$',NA_Goods_Disposal_View.getLastTransGoods,name='getlastTransGoods_Disposal'),
+	url(r'^getGoodsWithHistory/$',NA_Goods_Disposal_View.getGoodsWithHistory,name='getGoodsWithHistory_Disposal'),
+ #  url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists),
 	#url(r'^Delete/$',NA_Goods_Outwards_View.Delete),
 	#url(r'^customFilter/$',NA_Goods_Outwards_View.ShowCustomFilter)
 	]
