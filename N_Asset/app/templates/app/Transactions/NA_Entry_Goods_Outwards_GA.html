@@ -1,12 +1,12 @@
 <div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
-          style="background-color:transparent;font-size: 1em;width:520px;max-height:485px;overflow:auto;" 
+          style="background-color:transparent;font-size: 1em;width:550px;max-height:485px;overflow:auto;" 
 		  id="form_ga_receive" onsubmit="return false;">
         {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
             <div class="NA-Entry-div-row">
-                <label for="id_itemcode" class="NA-Entry-label;" style="display:inline-block; width:100px;">Goods</label>
+                <label for="id_itemcode" class="NA-Entry-label;" style="display:inline-block; width:120px;">Goods</label>
                 {{ form.itemcode }}
                 <div class="input-group" style="display: inline-flex; width: 50%;position:relative;top:2px;">
                     {{ form.goodsname }}
@@ -36,7 +36,7 @@
             <fieldset style="margin-bottom:5px;margin-top:5px;">
                 <legend>Employee Info</legend>
                 <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="id_supliercode" class="NA-Entry-label;" style="display:inline-block;width:100px;">Employee</label>
+                    <label for="id_employee_nik" class="NA-Entry-label;" style="display:inline-block;width:120px;">Employee</label>
                     {{ form.employee_nik }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.employee_name }}
@@ -47,10 +47,10 @@
                 </div>
                 
                 <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="fk_received_by_nik" class="NA-Entry-label;" style="display:inline-block;width:100px;">Received By</label>
-                    {{ form.sender_name }}
+                    <label for="id_sender_nik" class="NA-Entry-label;" style="display:inline-block;width:120px;">Send by</label>
+                    {{ form.sender_nik }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
-                        {{ form.sender_nik }}
+                        {{ form.sender_name }}
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="btn_fk_received_by" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
@@ -58,7 +58,7 @@
                 </div>
                 
                 <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="id_pr_by_nik" class="NA-Entry-label;" style="display:inline-block;width:100px;">PR By</label>
+                    <label for="id_resp_employee_nik" class="NA-Entry-label;" style="display:inline-block;width:120px;">Responsible by</label>
                     {{ form.resp_employee_nik }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.resp_employee_name }}
@@ -74,58 +74,26 @@
                 <legend>More Detail</legend>
                 <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
-                        <label for="id_brand" style="display:inline-block; width:100px;">Brand</label>
-                        {{ form.brand }}
-                    </div>
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_typeapp" style="display:inline-block; width:85px;margin-left:10px;">Type</label>
-                        {{ form.typeapp }}
+                        <label for="id_daterequest" style="display:inline-block; width:120px;">Date Request</label>
+                        {{ form.daterequest }}
                     </div>
                 </div>
-				<div style="margin-bottom:5px;margin-right:auto">
+                <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
-                        <label for="id_model" style="display:inline-block; width:100px;">Model</label>
-                        {{ form.model }}
-                    </div>
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_kind" style="display:inline-block; width:85px;margin-left:10px;">Kind</label>
-                        {{ form.kind }}
+                        <label for="id_datereleased" style="display:inline-block; width:120px;">Date Released</label>
+                        {{ form.datereleased }}
                     </div>
                 </div>
-				<div style="margin-bottom:5px;margin-right:auto">
+                <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
-                        <label for="id_year_made" style="display:inline-block; width:100px;">Year made</label>
-                        {{ form.year_made }}
-                    </div>
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_colour" style="display:inline-block; width:85px;margin-left:10px;">Colour</label>
-                        {{ form.colour }}
+                        <label for="id_equipment" style="display:inline-block; width:120px;">Equipment</label>
+                        {{ form.equipment }}
                     </div>
                 </div>
-				<div style="margin-bottom:5px;margin-right:auto">
+                <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
-                        <label for="id_fuel" style="display:inline-block; width:100px;">Fuel</label>
-                        {{ form.fuel }}
-                    </div>
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_cylinder" style="display:inline-block; width:85px;margin-left:10px;">Cylinder</label>
-                        {{ form.cylinder }}
-                    </div>
-                </div>
-				<div style="margin-bottom:5px;margin-right:auto">
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_invoice_no" style="display:inline-block; width:100px;">Invoice no</label>
-                        {{ form.invoice_no }}
-                    </div>
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_machine_no" style="display:inline-block; width:85px;margin-left:10px;">Machine no</label>
-                        {{ form.machine_no }}
-                    </div>
-                </div>
-				<div style="margin-bottom:5px;margin-right:auto">
-                    <div class="NA-Entry-inlinve-div">
-                        <label for="id_chassis" style="display:inline-block; width:100px;">Chassis no</label>
-                        {{ form.chassis_no }}
+                        <label for="id_equipment" style="display:inline-block; width:120px;">Add Equipment</label>
+                        {{ form.add_equipment }}
                     </div>
                 </div>
             </fieldset>
