@@ -90,9 +90,9 @@ def getGoodsWithHistory(request):
 		i = 0;#idapp,itemcode,goods
 		for row in dataRows:
 			i+=1
-			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,lastrepairedfrom,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
+			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
 			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['fk_goods'],row['goodsname'],row['brandname'],row['type'],
-							row['serialnumber'],row['fk_usedemployee'],row['lastrepairedfrom'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
+							row['serialnumber'],row['fk_usedemployee'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
 		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
@@ -117,15 +117,17 @@ def getLastTransGoods(request):
 
 def getBookValue(request):
 	statuscode = 200
-	serialNO = request.GET.get('serialno')
-	idappFKGoods = request.GET.get('idapp_fk_goods')
-	dateDisposal = datetime.date().today() if request.GET.get('datedisposal') is None else request.GET.get('datedisposal')
+	data = request.body
+	data = json.loads(data)
+	serialNO = data['serialno']
+	idappFKGoods = data['idapp_fk_goods']
+	dateDisposal = datetime.date.today() if data['datedisposal'] is None else data['datedisposal']
 	try:
-		result = NADisposal.objects.getBookValue({'idapp':idappFKGoods,'SerialNo':serialNO,'DateDisposal':dateDisposal})
+		result = NADisposal.objects.getBookValue(None,idapp= idappFKGoods,SerialNo=serialNO,DateDisposal=dateDisposal)
 		if result is None :
 			statuscode = 500
 			return HttpResponse(json.dumps({'message':'unknown book value'}),status = statuscode, content_type='application/json')
-		return json.dumps({'fk_acc_fa':result[0],'bookvalue':result[0]},cls=DjangoJSONEncoder,status = 200, content_type='application/json')
+		return json.dumps({'fk_acc_fa':result[0],'bookvalue':result[1]},cls=DjangoJSONEncoder,status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

@@ -814,12 +814,11 @@
 		};
 		function fillGoodsInfo(rowData, serialnumber,IsFromTextBox) {
 			 //form.idapp_fk_goods 
-
 			 //form.fk_frommaintenance 
 			 //form.fk_return 
 			 //form.fk_lending 
 			 //form.fk_receive 
-
+			 //
 			//form.idapp di status edit/open
 
 			//  	form.idapp_fk_goods
@@ -860,7 +859,7 @@
 			var elfk_goodsValue = NA.common.getElementID('fk_goodsValue');
 			elfk_goodsValue.textContent = rowData['fk_goods'] || '';
 
-			//form.LastInfo')
+			//lastInfoValue
 			var ellastinfo = NA.common.getElementID('LastInfoValue');
 			ellastinfo.textContent = rowData['lastinfo'] || '';
 

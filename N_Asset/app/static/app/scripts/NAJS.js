@@ -529,13 +529,19 @@ NA.common = {
     //    }
     //    return result;
     //},
-    FormatNumber : function(num,decimals, dec_point, thousands_sep) {
+    FormatNumber: function (num, decimals, dec_point, thousands_sep) {
+        NNum = 0;
+        if (typeof num === 'string') {
+            NNum = Number(num.trim());
+        } else {
+            NNum = Number(num)
+        }     
         dec_point = typeof dec_point !== 'undefined' ? dec_point : '.';
         thousands_sep = typeof thousands_sep !== 'undefined' ? thousands_sep : ',';
 
-        var parts = num.toFixed(decimals).split('.');
+        var parts = NNum.toFixed(decimals).split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands_sep);
-        if (num <= 0 || num === '0') { return String(num) + dec_point + '00';   }
+        if (NNum <= 0 || NNum === '0') { return String(NNum) + dec_point + '00'; }
         return parts.join(dec_point);
     },
     //=======================FORM SERIALIZATION==========================

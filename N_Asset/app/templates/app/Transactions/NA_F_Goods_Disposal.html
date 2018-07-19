@@ -797,40 +797,47 @@
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
+			// data dari server {"idapp": 4, "fk_goods": "0004", "goodsname": "HP", "brandname": "SAMSUNG", "type": "J7",
+			//"islost": false, "fk_usedemployee": "0112145678901123", "usedemployee": "Rimba Prayoga", "fk_acc_fa": 0, "bookvalue": 0, 
+			//"lastinfo": "Last used by 0112145678901123|Rimba Prayoga, date lent 11 May 2018, interests FMS TRAINING", "fk_maintenance": 0, 
+			//"fk_return": 0, "fk_lending": 8, "fk_outwards": 0}
+
 		    //form.idapp_fk_goods 
-			//form.fk_frommaintenance 
+			//form.fk_maintenance 
 			//form.fk_return 
 			//form.fk_lending 
 			//form.fk_receive 
-
+			//islost
+			//fk_acc_fa
+			//idapp_fk_usedemployee
+			//fk_bookvalueValue
 			//form.idapp di status edit/open
 
-			//  	form.idapp_fk_goods
+			// form.idapp_fk_goods
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 			elidapp_fk_goods.value = rowData['idapp'] || null;
 
-			////    form.fk_frommaintenance 
-			//var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
-			//elfk_maintenance.value = rowData['fk_maintenance'] || null;
+			//   form.fk_maintenance 
+			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
+			elfk_maintenance.value = rowData['fk_maintenance'] || null;
 
-			////      form.fk_return 
-			//var elfk_return = NA.common.getElementID('id_fk_return');
-			//elfk_return.value = rowData['fk_return'] || null;
+			//    form.fk_return 
+			var elfk_return = NA.common.getElementID('id_fk_return');
+			elfk_return.value = rowData['fk_return'] || null;
 
-			////    form.fk_currentapp
-			//var elfk_receive = NA.common.getElementID('id_fk_lending');
-			//elfk_receive.value = rowData['fk_lending'] || null;
+			////  form.fk_lending 
+			var elfk_receive = NA.common.getElementID('id_fk_lending');
+			elfk_receive.value = rowData['fk_lending'] || null;
 
-			////     form.fk_receive 
-			//var elfk_receive = NA.common.getElementID('id_fk_receive');
-			//elfk_receive.value = rowData['fk_receive'] || null;
+			//  form.fk_receive 
+			var elfk_receive = NA.common.getElementID('id_fk_receive');
+			elfk_receive.value = rowData['fk_receive'] || null;
 
-			//if (elfk_receive.value) {
-			//	if (parseInt(elfk_receive.value) > 0) {
-			//		var elisNew = NA.common.getElementID('id_isnew');
-			//		elisNew.value = true;
-			//	}
-			//}
+
+			//form.goods
+			//var elgoods = NA.common.getElementID('id_goods');
+			//elgoods.value = rowData['goodsname'] || '';
+
 			////form.brandvalue
 			//var elbrandvalue = NA.common.getElementID('BrandValue');
 			//elbrandvalue.textContent = rowData['brandname'] || '';
@@ -847,13 +854,18 @@
 			//var ellastinfo = NA.common.getElementID('LastInfoValue');
 			//ellastinfo.textContent = rowData['lastinfo'] || '';
 
+			//lastUsedInfo
 			////fk_usedemployee & fk_usedemployee_employee
 			//var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 			//elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];            	
 
-			//form.goods
-			//var elgoods = NA.common.getElementID('id_goods');
-			//elgoods.value = rowData['goodsname'] || '';
+			//bookvalue
+			//fk_bookvalueValue
+			var elfk_bookvalueValue = NA.common.getElementID('fk_bookvalueValue');
+			elfk_bookvalueValue.value = Number(rowData['bookvalue']).toLocaleString(undefined,{minimumFractionDigits: 2, maximumFractionDigits: 2});
+			//islost
+
+			//fk_acc_fa
 
 			if (!serialnumber) {
 				elserialnumber = NA.common.getElementID('id_serialnumber');
@@ -865,36 +877,42 @@
 				NA.common.getElementID('lastUsedInfo').style.display = 'block';
 			}
 			else {
-			    NA.common.getElementID('lastUsedInfo').style.display = 'none';
-			    //check book value
-			    var NAAjax = NA.common.AJAX;
-                // hadeuh harus diserialize json
-			    var url = 'getBookValue/?' + win.encodeURIComponent('idapp_fk_goods') + '=' + win.encodeURIComponent(elidapp_fk_goods.value)
-			    '&' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(elserialnumber.value) +
-                '&' + win.encodeURIComponent('datedisposal') + '=' + 'datedisposal'
-			    NAAjax.GET(url,
-                            'application/json',//overrideMimeType returned by the server
-                            function () { window.document.body.style.cursor = 'wait'; },
-                            null,//nggak usah di isi bila tidak perlu
-                            function () {//function executed after data has been returned by server(XHR.onload)
-                                var data = JSON.parse(this.responseText);
-                                if (data) {
-                                    var mainID = elmID.substring(3);
-                                    //set employee_name
-                                    var elempname = NA.common.getElementID('id_' + mainID + '_employee');
-                                    var elidapp = NA.common.getElementID('id_idapp_' + mainID);
-                                    //var elFKEmp = NA.common.getElementID('id_' + mainID);
-                                    //elFKEmp.value = data['nik']||'';
-                                    elempname.value = data['employee_name'] || '';
-                                    elidapp.value = data['idapp'] || '';
-                                }
-                            }, null, function () {//function untuk ajax error
-                                window.document.body.style.cursor = 'default'; XhrError(this);
-                            }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
-                            null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                            );
+			    NA.common.getElementID('lastUsedInfo').style.display = 'none';			 
 			}
-			//NA.common.getElementID('difInfo').style.display = 'block';
+			//check book value
+			var NAAjax = NA.common.AJAX;
+			// hadeuh harus diserialize json
+			var curDate = GetServerFormatDate(new Date());
+			var elDateDisposal = NA.common.getElementID('id_datedisposal');
+			var dateDisposal = elDateDisposal.value || curDate;
+			var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
+			NAAjax.POST('getBookValue/', JSON.stringify(params), 'application/x-www-form-urlencoded',
+					'application/json',
+						function () { window.document.body.style.cursor = 'wait'; },
+						null,//nggak usah di isi bila tidak perlu
+						function () {//function executed after data has been returned by server(XHR.onload)
+							if (this.status === 200) {
+								var data = JSON.parse(this.responseText);
+								if (data) {
+									//return [int fk_acc_fa,float bookvalue]
+									var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
+									var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
+									elfkAccFA.value = fkAccFA;
+									elBookValue.value = bookvalue;
+								}
+								else {
+									XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+								}
+							}
+							else {
+								XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+							}
+						}, null, function () {//function untuk ajax error
+							window.document.body.style.cursor = 'default'; XhrError(this);
+						}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+						null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+						);
+			NA.common.getElementID('difInfo').style.display = 'block';
 		};
 		function fillEmployeeName(event, elmID) {
 			var NAAjax = NA.common.AJAX;

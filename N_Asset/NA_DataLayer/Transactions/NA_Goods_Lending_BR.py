@@ -170,21 +170,21 @@ class NA_BR_Goods_Lending(models.Manager):
 				cur.execute(Query,[fklending])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+					lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + parse(str(row[1])).strftime('%d %B %Y') + ', interests ' + str(row[2])
 			elif int(fkoutwards) > 0:
 				Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
 							WHERE ngo.IDApp = %s"""
 				cur.execute(Query,[fkoutwards])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+					lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + parse(str(row[1])).strftime('%d %B %Y') + ', ' + str(row[2]) + ' (goods is still in use)'
 			elif int(fkreturn) > 0:
 				Query = """SELECT e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.NIK = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				cur.execute(Query,[fkreturn])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date returned ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is already returned)'
+					lastInfo = 'Last used by ' + str(row[0]) + ', date returned ' + parse(str(row[1])).strftime('%d %B %Y') + ', ' + str(row[2]) + ' (goods is already returned)'
 			elif int(fkmaintenance) > 0:
 				Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
 				cur.execute(Query,[fkmaintenance])
@@ -192,19 +192,19 @@ class NA_BR_Goods_Lending(models.Manager):
 					row = cur.fetchone()
 					isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
 					if row[3] is not None:
-						isFinished = strtobool(row[2])
+						isFinished = strtobool(row[3])
 					if row[4] is not None:
-						isSucced = strtobool(row[3])
+						isSucced = strtobool(row[4])
 					if row[1] is not None:
-						starDate =  str(parse(row[1]).strftime('%d %B %Y'))
+						starDate =  parse(str(row[1])).strftime('%d %B %Y')
 					if row[2] is not None:
-						endDate =  str(parse(row[1]).strftime('%d %B %Y'))
+						endDate =  parse(str(row[2])).strftime('%d %B %Y')
 					if isFinished and isSucced:
-						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use)'
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
 					elif isFinished == True and isSucced == false:
-						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is unable to use )'
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
 					elif not isFInished:
-						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + str(parse(starDate).strftime('%d %B %Y')) + ', ' +  ' (goods is still in maintenance)'
+						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' +starDate + ', ' +  ' (goods is still in maintenance)'
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
 				cur.execute(Query,[fkdisposal])
@@ -234,14 +234,14 @@ class NA_BR_Goods_Lending(models.Manager):
 							cur.execute(Query,[fk_lost_lending])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
-								lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + str(parse(row[1]).strftime('%d %B %Y')) + ', interests ' + str(row[2])
+								lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + parse(str(row[1])).strftime('%d %B %Y') + ', interests ' + str(row[2])
 						elif int(fk_lost_outwards) > 0:
 							Query = """SELECT e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.NIK = ngo.FK_Employee
 									WHERE ngo.IDApp = %s"""
 							cur.execute(Query,[fkoutwards])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
-								lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + str(parse(row[1]).strftime('%d %B %Y')) + ', ' + str(row[2]) + ' (goods is still in use)'
+								lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + parse(str(row[1])).strftime('%d %B %Y') + ', ' + str(row[2]) + ' (goods is still in use)'
 						elif int(fk_lost_maintenance) > 0:
 							Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
 							cur.execute(Query,[fkmaintenance])
@@ -249,19 +249,19 @@ class NA_BR_Goods_Lending(models.Manager):
 								row = cur.fetchone()
 								isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
 								if row[3] is not None:
-									isFinished = strtobool(row[2])
+									isFinished = strtobool(row[3])
 									if row[4] is not None:
-										isSucced = strtobool(row[3])
+										isSucced = strtobool(row[4])
 								if row[1] is not None:
-									starDate =  str(parse(row[1]).strftime('%d %B %Y'))
+									starDate =  parse(str(row[1])).strftime('%d %B %Y')
 								if row[2] is not None:
-									endDate =  str(parse(row[1]).strftime('%d %B %Y'))
+									endDate =  parse(str(row[2])).strftime('%d %B %Y')
 							if isFinished and isSucced:
-								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is able to use)'
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
 							elif isFinished == True and isSucced == false:
-								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + str(parse(endDate).strftime('%d %B %Y')) + ', ' +  ' (goods is unable to use )'
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
 							elif not isFInished:
-								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + str(parse(starDate).strftime('%d %B %Y')) + ', ' +  ' (goods is still in maintenance)'
+								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + starDate + ', ' +  ' (goods is still in maintenance)'
 						#elif fk_lost_outwards
 						else:
 							lastInfo = "goods has lost, but has been found "
