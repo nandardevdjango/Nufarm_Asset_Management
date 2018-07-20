@@ -797,6 +797,13 @@
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
+			var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+
+			var viewportSize = NA.common.dialog.getViewportSize();
+			containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+			containerDialog.style.overflowY = 'auto';
+			containerDialog.style.overflowX = 'hidden';
+			containerDialog.style.top = '0';
 			// data dari server {"idapp": 4, "fk_goods": "0004", "goodsname": "HP", "brandname": "SAMSUNG", "type": "J7",
 			//"islost": false, "fk_usedemployee": "0112145678901123", "usedemployee": "Rimba Prayoga", "fk_acc_fa": 0, "bookvalue": 0, 
 			//"lastinfo": "Last used by 0112145678901123|Rimba Prayoga, date lent 11 May 2018, interests FMS TRAINING", "fk_maintenance": 0, 
@@ -829,9 +836,9 @@
 			var elfk_receive = NA.common.getElementID('id_fk_lending');
 			elfk_receive.value = rowData['fk_lending'] || null;
 
-			//  form.fk_receive 
-			var elfk_receive = NA.common.getElementID('id_fk_receive');
-			elfk_receive.value = rowData['fk_receive'] || null;
+			////  form.fk_receive 
+			//var elfk_receive = NA.common.getElementID('id_fk_receive');
+			//elfk_receive.value = rowData['fk_receive'] || null;
 
 
 			//form.goods
