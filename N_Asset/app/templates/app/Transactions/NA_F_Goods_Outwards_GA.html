@@ -397,7 +397,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
             resp_employee_nik: qs('#id_resp_employee_nik').value.trim(),
             resp_employee_name: qs('#id_resp_employee_name').value.trim(),
     		typeapp: qs('input#id_typeapp').value.trim(),
-            datereceived: qs('#id_datereceived').value.toString().trim(),
+            daterequest: qs('#id_daterequest').value.toString().trim(),
             datereleased: qs('#id_datereleased').value.toString().trim(),
             equipment: qs('#id_equipment').value.trim(),
             add_equipment: qs('#id_add_equipment').value.trim(),
@@ -801,7 +801,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                             };
                             if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit     
                             	var originalData = JSON.stringify(getValues_Form());
-                                $('input#id_datereceived').datepicker({
+                                $('input#id_daterequest, input#id_datereleased').datepicker({
                                 	dateFormat: 'dd/mm/yy',
                                 	changeMonth: true,
                                 	changeYear: true,
@@ -824,18 +824,22 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
 									supliercode = qs('input#id_supliercode'),
 									supliername = qs('input#id_supliername'),
 
-									pr_by = qs('input#id_pr_by'),
-									pr_by_nik = qs('input#id_pr_by_nik'),
-									pr_by_name = qs('input#id_pr_by_name'),
+									employee = qs('input#id_employee'),
+									employee_nik = qs('input#id_employee_nik'),
+									employee_name = qs('input#id_employee_name'),
 
-									received_by = qs('input#id_received_by'),
-                                    received_by_nik = qs('input#id_received_by_nik'),
-									received_by_name = qs('input#id_received_by_name');
+									sender = qs('input#id_sender'),
+                                    sender_nik = qs('input#id_sender_nik'),
+                                    sender_name = qs('input#id_sender_name'),
+                                    
+                                    resp_employee = qs('input#id_resp_employee'),
+									resp_employee_nik = qs('input#id_resp_employee_nik'),
+									resp_employee_name = qs('input#id_resp_employee_name');
 									
                             	var btn_fk_goods = qs('button#btn_fk_goods'),
-									btn_fk_suplier = qs('button#btn_fk_suplier'),
-									btn_fk_pr_by = qs('button#btn_fk_pr_by'),
-									btn_fk_received_by = qs('button#btn_fk_received_by');
+									btn_fk_employee = qs('button#btn_fk_employee'),
+									btn_fk_sender = qs('button#btn_fk_sender'),
+									btn_fk_resp_employee = qs('button#btn_fk_resp_employee');
 
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
@@ -1123,155 +1127,25 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                 				var target = NA.NAEvent.getTarget(event),
 													rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
                                                     rowData = gridTbl.getRowData(rowId);
-                                				if (target.id == 'btn_fk_pr_by' || target.id == 'id_pr_by_nik') {
-                                					pr_by_nik.value = rowData['nik'],
-													pr_by_name.value = rowData['employee_name'];
-                                					pr_by.value = rowData['idapp'];
-                                				} else if (target.id == 'btn_fk_received_by' || target.id == 'id_received_by_nik') {
-                                					received_by_nik.value = rowData['nik'],
-													received_by_name.value = rowData['employee_name'],
-													received_by.value = rowId;
-                                				}
+                                				if (target.id == 'btn_fk_employee' || target.id == 'id_employee_nik') {
+                                					employee_nik.value = rowData['nik'],
+													employee_name.value = rowData['employee_name'];
+                                					employee.value = rowData['idapp'];
+                                				} else if (target.id == 'btn_fk_sender' || target.id == 'id_sender_nik') {
+                                					sender_nik.value = rowData['nik'],
+													sender_name.value = rowData['employee_name'],
+													sender.value = rowData['idapp'];
+                                				} else if (target.id == 'btn_fk_resp_employee' || target.id == 'id_resp_employee_nik') {
+                                                    resp_employee.value = rowData['idapp'];
+                                                    resp_employee_nik.value = rowData['nik'];
+                                                    resp_employee_name.value = rowData['employee_name'];
+                                                }
                                 				
                                 				dialogRef.close();
                                 			}
                                 		}]
                                 	});
                                 }
-
-                                function searchSuplier(event) {
-                                	BootstrapDialog.show({
-                                		draggable: true,
-                                		type: BootstrapDialog.TYPE_INFO,
-                                		size: BootstrapDialog.SIZE_SMALL,
-                                		message: function (dialogRef) {
-                                			var placeHolder = 'Enter text to search for .. .';
-                                			var containerMessage = NA.common.dialog.createFormContainer('fk_suplier', placeHolder,
-											function (e) {//event for blur
-												if (this.value === '') {
-													if (this.getAttribute('placeholder') === '') {
-														this.setAttribute('placeholder', placeHolder);
-													}
-												}
-											},
-											function (e) {//event for focus
-												if (this.value === '') {
-													if (this.getAttribute('placeholder') === placeHolder) {
-														this.setAttribute('placeholder', '');
-													}
-												}
-											},
-											function (e) {//even for keydown txtSearch
-												if (e.keyCode === 13) {
-													win.document.body.style.cursor = 'wait';
-													//cari data ke database
-													var url = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
-
-													if (gridTbl) {
-														gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
-													}
-													win.document.body.style.cursor = 'default';
-												}
-											});
-                                			var children = containerMessage.childNodes;
-                                			var mainContainer = null, txtSearch = null;
-                                			for (var i = 0, len = children.length; i < len; i++) {
-                                				if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_suplier') {
-                                					mainContainer = children[i]; break;
-                                				}
-                                			};
-                                			//loads Data into JqueryGrid
-                                			gridTbl = NA.common.doc.createElement('table');
-                                			gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier';
-                                			gridPager = NA.common.doc.createElement('div');
-                                			gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier_Pager';
-                                			mainContainer.appendChild(gridTbl);
-                                			mainContainer.appendChild(gridPager);
-                                			return containerMessage;
-                                		},
-                                		onshown: function (dialogRef) {
-                                			txtSearch = NA.common.getElementID('txtsearch_fk_suplier');
-                                			//loads Data into JqueryGrid 
-                                			gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
-                                			gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
-                                			var urlFKSuplier = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-                                			gridTbl.jqGrid({
-                                				url: urlFKSuplier,
-                                				mtype: "GET",
-                                				datatype: "json",//column idapp, no,supliercode,supliername
-                                				colNames: ['NO', 'Suplier Code', 'Suplier Name', 'Address'],
-                                				colModel: [
-													{ name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-													{ name: 'supliercode', index:'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
-													{ name: 'supliername', index: 'supliername', width: 130, sortable: true, editable: false, align: 'left', },
-													{name:'address',index:'address',width:250}
-                                				],
-                                				ondblClickRow: function (rowId) {
-                                					//fire button OK
-                                					var btnOK = dialogRef.getButton('btnOKFindsuplier');
-                                					btnOK.click();
-                                				},
-                                				gridComplete: function () {
-                                					document.body.style.cursor = 'default';
-                                				},
-                                				loadError: function (xhr, textStatus, errorThrown) {
-                                					var error_msg = xhr.responseText
-                                					var msg = "Some errors occurred during processing:"
-                                					msg += '\n\n' + error_msg
-                                					dialogAlert(msg,NA.common.message.titleInfo)
-                                				},
-                                				cellEdit: false,
-                                				height: '150px',
-                                				rowNum: 500,
-                                				rowList: [20, 50, 100, 200, 300, 500],
-                                				sortname: "supliername",
-                                				sortorder: "asc",
-                                				multiSort: true,
-                                				//shrinkToFit: false,
-                                				iconSet: "fontAwesome",
-                                				//forceFit: true,
-                                				//toolbar: true,
-                                				scrollrows: true,
-                                				//hidegrid: true,
-                                				pager: "#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager"
-                                			});
-                                			gridTbl.navGrid(gridPager, {
-                                				search: false, // show search button on the toolbar
-                                				add: false,
-                                				edit: false,
-                                				del: false,
-                                				refresh: false
-                                			});
-                                		},
-                                		closable: false,
-                                		animate: false,
-                                		closeByBackdrop: false,
-                                		closeByKeyboard: false,
-                                		buttons: [{
-                                			label: 'Cancel',
-                                			icon: 'glyphicon glyphicon-remove',
-                                			cssClass: 'btn-success',
-                                			action: function (dialogRef) {
-                                				dialogRef.close();
-                                			},
-                                		}, {
-                                			label: 'OK',
-                                			id: 'btnOKFindsuplier',
-                                			icon: 'glyphicon glyphicon-ok',
-                                			cssClass: 'btn-success',
-                                			action: function (dialogRef) {
-                                				//tempelkan data row di fk_goods, dan valuenya di goods_desc;
-                                				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                                				var rowData = gridTbl.getRowData(rowId);
-												supliercode.value = rowData['supliercode'];
-                                				supliername.value = rowData['supliername'];
-                                				dialogRef.close();
-                                			}
-                                		}]
-                                	});
-                                	//Atur tampilan                        			
-                                	restyleBoostrapDialog();
-                                };
 
                                 NA.NAEvent.addHandler(fk_goods, 'keydown', function (event) {
                                     if (event.keyCode == 13) {
@@ -1282,28 +1156,18 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                     searchGoods(event);
                                 });
 
-                                NA.NAEvent.addHandler(btn_fk_suplier, 'click', function (event) {
-                                	searchSuplier(event);
+                                [btn_fk_employee, btn_fk_sender, btn_fk_resp_employee].forEach(function(btn) {
+                                    NA.NAEvent.addHandler(btn, 'click', function (event) {
+                                        searchEmployee(event);
+                                    });
                                 });
 
-                                NA.NAEvent.addHandler(btn_fk_pr_by, 'click', function (event) {
-                                	searchEmployee(event);
-                                });
-
-                                NA.NAEvent.addHandler(pr_by_name, 'keydown', function (event) {
-                                	if (event.keyCode == 13) {
-                                		searchEmployee(event);
-                                	}
-                                });
-
-                                NA.NAEvent.addHandler(btn_fk_received_by, 'click', function (event) {
-                                	searchEmployee(event);
-                                });
-
-                                NA.NAEvent.addHandler(received_by_name, 'keydown', function (event) {
-                                	if (event.keyCode == 13) {
-                                		searchEmployee(event);
-                                	}
+                                [employee_nik, sender_nik, resp_employee_nik].forEach(function(input) {
+                                    NA.NAEvent.addHandler(input, 'keydown', function (event) {
+                                        if (event.keyCode == 13) {
+                                            searchEmployee(event);
+                                        }
+                                    });
                                 });
 
                                 initializeForm = NA.common.getElementID('id_initializeForm');

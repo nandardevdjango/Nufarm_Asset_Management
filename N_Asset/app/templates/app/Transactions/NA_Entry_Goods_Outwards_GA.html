@@ -29,6 +29,7 @@
                     <label id="fk_goodsKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Item Code</label>
                     <label id="fk_goodsValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.fk_goods.value }}</label>
                 </div>
+                <!-- condition: new/second -->
             </div>
         </fieldset>
 
@@ -41,7 +42,7 @@
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.employee_name }}
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                            <button class="btn btn-success" type="button" id="btn_fk_suplier" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
+                            <button class="btn btn-success" type="button" id="btn_fk_employee" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -52,7 +53,7 @@
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.sender_name }}
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                            <button class="btn btn-success" type="button" id="btn_fk_received_by" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
+                            <button class="btn btn-success" type="button" id="btn_fk_sender" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -63,7 +64,7 @@
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.resp_employee_name }}
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
-                            <button class="btn btn-success" type="button" id="btn_fk_pr_by" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
+                            <button class="btn btn-success" type="button" id="btn_fk_resp_employee" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -105,7 +106,9 @@
         <input type="submit" style="display:none" id="submit_receive_ga">
         {{ form.initializeForm }}
         {{ form.fk_goods }}
-        {{ form.pr_by }}
-        {{ form.received_by }}
+        {{ form.typeapp }}
+        {{ form.employee }}
+        {{ form.sender }}
+        {{ form.resp_employee }}
     </form>
 </div>
