@@ -11,7 +11,6 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         gaData = super(NA_BR_Goods_Receive_GA, self).get_queryset()\
             .annotate(
                 goodsname=F('fk_goods__goodsname'),
-                price=F('fk_goods__priceperunit'),
                 supliername=F('fk_suplier__supliername'),
                 received_by=F('fk_receivedby__employee_name'),
                 pr_by=F('fk_p_r_by__employee_name')
@@ -100,7 +99,9 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             kind = %(kind)s,
             cylinder = %(cylinder)s,
             fuel = %(fuel)s,
-            ModifiedDate = %(ModifiedDate)s,ModifiedBy = %(ModifiedBy)s,
+            Price = %(price)s,
+            ModifiedDate = %(ModifiedDate)s,
+            ModifiedBy = %(ModifiedBy)s,
             Descriptions = %(Descriptions)s"""
             cur.execute(Query, Params)
             return (Data.Success, Message.Success.value)
@@ -137,7 +138,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
                 .values('idapp', 'fk_goods', 'itemcode', 'goodsname', 'supliercode', 'supliername', 'pr_by',
                         'pr_by_nik', 'pr_by_name', 'received_by', 'received_by_nik', 'received_by_name', 'datereceived',
                         'brand', 'invoice_no', 'typeapp', 'machine_no', 'chassis_no', 'year_made', 'colour',
-                        'model', 'kind', 'cylinder', 'fuel', 'descriptions')
+                        'model', 'kind', 'cylinder', 'fuel', 'price','descriptions')
 
             return (Data.Success, data)
         else:

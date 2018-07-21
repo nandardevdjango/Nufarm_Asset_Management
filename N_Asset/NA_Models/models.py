@@ -1508,16 +1508,39 @@ class NAGaReceive(NA_BaseModel):
 
 class NAGaVnHistory(NA_BaseModel):
 
+    EXTENDS = 'extends'
+    LOST = 'lost'
+    OTHER = 'other'
+    PURPOSE_CHOICES = (
+        (EXTENDS, 'extends'),
+        (LOST, 'lost'),
+        (OTHER, 'other')
+    )
+
     reg_no = models.CharField(db_column='Reg_No', max_length=50, unique=True)
     fk_app = models.ForeignKey(
         NAGaReceive,
         db_column='FK_App',
         db_constraint=False
     )
+    fk_parent = models.ForeignKey(
+        'self',
+        db_column='FK_Parent',
+        db_constraint=False,
+        null=True,
+        blank=True
+    )
     expired_reg = models.DateField(db_column='Expired_Reg')
 
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
     bpkp_expired = models.DateField(db_column='BPKP_Expired')
+    purpose = models.CharField(
+        max_length=30,
+        choices=PURPOSE_CHOICES,
+        db_column='Purpose',
+        null=True,
+        blank=True
+    )
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
 
