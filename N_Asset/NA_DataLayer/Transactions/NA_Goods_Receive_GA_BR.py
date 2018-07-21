@@ -68,6 +68,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             'kind': data['kind'],
             'cylinder': data['cylinder'],
             'fuel': data['fuel'],
+            'price': data['price'],
             'Descriptions': data['descriptions']
         }
         if statusForm == StatusForm.Input:
@@ -76,7 +77,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             Query = """INSERT INTO n_a_ga_receive
             (FK_goods, FK_ReceivedBy, FK_P_R_By, FK_Suplier, DateReceived, Brand, Invoice_no,
             TypeApp, Machine_no, Chassis_no, Year_made, Colour, Model,Kind, Cylinder, Fuel,
-            Descriptions,CreatedDate, CreatedBy) 
+            Price, Descriptions,CreatedDate, CreatedBy) 
             VALUES ({})""".format(','.join('%(' + i + ')s' for i in Params))
             cur.execute(Query, Params)
             return (Data.Success, Message.Success.value)

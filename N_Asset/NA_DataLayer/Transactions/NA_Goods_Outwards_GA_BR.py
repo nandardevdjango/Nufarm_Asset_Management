@@ -64,3 +64,25 @@ class NABRGoodsOutwardsGA(models.Manager):
         """
         cur.execute(query_string)
         return result
+
+    def search_ga_by_form(self, q):
+        cur = connection.cursor()
+        query_string = """
+        SELECT ngr.idapp, CONCAT(g.goodsname, ngr.brand, ngr.model) AS goods,
+        ngh.reg_no, ngr.descriptions,
+        CASE
+            WHEN(
+                SELECT EXISTS(
+                    SELECT ngo.idapp FROM n_a_ga_outwards ngo WHERE ngo.fk_app = ngh.idapp
+                )
+            )
+            THEN '1'
+            ELSE '0'
+            END AS info_is_new
+        FROM n_a_ga_receive ngr INNER JOIN
+        n_a_goods g ON ngr.fk_goods = g.idapp INNER JOIN n_a_ga_vn_history ngh
+        ON ngr.idapp = ngh.fk_app
+        """
+
+        cur.execute(query_string)
+        return query.dictfetchall(cur)

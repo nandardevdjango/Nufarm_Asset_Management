@@ -64,7 +64,7 @@ def getFormData(form):
         'fk_receivedby': clData['received_by'], 'fk_pr_by': clData['pr_by'],
         'invoice_no': clData['invoice_no'], 'typeapp': 'typeapp', 'brand': clData['brand'],
         'machine_no': clData['machine_no'], 'chassis_no': clData['chassis_no'],
-        'descriptions': clData['descriptions']
+        'price': clData['price'], 'descriptions': clData['descriptions']
     }
     return data
 
@@ -126,7 +126,7 @@ class NA_Goods_Receive_GA_Form(forms.Form):
     ))
     chassis_no = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'chassis no',
-               'style': 'width:205px;display:inline-block;'}))
+               'style': 'width:373px;display:inline-block;'}))
     year_made = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'year made',
                'style': 'width:120px;display:inline-block;'}))
@@ -149,6 +149,10 @@ class NA_Goods_Receive_GA_Form(forms.Form):
     fuel = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'fuel',
                'style': 'width:120px;display:inline-block;'}
+    ))
+    price = forms.DecimalField(widget=forms.NumberInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'chassis no',
+               'style': 'width:373px;display:inline-block;'}
     ))
     descriptions = forms.CharField(widget=forms.Textarea(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'description',
