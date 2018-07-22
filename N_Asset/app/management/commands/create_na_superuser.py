@@ -1,11 +1,12 @@
-from django.core.management.base import BaseCommand, CommandError
-from NA_Models.models import NAPriviledge, NASysPriviledge
+import re
 import getpass
 from django.db import transaction
-import re
+from django.core.management.base import BaseCommand
+from NA_Models.models import NAPriviledge, NASysPriviledge
+
 
 class Command(BaseCommand):
-        
+       
     def handle(self, *args, **options):
         email = input('Email: ')
         email_exists = NAPriviledge.objects.filter(email=email).exists()

@@ -772,7 +772,6 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                 //if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
                 //return false;
             } else if (target.innerText.trim() === 'Add' || target.innerText.trim() === 'Edit' || target.innerText.trim() == 'Open') {
-                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                 if (target.innerText.trim() == 'Edit' || target.innerText.trim() == 'Open') {
                     var idapp = getGridId();
                     if (typeof idapp == 'undefined' || !idapp || idapp == '') {
@@ -780,12 +779,12 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                         var message = 'Please select data you want to Edit';
                         if (goods_receive_ga_grid.getGridParam('records') === 0) {
                             message = 'No Data Found at here'
-                        };
+                        }
                         return dialogAlert(message, NA.common.message.titleInfo, function () {
                             return goods_receive_ga_grid.trigger('reloadGrid');
                         });
                     }
-                };
+                }
 
                 $('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
                     + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
@@ -798,17 +797,34 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                         if (statusTxt == "success") {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                             //remove attribute disable untuk button OK dan cancel bila statusnya Add
                             var direct_enter_reg = qs('input#id_direct_enter'),
-                                direcrt_container = qs('div#enter_direct_container'),
+                                direct_container = qs('div#enter_direct_container'),
+                                reg_no = qs('input#id_reg_no'),
+                                date_reg = qs('input#id_date_reg'),
+                                remark = qs('textarea#id_remark'),
                                 expired_reg = qs('input#id_expired_reg'),
                                 bpkp_expired = qs('input#id_bpkb_expired');
                                 reg_info = qs('div#reg_info');
+                            
+                            field_direct = [reg_no, date_reg, remark, expired_reg, bpkp_expired]
+                                
                             NA.NAEvent.addHandler(direct_enter_reg, 'click', function(event){
                                 if(this.checked) {
-                                    direcrt_container.style.display = 'block';
+                                    direct_container.style.display = 'block';
+                                    field_direct.forEach(function(field) {
+                                        field.setAttribute('required', true)
+                                    });
+
                                 } else {
-                                    direcrt_container.style.display = 'none';
+                                    direct_container.style.display = 'none';
+                                    field_direct.forEach(function(field) {
+                                        field.removeAttribute('required')
+                                        field.value = '';
+                                    });
+                                    qs('label#expired_reg_value').textContent = '';
+                                    qs('label#bpkb_value').textContent = '';
                                 }
-                            })
+                            });
+                            
                             switch (status) {
 
                                 case 'Add':

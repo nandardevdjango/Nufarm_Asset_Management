@@ -1533,7 +1533,7 @@ class NAGaVnHistory(NA_BaseModel):
     expired_reg = models.DateField(db_column='Expired_Reg')
 
     date_reg = models.DateField(db_column='Date_Reg', blank=True, null=True)
-    bpkp_expired = models.DateField(db_column='BPKP_Expired')
+    bpkb_expired = models.DateField(db_column='BPKB_Expired', null=True, blank=True)
     purpose = models.CharField(
         max_length=30,
         choices=PURPOSE_CHOICES,
