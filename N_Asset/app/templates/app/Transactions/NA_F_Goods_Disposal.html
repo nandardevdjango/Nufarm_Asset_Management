@@ -877,7 +877,7 @@
 			    var elDateDisposal = NA.common.getElementID('id_datedisposal');
 			    var dateDisposal = elDateDisposal.value || curDate;
 			    var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
-			    NAAjax.POST('getBookValue/', JSON.stringify(params), 'application/x-www-form-urlencoded',
+			    NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded',
                         'application/json',
                             function () { window.document.body.style.cursor = 'wait'; },
                             null,//nggak usah di isi bila tidak perlu
@@ -1278,10 +1278,14 @@
 			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"),
         	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
+			btnPrevExport = NA.NAEvent.doc.querySelectorAll('div.dialogButtonRightOther>a.button');
 			//rubah dialog top nya jadi 10px saja
 			dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-				NA.NAEvent.addHandler(item, 'click', function (evt) {
+
+			    NA.NAEvent.addHandler(item, 'click', function (evt) {
+			        //checksettings
+
 					NA.NAEvent.preventDefault(evt);
 					//==============uncommment this after debugging=============
 					//comment this after debugging
@@ -1308,6 +1312,36 @@
 					return false;
 				});
 			});
+
+			Array.prototype.forEach.call(btnPrevExport, function (item) {//buat jadi foreach mesti convert dulu ke array
+			    NA.NAEvent.addHandler(item, 'click', function (evt) {
+			        NA.NAEvent.preventDefault(evt);
+			        //==============uncommment this after debugging=============
+			        //comment this after debugging
+			        NA.common.dialog.closeDialog(dialog);
+			        //if (!hasLoadDialog) {
+			        //	closeDialog(); win.document.body.style.cursor = 'default'; return false;
+			        //}
+			        //try {
+			        //	if (win.status !== 'Open') {
+			        //		var textElem = evt.target.innerText;
+			        //		if (textElem === 'OK') {
+			        //			//ExecuteHandler('OK');
+			        //		} else {
+			        //			//ExecuteHandler('Close');
+			        //		}
+			        //	}
+			        //} catch (e) {
+			        //	ShowAlert(e.message);
+			        //}
+			        //if (evt) {
+			        //	NA.NAEvent.stopPropagation(evt);
+			        //}
+			        win.document.body.style.cursor = 'default';
+			        return false;
+			    });
+			});
+
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
@@ -1353,7 +1387,13 @@
 				    $('div.maindialogContent').load("ShowEntry_Disposal?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
                        function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
                        	if (statusTxt == "success") {
-                       		$(this).html(responseTxt);
+                       	    $(this).html(responseTxt);
+                       	    //create Element SettingsControl
+                            var elSetCtrl =   NA.common.doc.createElement('hidden');// "input type='hidden' id='SetCtrlDisposal',name='settingControl'
+                            elSetCtrl.id = 'SetCtrlDisposal';
+                            elSetCtrl.name = 'settingControl';                            
+
+                       	    var elSelPrice = NA.common.getElementID('id_sellingprice');
                        		switch (win.status.trim()) {
                        			case 'Add': {
                        				Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
@@ -1362,6 +1402,8 @@
                        					}//remove attribute disable untuk button OK dan cancel bila statusnya Add
                        				});
                        				NA.common.getElementID('difInfo').style.display = 'none';
+                       			    //disabledkan selling price
+
                        				break;
                        			}
                        			case 'Edit': {
@@ -1377,7 +1419,9 @@
                        					//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
                        					//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
                        					//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-                       					NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				    NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				    //jika selling price di isi 
+                                        //maka disabledkan chekbox IsSold
                        				}
                        				break;
                        			}
@@ -1418,7 +1462,7 @@
                        					NA.NAEvent.stopPropagation(evt);
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
+                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        				NA.NAEvent.addHandler(item, 'keydown', function (evt) {
                        					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -1432,7 +1476,8 @@
                        							case 'id_serialnumber': {
                        								//ambil data terakhir transaksi
                        								//jika tidak ada ambil di n_a_goods_receive_detail
-                       								//prevent default
+                       							    //prevent default
+                       							    var serialNumber = this.id;
                        								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
                                                         'application/json',//overrideMimeType returned by the server
@@ -1445,7 +1490,7 @@
                                                         	}
                                                         	else {
                                                         		//#return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
-                                                        		fillGoodsInfo(data, this.id, true);
+                                                        	    fillGoodsInfo(data, serialNumber, true);
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1467,7 +1512,7 @@
                        				});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
                        			});//end Array.prototype.forEach.call(listFK, function (item)
                        			originalData = JSON.stringify(getValuesForm());
-                       			//==============date request=============
+                       			//==============date disposal=============
 
                        			if (win.status !== 'Add') {
                        				var eloriginalData = JSON.parse(originalData);
@@ -1498,9 +1543,19 @@
                        			$.datepicker._gotoToday = function (id) {
                        				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
                        			};
+
                        			originalData = JSON.stringify(getValuesForm());
                        			var initializeForm = NA.common.getElementID('id_initializeForm');
                        			initializeForm.value = originalData;
+
+                       		    //=========EVENT Handler checkbox================
+                                var elIsSold = NA.common.getElementID('id_issold')
+                                NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
+
+                       			    if (evt.target.checked) {                       			      
+                       			        elSelPrice.setAttribute('disabled', true);
+                       			    }
+                       			});
                        			//======================event handler BUTTONS Search================================================ 
                        			var btnFindGoods = NA.common.getElementID('FE_fk_goods');
                        			NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
