@@ -870,6 +870,11 @@
 			    elserialnumber = NA.common.getElementID('id_serialnumber');
 			    elserialnumber.value = rowData['serialnumber'] || '';
 			    elserialnumber.attributes['placeholder'] = '';
+				//set islost dengan rowdata FKlost bernilai bukan null
+				//islost
+			    var elIsLost = NA.common.getElementID('id_islost');
+			    elIsLost.value = rowData['fk_lost'] ?true:false;
+
 			    //get book value
 			    var NAAjax = NA.common.AJAX;
 			    // hadeuh harus diserialize json
@@ -1568,7 +1573,7 @@
                        							url: urlGoods,
                        							mtype: "GET",
                        							datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_lending,fk_return,fk_maintenance,
-                       							colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
+                       							colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', 'fk_lost'],
                        							colModel: [
 														{ name: 'idapp', index: 'idapp', hidden: true, },
 														{ name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },
@@ -1585,6 +1590,7 @@
 														{ name: 'fk_lending', index: 'fk_lending', hidden: true, },
 														{ name: 'fk_return', index: 'fk_return', hidden: true, },
 														{ name: 'fk_maintenance', index: 'fk_maintenance', hidden: true, },
+														{ name: 'fk_lost', index: 'fk_lost', hidden: true, },
                        							],
                        							ondblClickRow: function (rowId) {
                        								//fire button OK
