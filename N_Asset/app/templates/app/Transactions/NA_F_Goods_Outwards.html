@@ -812,7 +812,14 @@
 			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
 			footerButton.style.cssText = 'padding-top:8px;';
 		};
-		function fillGoodsInfo(rowData, serialnumber,IsFromTextBox) {
+		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
+		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+
+		    var viewportSize = NA.common.dialog.getViewportSize();
+		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+		    containerDialog.style.overflowY = 'auto';
+		    containerDialog.style.overflowX = 'hidden';
+		    containerDialog.style.top = '0';
 			 //form.idapp_fk_goods 
 			 //form.fk_frommaintenance 
 			 //form.fk_return 
