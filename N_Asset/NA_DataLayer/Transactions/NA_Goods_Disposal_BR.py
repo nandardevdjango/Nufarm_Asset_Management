@@ -134,21 +134,21 @@ class NA_BR_Goods_Disposal(models.Manager):
 					CASE \
 						WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), \
 							(CASE \
-								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is able to dispose/delete)')) \
-								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is able to dispose/delete )')) \
-								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is still in maintenance)')) \
+								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %B %Y'),'goods is able to dispose/delete')) \
+								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),'goods is able to dispose/delete')) \
+								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %B %Y'),'goods is still in maintenance')) \
 								END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance) \
 						WHEN(gh.fk_lending IS NOT NULL) THEN((CASE \
 																WHEN ((SELECT `status` FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
 																ELSE ('goods is able to dispose/delete') \
 																END)) \
 						WHEN(gh.fk_outwards IS NOT NULL) THEN 'goods is still in use by other employee' \
-						WHEN (gh.fk_return IS NOT NULL) THEN '(goods is able to dispose/delete)' \
-						WHEN (gh.fk_disposal IS NOT NULL) THEN '(goods has been disposed/deleted)' \
+						WHEN (gh.fk_return IS NOT NULL) THEN 'goods is able to dispose/delete' \
+						WHEN (gh.fk_disposal IS NOT NULL) THEN 'goods has been disposed/deleted' \
 						WHEN (gh.fk_lost IS NOT NULL) THEN 'goods has lost' \
 						ELSE 'Unknown or uncategorized last goods position' \
 						END AS lastinfo,
-                        gh.fk_receive,gh.fk_outwards,gh.fk_lending,gh.fk_return,gh.fk_maintenance,gh.fk_disposal,gh.fk_lost  \
+                        gh.fk_receive,gh.fk_outwards,gh.fk_lending,gh.fk_return,gh.fk_maintenance,gh.fk_lost  \
 						FROM(\
 							SELECT g.idapp,g.itemcode as  fk_goods,g.goodsname,IFNULL(ngd.brandName,g.brandName) AS brandName,ngd.typeapp as 'type',ngd.serialnumber,ngd.idapp AS fk_receive,ngh.fk_outwards,ngh.fk_lending, \
 							ngh.fk_return,ngh.fk_maintenance,ngh.fk_disposal,ngh.fk_lost FROM \
@@ -176,7 +176,8 @@ class NA_BR_Goods_Disposal(models.Manager):
 				  WHERE (goodsname LIKE %s OR brandname LIKE %s) OR (serialnumber = %s))"""
 		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%',searchText])
 		if orderFields == '':
-			Query  = "SELECT * FROM Temp_F_Disposal_" + userName + " ORDER BY goodsname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
+			Query  = "SELECT *,CONVERT((CASE lastinfo WHEN '(goods has been disposed/deleted)' THEN 1 \
+								ELSE 0),INT) AS Ready FROM Temp_F_Disposal_" + userName + " ORDER BY goodsname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
 		else:
 			Query  = "SELECT * FROM Temp_F_Disposal_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
 		cur.execute(Query)

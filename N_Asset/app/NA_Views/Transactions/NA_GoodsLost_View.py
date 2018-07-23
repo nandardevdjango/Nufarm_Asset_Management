@@ -92,7 +92,6 @@ class NA_GoodsLost_Form(forms.Form):
     fk_goods_lending = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_maintenance = forms.IntegerField(required=False,widget=forms.HiddenInput())
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
-
 def getFormData(request, forms, **kwargs):
     clData = forms.cleaned_data
     data = {

@@ -195,7 +195,8 @@
         btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
-        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
+		valSetCtrl = {},
         originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
@@ -1289,9 +1290,14 @@
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 
 			    NA.NAEvent.addHandler(item, 'click', function (evt) {
-			        //checksettings
-
-					NA.NAEvent.preventDefault(evt);
+			    	//checksettings
+			    	var textElem = evt.target.innerText;
+			    	if (textElem === 'OK') {
+			    		if (valSetCtrl['btnOK'].valueOf() === false) { NA.NAEvent.preventDefault(evt); return false; }
+			    	}
+			    	else if(textElem === 'Cancel'){
+			    		if (valSetCtrl['btnCancel'].valueOf() === false) { NA.NAEvent.preventDefault(evt); return false; }
+			    	}
 					//==============uncommment this after debugging=============
 					//comment this after debugging
 					NA.common.dialog.closeDialog(dialog);
@@ -1314,13 +1320,16 @@
 					//	NA.NAEvent.stopPropagation(evt);
 					//}
 					win.document.body.style.cursor = 'default';
+					NA.NAEvent.preventDefault(evt);
 					return false;
 				});
 			});
 
 			Array.prototype.forEach.call(btnPrevExport, function (item) {//buat jadi foreach mesti convert dulu ke array
 			    NA.NAEvent.addHandler(item, 'click', function (evt) {
-			        NA.NAEvent.preventDefault(evt);
+			    	NA.NAEvent.preventDefault(evt);
+			    	//Print Preview & Export
+			    	
 			        //==============uncommment this after debugging=============
 			        //comment this after debugging
 			        NA.common.dialog.closeDialog(dialog);
@@ -1350,23 +1359,25 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
-				if (hasLoadDialog) {
-					try {
-						ExecuteHandler('Close');
-					} catch (e) {
-						ShowAlert(e.message);
-					}
-				}
-				if (evt) {
-					NA.NAEvent.stopPropagation(evt);
-				}
-				win.document.body.style.cursor = 'default';
-				if (!hasLoadDialog) {
-					closeDialog();
-				}
+				//if (hasLoadDialog) {
+				//	try {
+				//		//ExecuteHandler('Close');
+				//	} catch (e) {
+				//		ShowAlert(e.message);
+				//	}
+				//}
+				//if (evt) {
+				//	NA.NAEvent.stopPropagation(evt);
+				//}
+				//win.document.body.style.cursor = 'default';
+				//if (!hasLoadDialog) {
+				//	closeDialog();
+				//}
 				//==============End uncommment this after debugging=============
+
+
 				//comment this after debugging
-				//closeDialog();
+				closeDialog();
 				return false;
 			});
 			try {
@@ -1394,11 +1405,15 @@
                        	if (statusTxt == "success") {
                        	    $(this).html(responseTxt);
                        	    //create Element SettingsControl
-                            var elSetCtrl =   NA.common.doc.createElement('hidden');// "input type='hidden' id='SetCtrlDisposal',name='settingControl'
+                       	    var elSetCtrl =   NA.common.doc.createElement('hidden');// "input type='hidden' id='SetCtrlDisposal',name='settingControl'
+                       	    var elIsSold = NA.common.getElementID('id_issold')
                             elSetCtrl.id = 'SetCtrlDisposal';
                             elSetCtrl.name = 'settingControl';                            
-
-                       	    var elSelPrice = NA.common.getElementID('id_sellingprice');
+                            valSetCtrl['btnPrintPrev'] = false;
+                            valSetCtrl['btnExport'] = false;
+							
+                            var elSelPrice = NA.common.getElementID('id_sellingprice');
+                            elSelPrice.setAttribute('placeholder',Number(elSelPrice.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                        		switch (win.status.trim()) {
                        			case 'Add': {
                        				Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
@@ -1407,8 +1422,10 @@
                        					}//remove attribute disable untuk button OK dan cancel bila statusnya Add
                        				});
                        				NA.common.getElementID('difInfo').style.display = 'none';
+                       				elSelPrice.value = '';
                        			    //disabledkan selling price
-
+                       				valSetCtrl['btnOK'] = true;
+                       				valSetCtrl['btnCancel'] = true
                        				break;
                        			}
                        			case 'Edit': {
@@ -1424,10 +1441,17 @@
                        					//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
                        					//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
                        					//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-                       				    NA.common.getElementID('lastUsedInfo').style.display = 'block';
-                       				    //jika selling price di isi 
-                                        //maka disabledkan chekbox IsSold
+                       					NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       					if (elSelPrice.value != '') {
+                       						if (typeof elSelPrice.value === 'number' && !isNaN(elSelPrice.value)) {
+                       							//jika selling price di isi 
+                       							//maka disabledkan chekbox IsSold
+                       							elIsSold.setAttribute('disabled', true);
+                       						}
+                       					}
                        				}
+                       				valSetCtrl['btnOK'] = true;
+                       				valSetCtrl['btnCancel'] = true
                        				break;
                        			}
                        			case 'Open': {
@@ -1443,6 +1467,9 @@
                        				//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
                        				NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
                        				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				elIsSold.setAttribute('disabled', true);
+                       				valSetCtrl['btnOK'] = false;
+                       				valSetCtrl['btnCancel'] = false;
                        				break;
                        			}
                        		};
@@ -1467,7 +1494,7 @@
                        					NA.NAEvent.stopPropagation(evt);
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"]');
+                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        				NA.NAEvent.addHandler(item, 'keydown', function (evt) {
                        					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -1504,9 +1531,10 @@
                                                         );
                        								break;
                        							}
-                       							case 'id_fk_employee':
-                       							case 'id_fk_sender':
-                       							case 'id_fk_responsibleperson': {
+                       							case 'id_fk_proposedby':
+                       							case 'id_fk_acknowledge1':
+                       							case 'id_fk_approvedby':
+                       							case 'id_fk_acknowledge2': {
                        								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								fillEmployeeName(evt, this.id);
                        								break;
@@ -1554,12 +1582,13 @@
                        			initializeForm.value = originalData;
 
                        		    //=========EVENT Handler checkbox================
-                                var elIsSold = NA.common.getElementID('id_issold')
-                                NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
 
-                       			    if (evt.target.checked) {                       			      
-                       			        elSelPrice.setAttribute('disabled', true);
-                       			    }
+                       			NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
+                                	if (evt.target.checked) {
+                                		elSelPrice.removeAttribute('disabled');
+                                	} else {
+                                		elSelPrice.setAttribute('disabled', true);
+                                	}
                        			});
                        			//======================event handler BUTTONS Search================================================ 
                        			var btnFindGoods = NA.common.getElementID('FE_fk_goods');
@@ -1706,7 +1735,7 @@
                        								//tempelkan data row di fk_goods, dan valuenya di goods_desc;
                        								var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
                        								var lastinfo = rowData['lastinfo'] // goods is able to use
-                       								var validInfo = ['goods is able to dispose', 'goods has lost'];
+                       								var validInfo = ['goods is able to dispose/delete', 'goods has lost'];
                        								if (validInfo.indexOf(lastinfo) >= 0) {
                        									fillGoodsInfo(rowData);
                        									dialogRef.close();
@@ -1721,7 +1750,7 @@
                        					}]
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_Acknowledge1"],[id="FE_fk_Acknowledge2"],[id="FE_fk_approvedby"]');
+                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_acknowledge1"],[id="FE_fk_acknowledge2"],[id="FE_fk_approvedby"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        			    if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                        			        win.document.body.style.cursor = 'default'; 
@@ -1787,7 +1816,7 @@
                        			                    var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
                        			                    //loads Data into JqueryGrid
                        			                    gridTbl = $('#jqGrid_NA_F_Goods_Disposal_fk_employee');
-                       			                    gridPager = $('jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
+                       			                    gridPager = $('#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
                        			                    var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                        			                    gridTbl.jqGrid({
                        			                        url: urlPR,
