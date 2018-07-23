@@ -11,7 +11,6 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         gaData = super(NA_BR_Goods_Receive_GA, self).get_queryset()\
             .annotate(
                 goodsname=F('fk_goods__goodsname'),
-                price=F('fk_goods__priceperunit'),
                 supliername=F('fk_suplier__supliername'),
                 received_by=F('fk_receivedby__employee_name'),
                 pr_by=F('fk_p_r_by__employee_name')
@@ -77,20 +76,21 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             Query = """INSERT INTO n_a_ga_receive
             (FK_goods, FK_ReceivedBy, FK_P_R_By, FK_Suplier, DateReceived, Brand, Invoice_no,
             TypeApp, Machine_no, Chassis_no, Year_made, Colour, Model,Kind, Cylinder, Fuel,
-            Price, Descriptions,CreatedDate, CreatedBy) 
+            Price, Descriptions,CreatedDate, CreatedBy)
             VALUES ({})""".format(','.join('%(' + i + ')s' for i in Params))
             cur.execute(Query, Params)
             return (Data.Success, Message.Success.value)
         elif statusForm == StatusForm.Edit:
             Params['ModifiedDate'] = data['modifieddate']
             Params['ModifiedBy'] = data['modifiedby']
-            Query = """UPDATE n_a_ga_receive SET 
+            Query = """UPDATE n_a_ga_receive SET
             FK_Goods = %(FK_goods)s,
             DateReceived = %(DateReceived)s,
             FK_Suplier = %(FK_Suplier)s,
             FK_ReceivedBy = %(FK_ReceivedBy)s,
             FK_P_R_By = %(FK_P_R_By)s,
-            brand = %(brand)s,invoice_no = %(invoice_no)s,
+            brand = %(brand)s,
+            invoice_no = %(invoice_no)s,
             typeapp = %(typeapp)s,
             machine_no = %(machine_no)s,
             chassis_no = %(chassis_no)s,
@@ -100,8 +100,11 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             kind = %(kind)s,
             cylinder = %(cylinder)s,
             fuel = %(fuel)s,
-            ModifiedDate = %(ModifiedDate)s,ModifiedBy = %(ModifiedBy)s,
-            Descriptions = %(Descriptions)s"""
+            Price = %(price)s,
+            ModifiedDate = %(ModifiedDate)s,
+            ModifiedBy = %(ModifiedBy)s,
+            Descriptions = %(Descriptions)s
+            WHERE idapp = %(idapp)s"""
             cur.execute(Query, Params)
             return (Data.Success, Message.Success.value)
 
@@ -121,25 +124,43 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         if self.dataExists(idapp=idapp):
             if self.hasRef(idapp):
                 return (Data.HasRef, Message.HasRef_edit)
-            data = super(NA_BR_Goods_Receive_GA, self).get_queryset()\
-                .filter(idapp=idapp)\
-                .annotate(
-                goodsname=F('fk_goods__goodsname'),
-                itemcode=F('fk_goods__itemcode'),
-                supliercode=F('fk_suplier'),
-                supliername=F('fk_suplier__supliername'),
-                received_by=F('fk_receivedby'),
-                received_by_nik=F('fk_receivedby__nik'),
-                received_by_name=F('fk_receivedby__employee_name'),
-                pr_by=F('fk_p_r_by'),
-                pr_by_nik=F('fk_p_r_by__nik'),
-                pr_by_name=F('fk_p_r_by__employee_name'))\
-                .values('idapp', 'fk_goods', 'itemcode', 'goodsname', 'supliercode', 'supliername', 'pr_by',
-                        'pr_by_nik', 'pr_by_name', 'received_by', 'received_by_nik', 'received_by_name', 'datereceived',
-                        'brand', 'invoice_no', 'typeapp', 'machine_no', 'chassis_no', 'year_made', 'colour',
-                        'model', 'kind', 'cylinder', 'fuel', 'descriptions')
-
-            return (Data.Success, data)
+            cur = connection.cursor()
+            query_string = """
+            CREATE TEMPORARY TABLE T_form_ga_receive ENGINE=InnoDB AS(
+                SELECT ngr.idapp, ngr.fk_goods, g.itemcode, g.goodsname, s.supliercode,
+                s.supliername, ngr.fk_p_r_by AS pr_by, emp1.pr_by_nik, emp1.pr_by_name,
+                ngr.fk_receivedby, emp2.received_by_nik, emp2.received_by_name,
+                DATE_FORMAT(ngr.datereceived, \'%%d/%%m/%%Y\') AS datereceived, ngr.brand,
+                ngr.invoice_no, ngr.typeapp, ngr.machine_no,
+                ngr.chassis_no, DATE_FORMAT(ngr.year_made, \'%%Y\') AS year_made, ngr.colour,
+                ngr.model, ngr.kind, ngr.cylinder,
+                ngr.fuel, ngr.price, ngr.descriptions, ngh.reg_no, 
+                DATE_FORMAT(ngh.date_reg, \'%%d/%%m/%%Y\') AS date_reg,
+                DATE_FORMAT(ngh.expired_reg, \'%%d/%%m/%%Y\') AS expired_reg, 
+                DATE_FORMAT(ngh.bpkb_expired, \'%%d/%%m/%%Y\') AS bpkb_expired,
+                ngh.descriptions AS remark
+                FROM n_a_ga_receive AS ngr
+                INNER JOIN n_a_goods AS g ON ngr.fk_goods = g.idapp
+                INNER JOIN n_a_suplier AS s ON ngr.fk_suplier = s.supliercode
+                LEFT OUTER JOIN (
+                    SELECT idapp, nik AS pr_by_nik, employee_name AS pr_by_name
+                    FROM employee
+                ) AS emp1 ON ngr.fk_p_r_by = emp1.idapp
+                LEFT OUTER JOIN (
+                    SELECT idapp, nik AS received_by_nik, employee_name AS received_by_name
+                    FROM employee
+                ) AS emp2 ON ngr.fk_receivedby = emp2.idapp
+                LEFT JOIN n_a_ga_vn_history AS ngh ON ngr.idapp = ngh.fk_app
+                WHERE ngr.idapp = %(idapp)s
+            )
+            """
+            cur.execute(query_string, {'idapp': idapp})
+            query_string = """
+            SELECT * FROM T_form_ga_receive
+            """
+            cur.execute(query_string)
+            result = query.dictfetchall(cur)[0]
+            return (Data.Success, result)
         else:
             return (Data.Lost, Message.get_lost_info(pk=idapp, table='n_a_goods_receive_other'))
 

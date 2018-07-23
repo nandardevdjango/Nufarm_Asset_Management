@@ -1,6 +1,6 @@
 ﻿<div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
-          style="background-color:transparent;font-size: 1em;width:520px;max-height:485px;overflow:auto;" 
+          style="background-color:transparent;font-size: 1em;width:520px;max-height:585px;overflow:auto;" 
 		  id="form_ga_receive" onsubmit="return false;">
         {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
@@ -138,8 +138,49 @@
                 </div>
             </fieldset>
         </div>
+        <div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
+            <fieldset style="margin-bottom:5px;margin-top:5px;">
+                <legend>Directly Enter Vehicle Number Ownership ?</legend>
+                <div class="NA-Entry-inlinve-div" style="padding-left:10px;padding-bottom:10px;">
+                    {{ form.direct_enter }} Yes
+                </div>
+                <div style="margin-bottom:5px;margin-right:auto;display:none;" id="enter_direct_container">
+
+                    <div class="NA-Entry-div-row">
+                        <label for="id_reg_no" style="display:inline-block; width:100px;">Reg no</label>
+                        {{ form.reg_no }}
+                    </div>
+                    <div class="NA-Entry-div-row">
+                        <label for="id_date_reg" style="display:inline-block; width:100px;">Date reg</label>
+                        {{ form.date_reg }}
+                    </div>
+
+                    <div class="NA-Entry-div-row" style="margin-top:20px;display:none;" id="reg_info">
+                        <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                            <label id="expired_reg_label" class="NA-Entry-label;" style="display:inline-block;width:100px;">Expired Reg</label>
+                            <label id="expired_reg_value" class="NA-Entry-label;" 
+                            style="margin-right: 5px;width: 75%;display: 
+                            inline-block;border: 1px solid rgb(76, 175, 80);
+                            border-top-right-radius: 5px;padding-left: 5px;">{{ form.expired_reg.value }}</label>
+                        </div>
+
+                        <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                                <label id="bpkb_label" class="NA-Entry-label;" style="display:inline-block;width:100px;">BPKB Expired</label>
+                                <label id="bpkb_value" class="NA-Entry-label;" 
+                                style="margin-right: 5px;width: 75%;display: 
+                                inline-block;border: 1px solid rgb(76, 175, 80);
+                                border-top-right-radius: 5px;padding-left: 5px;">{{ form.bpkb_expired.value }}</label>
+                        </div>
+                    </div>
+                    <div class="NA-Entry-div-row">
+                        <label for="id_remark">Remark</label>
+                        {{ form.remark }}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
         <div class="NA-Entry-div-row">
-            <label for="descriptions" class="NA-Entry-label;">Descriptions / Remark</label>
+            <label for="id_descriptions" class="NA-Entry-label;">Descriptions / Remark</label>
             {{ form.descriptions }}
         </div>
         <input type="submit" style="display:none" id="submit_receive_ga">
@@ -147,5 +188,7 @@
         {{ form.fk_goods }}
         {{ form.pr_by }}
         {{ form.received_by }}
+        {{ form.expired_reg }}
+        {{ form.bpkb_expired }}
     </form>
 </div>

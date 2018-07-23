@@ -384,7 +384,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
         return col
     }
     function getValues_Form() {
-    	return {
+        data = {
     		fk_goods: qs('#id_fk_goods').value.trim(),
     		brand: qs('input#id_brand').value.trim(),
     		invoice_no: qs('input#id_invoice_no').value.trim(),
@@ -406,10 +406,20 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
     		pr_by_nik: qs('#id_pr_by_nik').value.trim(),
     		received_by: qs('#id_received_by').value.trim(),
     		received_by_nik: qs('#id_received_by_nik').value.trim(),
-    		descriptions: qs('#id_descriptions').value.trim(),
+            descriptions: qs('#id_descriptions').value.trim(),
+            direct_enter: qs('input#id_direct_enter').checked,
     		status: win.status || qs('#id_status').value.trim()
-		};
-    };
+        };
+        var direct_enter_reg = direct_enter_reg || qs('input#id_direct_enter');
+        if(direct_enter_reg.checked){
+            data.reg_no = qs('input#id_reg_no').value.trim();
+            data.date_reg = qs('input#id_date_reg').value.trim();
+            data.expired_reg = qs('input#id_expired_reg').value.trim();
+            data.bpkb_expired = qs('input#id_bpkb_expired').value.trim();
+            data.remark = qs('textarea#id_remark').value.trim();
+        }
+    	return data;
+    }
     
 
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
@@ -499,8 +509,8 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
         if (day.length < 2) day = '0' + day;
 
         return [year, month, day].join('-');
-    };
-    status = status || window.status
+    }
+    status = status || window.status;
     function G_Receive_GASubmit() {
         var dialog = qs("div.containerDialog");
         function sendData() {
@@ -519,7 +529,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                 'csrfmiddlewaretoken': get_csrf(),
                 'statusForm': win.status,
             }, valuesForm, {'idapp':idapp})
-            return snData
+            return snData;
         }
         $.ajax({
             url: 'ShowEntry/',
@@ -762,7 +772,6 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                 //if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
                 //return false;
             } else if (target.innerText.trim() === 'Add' || target.innerText.trim() === 'Edit' || target.innerText.trim() == 'Open') {
-                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                 if (target.innerText.trim() == 'Edit' || target.innerText.trim() == 'Open') {
                     var idapp = getGridId();
                     if (typeof idapp == 'undefined' || !idapp || idapp == '') {
@@ -770,12 +779,12 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                         var message = 'Please select data you want to Edit';
                         if (goods_receive_ga_grid.getGridParam('records') === 0) {
                             message = 'No Data Found at here'
-                        };
+                        }
                         return dialogAlert(message, NA.common.message.titleInfo, function () {
                             return goods_receive_ga_grid.trigger('reloadGrid');
                         });
                     }
-                };
+                }
 
                 $('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('statusForm')
                     + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
@@ -787,6 +796,35 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                         };
                         if (statusTxt == "success") {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                             //remove attribute disable untuk button OK dan cancel bila statusnya Add
+                            var direct_enter_reg = qs('input#id_direct_enter'),
+                                direct_container = qs('div#enter_direct_container'),
+                                reg_no = qs('input#id_reg_no'),
+                                date_reg = qs('input#id_date_reg'),
+                                remark = qs('textarea#id_remark'),
+                                expired_reg = qs('input#id_expired_reg'),
+                                bpkp_expired = qs('input#id_bpkb_expired');
+                                reg_info = qs('div#reg_info');
+                            
+                            field_direct = [reg_no, date_reg, remark, expired_reg, bpkp_expired]
+                                
+                            NA.NAEvent.addHandler(direct_enter_reg, 'click', function(event){
+                                if(this.checked) {
+                                    direct_container.style.display = 'block';
+                                    field_direct.forEach(function(field) {
+                                        field.setAttribute('required', true)
+                                    });
+
+                                } else {
+                                    direct_container.style.display = 'none';
+                                    field_direct.forEach(function(field) {
+                                        field.removeAttribute('required')
+                                        field.value = '';
+                                    });
+                                    qs('label#expired_reg_value').textContent = '';
+                                    qs('label#bpkb_value').textContent = '';
+                                }
+                            });
+                            
                             switch (status) {
 
                                 case 'Add':
@@ -817,6 +855,31 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 	closeText: "Close",
                                 	currentText: 'Now',
                                 });
+
+                                addYear = (dateText, year) => {
+                                    var date = $.datepicker.parseDate('dd/mm/yy', dateText);
+                                    return date.getDate() + '/' + date.getMonth() + '/' + (date.getFullYear() + year)
+                                }
+
+                                $('input#id_date_reg').datepicker({
+                                    dateFormat: 'dd/mm/yy',
+                                	changeMonth: true,
+                                	changeYear: true,
+                                	dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
+                                	beforeShowDay: $.datepicker.noWeekends,
+                                	maxDate: 1,
+                                	showButtonPanel: true,
+                                	closeText: "Close",
+                                    currentText: 'Now',
+                                    onSelect: function(dateText){
+                                        reg_info.style.display = 'block';
+                                        var date = $.datepicker.parseDate('dd/mm/yy', dateText);
+
+                                        expired_reg.value = addYear(dateText, 1);
+                                        bpkp_expired.value = addYear(dateText, 5);
+                                        qs('label#expired_reg_value').textContent = expired_reg.value;
+                                        qs('label#bpkb_value').textContent = bpkp_expired.value;                                    }
+                                })
                                 
                                 //simpan original data di initializeForm
                                 
