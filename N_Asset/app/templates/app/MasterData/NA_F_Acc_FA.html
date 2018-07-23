@@ -117,15 +117,18 @@ div#gbox_NA_Acc_grid,div#gview_NA_Acc_grid,div#NA_Acc_pager,div.ui-jqgrid-titleb
                                     '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()),
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp', 'No', 'Item code', 'Goods', 'Serial Number', 'Year', 'Start Date', 'Depreciation Method', 'Depreciation Expense', 'Depreciation Accumulation', 'Book Value', 'Createddate', 'Createdby'],
+                    colNames: ['idapp', 'No', 'Item code', 'Goods', 'Serial Number', 'Date Acquisition', 'Year', 'Date Depreciation', 'Depreciation Method', 'Depreciation Expense', 'Depreciation Accumulation', 'Book Value', 'Createddate', 'Createdby'],
                     colModel: [
                         { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true },//
                         { name: 'no', index: 'no', width: 50, align: 'right' },
 						{ name: 'itemcode', index: 'itemcode', width: 80, align: 'left' },
                         { name: 'goods', index: 'goods', width: 200, align: 'left' },
                         { name: 'serialNumber', index: 'serialNumber', width: 150, align: 'left' },
+                        { name: 'startdate', index: 'startdate', width: 150, align: 'center', search: false, 
+                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
                         { name: 'year', index: 'year', width: 80, sortable: true },
-                        { name: 'startdate', index: 'startdate', width: 150, align: 'center', search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
+                        { name: 'date_depreciation', index: 'date_depreciation', width: 150, align: 'center', search: false, 
+                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
 						{
 							name: 'depreciationmethod', index: 'depreciationmethod', width: 150, align: 'left', formatter: 'select', editoptions: {
 								value: 'SL:Straight Line Method;DDB:Double Declining Balance;STYD:Sum Of The Year Digit'

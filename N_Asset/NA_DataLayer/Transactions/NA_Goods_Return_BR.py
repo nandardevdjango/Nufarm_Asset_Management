@@ -93,17 +93,25 @@ class NA_BR_Goods_Return(models.Manager):
         cur.close()
         return result[0]
 
-    def SearchGoods_byForm(self, value):
+    def SearchGoods_byForm(self, q):
         cur = connection.cursor()
         Query = """
-        (SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods, ngo.fk_goods, ngo.serialnumber,g.itemcode,
-        ngo.typeapp,@fromgoods := 'GO' AS fromgoods FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp 
-        WHERE NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp))
+        (SELECT ngo.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp) AS goods,
+        ngo.fk_goods, ngo.serialnumber, g.itemcode, ngo.typeapp, @fromgoods := 'GO' AS fromgoods
+        FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp
+        WHERE CONCAT(g.goodsname,' ',g.brandname,' ',ngo.typeapp)
+        LIKE \'{q}\' OR g.itemcode LIKE \'{q}\' or ngo.serialnumber LIKE \'{q}\'
+        AND NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp))
         UNION
-        (SELECT ngl.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp) AS goods, ngl.fk_goods, ngl.serialnumber,g.itemcode,
-        ngl.typeapp,@fromgoods := 'GL' AS fromgoods FROM n_a_goods_lending ngl INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp 
-        WHERE NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_lend = ngl.idapp))
-        """
+        (SELECT ngl.idapp,CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp) AS goods,
+        ngl.fk_goods, ngl.serialnumber, g.itemcode, ngl.typeapp, @fromgoods := 'GL' AS
+        fromgoods FROM n_a_goods_lending ngl INNER JOIN n_a_goods g ON ngl.fk_goods = g.idapp
+        WHERE CONCAT(g.goodsname,' ',g.brandname,' ',ngl.typeapp)
+        LIKE \'{q}\' OR g.itemcode LIKE \'{q}\' or ngl.serialnumber LIKE \'{q}\'
+        AND NOT EXISTS (SELECT idapp FROM n_a_goods_return WHERE fk_goods_lend = ngl.idapp))
+        """.format(
+            q=('%' + q + '%')
+        )
         cur.execute(Query)
         result = query.dictfetchall(cur)
         cur.close()
