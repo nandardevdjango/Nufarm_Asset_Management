@@ -4,7 +4,8 @@ from django.db.models import F
 
 
 class NA_Acc_FA_BR(models.Manager):
-    def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar, sidx='idapp', sord='desc'):
+    def PopulateQuery(self, columnKey, ValueKey, is_parent, serialnumber=None,
+    criteria=CriteriaSearch.Like, typeofData=DataType.VarChar, sidx='idapp', sord='desc'):
         cur = connection.cursor()
         rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
         Query = """
@@ -13,9 +14,17 @@ class NA_Acc_FA_BR(models.Manager):
         ac.datedepreciation, ac.depr_expense, ac.depr_accumulation, ac.bookvalue,
         ac.createddate, ac.createdby FROM n_a_acc_fa ac
         INNER JOIN n_a_goods g ON ac.fk_goods = g.IDApp
-        WHERE """  # g.EconomicLife - ac.year+Year(StartDate) = Year(now())
-        Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + ' ' + sord
-        cur.execute(Query)
+        WHERE ac.IsParent = %(is_parent)s AND """
+        query_param = {'is_parent': is_parent}
+        if is_parent:
+            Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + ' ' + sord
+        else:
+            Query = Query + """ac.serialnumber = %(serial_number)s"""
+            query_param.update({
+                'serial_number': serialnumber
+            })
+        print(Query)
+        cur.execute(Query, query_param)
         result = query.dictfetchall(cur)
         cur.close()
         return result
@@ -25,7 +34,8 @@ class NA_Acc_FA_BR(models.Manager):
             cur = connection.cursor()
             cur.execute('''
             INSERT INTO n_a_acc_fa(FK_Goods, SerialNumber, TypeApp, Year, DateDepreciation,
-            StartDate,Depr_Expense,Depr_Accumulation,BookValue,CreatedDate,CreatedBy)
+            StartDate, Depr_Expense, Depr_Accumulation, BookValue, IsParent, CreatedDate,
+            CreatedBy)
             VALUES {}'''.format(data))
         cur.close()
         return (Data.Success,)
@@ -54,9 +64,10 @@ class NA_Acc_FA_BR(models.Manager):
         CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) as goods,
         grd.serialnumber FROM n_a_goods g INNER JOIN n_a_goods_receive gr
         ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd
-        ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac 
+        ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac
         WHERE ac.serialnumber = grd.serialnumber) AND
-        CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'""".format(value)
+        CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'
+        """.format(value)
         cur.execute(Query)
         result = query.dictfetchall(cur)
         connection.close()
