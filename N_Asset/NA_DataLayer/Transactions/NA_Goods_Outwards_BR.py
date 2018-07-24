@@ -338,7 +338,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
 		return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel):
-		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(daterequest=datereq) & Q(datereleased=daterel)).exists()#Q(member=p1) | Q(member=p2)
+		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
 		#get FK_stock
