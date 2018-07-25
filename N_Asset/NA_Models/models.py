@@ -428,11 +428,8 @@ class goods(NA_MasterDataModel):
     placement = models.CharField(
         db_column='Placement', max_length=50, blank=True, null=True)
     typeapp = models.CharField(
-        max_length=5,
-        db_column='typeapp', null=True, choices=(
-            ('IT', 'IT'),
-            ('GA', 'GA')
-        )
+        max_length=32,
+        db_column='typeapp', null=True, choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others'))
     )
 
     class Meta:

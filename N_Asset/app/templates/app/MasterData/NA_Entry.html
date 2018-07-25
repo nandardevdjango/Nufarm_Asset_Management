@@ -43,8 +43,10 @@
             </div>
             <div class="NA-Entry-div-row">
                 <div class="NA-Entry-inlinve-div">
-                    <label for="typeapp" class="NA-Entry-label;">type of goods</label>
-                    {{ form.typeapp }}
+					<fieldset>
+						<legend>Category</legend>
+							{{ form.typeapp }}
+					</fieldset>                   
                 </div>
                 <div class="NA-Entry-inlinve-div" style="padding-left:5px;">
                     <label for="priceperunit" class="NA-Entry-label;">Price/Unit</label>

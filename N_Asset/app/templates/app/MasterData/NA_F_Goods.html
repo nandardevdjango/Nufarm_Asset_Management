@@ -146,7 +146,7 @@
                             '&' +  win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()),
                         mtype: "GET",
                         datatype: "json",
-                        colNames: ['IDapp','Item Code','Goods Name','Unit','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
+                        colNames: ['IDapp','Item Code','Goods Name','Unit','Category','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
                         colModel: [
                             {name: 'idapp', key: true, hidden: true, width:70,align:'left'},
                             {name: 'itemcode', index:'itemcode', width: 80,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
@@ -154,6 +154,7 @@
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             {name: 'goodsname',index:'goodsname', width: 150,sortable:true,editable:false, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] } },
                             {name:'unit',index:'unit',width:70,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
+							{name:'category',index:'typeapp',width:100,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
                             {name: 'priceperunit',index:'priceperunit', width: 150,sortable:true,align:'right',formatter:'currency', formatoptions:{decimalSeparator:",", thousandsSeparator: ".",
                                 decimalPlaces: 2, prefix: "Rp "},filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] } },
                             {name:'placement',index:'placement',width:110,sortable:true,editable:false,filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
