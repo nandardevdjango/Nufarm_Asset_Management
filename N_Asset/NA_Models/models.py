@@ -366,6 +366,7 @@ class NAAccFa(NA_BaseModel):
         blank=True,
         null=True
     )
+    is_parent = models.PositiveSmallIntegerField(db_column='IsParent', default=0)
     lastupdated = models.DateTimeField(
         db_column='LastUpdated', blank=True, null=True)
     objects = NA_Acc_FA_BR()

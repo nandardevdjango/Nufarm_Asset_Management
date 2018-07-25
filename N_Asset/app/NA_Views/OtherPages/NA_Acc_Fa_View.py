@@ -7,7 +7,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, commonFunct
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import datetime
-#from dateutil import relativedelta
 from decimal import Decimal
 
 
@@ -24,8 +23,18 @@ def NA_AccGetData(request):
         table=[NAAccFa, goods], resolve=IcolumnName, initial_name=['ac', 'g'])
     criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
     dataType = ResolveCriteria.getDataType(str(IdataType))
+    is_parent = request.GET.get('is_parent')
+    serial_number = request.GET.get('serialnumber')
     accData = NAAccFa.objects.PopulateQuery(
-        getColumn, IvalueKey, criteria, dataType, Isidx, Isord)
+        columnKey=getColumn,
+        is_parent=int(is_parent),
+        serialnumber=serial_number,
+        ValueKey=IvalueKey,
+        criteria=criteria,
+        typeofData=dataType,
+        sidx=Isidx,
+        sord=Isord
+    )
     paginator = Paginator(accData, Ilimit)
     try:
         dataRows = paginator.page(Ipage)
@@ -221,15 +230,17 @@ def generate_acc(acc, values_insert):
     serialNumber = acc['serialNumber']
     depr_method = acc['depr_method']
     startdate = acc['startdate']
+    date_depr = lambda year: datetime.datetime.strptime(
+        startdate, '%Y-%m-%d'
+    ).date() + datetime.timedelta(
+        days=(float(year) * 365)
+    )
     depr_expense = Decimal(acc['depr_expense'])
     economiclife = acc['economiclife']
     if month_of == 0:
         if depr_method == 'DDB':
             depr_expense = depr_expense * 2
-        date_depr = datetime.datetime.now() + datetime.timedelta(
-            days=(float(economiclife) * 365)
-        )
-        date_depr = date_depr.date()
+        date_depr = date_depr(economiclife)
         str_values = [
             '("' + str(acc['fk_goods']),
             str(serialNumber),
@@ -240,6 +251,7 @@ def generate_acc(acc, values_insert):
             str(depr_expense),
             '0.00',
             str('%0.2f' % price),
+            '1',  # is_parent
             acc['createddate'],
             acc['createdby'] + '")'
         ]
@@ -261,10 +273,7 @@ def generate_acc(acc, values_insert):
             if depr_accumulation > price:
                 depr_accumulation = price
             bookvalue = price - depr_accumulation
-        date_depr = datetime.datetime.now() + datetime.timedelta(
-            days=(float(residue_eccLife) * 365)
-        )
-        date_depr = date_depr.date()
+        date_depr = date_depr(residue_eccLife)
         str_values = [
             '("' + str(acc['fk_goods']),
             str(serialNumber), str(typeApp),
@@ -274,6 +283,7 @@ def generate_acc(acc, values_insert):
             str('%0.2f' % depr_expense),
             str('%0.2f' % depr_accumulation),
             str('%0.2f' % bookvalue),
+            '0',  # is_parent
             acc['createddate'],
             acc['createdby'] + '")'
         ]
