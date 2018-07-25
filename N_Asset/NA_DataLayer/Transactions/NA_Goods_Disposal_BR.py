@@ -27,6 +27,8 @@ class NA_BR_Goods_Disposal(models.Manager):
 			colKey = '(CASE WHEN (ngds.fk_maintenance IS NOT NULL) THEN(SELECT CONCAT(IFNULL(PersonalName,' '),', ',IFNULL(MaintenanceBy,'')) FROM n_a_maintenance WHERE idapp = ngds.fk_maintenance) ELSE '' END)'
 		elif columnKey == 'issold':
 			colKey = 'ngds.issold'
+		elif columnKey == 'refgoodsfrom':
+			colKey = 'ref.refgoodsfrom'
 		elif columnKey == 'sellingprice':
 			colKey = 'ngds.sellingprice'
 		elif columnKey == 'proposedby':
@@ -35,26 +37,28 @@ class NA_BR_Goods_Disposal(models.Manager):
 			colKey = 'ngds.createdby'
 		elif columnKey == 'createddate':
 			colKey = 'ngds.ceateddate'
+		elif columnKey == 'descriptions':
+			colKey = 'ngds.descriptions'
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Disposal_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
 		#idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		Query = """  CREATE TEMPORARY TABLE T_Disposal_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngds.idapp,g.goodsname AS goods,ngd.typeApp AS goodstype,ngd.serialnumber,
-				ngds.bookvalue,	ngds.datedisposal,ngds.islost,	
-				CASE					
-					WHEN (ngds.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
-					WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
-					WHEN (ngds.FK_Lending IS NOT NULL) THEN '(After being Lent)'
-					WHEN (ngds.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
-					ELSE 'Other (Uncategorized)'
-					END AS refgoodsfrom,							
+				ngds.bookvalue,	ngds.datedisposal,ngds.islost,ref.refgoodsfrom,							
 				ngds.issold,ngds.sellingprice,IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
 				,ngds.descriptions,ngds.createdby,ngds.createddate		       
 		        FROM n_a_disposal ngds INNER JOIN n_a_goods g ON g.IDApp = ngds.FK_Goods 
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = ngds.FK_Goods
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 		        AND ngds.SerialNumber = ngd.SerialNumber
-
+				INNER JOIN (SELECT nd.IDApp,CASE
+							WHEN (ngds.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
+							WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+							WHEN (ngds.FK_Lending IS NOT NULL) THEN '(After being Lent)'
+							WHEN (ngds.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
+							WHEN (ngds.islost = 1) THEN 'goods has lost'
+							ELSE 'Other (Uncategorized)'
+							END AS refgoodsfrom FROM n_a_goods_disposal nd)ref ON Ref.IDApp = ngds.IDApp
 		        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp ON emp.idapp = ngds.fk_proposedby
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp1 ON emp1.idapp = ngds.FK_Acknowledge1
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp2 ON emp2.idapp = ngds.FK_Acknowledge2

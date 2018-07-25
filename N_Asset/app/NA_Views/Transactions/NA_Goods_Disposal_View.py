@@ -42,7 +42,27 @@ def NA_Goods_Disposal(request):
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Disposal.html',{'populateColumn':populate_combo})
 
+#goods,goodstype,serialnumber,islost,sellingprice,bookvalue,datedisposal,refgoodsfrom
+#issold,proposedby,acknowledgeby,approvedby,createdby,createddate
+def ShowCustomFilter(request):
+	cols = []
+	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
+	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
+	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
+	cols.append({'name':'datedisposal','value':'datedisposal','selected':'','dataType':'datetime','text':'Date Requested'})
+	cols.append({'name':'sellingprice','value':'sellingprice','selected':'','dataType':'decimal','text':'Selling Price'})
+	
 
+
+
+	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
+	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
+	cols.append({'name':'islost','value':'islost','selected':'','dataType':'boolean','text':'Is New'})
+	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
+	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
+	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+	cols.append({'name':'createddate','value':'createddate','selected':'','dataType':'datetime','text':'Created Date'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 def NA_Goods_Disposal_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
