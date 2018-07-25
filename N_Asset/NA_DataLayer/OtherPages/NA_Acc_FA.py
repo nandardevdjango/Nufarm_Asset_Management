@@ -61,12 +61,14 @@ class NA_Acc_FA_BR(models.Manager):
     def searchAcc_ByForm(self, value):
         cur = connection.cursor()
         Query = """SELECT g.idapp,g.itemcode,
-        CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) as goods,
-        grd.serialnumber FROM n_a_goods g INNER JOIN n_a_goods_receive gr
+        CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) as goods,
+        grd.serialnumber, gr.datereceived AS startdate,
+        g.depreciationmethod, grd.priceperunit, g.economiclife
+        FROM n_a_goods g INNER JOIN n_a_goods_receive gr
         ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd
         ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac
         WHERE ac.serialnumber = grd.serialnumber) AND
-        CONCAT(g.goodsname, ' ',g.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'
+        CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'
         """.format(value)
         cur.execute(Query)
         result = query.dictfetchall(cur)
