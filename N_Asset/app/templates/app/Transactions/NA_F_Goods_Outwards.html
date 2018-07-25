@@ -595,7 +595,7 @@
 			FDate = $('#id_datereleased').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 			valuesForm['datereleased'] = CDate;
-			SuccesTrans = false;
+			var SuccesTrans = false;
 
 			var NAAjax = NA.common.AJAX;
 			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {

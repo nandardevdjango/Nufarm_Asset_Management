@@ -153,8 +153,7 @@ def ShowEntry_Disposal(request):
 				data.update(idapp_fk_usedemployee=(None if int(data['idapp_fk_usedemployee']) == 0 else data['idapp_fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
-				data.update(fk_receive=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
-
+				data.update(fk_outwards=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					#result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)

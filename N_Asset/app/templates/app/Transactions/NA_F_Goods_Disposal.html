@@ -490,7 +490,7 @@
 		};
 		function ExecuteHandler(textElement) {
 			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
-			//var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Outwards');
+			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Disposal');
 			switch (textElement) {
 				case 'OK': {
 					if (!frmEntry.checkValidity()) {                                   
@@ -591,18 +591,13 @@
 				var el = document.getElementsByName("csrfmiddlewaretoken");
 				return el[0].getAttribute("value");
 			})();
-			var FDate = $('#id_daterequest').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
+			var FDate = $('#id_datedisposal').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
-			valuesForm['daterequest'] = CDate;
-
-			FDate = $('#id_datereleased').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
-			CDate = GetServerFormatDate(FDate);
-			valuesForm['datereleased'] = CDate;
-			SuccesTrans = false;
-
+			valuesForm['datedisposal'] = CDate;
+			var SuccesTrans = false;
 			var NAAjax = NA.common.AJAX;
 			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
-			NAAjax.POST('ShowEntry_Outwards', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
+			NAAjax.POST('ShowEntry_Disposal', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
 				function () {
 					win.document.body.style.cursor = 'wait';
 				},
@@ -763,7 +758,7 @@
 		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_elfk_acknowledge1'),
 		    	idapp_fk_acknowledge1 = elidapp_fk_acknowledge1.value || 0;
 
-		    var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge2'),
+		    var elfk_acknowledge2 = NA.common.getElementID('id_fk_acknowledge2'),
                 fk_acknowledge2 = elfk_acknowledge2.value
 		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_elfk_acknowledge2'),
 		    	idapp_fk_acknowledge2 = elidapp_fk_acknowledge2.value || 0;
@@ -778,8 +773,7 @@
                 fk_proposedby = elfk_proposedby.value;
 		    var elidapp_fk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby'),
 		    	idapp_fk_proposedby = elidapp_fk_proposedby.value|0;
-
-
+			
 			var eldescriptions = NA.common.getElementID('id_descriptions'),
 				descriptions = eldescriptions.value;
 			var eltypeapp = NA.common.getElementID('TypeValue'),
@@ -787,7 +781,7 @@
 			var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
 			//brandvalue nggak usah
-			var elfk_frommaintenance = NA.common.getElementID('id_fk_maintenance'),
+			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
                 fk_maintenance = elfk_maintenance.value | 0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),
                 fk_return = elfk_return.value | 0;
@@ -801,14 +795,22 @@
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value | 0;
 
-			//return {
-			//	idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
-			//	idapp_fk_usedemployee: idapp_fk_usedemployee,
-			//	daterequest: daterequest, datereleased: datereleased, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
-			//	fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
-			//	fk_frommaintenance: fk_frommaintenance, fk_return: fk_return, fk_lending: fk_lending, fk_receive: fk_receive, lastinfo: lastinfo,
-			//	status: win.status
-			//}
+			//(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
+			// FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
+			// FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
+
+			return {
+				idapp: idapp, fk_goods: fk_goods, idapp_fk_goods: idapp_fk_goods, datedisposal: datedisposal, islost: islost,
+				issold: issold, selprice:selprice,bookvalue:bookvalue,
+				fk_acknowledge1: fk_acknowledge1, idapp_fk_acknowledge1: idapp_fk_acknowledge1,
+				fk_acknowledge2: fk_acknowledge2, idapp_fk_acknowledge2: idapp_fk_acknowledge2,
+				fk_approvedby: fk_approvedby, idapp_fk_approvedby: idapp_fk_approvedby,
+				fk_proposedby: fk_proposedby, idapp_fk_proposedby: idapp_fk_proposedby,
+				descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
+				fk_maintenance: fk_maintenance, fk_return: fk_return, fk_lending: fk_lending, fk_outwards: fk_outwards,
+				faaccfa:faaccfa,
+				idapp_fk_usedemployee:idapp_fk_usedemployee,status: win.status
+			}
 		};
 		function closeDialog() {
 			EraseElHidden();
