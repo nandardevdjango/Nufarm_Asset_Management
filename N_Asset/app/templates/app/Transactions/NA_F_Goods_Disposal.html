@@ -721,53 +721,85 @@
 
 		};
 		function getValuesForm() {
-			//var elidapp = NA.common.getElementID('id_idapp'),
-			//idapp = elidapp.value;
-			//var elfk_goods = NA.common.getElementID('fk_goodsValue'),
-            //    fk_goods = elfk_goods.textContent;
-			//var elisnew = NA.common.getElementID('id_isnew'),
-			//	isnew = elisnew.value;
-			////goods tidak usah
-			//var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
-			//	idapp_fk_goods = elidapp_fk_goods.value;
-			
-			//var eldatereleased = NA.common.getElementID('id_datereleased'),
-			//	datereleased = eldatereleased.value;
-			////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
-			//var elfk_responsibleperson = NA.common.getElementID('id_fk_responsibleperson'),
-			//	fk_responsibleperson = elfk_responsibleperson.value;
-			//var elidapp_fk_responsibleperson = NA.common.getElementID('id_idapp_fk_responsibleperson'),
-			//	idapp_fk_responsibleperson = elidapp_fk_responsibleperson.value;
-			////fk_responsibleperson_employee nggak usah
-			//var elfk_sender = NA.common.getElementID('id_fk_sender'),
-			//	fk_sender = elfk_sender.value;
-			//var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender'),
-			//	idapp_fk_sender = elidapp_fk_sender.value;
 
-			//var eldescriptions = NA.common.getElementID('id_descriptions'),
-			//	descriptions = eldescriptions.value;
-			//var eltypeapp = NA.common.getElementID('TypeValue'),
-            //   typeapp = eltypeapp.textContent;
-			//var elserialnumber = NA.common.getElementID('id_serialnumber'),
-            //serialnumber = elserialnumber.value;
-			////brandvalue nggak usah
-			//var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance'),
-            //    fk_frommaintenance = elfk_frommaintenance.value | 0;
-			//var elfk_return = NA.common.getElementID('id_fk_return'),
-            //    fk_return = elfk_return.value | 0;
-			//var elfk_lending = NA.common.getElementID('id_fk_lending'),
-            //    fk_lending = elfk_lending.value | 0;
-			//var elfk_receive = NA.common.getElementID('id_fk_receive'),
-            //    fk_receive = elfk_receive.value | 0;
-			////var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
-			////    fk_disposal = elfk_disposal.value;
-			////var elfk_lost = NA.common.getElementID('id_fk_lost'),
-			////    fk_lost = elfk_lost.value;
-			//var ellastinfo = NA.common.getElementID('LastInfoValue'),
-            //    lastinfo = ellastinfo.textContent
-			//var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
-			////UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
-			//var idapp_fk_usedemployee = elfk_usedemployeeValue.value | 0;
+	    //	    INSERT INTO n_a_disposal
+	    //(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
+	    // FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
+	    // FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
+	    //	    VALUES (NOW(), '', '', '', NOW(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0)
+
+			var elidapp = NA.common.getElementID('id_idapp'),
+			idapp = elidapp.value;
+			var elfk_goods = NA.common.getElementID('fk_goodsValue'),
+                fk_goods = elfk_goods.textContent;
+			var elisnew = NA.common.getElementID('id_isnew'),
+				isnew = elisnew.value;
+			//goods tidak usah
+			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
+				idapp_fk_goods = elidapp_fk_goods.value;
+			
+			var eldatedisposal = NA.common.getElementID('id_datedisposal'),
+				datedisposal = eldatedisposal.value;
+		    ////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
+			var elIsLost = NA.common.getElementID('id_islost'),
+			//if (elIsLost.value == '' || elIsLost.value == 'False') { elIsLost.value = false
+		    //elIsLost.value = elIsLost.value || false;
+			islost = (elIsLost.value == '' || elIsLost.value == 'False') ? false : true;
+
+			var elIsSold = NA.common.getElementID('id_issold'),
+			issold = elIsSold.getAttribute('checked') ? true : false;
+
+			var elSelPrice = NA.common.getElementID('id_sellingprice');
+			selprice = (elSelPrice.value == '' || elSelPrice.value == null) ? 0 : parseFloat(elSelPrice.value);
+
+			var elBookValue = NA.common.getElementID('fk_bookvalueValue'),
+			bookvalue = (elBookValue.value == '' || elBookValue.value == null) ? 0 : parseFloat(elbookValue.value);
+
+			var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'),
+            faaccfa = elfkAccFA.value||0;
+
+			var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge1'),
+		    	fk_acknowledge1 = elfk_acknowledge1.value
+		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_elfk_acknowledge1'),
+		    	idapp_fk_acknowledge1 = elidapp_fk_acknowledge1.value || 0;
+
+		    var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge2'),
+                fk_acknowledge2 = elfk_acknowledge2.value
+		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_elfk_acknowledge2'),
+		    	idapp_fk_acknowledge2 = elidapp_fk_acknowledge2.value || 0;
+
+			////fk_responsibleperson_employee nggak usah
+			var elfk_approvedby = NA.common.getElementID('id_fk_approvedby'),
+		    	fk_approvedby = elfk_approvedby.value;
+		    var elidapp_fk_approvedby = NA.common.getElementID('id_idapp_fk_approvedby'),
+		    	idapp_fk_approvedby = elidapp_fk_approvedby.value|0;
+
+		    var elfk_proposedby = NA.common.getElementID('id_fk_proposedby'),
+                fk_proposedby = elfk_proposedby.value;
+		    var elidapp_fk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby'),
+		    	idapp_fk_proposedby = elidapp_fk_proposedby.value|0;
+
+
+			var eldescriptions = NA.common.getElementID('id_descriptions'),
+				descriptions = eldescriptions.value;
+			var eltypeapp = NA.common.getElementID('TypeValue'),
+               typeapp = eltypeapp.textContent;
+			var elserialnumber = NA.common.getElementID('id_serialnumber'),
+            serialnumber = elserialnumber.value;
+			//brandvalue nggak usah
+			var elfk_frommaintenance = NA.common.getElementID('id_fk_maintenance'),
+                fk_maintenance = elfk_maintenance.value | 0;
+			var elfk_return = NA.common.getElementID('id_fk_return'),
+                fk_return = elfk_return.value | 0;
+			var elfk_lending = NA.common.getElementID('id_fk_lending'),
+                fk_lending = elfk_lending.value | 0;
+			var elfk_outwards = NA.common.getElementID('id_fk_outwards'),
+                fk_outwards = elfk_outwards.value | 0;
+			var ellastinfo = NA.common.getElementID('LastInfoValue'),
+                lastinfo = ellastinfo.textContent
+			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
+			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
+			var idapp_fk_usedemployee = elfk_usedemployeeValue.value | 0;
 
 			//return {
 			//	idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
