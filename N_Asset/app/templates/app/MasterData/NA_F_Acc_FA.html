@@ -533,37 +533,34 @@ div[id*=NA_Acc_grid]{
 
     status = status || window.status
     function AccSubmit() {
-        function sendData() {
-            var valuesForm = getValues_accForm()
-            var idapp;
-            if (window.status.trim() == 'Edit'|| window.status == 'Open') {
-                idapp = getGridId()
-            } else {
-                idapp = ''
-            }
-            var snData = Object.assign({
-                'csrfmiddlewaretoken': get_csrf(),
-                'mode': window.status,
-            }, valuesForm, {'idapp':idapp})
-            return snData
+        var grid_form_acc = grid_form_acc || $('#grid_form_acc');
+        var data = grid_form_acc.jqGrid('getGridParam', 'selarrrow');
+        var arr_idapp = [];
+        for(var i=0; i<data.length; i++) {
+            arr_idapp.push(
+                grid_form_acc.getRowData(data[i]).idapp_detail_receive
+            )
         }
-                $.ajax({
-                    url: 'ShowEntry/',
-                    method: 'POST',
-                    beforeSend: function (jqXHR) {
-                        jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
-                    },
-                    data: sendData(),
-                    success: function (data) {
-                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-                    	NA.common.dialog.closeDialog(dialog);
-                        acc_grid.trigger('reloadGrid');
-                        setTimeout(function () {
-                            acc_grid.setSelection(data['message'], true)
-                        }, 1000);
-                        reload_LogEvent();
-                    }
-                });
+        $.ajax({
+            url: 'ShowEntry/',
+            method: 'POST',
+            beforeSend: function (jqXHR) {
+                jqXHR.setRequestHeader('X-CSRFToken', get_csrf())
+            },
+            data: {
+                idapp_detail_receive: arr_idapp.join(),
+                mode: 'Add'
+            },
+            success: function (data) {
+                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                NA.common.dialog.closeDialog(dialog);
+                acc_grid.trigger('reloadGrid');
+                setTimeout(function () {
+                    acc_grid.setSelection(data['message'], true)
+                }, 1000);
+                reload_LogEvent();
+            }
+        });
     };
 
     function ExecuteHandler(TextElement) {
@@ -822,7 +819,7 @@ div[id*=NA_Acc_grid]{
                         datatype: "json",
                         page: 1,
                         colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number', 
-                        'Price', 'Economic life', 'Depreciation method', 'Start Date', 'End Date' ],
+                        'Price', 'Economic life', 'Depreciation method', 'Start Date', 'End Date' , 'idapp_detail_receive'],
                         colModel: [
                             { name: 'idapp', hidden: true, align: 'left' },
                             { name: 'no', width: 40, align: 'right', sortable: false, editable: false, key: true, },
@@ -839,6 +836,7 @@ div[id*=NA_Acc_grid]{
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'enddate', index: 'enddate', width: 150, sortable: true, editable: false, align: 'left', 
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+                            { name: 'idapp_detail_receive', index: 'idapp_detail_receive', hidden: true }
                         ],
                         viewrecords: true,
                         hidegrid: true,
@@ -847,14 +845,6 @@ div[id*=NA_Acc_grid]{
                         rowNum:10,
                         width: 'inherit',
                         height: '100%',
-                        gridComplete: function(){
-                            grid_form_acc.jqGrid('hideCol', 'cb'); //hide checkbox multi select
-                        },
-                        beforeSelectRow: function (rowid, e) {
-                            if (!e.ctrlKey && !e.shiftKey) {
-                                grid_form_acc.jqGrid('resetSelection');
-                            }
-                        }
                     });
                     $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv').css('width', 'inherit')
                 }
@@ -1085,18 +1075,10 @@ div[id*=NA_Acc_grid]{
             }
             var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
             $('div.dialogButtonOKCancel>a.button').on('click', function () {
-                var frmEntry = NA.common.doc.querySelector('form#acc_form');
-                var emailForm = NA.common.doc.querySelector('form#email_data')
-                if (frmEntry || emailForm) {
-                    var inrtext = $(this).text()
-                    ExecuteHandler(inrtext);
-                    return false;
+                var innerText = $(this).text()
+                if (innerText == 'OK'){
+                    AccSubmit()
                 }
-
-                if (event) {
-                    NA.NAEvent.stopPropagation(event);
-                }
-                return false;
             });
             $('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
                 NA.NAEvent.preventDefault(event);

@@ -58,19 +58,41 @@ class NA_Acc_FA_BR(models.Manager):
         return result
 
     # search By Form
-    def searchAcc_ByForm(self, value):
+    def searchAcc_ByForm(self, q=None, idapp=None):
         cur = connection.cursor()
-        Query = """SELECT g.idapp,g.itemcode,
-        CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) as goods,
-        grd.serialnumber, gr.datereceived AS startdate,
-        g.depreciationmethod, grd.priceperunit, g.economiclife
+        query_string = """SELECT gr.idapp,g.itemcode,
+        CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(grd.typeapp, ' ')) as goods,
+        grd.serialnumber, gr.datereceived AS startdate, grd.idapp AS idapp_detail_receive,
+        g.depreciationmethod, grd.priceperunit, g.economiclife, g.idapp AS fk_goods, grd.typeapp
         FROM n_a_goods g INNER JOIN n_a_goods_receive gr
         ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd
         ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac
-        WHERE ac.serialnumber = grd.serialnumber) AND
-        CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE '%{0}%'
-        """.format(value)
-        cur.execute(Query)
+        WHERE ac.serialnumber = grd.serialnumber) AND """
+
+        query_param = {}
+        if q is not None:
+            query_string += """
+            CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE %(q)s
+            """
+            query_param.update({
+                'q': '%' + q + '%'
+            })
+        elif idapp is not None:
+            if isinstance(idapp, list):
+                idapp = ','.join(idapp)
+                query_string += """
+                grd.idapp IN ({idapp})
+                """.format(
+                    idapp=idapp
+                )
+            else:
+                query_string += """
+                grd.idapp = %(idapp_detail_receive)s
+                """
+                query_param.update({
+                    'idapp_detail_receive': idapp
+                })
+        cur.execute(query_string, query_param)
         result = query.dictfetchall(cur)
         connection.close()
         return result
