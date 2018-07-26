@@ -137,7 +137,7 @@ class CustomManager(models.Manager):
 			Query = filter_data
 			del filter_data
 		data = super(CustomManager,self).get_queryset()\
-            .annotate(goods=Concat(F('goodsname'), Value(' '), F('brandname'), Value(' '), F('typeapp')))\
+            .annotate(goods=Concat(F('goodsname'), Value(' '), F('brandname'), Value(' ')))\
             .values('idapp','itemcode','goods','typeapp','descriptions')\
             .filter(*Query)
 		if data.exists():

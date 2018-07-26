@@ -608,15 +608,12 @@
 						SuccesTrans = true;
 						switch (win.status) {
 							case 'Add': {
-								//    //clear kan semua data
-								//    //reloadGridMaster
 								win.document.body.style.cursor = 'wait';
 								grid.trigger("reloadGrid", [{ page: 1 }]);
 								clearEntry();
 								originalData = JSON.stringify(getValuesForm());
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
-								//    //focus langsung ke 				    		
 								var elserialnumber = NA.common.getElementID('id_serialnumber');
 								elserialnumber.focus();
 								win.document.body.style.cursor = 'default';
@@ -630,7 +627,6 @@
 								break;
 							}
 						}
-						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
 					}
 					else {//error berarti
 						XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');

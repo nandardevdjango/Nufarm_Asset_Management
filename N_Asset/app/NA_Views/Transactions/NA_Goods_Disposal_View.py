@@ -52,7 +52,7 @@ def ShowCustomFilter(request):
 	cols.append({'name':'bookvalue','value':'bookvalue','selected':'','dataType':'decimal','text':'Book Value'})
 	cols.append({'name':'datedisposal','value':'datedisposal','selected':'','dataType':'datetime','text':'Date Disposal'})
 	cols.append({'name':'afterrepair','value':'afterrepair','selected':'','dataType':'boolean','text':'After Repaired'})
-	cols.append({'name':'lastrepairfrom','value':'lastrepairfrom','selected':'','dataType':'varchar','text':'Last Repaired From'})
+	cols.append({'name':'lastrepairfrom','value':'lastrepairfrom','selected':'','dataType':'varchar','text':'Repaired From'})
 	cols.append({'name':'issold','value':'issold','selected':'','dataType':'boolean','text':'Is Sold'})
 	cols.append({'name':'sellingprice','value':'sellingprice','selected':'','dataType':'decimal','text':'Selling Price'})
 	cols.append({'name':'proposedby','value':'proposedby','selected':'','dataType':'varchar','text':'Proposed By'})
@@ -180,7 +180,7 @@ def ShowEntry_Disposal(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
-			form = NA_Goods_Outwards_Form(data)
+			form = NA_Goods_Disposal_Form(data)
 			result = ''
 			if form.is_valid():
 				form.clean()
@@ -191,12 +191,10 @@ def ShowEntry_Disposal(request):
 				data.update(fk_outwards=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)
+					result = NADisposal.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
-					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#if NAGoodsOutwards.objects.HasReference(data['idapp']):					
-					#	return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
-					#result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Edit)
+					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')                 
+					result = NADisposal.objects.SaveData(data,StatusForm.Edit)
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
