@@ -331,7 +331,11 @@ def SearchGoodsbyForm(request):
         i += 1
         datarow = {
             "id": str(row['idapp']) + '_fk_goods', "cell": [
-                row['idapp'], i, row['itemcode'], row['goods'], row['serialnumber']
+                row['idapp'], i, row['itemcode'], row['goods'], row['serialnumber'],
+                row['priceperunit'], row['economiclife'], row['depreciationmethod'],
+                row['startdate'], row['startdate'] + datetime.timedelta(
+                    days=(float(row['economiclife']) * 365)
+                )
             ]
         }
         rows.append(datarow)
