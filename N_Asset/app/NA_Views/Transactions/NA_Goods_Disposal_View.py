@@ -42,22 +42,23 @@ def NA_Goods_Disposal(request):
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Disposal.html',{'populateColumn':populate_combo})
 
-#goods,goodstype,serialnumber,islost,sellingprice,bookvalue,datedisposal,refgoodsfrom
+#goods,goodstype,serialnumber,islost,sellingprice,bookvalue,datedisposal,afterrepair,lastrepairfrom,refgoodsfrom
 #issold,proposedby,acknowledgeby,approvedby,createdby,createddate
 def ShowCustomFilter(request):
 	cols = []
 	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
 	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
 	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
-	cols.append({'name':'datedisposal','value':'datedisposal','selected':'','dataType':'datetime','text':'Date Requested'})
+	cols.append({'name':'bookvalue','value':'bookvalue','selected':'','dataType':'decimal','text':'Book Value'})
+	cols.append({'name':'datedisposal','value':'datedisposal','selected':'','dataType':'datetime','text':'Date Disposal'})
+	cols.append({'name':'afterrepair','value':'afterrepair','selected':'','dataType':'boolean','text':'After Repaired'})
+	cols.append({'name':'lastrepairfrom','value':'lastrepairfrom','selected':'','dataType':'varchar','text':'Last Repaired From'})
+	cols.append({'name':'issold','value':'issold','selected':'','dataType':'boolean','text':'Is Sold'})
 	cols.append({'name':'sellingprice','value':'sellingprice','selected':'','dataType':'decimal','text':'Selling Price'})
-	
-
-
-
-	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
-	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
-	cols.append({'name':'islost','value':'islost','selected':'','dataType':'boolean','text':'Is New'})
+	cols.append({'name':'proposedby','value':'proposedby','selected':'','dataType':'varchar','text':'Proposed By'})
+	cols.append({'name':'acknowledgeby','value':'acknowledgeby','selected':'','dataType':'varchar','text':'Acknowledge By'})
+	cols.append({'name':'approvedby','value':'approvedby','selected':'','dataType':'varchar','text':'Approved By'})
+	cols.append({'name':'islost','value':'islost','selected':'','dataType':'boolean','text':'Is Lost'})
 	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
 	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
 	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
@@ -134,7 +135,21 @@ def getLastTransGoods(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def Delete(request):
+	result = ''
+	try:
+		statuscode = 200
+		#result=NAGoodsReceive.objects.delete(
+		data = request.body
+		data = json.loads(data)
 
+		IDApp = data['idapp']
+	
+		result = NADisposal.objects.Delete(IDApp)
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getBookValue(request):
 	statuscode = 200
 	data = request.body

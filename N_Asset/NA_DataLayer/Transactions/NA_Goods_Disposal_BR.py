@@ -33,6 +33,10 @@ class NA_BR_Goods_Disposal(models.Manager):
 			colKey = 'ngds.sellingprice'
 		elif columnKey == 'proposedby':
 			colKey = 'ngds.proposedby'
+		elif columnKey == 'acknowledgeby':
+			colKey = 'CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,''))'
+		elif columnKey == 'approvedby':
+			colkey = 'IFNULL(emp3.employee_name,'')'
 		elif columnKey == 'createdby':
 			colKey = 'ngds.createdby'
 		elif columnKey == 'createddate':
@@ -405,3 +409,16 @@ class NA_BR_Goods_Disposal(models.Manager):
 		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
 	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel):
 		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(daterequest=datereq) & Q(datereleased=daterel)).exists()#Q(member=p1) | Q(member=p2)
+	def Delete(self,IDApp):
+		cur = connection.cursor()
+		#delete di table na_disposal
+		#delete di table history
+		with transaction.atomic():
+			Query = """DELETE FROM n_disposal WHERE IDApp = %s""" 
+			cur.execute(Query,[IDApp])
+			Query = """DELETE FROM n_goods_history WHERE fk_disposal = %s"""
+			cur.execute(Query,[IDApp])
+			return "success"
+	def SaveData(self,Data,Status=StatusForm.Input):
+		cur = connection.cursor()
+		#ngke deui..., haduh.... lila...., super sibukkk....

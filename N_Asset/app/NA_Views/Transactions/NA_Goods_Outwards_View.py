@@ -208,6 +208,8 @@ def Delete(request):
 		IDApp = data['idapp']
 	
 		#check reference data
+		if NAGoodsOutwards.objects.HasReference(IDApp):
+			return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 		result = NAGoodsOutwards.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:

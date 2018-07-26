@@ -12,5 +12,5 @@ urlpatterns = [
 	url(r'^getEmployee/$',NA_Goods_Receive_View.getEmployee),#ambil funtion yang sudah ada di receive view
  #  url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists),
 	#url(r'^Delete/$',NA_Goods_Outwards_View.Delete),
-	#url(r'^customFilter/$',NA_Goods_Outwards_View.ShowCustomFilter)
+	url(r'^customFilter/$',NA_Goods_Disposal_View.ShowCustomFilter)
 	]
