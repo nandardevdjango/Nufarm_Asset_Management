@@ -23,7 +23,6 @@ class NA_Acc_FA_BR(models.Manager):
             query_param.update({
                 'serial_number': serialnumber
             })
-        print(Query)
         cur.execute(Query, query_param)
         result = query.dictfetchall(cur)
         cur.close()

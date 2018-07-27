@@ -13,8 +13,6 @@ from NA_Models.models import NAAccFa, goods
 from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, commonFunct, Data
 
 
-
-
 def NA_AccGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
@@ -80,21 +78,24 @@ def EntryAcc(request):
             idapp_detail_receive = form.cleaned_data.get('idapp_detail_receive')
             if request.POST['mode'] == 'Add':
                 idapp = idapp_detail_receive.split(',')
-                result = generate_acc_fa(
-                    request=request,
-                    idapp=idapp
-                )
-                return commonFunct.response_default(result)
+                try:
+                    result = generate_acc_fa.delay(
+                        idapp,
+                        request.user.username
+                    )
+                except Exception as e:
+                    raise e
+                else:
+                    return commonFunct.response_default((Data.Success,))
         else:
             raise forms.ValidationError(form.errors)
 
 
 @task(name='generate_fix_asset')
-def generate_acc_fa(request, idapp):
+def generate_acc_fa(idapp, createdby):
     sid = transaction.savepoint()
     try:
         data_arr = NAAccFa.objects.searchAcc_ByForm(idapp=idapp)
-        createdby = str(request.user.username)
         for data in data_arr:
             fk_goods = data['fk_goods']
             startdate = data['startdate'].strftime('%Y-%m-%d')
@@ -125,7 +126,7 @@ def generate_acc_fa(request, idapp):
             if depr_method == 'SL' or depr_method == 'DDB':
                 depr_expense = price / (economiclife * 12)
                 for i in range(int(economiclife * 12) + 1):
-                    generate_acc(settings_generate({
+                    generate_acc_value(settings_generate({
                         'depr_method': depr_method,
                         'month_of': i,
                         'depr_Expense': depr_expense
@@ -139,7 +140,7 @@ def generate_acc_fa(request, idapp):
                                     for i in arr_year]  # per tahun
                 depr_acc = 0
                 month_of = 0
-                generate_acc(settings_generate({
+                generate_acc_value(settings_generate({
                     'depr_method': 'STYD',
                     'depr_acc': Decimal('0.00'),
                     'depr_Expense': Decimal(arr_depr_expense[0] / 12),
@@ -149,7 +150,7 @@ def generate_acc_fa(request, idapp):
                     for j in range(1, 13):
                         depr_acc += Decimal(i / 12)
                         month_of += 1
-                        generate_acc(settings_generate({
+                        generate_acc_value(settings_generate({
                             'depr_method': 'STYD',
                             'depr_acc': depr_acc,
                             'depr_Expense': Decimal(i / 12),
@@ -160,9 +161,10 @@ def generate_acc_fa(request, idapp):
 
     except Exception as e:
         transaction.savepoint_rollback(sid)
-        return (e,)
+        raise e
     else:
-        return (Data.Success,)
+        return (Data.Success.value,)
+
 
 def ShowCustomFilter(request):
     if request.is_ajax():
@@ -188,7 +190,7 @@ def ShowCustomFilter(request):
         return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 
-def generate_acc(acc, values_insert):
+def generate_acc_value(acc, values_insert):
     month_of = acc['month_of']
     price = acc['price']
     typeApp = acc['typeApp']
