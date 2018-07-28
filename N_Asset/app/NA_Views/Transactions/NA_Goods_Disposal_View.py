@@ -42,7 +42,28 @@ def NA_Goods_Disposal(request):
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Disposal.html',{'populateColumn':populate_combo})
 
-
+#goods,goodstype,serialnumber,islost,sellingprice,bookvalue,datedisposal,afterrepair,lastrepairfrom,refgoodsfrom
+#issold,proposedby,acknowledgeby,approvedby,createdby,createddate
+def ShowCustomFilter(request):
+	cols = []
+	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
+	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
+	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
+	cols.append({'name':'bookvalue','value':'bookvalue','selected':'','dataType':'decimal','text':'Book Value'})
+	cols.append({'name':'datedisposal','value':'datedisposal','selected':'','dataType':'datetime','text':'Date Disposal'})
+	cols.append({'name':'afterrepair','value':'afterrepair','selected':'','dataType':'boolean','text':'After Repaired'})
+	cols.append({'name':'lastrepairfrom','value':'lastrepairfrom','selected':'','dataType':'varchar','text':'Repaired From'})
+	cols.append({'name':'issold','value':'issold','selected':'','dataType':'boolean','text':'Is Sold'})
+	cols.append({'name':'sellingprice','value':'sellingprice','selected':'','dataType':'decimal','text':'Selling Price'})
+	cols.append({'name':'proposedby','value':'proposedby','selected':'','dataType':'varchar','text':'Proposed By'})
+	cols.append({'name':'acknowledgeby','value':'acknowledgeby','selected':'','dataType':'varchar','text':'Acknowledge By'})
+	cols.append({'name':'approvedby','value':'approvedby','selected':'','dataType':'varchar','text':'Approved By'})
+	cols.append({'name':'islost','value':'islost','selected':'','dataType':'boolean','text':'Is Lost'})
+	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
+	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
+	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
+	cols.append({'name':'createddate','value':'createddate','selected':'','dataType':'datetime','text':'Created Date'})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 def NA_Goods_Disposal_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName');
@@ -114,7 +135,21 @@ def getLastTransGoods(request):
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def Delete(request):
+	result = ''
+	try:
+		statuscode = 200
+		#result=NAGoodsReceive.objects.delete(
+		data = request.body
+		data = json.loads(data)
 
+		IDApp = data['idapp']
+	
+		result = NADisposal.objects.Delete(IDApp)
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getBookValue(request):
 	statuscode = 200
 	data = request.body
@@ -145,7 +180,7 @@ def ShowEntry_Disposal(request):
 			data = request.body
 			data = json.loads(data)
 			status = data['status']
-			form = NA_Goods_Outwards_Form(data)
+			form = NA_Goods_Disposal_Form(data)
 			result = ''
 			if form.is_valid():
 				form.clean()
@@ -153,16 +188,13 @@ def ShowEntry_Disposal(request):
 				data.update(idapp_fk_usedemployee=(None if int(data['idapp_fk_usedemployee']) == 0 else data['idapp_fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
-				data.update(fk_receive=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
-
+				data.update(fk_outwards=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)
+					result = NADisposal.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
-					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					#if NAGoodsOutwards.objects.HasReference(data['idapp']):					
-					#	return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
-					#result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Edit)
+					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')                 
+					result = NADisposal.objects.SaveData(data,StatusForm.Edit)
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')

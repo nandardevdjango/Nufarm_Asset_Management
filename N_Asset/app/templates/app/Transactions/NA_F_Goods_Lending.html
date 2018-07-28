@@ -559,7 +559,8 @@
 		    var FDate = $('#id_datelending').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 		    CDate = GetServerFormatDate(FDate);
 
-		    valuesForm['datelending'] = CDate, SuccesTrans = false;
+		    valuesForm['datelending'] = CDate;
+		    var SuccesTrans = false;
 
 		    var NAAjax = NA.common.AJAX;
 		    //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {

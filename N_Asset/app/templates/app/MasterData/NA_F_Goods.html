@@ -12,12 +12,15 @@
 <!--================================Load Script Modules NA ===========================================-->
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <!--=======================================================================================================-->
-<script>
+<!--
+    <script>
     function get_csrf(){
         csrf_token = '{{csrf_token}}'
         return csrf_token
     }
 </script>
+-->
+
 <script type="text/javascript">
     
     (function(){   
@@ -53,19 +56,20 @@
         })(DivSearch);
     })();   
 </script>
-
 <!--SETUP Jquery grid-->
 <!-- The jQuery library is a prerequisite for all jqSuite products -->
-<script>window.jQuery || document.write('\<script src="{% static 'app/scripts/jquery-1.11.1.js' %}"\>\<\/script\>')</script>
+<script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
 
 <!-- This is the Javascript file of jqGrid -->
-<script src="{% static 'app/scripts/jquery.jqGrid.min.js' %}"></script>
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
 
 <!-- This is the localization file of the grid controlling messages, labels, etc. -->
 <!-- We support more than 40 localizations -->
-<script src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
+<script src="../../../static/app/scripts/grid.locale-en.js"></script>
 <!----------------------------Load Jquery UI. JS file-------------------------------->
-<script src="{% static 'app/scripts/jquery-ui.js' %}"></script>
+<script src="../../../static/app/scripts/jquery-ui.js"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
 
 {%block content-0 %}
@@ -85,33 +89,33 @@
 <script type="text/javascript">
 //=================================AJAX Setup===========================-->
 
-	$(function() {
+    $(function () {
 		NA.Priviledge.read_priviledge('goods');
         $.ajaxSetup({
-            cache:false,                                 
-            error: function(xhr, status, error) {
+            cache: false,
+            error: function (xhr, status, error) {
                 try {
-                    var messageErr = xhr.responseText ;
+                    var messageErr = xhr.responseText;
                     var contentype = xhr.getResponseHeader('Content-Type')
-                    if(contentype === 'application/json'){
+                    if (contentype === 'application/json') {
                         messageErr = $.parseJSON(xhr.responseText);
-                    }  
+                    }
                     var message = xhr.responseText;
-                    if(messageErr){
+                    if (messageErr) {
                         message = messageErr.message;
                     }
-                    if(message){
-                        alert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
-                    }                     
-               
+                    if (message) {
+                        ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
+                    }
+
                 } catch (e) {
-                    alert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message );
-                } 
-                window.document.body.style.cursor = 'defautl';return false;
+                    ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
+                }
+                window.document.body.style.cursor = 'defautl'; return false;
             },
             timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
-            type: 'GET', 
-            crossDomain: false, // obviates need for sameOrigin test                              
+            type: 'GET',
+            crossDomain: false, // obviates need for sameOrigin test                       
         });
            
         //===============================END AJAX SetuP===========================-->  
@@ -146,7 +150,7 @@
                             '&' +  win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()),
                         mtype: "GET",
                         datatype: "json",
-                        colNames: ['IDapp','Item Code','Goods Name','Unit','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
+                        colNames: ['IDapp','Item Code','Goods Name','Unit','Category','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
                         colModel: [
                             {name: 'idapp', key: true, hidden: true, width:70,align:'left'},
                             {name: 'itemcode', index:'itemcode', width: 80,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
@@ -154,6 +158,7 @@
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             {name: 'goodsname',index:'goodsname', width: 150,sortable:true,editable:false, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] } },
                             {name:'unit',index:'unit',width:70,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
+							{name:'category',index:'typeapp',width:100,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
                             {name: 'priceperunit',index:'priceperunit', width: 150,sortable:true,align:'right',formatter:'currency', formatoptions:{decimalSeparator:",", thousandsSeparator: ".",
                                 decimalPlaces: 2, prefix: "Rp "},filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] } },
                             {name:'placement',index:'placement',width:110,sortable:true,editable:false,filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
@@ -339,64 +344,67 @@
 
         NA.NAEvent.addHandler(btnDelete,'click',function(event){
             var itemCode = getGridCellValue(); 
-            if(itemCode){
+            if (itemCode) {
                 NA.NAEvent.preventDefault(event);
-                if(!confirm('are you sure you want to delete data\nOperation can not be undone ?')){
-                    return false;
-                }
-                NA.NAEvent.preventDefault(event);
-                try {
-                    //delete data di server                  
-                    //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
-                    var url = NA.common.addURLParam('Delete/','itemCode',itemCode);
-                    $.post(url,{}, function(data, textStatus, jqXHR){
-                        
-                        if(textStatus === 'success'){
-                            var rowNum = grid.getGridParam('rowNum'),
-                         allRecords = grid.getGridParam('records'),
-                         totalPages = parseInt((allRecords / rowNum) + 1),
-                         curPage = grid.getGridParam('page'),
-                         rowId = grid.jqGrid('getGridParam','selrow'),
-                            curRecount =  grid.jqGrid('getGridParam', 'reccount');
-                            mustReload = true;
-                            if(parseInt(curRecount) === 1){
-                                if(totalPages > 1){
-                                    curPage--;
-                                }
-                                else{         
+                showConfirmation(NA.common.message.confirmDelete,
+                    NA.common.message.confirmDelete, function () {
+                        NA.NAEvent.preventDefault(event);
+                        try {
+                            //delete data di server                  
+                            //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
+                            var url = NA.common.addURLParam('Delete/', 'itemCode', itemCode);
+                            $.post(url, {}, function (data, textStatus, jqXHR) {
+
+                                if (textStatus === 'success') {
+                                    var rowNum = grid.getGridParam('rowNum'),
+                                 allRecords = grid.getGridParam('records'),
+                                 totalPages = parseInt((allRecords / rowNum) + 1),
+                                 curPage = grid.getGridParam('page'),
+                                 rowId = grid.jqGrid('getGridParam', 'selrow'),
+                                    curRecount = grid.jqGrid('getGridParam', 'reccount');
                                     mustReload = true;
-                                    grid.delRowData(rowId);                         
+                                    if (parseInt(curRecount) === 1) {
+                                        if (totalPages > 1) {
+                                            curPage--;
+                                        }
+                                        else {
+                                            mustReload = true;
+                                            grid.delRowData(rowId);
+                                        }
+                                    }
+                                    else if (parseInt(totalPages) === 1) {
+                                        mustReload = false;
+                                        grid.delRowData(rowId);
+                                    }
+                                    else if (parseInt(curRecount) > 1) {
+                                        mustReload = false;
+                                        grid.delRowData(rowId);
+                                    }
+                                    if (mustReload) {
+                                        window.document.body.style.cursor = 'wait';
+                                        grid.trigger("reloadGrid", [{ page: curPage }]); win.document.body.style.cursor = 'default';
+                                    };
+                                    reload_LogEvent();
                                 }
+                                else if (this.status == 203) {
+                                    ShowAlert(textStatus.message, NA.common.message.titleInfo);
+                                }
+                            });
+                        } catch (e) {
+                            win.document.body.style.cursor = 'default';
+                            console.log(e);
+                            if (JSON.parse(e.message)) {
+                                ShowAlert(e.name + ': ' + JSON.parse(e.message));
                             }
-                            else if (parseInt(totalPages) === 1){
-                                mustReload = false;
-                                grid.delRowData(rowId);    
+                            else {
+                                ShowAlert(e);
                             }
-                            else if(parseInt(curRecount) > 1){
-                                mustReload = false;
-                                grid.delRowData(rowId);   
-                            }
-                            if(mustReload){
-                                window.document.body.style.cursor = 'wait';
-                                grid.trigger("reloadGrid",[{page:curPage}]);
-                            };
-                            reload_LogEvent();
-                        }                        
+                        }
                     });
-                } catch (e) {
-                    console.log(e);
-                    //window.document.body.style.cursor = 'default';
-                    //if(JSON.parse(e.message)){
-                    //    alert(e.name + ': ' + JSON.parse(e.message));
-                    //}
-                    //else{
-                    //    alert(e);
-                    //}
-                }           
             }
-            else{
+            else {
                 document.body.style.cursor = 'default';
-                alert('Please select data you want to delete');
+                ShowAlert('Please select data you want to delete', NA.common.message.titleInfo);
             }
             return false;
         });
@@ -550,7 +558,69 @@
         //        elementMenus.push(item);
         //    }
         //});
-
+        function showConfirmation(message, title, callbackYess, calBackNO) {
+            BootstrapDialog.confirm({
+                title: title || NA.common.message.titleInfo,
+                message: message,
+                type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                size: BootstrapDialog.SIZE_SMALL,
+                animate: false,
+                cssClass: 'login-dialog',
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                closable: false, // <-- Default value is false
+                draggable: true, // <-- Default value is false
+                btnCancelLabel: 'NO.', // <-- Default value is 'Cancel',
+                btnOKLabel: 'Yes.', // <-- Default value is 'OK',
+                btnOKClass: 'btn-success', // <-- If you didn't specify it, dialog type will be used,
+                callback: function (result) {
+                    // result will be true if button was click, while it will be false if users close the dialog directly.
+                    if (result) {
+                        if (callbackYess) {
+                            callbackYess();
+                        }
+                        return true;
+                    }
+                    else {
+                        if (calBackNO) {
+                            calBackNO();
+                        }
+                    }
+                },
+                onshown: function (dialogRef) {
+                    NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons button.btn.btn-success').focus();
+                }
+            });
+        };
+        function ShowAlert(message, title, callbackFunc, calbackOnHide) {
+            return BootstrapDialog.alert({
+                title: title || NA.common.message.titleInfo,
+                message: message,
+                size: (message.length > 200) ? BootstrapDialog.SIZE_NORMAL : BootstrapDialog.SIZE_SMALL,
+                //animate:false,
+                cssClass: 'login-dialog',
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                type: BootstrapDialog.TYPE_INFO, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+                closable: false, // <-- Default value is false
+                draggable: true, // <-- Default value is false
+                buttonLabel: 'OK', // <-- Default value is 'OK',
+                callback: function (result) {
+                    // result will be true if button was click, while it will be false if users close the dialog directly.
+                    if (result) {
+                        if (callbackFunc) {
+                            callbackFunc();
+                        }
+                        return true;
+                    }
+                },
+                onhidden: function (dialogRef) {
+                    if (calbackOnHide) {
+                        calbackOnHide();
+                    }
+                }
+            });
+        };
         NA.common.dialog.initDialog(containerMenu,'Nufarm Entry Goods - Master Data');//inistialisasi menu     
 
         var elementMenus = [];
@@ -660,26 +730,20 @@
                         if(status === 'Open' || initializeForm.Value == ''){  NA.common.dialog.closeDialog(dialog);  EraseElHidden();  return false; }                    
                         var originalData =  JSON.parse(initializeForm.Value);
                         var valuesForm = getValuesForm();
-                        if(NA.common.detectInputChanges(originalData,valuesForm)){
-                            if(confirm('Data has changed, \nSave data before closing form ?')){
-                                if(!frmEntry.checkValidity()){
-                                    //NA.NAEvent.preventDefault(event);   
-                                    var inputbtn = NA.common.getElementID('inputButton');
-                                    inputbtn.click();
-
-                                    //$(').each(function () {
-                                    //    if(!this.validity.valid){                    
-                                    //        $(this).focus();
-                                    //        window.document.body.style.cursor = 'default';return false;
-                                    //    }
-                                    //}); 
-
-                                }
-                                else{
-                                    submitForm();
-                                    reload_LogEvent();
-                                }
-                            }                                             
+                        if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                            showConfirmation(NA.common.message.dataHasChanged,
+                                NA.common.message.confirmInfo,
+                                function () {
+                                    if (!frmEntry.checkValidity()) {
+                                        //NA.NAEvent.preventDefault(event);   
+                                        var inputbtn = NA.common.getElementID('inputButton');
+                                        inputbtn.click();
+                                    }
+                                    else {
+                                        submitForm();
+                                        reload_LogEvent();
+                                    }
+                                });
                         }               
                         NA.common.dialog.closeDialog(dialog);
                         EraseElHidden();
@@ -697,27 +761,26 @@
                         var valuesForm = getValues_emailForm();
                     
                         if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                            if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
-                                if (!emailForm.checkValidity()) {
-                                    //NA.NAEvent.preventDefault(event);   
-                                    var inputbtn = NA.common.getElementID('emailData_submit');
-                                    inputbtn.click();
-                                } else {
-                                    NA.common.doc.querySelector('div.dialogButtonOKCancel>a.button:nth-child(1)').click()
-                                }
-                            } else {
-                                NA.common.dialog.closeDialog(dialog);
-                            }
+                            showConfirmation('Data has changed, \nAre you sure to Send mail ?',
+                                NA.common.message.confirmInfo,
+                                function () {
+                                    if (!emailForm.checkValidity()) {
+                                        //NA.NAEvent.preventDefault(event);   
+                                        var inputbtn = NA.common.getElementID('emailData_submit');
+                                        inputbtn.click();
+                                    } else {                                        
+                                        NA.common.doc.querySelector('div.dialogButtonOKCancel>a.button:nth-child(1)').click()
+                                    }
+                                },
+                                function () {
+                                    NA.common.dialog.closeDialog(dialog);
+                                });
                         } else {
                             NA.common.dialog.closeDialog(dialog);
                         }
                     }
-
                 }
-            }
-
-
-                      
+            }                      
             document.body.style.cursor = 'default';
             return false;
         };            
@@ -812,7 +875,7 @@
                     if(target.innerText.trim() !== 'Add'){
                         var itemCode = getGridCellValue();
                         if(typeof(itemCode) == 'undefined' || itemCode === ''){
-                            alert('Please select data to edit');
+                            ShowAlert('Please select data to edit',NA.common.message.titleInfo);
                             var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
                             if(dialog){
                                 NA.common.dialog.closeDialog(dialog);
@@ -905,12 +968,10 @@
                 //    return false;
                 //}                
             } catch (e) {
-                dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-                if(dialog){
-                    NA.common.dialog.closeDialog(dialog);
-                }
-                if(document.body.style.cursor != 'default'){document.body.style.cursor = 'default';}
-                alert(e);
+                BootstrapDialog.closeAll();
+                closeDialog();
+                if (win.document.body.style.cursor != 'default') { win.document.body.style.cursor = 'default'; }
+                ShowAlert(e);
             }       
         };
 

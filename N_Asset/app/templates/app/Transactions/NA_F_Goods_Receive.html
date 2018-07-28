@@ -732,7 +732,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             var FDate = $('#id_datereceived').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
             CDate = GetServerFormatDate(FDate);
 
-            valuesForm['datereceived'] = CDate, SuccesTrans = false;
+            valuesForm['datereceived'] = CDate;
+            var SuccesTrans = false;
 
             var NAAjax = NA.common.AJAX;
             //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {

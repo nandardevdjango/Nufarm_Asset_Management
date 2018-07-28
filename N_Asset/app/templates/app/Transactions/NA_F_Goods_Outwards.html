@@ -595,7 +595,7 @@
 			FDate = $('#id_datereleased').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 			valuesForm['datereleased'] = CDate;
-			SuccesTrans = false;
+			var SuccesTrans = false;
 
 			var NAAjax = NA.common.AJAX;
 			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
@@ -681,12 +681,12 @@
 			elfk_responsiblepersonEmpl.value = originalData.fk_responsibleperson_employee || '';
 
 			var elidapp_fk_responsibleperson = NA.common.getElementID('id_idapp_fk_responsibleperson');
-			elidapp_fk_responsibleperson.value = originalData.idapp_fk_responsibleperson;
+			elidapp_fk_responsibleperson.value = originalData.idapp_fk_responsibleperson||null;
 
 			var elfk_sender = NA.common.getElementID('id_fk_sender');
 			elfk_sender.value = originalData.fk_sender || '';
 			var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender');
-			elidapp_fk_sender.value = originalData.fk_sender;
+			elidapp_fk_sender.value = originalData.fk_sender||null;
 			var elfk_sender_employee = NA.common.getElementID('id_fk_sender_employee');
 			elfk_sender_employee.value = originalData.fk_sender_employee || '';
 
@@ -705,17 +705,17 @@
 			elbrandvalue.textContent = '';
 
 			var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance');
-			elfk_frommaintenance.value = originalData.fk_frommaintenance;
+			elfk_frommaintenance.value = originalData.fk_frommaintenance||null;
 
 			var elfk_return = NA.common.getElementID('id_fk_return');
-			elfk_return.value = originalData.fk_return;
+			elfk_return.value = originalData.fk_return||null;
 			var elfk_lending = NA.common.getElementID('id_fk_lending');
-			elfk_lending.value = originalData.fk_lending;
+			elfk_lending.value = originalData.fk_lending||null;
 			var elfk_receive = NA.common.getElementID('id_fk_receive');
-			elfk_receive.value = originalData.fK_receive;
+			elfk_receive.value = originalData.fK_receive||null;
 
 			var ellastUsedInfo = NA.common.getElementID('lastUsedInfo'),
-						lastUsedInfo = ellastUsedInfo.textContent			//elfk_disposal.value = originalData.fk_disposal;
+			lastUsedInfo = ellastUsedInfo.textContent
 			//var elfk_lost = NA.common.getElementID('id_fk_lost');
 			//elfk_lost.value = originalData.fk_lost;
 			var ellastinfo = NA.common.getElementID('LastInfoValue');
@@ -761,13 +761,13 @@
             serialnumber = elserialnumber.value;
 			//brandvalue nggak usah
 			var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance'),
-                fk_frommaintenance = elfk_frommaintenance.value|0;
+                fk_frommaintenance = elfk_frommaintenance.value||0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),
-                fk_return = elfk_return.value|0;
+                fk_return = elfk_return.value||0;
 			var elfk_lending = NA.common.getElementID('id_fk_lending'),
-                fk_lending = elfk_lending.value|0;
+                fk_lending = elfk_lending.value||0;
 			var elfk_receive = NA.common.getElementID('id_fk_receive'),
-                fk_receive = elfk_receive.value|0;
+                fk_receive = elfk_receive.value||0;
 			//var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
 			//    fk_disposal = elfk_disposal.value;
 			//var elfk_lost = NA.common.getElementID('id_fk_lost'),
@@ -776,7 +776,7 @@
                 lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
-			var idapp_fk_usedemployee = elfk_usedemployeeValue.value|0;
+			var idapp_fk_usedemployee = elfk_usedemployeeValue.value||0;
 			//if(UsedEmployee.length > 0){
 			//	fk_usedemployee = UsedEmployee[0];
 			//}

@@ -390,3 +390,6 @@ ALTER TABLE `n_a_disposal`
 
 	ALTER TABLE `n_a_ga_return`
 	CHANGE COLUMN `fk_ga_outwards` `FK_GA_Outwards` INT(11) NULL DEFAULT NULL AFTER `FK_FromEmployee`;
+
+	ALTER TABLE `n_a_goods`
+	CHANGE COLUMN `typeapp` `typeapp` VARCHAR(32) NULL DEFAULT NULL AFTER `Placement`;

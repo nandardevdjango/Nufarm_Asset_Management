@@ -71,7 +71,7 @@ def NA_Goods_Search(request):
 		
 	rows = []
 	for row in dataRows.object_list:
-		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],row['itemcode'],row['goodsname'],row['unit'],row['priceperunit'], \
+		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],row['itemcode'],row['goodsname'],row['unit'],row['typeapp'],row['priceperunit'], \
 			row['placement'],row['typeofdepreciation'],row['economiclife'],row['inactive'],datetime.date(row['createddate']),row['createdby']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -285,8 +285,8 @@ class NA_Goods_Form(forms.Form):
                                    'placeholder': 'enter goods name','data-value':'enter goods name','tittle':'Please enter goods name'}),required=True)  # models.CharField(db_column='GoodsName', max_length=100)  # Field name made lowercase.
 		brandname = forms.CharField(max_length=100,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:250px;margin-left:3px;','placeholder':'enter brand','data-value':'enter brand','tittle':'Please enter valid brand name'}),required=True) #models.CharField(db_column='BrandName', max_length=100, blank=True, null=True)  # Field name made lowercase.
-		typeapp = forms.CharField(max_length=32,required=True,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px','placeholder':'enter type','data-value':'enter type','tittle':'Please enter type'}))  
+		typeapp = forms.ChoiceField(required=True,widget=forms.Select(attrs={
+                                   'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))  
 		priceperunit = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:150px;','placeholder':'price','data-value':'price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}),required=True)#  models.DecimalField(db_column='PricePerUnit', max_digits=20,decimal_places=4)  # Field name made lowercase.
 		depreciationmethod = forms.ChoiceField(widget=forms.Select(attrs={
