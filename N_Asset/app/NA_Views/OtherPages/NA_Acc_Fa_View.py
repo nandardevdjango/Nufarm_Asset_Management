@@ -10,7 +10,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from celery.decorators import task
 
 from NA_Models.models import NAAccFa, goods
-from NA_DataLayer.common import CriteriaSearch, ResolveCriteria, commonFunct, Data
+from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria, commonFunct,
+                                 Data, decorators)
 
 
 def NA_AccGetData(request):
@@ -79,7 +80,7 @@ def EntryAcc(request):
             if request.POST['mode'] == 'Add':
                 idapp = idapp_detail_receive.split(',')
                 try:
-                    result = generate_acc_fa.delay(
+                    generate_acc_fa.delay(
                         idapp,
                         request.user.username
                     )
@@ -313,3 +314,11 @@ def SearchGoodsbyForm(request):
         json.dumps(results, indent=4, cls=DjangoJSONEncoder),
         content_type='application/json'
     )
+
+
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+def delete_acc_fa(request):
+    serial_number = request.POST.get('serial_number')
+    result = NAAccFa.objects.delete_data(serial_number)
+    return commonFunct.response_default(result)

@@ -314,7 +314,6 @@ div[id*=NA_Priviledge_grid]{
         					});
         					var initialize_permissionForm = qs('input#id_initialize_permissionForm');
         					initialize_permissionForm.value = JSON.stringify(getValues_formPermission());
-        					dialog.style.top = '40px';
         					Array.prototype.forEach.call(btnOkCancel, function (elem) {
         						NA.NAEvent.addHandler(elem, 'click', function (event) {
         							var target = NA.NAEvent.getTarget(event);
@@ -1383,7 +1382,6 @@ div[id*=NA_Priviledge_grid]{
 
                     		statusForm = qs('input#id_statusForm');
                     		statusForm.value = status;
-                    		dialog.style.top = '10px';
                     		Array.prototype.forEach.call(btnOkCancel, function (elem) {
                     			NA.NAEvent.addHandler(elem, 'click', function (event) {
                     				var target = NA.NAEvent.getTarget(event);

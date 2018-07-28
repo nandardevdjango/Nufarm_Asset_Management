@@ -505,6 +505,21 @@ class decorators:
                 return func(request, *args, **kwargs)
             return wrapper
         return real_decorator
+    
+    def ensure_authorization(func):
+        """
+        to ensure if user is authorize/login ..
+        if user have 2 tab in browser but in other tab he/she was logouted
+        prevent it and show the dialog in browser to information if he/she
+        was logouted and must be login again
+        """
+        @wraps(func)
+        def wrapper(request, *args, **kwargs):
+            if request.user.is_authenticated():
+                return func(request, *args, **kwargs)
+            else:
+                return HttpResponse(json.dumps({'message':'unauthorized'}), status=401)
+        return wrapper
 
 
 class query:

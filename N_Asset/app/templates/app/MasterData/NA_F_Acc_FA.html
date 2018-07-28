@@ -199,7 +199,13 @@ div[id*=NA_Acc_grid]{
                         if (btnOpen) {
                             btnOpen.click();
                         }
-                    }
+                    },
+                    gridComplete: function () {
+                        $('.ui-sgcollapsed').dblclick(function (event) {
+                            event.preventDefault();
+                            event.stopPropagation(); //stop/remove event double click in row
+                        });
+                    },
                 });
             }
         };
@@ -421,8 +427,6 @@ div[id*=NA_Acc_grid]{
     };
 
 
-
-
             //script load dialog style sebelum panggil dialog
     var containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav');//inistialisasi menu
     //load Dialog Style css
@@ -466,26 +470,21 @@ div[id*=NA_Acc_grid]{
     }
 
 
-    var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
+    var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)')
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
-        var get_idapp = getGridId()
-        console.log(getGridId())
-        if (getGridId()) {
+        var get_idapp = getGridId(),
+        serial_number = acc_grid.jqGrid('getRowData', get_idapp)['serialNumber'];
+        if (get_idapp) {
             NA.NAEvent.preventDefault(event);
-            if (!confirm('are you sure you want to delete data\nOperation can not be undone ?')) {
-                return false;
-            }
-            NA.NAEvent.preventDefault(event);
-            try {
-                //delete data di server
-                //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
+            return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
                 $.ajax({
                     url: 'delete/',
-                    method:'POST',
+                    method: 'POST',
                     data: {
-                        'csrfmiddlewaretoken':get_csrf(),
-                        'idapp': get_idapp,
-                        'oper':'del'
+                        'serial_number': serial_number
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
                     },
                     success: function (data) {
                         var rowNum = acc_grid.getGridParam('rowNum'),
@@ -493,8 +492,8 @@ div[id*=NA_Acc_grid]{
                          totalPages = parseInt((allRecords / rowNum) + 1),
                          curPage = acc_grid.getGridParam('page'),
                          rowId = acc_grid.jqGrid('getGridParam', 'selrow'),
-                         curRecount = acc_grid.jqGrid('getGridParam', 'reccount');
-                         mustReload = true;
+                            curRecount = acc_grid.jqGrid('getGridParam', 'reccount');
+                        mustReload = true;
                         if (parseInt(curRecount) === 1) {
                             if (totalPages > 1) {
                                 curPage--;
@@ -513,20 +512,26 @@ div[id*=NA_Acc_grid]{
                             acc_grid.delRowData(rowId);
                         }
                         if (mustReload) {
+                            window.document.body.style.cursor = 'wait';
                             acc_grid.trigger("reloadGrid", [{ page: curPage }]);
-                        };
+                        }
                         reload_LogEvent();
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200) {
+                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+                        }
                     }
-                })
-            } catch (e) {
-                console.log(e);
-                window.document.body.style.cursor = 'default';
-
-            }
+                });
+            },
+            function () {
+                return false;
+            })
         }
         else {
             document.body.style.cursor = 'default';
-            alert('Please select data you want to delete');
+            return dialogAlert('Please select data you want to delete',NA.common.message.titleInfo);
         }
         return false;
     });
@@ -554,10 +559,16 @@ div[id*=NA_Acc_grid]{
             success: function (data) {
                 var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                 NA.common.dialog.closeDialog(dialog);
-                acc_grid.trigger('reloadGrid');
+                var loading = $('div#load_NA_Acc_grid');
+                setTimeout(function() {
+                    loading.show();
+                }, 500);
+                
                 setTimeout(function () {
-                    acc_grid.setSelection(data['message'], true)
+                    loading.hide();
+                    acc_grid.trigger('reloadGrid');
                 }, 1000);
+                
                 reload_LogEvent();
             }
         });
@@ -804,15 +815,54 @@ div[id*=NA_Acc_grid]{
 
                 if (target.innerText.trim() == 'Add'){
                     var container_grid_form = document.createElement('div');
+                    var placeHolder = 'Enter goods descriptions to search for .. .';
+                    var container_search_form = NA.common.dialog.createFormContainer('search_acc_fa', placeHolder,
+                    function (e) {//event for blur
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === '') {
+                                this.setAttribute('placeholder', placeHolder);
+                            }
+                        }
+                    },
+                    function (e) {//event for focus
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === placeHolder) {
+                                this.setAttribute('placeholder', '');
+                            }
+                        }
+                    },
+                    function (e) {//even for keydown txtSearch                                                  
+                        if (e.keyCode === 13) {
+                            NA.NAEvent.preventDefault(e);
+                            win.document.body.style.cursor = 'wait';
+                            //cari data ke database
+                            var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
+                            $('#grid_form_acc').setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
+                            win.document.body.style.cursor = 'default';
+                            NA.NAEvent.stopPropagation(e);
+                        }
+                    }, function (e) {
+                        txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+                        NA.common.triggerKeyboardEvent(txtSearch, 13);
+                    });
                     container_grid_form.id = 'container_grid_form';
-                    container_grid_form.style.overflow = 'auto';
                     container_grid_form.style.width = '750px';
+                    container_grid_form.style.marginTop = '10px';
+                    container_grid_form.style.marginBottom = '20px';
                     var grid_form_acc = document.createElement('table')
                     grid_form_acc.id = 'grid_form_acc';
+                    var pager_form_acc = document.createElement('div');
+                    pager_form_acc.id = 'pager_form_acc';
+                    pager_form_acc.className = 'scroll';
+                    pager_form_acc.style.textAlign = 'center';
                     container_grid_form.appendChild(grid_form_acc);
+                    container_grid_form.appendChild(pager_form_acc);
                     var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent('');
-                    qs('div.maindialogContent').appendChild(container_grid_form);
-                    var grid_form_acc = $('#grid_form_acc')
+                    var container_dialog = qs('div.maindialogContent');
+                    container_dialog.appendChild(container_search_form);
+                    container_dialog.appendChild(container_grid_form);
+                    
+                    var grid_form_acc = $('#grid_form_acc');
                     grid_form_acc.jqGrid({
                         url: url,
                         mtype: "GET",
@@ -842,11 +892,13 @@ div[id*=NA_Acc_grid]{
                         hidegrid: true,
                         multiselect: true,
                         shrinkToFit: false,
-                        rowNum:10,
                         width: 'inherit',
-                        height: '100%',
+                        height: '400px',
+                        pager: '#pager_form_acc',
+                        rowList: [20, 50, 100, 200, 300, 500],
+                        rowNum: 300,
                     });
-                    $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv').css('width', 'inherit')
+                    $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv, div#pager_form_acc, div#pg_pager_form_acc').css('width', 'inherit')
                 }
             }
             var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");

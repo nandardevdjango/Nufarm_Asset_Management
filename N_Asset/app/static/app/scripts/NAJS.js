@@ -1023,15 +1023,19 @@ NA.common.dialog = {
             dialog.appendChild(mainContentDialog);
             dialog.appendChild(bottomDialog);
 
-            var scrollingPosition = this.getScrollingPosition();
             body.appendChild(dialog);
-            dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
-            dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2.5) - parseInt(dialog.offsetHeight) + "px";
-
-            dialog.style.visibility = 'visible';
 
             //trigger showDialogEntry
             window.showDialogEntry(event);
+            
+            //============ set dialog to center ================
+            dialog.style.top = '50%';
+            dialog.style.left = '50%';
+            dialog.style.setProperty('-ms-transform', 'translate(-50%, -50%)', 'important');
+            dialog.style.setProperty('-webkit-transform', 'translate(-50%, -50%)', 'important');
+            dialog.style.setProperty('-moz-transform', 'translate(-50%, -50%)', 'important');
+            dialog.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+
             //===============Enabled kan Dragdrop=================================
             NA.common.dialog.DragDrop.enable();
         }
@@ -1041,6 +1045,7 @@ NA.common.dialog = {
             if (mnuContainer) { mnuContainer.style.zIndex = "1000"; }
             return true;
         }
+        dialog.style.visibility = 'visible';
         return false;
     },
     closeDialog: function (dialog) {
