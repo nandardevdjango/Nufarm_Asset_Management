@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import posixpath
-
+from django.core.urlresolvers import reverse_lazy
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'social_django',
     'sslserver',
     'app',
-	'NA_DataLayer',
-	'NA_Domain',
-	'NA_Models',
+    'NA_DataLayer',
+    'NA_Domain',
+    'NA_Models',
     # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
@@ -92,14 +92,14 @@ WSGI_APPLICATION = 'N_Asset.wsgi.application'
 # Database
 
 DATABASES = {
-      'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': '',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-		}
+    }
 }
 
 
@@ -135,7 +135,7 @@ AUTHENTICATION_BACKENDS = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Jakarta' #datetime Jakarta
+TIME_ZONE = 'Asia/Jakarta'  # datetime Jakarta
 
 USE_I18N = True
 
@@ -145,7 +145,7 @@ USE_TZ = False
 
 DATETIME_FORMAT = [
     '%Y-%m-%d %H:%M:%S'
-    ]
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -158,20 +158,28 @@ MEDIA_URL = os.path.join(BASE_DIR, 'app/static/NA_User_Image/img/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 
-from django.core.urlresolvers import reverse_lazy
-LOGIN_URL = reverse_lazy('login') #this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
+# this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
+LOGIN_URL = reverse_lazy('login')
 
-EMAIL_USE_TLS=True
-EMAIL_BACKEND=''
-EMAIL_HOST=''
-EMAIL_PORT=587
-EMAIL_HOST_USER=''
-EMAIL_HOST_PASSWORD=''
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = ''
+EMAIL_HOST = ''
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Jakarta'
 
 try:
     from .local_settings import *

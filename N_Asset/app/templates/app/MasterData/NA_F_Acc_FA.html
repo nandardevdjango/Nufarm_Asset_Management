@@ -199,7 +199,13 @@ div[id*=NA_Acc_grid]{
                         if (btnOpen) {
                             btnOpen.click();
                         }
-                    }
+                    },
+                    gridComplete: function () {
+                        $('.ui-sgcollapsed').dblclick(function (event) {
+                            event.preventDefault();
+                            event.stopPropagation(); //stop/remove event double click in row
+                        });
+                    },
                 });
             }
         };
@@ -225,7 +231,53 @@ div[id*=NA_Acc_grid]{
         		width: 1750,
         		height: '100%',
                 pager: "#" + childGridPagerID,
-            })
+            });
+
+            function getChildGridId() {
+        		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
+            }
+
+            $('#' + childGridID).navGrid('#' + childGridPagerID, {
+                edit: false,
+                add: false,
+                del: false,
+                search: false,
+                refresh: false,
+                cloneToTop: false
+            }).navButtonAdd('#' + childGridPagerID, {
+                caption: "",
+                buttonicon: "ui-icon-trash",
+                onClickButton: function () {
+                    var idapp = getChildGridId();
+                    if (idapp == null) {
+                        return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
+                    }
+                    return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+                        var permission_url_delete = 'delete/';
+                        $.ajax({
+                            url: permission_url_delete,
+                            method: 'POST',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+                            },
+                            data: {
+                                'children':true,
+                                'idapp': idapp
+                            },
+                            success: function (data) {
+                                $("#" + childGridID).trigger('reloadGrid');
+                            },
+                            complete: function (data) {
+                                if (data.status !== 200) {
+                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+                                }
+                            }
+                        })
+                    })
+                },
+                position: "last"
+            });
         }
 
         LoadData();
@@ -421,8 +473,6 @@ div[id*=NA_Acc_grid]{
     };
 
 
-
-
             //script load dialog style sebelum panggil dialog
     var containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav');//inistialisasi menu
     //load Dialog Style css
@@ -466,26 +516,22 @@ div[id*=NA_Acc_grid]{
     }
 
 
-    var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
+    var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)')
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
-        var get_idapp = getGridId()
-        console.log(getGridId())
-        if (getGridId()) {
+        var get_idapp = getGridId(),
+        serial_number = acc_grid.jqGrid('getRowData', get_idapp)['serialNumber'];
+        if (get_idapp) {
             NA.NAEvent.preventDefault(event);
-            if (!confirm('are you sure you want to delete data\nOperation can not be undone ?')) {
-                return false;
-            }
-            NA.NAEvent.preventDefault(event);
-            try {
-                //delete data di server
-                //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
+            return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
                 $.ajax({
                     url: 'delete/',
-                    method:'POST',
+                    method: 'POST',
                     data: {
-                        'csrfmiddlewaretoken':get_csrf(),
-                        'idapp': get_idapp,
-                        'oper':'del'
+                        'parent':true,
+                        'serial_number': serial_number
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'));
                     },
                     success: function (data) {
                         var rowNum = acc_grid.getGridParam('rowNum'),
@@ -493,8 +539,8 @@ div[id*=NA_Acc_grid]{
                          totalPages = parseInt((allRecords / rowNum) + 1),
                          curPage = acc_grid.getGridParam('page'),
                          rowId = acc_grid.jqGrid('getGridParam', 'selrow'),
-                         curRecount = acc_grid.jqGrid('getGridParam', 'reccount');
-                         mustReload = true;
+                            curRecount = acc_grid.jqGrid('getGridParam', 'reccount');
+                        mustReload = true;
                         if (parseInt(curRecount) === 1) {
                             if (totalPages > 1) {
                                 curPage--;
@@ -513,57 +559,66 @@ div[id*=NA_Acc_grid]{
                             acc_grid.delRowData(rowId);
                         }
                         if (mustReload) {
+                            window.document.body.style.cursor = 'wait';
                             acc_grid.trigger("reloadGrid", [{ page: curPage }]);
-                        };
+                        }
                         reload_LogEvent();
+                    },
+                    complete: function (data) {
+                        if (data.status !== 200 && data.status !== 401) {
+                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+                        }
                     }
-                })
-            } catch (e) {
-                console.log(e);
-                window.document.body.style.cursor = 'default';
-
-            }
+                });
+            },
+            function () {
+                return false;
+            })
         }
         else {
             document.body.style.cursor = 'default';
-            alert('Please select data you want to delete');
+            return dialogAlert('Please select data you want to delete',NA.common.message.titleInfo);
         }
         return false;
     });
 
     status = status || window.status
     function AccSubmit() {
-        function sendData() {
-            var valuesForm = getValues_accForm()
-            var idapp;
-            if (window.status.trim() == 'Edit'|| window.status == 'Open') {
-                idapp = getGridId()
-            } else {
-                idapp = ''
-            }
-            var snData = Object.assign({
-                'csrfmiddlewaretoken': get_csrf(),
-                'mode': window.status,
-            }, valuesForm, {'idapp':idapp})
-            return snData
+        var grid_form_acc = grid_form_acc || $('#grid_form_acc');
+        var data = grid_form_acc.jqGrid('getGridParam', 'selarrrow');
+        var arr_idapp = [];
+        for(var i=0; i<data.length; i++) {
+            arr_idapp.push(
+                grid_form_acc.getRowData(data[i]).idapp_detail_receive
+            )
         }
-                $.ajax({
-                    url: 'ShowEntry/',
-                    method: 'POST',
-                    beforeSend: function (jqXHR) {
-                        jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
-                    },
-                    data: sendData(),
-                    success: function (data) {
-                    	var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-                    	NA.common.dialog.closeDialog(dialog);
-                        acc_grid.trigger('reloadGrid');
-                        setTimeout(function () {
-                            acc_grid.setSelection(data['message'], true)
-                        }, 1000);
-                        reload_LogEvent();
-                    }
-                });
+        $.ajax({
+            url: 'ShowEntry/',
+            method: 'POST',
+            beforeSend: function (jqXHR) {
+                jqXHR.setRequestHeader('X-CSRFToken', get_csrf())
+            },
+            data: {
+                idapp_detail_receive: arr_idapp.join(),
+                mode: 'Add'
+            },
+            success: function (data) {
+                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                NA.common.dialog.closeDialog(dialog);
+                var loading = $('div#load_NA_Acc_grid');
+                setTimeout(function() {
+                    loading.show();
+                }, 500);
+                
+                setTimeout(function () {
+                    loading.hide();
+                    acc_grid.trigger('reloadGrid');
+                }, 1000);
+                
+                reload_LogEvent();
+            }
+        });
     };
 
     function ExecuteHandler(TextElement) {
@@ -807,22 +862,61 @@ div[id*=NA_Acc_grid]{
 
                 if (target.innerText.trim() == 'Add'){
                     var container_grid_form = document.createElement('div');
+                    var placeHolder = 'Enter goods descriptions to search for .. .';
+                    var container_search_form = NA.common.dialog.createFormContainer('search_acc_fa', placeHolder,
+                    function (e) {//event for blur
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === '') {
+                                this.setAttribute('placeholder', placeHolder);
+                            }
+                        }
+                    },
+                    function (e) {//event for focus
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === placeHolder) {
+                                this.setAttribute('placeholder', '');
+                            }
+                        }
+                    },
+                    function (e) {//even for keydown txtSearch                                                  
+                        if (e.keyCode === 13) {
+                            NA.NAEvent.preventDefault(e);
+                            win.document.body.style.cursor = 'wait';
+                            //cari data ke database
+                            var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
+                            $('#grid_form_acc').setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
+                            win.document.body.style.cursor = 'default';
+                            NA.NAEvent.stopPropagation(e);
+                        }
+                    }, function (e) {
+                        txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+                        NA.common.triggerKeyboardEvent(txtSearch, 13);
+                    });
                     container_grid_form.id = 'container_grid_form';
-                    container_grid_form.style.overflow = 'auto';
                     container_grid_form.style.width = '750px';
+                    container_grid_form.style.marginTop = '10px';
+                    container_grid_form.style.marginBottom = '20px';
                     var grid_form_acc = document.createElement('table')
                     grid_form_acc.id = 'grid_form_acc';
+                    var pager_form_acc = document.createElement('div');
+                    pager_form_acc.id = 'pager_form_acc';
+                    pager_form_acc.className = 'scroll';
+                    pager_form_acc.style.textAlign = 'center';
                     container_grid_form.appendChild(grid_form_acc);
+                    container_grid_form.appendChild(pager_form_acc);
                     var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent('');
-                    qs('div.maindialogContent').appendChild(container_grid_form);
-                    var grid_form_acc = $('#grid_form_acc')
+                    var container_dialog = qs('div.maindialogContent');
+                    container_dialog.appendChild(container_search_form);
+                    container_dialog.appendChild(container_grid_form);
+                    
+                    var grid_form_acc = $('#grid_form_acc');
                     grid_form_acc.jqGrid({
                         url: url,
                         mtype: "GET",
                         datatype: "json",
                         page: 1,
                         colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number', 
-                        'Price', 'Economic life', 'Depreciation method', 'Start Date', 'End Date' ],
+                        'Price', 'Economic life', 'Depreciation method', 'Start Date', 'End Date' , 'idapp_detail_receive'],
                         colModel: [
                             { name: 'idapp', hidden: true, align: 'left' },
                             { name: 'no', width: 40, align: 'right', sortable: false, editable: false, key: true, },
@@ -839,264 +933,27 @@ div[id*=NA_Acc_grid]{
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'enddate', index: 'enddate', width: 150, sortable: true, editable: false, align: 'left', 
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+                            { name: 'idapp_detail_receive', index: 'idapp_detail_receive', hidden: true }
                         ],
                         viewrecords: true,
                         hidegrid: true,
                         multiselect: true,
                         shrinkToFit: false,
-                        rowNum:10,
                         width: 'inherit',
-                        height: '100%',
-                        gridComplete: function(){
-                            grid_form_acc.jqGrid('hideCol', 'cb'); //hide checkbox multi select
-                        },
-                        beforeSelectRow: function (rowid, e) {
-                            if (!e.ctrlKey && !e.shiftKey) {
-                                grid_form_acc.jqGrid('resetSelection');
-                            }
-                        }
+                        height: '400px',
+                        pager: '#pager_form_acc',
+                        rowList: [20, 50, 100, 200, 300, 500],
+                        rowNum: 300,
                     });
-                    $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv').css('width', 'inherit')
+                    $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv, div#pager_form_acc, div#pg_pager_form_acc').css('width', 'inherit')
                 }
-
-                // $('div.maindialogContent').load("ShowEntry/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('mode')
-                //     + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
-                //     if (statusTxt == "success") {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
-                //         //remove attribute disable untuk button OK dan cancel bila statusnya Add
-                //         switch (status) {
-
-                //             case 'Add':
-                //                 {
-                //                      break;
-                //                 }
-                //             case 'Edit':
-                //                 {
-                //                     setTimeout(function () {
-                //                         $('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
-                //                     },10)
-
-
-                //                 }
-                //             case 'Open': {
-                //                 $('div.dialogButtonEntry>a.button').attr("disabled", true);
-                //                 break;
-                //             }
-                //         };
-                //         if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit
-                //             //simpan original data di initializeForm
-                //             var originalData = JSON.stringify(getValues_accForm());
-                //             var itemcode = NA.common.doc.querySelector('input#id_itemcode'),
-                //                 btn_fkGoods = NA.common.doc.querySelector('button#fk_goodsname');
-                //             var fk_goods = NA.common.getElementID('id_fk_goods'),
-                //                 goods_name = NA.common.getElementID('id_goods_name'),
-                //                 typeApp = NA.common.getElementID('id_typeApp'),
-                //                 startdate = NA.common.getElementID('id_startdate'),
-                //                 enddate = NA.common.getElementID('id_enddate'),
-                //                 depr_method = NA.common.getElementID('id_depr_method'),
-                //                 price = NA.common.getElementID('id_price'),
-                //                 serialNumber = NA.common.getElementID('id_serialNumber'),
-                //                 orig_depr_expense = NA.common.getElementID('id_orig_depr_expense'),
-                //                 economiclife = NA.common.getElementID('id_economiclife');
-                //             function searchGoods(event) {
-                //                 BootstrapDialog.show({
-                //                     draggable: true,
-                //                     type: BootstrapDialog.TYPE_SUCCESS,
-                //                     size: BootstrapDialog.SIZE_SMALL,
-                //                     title: 'Search Goods .. .',
-                //                     message: function (dialogRef) {
-                //                         var placeHolder = 'Enter goods descriptions to search for .. .';
-                //                         containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
-                //                         function (e) {//event for blur
-                //                             if (this.value === '') {
-                //                                 if (this.getAttribute('placeholder') === '') {
-                //                                     this.setAttribute('placeholder', placeHolder);
-                //                                 }
-                //                             }
-                //                         },
-                //                         function (e) {//event for focus
-                //                             if (this.value === '') {
-                //                                 if (this.getAttribute('placeholder') === placeHolder) {
-                //                                     this.setAttribute('placeholder', '');
-                //                                 }
-                //                             }
-                //                         },
-                //                         function (e) {//even for keydown txtSearch                                                  
-                //                             if (e.keyCode === 13) {
-                //                                 NA.NAEvent.preventDefault(e);
-                //                                 win.document.body.style.cursor = 'wait';
-                //                                 //cari data ke database
-                //                                 var url = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + win.encodeURIComponent(e.target.value.trim());
-                //                                 if (gridTbl) {
-                //                                     jQuery(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
-                //                                 }
-                //                                 win.document.body.style.cursor = 'default';
-                //                                 NA.NAEvent.stopPropagation(e);
-                //                             }
-                //                         }, function (e) {
-                //                             txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-                //                             NA.common.triggerKeyboardEvent(txtSearch, 13);
-                //                         });
-                //                         var children = containerMessage.childNodes;
-                //                         var mainContainer = null, txtSearch = null;
-                //                         for (var i = 0, len = children.length; i < len; i++) {
-                //                             if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
-                //                                 mainContainer = children[i]; break;
-                //                             }
-                //                         };
-
-                //                         //loads Data into JqueryGrid
-                //                         gridTbl = NA.common.doc.createElement('table');
-                //                         gridTbl.id = 'NA_AccFA_FK_Goods';
-                //                         gridPager = NA.common.doc.createElement('div');
-                //                         gridPager.id = 'NA_AccFA_FK_Goods_Pager';
-                //                         mainContainer.appendChild(gridTbl);
-                //                         mainContainer.appendChild(gridPager);
-                //                         return containerMessage;
-                //                     },
-                //                     onshown: function (dialogRef) {
-                //                         txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-                //                         var valSearch = '';
-                //                         if (txtSearch != null) {
-                //                             valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
-                //                         }
-                //                         gridTbl = $('#NA_AccFA_FK_Goods');
-                //                         var urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;
-                //                         gridTbl.jqGrid({
-                //                             url: urlFKGoods,
-                //                             mtype: "GET",
-                //                             datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
-                //                             colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number' ],
-                //                             colModel: [
-                //                                 { name: 'idapp', hidden: true, align: 'left' },
-                //                                 { name: 'no', width: 40, align: 'right', sortable: false, editable: false, key: true, },
-                //                                 { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
-                //                                 { name: 'goods', index: 'goods', width: 250, sortable: true, editable: false, align: 'left', },
-                //                                 { name: 'serialnumber', index: 'serialnumber', width: 150, sortable: true, editable: false, align: 'left', },
-                //                             ],
-                //                             ondblClickRow: function (rowId) {
-                //                                 //fire button OK
-                //                                 var btnOK = dialogRef.getButton('btnOKFindGoods');
-                //                                 btnOK.click();
-                //                             },
-                //                             gridComplete: function () {
-                //                                 document.body.style.cursor = 'default';
-                //                             },
-                //                             loadComplete: function () {
-                //                                 //No Data Found at Here .. All goods data has been generate to Fixed Assets
-                //                                 if (gridTbl.getGridParam("records") == 0 && gridTbl.getGridParam('search') === false) {
-                //                                     $('div#gview_NA_AccFA_FK_Goods').find('div.ui-jqgrid-bdiv').append('<div style="height: 100%;font-size: 17px;padding: 30px;text-align:center;color:#ccc">' + 'No Data Found at Here ..<br/> All goods data has been generate to Fixed Assets' + '</div>');
-                //                                     $('input#txtsearch_fk_goods').attr('disabled', true);
-                //                                     $('input#txtsearch_fk_goods').next().find('button.btn.btn-success').attr('disabled', true);
-                //                                     dialogRef.getButton('btnOKFindGoods').attr('disabled', true);
-                //                                 }
-                //                             },
-                //                             cellEdit: false,
-                //                             viewrecords: true,
-                //                             height: '150px',
-                //                             rowNum: 500,
-                //                             rowList: [20, 50, 100, 200, 300, 500],
-                //                             sortname: "itemcode",
-                //                             sortorder: "asc",
-                //                             multiSort: true,
-                //                             shrinkToFit: false,
-                //                             iconSet: "fontAwesome",
-                //                             width:'inherit',
-                //                             //forceFit: true,
-                //                             //toolbar: true,
-                //                             scrollrows: true,
-                //                             //hidegrid: true,
-                //                             caption: "Asset Depreciation ---Find goods",
-                //                             pager: "#NA_AccFA_FK_Goods_Pager"
-                //                         });
-                //                         gridTbl.navGrid('#NA_AccFA_FK_Goods_Pager', {
-                //                             search: false, // show search button on the toolbar
-                //                             add: false,
-                //                             edit: false,
-                //                             del: false,
-                //                             refresh: false
-                //                         });
-                //                         restyleBoostrapDialog();
-                //                         var elGrid = qsAll('div#gbox_NA_AccFA_FK_Goods, div#gview_NA_AccFA_FK_Goods, div#gview_NA_AccFA_FK_Goods div.ui-jqgrid-hdiv.ui-state-default, div#gview_NA_AccFA_FK_Goods div.ui-jqgrid-bdiv, div#NA_AccFA_FK_Goods_Pager')
-                //                         Array.prototype.forEach.call(elGrid, function (elem) {
-                //                             elem.style.width = 'inherit'
-                //                         });
-                //                     },
-                //                     closable: false,
-                //                     animate: false,
-                //                     closeByBackdrop: false,
-                //                     closeByKeyboard: false,
-                //                     buttons: [{
-                //                         label: 'Cancel',
-                //                         icon: 'glyphicon glyphicon-remove',
-                //                         cssClass: 'btn-success',
-                //                         action: function (dialogRef) {
-                //                             dialogRef.close();
-                //                         },
-                //                     }, {
-                //                         label: 'OK',
-                //                         id: 'btnOKFindGoods',
-                //                         icon: 'glyphicon glyphicon-ok',
-                //                         cssClass: 'btn-success',
-                //                         action: function (dialogRef) {
-                //                             var idapp = getGridCellValue(gridTbl, 'idapp');
-                //                             $.ajax({
-                //                                 url: 'getGoods/',
-                //                                 data: {
-                //                                     'idapp': idapp
-                //                                 },
-                //                                 success: function (data) {
-                //                                     fk_goods.value = idapp;
-                //                                     itemcode.value = getGridCellValue(gridTbl, 'itemcode');
-                //                                     goods_name.value = data['goods']
-                //                                     typeApp.value = data['typeapp']
-                //                                     startdate.value = data['startdate'];
-                //                                     enddate.value = data['enddate']
-                //                                     depr_method.value = data['depr_method'];
-                //                                     price.value = data['price_label']; // price with currency separate
-                //                                     price.Value = data['price_orig']; //original price
-                //                                     serialNumber.value = data['serialnumber'];
-                //                                     economiclife.value = data['economiclife'];
-                //                                     dialogRef.close();
-                //                                 }
-                //                             })
-                //                         }
-                //                     }]
-                //                 });
-                //             }
-                //             NA.NAEvent.addHandler(itemcode, 'keydown', function (event) {
-                //                 var target = NA.NAEvent.getTarget(event);
-                //                 if (event.keyCode == 13) {
-                //                     searchGoods(event);
-                //                 }
-                //             });
-                //             NA.NAEvent.addHandler(btn_fkGoods, 'click', function (event) {
-                //                 searchGoods(event);
-                //             });
-
-                //             initializeForm = NA.common.getElementID('id_initializeForm');
-                //             initializeForm.Value = originalData;
-                //             //setting Custom Validity
-                //         }
-
-                //     }
-                //     NA.NAEvent.preventDefault(event);
-                //     if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
-                // });
             }
             var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
             $('div.dialogButtonOKCancel>a.button').on('click', function () {
-                var frmEntry = NA.common.doc.querySelector('form#acc_form');
-                var emailForm = NA.common.doc.querySelector('form#email_data')
-                if (frmEntry || emailForm) {
-                    var inrtext = $(this).text()
-                    ExecuteHandler(inrtext);
-                    return false;
+                var innerText = $(this).text()
+                if (innerText == 'OK'){
+                    AccSubmit()
                 }
-
-                if (event) {
-                    NA.NAEvent.stopPropagation(event);
-                }
-                return false;
             });
             $('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
                 NA.NAEvent.preventDefault(event);
