@@ -452,25 +452,26 @@ class NA_Permission_Form(forms.Form):
 
 
 def NA_Priviledge_login(request):
-    if request.user.is_authenticated:
-        return redirect(request.GET.get('next'))
+    if request.user.is_authenticated():
+        return redirect(request.GET.get('next', '/'))
     else:
         title = "Login"
-        form = NA_Priviledge_Login_Form(request.POST or None)
-        if form.is_valid():
-            email = form.cleaned_data.get("email")
-            password = form.cleaned_data.get("password")
-            # authenticates Email & Password
-            user = authenticate(email=email, password=password)
-            login(request, user)
-            next_action = request.GET.get('next')
-            if next_action is not None:
-                return redirect(next_action)
+        if request.method == 'POST':
+            form = NA_Priviledge_Login_Form(request.POST or None)
+            if form.is_valid():
+                email = form.cleaned_data.get("email")
+                password = form.cleaned_data.get("password")
+                # authenticates Email & Password
+                user = authenticate(email=email, password=password)
+                login(request, user)
+                next_action = request.GET.get('next')
+                if next_action is not None:
+                    return redirect(next_action)
+                else:
+                    return redirect('home')
             else:
-                return redirect('home')
-        else:
-            raise forms.ValidationError(form.errors)
-
+                raise forms.ValidationError(form.errors)
+        form = NA_Permission_Form()
         return render(
             request,
             "app/layout.html",

@@ -203,6 +203,15 @@ NA.client = function () {
         ps: false
     };
 
+    var url = {
+        login_next: (function () {
+            var current_url = window.location.href.replace(
+                window.location.origin, ''
+            )
+            return "/login/?next=" + current_url
+        })()
+    }
+
     //detect rendering engines/browsers
     var ua = "Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0) Asus;Galaxy6";//navigator.userAgent;    
     if (window.opera) {
@@ -330,7 +339,8 @@ NA.client = function () {
     return {
         engine: engine,
         browser: browser,
-        system: system
+        system: system,
+        url: url
     };
 
 }();
@@ -1176,6 +1186,72 @@ NA.common.dialog = {
             }
         }
     }(),
+
+    dialogConfirm: function (message, title, callTrue, callFalse, animate) {
+        if (typeof BootstrapDialog != 'undefined') {
+            return BootstrapDialog.confirm({
+                title: title || NA.common.message.titleInfo,
+                message: message,
+                type: BootstrapDialog.TYPE_WARNING,
+                size: BootstrapDialog.SIZE_SMALL,
+                animate: animate || false,
+                cssClass: 'login-dialog',
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                closable: false,
+                draggable: true,
+                btnCancelLabel: 'NO.',
+                btnOKLabel: 'Yes.',
+                btnOKClass: 'btn-success',
+                callback: function (result) {
+                    if (result) {
+                        if (callTrue) {
+                            callTrue();
+                        }
+                    }
+                    else {
+                        if (callFalse) {
+                            callFalse();
+                        }
+                    }
+                },
+                onshown: function (dialogRef) {
+                    var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+                    divHeader.style.backgroundColor = 'green';
+                }
+            });
+        }
+    },
+
+    dialogAlert: function (message, title, callback) {
+        if (typeof BootstrapDialog != 'undefined') {
+            return BootstrapDialog.alert({
+                title: title || NA.common.message.titleInfo,
+                message: message,
+                size: BootstrapDialog.SIZE_SMALL,
+                //animate:false,
+                cssClass: 'login-dialog',
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                type: BootstrapDialog.TYPE_INFO,
+                closable: false,
+                draggable: true,
+                buttonLabel: 'OK',
+                callback: function (result) {
+                    if (result) {
+                        if (callback) {
+                            callback();
+                        }
+                        return true;
+                    }
+                },
+                onshown: function (dialogRef) {
+                    var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
+                    divHeader.style.backgroundColor = 'green';
+                }
+            });
+        }
+    }
 };
 NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
@@ -1192,7 +1268,8 @@ NA.common.message = {
     _dataHasLost: 'Data has Lost',
     _unsupportedCriteria: 'Operator is not supported for this kind of data\nPlease change criteria or column name',
 
-    _canNotAddOtherPermsForGuest: 'This user is Guest, cannot add other permission except Allow View \n \n Hint : Change user\'s role if you want to add other permission'
+    _canNotAddOtherPermsForGuest: 'This user is Guest, cannot add other permission except Allow View \n \n Hint : Change user\'s role if you want to add other permission',
+    _unAuthorized: 'Un Authorized\nYou have been logged out.\nPlease login again !'
 };
 //mang misalkan user1 teh aya di posisi kieu, user1 keur nga update data .. ehh ai pek teh data eta karek bieu dihapus ku user2 ... terus nga handle na bere pesan(message) bahwa data eta teh geus dihapus ku user lain terus bere keterangan waktu jeng user anu ngahapus na ???
 Object.defineProperties(NA.common.message, {
@@ -1264,6 +1341,11 @@ Object.defineProperties(NA.common.message, {
     canNotAddOtherPermsForGuest: {
         get: function () {
             return this._canNotAddOtherPermsForGuest;
+        }
+    },
+    unAuthorized: {
+        get: function () {
+            return this._unAuthorized
         }
     }
 });
@@ -1342,7 +1424,18 @@ NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBe
     this.XHR.overrideMimeType(MIMEType || this.settings.MIMEType);
     if (OnLoad) { this.XHR.onload = OnLoad; }
     if (OnProgress) { this.XHR.onprogress = OnProgress; }
-    if (OnError) { this.XHR.onerror = OnError; }
+    if (OnError) {
+        if (this.XHR.status == 401) {
+            return NA.common.dialog.dialogAlert(
+                NA.common.message.unAuthorized,
+                NA.common.message.titleInfo,
+                function(){
+                    window.location.href = NA.client.url.login_next
+                }
+            )
+        }
+        this.XHR.onerror = OnError;
+    }
     if (OnLoadEnd) { this.XHR.onloadend = OnLoadEnd; }
     this.XHR.open('POST', Xurl, true);
     if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null)
@@ -1372,7 +1465,18 @@ NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad,
     if (OnLoad) { this.XHR.onload = OnLoad; }
     this.XHR.open('GET', Xurl, true);
     if (OnProgress) { this.XHR.onprogress = OnProgress; }
-    if (OnError) { this.XHR.onerror = OnError; }
+    if (OnError) {
+        if (this.XHR.status == 401) {
+            return NA.common.dialog.dialogAlert(
+                NA.common.message.unAuthorized,
+                NA.common.message.titleInfo,
+                function(){
+                    window.location.href = NA.client.url.login_next
+                }
+            )
+        }
+        this.XHR.onerror = OnError;
+    }
     if (OnLoadEnd) { this.XHR.onloadend = OnLoadEnd; }
     if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null)
     { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }

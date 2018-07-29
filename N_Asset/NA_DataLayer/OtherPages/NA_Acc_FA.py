@@ -109,7 +109,7 @@ class NA_Acc_FA_BR(models.Manager):
         DROP TEMPORARY TABLE T_search_acc_fa
         """
         cur.execute(query_string)
-        connection.close()
+        cur.close()
         return result
 
     # get goods data after click (select) data from above (search goods by form)
@@ -129,6 +129,6 @@ class NA_Acc_FA_BR(models.Manager):
         connection.close()
         return result
 
-    def delete_data(self, serial_number):
-        super(NA_Acc_FA_BR, self).filter(serialnumber=serial_number).delete()
+    def delete_data(self, **kwargs):
+        super(NA_Acc_FA_BR, self).filter(**kwargs).delete()
         return (Data.Success, )

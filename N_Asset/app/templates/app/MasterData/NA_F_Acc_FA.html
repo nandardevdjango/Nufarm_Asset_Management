@@ -231,7 +231,53 @@ div[id*=NA_Acc_grid]{
         		width: 1750,
         		height: '100%',
                 pager: "#" + childGridPagerID,
-            })
+            });
+
+            function getChildGridId() {
+        		return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
+            }
+
+            $('#' + childGridID).navGrid('#' + childGridPagerID, {
+                edit: false,
+                add: false,
+                del: false,
+                search: false,
+                refresh: false,
+                cloneToTop: false
+            }).navButtonAdd('#' + childGridPagerID, {
+                caption: "",
+                buttonicon: "ui-icon-trash",
+                onClickButton: function () {
+                    var idapp = getChildGridId();
+                    if (idapp == null) {
+                        return dialogAlert('Please select data you want to delete', NA.common.message.titleInfo);
+                    }
+                    return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
+                        var permission_url_delete = 'delete/';
+                        $.ajax({
+                            url: permission_url_delete,
+                            method: 'POST',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+                            },
+                            data: {
+                                'children':true,
+                                'idapp': idapp
+                            },
+                            success: function (data) {
+                                $("#" + childGridID).trigger('reloadGrid');
+                            },
+                            complete: function (data) {
+                                if (data.status !== 200) {
+                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
+                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
+                                }
+                            }
+                        })
+                    })
+                },
+                position: "last"
+            });
         }
 
         LoadData();
@@ -481,6 +527,7 @@ div[id*=NA_Acc_grid]{
                     url: 'delete/',
                     method: 'POST',
                     data: {
+                        'parent':true,
                         'serial_number': serial_number
                     },
                     beforeSend: function(xhr){
@@ -518,7 +565,7 @@ div[id*=NA_Acc_grid]{
                         reload_LogEvent();
                     },
                     complete: function (data) {
-                        if (data.status !== 200) {
+                        if (data.status !== 200 && data.status !== 401) {
                             var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
                             return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
                         }

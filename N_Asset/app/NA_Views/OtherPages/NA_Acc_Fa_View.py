@@ -7,13 +7,22 @@ from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.decorators import login_required
 from celery.decorators import task
 
-from NA_Models.models import NAAccFa, goods
+from NA_Models.models import NAAccFa, goods, NAPriviledge_form
 from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria, commonFunct,
                                  Data, decorators)
 
 
+@login_required
+def NA_Acc_FA(request):
+    return render(request, 'app/MasterData/NA_F_Acc_FA.html')
+
+
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def NA_AccGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
@@ -61,35 +70,37 @@ def NA_AccGetData(request):
         rows.append(datarow)
     results = {"page": dataRows.number, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
-    return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
+    return HttpResponse(
+        json.dumps(results, indent=4, cls=DjangoJSONEncoder),
+        content_type='application/json'
+    )
 
 
 class NA_Acc_Form(forms.Form):
     idapp_detail_receive = forms.CharField()
 
 
-def NA_Acc_FA(request):
-    return render(request, 'app/MasterData/NA_F_Acc_FA.html')
-
-
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+@decorators.read_permission(form_name=NAPriviledge_form.Fix_asset_form)
 def EntryAcc(request):
-    if request.method == 'POST':
-        form = NA_Acc_Form(request.POST)
-        if form.is_valid():
-            idapp_detail_receive = form.cleaned_data.get('idapp_detail_receive')
-            if request.POST['mode'] == 'Add':
-                idapp = idapp_detail_receive.split(',')
-                try:
-                    generate_acc_fa.delay(
-                        idapp,
-                        request.user.username
-                    )
-                except Exception as e:
-                    raise e
-                else:
-                    return commonFunct.response_default((Data.Success,))
-        else:
-            raise forms.ValidationError(form.errors)
+    form = NA_Acc_Form(request.POST)
+    if form.is_valid():
+        idapp_detail_receive = form.cleaned_data.get('idapp_detail_receive')
+        if request.POST['mode'] == 'Add':
+            idapp = idapp_detail_receive.split(',')
+            try:
+                generate_acc_fa.delay(
+                    idapp,
+                    request.user.username
+                )
+            except Exception as e:
+                raise e
+            else:
+                return commonFunct.response_default((Data.Success,))
+    else:
+        raise forms.ValidationError(form.errors)
 
 
 @task(name='generate_fix_asset')
@@ -166,29 +177,29 @@ def generate_acc_fa(idapp, createdby):
     else:
         return (Data.Success.value,)
 
-
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def ShowCustomFilter(request):
-    if request.is_ajax():
-        cols = []
-        cols.append({'name': 'goodsname', 'value': 'goodsname',
-                     'selected': 'True', 'dataType': 'varchar', 'text': 'Goods Name'})
-        cols.append({'name': 'brandname', 'value': 'brandname',
-                     'selected': '', 'dataType': 'varchar', 'text': 'Brand Name'})
-        cols.append({'name': 'itemcode', 'value': 'itemcode',
-                     'selected': '', 'dataType': 'varchar', 'text': 'Item code'})
-        cols.append({'name': 'serialnumber', 'value': 'serialnumber',
-                     'selected': '', 'dataType': 'varchar', 'text': 'Serial Number'})
-        cols.append({'name': 'year', 'value': 'year',
-                     'selected': '', 'dataType': 'decimal', 'text': 'Year'})
-        cols.append({'name': 'startdate', 'value': 'startdate',
-                     'selected': '', 'dataType': 'varchar', 'text': 'Start Date'})
-        cols.append({'name': 'depr_expense', 'value': 'depr_expense',
-                     'selected': '', 'dataType': 'decimal', 'text': 'Depreciation Expense'})
-        cols.append({'name': 'depr_accumulation', 'value': 'depr_accumulation',
-                     'selected': '', 'dataType': 'decimal', 'text': 'Depreciation Accumulation'})
-        cols.append({'name': 'bookvalue', 'value': 'bookvalue',
-                     'selected': '', 'dataType': 'decimal', 'text': 'Book Value'})
-        return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+    cols = []
+    cols.append({'name': 'goodsname', 'value': 'goodsname',
+                    'selected': 'True', 'dataType': 'varchar', 'text': 'Goods Name'})
+    cols.append({'name': 'brandname', 'value': 'brandname',
+                    'selected': '', 'dataType': 'varchar', 'text': 'Brand Name'})
+    cols.append({'name': 'itemcode', 'value': 'itemcode',
+                    'selected': '', 'dataType': 'varchar', 'text': 'Item code'})
+    cols.append({'name': 'serialnumber', 'value': 'serialnumber',
+                    'selected': '', 'dataType': 'varchar', 'text': 'Serial Number'})
+    cols.append({'name': 'year', 'value': 'year',
+                    'selected': '', 'dataType': 'decimal', 'text': 'Year'})
+    cols.append({'name': 'startdate', 'value': 'startdate',
+                    'selected': '', 'dataType': 'varchar', 'text': 'Start Date'})
+    cols.append({'name': 'depr_expense', 'value': 'depr_expense',
+                    'selected': '', 'dataType': 'decimal', 'text': 'Depreciation Expense'})
+    cols.append({'name': 'depr_accumulation', 'value': 'depr_accumulation',
+                    'selected': '', 'dataType': 'decimal', 'text': 'Depreciation Accumulation'})
+    cols.append({'name': 'bookvalue', 'value': 'bookvalue',
+                    'selected': '', 'dataType': 'decimal', 'text': 'Book Value'})
+    return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 
 def generate_acc_value(acc, values_insert):
@@ -273,6 +284,9 @@ def getGoods_data(request):
         return HttpResponse(json.dumps(goods_obj, cls=DjangoJSONEncoder), content_type='application/json')
 
 
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def SearchGoodsbyForm(request):
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
@@ -316,9 +330,29 @@ def SearchGoodsbyForm(request):
     )
 
 
+@decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
+@decorators.read_permission(
+    form_name=NAPriviledge_form.Fix_asset_form,
+    action='delete'
+)
 def delete_acc_fa(request):
-    serial_number = request.POST.get('serial_number')
-    result = NAAccFa.objects.delete_data(serial_number)
+    parent = request.POST.get('parent')
+    children = request.POST.get('children')
+    lookup = {}
+    if parent:
+        serial_number = request.POST.get('serial_number')
+        lookup.update({
+            'serialnumber': serial_number,
+        })
+    elif children:
+        idapp = request.POST.get('idapp')
+        lookup.clear()
+        lookup.update({
+            'idapp': idapp
+        })
+    else:
+        raise ValueError('Please choose parent or children')
+    result = NAAccFa.objects.delete_data(**lookup)
     return commonFunct.response_default(result)

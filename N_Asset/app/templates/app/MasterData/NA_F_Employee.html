@@ -469,7 +469,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                         reload_LogEvent();
                     },
                     complete: function (data) {
-                        if (data.status !== 200) {
+                        if (data.status !== 200 && data.status !== 401) {
                             var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
                             return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
                                 if (data.status == 404) {
@@ -528,7 +528,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                         }
                     },
                     complete: function (data) {
-                        if (data.status !== 200) {
+                        if (data.status !== 200 && data.status !== 401) {
                             var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
                             return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
                                 if (data.status == 404) {
