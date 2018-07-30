@@ -40,6 +40,7 @@ class Command(BaseCommand):
             user.role = NAPriviledge.SUPER_USER
             user.divisi = NAPriviledge.IT
             user.is_superuser = True
+            user.is_staff = True
             user.save()
             NASysPriviledge.set_permission(user)
         return 'NA Super User Created Successfully'

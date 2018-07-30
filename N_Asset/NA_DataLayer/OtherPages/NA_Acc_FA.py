@@ -23,7 +23,6 @@ class NA_Acc_FA_BR(models.Manager):
             query_param.update({
                 'serial_number': serialnumber
             })
-        print(Query)
         cur.execute(Query, query_param)
         result = query.dictfetchall(cur)
         cur.close()
@@ -60,19 +59,26 @@ class NA_Acc_FA_BR(models.Manager):
     # search By Form
     def searchAcc_ByForm(self, q=None, idapp=None):
         cur = connection.cursor()
-        query_string = """SELECT gr.idapp,g.itemcode,
+        query_string = """
+        CREATE TEMPORARY TABLE T_search_acc_fa ENGINE=InnoDB AS (
+        SELECT gr.idapp,g.itemcode,
         CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(grd.typeapp, ' ')) as goods,
         grd.serialnumber, gr.datereceived AS startdate, grd.idapp AS idapp_detail_receive,
         g.depreciationmethod, grd.priceperunit, g.economiclife, g.idapp AS fk_goods, grd.typeapp
         FROM n_a_goods g INNER JOIN n_a_goods_receive gr
         ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd
         ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM n_a_acc_fa ac
-        WHERE ac.serialnumber = grd.serialnumber) AND """
+        WHERE ac.serialnumber = grd.serialnumber)"""
 
         query_param = {}
         if q is not None:
-            query_string += """
-            CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(g.typeapp, ' ')) LIKE %(q)s
+            query_string += ")"
+            cur.execute(query_string)  # create temporary table
+            query_string = """
+            SELECT * FROM T_search_acc_fa saf WHERE
+            saf.goods LIKE %(q)s
+            OR saf.itemcode LIKE %(q)s OR saf.serialnumber LIKE %(q)s OR saf.depreciationmethod
+            LIKE %(q)s
             """
             query_param.update({
                 'q': '%' + q + '%'
@@ -81,20 +87,29 @@ class NA_Acc_FA_BR(models.Manager):
             if isinstance(idapp, list):
                 idapp = ','.join(idapp)
                 query_string += """
-                grd.idapp IN ({idapp})
+                 AND grd.idapp IN ({idapp})
                 """.format(
                     idapp=idapp
                 )
             else:
                 query_string += """
-                grd.idapp = %(idapp_detail_receive)s
+                 AND grd.idapp = %(idapp_detail_receive)s
                 """
                 query_param.update({
                     'idapp_detail_receive': idapp
                 })
+            query_string += ")"
+            cur.execute(query_string, query_param)  # create temporary table
+            query_string = """SELECT * FROM T_search_acc_fa"""
+            query_param.clear()
+
         cur.execute(query_string, query_param)
         result = query.dictfetchall(cur)
-        connection.close()
+        query_string = """
+        DROP TEMPORARY TABLE T_search_acc_fa
+        """
+        cur.execute(query_string)
+        cur.close()
         return result
 
     # get goods data after click (select) data from above (search goods by form)
@@ -113,3 +128,7 @@ class NA_Acc_FA_BR(models.Manager):
         result = query.dictfetchall(cur)
         connection.close()
         return result
+
+    def delete_data(self, **kwargs):
+        super(NA_Acc_FA_BR, self).filter(**kwargs).delete()
+        return (Data.Success, )

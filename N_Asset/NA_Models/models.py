@@ -1105,6 +1105,7 @@ class NAPriviledge_form(models.Model):
     Goods_form = 'goods'
     Goods_Receive_form = 'n_a_goods_receive'
     Priviledge_form = 'n_a_priviledge'
+    Fix_asset_form = 'n_a_acc_fa'
 
     MASTER_DATA_FORM = [
         Employee_form,
@@ -1112,18 +1113,24 @@ class NAPriviledge_form(models.Model):
         Goods_form,
         Priviledge_form
     ]
+
     TRANSACTION_FORM = [
         Goods_Receive_form
     ]
+    
+    OTHER_FORM = [
+        Fix_asset_form
+    ]
 
-    ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM
+    ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM + OTHER_FORM
 
     FORM_NAME_ORI_CHOICES = (
         (Employee_form, 'employee'),
         (Suplier_form, 'n_a_suplier'),
         (Goods_form, 'goods'),
         (Goods_Receive_form, 'n_a_goods_receive'),
-        (Priviledge_form, 'n_a_priviledge')
+        (Priviledge_form, 'n_a_priviledge'),
+        (Fix_asset_form, 'n_a_acc_fa')
     )
 
     idapp = models.AutoField(primary_key=True, db_column='IDApp')

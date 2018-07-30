@@ -1,14 +1,15 @@
-﻿from enum import Enum
+﻿import json
+import errno
+from os import path, makedirs, remove
+from enum import Enum
 from datetime import date
 from datetime import datetime
 from dateutil.parser import parse
+from functools import wraps
 from django.db import connection
 from django.http import HttpResponse
-import json
+from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
-from functools import wraps
-from os import path, makedirs, remove
-import errno
 from django.conf import settings
 
 
@@ -455,7 +456,8 @@ class decorators:
                 else:
                     return HttpResponse(
                         json.dumps(
-                            {'message': 'You don\'t have permission for %s this data' % arguments}),
+                            {'message': 'You don\'t have permission for %s this data' % arguments}
+                        ),
                         status=403,
                         content_type='application/json'
                     )
@@ -505,6 +507,28 @@ class decorators:
                 return func(request, *args, **kwargs)
             return wrapper
         return real_decorator
+    
+    def ensure_authorization(func):
+        """
+        to ensure if user is authorize/login ..
+        if user have 2 tab in browser but in other tab he/she was logouted
+        prevent it and show the dialog in browser to information if he/she
+        was logouted and must be login again
+        """
+        @wraps(func)
+        def wrapper(request, *args, **kwargs):
+            if request.user.is_authenticated():
+                return func(request, *args, **kwargs)
+            else:
+                if request.is_ajax():
+                    return HttpResponse(
+                        json.dumps({'message': 'unauthorized'}),
+                        status=401,  # 401 = unauthorized
+                        content_type='application/json'
+                    )
+                else:
+                    return redirect('/login/')
+        return wrapper
 
 
 class query:

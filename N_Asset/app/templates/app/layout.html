@@ -1434,6 +1434,22 @@
     <!--====================Jquery untuk menu============================ -->
     <script>
     	$(function () {
+            // ====== common ajax setup if user was logged out
+            $.ajaxSetup({
+                complete: function(resp){
+                    if (resp.status == 401){
+                        NA.common.dialog.dialogAlert(
+                            NA.common.message.unAuthorized,
+                            NA.common.message.titleInfo,
+                            function(){
+                                window.location.href = NA.client.url.login_next
+                            }
+                        )
+                    }
+                }
+            });
+            
+
     		$("div.sidebar ul li a").click(function (event) {
     			if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
     				$(this).find($(".fa")).removeClass('fa-angle-down');
