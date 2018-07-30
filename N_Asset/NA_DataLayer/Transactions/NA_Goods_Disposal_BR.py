@@ -56,13 +56,13 @@ class NA_BR_Goods_Disposal(models.Manager):
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 		        AND ngds.SerialNumber = ngd.SerialNumber
 				INNER JOIN (SELECT nd.IDApp,CASE
-							WHEN (ngds.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
-							WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
-							WHEN (ngds.FK_Lending IS NOT NULL) THEN '(After being Lent)'
-							WHEN (ngds.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
-							WHEN (ngds.islost = 1) THEN 'goods has lost'
+							WHEN (nd.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
+							WHEN (nd.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+							WHEN (nd.FK_Lending IS NOT NULL) THEN '(After being Lent)'
+							WHEN (nd.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
+							WHEN (nd.islost = 1) THEN 'goods has lost'
 							ELSE 'Other (Uncategorized)'
-							END AS refgoodsfrom FROM n_a_goods_disposal nd)ref ON Ref.IDApp = ngds.IDApp
+							END AS refgoodsfrom FROM n_a_disposal nd)ref ON Ref.IDApp = ngds.IDApp
 		        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp ON emp.idapp = ngds.fk_proposedby
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp1 ON emp1.idapp = ngds.FK_Acknowledge1
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp2 ON emp2.idapp = ngds.FK_Acknowledge2
