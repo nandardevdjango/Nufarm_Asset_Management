@@ -56,18 +56,32 @@ def NA_AccGetData(request):
     totalRecord = len(accData)
     rows = []
     i = 0
-    for row in dataRows.object_list:
-        i += 1
-        datarow = {
-            "id": row['idapp'],
-            "cell": [
-                row['idapp'], i, row['itemcode'], row['goods'], row['serialnumber'],
-                row['startdate'], row['year'], row['datedepreciation'],
-                row['depreciationmethod'], row['depr_expense'],
-                row['depr_accumulation'], row['bookvalue'], row['createddate'], row['createdby']
-            ]
-        }
-        rows.append(datarow)
+    if commonFunct.str2bool(is_parent):
+        for row in dataRows.object_list:
+            i += 1
+            datarow = {
+                "id": row['idapp'],
+                "cell": [
+                    row['idapp'], i, row['itemcode'], row['goods'], row['typeapp'], row['serialnumber'],
+                    row['startdate'], row['year'], row['createddate'], row['createdby']
+                ]
+            }
+            rows.append(datarow)
+    else:
+        for row in dataRows.object_list:
+            i += 1
+            datarow = {
+                "id": row['idapp'],
+                "cell": [
+                    row['idapp'], i, row['itemcode'], row['goods'], row['typeapp'],
+                    row['serialnumber'],
+                    row['startdate'], row['datedepreciation'],
+                    row['depreciationmethod'], row['depr_expense'],
+                    row['depr_accumulation'], row['bookvalue'], row['createddate'],
+                    row['createdby']
+                ]
+            }
+            rows.append(datarow)
     results = {"page": dataRows.number, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
     return HttpResponse(
