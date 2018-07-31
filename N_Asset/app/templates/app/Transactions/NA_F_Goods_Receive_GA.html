@@ -468,18 +468,6 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 if (mustReload) {
                                     goods_receive_ga_grid.trigger("reloadGrid", [{ page: curPage }]);
                                 };
-                            },
-                            complete: function (data, status) {
-                                if (data.status !== 200) {
-                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                                        if (data.status == 404) {
-                                            var dialog = qs("div.containerDialog");
-                                            NA.common.dialog.closeDialog(dialog);
-                                        };
-                                        return goods_receive_ga_grid.trigger('reloadGrid');
-                                    });
-                                }
                             }
                         })
                     } catch (e) {
@@ -546,18 +534,6 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                     setTimeout(function () {
                         goods_receive_ga_grid.setSelection(data['message'], true)
                     }, 1000);
-                }
-            },
-            complete: function (data, status) {
-                if (data.status !== 200) {
-                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                        if (data.status == 404) {
-                            var dialog = qs("div.containerDialog");
-                            NA.common.dialog.closeDialog(dialog);
-                        };
-                        return goods_receive_ga_grid.trigger('reloadGrid');
-                    });
                 }
             }
         });

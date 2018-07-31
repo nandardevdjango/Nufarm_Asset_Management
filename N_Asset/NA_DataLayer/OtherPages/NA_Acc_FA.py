@@ -14,16 +14,13 @@ class NA_Acc_FA_BR(models.Manager):
         ac.datedepreciation, ac.depr_expense, ac.depr_accumulation, ac.bookvalue,
         ac.createddate, ac.createdby FROM n_a_acc_fa ac
         INNER JOIN n_a_goods g ON ac.fk_goods = g.IDApp
-        WHERE ac.IsParent = %(is_parent)s AND """
-        query_param = {'is_parent': is_parent}
+        WHERE ac.IsParent = """ + str(is_parent) + " AND "
         if is_parent:
             Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + ' ' + sord
         else:
-            Query = Query + """ac.serialnumber = %(serial_number)s"""
-            query_param.update({
-                'serial_number': serialnumber
-            })
-        cur.execute(Query, query_param)
+            Query = Query + """ac.serialnumber = '{}'""".format(serialnumber)
+        print(Query)
+        cur.execute(Query)
         result = query.dictfetchall(cur)
         cur.close()
         return result

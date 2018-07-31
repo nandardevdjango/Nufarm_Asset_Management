@@ -423,13 +423,6 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                 if (mustReload) {
                                     gLost_grid.trigger("reloadGrid", [{ page: curPage }]);
                                 };
-                            },
-                            complete: function (data, status) {
-                                if (data.status === 500 && data.responseText === 'Lost') {
-                                    return dialogAlert(NA.common.message.dataHasLost, NA.common.message.titleInfo, function () {
-                                        return gLost_grid.trigger("reloadGrid", [{ page: curPage }]);
-                                    });
-                                }
                             }
                         })
                     } catch (e) {
@@ -481,13 +474,6 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                             setTimeout(function () {
                                 gLost_grid.setSelection(data['message'], true)
                             }, 1000);
-                        }
-                    },
-                    complete: function (data, status) {
-                        if (data.responseJSON === 'HasExist') {
-                            return dialogAlert(NA.common.message.existsData, NA.common.message.titleInfo, function () {
-                                return false;
-                            });
                         }
                     }
                 });

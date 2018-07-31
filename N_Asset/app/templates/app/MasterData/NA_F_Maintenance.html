@@ -443,18 +443,6 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
                                 if (mustReload) {
                                     maintenance_grid.trigger("reloadGrid", [{ page: curPage }]);
                                 };
-                            },
-                            complete: function (data) {
-                                if (data.status !== 200 && data.status !== 401) {
-                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                                        if (data.status == 404) {
-                                            var dialog = qs("div.containerDialog");
-                                            NA.common.dialog.closeDialog(dialog);
-                                        };
-                                        return maintenance_grid.trigger('reloadGrid');
-                                    });
-                                }
                             }
                         })
                     } catch (e) {
@@ -523,18 +511,6 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Maintenance_pager,di
                             setTimeout(function () {
                                 maintenance_grid.setSelection(data['message'], true)
                             }, 1000);
-                        }
-                    },
-                    complete: function (data) {
-                        if (data.status !== 200 && data.status !== 401) {
-                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                                if (data.status == 404) {
-                                    var dialog = qs("div.containerDialog");
-                                    NA.common.dialog.closeDialog(dialog);
-                                };
-                                return maintenance_grid.trigger('reloadGrid');
-                            });
                         }
                     }
                 });

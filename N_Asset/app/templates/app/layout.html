@@ -21,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/MainLayouts.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/site.css' %}" />
     <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+    <script src="{% static 'app/scripts/NA_Bootstrap.js' %}"></script>
     <style>
         div.tree-node span.fa-plus, div.tree-node span.fa-pencil {
             position: relative;
@@ -1436,14 +1437,25 @@
     	$(function () {
             // ====== common ajax setup if user was logged out
             $.ajaxSetup({
-                complete: function(resp){
+                error: function(resp){
                     if (resp.status == 401){
-                        NA.common.dialog.dialogAlert(
+                        NA_Bootstrap.dialog.dialogAlert(
                             NA.common.message.unAuthorized,
                             NA.common.message.titleInfo,
                             function(){
                                 window.location.href = NA.client.url.login_next
                             }
+                        )
+                    } else {
+                        var message = resp.responseText
+                        if (typeof resp.responseJSON != 'undefined'){
+                            if (typeof resp['message'] != 'undefined'){
+                                message = resp['message']
+                            }
+                        }
+                        NA_Bootstrap.dialog.dialogAlert(
+                            NA.common.message.server(message),
+                            NA.common.message.titleInfo
                         )
                     }
                 }

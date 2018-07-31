@@ -397,12 +397,6 @@
                             suplier_grid.trigger("reloadGrid", [{ page: curPage }]);
                         }
                         reload_LogEvent();
-                    },
-                    complete: function (data) {
-                        if (data.status !== 200) {
-                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
-                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
-                        }
                     }
                 });
             },
@@ -446,18 +440,6 @@
                     suplier_grid.setSelection(data['message'], true)
                 }, 1000);
                 reload_LogEvent();
-            },
-            complete: function (data) {
-                if (data.status !== 200) {
-                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText;
-                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo, function () {
-                        if (data.status == 404) {
-                            var dialog = qs("div.containerDialog");
-                            NA.common.dialog.closeDialog(dialog);
-                        };
-                        return suplier_grid.trigger('reloadGrid');
-                    });
-                }
             }
         });
     };
