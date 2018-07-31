@@ -82,9 +82,6 @@ div[id*=NA_Acc_grid]{
     border-radius: 0px
 }
 
-.ui-widget-content.subgrid-data .ui-jqgrid-bdiv {
-    overflow-x: hidden;
-}
 </style>
 {% endblock %}
 
@@ -163,8 +160,20 @@ div[id*=NA_Acc_grid]{
                     url: url_parent,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: colNames,
-                    colModel: colModel,
+                    colNames: ['idapp', 'No', 'Item code', 'Goods', 'Type of Goods', 'Serial Number', 'Date Acquisition', 'Year', 'Createddate', 'Createdby'],
+                    colModel: [
+                        { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true },//
+                        { name: 'no', index: 'no', width: 50, align: 'right' },
+                        { name: 'itemcode', index: 'itemcode', width: 80, align: 'left' },
+                        { name: 'goods', index: 'goods', width: 170, align: 'left' },
+                        { name: 'typapp', index: 'typapp', width: 100, align: 'left' },
+                        { name: 'serialNumber', index: 'serialNumber', width: 150, align: 'left' },
+                        { name: 'startdate', index: 'startdate', width: 150, align: 'center', search: false, 
+                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
+                        { name: 'year', index: 'year', width: 80, sortable: true },
+                        { name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F, Y H:i:s' } },
+                        { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false }
+                    ],
                     jsonreader: {
                         repeatitems: false,
                         id: 'idapp',
@@ -224,13 +233,55 @@ div[id*=NA_Acc_grid]{
         		mtype: "GET",
         		datatype: "json",
                 page: 1,
-                colNames: colNames,
-        		colModel: colModel,
+                colNames: ['idapp', 'No', 'Item code', 'Goods',  'Type of Goods','Serial Number', 'Date Acquisition', 'Date Depreciation', 'Depreciation Method', 'Depreciation Expense', 'Depreciation Accumulation', 'Book Value', 'Createddate', 'Createdby'],
+        		colModel: [
+                    { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true },//
+                    { name: 'no', index: 'no', width: 50, align: 'right' },
+                    { name: 'itemcode', index: 'itemcode', width: 80, align: 'left' },
+                    { name: 'goods', index: 'goods', width: 170, align: 'left' },
+                    { name: 'typapp', index: 'typapp', width: 100, align: 'left' },
+                    { name: 'serialNumber', index: 'serialNumber', width: 150, align: 'left' },
+                    { name: 'startdate', index: 'startdate', width: 150, align: 'center', search: false, 
+                    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
+                    { name: 'date_depreciation', index: 'date_depreciation', width: 150, align: 'center', search: false, 
+                    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
+                    {
+                        name: 'depreciationmethod', index: 'depreciationmethod', width: 150, align: 'left', formatter: 'select', editoptions: {
+                            value: 'SL:Straight Line Method;DDB:Double Declining Balance;STYD:Sum Of The Year Digit'
+                        }
+                    },
+                    {
+                        name: 'depr_expense', index: 'depr_expense', width: 140, align: 'right', formatter: 'currency', formatoptions: {
+                            decimalSeparator: ",", thousandsSeparator: ".",
+                            decimalPlaces: 2, prefix: "Rp "
+                        }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
+                    },
+                    {
+                        name: 'depr_accumulation', index: 'depr_accumulation', width: 165, align: 'right', formatter: 'currency', formatoptions: {
+                            decimalSeparator: ",", thousandsSeparator: ".",
+                            decimalPlaces: 2, prefix: "Rp "
+                        }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
+                    },
+                    {
+                        name: 'bookvalue', index: 'bookvalue', width: 165, align: 'right', formatter: 'currency', formatoptions: {
+                            decimalSeparator: ",", thousandsSeparator: ".",
+                            decimalPlaces: 2, prefix: "Rp "
+                        }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
+                    },
+                    { name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F, Y H:i:s' } },
+                    { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false }
+                ],
         		viewrecords: true,
 				rowNum:10,
-        		width: 1750,
-        		height: '100%',
+        		width: 'inherit',
+                height: '100%',
+                hidegrid: true,
+                shrinkToFit: false,
                 pager: "#" + childGridPagerID,
+            });
+
+            $("div#gbox_" + childGridID + ", div#gview_" + childGridID + ", div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv, div#"+childGridPagerID).css({
+                'width':'inherit'
             });
 
             function getChildGridId() {

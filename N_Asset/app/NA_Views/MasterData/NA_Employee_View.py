@@ -178,6 +178,7 @@ def ShowCustomFilter(request):
                  'selected': '', 'dataType': 'boolean', 'text': 'InActive'})
     return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
+
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')

@@ -9,7 +9,7 @@ class NA_Acc_FA_BR(models.Manager):
         cur = connection.cursor()
         rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
         Query = """
-        SELECT ac.idapp, CONCAT(g.goodsname, ' ',g.brandname, ' ',g.typeapp) as goods,
+        SELECT ac.idapp, CONCAT(g.goodsname, ' ',g.brandname) as goods, ac.typeapp,
         g.itemcode, g.depreciationmethod, ac.serialnumber, ac.year, ac.startdate,
         ac.datedepreciation, ac.depr_expense, ac.depr_accumulation, ac.bookvalue,
         ac.createddate, ac.createdby FROM n_a_acc_fa ac
