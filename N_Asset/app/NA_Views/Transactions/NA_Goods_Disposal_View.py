@@ -158,11 +158,11 @@ def getBookValue(request):
 	idappFKGoods = data['idapp_fk_goods']
 	dateDisposal = datetime.date.today() if data['datedisposal'] is None else data['datedisposal']
 	try:
-		result = NADisposal.objects.getBookValue(None,idapp= idappFKGoods,SerialNo=serialNO,DateDisposal=dateDisposal)
+		result = NADisposal.objects.getBookValue(None,idapp=idappFKGoods,SerialNo=serialNO,DateDisposal=dateDisposal)
 		if result is None :
 			statuscode = 500
 			return HttpResponse(json.dumps({'message':'unknown book value'}),status = statuscode, content_type='application/json')
-		return json.dumps({'fk_acc_fa':result[0],'bookvalue':result[1]},cls=DjangoJSONEncoder,status = 200, content_type='application/json')
+		return  HttpResponse(json.dumps({'fk_acc_fa':result[0],'bookvalue':result[1],'startcurbookvalue':result[2],'endcurbookvalue':result[3]},cls=DjangoJSONEncoder),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')

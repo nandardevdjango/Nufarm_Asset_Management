@@ -93,7 +93,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 			:param int idapp = idapp_fk_goods
 			:param SerialNo
 			:param DateDisposal
-			return [int fk_acc_fa,float bookvalue]
+			return [int fk_acc_fa,float bookvalue,datetime StartCurBookValue,EndCurBookValue]
 			"""
 			fk_goods = 0
 			serialno = ''
@@ -101,6 +101,10 @@ class NA_BR_Goods_Disposal(models.Manager):
 			fk_goods = int(kwargs['idapp'])
 			serialno = kwargs['SerialNo'];
 			datedisposal = kwargs['DateDisposal']
+			fkaccfa = 0
+			bookvalue = 0
+			startCurBookValue = None
+			EndCurBookValue = None
 			isNewCur = False
 			Query = """SELECT EXISTS(SELECT fk_goods FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s)"""
 			if cur is None:
@@ -109,13 +113,21 @@ class NA_BR_Goods_Disposal(models.Manager):
 			cur.execute(Query,{'FK_Goods':fk_goods,'SerialNO':kwargs['SerialNo']})
 			row = cur.fetchone()
 			if int(row[0]) > 0:
-				Query = """SELECT idapp, bookvalue FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s AND (DateDepreciation >= %(DateDisposal)s AND DateDepreciation <= (DATE_ADD((DATE_ADD(%(DateDisposal)s , INTERVAL 2 day)),INTERVAL -1 DAY)))"""
-				cur.execute(Query,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
+				Query1 = """SELECT idapp,DateDepreciation AS StartDate, bookvalue FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s AND DateDepreciation <= %(DateDisposal)s ORDER BY DateDepreciation DESC LIMIT 1"""
+				cur.execute(Query1,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
 				row = cur.fetchone()
+				Query2 = """ SELECT DateDePreciation AS EndDate FROM n_a_acc_fa WHERE DateDepreciation > %(DateDisposal)s AND fk_goods = %(FK_Goods)s AND SerialNumber =  %(SerialNO)s ORDER BY DateDepreciation ASC LIMIT 1 """
 				if row is not None:
+					#return [int(row[0]),float(row[1])]
+					fkaccfa = int(row[0])
+					bookvalue = float(row[2])
+					startCurBookValue = row[1]
+					cur.execute(Query2,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
+					row = cur.fetchone()
+					EndCurBookValue = row[0]
 					if isNewCur:
 						cur.close()
-					return [int(row[0]),float(row[1])]
+					return [fkaccfa,bookvalue,startCurBookValue,EndCurBookValue]
 				else:
 					if isNewCur:
 						cur.close()

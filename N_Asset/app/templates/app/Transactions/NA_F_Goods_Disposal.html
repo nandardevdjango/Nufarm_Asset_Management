@@ -196,7 +196,7 @@
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
-		valSetCtrl = {},
+		valSetCtrl = {}, isSelectingDate = true;
         originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
@@ -934,14 +934,15 @@
                                 if (this.status === 200) {
                                     var data = JSON.parse(this.responseText);
                                     if (data) {
-                                        //return [int fk_acc_fa,float bookvalue]
-                                        var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
-                                        var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
-                                        elfkAccFA.value = fkAccFA;
-                                        elBookValue.value = bookvalue;
+                                    	//return [int fk_acc_fa,float bookvalue]
+                                    	var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
+                                    	var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
+                                    	isSelectingDate = true;
+                                    	elfkAccFA.value = fkAccFA;
+                                    	elBookValue.value = bookvalue;                                  	
                                     }
                                     else {
-                                        XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+                                    	XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
                                     }
                                 }
                                 else {
@@ -975,6 +976,7 @@
 			    NA.common.getElementID('lastUsedInfo').style.display = 'none';			  
 			}
 			NA.common.getElementID('difInfo').style.display = 'block';
+			isSelectingDate = false;
 		};
 		function fillEmployeeName(event, elmID) {
 			var NAAjax = NA.common.AJAX;
@@ -1329,7 +1331,7 @@
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			btnPrevExport = NA.NAEvent.doc.querySelectorAll('div.dialogButtonRightOther>a.button');
 			//rubah dialog top nya jadi 10px saja
-			dialog.style.top = "10px";
+			//dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 
 			    NA.NAEvent.addHandler(item, 'click', function (evt) {
@@ -1605,7 +1607,7 @@
                        						var eloriginalData = JSON.parse(originalData),
                                                 hasRef = eloriginalData['hasRefData'];
                        						if (hasRef) { return 1; }
-                       						var valDateRel = new Date(eloriginalData.datereleased);
+                       						var valDateRel = new Date(eloriginalData.datedisposal);
                        						return valDateRel;
                        					}
                        				})(win),
@@ -1619,7 +1621,49 @@
                        			$.datepicker._gotoToday = function (id) {
                        				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
                        			};
-
+                       			$('#id_datedisposal').datepicker().on("input change", function (e) {
+                       				//get book value
+                       				if (isSelectingDate) { return; }
+									
+                       				var elserialnumber = NA.common.getElementID('id_serialnumber');
+                       				var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+                       				//protect jika elidapp_fk_goods.value == null
+                       				if (elidapp_fk_goods == 0 || elidapp_fk_goods == null) {
+                       					ShowAlert('Please Enter goods', NA.common.message.titleInfo, function () {
+                       						var btnFindGoods = NA.common.getElementID('FE_fk_goods');
+                       						btnFindGoods.focus();
+                       					});
+                       				}
+                       				var elDateDisposal = NA.common.getElementID('id_datedisposal');
+                       				var dateDisposal = etServerFormatDate(new Date($("#id_datedisposal").datepicker("getDate")));
+                       				var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
+                       				NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded',
+										'application/json',
+									function () { window.document.body.style.cursor = 'wait'; },
+									null,//nggak usah di isi bila tidak perlu
+									function () {//function executed after data has been returned by server(XHR.onload)
+										if (this.status === 200) {
+											var data = JSON.parse(this.responseText);
+											if (data) {
+												//return [int fk_acc_fa,float bookvalue]
+												var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
+												var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
+												elfkAccFA.value = fkAccFA;
+												elBookValue.value = bookvalue;
+											}
+											else {
+												XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+											}
+										}
+										else {
+											XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+										}
+									}, null, function () {//function untuk ajax error
+										window.document.body.style.cursor = 'default'; XhrError(this);
+									}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+									null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+									);
+                       			});
                        			originalData = JSON.stringify(getValuesForm());
                        			var initializeForm = NA.common.getElementID('id_initializeForm');
                        			initializeForm.value = originalData;
@@ -1959,6 +2003,7 @@
                        			        return NA.common.message.dataHasChanged;
                        			    }
                        			}
+                       			isSelectingDate = false;
                        		}
                        	}
                     });
