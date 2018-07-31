@@ -748,7 +748,7 @@
 			var elIsLost = NA.common.getElementID('id_islost'),
 			//if (elIsLost.value == '' || elIsLost.value == 'False') { elIsLost.value = false
 		    //elIsLost.value = elIsLost.value || false;
-			islost = (elIsLost.value == '' || elIsLost.value == 'False') ? false : true;
+			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
 
 			var elIsSold = NA.common.getElementID('id_issold'),
 			issold = elIsSold.getAttribute('checked') ? true : false;
@@ -937,7 +937,6 @@
                                     	//return [int fk_acc_fa,float bookvalue]
                                     	var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
                                     	var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
-                                    	isSelectingDate = true;
                                     	elfkAccFA.value = fkAccFA;
                                     	elBookValue.value = bookvalue;                                  	
                                     }
@@ -1345,25 +1344,25 @@
 			    	}
 					//==============uncommment this after debugging=============
 					//comment this after debugging
-					NA.common.dialog.closeDialog(dialog);
-					//if (!hasLoadDialog) {
-					//	closeDialog(); win.document.body.style.cursor = 'default'; return false;
-					//}
-					//try {
-					//	if (win.status !== 'Open') {
-					//		var textElem = evt.target.innerText;
-					//		if (textElem === 'OK') {
-					//			//ExecuteHandler('OK');
-					//		} else {
-					//			//ExecuteHandler('Close');
-					//		}
-					//	}
-					//} catch (e) {
-					//	ShowAlert(e.message);
-					//}
-					//if (evt) {
-					//	NA.NAEvent.stopPropagation(evt);
-					//}
+					//NA.common.dialog.closeDialog(dialog);
+					if (!hasLoadDialog) {
+						closeDialog(); win.document.body.style.cursor = 'default'; return false;
+					}
+					try {
+						if (win.status !== 'Open') {
+							var textElem = evt.target.innerText;
+							if (textElem === 'OK') {
+								ExecuteHandler('OK');
+							} else {
+								ExecuteHandler('Close');
+							}
+						}
+					} catch (e) {
+						ShowAlert(e.message);
+					}
+					if (evt) {
+						NA.NAEvent.stopPropagation(evt);
+					}
 					win.document.body.style.cursor = 'default';
 					NA.NAEvent.preventDefault(evt);
 					return false;
@@ -1404,25 +1403,25 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
-				//if (hasLoadDialog) {
-				//	try {
-				//		//ExecuteHandler('Close');
-				//	} catch (e) {
-				//		ShowAlert(e.message);
-				//	}
-				//}
-				//if (evt) {
-				//	NA.NAEvent.stopPropagation(evt);
-				//}
-				//win.document.body.style.cursor = 'default';
-				//if (!hasLoadDialog) {
-				//	closeDialog();
-				//}
+				if (hasLoadDialog) {
+					try {
+						ExecuteHandler('Close');
+					} catch (e) {
+						ShowAlert(e.message);
+					}
+				}
+				if (evt) {
+					NA.NAEvent.stopPropagation(evt);
+				}
+				win.document.body.style.cursor = 'default';
+				if (!hasLoadDialog) {
+					closeDialog();
+				}
 				//==============End uncommment this after debugging=============
 
 
 				//comment this after debugging
-				closeDialog();
+				//closeDialog();
 				return false;
 			});
 			try {
@@ -1635,8 +1634,9 @@
                        					});
                        				}
                        				var elDateDisposal = NA.common.getElementID('id_datedisposal');
-                       				var dateDisposal = etServerFormatDate(new Date($("#id_datedisposal").datepicker("getDate")));
+                       				var dateDisposal = GetServerFormatDate(new Date($("#id_datedisposal").datepicker("getDate")));
                        				var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
+                       				var NAAjax = NA.common.AJAX;
                        				NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded',
 										'application/json',
 									function () { window.document.body.style.cursor = 'wait'; },
@@ -1672,9 +1672,11 @@
 
                        			NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
                                 	if (evt.target.checked) {
-                                		elSelPrice.removeAttribute('disabled');
+                                	    elSelPrice.removeAttribute('disabled');
+                                	    elIsSold.value = true;
                                 	} else {
-                                		elSelPrice.setAttribute('disabled', true);
+                                	    elSelPrice.setAttribute('disabled', true);
+                                	    elIsSold.value = false;
                                 	}
                        			});
                        			//======================event handler BUTTONS Search================================================ 

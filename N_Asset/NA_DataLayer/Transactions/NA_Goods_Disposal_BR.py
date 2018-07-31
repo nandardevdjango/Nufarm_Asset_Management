@@ -419,8 +419,8 @@ class NA_BR_Goods_Disposal(models.Manager):
 				raise Exception('no such data')
 		###idapp_fk_goods,itemcode,goods,brandname,typeappp,islost,idapp_fk_usedemployee,usedemployee,fk_acc_fa,lastinfo,bookvalue,fk_maintenance,fk_return,fk_lending,fk_outwards
 		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
-	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel):
-		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(datedisposal=datedisposal).exists())#Q(member=p1) | Q(member=p2)
+	def HasExists(self,idapp_fk_goods,serialnumber):
+		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
 	def Delete(self,IDApp):
 		cur = connection.cursor()
 		#delete di table na_disposal

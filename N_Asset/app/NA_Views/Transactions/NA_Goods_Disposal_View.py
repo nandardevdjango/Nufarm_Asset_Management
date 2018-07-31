@@ -122,6 +122,22 @@ def getGoodsWithHistory(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
+@ensure_csrf_cookie
+def hasExists(request):
+	try:#check if exists the same data to prevent users double input,parameter data to check FK_goods,datereceived,totalpurchase
+		authentication_classes = []
+		data = request.body
+		data = json.loads(data)
+		idapp_fk_goods = data['idapp_fk_goods']
+		serialnumber = data['serialnumber']
+		statuscode = 200;
+		if NADisposal.objects.HasExists(idapp_fk_goods,serialnumber):
+			statuscode = 200
+			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:
