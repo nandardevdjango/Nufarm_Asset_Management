@@ -314,7 +314,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 		cleaned_data = super(NA_Goods_Disposal_Form,self).clean()
 		serialnumber = self.cleaned_data['serialnumber']
 		fk_proposedby = self.cleaned_data['fk_proposedby']
-		datereleased = self.cleaned_data['datereleased']
+		datereleased = self.cleaned_data['datedisposal']
 		fk_acknowledge1 = self.cleaned_data['fk_acknowledge1']
 		fk_approvedby = self.cleaned_data['fk_approvedby']
 				

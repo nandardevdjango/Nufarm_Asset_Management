@@ -751,7 +751,7 @@
 			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
 
 			var elIsSold = NA.common.getElementID('id_issold'),
-			issold = elIsSold.getAttribute('checked') ? true : false;
+			issold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
 
 			var elSelPrice = NA.common.getElementID('id_sellingprice');
 			selprice = (elSelPrice.value == '' || elSelPrice.value == null) ? 0 : parseFloat(elSelPrice.value);
@@ -810,7 +810,7 @@
 
 			return {
 				idapp: idapp, fk_goods: fk_goods, idapp_fk_goods: idapp_fk_goods, datedisposal: datedisposal, islost: islost,
-				issold: issold, selprice:selprice,bookvalue:bookvalue,
+				issold: issold, sellingprice:selprice,bookvalue:bookvalue,
 				fk_acknowledge1: fk_acknowledge1, idapp_fk_acknowledge1: idapp_fk_acknowledge1,
 				fk_acknowledge2: fk_acknowledge2, idapp_fk_acknowledge2: idapp_fk_acknowledge2,
 				fk_approvedby: fk_approvedby, idapp_fk_approvedby: idapp_fk_approvedby,
@@ -1637,8 +1637,7 @@
                        				var dateDisposal = GetServerFormatDate(new Date($("#id_datedisposal").datepicker("getDate")));
                        				var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
                        				var NAAjax = NA.common.AJAX;
-                       				NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded',
-										'application/json',
+                       				NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded','application/json',
 									function () { window.document.body.style.cursor = 'wait'; },
 									null,//nggak usah di isi bila tidak perlu
 									function () {//function executed after data has been returned by server(XHR.onload)
