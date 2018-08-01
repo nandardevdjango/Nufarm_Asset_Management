@@ -478,9 +478,12 @@ class decorators:
                 if request.method == 'POST':
                     user = request.user
                     permission_denied = commonFunct.permision_denied
-                    _action = request.POST.get('statusForm') \
-                        or request.POST.get('mode') \
-                        or request.POST.get('status')
+                    if action:
+                        _action = action
+                    else:
+                        _action = request.POST.get('statusForm') \
+                            or request.POST.get('mode') \
+                            or request.POST.get('status')
                     if _action == 'Open':
                         return HttpResponse('cannot edit data with status open', status=403)
                     masterdata_form = [

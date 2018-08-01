@@ -106,53 +106,13 @@ div[id*=NA_Acc_grid]{
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
-        var SearchData = NA.common.SearchData;
-        SearchData.setDefaultSearchData('goodsname', 'Varchar', 'like');
-        var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+        
+        function LoadData(page) {
+            var url_parent = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
                           '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
                           '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()) +
-                          '&' + win.encodeURIComponent('is_parent') + '=';
-        var colNames =  ['idapp', 'No', 'Item code', 'Goods', 'Serial Number', 'Date Acquisition', 'Year', 'Date Depreciation', 'Depreciation Method', 'Depreciation Expense', 'Depreciation Accumulation', 'Book Value', 'Createddate', 'Createdby'];
-        var colModel = [
-            { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true },//
-            { name: 'no', index: 'no', width: 50, align: 'right' },
-            { name: 'itemcode', index: 'itemcode', width: 80, align: 'left' },
-            { name: 'goods', index: 'goods', width: 200, align: 'left' },
-            { name: 'serialNumber', index: 'serialNumber', width: 150, align: 'left' },
-            { name: 'startdate', index: 'startdate', width: 150, align: 'center', search: false, 
-            formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
-            { name: 'year', index: 'year', width: 80, sortable: true },
-            { name: 'date_depreciation', index: 'date_depreciation', width: 150, align: 'center', search: false, 
-            formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F, Y' } },
-            {
-                name: 'depreciationmethod', index: 'depreciationmethod', width: 150, align: 'left', formatter: 'select', editoptions: {
-                    value: 'SL:Straight Line Method;DDB:Double Declining Balance;STYD:Sum Of The Year Digit'
-                }
-            },
-            {
-                name: 'depr_expense', index: 'depr_expense', width: 140, align: 'right', formatter: 'currency', formatoptions: {
-                    decimalSeparator: ",", thousandsSeparator: ".",
-                    decimalPlaces: 2, prefix: "Rp "
-                }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
-            },
-            {
-                name: 'depr_accumulation', index: 'depr_accumulation', width: 165, align: 'right', formatter: 'currency', formatoptions: {
-                    decimalSeparator: ",", thousandsSeparator: ".",
-                    decimalPlaces: 2, prefix: "Rp "
-                }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
-            },
-            {
-                name: 'bookvalue', index: 'bookvalue', width: 165, align: 'right', formatter: 'currency', formatoptions: {
-                    decimalSeparator: ",", thousandsSeparator: ".",
-                    decimalPlaces: 2, prefix: "Rp "
-                }, filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }
-            },
-            { name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false, formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F, Y H:i:s' } },
-            { name: 'createdby', index: 'createdby', width: 115, search: false, editable: false }
-        ];
-        function LoadData(page) {
-            var url_parent = url + + win.encodeURIComponent('1')
+                          '&' + win.encodeURIComponent('is_parent') + '=' + win.encodeURIComponent('1');
             if (arguments.length > 0) {
                 acc_grid.setGridParam({ url: url_parent }).trigger("reloadGrid", [{ page: page, }]);
             } else {
@@ -223,7 +183,11 @@ div[id*=NA_Acc_grid]{
         	var childGridID = parentRowID + "_table";
             var childGridPagerID = parentRowID + "_pager";
             var rowData = acc_grid.getRowData(parentRowKey);
-            var url_children = url + win.encodeURIComponent('0') + '&' + win.encodeURIComponent('serialnumber') + '=' +
+            var url_children = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+            '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent('') +
+            '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+            '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()) +
+            '&' + win.encodeURIComponent('is_parent') + '=' + win.encodeURIComponent('0') + '&' + win.encodeURIComponent('serialnumber') + '=' +
             win.encodeURIComponent(rowData['serialNumber']);
 
         	$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
@@ -317,12 +281,6 @@ div[id*=NA_Acc_grid]{
                             },
                             success: function (data) {
                                 $("#" + childGridID).trigger('reloadGrid');
-                            },
-                            complete: function (data) {
-                                if (data.status !== 200) {
-                                    var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
-                                    return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
-                                }
                             }
                         })
                     })
@@ -330,6 +288,9 @@ div[id*=NA_Acc_grid]{
                 position: "last"
             });
         }
+
+        var SearchData = NA.common.SearchData;
+        SearchData.setDefaultSearchData('goodsname', 'Varchar', 'like');
 
         LoadData();
 
@@ -418,7 +379,7 @@ div[id*=NA_Acc_grid]{
             elDataType = elementOption.dataset.tipe;
         }
         else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
-            var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+            var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
             elSearch = null;
             valueKey = txtSearchMaster.value.trim();
             var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
@@ -614,12 +575,6 @@ div[id*=NA_Acc_grid]{
                             acc_grid.trigger("reloadGrid", [{ page: curPage }]);
                         }
                         reload_LogEvent();
-                    },
-                    complete: function (data) {
-                        if (data.status !== 200 && data.status !== 401) {
-                            var message = typeof data.responseJSON !== 'undefined' ? data.responseJSON['message'] : data.responseText
-                            return dialogAlert(NA.common.message.server(message), NA.common.message.titleInfo);
-                        }
                     }
                 });
             },

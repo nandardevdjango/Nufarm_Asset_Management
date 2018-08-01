@@ -349,7 +349,7 @@ def SearchGoodsbyForm(request):
 @decorators.detail_request_method('POST')
 @decorators.read_permission(
     form_name=NAPriviledge_form.Fix_asset_form,
-    action='delete'
+    action='Delete'
 )
 def delete_acc_fa(request):
     parent = request.POST.get('parent')
