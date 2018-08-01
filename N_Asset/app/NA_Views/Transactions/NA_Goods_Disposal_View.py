@@ -146,7 +146,7 @@ def getLastTransGoods(request):
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
 								  'islost':result[5],'fk_usedemployee':result[6],'usedemployee':result[7],'fk_acc_fa':result[8],'bookvalue':result[9],
 								  'lastinfo':result[10],'fk_maintenance':result[11],'fk_return':result[12],
-                                  'fk_lending':result[13],'fk_outwards':result[14],
+                                  'fk_lending':result[13],'fk_outwards':result[14],'fk_lost':result[15],
 								  }),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
@@ -291,7 +291,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
   																		'data-value':'descriptions about disposal/deletetion of goods','title':'Remark any other text to describe transactions','tabindex':8}),required=False)
-	
+	fk_lost =  forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	islost = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)#di isi 1 / 0 kalau ada value di form, lainya 0
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_acc_fa = forms.IntegerField(widget=forms.HiddenInput(),required=False)

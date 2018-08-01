@@ -418,7 +418,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				cur.close()
 				raise Exception('no such data')
 		###idapp_fk_goods,itemcode,goods,brandname,typeappp,islost,idapp_fk_usedemployee,usedemployee,fk_acc_fa,lastinfo,bookvalue,fk_maintenance,fk_return,fk_lending,fk_outwards
-		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
+		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards,fklost)
 	def HasExists(self,idapp_fk_goods,serialnumber):
 		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
 	def Delete(self,IDApp):
@@ -454,10 +454,19 @@ class NA_BR_Goods_Disposal(models.Manager):
 								%(FK_Acknowledge1)s, %(FK_Acknowledge2)s, %(FK_ApprovedBy)s,%(Descriptions)s, 
 								%(FK_ProposedBy)s, %(FK_Return)s, %(FK_Stock)s, %(FK_UsedEmployee)s,NOW(), %(CreatedBy)s)"""
 					params = {'TypeApp':Data['typeapp'], 'SerialNumber':Data['serialnumber'], 'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
-								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['fk_acc_fa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
-								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['fk_acknowledge1'], 'FK_Acknowledge2':Data['fk_acknowledge2'], 'FK_ApprovedBy':Data['fk_approvedby'],
-								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Stock':Data['fk_stock'], 'FK_UsedEmployee':Data['fk_usedemployee'],
-								'CreatedBy':Data['createdby']}		
+								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
+								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
+								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Stock':fk_stock, 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
+								'CreatedBy':Data['createdby']}	
+					cur.execute(Query,params)
+					cur.execute('SELECT last_insert_id()')
+					row = cur.fetchone()
+					FKApp = row[0]
+					Query = """INSERT INTO n_a_goods_history
+								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
+								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
+					params = {'SerialNumber':Data['serialnumber'], 'TypeApp':Data['typeapp'],'FK_Disposal':FKApp, 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 
+									'FK_Lost':Data['fk_lost'], 'FK_Maintenance':Data['fk_maintenance'], 'FK_Outwards':Data['fk_outwards'], 'FK_Return':Data['fk_return'], 'Createdby':Data['createdby']}
 				else:
 					Query = """UPDATE n_a_disposal
 							SET	DateDisposal=%(DateDisposal)s,
@@ -480,16 +489,13 @@ class NA_BR_Goods_Disposal(models.Manager):
 								ModifiedBy = %(ModifiedBy)s,
 								ModifiedDate = NOW() 
 							WHERE IDApp = %(IDApp)s """
-					params = {'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
-								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['fk_acc_fa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
-								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['fk_acknowledge1'], 'FK_Acknowledge2':Data['fk_acknowledge2'], 'FK_ApprovedBy':Data['fk_approvedby'],
-								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['fk_usedemployee'],
+					params = {'IDApp':Data['idapp'],'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
+								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
+								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
+								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
 								'ModifiedBy':Data['modifiedby']}
-				Query = """INSERT INTO n_a_goods_history
-								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
-								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
-				params = {'SerialNumber':Data['serialnumber'], 'TypeApp':Data['typeapp'],'FK_Disposal':Data['fk_disposal'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 
-									'FK_Lost':Data['fk_lost'], 'FK_Maintenance':Data['fk_maintenance'], 'FK_Outwards':Data['fk_outwards'], 'FK_Return':Data['fk_return'], 'Createdby':Data['createdby']}
+					cur.execute(Query,params)			
+				cur.execute(Query,params)
 		except Exception as e :
 			cur.close()
 			return repr(e)

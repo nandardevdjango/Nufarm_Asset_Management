@@ -750,6 +750,8 @@
 		    //elIsLost.value = elIsLost.value || false;
 			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
 
+			var elfklost = NA.common.getElementID('id_fk_lost');
+			fklost = elfklost.value;
 			var elIsSold = NA.common.getElementID('id_issold'),
 			issold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
 
@@ -804,6 +806,7 @@
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 
+            
 			//(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
 			// FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
 			// FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
@@ -817,7 +820,7 @@
 				fk_proposedby: fk_proposedby, idapp_fk_proposedby: idapp_fk_proposedby,
 				descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_maintenance: fk_maintenance, fk_return: fk_return, fk_lending: fk_lending, fk_outwards: fk_outwards,
-				faaccfa:faaccfa,
+				faaccfa:faaccfa,fk_lost:fklost,
 				idapp_fk_usedemployee:idapp_fk_usedemployee,status: win.status
 			}
 		};
@@ -910,6 +913,8 @@
 			var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 			elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];
 
+			var elfklost = NA.common.getElementID('id_fk_lost');
+			elfklost.value = rowData['fk_lost'];
 			if (!serialnumber) {//berarti diambil dari datagrid
 			    elserialnumber = NA.common.getElementID('id_serialnumber');
 			    elserialnumber.value = rowData['serialnumber'] || '';
@@ -917,7 +922,8 @@
 				//set islost dengan rowdata FKlost bernilai bukan null
 				//islost
 			    var elIsLost = NA.common.getElementID('id_islost');
-			    elIsLost.value = rowData['fk_lost'] ?true:false;
+			    elIsLost.value = rowData['fk_lost'] ? true : false;
+			    elfklost.value = rowData['fk_lost']
 
 			    //get book value
 			    var NAAjax = NA.common.AJAX;
@@ -962,7 +968,7 @@
 			    //islost
 			    var elIsLost = NA.common.getElementID('id_islost');
 			    elIsLost.value = rowData['islost'];
-
+			    elfklost.value = rowData['fk_lost']
 			    //fk_acc_fa
 			    var elfk_acc_fa = NA.common.getElementID('id_fk_acc_fa');
 			    elfk_acc_fa.value = rowData['fk_acc_fa']
