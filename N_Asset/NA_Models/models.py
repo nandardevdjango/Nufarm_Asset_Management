@@ -542,25 +542,26 @@ class NAMaintenance(NA_TransactionModel):
 
 
 class NAStock(NA_BaseModel):
-    fk_goods = models.ForeignKey(
-        goods, db_column='FK_Goods', db_constraint=False)
-    t_goods_spare = models.PositiveSmallIntegerField(
-        db_column='T_Goods_Spare', null=True)
-    totalqty = models.IntegerField(db_column='TotalQty', null=True)
-    tisused = models.IntegerField(db_column='TIsUsed', null=True)
-    tisnew = models.IntegerField(db_column='TIsNew', null=True)
-    tisrenew = models.IntegerField(db_column='TIsRenew', null=True)
-    isbroken = models.IntegerField(db_column='IsBroken', null=True)
-    tgoods_return = models.SmallIntegerField(
-        db_column='TGoods_Return', blank=True, null=True)
-    tgoods_received = models.IntegerField(
-        db_column='TGoods_Received', blank=True, null=True)
-    tmaintenance = models.SmallIntegerField(
-        db_column='TMaintenance', blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_stock'
+	fk_goods = models.ForeignKey(
+		goods, db_column='FK_Goods', db_constraint=False)
+	t_goods_spare = models.PositiveSmallIntegerField(
+		db_column='T_Goods_Spare', null=True)
+	totalqty = models.IntegerField(db_column='TotalQty', null=True)
+	tisused = models.IntegerField(db_column='TIsUsed', null=True)
+	tisnew = models.PositiveSmallIntegerField(db_column='TIsNew', null=True)
+	tisrenew = models.PositiveSmallIntegerField(db_column='TIsRenew', null=True)
+	tisbroken = models.IntegerField(db_column='TIsBroken', null=True)
+	tgoods_return = models.SmallIntegerField(
+		db_column='TGoods_Return', blank=True, null=True)
+	tgoods_received = models.IntegerField(
+		db_column='TGoods_Received', blank=True, null=True)
+	tmaintenance = models.SmallIntegerField(
+		db_column='TMaintenance', blank=True, null=True)
+	tdisposal = models.IntegerField(db_column='TDisposal', null=True)
+	tislost = models.IntegerField(db_column='TIsLost', null=True)
+	class Meta:
+		managed = True
+		db_table = 'n_a_stock'
 
 
 class NAGoodsLending(NA_TransactionModel):

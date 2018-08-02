@@ -448,7 +448,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 					Query = """INSERT INTO n_a_disposal
 							(TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice,
 								BookValue, FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, FK_ApprovedBy,
-								Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee,CreatedDate, CreatedBy)
+								Descriptions, FK_ProposedBy, FK_Return,FK_Lost, FK_Stock, FK_UsedEmployee,CreatedDate, CreatedBy)
 							VALUES (%(TypeApp)s, %(SerialNumber)s, %(DateDisposal)s, %(IsLost)s, %(IsSold)s, %(SellingPrice)s,
 								%(BookValue)s, %(FK_Acc_FA)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Outwards)s, %(FK_Maintenance)s, 
 								%(FK_Acknowledge1)s, %(FK_Acknowledge2)s, %(FK_ApprovedBy)s,%(Descriptions)s, 
@@ -464,9 +464,10 @@ class NA_BR_Goods_Disposal(models.Manager):
 					FKApp = row[0]
 					Query = """INSERT INTO n_a_goods_history
 								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
-								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
+								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, NULL, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
 					params = {'SerialNumber':Data['serialnumber'], 'TypeApp':Data['typeapp'],'FK_Disposal':FKApp, 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 
 									'FK_Lost':Data['fk_lost'], 'FK_Maintenance':Data['fk_maintenance'], 'FK_Outwards':Data['fk_outwards'], 'FK_Return':Data['fk_return'], 'Createdby':Data['createdby']}
+					cur.execute(Query,params)
 				else:
 					Query = """UPDATE n_a_disposal
 							SET	DateDisposal=%(DateDisposal)s,
@@ -495,7 +496,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
 								'ModifiedBy':Data['modifiedby']}
 					cur.execute(Query,params)			
-				cur.execute(Query,params)
+
 		except Exception as e :
 			cur.close()
 			return repr(e)

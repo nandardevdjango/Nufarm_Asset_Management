@@ -751,7 +751,7 @@
 			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
 
 			var elfklost = NA.common.getElementID('id_fk_lost');
-			fklost = elfklost.value;
+			fklost = elfklost.value||0;
 			var elIsSold = NA.common.getElementID('id_issold'),
 			issold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
 

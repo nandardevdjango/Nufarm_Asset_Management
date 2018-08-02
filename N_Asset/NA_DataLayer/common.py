@@ -407,131 +407,130 @@ class ResolveCriteria:
 
 
 class decorators:
+	def ajax_required(func):
+		"""
+		to ensure if request is ajax
+		and request Header must set X-Requested-With : XMLHttpRequest
+		"""
+		@wraps(func)
+		def wrapper(request, *args, **kwargs):
+			if request.is_ajax():
+				return func(request, *args, **kwargs)
+			else:
+				raise PermissionDenied()
+		return wrapper
 
-    def ajax_required(func):
-        """
-        to ensure if request is ajax
-        and request Header must set X-Requested-With : XMLHttpRequest
-        """
-        @wraps(func)
-        def wrapper(request, *args, **kwargs):
-            if request.is_ajax():
-                return func(request, *args, **kwargs)
-            else:
-                raise PermissionDenied()
-        return wrapper
+	def detail_request_method(arguments):
+		"""
+		usage @detail_request_method('POST')
+		return status 405(Method not allowed) if request method did not same as your specific method
+		"""
+		def real_decorator(func):
+			@wraps(func)
+			def wrapper(request, *args, **kwargs):
+				if arguments == 'POST':
+					if request.method == 'POST':
+						return func(request, *args, **kwargs)
+				elif arguments == 'GET':
+					if request.method == 'GET':
+						return func(request, *args, **kwargs)
+				return HttpResponse(
+					json.dumps({'message': 'Method Not Allowed'}),
+					status=405, content_type='application/json'
+				)
+			return wrapper
+		return real_decorator
 
-    def detail_request_method(arguments):
-        """
-        usage @detail_request_method('POST')
-        return status 405(Method not allowed) if request method did not same as your specific method
-        """
-        def real_decorator(func):
-            @wraps(func)
-            def wrapper(request, *args, **kwargs):
-                if arguments == 'POST':
-                    if request.method == 'POST':
-                        return func(request, *args, **kwargs)
-                elif arguments == 'GET':
-                    if request.method == 'GET':
-                        return func(request, *args, **kwargs)
-                return HttpResponse(
-                    json.dumps({'message': 'Method Not Allowed'}),
-                    status=405, content_type='application/json'
-                )
-            return wrapper
-        return real_decorator
+	def admin_required_action(arguments):
+		"""
+		there are some actions that only the admin can do it
+		usage @admin_required_action('Add')
+		param/argument is only for message
+		"""
+		def real_decorator(func):
+			@wraps(func)
+			def wrapper(request, *args, **kwargs):
+				if request.user.is_superuser:
+					return func(request, *args, **kwargs)
+				else:
+					return HttpResponse(
+						json.dumps(
+							{'message': 'You don\'t have permission for %s this data' % arguments}
+						),
+						status=403,
+						content_type='application/json'
+					)
+			return wrapper
+		return real_decorator
 
-    def admin_required_action(arguments):
-        """
-        there are some actions that only the admin can do it
-        usage @admin_required_action('Add')
-        param/argument is only for message
-        """
-        def real_decorator(func):
-            @wraps(func)
-            def wrapper(request, *args, **kwargs):
-                if request.user.is_superuser:
-                    return func(request, *args, **kwargs)
-                else:
-                    return HttpResponse(
-                        json.dumps(
-                            {'message': 'You don\'t have permission for %s this data' % arguments}
-                        ),
-                        status=403,
-                        content_type='application/json'
-                    )
-            return wrapper
-        return real_decorator
+	def read_permission(form_name, action=None):
+		"""
+		(backend security)
+		to ensure if user who don't have permission
+		cannot manipulate or access resource(url),
+		if user is crazy.. they will be request manually to server.
+		prevent it with this decorators
+		"""
+		def real_decorator(func):
+			@wraps(func)
+			def wrapper(request, *args, **kwargs):
+				if request.method == 'POST':
+					user = request.user
+					permission_denied = commonFunct.permision_denied
+					if action:
+						_action = action
+					else:
+						_action = request.POST.get('statusForm') \
+							or request.POST.get('mode') \
+							or request.POST.get('status')
+					if _action == 'Open':
+						return HttpResponse('cannot edit data with status open', status=403)
+					masterdata_form = [
+						'employee', 'n_a_suplier', 'goods', 'n_a_priviledge']
+					transaction_form = ['n_a_goods_receive']
+					all_form = masterdata_form + transaction_form
+					form_action = ['Open', 'Add', 'Edit']
+					other_action = ['View', 'Delete']
+					all_action = form_action + other_action
+					if _action not in all_action:
+						raise ValueError(
+							'uncategorize cannot resolve %s action' % _action
+						)
+					if action == 'View':
+						_action = 'Allow View'
+					elif _action == 'Add':
+						_action = 'Allow Add'
+					elif _action == 'Edit':
+						_action = 'Allow Edit'
+					elif _action == 'Delete' or action == 'Delete':
+						_action = 'Allow Delete'
+					if not user.has_permission(_action, form_name):
+						return permission_denied()
+				return func(request, *args, **kwargs)
+			return wrapper
+		return real_decorator
 
-    def read_permission(form_name, action=None):
-        """
-        (backend security)
-        to ensure if user who don't have permission
-        cannot manipulate or access resource(url),
-        if user is crazy.. they will be request manually to server.
-        prevent it with this decorators
-        """
-        def real_decorator(func):
-            @wraps(func)
-            def wrapper(request, *args, **kwargs):
-                if request.method == 'POST':
-                    user = request.user
-                    permission_denied = commonFunct.permision_denied
-                    if action:
-                        _action = action
-                    else:
-                        _action = request.POST.get('statusForm') \
-                            or request.POST.get('mode') \
-                            or request.POST.get('status')
-                    if _action == 'Open':
-                        return HttpResponse('cannot edit data with status open', status=403)
-                    masterdata_form = [
-                        'employee', 'n_a_suplier', 'goods', 'n_a_priviledge']
-                    transaction_form = ['n_a_goods_receive']
-                    all_form = masterdata_form + transaction_form
-                    form_action = ['Open', 'Add', 'Edit']
-                    other_action = ['View', 'Delete']
-                    all_action = form_action + other_action
-                    if _action not in all_action:
-                        raise ValueError(
-                            'uncategorize cannot resolve %s action' % _action
-                        )
-                    if action == 'View':
-                        _action = 'Allow View'
-                    elif _action == 'Add':
-                        _action = 'Allow Add'
-                    elif _action == 'Edit':
-                        _action = 'Allow Edit'
-                    elif _action == 'Delete' or action == 'Delete':
-                        _action = 'Allow Delete'
-                    if not user.has_permission(_action, form_name):
-                        return permission_denied()
-                return func(request, *args, **kwargs)
-            return wrapper
-        return real_decorator
-    
-    def ensure_authorization(func):
-        """
-        to ensure if user is authorize/login ..
-        if user have 2 tab in browser but in other tab he/she was logouted
-        prevent it and show the dialog in browser to information if he/she
-        was logouted and must be login again
-        """
-        @wraps(func)
-        def wrapper(request, *args, **kwargs):
-            if request.user.is_authenticated():
-                return func(request, *args, **kwargs)
-            else:
-                if request.is_ajax():
-                    return HttpResponse(
-                        json.dumps({'message': 'unauthorized'}),
-                        status=401,  # 401 = unauthorized
-                        content_type='application/json'
-                    )
-                else:
-                    return redirect('/login/')
-        return wrapper
+	def ensure_authorization(func):
+		"""
+		to ensure if user is authorize/login ..
+		if user have 2 tab in browser but in other tab he/she was logouted
+		prevent it and show the dialog in browser to information if he/she
+		was logouted and must be login again
+		"""
+		@wraps(func)
+		def wrapper(request, *args, **kwargs):
+			if request.user.is_authenticated():
+				return func(request, *args, **kwargs)
+			else:
+				if request.is_ajax():
+					return HttpResponse(
+						json.dumps({'message': 'unauthorized'}),
+						status=401,  # 401 = unauthorized
+						content_type='application/json'
+					)
+				else:
+					return redirect('/login/')
+		return wrapper
 
 
 class query:
@@ -548,278 +547,308 @@ class query:
 
 
 class commonFunct:
-    def str2bool(v):
-        if isinstance(v, int):
-            v = str(v)
-        v = v.lower()
-        if v in ("yes", "true", "t", "1"):
-            return True
-        elif v in ("no", "false", "f", "0"):
-            return False
-        else:
-            raise ValueError("Please enter correct value")
+	def str2bool(v):
+		if isinstance(v, int):
+			v = str(v)
+		v = v.lower()
+		if v in ("yes", "true", "t", "1"):
+			return True
+		elif v in ("no", "false", "f", "0"):
+			return False
+		else:
+			raise ValueError("Please enter correct value")
 
-    # buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,TotalSpare
-    # untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used)
-    # maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
+		# buat function yang bisa menghasilkan TIsNew,T_Goods_Receive,T_GoodsReturn,T_IsRenew,TIsUsed,TMaintenance,TotalSpare
+		# untuk mendapatkan jumlah yang benar dengan barang yang masuk kategory bekas(used)
+		# maka harus di cari dulu berapa yang bekasnya, bekas --->barang yang sudah masuk ke table goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost,maentenance
+		# TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
+		# buat query union untuk mendapatkan barang mana saja yang sudah di pakai
+	def getTotalGoods(FKGoods, cur, username, closeCursor=False):
+		"""FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
+		:param int FKGoods: idapp_fk_goods
+		:param object cur: cursor active
+		totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare dalam bentuk tuples
+		totalNew adalah total barang yang baru yang belum pernah di pakai
+		totalUsed adalah total barang yang sudah di keluarkan/terpakai
+		totalReceived adalah total barang yang di terima
+		totalReturn adalah total barang yang di kembalikan pakai query count distinct
+		totalRenew adalah ketersedian barang yang sudah di maintain/perbaiki dan bisa di ambil untuk baik di pinjam atau inventaris
+		totalMaintenance adalah total barang yang sedang di perbaiki
+		totalSpare adalah total cadangan barang yang akan di pakai untuk peminjaman barang
+		totalSpare akan terjadi bila ada transaksi di n_a_goods_lending dan status sudah R(returned)"""
+		totalNew = 0
+		totalUsed = 0
+		totalReceived = 0
+		totalReturn = 0
+		totalRenew = 0
+		totalMaintenance = 0
+		totalSpare = 0
+		totalBroken = 0
+		totalLost = 0
+		totalDisposal = 0
+		GoodsCat = "IT"
 
-    # TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
-    # buat query union untuk mendapatkan barang mana saja yang sudah di pakai
-    def getTotalGoods(FKGoods, cur, username, closeCursor=False):
-        """FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
-        :param int FKGoods: idapp_fk_goods
-        :param object cur: cursor active
-        totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare dalam bentuk tuples
-        totalNew adalah total barang yang baru yang belum pernah di pakai
-        totalUsed adalah total barang yang sudah di keluarkan/terpakai
-        totalReceived adalah total barang yang di terima
-        totalReturn adalah total barang yang di kembalikan pakai query count distinct
-        totalRenew adalah ketersedian barang yang sudah di maintain/perbaiki dan bisa di ambil untuk baik di pinjam atau inventaris
-        totalMaintenance adalah total barang yang sedang di perbaiki
-        totalSpare adalah total cadangan barang yang akan di pakai untuk peminjaman barang
-        totalSpare akan terjadi bila ada transaksi di n_a_goods_lending dan status sudah R(returned)"""
-        totalNew = 0
-        totalUsed = 0
-        totalReceived = 0
-        totalReturn = 0
-        totalRenew = 0
-        totalMaintenance = 0
-        TotalSpare = 0
-        if(cur is None):
-            cur = connection.cursor()
+		if(cur is None):
+			cur = connection.cursor()
+		#check apakah barang categorynya
+		Query = """SELECT TypeApp FROM n_a_goods WHERE IDApp = %s"""
+		cur.execute(Query,[FKGoods])
+		row = cur.fetchone()
+		if cur.rowcount <= 0:
+			raise Exception('this goods is unknown category')
+		GoodCat = str(row[0])
 
-        Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-        cur.execute(Query)
-        Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
-			        (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
-			        (SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
-			        UNION 	
-			        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
-			        UNION 	
-			        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
-			        UNION 	
-			        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
-			        UNION 	
-			        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """
-        #		UNION
-        #		SELECT FK_Goods,TypeApp,SerialNumber FROM na_goods_lost) WHERE FK_goods = %(FK_Goods)s )"""
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        # get totalused and totalReceived
-        Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
-			        ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
-			        ON Rec.FK_Goods = T_Used.FK_Goods """
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        if cur.rowcount > 0:
-            row = cur.fetchone()
-            totalNew = int(row[1])
-            totalReceived = int(row[0])
-            totalUsed = int(row[2])
-        # totalReturn
-        Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        if cur.rowcount > 0:
-            row = cur.fetchone()
-            totalReturn = int(row[0])
+		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
+		cur.execute(Query)
 
-        # totalRenew
-        # TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
-        Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
-                    AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)
-                    AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp)
-                    AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
-                    AND mt.FK_Goods = %(FK_Goods)s)C """
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        if cur.rowcount > 0:
-            row = cur.fetchone()
-            totalRenew = int(row[0])
-        # TMaintenance
-        # TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
-        Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        if cur.rowcount > 0:
-            row = cur.fetchone()
-            totalMaintenance = int(row[0])
-        # TotalSpare
-        # TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
-        Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R'
-                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0)
-                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp)
-                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """
-        cur.execute(Query, {'FK_Goods': FKGoods})
-        if cur.rowcount > 0:
-            row = cur.fetchone()
-            TotalSpare = int(row[0])
-        # drop table temporary
-        Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-        cur.execute(Query)
-        if closeCursor:
-            cur.close()
-        return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare)
-        # dengan status
-        # query = """SELECT COUNT
-# FROM information_schema.table_statistics
-# WHERE table_schema = 'na_m_s' AND table_name IN('n_a_goods_lending','n_a_goods_outwards','n_a_goods_receive_detail','n_a_goods_return','n_a_maintenance')
+		if GoodCat == "IT":
+			Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
+						(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+						(SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
+						UNION 	
+						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
+						UNION 	
+						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
+						UNION 	
+						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
+						UNION 	
+						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """
+		elif GoodCat == "GA":
+			Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
+					(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+					(SELECT gr.FK_Goods,gr.TypeApp,gr.Machine_No FROM n_a_ga_receive gr INNER JOIN n_a_ga_outwards go ON gr.IDApp = go.FK_Receive WHERE gr.FK_Goods = %(FK_Goods)s)"""
+		elif GoodCat == "O":
+			raise Exception('Can di gawean')
+		cur.execute(Query, {'FK_Goods': FKGoods})
 
-    def retriveColumn(**kwargs):
-        table = kwargs['table']
-        resolve = kwargs['resolve'].lower()
-        initialname = kwargs['initial_name']
-        fields = []
-        if type(table) == list:
-            for i in range(len(table)):
-                fields.append([j.name.lower()
-                               for j in table[i]._meta.local_fields])
-        else:
-            fields = [i.name.lower() for i in table._meta.local_fields]
-        exclude = None
-        if 'exclude' in kwargs:
-            exclude = kwargs['exclude']
-        if exclude is not None:
-            try:
-                for i in exclude:
-                    fields.remove(i)
-            except ValueError:
-                raise Exception('fields name doesn\'t match with table fields')
-        result = None
-        if 'custom_fields' in kwargs:
-            cust_fields = kwargs['custom_fields']
-            if len(cust_fields) > 1:
-                for i in cust_fields:
-                    fields.append(i)
-            else:
-                if isinstance(cust_fields[0], list):
-                    fields.append(cust_fields[0])
-                else:
-                    fields.append([kwargs['custom_fields']])
-        for i in range(len(fields)):
-            if resolve in fields[i]:
-                result = str(initialname[i] + "." + resolve)
-                break
-        return result
+		# get totalused and totalReceived
+		if GoodCat == "IT":
+			Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
+						ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
+						ON Rec.FK_Goods = T_Used.FK_Goods """
+		elif(GoodCat == "GA"):
+			Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT FK_Goods,COUNT(FK_goods) AS Total FROM n_a_ga_receive WHERE FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec
+		    LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY FK_Goods)T_Used 
+				ON Rec.FK_Goods = T_Used.FK_Goods """
+		elif(GoodCat == "O"):
+			raise Exception('Can di gawean')
+		cur.execute(Query, {'FK_Goods': FKGoods})
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			totalNew = int(row[1])
+			totalReceived = int(row[0])
+			totalUsed = int(row[2])
+		# totalReturn
+		if GoodCat == "IT":
+			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
+		elif GoodCat == "GA":
+			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s )C """
+		elif(GoodCat == "O"):
+			raise Exception('Can di gawean')
+		cur.execute(Query, {'FK_Goods': FKGoods})
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			totalReturn = int(row[0])
+		#totalBroken
+		#total broken di peroleh dari kondisi barang yang di kembalikan dari user(na goods_return/na_ga_return,na_maintenance,ga_maintenance)
 
-    def get_log_data(**kwargs):
-        """
-        to get log event data, use it to get date informations if data has deleted, existed or updated
-        param
-        action: e.g (deleted,updated)
-        action for getting type of log event
+		if GoodsCat == "IT":
+			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
+													UNION\
+													SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
+												    )C """
+		elif GoodCat == "GA":
+			"ke deui"
+		elif(GoodCat == "O"):
+			raise Exception('Can di gawean')
+		# totalRenew
+		# TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
+		Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)
+					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp)
+					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
+					AND mt.FK_Goods = %(FK_Goods)s)C """
+		cur.execute(Query, {'FK_Goods': FKGoods})
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			totalRenew = int(row[0])
+		# TMaintenance
+		# TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
+		Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
+		cur.execute(Query, {'FK_Goods': FKGoods})
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			totalMaintenance = int(row[0])
+		# TotalSpare
+		# TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
+		Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R'
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0)
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp)
+					AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """
+		cur.execute(Query, {'FK_Goods': FKGoods})
+		if cur.rowcount > 0:
+			row = cur.fetchone()
+			TotalSpare = int(row[0])
+		# drop table temporary
+		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
+		cur.execute(Query)
+		if closeCursor:
+			cur.close()
+		return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare)
+	def retriveColumn(**kwargs):
+		table = kwargs['table']
+		resolve = kwargs['resolve'].lower()
+		initialname = kwargs['initial_name']
+		fields = []
+		if type(table) == list:
+			for i in range(len(table)):
+				fields.append([j.name.lower()
+								for j in table[i]._meta.local_fields])
+		else:
+			fields = [i.name.lower() for i in table._meta.local_fields]
+		exclude = None
+		if 'exclude' in kwargs:
+			exclude = kwargs['exclude']
+		if exclude is not None:
+			try:
+				for i in exclude:
+					fields.remove(i)
+			except ValueError:
+				raise Exception('fields name doesn\'t match with table fields')
+		result = None
+		if 'custom_fields' in kwargs:
+			cust_fields = kwargs['custom_fields']
+			if len(cust_fields) > 1:
+				for i in cust_fields:
+					fields.append(i)
+			else:
+				if isinstance(cust_fields[0], list):
+					fields.append(cust_fields[0])
+				else:
+					fields.append([kwargs['custom_fields']])
+		for i in range(len(fields)):
+			if resolve in fields[i]:
+				result = str(initialname[i] + "." + resolve)
+				break
+		return result
 
-        PK: primary key e.g (IDApp,SuplierCode)
-        table: to determine , which table to get
-        usage :: get_log_data(action='deleted',pk=2,table='employee')
-        """
+		def get_log_data(**kwargs):
+			"""
+			to get log event data, use it to get date informations if data has deleted, existed or updated
+			param
+			action: e.g (deleted,updated)
+			action for getting type of log event
 
-        cur = connection.cursor()
-        action = kwargs['action']
-        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
-            action + \
-                """[0])=%(PK)s AND nameapp LIKE %(NameApp)%"""  # PK (Primary Key)
-        if action == 'updated':
-            Query = Query + """ AND idapp = (SELECT Max(idapp) FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
-                action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%)"""
-        cur.execute(Query, {'PK': kwargs['pk'], 'NameApp': kwargs['table']})
-        return query.dictfetchall(cur)
+			PK: primary key e.g (IDApp,SuplierCode)
+			table: to determine , which table to get
+			usage :: get_log_data(action='deleted',pk=2,table='employee')
+			"""
+			cur = connection.cursor()
+			action = kwargs['action']
+			Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
+				action + \
+					"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%"""  # PK (Primary Key)
+			if action == 'updated':
+				Query = Query + """ AND idapp = (SELECT Max(idapp) FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
+					action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%)"""
+			cur.execute(Query, {'PK': kwargs['pk'], 'NameApp': kwargs['table']})
+			return query.dictfetchall(cur)
+	def response_default(data):
+		#"""this is default HttpResponse, use it to correct and neat response param
+		#must instance of tuple
+		#e.g (Data.Success,Message.Success) or (Data.Exists,Message.get_exists_info)
+		#"""
+		statusResp = 200
+		if isinstance(data, tuple):
+			message = None
+			if data[0] == Data.Success:
+				if len(data) > 1:
+					message = data[1]
+				else:
+					message = Message.Success.value
+			if data[0] == Data.Exists or data[0] == Data.HasRef:
+				statusResp = 403
+				message = data[1]
+			elif data[0] == Data.Lost:
+				statusResp = 404
+				message = data[1]
+			elif data[0] == Data.Empty:
+				statusResp = 404
+				if len(data) > 1:
+					message = data[1]
+				else:
+					message = Message.Empty.value
+			return HttpResponse(json.dumps({'message': message}), status=statusResp, content_type='application/json')
+	
+	def multi_sort_queryset(queryset, Isidx, Isord):
+		"""
+		param:
+		queryset:must be queryset instance,
+		Isidx: which column you want to order_by
+		Isord: asc/desc
+		"""
+		if (Isord is not None and Isord != '') \
+				and (Isidx is not None and Isidx != ''):
+			if ',' in Isidx:
+				multi_sort = []
+				Isidx = Isidx.split(',')
+				sorts = []
+				for i in Isidx:
+					sorts.append(i.lstrip())  # trim left whitespace
 
-    def response_default(data):
-        """
-        this is default HttpResponse, use it to correct and neat response
-        param
-        must instance of tuple
-        e.g (Data.Success,Message.Success) or (Data.Exists,Message.get_exists_info)
-        """
-        statusResp = 200
-        if isinstance(data, tuple):
-            message = None
-            if data[0] == Data.Success:
-                if len(data) > 1:
-                    message = data[1]
-                else:
-                    message = Message.Success.value
-            if data[0] == Data.Exists or data[0] == Data.HasRef:
-                statusResp = 403
-                message = data[1]
-            elif data[0] == Data.Lost:
-                statusResp = 404
-                message = data[1]
-            elif data[0] == Data.Empty:
-                statusResp = 404
-                if len(data) > 1:
-                    message = data[1]
-                else:
-                    message = Message.Empty.value
-            return HttpResponse(json.dumps({'message': message}), status=statusResp, content_type='application/json')
+				for i in sorts:
+					# simpan di variable bila sering digunakan, kamar boleh acak2 an ,tapi coding harus rapi :D
+					i_split = i.split(' ')
+					i_len_split = len(i_split)
+					if i_len_split > 1:
+						if i_split[1] == 'desc':
+							sort_by = '-'
+						elif i_split[1] == 'asc':
+							sort_by = ''
+					elif i_len_split == 1:
+						if Isord == 'desc':
+							sort_by = '-'
+						elif Isord == 'asc':
+							sort_by = ''
+					multi_sort.append(sort_by+i.split(' ')[0])
+				return queryset.order_by(*multi_sort)
+			else:
+				sort = str(Isidx)
+				if Isord == 'desc':
+					sort = '-' + sort
+				return queryset.order_by(sort)
+		else:
+			raise ValueError(
+				'Cannot assign "None" type object \n make sure if arguments/parameter is not None'
+	def EmptyGrid():
+		return {"page": "1", "total": 0, "records": 0, "rows": []}
 
-    def multi_sort_queryset(queryset, Isidx, Isord):
-        """
-        param:
-        queryset:must be queryset instance,
-        Isidx: which column you want to order_by
-        Isord: asc/desc
-        """
+	def permision_denied(message=None):
+		_message = 'You don\'t have permission for this action'
+		if message:
+			_message = message
+		return HttpResponse(_message, status=403)
 
-        if (Isord is not None and Isord != '') \
-                and (Isidx is not None and Isidx != ''):
-            if ',' in Isidx:
-                multi_sort = []
-                Isidx = Isidx.split(',')
-                sorts = []
-                for i in Isidx:
-                    sorts.append(i.lstrip())  # trim left whitespace
+	def check_file_exists(file_dir):
+		return path.exists(file_dir)
 
-                for i in sorts:
-                    # simpan di variable bila sering digunakan, kamar boleh acak2 an ,tapi coding harus rapi :D
-                    i_split = i.split(' ')
-                    i_len_split = len(i_split)
-                    if i_len_split > 1:
-                        if i_split[1] == 'desc':
-                            sort_by = '-'
-                        elif i_split[1] == 'asc':
-                            sort_by = ''
-                    elif i_len_split == 1:
-                        if Isord == 'desc':
-                            sort_by = '-'
-                        elif Isord == 'asc':
-                            sort_by = ''
-                    multi_sort.append(sort_by+i.split(' ')[0])
-                return queryset.order_by(*multi_sort)
-            else:
-                sort = str(Isidx)
-                if Isord == 'desc':
-                    sort = '-' + sort
-                return queryset.order_by(sort)
-        else:
-            raise ValueError(
-                'Cannot assign "None" type object \n make sure if arguments/parameter is not None')
+	def check_dir_exists(dirr):
+		if path.isdir(dirr):
+			return path.exists(dirr)
+		else:
+			raise IsADirectoryError('this %s is not a directory' % dirr)
 
-    def EmptyGrid():
-        return {"page": "1", "total": 0, "records": 0, "rows": []}
+	def create_dir(dirr):
+		try:
+			makedirs(dirr, exist_ok=True)
+		except OSError as e:
+			if e.errno != errno.EEXIST:
+				raise e
 
-    def permision_denied(message=None):
-        _message = 'You don\'t have permission for this action'
-        if message:
-            _message = message
-        return HttpResponse(_message, status=403)
-
-    def check_file_exists(file_dir):
-        return path.exists(file_dir)
-
-    def check_dir_exists(dirr):
-        if path.isdir(dirr):
-            return path.exists(dirr)
-        else:
-            raise IsADirectoryError('this %s is not a directory' % dirr)
-
-    def create_dir(dirr):
-        try:
-            makedirs(dirr, exist_ok=True)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise e
-
-    @classmethod
-    def handle_image_upload(cls, username, image_name):
-        dir_user_image = settings.STATIC_ROOT + '/NA_User_Image/UploadImg/' + username
-        cls.create_dir(dir_user_image)
-        if cls.check_dir_exists(dir_user_image + image_name):
-            remove(dir_user_image)
-        # this is manually, but for good idea look at this is reference https://stackoverflow.com/questions/15885201/django-uploads-discard-uploaded-duplicates-use-existing-file-md5-based-check
+	@classmethod
+	def handle_image_upload(cls, username, image_name):
+		dir_user_image = settings.STATIC_ROOT + '/NA_User_Image/UploadImg/' + username
+		cls.create_dir(dir_user_image)
+		if cls.check_dir_exists(dir_user_image + image_name):
+			remove(dir_user_image)
+		# this is manually, but for good idea look at this is reference https://stackoverflow.com/questions/15885201/django-uploads-discard-uploaded-duplicates-use-existing-file-md5-based-check
