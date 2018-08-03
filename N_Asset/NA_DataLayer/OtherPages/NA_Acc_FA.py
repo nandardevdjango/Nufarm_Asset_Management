@@ -19,7 +19,6 @@ class NA_Acc_FA_BR(models.Manager):
             Query = Query + columnKey + rs.Sql() + " ORDER BY " + sidx + ' ' + sord
         else:
             Query = Query + """ac.serialnumber = '{}'""".format(serialnumber)
-        print(Query)
         cur.execute(Query)
         result = query.dictfetchall(cur)
         cur.close()
