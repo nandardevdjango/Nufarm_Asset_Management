@@ -1479,7 +1479,7 @@
                        				break;
                        			}
                        			case 'Edit': {
-                       				var hasref = NA.common.getElementID('id_hasRefData').value
+                       				//var hasref = NA.common.getElementID('id_hasRefData').value
                        				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
                        				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
                        				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
@@ -1608,10 +1608,7 @@
                        				changeYear: true,
                        				beforeShowDay: $.datepicker.noWeekends,
                        				minDate: (function (g) {
-                       					if (g.status === 'Edit') {
-                       						var eloriginalData = JSON.parse(originalData),
-                                                hasRef = eloriginalData['hasRefData'];
-                       						if (hasRef) { return 1; }
+                       					if (g.status === 'Edit') {                       
                        						var valDateRel = new Date(eloriginalData.datedisposal);
                        						return valDateRel;
                        					}

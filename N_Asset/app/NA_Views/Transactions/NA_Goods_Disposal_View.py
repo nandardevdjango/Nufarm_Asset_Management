@@ -88,7 +88,7 @@ def NA_Goods_Disposal_Search(request):
 			i = i+1
 			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],row['islost'],
 						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['proposedby'],row['acknowledgeby'],
-				row['approvedby'],row['descriptions'],row['createdby'],row['createddate']]}
+				row['approvedby'],row['descriptions'],row['createddate'],row['createdby']]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
 		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
@@ -189,7 +189,7 @@ def ShowEntry_Disposal(request):
 	initializationForm={}
 	statuscode = 200
 	data = None
-	hasRefData = False
+	#hasRefData = False
 	try:
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 		if request.POST:
@@ -218,16 +218,15 @@ def ShowEntry_Disposal(request):
 				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Disposal_Form(initial=initializationForm)
-			form.fields['hasrefdata'].widget.attrs = {'value': False}
+			#form.fields['hasrefdata'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})
 		elif status == 'Edit' or status == 'Open':
 			IDApp = request.GET.get('idapp')
-			#Ndata = NAGoodsOutwards.objects.getData(IDApp)
+			Ndata = NADisposal.objects.getData(IDApp)
 			Ndata = Ndata[0]
 			Ndata.update(idapp=IDApp)
-			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasrefdata'])))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
-			#form = NA_Goods_Outwards_Form(data=Ndata)
+			form = NA_Goods_Disposal_Form(data=Ndata)
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})    
 	except Exception as e:
 		result = repr(e)
@@ -308,7 +307,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_lending = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_outwards = forms.IntegerField(widget=forms.HiddenInput(),required=False) 
-	hasrefdata = forms.BooleanField(widget=forms.HiddenInput(),required=False)
+	#hasrefdata = forms.BooleanField(widget=forms.HiddenInput(),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 	def clean(self):
@@ -324,7 +323,6 @@ class NA_Goods_Disposal_Form(forms.Form):
 		self.initial['goods'] = ''
 		self.initial['brandvalue'] = ''
 		self.initial['typeapp'] = ''
-		self.initial['hasrefdata'] = False
 		self.initial['issold'] = False
 		self.initial['fk_usedemployee'] = ''
 		self.initial['usedemployee'] = ''

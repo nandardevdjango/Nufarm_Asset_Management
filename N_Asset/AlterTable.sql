@@ -407,3 +407,11 @@ ALTER TABLE `n_a_stock`
 	ADD COLUMN `TIsLost` INT(11) NULL DEFAULT NULL COMMENT 'Menampikan barang yang hilang saja' AFTER `TDisposal`,
 	CHANGE COLUMN `TMaintenance` `TMaintenance` SMALLINT(6) NULL DEFAULT NULL COMMENT 'menampilkan total barang yang di perbaiki, masih di bengkel' AFTER `TIsLost`,
 	CHANGE COLUMN `FK_Goods` `FK_Goods` INT(11) ZEROFILL NOT NULL AFTER `TMaintenance`;
+
+	ALTER TABLE `n_a_ga_return`
+	ALTER `Conditions` DROP DEFAULT;
+ALTER TABLE `n_a_ga_return`
+	CHANGE COLUMN `Conditions` `Conditions` CHAR(1) NOT NULL AFTER `DateReturn`;
+
+	ALTER TABLE `n_a_disposal`
+	ADD COLUMN `FK_Lost` INT(11) NULL DEFAULT NULL AFTER `FK_Return`;

@@ -24,6 +24,7 @@ from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive
 from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
+from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
@@ -497,6 +498,47 @@ class NAGoodsReturn(NAGoodsReturnModel):
     def __str__(self):
         return self.fk_goods.goodsname
 
+class NAGAMaintenance(NA_TransactionModel):
+    fk_employee = None
+
+    requestdate = models.DateField(
+        db_column='RequestDate',
+        blank=True,
+        null=True
+    )
+    startdate = models.DateField(db_column='StartDate')
+    isstillguarantee = models.BooleanField(db_column='IsStillGuarantee')
+    expense = models.DecimalField(
+        db_column='Expense',
+        max_digits=10,
+        decimal_places=4
+    )
+    maintenanceby = models.CharField(
+        db_column='MaintenanceBy',
+        max_length=100
+    )
+    personalname = models.CharField(
+        db_column='PersonalName',
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    enddate = models.DateField(db_column='EndDate', blank=True, null=True)
+    typeapp = models.CharField(db_column='TypeApp', max_length=32)
+    issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True,default=True)
+    isfinished = models.BooleanField(db_column='IsFinished',default=True)
+    descriptions = models.CharField(
+        db_column='Descriptions',
+        max_length=250,
+        blank=True,
+        null=True
+    )
+
+    objects = NA_BR_GA_Maintenance()
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_ga_maintenance'
 
 class NAMaintenance(NA_TransactionModel):
     fk_employee = None
@@ -725,7 +767,7 @@ class NADisposal(NA_TransactionModel):
 
     datedisposal = models.DateField(db_column='DateDisposal')
     islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
-    #ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
+    fk_lost = models.ForeignKey('NAGoodsLost',db_column='FK_Lost',blank=True,null=True)
     issold = models.PositiveSmallIntegerField(
         db_column='IsSold', blank=True, null=True)
     sellingprice = models.DecimalField(
