@@ -15,8 +15,13 @@ def create_ad_hoc(request):
         'Kondisi': 'Baik'
     }
     report = ReportAdHoc(
+        name='sample_report',
         title=title,
         sub_title=sub_title,
-        detail=detail
+        detail=detail,
+        receiver='Nugraha Dila Prawisda',
+        sender='Iman Utomo',
+        equipment=['Ban Cadangan', 'Spion kanan-kiri & dalam', 'Dongkrak + handle'],
+        add_equipment=['STNK Asli', 'Radio, AC', 'Buku BPKB']
     )
     return report.write_pdf_view()

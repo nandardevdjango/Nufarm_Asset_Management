@@ -1,6 +1,5 @@
 from os import path
 from io import BytesIO
-from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.conf import settings
 
@@ -13,12 +12,18 @@ from reportlab.lib.enums import TA_LEFT, TA_RIGHT
 
 
 class ReportAdHoc(object):
-    def __init__(self, title, sub_title, detail):
+    def __init__(self, title, sub_title, detail, **kwargs):
+        self.name = kwargs.get('name')
+        self.receiver = kwargs.get('receiver')
+        self.sender = kwargs.get('sender')
+        self.equipment = kwargs.get('equipment')
+        self.add_equipment = kwargs.get('add_equipment')
+
         self.title = title
         self.sub_title = sub_title
         self.detail = detail
         self.buffer = BytesIO()
-        self.doc = SimpleDocTemplate(self.buffer, pagesize=A4)
+        self.doc = SimpleDocTemplate(self.buffer, pagesize=A4, title='Report')
         self.layout = [Spacer(1, 0.5 * inch)]
         self.style = getSampleStyleSheet()
         self.image_path = path.join(settings.STATIC_ROOT, 'app', 'images', '')
@@ -37,6 +42,15 @@ class ReportAdHoc(object):
                 name='detail',
                 parent=self.style['Normal'],
                 leading=24
+            )
+        )
+
+        self.style.add(
+            ParagraphStyle(
+                name='equipment',
+                parent=self.style['Normal'],
+                fontSize=11,
+                leading=14
             )
         )
 
@@ -81,6 +95,20 @@ class ReportAdHoc(object):
             position = position[1]
         paragraph.drawOn(canvas, horizontal, position)
 
+    def create_header(self, canvas, doc):
+        w, h = doc.pagesize
+        width = 100
+        height = 100
+        canvas.saveState()
+        canvas.drawImage(
+            path.join('/' + self.image_path, 'NufarmLogo2.jpg'),
+            w - 20 - width,
+            h - 20 - height,
+            width=width,
+            height=height
+        )
+        canvas.restoreState()
+
     def create_title(self):
         self.layout.append(Spacer(0, 15))
         self.layout.append(
@@ -99,6 +127,28 @@ class ReportAdHoc(object):
             hAlign='LEFT'
         )
         self.layout.append(detail)
+
+    def create_equipment(self):
+        self.layout.append(Spacer(0, 20))
+        self.layout.append(
+            Paragraph('<b>Perlengkapan standar :</b>', self.style['equipment'])
+        )
+        equipment_list = self.equipment
+        for equipment in equipment_list:
+            self.layout.append(
+                Paragraph(equipment, self.style['equipment'], bulletText=u'\u27a4')
+            )
+        
+    def create_add_equipment(self):
+        self.layout.append(Spacer(0, 20))
+        self.layout.append(
+            Paragraph('<b>Perlengkapan tambahan :</b>', self.style['equipment'])
+        )
+        add_equipment_list = self.add_equipment
+        for add_equipment in add_equipment_list:
+            self.layout.append(
+                Paragraph(add_equipment, self.style['equipment'], bulletText=u'\u27a4')
+            )
 
     def create_signature(self, canvas, doc, **kwargs):
         receiver = "Yang Menerima,"
@@ -133,20 +183,6 @@ class ReportAdHoc(object):
             position=2 * inch
         )
 
-    def create_header(self, canvas, doc):
-        w, h = doc.pagesize
-        width = 100
-        height = 100
-        canvas.saveState()
-        canvas.drawImage(
-            path.join('/' + self.image_path, 'NufarmLogo2.jpg'),
-            w - 20 - width,
-            h - 20 - height,
-            width=width,
-            height=height
-        )
-        canvas.restoreState()
-
     def create_footer(self, canvas, doc):
         canvas.saveState()
         text = "Demikian Berita Acara ini dibuat dengan sebenarnya"
@@ -157,8 +193,12 @@ class ReportAdHoc(object):
         self.create_signature(
             canvas=canvas,
             doc=doc,
-            receiver_name='<b>Nugraha Dila Prawisda</b>',
-            sender_name='<b>Iman Utomo</b>'
+            receiver_name='<b>{receiver}</b>'.format(
+                receiver=self.receiver
+            ),
+            sender_name='<b>{sender}</b>'.format(
+                sender=self.sender
+            )
         )
         grow = "<b><font color='green'>Grow a better tomorrow.</font></b>"
         grow = Paragraph(grow, self.style['grow'])
@@ -184,6 +224,13 @@ class ReportAdHoc(object):
         self.create_title()
         self.create_sub_title()
         self.create_detail()
+
+        if self.add_equipment:
+            self.create_equipment()
+
+        if self.add_equipment:
+            self.create_add_equipment()
+
         self.doc.build(
             self.layout,
             onFirstPage=self.first_page,
@@ -191,7 +238,9 @@ class ReportAdHoc(object):
         )
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="somefilename.pdf"'
+        response['Content-Disposition'] = 'inline; filename="{file_name}.pdf"'.format(
+            file_name=self.name
+        )
         response.write(self.buffer.getvalue())
         self.buffer.close()
         return response
