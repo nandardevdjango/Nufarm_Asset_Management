@@ -145,9 +145,9 @@ class NA_BR_Goods_Disposal(models.Manager):
 								WHEN 'IT' THEN (SELECT ngd.BrandName FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngd.fk_app = ngr.IDApp WHERE ngr.FK_Goods = gd.FK_goods AND ngd.serialnumber = gd.serialnumber)								
 							    WHEN 'O' THEN IFNULL(g.BrandName,'Unknown Brand') END AS brandvalue,emp1.NIK AS fk_usedemployee,emp1.employee_name AS fk_usedemployee_employee,
 					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
-				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_Acknowledge1,emp3.employee_name AS fk_Acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_Acknowledge1,
-					emp4.NIK AS fk_Acknowledge2,emp2.employee_name AS fk_Acknowledge2,gd.fk_Acknowledge2 as idapp_fk_Acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
-					emp5.NIK AS approvedby,emp5.employee_name AS fk_approvedby_employee,gd.fk_approvedby AS idapp_fk_approvedby,gd.fk_maintenance,gd.fk_return,gd.fk_lending,gd.fk_outwards			
+				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_acknowledge1,emp3.employee_name AS fk_acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_acknowledge1,
+					emp4.NIK AS fk_acknowledge2,emp4.employee_name AS fk_acknowledge2_employee,gd.fk_acknowledge2 as idapp_fk_acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
+					emp5.NIK AS fk_approvedby,emp5.employee_name AS fk_approvedby_employee,gd.fk_approvedby AS idapp_fk_approvedby,gd.fk_maintenance,gd.fk_return,gd.fk_lending,gd.fk_outwards			
 					FROM n_a_goods g INNER JOIN n_a_disposal gd ON gd.fk_goods = g.IDApp 
 					LEFT OUTER JOIN employee emp1 ON emp1.IDApp = gd.fk_usedemployee 
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = gd.fk_proposedby	

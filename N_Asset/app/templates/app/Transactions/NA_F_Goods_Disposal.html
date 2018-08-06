@@ -1478,31 +1478,49 @@
                        				valSetCtrl['btnCancel'] = true
                        				break;
                        			}
-                       			case 'Edit': {
-                       				//var hasref = NA.common.getElementID('id_hasRefData').value
-                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                       				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                       				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                            	case 'Edit': {
+                            		//var hasref = NA.common.getElementID('id_hasRefData').value
+                            		//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                            		NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                            		NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                            		//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+                            		//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+                            		//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+                            		//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+                            		//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+                            		//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+                            		//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
 
-                       				//NA.common.getElementID('lastUsedInfo').style.display = 'block';
-                       				if (elSelPrice.value != '') {
-                       					if (typeof elSelPrice.value === 'number' && !isNaN(elSelPrice.value)) {
-                       						//jika selling price di isi 
-                       						//maka disabledkan chekbox IsSold
-                       						elIsSold.setAttribute('disabled', true);
-                       					}
-                       				}
-                       				valSetCtrl['btnOK'] = true;
-                       				valSetCtrl['btnCancel'] = true
-                       				break;
-                       			}
+                            		//NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                            		var vaPrice = elSelPrice.value.valueOf();
+                            		if (elSelPrice.value != '') {
+                            			if (typeof elSelPrice.value === 'number' || !isNaN(elSelPrice.value)) {
+                            				//jika selling price di isi 
+                            				//maka disabledkan chekbox IsSold
+                            				elIsSold.setAttribute('disabled', true);
+                            			}
+                            			//elSelPrice.value = Number(vaPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            		}
+                            		valSetCtrl['btnOK'] = true;
+                            		valSetCtrl['btnCancel'] = true
+
+                            		var ellastinfo = NA.common.getElementID('lastInfoValue');
+                            		if (ellastinfo.textContent === '') {
+                            			NA.common.getElementID('lastUsedInfo').style.display = 'none';
+                            		}
+                            		var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
+                            		if (elfk_usedemployeeValue.textContent === '') {
+                            			NA.common.getElementID('lastInfo').style.display = 'none';
+                            			//elfk_usedemployeeValue.style.display = 'none';
+                            		}
+                            		NA.common.getElementID('difInfo').style.display = 'block';
+                            		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                            		var viewportSize = NA.common.dialog.getViewportSize();
+                            		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                            		containerDialog.style.overflowY = 'auto';
+                            		containerDialog.style.overflowX = 'hidden';
+                            		break;
+                            	}
                        			case 'Open': {
                        				//NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
                        				//NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
@@ -1521,6 +1539,23 @@
                        				elIsSold.setAttribute('disabled', true);
                        				valSetCtrl['btnOK'] = false;
                        				valSetCtrl['btnCancel'] = false;
+
+                       				NA.common.getElementID('difInfo').style.display = 'block';
+                       				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                       				var viewportSize = NA.common.dialog.getViewportSize();
+                       				containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                       				containerDialog.style.overflowY = 'auto';
+                       				containerDialog.style.overflowX = 'hidden';
+
+                       				var ellastinfo = NA.common.getElementID('lastInfoValue');
+                       				if (ellastinfo.textContent === '') {
+                       					ellastinfo.style.display = 'none';
+                       				}
+
+                       				var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee');
+                       				if (elfk_usedemployeeValue.textContent === '') {
+                       					elfk_usedemployeeValue.style.display = 'none';
+                       				}
                        				break;
                        			}
                        		};
@@ -1597,12 +1632,6 @@
                        			});//end Array.prototype.forEach.call(listFK, function (item)
                        			originalData = JSON.stringify(getValuesForm());
                        			//==============date disposal=============
-
-                       			if (win.status !== 'Add') {
-                       				var eloriginalData = JSON.parse(originalData);
-                       				var valDaterequest = new Date(eloriginalData.datedisposal);
-                       				$("#id_datedisposal").datepicker("setDate", valDaterequest);
-                       			}
                        			$('#id_datedisposal').datepicker({
                        				dateFormat: 'dd/mm/yy',
                        				changeMonth: true,
@@ -1610,8 +1639,8 @@
                        				beforeShowDay: $.datepicker.noWeekends,
                        				minDate: (function (g) {
                        					if (g.status === 'Edit') {
-                       						var valDateRel = new Date(eloriginalData.datedisposal);
-                       						return valDateRel;
+                       						var valdatedisposal = new Date(originalData.datedisposal);
+                       						return valdatedisposal;
                        					}
                        				})(win),
                        				//maxDate: 0,
@@ -1620,14 +1649,18 @@
                        				closeText: "Close",
                        				currentText: 'Now',
                        			});
-
+                       			if (win.status !== 'Add') {
+                       				var eloriginalData = JSON.parse(originalData);
+                       				var valdatedisposal = new Date(eloriginalData.datedisposal);
+                       				$("#id_datedisposal").datepicker("setDate", valdatedisposal);
+                       			}
                        			$.datepicker._gotoToday = function (id) {
                        				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
                        			};
                        			$('#id_datedisposal').datepicker().on("input change", function (e) {
                        				//get book value
                        				if (isSelectingDate) { return; }
-
+									S
                        				var elserialnumber = NA.common.getElementID('id_serialnumber');
                        				var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
                        				//protect jika elidapp_fk_goods.value == null
@@ -1679,7 +1712,8 @@
                        					elIsSold.value = true;
                        				} else {
                        					elSelPrice.setAttribute('disabled', true);
-                       					elIsSold.value = false;
+                       					elSelPrice.value = '';
+                       					elIsSold.value = false;										
                        				}
                        			});
                        			//======================event handler BUTTONS Search================================================ 
@@ -2010,17 +2044,16 @@
                        			}
                        			isSelectingDate = false;                       		
                        		}
-                       		if (win.status !== 'Add') {
-                       			setTimeout(function () {
-                       				NA.common.getElementID('difInfo').style.display = 'block';
-                       				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
-
-                       				var viewportSize = NA.common.dialog.getViewportSize();
-                       				containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
-                       				containerDialog.style.overflowY = 'auto';
-                       				containerDialog.style.overflowX = 'hidden';
-                       			}, 100)
-                       		}
+                       		//if (win.status !== 'Add') {
+                       		//	setTimeout(function () {
+                       		//		NA.common.getElementID('difInfo').style.display = 'block';
+                       		//		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                       		//		var viewportSize = NA.common.dialog.getViewportSize();
+                       		//		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                       		//		containerDialog.style.overflowY = 'auto';
+                       		//		containerDialog.style.overflowX = 'hidden';
+                       		//	}, 100)
+                       		//}
                        	}
                     });
 				}
