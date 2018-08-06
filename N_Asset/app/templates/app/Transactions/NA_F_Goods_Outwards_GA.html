@@ -65,6 +65,12 @@ div#content-0 {
 div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Goods_Outwards_GA_pager,div.ui-jqgrid-titlebar{
     border-radius: 0px
 }
+
+.equipment-item{
+    padding: .4em;
+    font-weight: normal;
+    font-size: 12px;
+}
 </style>
 {% endblock %}
 
@@ -775,7 +781,47 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                     break;
                                 }
                             };
-                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit     
+                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit  
+                                $('#container_equipment').click(function(event){
+                                    event.preventDefault();
+                                    setTimeout(function(){
+                                        $('#search_equipment').focus()
+                                    },100)
+                                });
+
+                                $('#search_equipment').on({
+                                    'click': function(event){
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    },
+                                    'keyup':function(event){
+                                        var q = this.value;
+                                        var pattern = new RegExp(q, 'i')
+                                        $('li#item_search').filter(function(index){
+                                            return $(this).text().match(pattern)
+                                        }).css('display','block');
+                                        $('li#item_search').filter(function(index){
+                                            return !$(this).text().match(pattern)
+                                        }).css('display','none');
+                                    },
+                                    'keydown': function(event){
+                                        if(event.keyCode == 13){
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            var items = $(this).parents('ul#dropdown_equipment').children(':visible')
+                                            if(items.length == 2){
+                                               items[1].click();
+                                            }
+                                        }
+                                        
+                                    }
+                                })
+                                $('#dropdown_equipment li#item_search').click(function(event){
+                                    NA.NAEvent.preventDefault(event);
+                                    $('<span class="label label-success equipment-item">'+this.textContent+'</span>')
+                                    .appendTo($('#container_equipment'));
+                                })
+                                
                             	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_daterequest, input#id_datereleased').datepicker({
                                 	dateFormat: 'dd/mm/yy',

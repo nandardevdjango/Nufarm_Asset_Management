@@ -1,3 +1,17 @@
+<style>
+    .container-multiselect{
+        color:#cccccc;
+        border: 1px solid#cccccc;
+        background: white;
+        padding: 6px;
+        border-radius: 4px;
+        position:relative;
+        top:5px;
+        min-width: 150px;
+        display: inline-block;
+    }
+</style>
+
 <div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
           style="background-color:transparent;font-size: 1em;width:550px;max-height:485px;overflow:auto;" 
@@ -88,7 +102,28 @@
                 <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
                         <label for="id_equipment" style="display:inline-block; width:120px;">Equipment</label>
-                        {{ form.equipment }}
+                        <ul style="display:inline;">
+                            <li class="dropdown" style="display:inline;">
+                                <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown">
+                                    <span class="label label-success">Success Label</span>
+                                </ul>
+                                <ul class="dropdown-menu search" id="dropdown_equipment" style="top:28px">
+                                    <li><input id="search_equipment" type="text" class="NA-Form-Control" style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" /></li>
+                                    <li id="item_search"><a href="#">Ban Cadangan</a></li>
+                                    <li id="item_search"><a href="#">Radio</a></li>
+                                    <li id="item_search"><a href="#">AC</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <!--<ul>
+                            <li class="dropdown" style="flex:0 1 65px">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:black;border-radius:0px;padding:4px 10px;" id="select_equipment">By</a>
+                                <ul class="dropdown-menu search" id="selectValue">
+                                    <li><a href="#">Item 1</a></li>
+                                </ul>
+                            </li>
+                        </ul>-->
                     </div>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto">
@@ -110,5 +145,6 @@
         {{ form.employee }}
         {{ form.sender }}
         {{ form.resp_employee }}
+        {{ form.equipment }}
     </form>
 </div>

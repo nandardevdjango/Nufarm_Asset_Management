@@ -1562,9 +1562,20 @@ class NAGaVnHistory(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_vn_history'
 
-# idapp, fk_goods, fk_employee, typeapp, serialnumber, isnew, daterequest, daterealesed,
-# fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
-# fk_lending, fk_return, fk_receive, descriptions
+
+class NAGoodsEquipment(models.Model):
+    IT, GA = range(2)
+
+    idapp = models.AutoField(db_column='IDApp', primary_key=True)
+    name_app = models.CharField(db_column='NameApp', max_length=50)
+    type_app = models.IntegerField(
+        choices=((GA, 'GA'), (IT, 'IT')),
+        db_column='TypeApp',
+    )
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_equipment'
 
 
 class NAGaOutwards(NAGoodsOutwardsModel):
@@ -1575,17 +1586,17 @@ class NAGaOutwards(NAGoodsOutwardsModel):
         db_column='fk_app',
         db_constraint=False
     )
-    equipment = models.CharField(
-        db_column='Equipment',
-        max_length=200,
-        blank=True,
-        null=True
+    equipment = models.ManyToManyField(
+        NAGoodsEquipment,
+        related_name='ga_equipment',
+        db_constraint=False,
+        db_column='Equipment'
     )
-    add_equipment = models.CharField(
-        db_column='Add_Equipment',
-        max_length=200,
-        blank=True,
-        null=True
+    add_equipment = models.ManyToManyField(
+        NAGoodsEquipment,
+        related_name='ga_add_equipment',
+        db_constraint=False,
+        db_column='AddEquipment'
     )
     objects = NABRGoodsOutwardsGA()
 

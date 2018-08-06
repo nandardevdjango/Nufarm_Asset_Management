@@ -12,7 +12,12 @@ def create_ad_hoc(request):
         'Merk': 'Dell',
         'Tipe': '3010',
         'Nomor Seri': '00073563',
-        'Kondisi': 'Baik'
+        'Kondisi': 'Baik',
+        'Nama Barang1': 'Desktop',
+        'Merk1': 'Dell',
+        'Tipe1': '3010',
+        'Nomor Seri1': '00073563',
+        'Kondisi1': 'Baik'
     }
     report = ReportAdHoc(
         name='sample_report',

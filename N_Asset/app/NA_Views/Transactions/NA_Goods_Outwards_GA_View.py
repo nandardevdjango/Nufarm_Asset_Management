@@ -160,13 +160,7 @@ class NAGaOutwardsForm(forms.Form):
 
     typeapp = forms.CharField(widget=forms.HiddenInput())
     
-    equipment = forms.CharField(widget=forms.TextInput(
-        attrs={
-            'class': 'NA-Form-Control',
-            'placeholder': 'equipment',
-            'style': 'width:150px;display:inline-block'
-        }
-    ))
+    equipment = forms.CharField(widget=forms.HiddenInput())
 
     add_equipment = forms.CharField(widget=forms.TextInput(
         attrs={

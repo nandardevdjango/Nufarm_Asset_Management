@@ -95,6 +95,14 @@ class ReportAdHoc(object):
             position = position[1]
         paragraph.drawOn(canvas, horizontal, position)
 
+    def set_canvas_dynamic(self, top):
+        len_detail = len(self.detail)
+        if len_detail == 10:
+            top = top - (len_detail / 50)
+        elif len_detail > 10:
+            top = top - (len_detail / 25)
+        return top
+
     def create_header(self, canvas, doc):
         w, h = doc.pagesize
         width = 100
@@ -126,6 +134,7 @@ class ReportAdHoc(object):
             [(key, ': {value}'.format(value=value)) for key, value in self.detail.items()],
             hAlign='LEFT'
         )
+        print(detail.wrap(0,0))
         self.layout.append(detail)
 
     def create_equipment(self):
@@ -138,7 +147,7 @@ class ReportAdHoc(object):
             self.layout.append(
                 Paragraph(equipment, self.style['equipment'], bulletText=u'\u27a4')
             )
-        
+
     def create_add_equipment(self):
         self.layout.append(Spacer(0, 20))
         self.layout.append(
@@ -156,7 +165,7 @@ class ReportAdHoc(object):
         self.mix_canvas_paragraph(
             canvas=canvas,
             paragraph=receiver,
-            position=3.2 * inch
+            position=3 * inch
         )
 
         receiver_name = kwargs.get('receiver_name')
@@ -164,7 +173,7 @@ class ReportAdHoc(object):
         self.mix_canvas_paragraph(
             canvas=canvas,
             paragraph=receiver_name,
-            position=2 * inch
+            position=1.8 * inch
         )
 
         sender = "Yang Menyerahkan,"
@@ -172,7 +181,7 @@ class ReportAdHoc(object):
         self.mix_canvas_paragraph(
             canvas=canvas,
             paragraph=sender,
-            position=3.2 * inch
+            position=3 * inch
         )
 
         sender_name = kwargs.get('sender_name')
@@ -180,16 +189,18 @@ class ReportAdHoc(object):
         self.mix_canvas_paragraph(
             canvas=canvas,
             paragraph=sender_name,
-            position=2 * inch
+            position=1.8 * inch
         )
 
     def create_footer(self, canvas, doc):
         canvas.saveState()
         text = "Demikian Berita Acara ini dibuat dengan sebenarnya"
-        canvas.drawString(inch, 4.1 * inch, text)
+        top = self.set_canvas_dynamic(4.1)
+        canvas.drawString(inch, top * inch, text)
         tgl = "Jakarta, 14 Desember 2016"
         canvas.setFont('Helvetica-Bold', 13)
-        canvas.drawString(inch, 3.8 * inch, tgl)
+        top = self.set_canvas_dynamic(3.8)
+        canvas.drawString(inch, top * inch, tgl)
         self.create_signature(
             canvas=canvas,
             doc=doc,

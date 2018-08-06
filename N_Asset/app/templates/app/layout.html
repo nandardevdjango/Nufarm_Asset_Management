@@ -1483,7 +1483,11 @@
     				$('.sidebar').css('flex', '0 0 173px');
     				$('.sidebar').toggleClass('fliph');
     			}
-    		});
+            });
+            
+            $.expr[':'].icontains = function(a, i, m) {
+                return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+              };
     	});
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
