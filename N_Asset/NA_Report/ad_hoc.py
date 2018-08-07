@@ -236,7 +236,7 @@ class ReportAdHoc(object):
         self.create_sub_title()
         self.create_detail()
 
-        if self.add_equipment:
+        if self.equipment:
             self.create_equipment()
 
         if self.add_equipment:
