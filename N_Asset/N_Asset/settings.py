@@ -140,7 +140,7 @@ TIME_ZONE = 'Asia/Jakarta'  # datetime Jakarta
 USE_I18N = True
 
 USE_L10N = True
-
+USE_THOUSAND_SEPARATOR = True
 USE_TZ = False
 
 DATETIME_FORMAT = [

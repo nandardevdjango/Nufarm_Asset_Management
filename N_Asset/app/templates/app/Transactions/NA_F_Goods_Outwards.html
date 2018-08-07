@@ -1452,6 +1452,26 @@
 									var valDatereleased = new Date(eloriginalData.datereleased);
 									$("#id_datereleased").datepicker("setDate", valDatereleased);
 								}
+								$('#id_daterequest').datepicker({
+									dateFormat: 'dd/mm/yy',
+									changeMonth: true,
+									changeYear: true,
+									beforeShowDay: $.datepicker.noWeekends,
+									minDate: (function (g) {
+										if (g.status === 'Edit') {
+											var eloriginalData = JSON.parse(originalData),
+                                                hasRef = eloriginalData['hasRefData'];
+											if (hasRef) { return 1; }
+											var valDateReq = new Date(eloriginalData.daterequest);
+											return valDateReq;
+										}
+									})(win),
+									//maxDate: 0,
+									//showOn: "button",
+									//showButtonPanel: true,
+									closeText: "Close",
+									currentText: 'Now',
+								});
 								$('#id_datereleased').datepicker({
 									dateFormat: 'dd/mm/yy',
 									changeMonth: true,

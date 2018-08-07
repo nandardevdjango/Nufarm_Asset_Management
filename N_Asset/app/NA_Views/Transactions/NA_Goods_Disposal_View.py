@@ -161,7 +161,7 @@ def Delete(request):
 
 		IDApp = data['idapp']
 	
-		result = NADisposal.objects.Delete(IDApp)
+		result = NADisposal.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)
@@ -250,7 +250,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':1,
 									'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)   
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
-	bookvalue = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.HiddenInput,required=False)
+	bookvalue = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.HiddenInput(),required=False)
 	datedisposal = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
 								'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	issold = forms.BooleanField(widget=forms.CheckboxInput(attrs={'tabindex':3,'style':'vertical-align: text-bottom;'},),required=False,)

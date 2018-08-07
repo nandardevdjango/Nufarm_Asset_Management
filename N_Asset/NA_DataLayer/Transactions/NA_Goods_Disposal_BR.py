@@ -144,7 +144,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				CASE G.typeapp WHEN 'GA' THEN (SELECT Brand FROM n_a_ga_receive WHERE FK_Goods = gd.FK_Goods)
 								WHEN 'IT' THEN (SELECT ngd.BrandName FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngd.fk_app = ngr.IDApp WHERE ngr.FK_Goods = gd.FK_goods AND ngd.serialnumber = gd.serialnumber)								
 							    WHEN 'O' THEN IFNULL(g.BrandName,'Unknown Brand') END AS brandvalue,emp1.NIK AS fk_usedemployee,emp1.employee_name AS fk_usedemployee_employee,
-					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
+					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.bookvalue,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
 				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_acknowledge1,emp3.employee_name AS fk_acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_acknowledge1,
 					emp4.NIK AS fk_acknowledge2,emp4.employee_name AS fk_acknowledge2_employee,gd.fk_acknowledge2 as idapp_fk_acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
 					emp5.NIK AS fk_approvedby,emp5.employee_name AS fk_approvedby_employee,gd.fk_approvedby AS idapp_fk_approvedby,gd.fk_maintenance,gd.fk_return,gd.fk_lending,gd.fk_outwards			
@@ -446,15 +446,32 @@ class NA_BR_Goods_Disposal(models.Manager):
 		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards,fklost)
 	def HasExists(self,idapp_fk_goods,serialnumber):
 		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
-	def Delete(self,IDApp):
+	def Delete(self,IDApp,userName):
 		cur = connection.cursor()
 		#delete di table na_disposal
 		#delete di table history
 		with transaction.atomic():
-			Query = """DELETE FROM n_disposal WHERE IDApp = %s""" 
+			Query = """SELECT FK_Goods FROM n_a_disposal WHERE IDApp = %s"""
 			cur.execute(Query,[IDApp])
-			Query = """DELETE FROM n_goods_history WHERE fk_disposal = %s"""
+			fk_goods = '';
+			if cur.rowcount > 0:
+				row = cur.fetchone()
+				if row is not None:
+					fk_goods = row[0]
+								 
+			Query = """DELETE FROM n_a_disposal WHERE IDApp = %s""" 
 			cur.execute(Query,[IDApp])
+			Query = """DELETE FROM n_a_goods_history WHERE fk_disposal = %s"""
+			cur.execute(Query,[IDApp])
+			#update stock
+			if fk_goods != '':
+				Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
+				cur.execute(Query, {'FK_Goods': fk_goods})
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					totalDisposal = int(row[0])
+					Query = """UPDATE n_a_stock	SET	ModifiedDate=NOW(), ModifiedBy=%(ModifiedBy)s,TDisposal= %(TDisposal)s WHERE FK_Goods = %(FK_Goods)s """
+					params = {'ModifiedBy':userName,'TDisposal':totalDisposal,'FK_Goods':fk_goods}
 			return "success"
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
@@ -496,11 +513,13 @@ class NA_BR_Goods_Disposal(models.Manager):
 
 					#update stock
 					Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
-					cur.execute(Query, {'FK_Goods': FKGoods})
+					cur.execute(Query, {'FK_Goods': Data['fk_goods']})
 					if cur.rowcount > 0:
 						row = cur.fetchone()
 						totalDisposal = int(row[0])
-
+						Query = """UPDATE n_a_stock	SET	ModifiedDate=NOW(), ModifiedBy=%(ModifiedBy)s,TDisposal= %(TDisposal)s WHERE FK_Goods = %(FK_Goods)s """
+						params = {'ModifiedBy':Data['createdby'],'TDisposal':totalDisposal,'FK_Goods':Data['fk_goods']}
+						cur.execute(Query,params)
 				else:
 					Query = """UPDATE n_a_disposal
 							SET	DateDisposal=%(DateDisposal)s,

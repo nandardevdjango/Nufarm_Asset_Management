@@ -652,7 +652,7 @@
 		    elfk_goods.textContent = originalData.fk_goods || '';
 		    //goods tidak usah
 		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
-		    idapp_fk_goods.value = originalData.elidapp_fk_goods || 0;
+		    elidapp_fk_goods.value = originalData.elidapp_fk_goods || 0;
 
 		    var eldatedisposal = NA.common.getElementID('id_datedisposal');
 		    eldatedisposal.value = originalData.datedisposal;
@@ -1298,6 +1298,9 @@
 								else if (this.status == 203) {
 									ShowAlert(textStatus.message, NA.common.message.titleInfo);
 								}
+								else {
+									XhrError(this);
+								}
 							}, null,
 							function () { XhrError(this); },
 							function () { window.document.body.style.cursor = 'default'; });
@@ -1522,40 +1525,37 @@
                             		break;
                             	}
                        			case 'Open': {
-                       				//NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_acknowledge1').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_acknowledge2').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_approvedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_proposedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_acknowledge1').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_acknowledge2').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_approvedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_proposedby').setAttribute('disabled', true);
                        				NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
-
-                       				//NA.common.getElementID('lastUsedInfo').style.display = 'block';
-
+                       				NA.common.getElementID('id_datedisposal').setAttribute('disabled', true);
                        				elIsSold.setAttribute('disabled', true);
                        				valSetCtrl['btnOK'] = false;
                        				valSetCtrl['btnCancel'] = false;
 
+                       				var ellastinfo = NA.common.getElementID('lastInfoValue');
+                       				if (ellastinfo.textContent === '') {
+                       					NA.common.getElementID('lastUsedInfo').style.display = 'none';
+                       				}
+                       				var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
+                       				if (elfk_usedemployeeValue.textContent === '') {
+                       					NA.common.getElementID('lastInfo').style.display = 'none';
+                       					//elfk_usedemployeeValue.style.display = 'none';
+                       				}
                        				NA.common.getElementID('difInfo').style.display = 'block';
                        				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
                        				var viewportSize = NA.common.dialog.getViewportSize();
                        				containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
                        				containerDialog.style.overflowY = 'auto';
                        				containerDialog.style.overflowX = 'hidden';
-
-                       				var ellastinfo = NA.common.getElementID('lastInfoValue');
-                       				if (ellastinfo.textContent === '') {
-                       					ellastinfo.style.display = 'none';
-                       				}
-
-                       				var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee');
-                       				if (elfk_usedemployeeValue.textContent === '') {
-                       					elfk_usedemployeeValue.style.display = 'none';
-                       				}
                        				break;
                        			}
                        		};
@@ -1654,13 +1654,10 @@
                        				var valdatedisposal = new Date(eloriginalData.datedisposal);
                        				$("#id_datedisposal").datepicker("setDate", valdatedisposal);
                        			}
-                       			$.datepicker._gotoToday = function (id) {
-                       				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
-                       			};
+
                        			$('#id_datedisposal').datepicker().on("input change", function (e) {
                        				//get book value
                        				if (isSelectingDate) { return; }
-									S
                        				var elserialnumber = NA.common.getElementID('id_serialnumber');
                        				var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
                        				//protect jika elidapp_fk_goods.value == null
@@ -1700,6 +1697,9 @@
 									null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 									);
                        			});
+                       			$.datepicker._gotoToday = function (id) {
+                       				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
+                       			};
                        			originalData = JSON.stringify(getValuesForm());
                        			var initializeForm = NA.common.getElementID('id_initializeForm');
                        			initializeForm.value = originalData;
@@ -1710,6 +1710,7 @@
                        				if (evt.target.checked) {
                        					elSelPrice.removeAttribute('disabled');
                        					elIsSold.value = true;
+										elSelPrice.focus();
                        				} else {
                        					elSelPrice.setAttribute('disabled', true);
                        					elSelPrice.value = '';
