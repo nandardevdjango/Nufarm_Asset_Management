@@ -646,6 +646,8 @@
 		    //fk_proposedby,fk_proposedby_employee, idapp_fk_proposedby,
 		    //fk_approvedby,fk_approvedby_employee, idapp_fk_approvedby, descriptions,
 		    //lastInfoValue,fk_usedemployeeValue,serialnumber,fk_maintenance,fk_return,fk_lending,
+		    var elgoods = NA.common.getElementID('id_goods');
+		    elgoods.value = '';
 		    var elidapp = NA.common.getElementID('id_idapp');
 		    elidapp.value = originalData.idapp || null;
 		    var elfk_goods = NA.common.getElementID('fk_goodsValue');
@@ -657,14 +659,18 @@
 		    var eldatedisposal = NA.common.getElementID('id_datedisposal');
 		    eldatedisposal.value = originalData.datedisposal;
 		    ////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
-		    var elIsLost = NA.common.getElementID('id_islost');
-		    elIsLost.removeAttribute('checked');
+		    var elIsLost = NA.common.getElementID('id_islost').value = false;;
+
 
 		    var elIsSold = NA.common.getElementID('id_issold');
 		    elIsSold.value = (originalData.value == '' || originalData.value == 'False') ? false : true;
-
+		    elIsSold.removeAttribute('checked');
+		    elIsSold.checked = false;
 		    var elSelPrice = NA.common.getElementID('id_sellingprice');
 		    elSelPrice.value = originalData.selprice || '';
+		    var elIsSold = NA.common.getElementID('id_issold').value = false;
+		    var elIsSold = NA.common.getElementID('id_issold').removeAttribute('checked');
+		    //var elSelPrice = NA.common.getElementID('id_sellingprice');
 
 		    var elBookValue = NA.common.getElementID('fk_bookvalueValue');
 		    elBookValue.value = originalData.bookvalue || 0;
@@ -674,15 +680,15 @@
 
 		    var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge1');
 		    elfk_acknowledge1.value = originalData.fk_acknowledge1 || '';
-		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_acknowledge1');
-		    elidapp_elfk_acknowledge1.value = originalData.idapp_elfk_acknowledge1 || null;
+		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_fk_acknowledge1');
+		    elidapp_elfk_acknowledge1.value = originalData.idapp_fk_acknowledge1 || null;
 		    var elfk_acknowledge1_emp = NA.common.getElementID('id_fk_acknowledge1_employee');
 		    elfk_acknowledge1_emp.value = '';
 
 		    var elfk_acknowledge2 = NA.common.getElementID('id_fk_acknowledge2');
 		    elfk_acknowledge2.value = originalData.fk_acknowledge2 || '';
-		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_acknowledge2');
-		    elidapp_elfk_acknowledge2.value = originalData.idapp_elfk_acknowledge2 || null;
+		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_fk_acknowledge2');
+		    elidapp_elfk_acknowledge2.value = originalData.idapp_fk_acknowledge2 || null;
 		    var elfk_acknowledge2_emp = NA.common.getElementID('id_fk_acknowledge2_employee');
 		    elfk_acknowledge2_emp.value = '';
 
@@ -696,7 +702,7 @@
 
 		    var elfk_proposedby = NA.common.getElementID('id_fk_proposedby');
 		    elfk_proposedby.value = originalData.fk_proposedby || '';
-		    var elidappfk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby');
+		    var elidapp_fk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby');
 		    elidapp_fk_proposedby.value = originalData.idapp_fk_proposedby || null;
 		    var elfk_proposedby_emp = NA.common.getElementID('id_fk_proposedby_employee');
 		    elfk_proposedby_emp.value = '';
@@ -711,20 +717,21 @@
 		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
 		    elfk_maintenance.value = originalData.fk_maintenance || null;
 		    var elfk_return = NA.common.getElementID('id_fk_return');
-		    elfk_return.value = originalData.elfk_return || null;
+		    elfk_return.value = originalData.fk_return || null;
 		    var elfk_lending = NA.common.getElementID('id_fk_lending');
 		    elfk_lending.value = originalData.fk_lending || null;
 
 		    var elfk_outwards = NA.common.getElementID('id_fk_outwards');
-		    elfk_outwards.value = origingalData.fk_outwards || null;
+		    elfk_outwards.value = originalData.fk_outwards || null;
 		    var ellastinfo = NA.common.getElementID('lastInfoValue');
 		    ellastinfo.textContent = '';
-		    var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee');
+		    var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 		    elfk_usedemployeeValue.textContent = '';
 
-		    var elidapp_fk_usedemployee = NA.common.getElementID('idapp_fk_usedemployee');
+		    var elidapp_fk_usedemployee = NA.common.getElementID('id_idapp_fk_usedemployee');
 		    elidapp_fk_usedemployee.value = originalData.idapp_fk_usedemployee || null;
 		    NA.common.getElementID('difInfo').style.display = 'none';
+
 		};
 		function getValuesForm() {
 
@@ -791,7 +798,10 @@
                typeapp = eltypeapp.textContent;
 			var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
-			//brandvalue nggak usah
+		    //brandvalue nggak usah
+			var elBrandValue = NA.common.getElementID('BrandValue');
+			elBrandValue.textContent = "";
+
 			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
                 fk_maintenance = elfk_maintenance.value || 0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),

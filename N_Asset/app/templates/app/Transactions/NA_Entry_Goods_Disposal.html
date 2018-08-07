@@ -57,12 +57,26 @@
                 <legend>
                     purpose for being sold ?
                 </legend>
-                <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
-                    <label>  {{ form.issold }} Yess </label>
+                <div class="NA-Entry-div-row">
+                    <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
+                        <label>  {{ form.issold }} Yess </label>
+                    </div>
+                    <div class="NA-Entry-inlinve-div" id="divSellingPrice">
+                        <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;width:120px;text-align: right;padding-right: 5px;">Selling Price</label>
+                        {{ form.sellingprice }}
+                    </div>
                 </div>
-                <div class="NA-Entry-inlinve-div" id="divSellingPrice">
-                    <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;width:120px;text-align: right;padding-right: 5px;">Selling Price</label>
-                    {{ form.sellingprice }}
+                <div class="NA-Entry-div-row">
+                      <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
+                          <label>Sold to</label>
+                      </div>
+                      <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
+                            {{ form.soldto }}
+                      </div>
+                    <label>sold to</label>
+                </div>
+                <div class="NA-Entry-div-row">
+
                 </div>
             </fieldset>
         </div>

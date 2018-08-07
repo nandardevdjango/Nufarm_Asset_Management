@@ -149,7 +149,12 @@ div#info_dialog{
 	display: block;
 	background: white;
 }
-
+ul.inline{
+    display:inline;margin-right:0;padding-right:0;
+}
+ul.inline li.inline{
+    display:inline;
+}
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }

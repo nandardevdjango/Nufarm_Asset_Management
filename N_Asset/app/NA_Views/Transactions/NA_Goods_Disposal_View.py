@@ -223,8 +223,13 @@ def ShowEntry_Disposal(request):
 		elif status == 'Edit' or status == 'Open':
 			IDApp = request.GET.get('idapp')
 			Ndata = NADisposal.objects.getData(IDApp)
+
 			Ndata = Ndata[0]
 			Ndata.update(idapp=IDApp)
+			sellingprice = Ndata['sellingprice']
+			bookvalue = Ndata['bookvalue']
+			Ndata.update(sellingprice="{0:.2f}".format(sellingprice))
+			Ndata.update(bookvalue="{0:.2f}".format(bookvalue))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
 			form = NA_Goods_Disposal_Form(data=Ndata)
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})    
@@ -256,6 +261,11 @@ class NA_Goods_Disposal_Form(forms.Form):
 	issold = forms.BooleanField(widget=forms.CheckboxInput(attrs={'tabindex':3,'style':'vertical-align: text-bottom;'},),required=False,)
 	sellingprice = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:112px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
+	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
+	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
+	sold_to_p_other = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																							'placeholder': 'Personal/Firm who buys','data-value':'Personal/Firm who buys','tittle':'Personal/Firm  who buys'}))
 	#proposedby
 	fk_proposedby = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
@@ -268,7 +278,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	fk_acknowledge1 = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':5,
 									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
-	fk_acknowledge1_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+	fk_acknowledge1_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	idapp_fk_acknowledge1 = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
@@ -276,7 +286,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	#fk_Acknowledge2
 	fk_acknowledge2 = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':6,
-									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=False)
 	fk_acknowledge2_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	idapp_fk_acknowledge2 = forms.IntegerField(widget=forms.HiddenInput(),required=False)
