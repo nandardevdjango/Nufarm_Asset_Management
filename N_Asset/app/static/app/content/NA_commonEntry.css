@@ -32,7 +32,6 @@ form .NA-Entry-inlinve-div {
         display: table;
         content: "";
     }
-
 input[type="text"], input[type="password"], textarea {
     height: 28px;
 }
@@ -149,12 +148,13 @@ div#info_dialog{
 	display: block;
 	background: white;
 }
-ul.inline{
+ul.inline,.NA-Entry-inlinve-div li.inline{
     display:inline;margin-right:0;padding-right:0;
 }
 ul.inline li.inline{
     display:inline;
 }
+
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }

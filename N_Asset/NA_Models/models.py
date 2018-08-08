@@ -772,13 +772,13 @@ class NADisposal(NA_TransactionModel):
 		db_column='IsSold', blank=True, null=True)
 	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=30, decimal_places=4, blank=True, null=True)
 	sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
-	sold_to_employee= models.ForeignKey(
+	fk_sold_to_employee= models.ForeignKey(
 		'Employee',
-		db_column='Sold_To_Employee',
+		db_column='FK_Sold_To_Employee',
 		related_name='fk_disposal_emp_Sold',
 		db_constraint=False, blank=True, null=True,
 	)
-	sold_to_p_others = models.CharField(max_length=120,db_column='Sold_To_P_Others',blank=True,null=True)
+	sold_to_p_other = models.CharField(max_length=120,db_column='Sold_To_P_Other',blank=True,null=True)
 	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
 	descriptions = models.CharField(
 		db_column='Descriptions',

@@ -43,13 +43,18 @@ class NA_BR_Goods_Disposal(models.Manager):
 			colKey = 'ngds.ceateddate'
 		elif columnKey == 'descriptions':
 			colKey = 'ngds.descriptions'
+		elif columnKey == 'soldto':
+			colKey = "(SELECT CASE WHEN (ngds.sold_to = 'E') THEN (CONCAT('Employee ',IFNULL(emp4.employee_name,' '))) WHEN (ngds.sold_to = 'P') THEN (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) ELSE (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) END)"
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Disposal_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
 		#idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		Query = """  CREATE TEMPORARY TABLE T_Disposal_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngds.idapp,g.goodsname AS goods,ngd.typeApp AS goodstype,ngd.serialnumber,
-				ngds.bookvalue,	ngds.datedisposal,ngds.islost,ref.refgoodsfrom,							
-				ngds.issold,ngds.sellingprice,IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
+				ngds.bookvalue,	ngds.datedisposal,CONVERT((CASE WHEN(ngds.fk_maintenance IS NULL) THEN 0 ELSE 1 END),INT) AS afterrepair, 
+				CASE WHEN (ngds.fk_maintenance IS NOT NULL) THEN(SELECT CONCAT(IFNULL(PersonalName,' '),', ',IFNULL(MaintenanceBy,'')) FROM n_a_maintenance WHERE idapp = ngds.fk_maintenance) ELSE '' END AS lastrepairfrom,
+				ngds.islost,ref.refgoodsfrom,ngds.issold,ngds.sellingprice,
+				CASE WHEN (ngds.sold_to = 'E') THEN (CONCAT('Employee ',IFNULL(emp4.employee_name,' '))) WHEN (ngds.sold_to = 'P') THEN (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) ELSE (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) END AS soldto,
+				IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
 				,ngds.descriptions,ngds.createdby,ngds.createddate		       
 		        FROM n_a_disposal ngds INNER JOIN n_a_goods g ON g.IDApp = ngds.FK_Goods 
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = ngds.FK_Goods
@@ -67,6 +72,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp1 ON emp1.idapp = ngds.FK_Acknowledge1
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp2 ON emp2.idapp = ngds.FK_Acknowledge2
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp3 ON emp3.idapp = ngds.FK_ApprovedBy
+				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp4 ON emp4.idapp = ngds.fk_sold_to_employee
 		        WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
 		strLimit = '300'
@@ -144,7 +150,8 @@ class NA_BR_Goods_Disposal(models.Manager):
 				CASE G.typeapp WHEN 'GA' THEN (SELECT Brand FROM n_a_ga_receive WHERE FK_Goods = gd.FK_Goods)
 								WHEN 'IT' THEN (SELECT ngd.BrandName FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngd.fk_app = ngr.IDApp WHERE ngr.FK_Goods = gd.FK_goods AND ngd.serialnumber = gd.serialnumber)								
 							    WHEN 'O' THEN IFNULL(g.BrandName,'Unknown Brand') END AS brandvalue,emp1.NIK AS fk_usedemployee,emp1.employee_name AS fk_usedemployee_employee,
-					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.bookvalue,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
+					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.sold_to,gd.fk_sold_to_employee AS idapp_fk_sold_to_employeee,emp6.NIK AS fk_sold_to_employee,emp6.employee_name AS fk_sold_to_employee_employee,
+				    gd.sold_to_p_other,gd.bookvalue,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
 				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_acknowledge1,emp3.employee_name AS fk_acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_acknowledge1,
 					emp4.NIK AS fk_acknowledge2,emp4.employee_name AS fk_acknowledge2_employee,gd.fk_acknowledge2 as idapp_fk_acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
 					emp5.NIK AS fk_approvedby,emp5.employee_name AS fk_approvedby_employee,gd.fk_approvedby AS idapp_fk_approvedby,gd.fk_maintenance,gd.fk_return,gd.fk_lending,gd.fk_outwards			
@@ -153,7 +160,9 @@ class NA_BR_Goods_Disposal(models.Manager):
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = gd.fk_proposedby	
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = gd.fk_Acknowledge1 
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp4 ON emp4.IDApp = gd.fk_Acknowledge2 
-				    LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp5.IDApp = gd.fk_approvedby WHERE gd.idapp = %s""" 
+				    LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp5.IDApp = gd.fk_approvedby 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp6.IDApp = gd.fk_sold_to_employee 
+					WHERE gd.idapp = %s""" 
 		cur = connection.cursor()
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)

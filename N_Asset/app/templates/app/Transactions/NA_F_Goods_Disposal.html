@@ -257,8 +257,8 @@
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value','Date Removal','Is Lost', 'Ref Goods From', 'Is Sold','Selling Price',
-							'Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value', 'Date Removal','afterrepair', 'lastrepairfrom', 'Is Lost', 'Ref Goods From', 'Is Sold', 'Selling Price', 
+							'Sold To','Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -270,6 +270,8 @@
                                 decimalPlaces: 2, prefix: "Rp "}
                             },
 							{ name: 'datedisposal', index: 'datedisposal', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							{ name: 'afterrepair', index: 'afterrepair', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
+							{ name: 'lastrepairfrom', index: 'lastrepairfrom', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
 							{ name: 'islost', index: 'islost', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'issold', index: 'issold', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
@@ -279,6 +281,7 @@
 									decimalPlaces: 2, prefix: "Rp "
 								}
 							},
+							{ name: 'soldto', index: 'soldto', width: 120, sortable: true, editable: false, align: 'left', },
 							{ name: 'proposedby', index: 'proposedby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'acknowledgedby', index: 'acknowledgedby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'approvedby', index: 'approvedby', width: 110, sortable: true, editable: false, align: 'left', },
@@ -1887,7 +1890,7 @@
                        					}]
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_acknowledge1"],[id="FE_fk_acknowledge2"],[id="FE_fk_approvedby"]');
+                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_acknowledge1"],[id="FE_fk_acknowledge2"],[id="FE_fk_approvedby"],[id="FE_fk_sold_employee"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        				if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                        					win.document.body.style.cursor = 'default';

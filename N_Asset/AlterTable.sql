@@ -415,3 +415,8 @@ ALTER TABLE `n_a_ga_return`
 
 	ALTER TABLE `n_a_disposal`
 	ADD COLUMN `FK_Lost` INT(11) NULL DEFAULT NULL AFTER `FK_Return`;
+
+	ALTER TABLE `n_a_disposal`
+	ADD COLUMN `Sold_To` CHAR(1) NULL DEFAULT NULL AFTER `SellingPrice`,
+	ADD COLUMN `FK_Sold_To_Employee` INT NULL DEFAULT NULL COMMENT 'di jual ke karyawan mana kalau ke orang lain isinya dbnull' AFTER `Sold_To`,
+	ADD COLUMN `Sold_To_P_Other` VARCHAR(120) NULL DEFAULT NULL COMMENT 'di jual ke siapa bila bukan karyaawan, ke perusahaan atau perorangan' AFTER `FK_Sold_To_Employee`;

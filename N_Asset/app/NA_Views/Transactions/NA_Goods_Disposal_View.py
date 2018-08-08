@@ -82,12 +82,12 @@ def NA_Goods_Disposal_Search(request):
 		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []
-		#column idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairfrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
+		#column idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairfrom,issold,sellingprice,soldto,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		i = 0;
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],row['islost'],
-						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['proposedby'],row['acknowledgeby'],
+			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],row['afterrepair'],row['lastrepairfrom'],row['islost'],
+						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['soldto'],row['proposedby'],row['acknowledgeby'],
 				row['approvedby'],row['descriptions'],row['createddate'],row['createdby']]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
@@ -262,10 +262,13 @@ class NA_Goods_Disposal_Form(forms.Form):
 	sellingprice = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:112px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
 	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
+	
 	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
+	fk_sold_to_employee_employee = forms.CharField(widget=forms.HiddenInput(),required=False)
+	idapp_fk_sold_to_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	sold_to_p_other = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
-																							'placeholder': 'Personal/Firm who buys','data-value':'Personal/Firm who buys','tittle':'Personal/Firm  who buys'}))
+																							'placeholder': 'Employee/Personal/Firm who buys','data-value':'Employee/Personal/Firm who buys','tittle':'Employee/Personal/Firm who buys'}))
 	#proposedby
 	fk_proposedby = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
