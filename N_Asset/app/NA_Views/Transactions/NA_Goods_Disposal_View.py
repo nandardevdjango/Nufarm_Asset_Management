@@ -263,7 +263,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 									'class':'NA-Form-Control','style':'width:112px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
 	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
 	
-	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;width:120px;margin-right:5px;display:inline-block;','disabled':True,
 																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
 	fk_sold_to_employee_employee = forms.CharField(widget=forms.HiddenInput(),required=False)
 	idapp_fk_sold_to_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)

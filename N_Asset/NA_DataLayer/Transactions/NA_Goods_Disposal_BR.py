@@ -161,7 +161,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = gd.fk_Acknowledge1 
 					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp4 ON emp4.IDApp = gd.fk_Acknowledge2 
 				    LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp5.IDApp = gd.fk_approvedby 
-					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp6.IDApp = gd.fk_sold_to_employee 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp6 ON emp6.IDApp = gd.fk_sold_to_employee 
 					WHERE gd.idapp = %s""" 
 		cur = connection.cursor()
 		cur.execute(Query,[idapp])
