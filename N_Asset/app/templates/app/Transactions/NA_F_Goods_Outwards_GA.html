@@ -67,10 +67,11 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
 }
 
 .equipment-item{
-    padding: .4em;
+    padding: 0.6em;
     font-weight: normal;
     font-size: 12px;
-    margin-right: 7px;
+    margin: 4px;
+    display: inline-block;
 }
 .equipment-close{
     padding-right: 5px;
@@ -806,11 +807,11 @@ li.item-selected{
                                 });
                                 $('ul#dropdown_equipment li#item_search').first().addClass('item-selected');
                                 $('#search_equipment').on({
-                                    'click': function(event){
+                                    click: function(event){
                                         event.preventDefault();
                                         event.stopPropagation();
                                     },
-                                    'keyup':function(event){
+                                    keyup: function(event){
                                         if(event.keyCode == 40 || event.key == 'ArrowDown'){
                                             var data_id = $('.item-selected').data('id');
                                             var next_item = $('.item-selected').next('li#item_search');
@@ -844,40 +845,53 @@ li.item-selected{
                                             $('ul#dropdown_equipment').children('li#item_search:visible').nextAll().removeClass('item-selected');
                                         }
                                     },
-                                    'keydown': function(event){
+                                    keydown: function(event){
                                         if(event.keyCode == 13){
                                             event.preventDefault();
                                             event.stopPropagation();
                                             $('li.item-selected').click();
                                         }
-                                        
+                                    },
+                                    blur: function(event){
+                                        this.value = '';
+                                        $('li#item_search').css('display', 'block');
                                     }
                                 })
                                 $('#dropdown_equipment li#item_search').on({
                                     click: function(event){
                                         NA.NAEvent.preventDefault(event);
-                                        var container_equipment = $('#container_equipment');
-                                        if(container_equipment[0].dataset.placeHolder != ''){
-                                            container_equipment.text('');
-                                            container_equipment[0].dataset.placeHolder = '';
-
-                                        }
+                                        var fake_input = $('#fake_input_equipment')
                                         var equipment_item = '<span class="label label-success equipment-item"><span id="remove_item" class="equipment-close">x</span>'+
                                             this.textContent+'</span>'
-                                        $(equipment_item).appendTo($('#container_equipment'));
+                                        $(equipment_item).insertBefore(fake_input);
+                                        fake_input.focus();
+                                        this.dataset.selected= true;
                                     },
                                     mouseover: function(event){
+                                        var item = $('#dropdown_equipment li.item-selected')
+                                        if(item.length){
+                                            item.removeClass('item-selected');
+                                        }
                                         $(event.currentTarget).addClass('item-selected');
                                     },
                                     mouseleave: function(event){
-                                        console.log(event);
-                                        $(event.currentTarget).removeClass('item-selected');
-                                        //console.log(event.relatedTarget)
-                                        //if(event.relatedTarget.tagName != 'p' && event.relatedTarget.id != 'item_search'){
-                                        //    $('#item_search').first().addClass('item-selected');
-                                        //}
+                                        if(event.relatedTarget != null){
+                                            if(event.relatedTarget.tagName.toLocaleLowerCase() == 'p'){
+                                                $(event.currentTarget).removeClass('item-selected');
+                                            }
+                                        }
+                                        return;
                                     }
                                 });
+
+                                $('#fake_input_equipment').keydown(function(event){
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    if (event.keyCode == 13){
+                                        $('#container_equipment').click();
+                                    }
+                                });
+
                                 $(document).on('click','span#remove_item', function(event){
                                     event.preventDefault();
                                     event.stopPropagation();
@@ -888,6 +902,20 @@ li.item-selected{
                                         container_equipment[0].dataset.placeHolder = 'Equipment..'
                                     }
                                 });
+
+                                $('#add_equipment').click(function(){
+                                    NA_Bootstrap.dialog.dialogConfirm(
+                                        (function(){
+                                            var container_form = $('<form id="add_equipment_form"></form>');
+                                            var field = '<div class="NA-Entry-inlinve-div"><label style="display:inline-block; width:60px;">Name</label>';
+                                            field += '<input class="NA-Form-Control" placeholder="equipment name" style="display:inline-block;width:225px" required="" id="add_equipment" type="text"></div>';
+                                            container_form.append($(field))
+                                            container_form.append($('<input id="submit_add_equipment" type="submit" style="display:none;" />'))
+                                            return container_form;
+                                        })(),
+                                        'Add Equipment'
+                                    )
+                                })
                                 
                             	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_daterequest, input#id_datereleased').datepicker({

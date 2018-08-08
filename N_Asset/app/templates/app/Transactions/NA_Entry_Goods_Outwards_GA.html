@@ -9,6 +9,8 @@
         top:5px;
         min-width: 150px;
         display: inline-block;
+        max-width: 370px;
+        cursor: text;
     }
 </style>
 
@@ -105,17 +107,17 @@
                         <ul style="display:inline;">
                             <li class="dropdown" style="display:inline;">
                                 <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment..">
-                                    Equipment ..
+                                    <input id="fake_input_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu search" id="dropdown_equipment" style="top:28px">
                                     <li><input id="search_equipment" type="text" class="NA-Form-Control" style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" /></li>
-                                    <li id="item_search" data-id="1"><p>Ban Cadangan</p></li>
-                                    <li id="item_search" data-id="2"><p>Radio</p></li>
-                                    <li id="item_search" data-id="3"><p>AC</p></li>
+                                    <li id="item_search" data-id="1" data-selected="false"><p>Ban Cadangan</p></li>
+                                    <li id="item_search" data-id="2" data-selected="false"><p>Radio</p></li>
+                                    <li id="item_search" data-id="3" data-selected="false"=""><p>AC</p></li>
                                 </ul>
                             </li>
                         </ul>
-                        
+                        <button id="add_equipment" class="btn btn-success" style="padding: 1px 5px;" type="button"><i class="fa fa-plus"></i></button>
                         <!--<ul>
                             <li class="dropdown" style="flex:0 1 65px">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:black;border-radius:0px;padding:4px 10px;" id="select_equipment">By</a>
