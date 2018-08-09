@@ -260,10 +260,10 @@ class NA_Goods_Disposal_Form(forms.Form):
 								'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	issold = forms.BooleanField(widget=forms.CheckboxInput(attrs={'tabindex':3,'style':'vertical-align: text-bottom;'},),required=False,)
 	sellingprice = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
-									'class':'NA-Form-Control','style':'width:112px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
+									'class':'NA-Form-Control','style':'width:132px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
 	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
 	
-	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;width:120px;margin-right:5px;display:inline-block;','disabled':True,
+	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;margin-right:5px;display:inline-block;','disabled':True,
 																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
 	fk_sold_to_employee_employee = forms.CharField(widget=forms.HiddenInput(),required=False)
 	idapp_fk_sold_to_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)

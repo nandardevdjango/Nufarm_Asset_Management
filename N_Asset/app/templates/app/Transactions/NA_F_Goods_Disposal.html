@@ -1014,6 +1014,10 @@
                         		//elFKEmp.value = data['nik']||'';
                         		elempname.value = data['employee_name'] || '';
                         		elidapp.value = data['idapp'] || '';
+                        		if (elmID == 'id_fk_sold_to_employee') {
+                        			var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_other');
+                        			fk_sold_to_p_other.value = data['employee_name'] || '';
+                        		}
                         	}
                         }, null, function () {//function untuk ajax error
                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1492,6 +1496,8 @@
                        			    //disabledkan selling price
                        				valSetCtrl['btnOK'] = true;
                        				valSetCtrl['btnCancel'] = true
+                       				var divSold = NA.common.getElementID('divSoldTo');
+                       				divSold.style.display = 'none';
                        				break;
                        			}
                             	case 'Edit': {
@@ -1499,15 +1505,6 @@
                             		//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
                             		NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
                             		NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                            		//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                            		//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                            		//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                            		//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                            		//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                            		//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                            		//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-
-                            		//NA.common.getElementID('lastUsedInfo').style.display = 'block';
                             		var vaPrice = elSelPrice.value.valueOf();
                             		if (elSelPrice.value != '') {
                             			if (typeof elSelPrice.value === 'number' || !isNaN(elSelPrice.value)) {
@@ -1530,6 +1527,54 @@
                             			//elfk_usedemployeeValue.style.display = 'none';
                             		}
                             		NA.common.getElementID('difInfo').style.display = 'block';
+                            		Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                            			if (item.checked) {
+                            				switch (item.value) {
+                            					case 'E': {
+                            						//munculkan textbox id_fk_sold_to_employee
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.removeAttribute('disabled');
+                            						var fk_sold_to_employee_employee = NA.common.getElementID('id_fk_sold_to_employee_employee');
+
+                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                            						fk_sold_to_p_other.value = fk_sold_to_employee_employee.value;
+
+                            						//enabledkan btn FE_fk_sold_employee
+                            						var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                            						btnfk_sold_employee.removeAttribute('disabled');
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+                            						//munculka divSoldTo
+                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						break;
+                            					}
+                            					case 'P': {
+                            						//munculkan textbox id_fk_sold_to_employee
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'none';
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                            						//munculka divSoldTo
+                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						break;
+                            					}
+                            					case 'O': {
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'none';
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                            						//munculka divSoldTo
+                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						break;
+                            					}
+                            				}
+                            			}
+                            		});
+
                             		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
                             		var viewportSize = NA.common.dialog.getViewportSize();
                             		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
@@ -1563,12 +1608,61 @@
                        					NA.common.getElementID('lastInfo').style.display = 'none';
                        					//elfk_usedemployeeValue.style.display = 'none';
                        				}
+                       				containerDialog.style.overflowX = 'hidden';
+                       				//check radiobutton
+                       				Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                       					if (item.checked) {
+                       						switch (item.value) {
+                       							case 'E': {
+                       								//munculkan textbox id_fk_sold_to_employee
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.setAttribute('disabled', true);
+                       								var fk_sold_to_employee_employee = NA.common.getElementID('id_fk_sold_to_employee_employee');
+
+                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       								fk_sold_to_p_other.value = fk_sold_to_employee_employee.value;
+
+                       								//enabledkan btn FE_fk_sold_employee
+                       								var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                       								btnfk_sold_employee.setAttribute('disabled', true);
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       							case 'P': {
+                       								//munculkan textbox id_fk_sold_to_employee
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+
+                       								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       								divAreaEmployee.style.display = 'none';
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       							case 'O': {
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+
+                       								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       								divAreaEmployee.style.display = 'none';
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       						}
+                       					}
+                       				});
                        				NA.common.getElementID('difInfo').style.display = 'block';
                        				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
                        				var viewportSize = NA.common.dialog.getViewportSize();
                        				containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
                        				containerDialog.style.overflowY = 'auto';
-                       				containerDialog.style.overflowX = 'hidden';
+
                        				break;
                        			}
                        		};
@@ -1593,7 +1687,62 @@
                        					NA.NAEvent.stopPropagation(evt);
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"]');
+                       			Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                       				NA.NAEvent.addHandler(item, 'click', function (evt) {
+                       					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                       						NA.NAEvent.preventDefault(evt);//prevent from submit
+                       						evt.stopImmediatePropagation();
+                       						return false;
+                       					}
+                       					switch (item.value) {
+                       						case "E": {
+                       							//munculkan textbox id_fk_sold_to_employee
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.removeAttribute('disabled');
+
+                       							var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       							fk_sold_to_p_other.setAttribute('disabled', true);
+
+                       							//enabledkan btn FE_fk_sold_employee
+                       							var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                       							btnfk_sold_employee.removeAttribute('disabled');
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+                       							//munculka divSoldTo
+                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                      							//focus di fk_sold_to_employee
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       						case "P": {
+                       							//munculkan textbox id_fk_sold_to_employee
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'none';
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                     							//munculka divSoldTo
+                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       						case "O": {
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'none';
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                       							//munculka divSoldTo
+                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       					};
+                       				});                       				
+                       			});
+                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"],[id="id_fk_sold_to_employee"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        				NA.NAEvent.addHandler(item, 'keydown', function (evt) {
                        					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -1633,7 +1782,8 @@
                        							case 'id_fk_proposedby':
                        							case 'id_fk_acknowledge1':
                        							case 'id_fk_approvedby':
-                       							case 'id_fk_acknowledge2': {
+                       							case 'id_fk_acknowledge2':
+                       							case 'id_fk_sold_to_employee':{
                        								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								fillEmployeeName(evt, this.id);
                        								break;
@@ -1651,12 +1801,13 @@
                        				changeYear: true,
                        				beforeShowDay: $.datepicker.noWeekends,
                        				minDate: (function (g) {
+                       					var eloriginalData = JSON.parse(originalData);
                        					if (g.status === 'Edit') {
-                       						var valdatedisposal = new Date(originalData.datedisposal);
+                       						var valdatedisposal = new Date(eloriginalData.datedisposal);
                        						return valdatedisposal;
                        					}
                        				})(win),
-                       				//maxDate: 0,
+                       				maxDate: 0,
                        				//showOn: "button",
                        				//showButtonPanel: true,
                        				closeText: "Close",
@@ -1667,7 +1818,6 @@
                        				var valdatedisposal = new Date(eloriginalData.datedisposal);
                        				$("#id_datedisposal").datepicker("setDate", valdatedisposal);
                        			}
-
                        			$('#id_datedisposal').datepicker().on("input change", function (e) {
                        				//get book value
                        				if (isSelectingDate) { return; }

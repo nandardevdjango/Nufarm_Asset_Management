@@ -155,7 +155,9 @@ div#info_dialog{
 .NA-Entry-inlinve-div ul li{
         float: left;margin-right:0;padding-right:0;padding-left:5px;
 }
-
+label input[type='radio'],label input[type='checkbox']{
+    vertical-align:top
+}
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }
