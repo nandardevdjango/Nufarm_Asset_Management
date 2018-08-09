@@ -1014,10 +1014,10 @@
                         		//elFKEmp.value = data['nik']||'';
                         		elempname.value = data['employee_name'] || '';
                         		elidapp.value = data['idapp'] || '';
-                        		if (elmID == 'id_fk_sold_to_employee') {
-                        			var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_other');
-                        			fk_sold_to_p_other.value = data['employee_name'] || '';
-                        		}
+                        		//if (elmID == 'id_fk_sold_to_employee') {
+                        		//	var sold_to_p_other = NA.common.getElementID('id_sold_to_other');
+                        		//	sold_to_p_other.value = data['employee_name'] || '';
+                        		//}
                         	}
                         }, null, function () {//function untuk ajax error
                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1527,7 +1527,7 @@
                             			//elfk_usedemployeeValue.style.display = 'none';
                             		}
                             		NA.common.getElementID('difInfo').style.display = 'block';
-                            		Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                            		Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
                             			if (item.checked) {
                             				switch (item.value) {
                             					case 'E': {
@@ -1535,14 +1535,18 @@
                             						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                             						fk_sold_to_employee.style.display = 'inline-block';
                             						fk_sold_to_employee.removeAttribute('disabled');
-                            						var fk_sold_to_employee_employee = NA.common.getElementID('id_fk_sold_to_employee_employee');
-
-                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
-                            						fk_sold_to_p_other.value = fk_sold_to_employee_employee.value;
-
+                               						fk_sold_to_employee.style.width = '120px';
+                               						fk_sold_to_employee.setAttribute('placeholder','NIK');
+                               						fk_sold_to_employee.setAttribute('data-value','NIK');
+                               						fk_sold_to_employee.setAttribute('tittle', 'please enter NIK');
+ 
                             						//enabledkan btn FE_fk_sold_employee
                             						var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
                             						btnfk_sold_employee.removeAttribute('disabled');
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'inline-flex';
+
                             						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
                             						//munculka divSoldTo
                             						NA.common.getElementID('divSoldTo').style.display = 'block';
@@ -1552,6 +1556,13 @@
                             						//munculkan textbox id_fk_sold_to_employee
                             						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                             						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.style.width = '75%';
+                            						fk_sold_to_employee.setAttribute('placeholder', 'Personal who buys');
+                            						fk_sold_to_employee.setAttribute('data-value', 'Personal who buys');
+                            						fk_sold_to_employee.setAttribute('tittle', 'Personal who buys');
+
+                            					    //get value sold_to_p_other
+                            					    //tempelkan di sold_to_employee
 
                             						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                             						divAreaEmployee.style.display = 'none';
@@ -1563,10 +1574,17 @@
                             					case 'O': {
                             						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                             						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.style.width = '75%';
+
+                            					    //get value sold_to_p_other
+                                                    //tempelkan di sold_to_employee
+                            						fk_sold_to_employee.setAttribute('placeholder', 'Employee/Personal/Firm who buys');
+                            						fk_sold_to_employee.setAttribute('data-value', 'Employee/Personal/Firm who buys');
+                            						fk_sold_to_employee.setAttribute('tittle', 'Employee/Personal/Firm who buys');
 
                             						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                             						divAreaEmployee.style.display = 'none';
-                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
                             						//munculka divSoldTo
                             						NA.common.getElementID('divSoldTo').style.display = 'block';
                             						break;
@@ -1610,7 +1628,7 @@
                        				}
                        				containerDialog.style.overflowX = 'hidden';
                        				//check radiobutton
-                       				Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                       				Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
                        					if (item.checked) {
                        						switch (item.value) {
                        							case 'E': {
@@ -1618,10 +1636,6 @@
                        								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        								fk_sold_to_employee.style.display = 'inline-block';
                        								fk_sold_to_employee.setAttribute('disabled', true);
-                       								var fk_sold_to_employee_employee = NA.common.getElementID('id_fk_sold_to_employee_employee');
-
-                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
-                       								fk_sold_to_p_other.value = fk_sold_to_employee_employee.value;
 
                        								//enabledkan btn FE_fk_sold_employee
                        								var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
@@ -1635,6 +1649,10 @@
                        								//munculkan textbox id_fk_sold_to_employee
                        								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.style.width = '75%';
+
+                       							    //get value sold_to_p_other
+                       							    //tempelkan di sold_to_employee
 
                        								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        								divAreaEmployee.style.display = 'none';
@@ -1646,15 +1664,20 @@
                        							case 'O': {
                        								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.style.width = '75%';
+
+                       							    //get value sold_to_p_other
+                       							    //tempelkan di sold_to_employee
 
                        								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        								divAreaEmployee.style.display = 'none';
-                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = " Sold to Others";
                        								//munculka divSoldTo
                        								NA.common.getElementID('divSoldTo').style.display = 'block';
                        								break;
                        							}
                        						}
+                       						item.setAttribute('disabled', true);
                        					}
                        				});
                        				NA.common.getElementID('difInfo').style.display = 'block';
@@ -1687,7 +1710,7 @@
                        					NA.NAEvent.stopPropagation(evt);
                        				});
                        			});
-                       			Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_1"]'), function (item) {
+                       			Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
                        				NA.NAEvent.addHandler(item, 'click', function (evt) {
                        					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                        						NA.NAEvent.preventDefault(evt);//prevent from submit
@@ -1700,14 +1723,19 @@
                        							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        							fk_sold_to_employee.style.display = 'inline-block';
                        							fk_sold_to_employee.removeAttribute('disabled');
-
-                       							var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
-                       							fk_sold_to_p_other.setAttribute('disabled', true);
+                       							fk_sold_to_employee.style.width = '120px';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'NIK');
+                       							fk_sold_to_employee.setAttribute('data-value', 'NIK');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Please enter NIK');
 
                        							//enabledkan btn FE_fk_sold_employee
                        							var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
                        							btnfk_sold_employee.removeAttribute('disabled');
                        							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'inline-flex';
+
                        							//munculka divSoldTo
                        							NA.common.getElementID('divSoldTo').style.display = 'block';
                       							//focus di fk_sold_to_employee
@@ -1718,6 +1746,10 @@
                        							//munculkan textbox id_fk_sold_to_employee
                        							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.style.width = '75%';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'Personal who buys');
+                       							fk_sold_to_employee.setAttribute('data-value', 'Personal who buys');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Personal who buys');
 
                        							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        							divAreaEmployee.style.display = 'none';
@@ -1730,10 +1762,14 @@
                        						case "O": {
                        							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                        							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.style.width = '75%';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'Employee/Personal/Firm who buys');
+                       							fk_sold_to_employee.setAttribute('data-value', 'Employee/Personal/Firm who buys');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Employee/Personal/Firm who buys');
 
                        							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        							divAreaEmployee.style.display = 'none';
-                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Others";
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
                        							//munculka divSoldTo
                        							NA.common.getElementID('divSoldTo').style.display = 'block';
                        							fk_sold_to_employee.focus();

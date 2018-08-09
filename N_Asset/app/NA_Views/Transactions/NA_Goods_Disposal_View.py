@@ -263,12 +263,12 @@ class NA_Goods_Disposal_Form(forms.Form):
 									'class':'NA-Form-Control','style':'width:132px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
 	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
 	
-	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;margin-right:5px;display:inline-block;','disabled':True,
+	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;margin-right:5px;margin-left:5px;display:inline-block;','disabled':True,
 																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
-	fk_sold_to_employee_employee = forms.CharField(widget=forms.HiddenInput(),required=False)
+	fk_sold_to_employee_employee = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																							'placeholder': 'Employee who buys','data-value':'Employee who buys','tittle':'Employee who buys'}),required=False)
 	idapp_fk_sold_to_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	sold_to_p_other = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
-																							'placeholder': 'Employee/Personal/Firm who buys','data-value':'Employee/Personal/Firm who buys','tittle':'Employee/Personal/Firm who buys'}))
+	sold_to_p_other = forms.CharField(required=False,widget=forms.HiddenInput())
 	#proposedby
 	fk_proposedby = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,

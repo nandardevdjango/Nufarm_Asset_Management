@@ -75,7 +75,7 @@
                     </div>
                 </div>
                 <div id="divSoldTo"class="NA-Entry-div-row" style="margin-bottom:2px;border-top: 1px solid #0b9910;padding-top:5px">
-                    <label id="lblfk_sold_to_employee" for="fk_sold_to_employee" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:105px;font-size: 0.85em;">Sold to</label>
+                    <label id="lblfk_sold_to_employee" for="fk_sold_to_employee" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:105px;font-size: 0.85em;">Sold to</label>
                     <!--form.fk_sold_to_employee  di isi NIK dari employee bila form.sold_to widgetnya choice radio select di pilih employee
 						jika di pilih Personal atau other maka textbox ini haru di hide dan textbox sold_to_p_other di set focus btn FE_fk_sold_employee di disabled kan
 						tetapi bila pilihannya employee maka textbox fk_sold_to_employee di enabledkan dan sold_to_p_other di disabledkan dan FE_fk_sold_employee di enabledkan
@@ -83,7 +83,7 @@
 					-->
                     {{ form.fk_sold_to_employee }}
                     <div id="div-FE_fk_sold_employee" class="input-group" style="display:inline-flex;width:50%;">
-                        {{ form.sold_to_p_other }}
+                        {{ fk_sold_to_employee_employee }}                       
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_sold_employee" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
@@ -154,6 +154,6 @@
         {{ form.fk_lending }}
         {{ form.fk_outwards }}
 		{{ form.idapp_fk_sold_to_employee }}
-		{{ fk_sold_to_employee_employee }}
+		 {{ form.sold_to_p_other }}
     </form>
 </div>
