@@ -734,6 +734,13 @@
 		    var elidapp_fk_usedemployee = NA.common.getElementID('id_idapp_fk_usedemployee');
 		    elidapp_fk_usedemployee.value = originalData.idapp_fk_usedemployee || null;
 		    NA.common.getElementID('difInfo').style.display = 'none';
+		    NA.common.getElementID('id_sold_to_0').checked = false;
+		    NA.common.getElementID('id_sold_to_1').checked = false;
+		    NA.common.getElementID('id_sold_to_2').checked = false;
+		    NA.common.getElementID('id_fk_sold_to_employee') = '';
+		    NA.common.getElementID('id_fk_sold_to_employee_employee') = '';
+		    NA.common.getElementID('id_sold_to_p_other').value = '';
+		    NA.common.getElementID('id_idapp_fk_sold_to') = originalData.idapp_fk_sold_to_employee || null;
 
 		};
 		function getValuesForm() {
@@ -819,11 +826,31 @@
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 
-            
-			//(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
-			// FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
-			// FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
-
+			//Sold area
+			//sold_to -->choices id_sold_to_0,choices id_sold_to_1,choices id_sold_to_2
+			var sold_to = ''; var sold_to_p_other = '';var idapp_fk_sold_to_employee =  0;
+			var elidsold_to_p_other = NA.common.getElementID('id_sold_to_p_other');
+			var elidapp_fk_sold_to_employee = NA.common.getElementID('idapp_fk_sold_to_employee');
+			var elfk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');			
+			if (issold === true) {
+				var id_sold_0 = NA.common.getElementID('id_sold_to_0'), id_sold_1 = NA.common.getElementID('id_sold_to_1'), id_sold_2 = NA.common.getElementID('id_sold_2');
+				if (id_sold_0.checked) {
+					sold_to = 'E';
+					sold_to_p_other = '';
+					idapp_fk_sold_to_employee = elidapp_fk_sold_to_employee.value;
+				}
+				if (id_sold_1.checked) {
+					sold_to = 'P';
+					sold_to_p_other = elfk_sold_to_employee.value;
+					idapp_fk_sold_to_employee = 0;
+				}
+				else if (id_sold_2.checked) {
+					sold_to = 'O';
+					sold_to_p_other = elfk_sold_to_employee.value;
+					idapp_fk_sold_to_employee = 0;
+				}
+					//else { ShowAlert('Please define sold to', NA.common.message.titleInfo); win.document.body.style.cursor = 'default'; throw new Error(''); }
+			}			
 			return {
 				idapp: idapp, fk_goods: fk_goods, idapp_fk_goods: idapp_fk_goods, datedisposal: datedisposal, islost: islost,
 				issold: issold, sellingprice:selprice,bookvalue:bookvalue,
@@ -833,8 +860,9 @@
 				fk_proposedby: fk_proposedby, idapp_fk_proposedby: idapp_fk_proposedby,
 				descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_maintenance: fk_maintenance, fk_return: fk_return, fk_lending: fk_lending, fk_outwards: fk_outwards,
-				faaccfa:faaccfa,fk_lost:fklost,
-				idapp_fk_usedemployee:idapp_fk_usedemployee,status: win.status
+				faaccfa:faaccfa,fk_lost:fklost,idapp_fk_usedemployee: idapp_fk_usedemployee,
+				sold_to: sold_to, idapp_fk_sold_to_employee: idapp_fk_sold_to_employee, sold_to_p_other: sold_to_p_other,
+				status: win.status
 			}
 		};
 		function closeDialog() {
@@ -1014,10 +1042,8 @@
                         		//elFKEmp.value = data['nik']||'';
                         		elempname.value = data['employee_name'] || '';
                         		elidapp.value = data['idapp'] || '';
-                        		//if (elmID == 'id_fk_sold_to_employee') {
-                        		//	var sold_to_p_other = NA.common.getElementID('id_sold_to_other');
-                        		//	sold_to_p_other.value = data['employee_name'] || '';
-                        		//}
+                        		var sold_to_p_other = NA.common.getElementID('id_sold_to_other');
+                        		sold_to_p_other.value = '';
                         	}
                         }, null, function () {//function untuk ajax error
                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1476,15 +1502,20 @@
                        	    $(this).html(responseTxt);
                        	    //create Element SettingsControl
                        	    var elSetCtrl =   NA.common.doc.createElement('hidden');// "input type='hidden' id='SetCtrlDisposal',name='settingControl'
-                       	    var elIsSold = NA.common.getElementID('id_issold')
+                       	    var elIsSold = NA.common.getElementID('id_issold'),
+								 isSold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
+                       	    var valSold_to = '';
                             elSetCtrl.id = 'SetCtrlDisposal';
                             elSetCtrl.name = 'settingControl';                            
                             valSetCtrl['btnPrintPrev'] = false;
                             valSetCtrl['btnExport'] = false;
-							
+                            var divSold = NA.common.getElementID('divSoldTo');
+                            var divPlanSold = NA.common.getElementID('divPlanSold');
                             var elSelPrice = NA.common.getElementID('id_sellingprice');
                             elSelPrice.setAttribute('placeholder',Number(elSelPrice.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                       		NA.common.getElementID('difInfo').style.display = 'none';
+                            NA.common.getElementID('difInfo').style.display = 'none';
+                            divPlanSold.style.display = 'none';
+                            divSold.style.display = 'none';
                             switch (win.status.trim()) {
                        			case 'Add': {
                        				Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
@@ -1496,7 +1527,7 @@
                        			    //disabledkan selling price
                        				valSetCtrl['btnOK'] = true;
                        				valSetCtrl['btnCancel'] = true
-                       				var divSold = NA.common.getElementID('divSoldTo');
+                       			
                        				divSold.style.display = 'none';
                        				break;
                        			}
@@ -1531,6 +1562,7 @@
                             			if (item.checked) {
                             				switch (item.value) {
                             					case 'E': {
+
                             						//munculkan textbox id_fk_sold_to_employee
                             						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                             						fk_sold_to_employee.style.display = 'inline-block';
@@ -1549,7 +1581,7 @@
 
                             						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
                             						//munculka divSoldTo
-                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						divSold.style.display = 'block';
                             						break;
                             					}
                             					case 'P': {
@@ -1563,12 +1595,14 @@
 
                             					    //get value sold_to_p_other
                             					    //tempelkan di sold_to_employee
+                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                            						fk_sold_to_employee.value = fk_sold_to_p_other.value;
 
                             						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                             						divAreaEmployee.style.display = 'none';
                             						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
                             						//munculka divSoldTo
-                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						divSold.style.display = 'block';
                             						break;
                             					}
                             					case 'O': {
@@ -1577,7 +1611,10 @@
                             						fk_sold_to_employee.style.width = '75%';
 
                             					    //get value sold_to_p_other
-                                                    //tempelkan di sold_to_employee
+                            						//tempelkan di sold_to_employee
+                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                            						fk_sold_to_employee.value = fk_sold_to_p_other.value;
+
                             						fk_sold_to_employee.setAttribute('placeholder', 'Employee/Personal/Firm who buys');
                             						fk_sold_to_employee.setAttribute('data-value', 'Employee/Personal/Firm who buys');
                             						fk_sold_to_employee.setAttribute('tittle', 'Employee/Personal/Firm who buys');
@@ -1586,13 +1623,16 @@
                             						divAreaEmployee.style.display = 'none';
                             						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
                             						//munculka divSoldTo
-                            						NA.common.getElementID('divSoldTo').style.display = 'block';
+                            						divSold.style.display = 'block';
                             						break;
                             					}
                             				}
                             			}
+                            			valSold_to = item.value;
+                            			if (!valSold_to) {
+                            				divSold.style.display = 'none';
+                            			}
                             		});
-
                             		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
                             		var viewportSize = NA.common.dialog.getViewportSize();
                             		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
@@ -1651,8 +1691,10 @@
                        								fk_sold_to_employee.style.display = 'inline-block';
                        								fk_sold_to_employee.style.width = '75%';
 
-                       							    //get value sold_to_p_other
-                       							    //tempelkan di sold_to_employee
+                       								//get value sold_to_p_other
+                       								//tempelkan di sold_to_employee
+                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       								fk_sold_to_employee.value = fk_sold_to_p_other.value;
 
                        								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        								divAreaEmployee.style.display = 'none';
@@ -1666,8 +1708,10 @@
                        								fk_sold_to_employee.style.display = 'inline-block';
                        								fk_sold_to_employee.style.width = '75%';
 
-                       							    //get value sold_to_p_other
-                       							    //tempelkan di sold_to_employee
+                       								//get value sold_to_p_other
+                       								//tempelkan di sold_to_employee
+                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       								fk_sold_to_employee.value = fk_sold_to_p_other.value;
 
                        								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
                        								divAreaEmployee.style.display = 'none';
@@ -1678,8 +1722,12 @@
                        							}
                        						}
                        						item.setAttribute('disabled', true);
+                       						valSold_to = item.value;
                        					}
                        				});
+                       				if (!valSold_to) {
+                       					divSold.style.display = 'none';
+                       				}
                        				NA.common.getElementID('difInfo').style.display = 'block';
                        				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
                        				var viewportSize = NA.common.dialog.getViewportSize();
@@ -1737,7 +1785,7 @@
                        							divAreaEmployee.style.display = 'inline-flex';
 
                        							//munculka divSoldTo
-                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                       							divSold.style.display = 'block';
                       							//focus di fk_sold_to_employee
                        							fk_sold_to_employee.focus();
                        							break;
@@ -1755,7 +1803,7 @@
                        							divAreaEmployee.style.display = 'none';
                        							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
                      							//munculka divSoldTo
-                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                       							divSold.style.display = 'block';
                        							fk_sold_to_employee.focus();
                        							break;
                        						}
@@ -1771,7 +1819,7 @@
                        							divAreaEmployee.style.display = 'none';
                        							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
                        							//munculka divSoldTo
-                       							NA.common.getElementID('divSoldTo').style.display = 'block';
+                       							divSold.style.display = 'block';
                        							fk_sold_to_employee.focus();
                        							break;
                        						}
@@ -1818,10 +1866,16 @@
                        							case 'id_fk_proposedby':
                        							case 'id_fk_acknowledge1':
                        							case 'id_fk_approvedby':
-                       							case 'id_fk_acknowledge2':
-                       							case 'id_fk_sold_to_employee':{
-                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                       							case 'id_fk_acknowledge2': {
+                      								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								fillEmployeeName(evt, this.id);
+                       								break;
+                       							}
+                       							case 'id_fk_sold_to_employee': {
+                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                       								if (NA.common.getElementID('id_sold_to_0').checked) {
+                       									fillEmployeeName(evt, this.id);
+                       								}
                        								break;
                        							}
                        						};//end switch
@@ -1906,14 +1960,18 @@
                        			//=========EVENT Handler checkbox================
 
                        			NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
+                       				var divPlanSold = NA.common.getElementID('divPlanSold');
                        				if (evt.target.checked) {
                        					elSelPrice.removeAttribute('disabled');
                        					elIsSold.value = true;
-										elSelPrice.focus();
+                       					divPlanSold.style.display = 'block';
+                       					elSelPrice.focus();
+
                        				} else {
                        					elSelPrice.setAttribute('disabled', true);
                        					elSelPrice.value = '';
-                       					elIsSold.value = false;										
+                       					elIsSold.value = false;
+                       					divPlanSold.style.display = 'none';
                        				}
                        			});
                        			//======================event handler BUTTONS Search================================================ 

@@ -497,14 +497,15 @@ class NA_BR_Goods_Disposal(models.Manager):
 			with transaction.atomic():
 				if Status == StatusForm.Input:
 					Query = """INSERT INTO n_a_disposal
-							(TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice,
+							(TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice,Sold_To,FK_Sold_To_Employee,Sold_To_P_Other,
 								BookValue, FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, FK_ApprovedBy,
 								Descriptions, FK_ProposedBy, FK_Return,FK_Lost, FK_Stock, FK_UsedEmployee,CreatedDate, CreatedBy)
-							VALUES (%(TypeApp)s, %(SerialNumber)s, %(DateDisposal)s, %(IsLost)s, %(IsSold)s, %(SellingPrice)s,
+							VALUES (%(TypeApp)s, %(SerialNumber)s, %(DateDisposal)s, %(IsLost)s, %(IsSold)s, %(SellingPrice)s,%(Sold_To)s,%(FK_Sold_To_Employee)s,%(Sold_To_P_Other)s,
 								%(BookValue)s, %(FK_Acc_FA)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Outwards)s, %(FK_Maintenance)s, 
 								%(FK_Acknowledge1)s, %(FK_Acknowledge2)s, %(FK_ApprovedBy)s,%(Descriptions)s, 
 								%(FK_ProposedBy)s, %(FK_Return)s,%(FK_Lost)s, %(FK_Stock)s, %(FK_UsedEmployee)s,NOW(), %(CreatedBy)s)"""
 					params = {'TypeApp':Data['typeapp'], 'SerialNumber':Data['serialnumber'], 'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
+							'Sold_To':Data['sold_to'],'FK_Sold_To_Employee':Data['idapp_fk_sold_to_employee'],'Sold_To_P_Other':Data['sold_to_p_other'],
 								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
 								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
 								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Lost':Data['fk_lost'],'FK_Stock':fk_stock, 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
@@ -535,6 +536,9 @@ class NA_BR_Goods_Disposal(models.Manager):
 								IsLost=%(IsLost)s,
 								IsSold=%(IsSold)s,
 								SellingPrice=%(SellingPrice)s,
+								Sold_To = %(Sold_To)s,
+								FK_Sold_To_Employee = %(FK_Sold_To_Employee),
+								Sold_To_P_Other = %(Sold_To_P_Other)s,
 								BookValue=%(BookValue)s,
 								FK_Acc_FA=%(FK_Acc_FA)s,
 								FK_Goods=%(FK_Goods)s,
@@ -552,6 +556,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 								ModifiedDate = NOW() 
 							WHERE IDApp = %(IDApp)s """
 					params = {'IDApp':Data['idapp'],'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
+							 'Sold_To':Data['sold_to'],'FK_Sold_To_Employee':Data['idapp_fk_sold_to_employee'],'Sold_To_P_Other':Data['sold_to_p_other'],
 								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
 								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
 								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],

@@ -7,7 +7,7 @@
             <div class="NA-Entry-div-row">
                 <label for="serialnumber" class="NA-Entry-label;" style="display:inline-block; width:107px;margin-right:5px;">Serial Number</label>
                 {{ form.serialnumber }}
-                <div class="input-group" style="display: inline-flex; width: 48%;">
+                <div class="input-group" style="display: inline-flex; width: 50%;">
                     {{ form.goods }}
                     <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                         <button class="btn btn-success" type="button" id="FE_fk_goods" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
@@ -66,7 +66,7 @@
                         {{ form.sellingprice }}
                     </div>
                 </div>
-                <div class="NA-Entry-div-row" style="margin-bottom:2px;border-top: 1px solid #0b9910">
+                <div id ="divPlanSold" class="NA-Entry-div-row" style="margin-bottom:2px;border-top: 1px solid #0b9910">
                     <div class="NA-Entry-inlinve-div" style="width:95px;padding-left:10px;vertical-align:middle">
                         <label>Sold to</label>
                     </div>
@@ -83,7 +83,7 @@
 					-->
                     {{ form.fk_sold_to_employee }}
                     <div id="div-FE_fk_sold_employee" class="input-group" style="display:inline-flex;width:50%;">
-                        {{ fk_sold_to_employee_employee }}                       
+                        {{ form.fk_sold_to_employee_employee }}                       
                         <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                             <button class="btn btn-success" type="button" id="FE_fk_sold_employee" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                         </span>

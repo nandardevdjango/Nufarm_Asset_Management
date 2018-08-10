@@ -206,6 +206,7 @@ def ShowEntry_Disposal(request):
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
 				data.update(fk_outwards=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
 				data.update(fk_lost=(None if int(data['fk_lost']) == 0 else data['fk_lost']))
+				data.update(idapp_fk_sold_to_employee=(None if int(data['idapp_fk_sold_to_employee']) ==0 else data['idapp_fk_sold_to_employee']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					result = NADisposal.objects.SaveData(data,StatusForm.Input)
