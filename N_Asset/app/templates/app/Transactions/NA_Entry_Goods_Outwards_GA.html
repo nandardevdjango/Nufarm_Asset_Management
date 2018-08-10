@@ -3,7 +3,7 @@
         color:#cccccc;
         border: 1px solid#cccccc;
         background: white;
-        padding: 6px;
+        padding: 2px;
         border-radius: 4px;
         position:relative;
         top:5px;
@@ -11,6 +11,7 @@
         display: inline-block;
         max-width: 370px;
         cursor: text;
+        min-height: 35px;
     }
 </style>
 
@@ -104,16 +105,16 @@
                 <div style="margin-bottom:5px;margin-right:auto">
                     <div class="NA-Entry-inlinve-div">
                         <label for="id_equipment" style="display:inline-block; width:120px;">Equipment</label>
-                        <ul style="display:inline;">
+                        <ul style="display:inline;vertical-align: bottom;">
                             <li class="dropdown" style="display:inline;">
                                 <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment..">
                                     <input id="fake_input_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu search" id="dropdown_equipment" style="top:28px">
                                     <li><input id="search_equipment" type="text" class="NA-Form-Control" style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" /></li>
-                                    <li id="item_search" data-id="1" data-selected="false"><p>Ban Cadangan</p></li>
-                                    <li id="item_search" data-id="2" data-selected="false"><p>Radio</p></li>
-                                    <li id="item_search" data-id="3" data-selected="false"=""><p>AC</p></li>
+                                    {% for equipment in equipments %}
+                                    <li id="item_search" data-id="{{ equipment.idapp }}" data-selected="false"><p>{{ equipment.name_app }}</p></li>
+                                    {% endfor %}
                                 </ul>
                             </li>
                         </ul>

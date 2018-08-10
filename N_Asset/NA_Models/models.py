@@ -1,4 +1,5 @@
-﻿from os import path
+﻿import re
+from os import path
 from datetime import datetime
 from django.db import models
 from django.db.models import Q
@@ -1577,9 +1578,9 @@ class NAGoodsEquipment(NA_BaseModel):
     @classmethod
     def get_type_app(cls, request):
         url_name = request.resolver_match.url_name
-        if url_name == 'ga_equipment':
+        if re.match(r'ga', url_name):
             return cls.GA
-        elif url_name == 'it_equipment':
+        elif re.match(r'it', url_name):
             return cls.IT
         else:
             raise ValueError('url is not desired')

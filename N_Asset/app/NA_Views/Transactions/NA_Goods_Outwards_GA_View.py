@@ -217,7 +217,7 @@ def Entry_Goods_Outwards_GA(request):
             'app/Transactions/NA_Entry_Goods_Outwards_GA.html',
             {
                 'form': form,
-                'equipment': NAGoodsEquipment.get_equipment(request)
+                'equipments': NAGoodsEquipment.get_equipment(request)
             }
         )
 
