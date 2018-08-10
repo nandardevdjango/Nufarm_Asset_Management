@@ -67,10 +67,10 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
 }
 
 .equipment-item{
-    padding: 0.6em;
+    padding: 0.5em;
     font-weight: normal;
     font-size: 12px;
-    margin: 4px;
+    margin: 3px;
     display: inline-block;
 }
 .equipment-close{
@@ -906,14 +906,41 @@ li.item-selected{
                                 $('#add_equipment').click(function(){
                                     NA_Bootstrap.dialog.dialogConfirm(
                                         (function(){
-                                            var container_form = $('<form id="add_equipment_form"></form>');
-                                            var field = '<div class="NA-Entry-inlinve-div"><label style="display:inline-block; width:60px;">Name</label>';
-                                            field += '<input class="NA-Form-Control" placeholder="equipment name" style="display:inline-block;width:225px" required="" id="add_equipment" type="text"></div>';
-                                            container_form.append($(field))
-                                            container_form.append($('<input id="submit_add_equipment" type="submit" style="display:none;" />'))
+                                            var container_form = $('<div></div>');
+                                            $.ajax({
+                                                url: 'add_equipment/',
+                                                success: function(data){
+                                                    container_form.append($(data));
+                                                }
+                                            });
                                             return container_form;
                                         })(),
-                                        'Add Equipment'
+                                        'Add Equipment',
+                                        function(){
+                                            var form = document.getElementById('add_equipment_form');
+                                            if (form.checkValidity()){
+                                                $.ajax({
+                                                    url: 'add_equipment/',
+                                                    method: 'POST',
+                                                    data:{
+                                                        name_app: qs('#id_name_app').value.trim()
+                                                    },
+                                                    beforeSend: function(xhr){
+                                                        xhr.setRequestHeader(
+                                                            'X-CSRFToken',
+                                                            form.children[0].value
+                                                        )
+                                                    },
+                                                    success: function(data){
+                                                        return;
+                                                    }
+                                                })
+                                            }
+                                        },
+                                        function(){
+                                            return false;
+                                        },
+                                        true
                                     )
                                 })
                                 

@@ -7,7 +7,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import NAGaOutwards, goods, NASuplier
+from NA_Models.models import NAGaOutwards, goods, NASuplier, NAGoodsEquipment
 
 
 def NA_Goods_Outwards_GA(request):
@@ -159,7 +159,6 @@ class NAGaOutwardsForm(forms.Form):
     ))
 
     typeapp = forms.CharField(widget=forms.HiddenInput())
-    
     equipment = forms.CharField(widget=forms.HiddenInput())
 
     add_equipment = forms.CharField(widget=forms.TextInput(
@@ -213,7 +212,14 @@ def Entry_Goods_Outwards_GA(request):
                 return commonFunct.response_default((data, result))
         else:
             form = NAGaOutwardsForm()
-        return render(request, 'app/Transactions/NA_Entry_Goods_Outwards_GA.html', {'form': form})
+        return render(
+            request,
+            'app/Transactions/NA_Entry_Goods_Outwards_GA.html',
+            {
+                'form': form,
+                'equipment': NAGoodsEquipment.get_equipment(request)
+            }
+        )
 
 
 @decorators.ajax_required

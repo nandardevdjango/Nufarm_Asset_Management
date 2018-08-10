@@ -1612,15 +1612,30 @@ class NAGaVnHistory(NA_BaseModel):
         db_table = 'n_a_ga_vn_history'
 
 
-class NAGoodsEquipment(models.Model):
-    IT, GA = range(2)
+class NAGoodsEquipment(NA_BaseModel):
+    modifiedby = None
+    modifieddate = None
 
-    idapp = models.AutoField(db_column='IDApp', primary_key=True)
+    IT, GA = range(2)
     name_app = models.CharField(db_column='NameApp', max_length=50)
     type_app = models.IntegerField(
         choices=((GA, 'GA'), (IT, 'IT')),
         db_column='TypeApp',
     )
+
+    @classmethod
+    def get_type_app(cls, request):
+        url_name = request.resolver_match.url_name
+        if url_name == 'ga_equipment':
+            return cls.GA
+        elif url_name == 'it_equipment':
+            return cls.IT
+        else:
+            raise ValueError('url is not desired')
+
+    @classmethod
+    def get_equipment(cls, request):
+        return cls.objects.filter(type_app=cls.get_type_app(request))
 
     class Meta:
         managed = True
