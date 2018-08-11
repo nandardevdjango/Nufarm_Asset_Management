@@ -1,6 +1,6 @@
 ﻿import re
 from os import path
-from datetime import datetime
+from datetime import datetime, date
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
@@ -29,6 +29,7 @@ from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
+from NA_DataLayer.common import commonFunct
 
 
 def forced_mariadb_connection(self):
@@ -1519,6 +1520,16 @@ class NAGaReceive(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_receive'
 
+    def get_active_reg_number(self):
+        reg = self.nagavnhistory_set.all()
+        if reg.exists():
+            commonFunct.cache_queryset(queryset=reg)
+            for instance in reg:
+                if not instance.is_expired_reg and not instance.is_bpkb_expired:
+                    return instance
+                    break
+        return None
+
 
 class NAGaVnHistory(NA_BaseModel):
 
@@ -1558,6 +1569,14 @@ class NAGaVnHistory(NA_BaseModel):
     )
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
+
+    @property
+    def is_expired_reg(self):
+        return date.today() > self.expired_reg
+
+    @property
+    def is_bpkb_expired(self):
+        return date.today() > self.bpkb_expired
 
     class Meta:
         managed = True

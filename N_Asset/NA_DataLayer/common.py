@@ -10,6 +10,7 @@ from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
+from django.core.serializers import serialize
 from django.conf import settings
 
 
@@ -823,3 +824,13 @@ class commonFunct:
         if cls.check_dir_exists(dir_user_image + image_name):
             remove(dir_user_image)
         # this is manually, but for good idea look at this is reference https://stackoverflow.com/questions/15885201/django-uploads-discard-uploaded-duplicates-use-existing-file-md5-based-check
+
+    def serialize_queryset(queryset):
+        try:
+            data = serialize('json', queryset)
+        except AttributeError:
+            data = [i for i in queryset]
+        return data
+
+    def cache_queryset(queryset):
+        return [i for i in queryset]

@@ -129,7 +129,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             CREATE TEMPORARY TABLE T_form_ga_receive ENGINE=InnoDB AS(
                 SELECT ngr.idapp, ngr.fk_goods, g.itemcode, g.goodsname, s.supliercode,
                 s.supliername, ngr.fk_p_r_by AS pr_by, emp1.pr_by_nik, emp1.pr_by_name,
-                ngr.fk_receivedby, emp2.received_by_nik, emp2.received_by_name,
+                ngr.fk_receivedby AS received_by, emp2.received_by_nik, emp2.received_by_name,
                 DATE_FORMAT(ngr.datereceived, \'%%d/%%m/%%Y\') AS datereceived, ngr.brand,
                 ngr.invoice_no, ngr.typeapp, ngr.machine_no,
                 ngr.chassis_no, DATE_FORMAT(ngr.year_made, \'%%Y\') AS year_made, ngr.colour,

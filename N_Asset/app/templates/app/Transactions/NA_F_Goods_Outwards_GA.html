@@ -58,35 +58,15 @@
 <script src="{% static 'app/scripts/jquery-ui.js' %}"></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+<script src="{% static 'app/scripts/NAJQuery.js' %}"></script>
+
+<link rel="stylesheet" href="{% static 'app/content/select-multiple-choices.css' %}" />
 <style>
 div#content-0 {
     overflow:hidden;
 }
 div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Goods_Outwards_GA_pager,div.ui-jqgrid-titlebar{
     border-radius: 0px
-}
-
-.equipment-item{
-    padding: 0.4em 0.5em 0.5em 0.5em;
-    font-weight: normal;
-    font-size: 12px;
-    margin: 3px;
-    display: inline-block;
-}
-.equipment-close{
-    padding-right: 5px;
-    font-size: 13px;
-}
-.equipment-close:hover{
-    color: green;
-    cursor: pointer;
-}
-li#item_search p{
-    padding: 5px 14px;
-}
-li.item-selected{
-    background: green;
-    color: white;
 }
 </style>
 {% endblock %}
@@ -799,158 +779,17 @@ li.item-selected{
                                 }
                             };
                             if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit  
-                                $('#container_equipment').click(function(event){
-                                    event.preventDefault();
-                                    $('.item-selcted').removeClass('item-selected');
-                                    $('ul#dropdown_equipment li#item_search').first().addClass('item-selected');
-                                    setTimeout(function(){
-                                        $('#search_equipment').focus()
-                                    },100);
-                                });
-                                
-                                $('#search_equipment').on({
-                                    click: function(event){
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    },
-                                    keyup: function(event){
-                                        if(event.keyCode == 40 || event.key == 'ArrowDown'){
-                                            var data_id = $('.item-selected').data('id');
-                                            var next_item = $('.item-selected').next('li#item_search');
-                                            if(next_item.length){
-                                                next_item.addClass('item-selected');
-                                            } else {
-                                                $('ul#dropdown_equipment li#item_search').first().addClass('item-selected');
-                                            }
-                                            
-                                            $('li[data-id="'+ data_id +'"]').removeClass('item-selected');
-                                        } else if(event.keyCode == 38 || event.key == 'ArrowUp'){
-                                            var data_id = $('.item-selected').data('id');
-                                            var prev_item = $('.item-selected').prev('li#item_search');
-                                            if(prev_item.length){
-                                                prev_item.addClass('item-selected');
-                                            } else {
-                                                $('ul#dropdown_equipment li#item_search').last().addClass('item-selected');
-                                            }
-                                            
-                                            $('li[data-id="'+ data_id +'"]').removeClass('item-selected');
-                                        } else {
-                                            var q = this.value;
-                                            var pattern = new RegExp(q, 'i')
-                                            $('li#item_search').filter(function(index){
-                                                return $(this).text().match(pattern)
-                                            }).css('display','block');
-                                            $('li#item_search').filter(function(index){
-                                                return !$(this).text().match(pattern)
-                                            }).css('display','none').removeClass('item-selected');
-                                            $('ul#dropdown_equipment').children('li#item_search:visible').first().addClass('item-selected');
-                                            $('ul#dropdown_equipment').children('li#item_search:visible').nextAll().removeClass('item-selected');
-                                        }
-                                    },
-                                    keydown: function(event){
-                                        if(event.keyCode == 13){
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                            $('li.item-selected').click();
-                                            $('li#item_search').removeClass('item-selected').first().addClass('item-selected');
-                                        }
-                                    },
-                                    blur: function(event){
-                                        this.value = '';
-                                        $('li#item_search').css('display', 'block');
-                                    }
+                                NA$.Input.SelectMultipleChoice({
+                                    container_input: '#container_equipment',
+                                    input_name: 'equipment',
+                                    input_elm: 'input#id_equipment'
                                 });
 
-                                $(document).on('click', 'li#item_search', function(event){
-                                    NA.NAEvent.preventDefault(event);
-                                        var fake_input = $('#fake_input_equipment')
-                                        var equipment_item = '<span class="label label-success equipment-item"><span id="remove_item" class="equipment-close">x</span>'+
-                                            this.textContent+'</span>'
-                                        $(equipment_item).insertBefore(fake_input);
-                                        fake_input.focus();
-                                        this.dataset.selected = true;
+                                NA$.Input.SelectMultipleChoice({
+                                    container_input: '#container_add_equipment',
+                                    input_name: 'add_equipment',
+                                    input_elm: 'input#id_add_equipment'
                                 });
-
-                                $(document).on('mouseover', 'li#item_search', function(event){
-                                    var item = $('#dropdown_equipment li.item-selected')
-                                    if(item.length){
-                                        item.removeClass('item-selected');
-                                    }
-                                    $(event.currentTarget).addClass('item-selected');
-                                });
-
-                                $(document).on('mouseleave', 'li#item_search', function(event){
-                                    if(event.relatedTarget != null){
-                                        if(event.relatedTarget.tagName.toLocaleLowerCase() == 'p'){
-                                            $(event.currentTarget).removeClass('item-selected');
-                                        }
-                                    }
-                                    return;
-                                });
-
-                                $('#fake_input_equipment').keydown(function(event){
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    if (event.keyCode == 13){
-                                        $('#container_equipment').click();
-                                    }
-                                });
-
-                                $(document).on('click','span#remove_item', function(event){
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    $(this).parent().remove();
-                                    var container_equipment = $('#container_equipment')
-                                    if(!container_equipment.children().length){
-                                        container_equipment.text('Equipment..');
-                                        container_equipment[0].dataset.placeHolder = 'Equipment..'
-                                    }
-                                });
-
-                                $('#add_equipment').click(function(){
-                                    NA_Bootstrap.dialog.dialogConfirm(
-                                        (function(){
-                                            var container_form = $('<div></div>');
-                                            $.ajax({
-                                                url: 'add_equipment/',
-                                                success: function(data){
-                                                    container_form.append($(data));
-                                                }
-                                            });
-                                            return container_form;
-                                        })(),
-                                        'Add Equipment',
-                                        function(){
-                                            var form = document.getElementById('add_equipment_form');
-                                            if (form.checkValidity()){
-                                                $.ajax({
-                                                    url: 'add_equipment/',
-                                                    method: 'POST',
-                                                    data:{
-                                                        name_app: qs('#id_name_app').value.trim()
-                                                    },
-                                                    beforeSend: function(xhr){
-                                                        xhr.setRequestHeader(
-                                                            'X-CSRFToken',
-                                                            form.children[0].value
-                                                        )
-                                                    },
-                                                    success: function(data){
-                                                        $('ul#dropdown_equipment').append(
-                                                            $('<li id="item_search" data-id="'+ data.message.idapp +
-                                                                '" data-selected="false" class="item-selected" style="display: block;"><p>' +
-                                                                data.message.name_app + '</p></li>')
-                                                        )
-                                                    }
-                                                })
-                                            }
-                                        },
-                                        function(){
-                                            return false;
-                                        },
-                                        true
-                                    )
-                                })
                                 
                             	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_daterequest, input#id_datereleased').datepicker({

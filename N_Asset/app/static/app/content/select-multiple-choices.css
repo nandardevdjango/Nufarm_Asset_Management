@@ -1,0 +1,46 @@
+.container-multiselect{
+    color:#cccccc;
+    border: 1px solid#cccccc;
+    background: white;
+    padding: 2px;
+    border-radius: 4px;
+    position:relative;
+    top:5px;
+    min-width: 150px;
+    display: inline-block;
+    max-width: 370px;
+    cursor: text;
+    min-height: 35px;
+}
+.selected-item{
+    padding: 0.4em 0.5em 0.5em 0.5em;
+    font-weight: normal;
+    font-size: 12px;
+    margin: 3px;
+    display: inline-block;
+}
+.close-item{
+    padding-right: 5px;
+    font-size: 13px;
+}
+.close-item:hover{
+    color: green;
+    cursor: pointer;
+}
+li#item_choice p{
+    padding: 5px 14px;
+}
+li.item-hover{
+    background: green;
+    color: white;
+}
+.dialog-entry-equipment > .modal-dialog.modal-sm {
+    width: 350px;
+}
+.select-multiple{
+    max-height: 240px;
+    overflow: auto;
+}
+/* li#item_choice[data-selected="true"]{
+    color: green;
+} */
