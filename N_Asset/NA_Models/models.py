@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django_mysql.models import JSONField
+from django.core.exceptions import MultipleObjectsReturned
 
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
@@ -368,7 +369,8 @@ class NAAccFa(NA_BaseModel):
         blank=True,
         null=True
     )
-    is_parent = models.PositiveSmallIntegerField(db_column='IsParent', default=0)
+    is_parent = models.PositiveSmallIntegerField(
+        db_column='IsParent', default=0)
     lastupdated = models.DateTimeField(
         db_column='LastUpdated', blank=True, null=True)
     objects = NA_Acc_FA_BR()
@@ -432,7 +434,7 @@ class goods(NA_MasterDataModel):
         db_column='Placement', max_length=50, blank=True, null=True)
     typeapp = models.CharField(
         max_length=32,
-        db_column='typeapp', null=True, choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others'))
+        db_column='typeapp', null=True, choices=(('IT', 'IT'), ('GA', 'GA'), ('IT Accessories', 'IT Accessories'), ('GA Accesories', 'GA Accesories'), ('Others', 'Others'))
     )
 
     class Meta:
@@ -1119,7 +1121,7 @@ class NAPriviledge_form(models.Model):
     TRANSACTION_FORM = [
         Goods_Receive_form
     ]
-    
+
     OTHER_FORM = [
         Fix_asset_form
     ]
@@ -1521,14 +1523,18 @@ class NAGaReceive(NA_BaseModel):
         db_table = 'n_a_ga_receive'
 
     def get_active_reg_number(self):
-        reg = self.nagavnhistory_set.all()
-        if reg.exists():
-            commonFunct.cache_queryset(queryset=reg)
-            for instance in reg:
-                if not instance.is_expired_reg and not instance.is_bpkb_expired:
-                    return instance
-                    break
-        return None
+        today = date.today()
+        try:
+            reg = self.nagavnhistory_set.get(
+                expired_reg__gt=today,
+                bpkb_expired__gt=today
+            )
+        except MultipleObjectsReturned:
+            reg = self.nagavnhistory_set.filter(
+                expired_reg__gt=today,
+                bpkb_expired__gt=today
+            ).last()
+        return reg
 
 
 class NAGaVnHistory(NA_BaseModel):
@@ -1646,7 +1652,11 @@ class NAGAReturn(NAGoodsReturnModel):
     fk_goods_lend = None
 
     fk_ga_outwards = models.ForeignKey(
-        'NAGaOutwards', db_column='fk_ga_outwards', db_constraint=False, blank=True, null=True)
+        'NAGaOutwards',
+        db_column='fk_ga_outwards',
+        db_constraint=False,
+        blank=True, null=True
+    )
 
     objects = NA_BR_Goods_Return_GA()
 

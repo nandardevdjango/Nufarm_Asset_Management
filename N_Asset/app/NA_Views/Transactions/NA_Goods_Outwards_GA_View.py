@@ -169,6 +169,9 @@ class NAGaOutwardsForm(forms.Form):
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
+    def save(self, request):
+        outwards = NAGaOutwards()
+
 
 def Entry_Goods_Outwards_GA(request):
     if request.method == 'POST':
@@ -179,7 +182,8 @@ def Entry_Goods_Outwards_GA(request):
             if statusForm == 'Add':
                 data['createddate'] = datetime.now()
                 data['createdby'] = request.user.username
-                result = NAGaOutwards.objects.SaveData(StatusForm.Input, **data)
+                result = NAGaOutwards.objects.SaveData(
+                    StatusForm.Input, **data)
             elif statusForm == 'Edit':
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = request.user.username
@@ -247,3 +251,13 @@ def ShowCustomFilter(request):
     cols.append({'name': 'createdby', 'value': 'createdby',
                  'selected': '', 'dataType': 'varchar', 'text': 'Created By'})
     return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+
+
+def search_ga_by_form(request):
+    q = request.GET.get('q', '')
+    data = NAGaOutwards.objects.search_ga_by_form(q)
+    return commonFunct.search_data_by_form(
+        request,
+        data,
+        fields=['idapp, goods, reg_no, expired_reg, bpkb_expired, is_new, descriptions']
+    )

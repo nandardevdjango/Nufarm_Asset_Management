@@ -9,10 +9,12 @@ NA$.Input = {
             input_elm = kwargs.input_elm,
             item_choice = 'item_choice';
         var search_item = '#search_item_' + input_name,
-            dropdown_item = '#dropdown_item_' + input_name;
+            dropdown_item = '#dropdown_item_' + input_name,
+            item_choice_visible = item_choice + ':visible';
         
         function refresh_value_elm () {
-            var item_selected = NA$(container_input).children('span.label.label-success.selected-item');
+            var item_selected = NA$(container_input)
+                .children('span.label.label-success.selected-item');
             var data_id = []
             if (item_selected.length) {
                 NA$.each(item_selected, function (key, value) {
@@ -41,21 +43,25 @@ NA$.Input = {
             keyup: function (event) {
                 if (event.keyCode == 40 || event.key == 'ArrowDown') {
                     var data_id = NA$(dropdown_item + ' .item-hover').data('id');
-                    var next_item = NA$(dropdown_item + ' .item-hover').next('li#' + item_choice);
+                    var next_item = NA$(dropdown_item).children('.item-hover')
+                        .nextAll('li#' + item_choice_visible).first();
                     if (next_item.length) {
                         next_item.addClass('item-hover');
                     } else {
-                        NA$(dropdown_item + ' li#' + item_choice).first().addClass('item-hover');
+                        NA$(dropdown_item + ' li#' + item_choice_visible)
+                            .first().addClass('item-hover');
                     }
                     
                     NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
                 } else if (event.keyCode == 38 || event.key == 'ArrowUp') {
                     var data_id = NA$(dropdown_item + ' .item-hover').data('id');
-                    var prev_item = NA$(dropdown_item + ' .item-hover').prev('li#' + item_choice);
+                    var prev_item = NA$(dropdown_item + ' .item-hover')
+                        .prevAll('li#' + item_choice_visible).first();
                     if (prev_item.length) {
                         prev_item.addClass('item-hover');
                     } else {
-                        NA$(dropdown_item + ' li#' + item_choice).last().addClass('item-hover');
+                        NA$(dropdown_item + ' li#' + item_choice_visible)
+                            .last().addClass('item-hover');
                     }
                     
                     NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
@@ -68,7 +74,7 @@ NA$.Input = {
                     NA$(dropdown_item + ' li#' + item_choice).filter(function (index) {
                         return !NA$(this).text().match(pattern)
                     }).css('display', 'none').removeClass('item-hover');
-                    NA$(dropdown_item).children('li#' + item_choice + ':visible').first()
+                    NA$(dropdown_item).children('li#' + item_choice_visible).first()
                         .addClass('item-hover').nextAll().removeClass('item-hover');
                 }
             },
@@ -90,7 +96,8 @@ NA$.Input = {
         NA$(document).on('click', dropdown_item + ' li#' + item_choice, function (event) {
             NA.NAEvent.preventDefault(event);
             var fake_input = NA$('#fake_input_' + input_name)
-            var item_selected = '<span class="label label-success selected-item" data-id="'+ NA$(this).data('id') +'">' +
+            var item_selected = '<span class="label label-success selected-item" data-id="'
+                + NA$(this).data('id') + '">' +
                 '<span id="remove_item" class="close-item">x</span>' +
                 this.textContent + '</span>';
             NA$(item_selected).insertBefore(fake_input);
@@ -220,9 +227,12 @@ NA$.Input = {
 //     var spaceUp = (ulOffset.top - $button.height() - $ul.height()) - $(window).scrollTop();
 //     // how much space is left at the bottom
 //     var spaceDown = $(window).scrollTop() + $(window).height() - (ulOffset.top + $ul.height());
-//     var bottomDialog = NA$('div.bottomDialog').offset()
+//     var inline_div = NA$(this).parents('.NA-Entry-inlinve-div').offset().top
+//     var ul_height = Number($ul.css('height').replace('px', ''));
+//     console.log(inline_div);
+//     console.log(ul_height);
 //     // switch to dropup only if there is no space at the bottom AND there is space at the top, or there isn't either but it would be still better fit
-//     if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown)) {
+//     if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown) || ul_height > inline_div) {
 //         $(this).addClass("dropup");
 //     }
 // }).on("hidden.bs.dropdown", ".dropdown", function() {
