@@ -1,6 +1,8 @@
 ﻿html {
     height: 100%;
     overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -11,6 +13,7 @@ body {
     padding: 0;
     color: #000;
     background-image: linear-gradient(48deg,#E0E0E0,#FEFFFD,#8FBC8F);
+    -webkit-text-stroke: 0.1px;
 }
 /* Set padding to keep content from hitting the edges */
 .body-content {
