@@ -196,7 +196,7 @@
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
-		valSetCtrl = {},
+		valSetCtrl = {}, isSelectingDate = true;
         originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
@@ -251,14 +251,14 @@
 			}
 			else {
 				try {
-					//			#column idapp,NO,goods,goodstype,serialnumber,    <-->
+					//#column idapp,NO,goods,goodstype,serialnumber,    <-->
 					//idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate									
 					grid.jqGrid({
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value','Date Removal','Is Lost', 'Ref Goods From', 'Is Sold','Selling Price',
-							'Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value', 'Date Removal','afterrepair', 'lastrepairfrom', 'Is Lost', 'Ref Goods From', 'Is Sold', 'Selling Price', 
+							'Sold To','Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -270,6 +270,8 @@
                                 decimalPlaces: 2, prefix: "Rp "}
                             },
 							{ name: 'datedisposal', index: 'datedisposal', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							{ name: 'afterrepair', index: 'afterrepair', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
+							{ name: 'lastrepairfrom', index: 'lastrepairfrom', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
 							{ name: 'islost', index: 'islost', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'issold', index: 'issold', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
@@ -279,6 +281,7 @@
 									decimalPlaces: 2, prefix: "Rp "
 								}
 							},
+							{ name: 'soldto', index: 'soldto', width: 120, sortable: true, editable: false, align: 'left', },
 							{ name: 'proposedby', index: 'proposedby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'acknowledgedby', index: 'acknowledgedby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'approvedby', index: 'approvedby', width: 110, sortable: true, editable: false, align: 'left', },
@@ -608,15 +611,12 @@
 						SuccesTrans = true;
 						switch (win.status) {
 							case 'Add': {
-								//    //clear kan semua data
-								//    //reloadGridMaster
 								win.document.body.style.cursor = 'wait';
 								grid.trigger("reloadGrid", [{ page: 1 }]);
 								clearEntry();
 								originalData = JSON.stringify(getValuesForm());
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
-								//    //focus langsung ke 				    		
 								var elserialnumber = NA.common.getElementID('id_serialnumber');
 								elserialnumber.focus();
 								win.document.body.style.cursor = 'default';
@@ -630,7 +630,6 @@
 								break;
 							}
 						}
-						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
 					}
 					else {//error berarti
 						XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
@@ -650,25 +649,31 @@
 		    //fk_proposedby,fk_proposedby_employee, idapp_fk_proposedby,
 		    //fk_approvedby,fk_approvedby_employee, idapp_fk_approvedby, descriptions,
 		    //lastInfoValue,fk_usedemployeeValue,serialnumber,fk_maintenance,fk_return,fk_lending,
+		    var elgoods = NA.common.getElementID('id_goods');
+		    elgoods.value = '';
 		    var elidapp = NA.common.getElementID('id_idapp');
 		    elidapp.value = originalData.idapp || null;
 		    var elfk_goods = NA.common.getElementID('fk_goodsValue');
 		    elfk_goods.textContent = originalData.fk_goods || '';
 		    //goods tidak usah
 		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
-		    idapp_fk_goods.value = originalData.elidapp_fk_goods || 0;
+		    elidapp_fk_goods.value = originalData.elidapp_fk_goods || 0;
 
 		    var eldatedisposal = NA.common.getElementID('id_datedisposal');
 		    eldatedisposal.value = originalData.datedisposal;
 		    ////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
-		    var elIsLost = NA.common.getElementID('id_islost');
-		    elIsLost.removeAttribute('checked');
+		    var elIsLost = NA.common.getElementID('id_islost').value = false;;
+
 
 		    var elIsSold = NA.common.getElementID('id_issold');
 		    elIsSold.value = (originalData.value == '' || originalData.value == 'False') ? false : true;
-
+		    elIsSold.removeAttribute('checked');
+		    elIsSold.checked = false;
 		    var elSelPrice = NA.common.getElementID('id_sellingprice');
 		    elSelPrice.value = originalData.selprice || '';
+		    var elIsSold = NA.common.getElementID('id_issold').value = false;
+		    var elIsSold = NA.common.getElementID('id_issold').removeAttribute('checked');
+		    //var elSelPrice = NA.common.getElementID('id_sellingprice');
 
 		    var elBookValue = NA.common.getElementID('fk_bookvalueValue');
 		    elBookValue.value = originalData.bookvalue || 0;
@@ -678,15 +683,15 @@
 
 		    var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge1');
 		    elfk_acknowledge1.value = originalData.fk_acknowledge1 || '';
-		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_elfk_acknowledge1');
-		    elidapp_elfk_acknowledge1.value = originalData.idapp_elfk_acknowledge1 || null;
+		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_fk_acknowledge1');
+		    elidapp_elfk_acknowledge1.value = originalData.idapp_fk_acknowledge1 || null;
 		    var elfk_acknowledge1_emp = NA.common.getElementID('id_fk_acknowledge1_employee');
 		    elfk_acknowledge1_emp.value = '';
 
 		    var elfk_acknowledge2 = NA.common.getElementID('id_fk_acknowledge2');
 		    elfk_acknowledge2.value = originalData.fk_acknowledge2 || '';
-		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_elfk_acknowledge2');
-		    elidapp_elfk_acknowledge2.value = originalData.idapp_elfk_acknowledge2 || null;
+		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_fk_acknowledge2');
+		    elidapp_elfk_acknowledge2.value = originalData.idapp_fk_acknowledge2 || null;
 		    var elfk_acknowledge2_emp = NA.common.getElementID('id_fk_acknowledge2_employee');
 		    elfk_acknowledge2_emp.value = '';
 
@@ -700,7 +705,7 @@
 
 		    var elfk_proposedby = NA.common.getElementID('id_fk_proposedby');
 		    elfk_proposedby.value = originalData.fk_proposedby || '';
-		    var elidappfk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby');
+		    var elidapp_fk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby');
 		    elidapp_fk_proposedby.value = originalData.idapp_fk_proposedby || null;
 		    var elfk_proposedby_emp = NA.common.getElementID('id_fk_proposedby_employee');
 		    elfk_proposedby_emp.value = '';
@@ -715,20 +720,28 @@
 		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
 		    elfk_maintenance.value = originalData.fk_maintenance || null;
 		    var elfk_return = NA.common.getElementID('id_fk_return');
-		    elfk_return.value = originalData.elfk_return || null;
+		    elfk_return.value = originalData.fk_return || null;
 		    var elfk_lending = NA.common.getElementID('id_fk_lending');
 		    elfk_lending.value = originalData.fk_lending || null;
 
 		    var elfk_outwards = NA.common.getElementID('id_fk_outwards');
-		    elfk_outwards.value = origingalData.fk_outwards || null;
-		    var ellastinfo = NA.common.getElementID('LastInfoValue');
+		    elfk_outwards.value = originalData.fk_outwards || null;
+		    var ellastinfo = NA.common.getElementID('lastInfoValue');
 		    ellastinfo.textContent = '';
-		    var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee');
+		    var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 		    elfk_usedemployeeValue.textContent = '';
 
-		    var elidapp_fk_usedemployee = NA.common.getElementID('idapp_fk_usedemployee');
+		    var elidapp_fk_usedemployee = NA.common.getElementID('id_idapp_fk_usedemployee');
 		    elidapp_fk_usedemployee.value = originalData.idapp_fk_usedemployee || null;
 		    NA.common.getElementID('difInfo').style.display = 'none';
+		    NA.common.getElementID('id_sold_to_0').checked = false;
+		    NA.common.getElementID('id_sold_to_1').checked = false;
+		    NA.common.getElementID('id_sold_to_2').checked = false;
+		    NA.common.getElementID('id_fk_sold_to_employee') = '';
+		    NA.common.getElementID('id_fk_sold_to_employee_employee') = '';
+		    NA.common.getElementID('id_sold_to_p_other').value = '';
+		    NA.common.getElementID('id_idapp_fk_sold_to') = originalData.idapp_fk_sold_to_employee || null;
+
 		};
 		function getValuesForm() {
 
@@ -752,10 +765,12 @@
 			var elIsLost = NA.common.getElementID('id_islost'),
 			//if (elIsLost.value == '' || elIsLost.value == 'False') { elIsLost.value = false
 		    //elIsLost.value = elIsLost.value || false;
-			islost = (elIsLost.value == '' || elIsLost.value == 'False') ? false : true;
+			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
 
+			var elfklost = NA.common.getElementID('id_fk_lost');
+			fklost = elfklost.value||0;
 			var elIsSold = NA.common.getElementID('id_issold'),
-			issold = elIsSold.getAttribute('checked') ? true : false;
+			issold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
 
 			var elSelPrice = NA.common.getElementID('id_sellingprice');
 			selprice = (elSelPrice.value == '' || elSelPrice.value == null) ? 0 : parseFloat(elSelPrice.value);
@@ -768,12 +783,12 @@
 
 			var elfk_acknowledge1 = NA.common.getElementID('id_fk_acknowledge1'),
 		    	fk_acknowledge1 = elfk_acknowledge1.value
-		    var elidapp_elfk_acknowledge1 = NA.common.getElementID('id_idapp_elfk_acknowledge1'),
+		    var elidapp_fk_acknowledge1 = NA.common.getElementID('id_idapp_fk_acknowledge1'),
 		    	idapp_fk_acknowledge1 = elidapp_fk_acknowledge1.value || 0;
 
 		    var elfk_acknowledge2 = NA.common.getElementID('id_fk_acknowledge2'),
                 fk_acknowledge2 = elfk_acknowledge2.value
-		    var elidapp_elfk_acknowledge2 = NA.common.getElementID('id_idapp_elfk_acknowledge2'),
+		    var elidapp_fk_acknowledge2 = NA.common.getElementID('id_idapp_fk_acknowledge2'),
 		    	idapp_fk_acknowledge2 = elidapp_fk_acknowledge2.value || 0;
 
 			////fk_responsibleperson_employee nggak usah
@@ -793,7 +808,10 @@
                typeapp = eltypeapp.textContent;
 			var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
-			//brandvalue nggak usah
+		    //brandvalue nggak usah
+			var elBrandValue = NA.common.getElementID('BrandValue');
+			elBrandValue.textContent = "";
+
 			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
                 fk_maintenance = elfk_maintenance.value || 0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),
@@ -802,27 +820,49 @@
                 fk_lending = elfk_lending.value || 0;
 			var elfk_outwards = NA.common.getElementID('id_fk_outwards'),
                 fk_outwards = elfk_outwards.value || 0;
-			var ellastinfo = NA.common.getElementID('LastInfoValue'),
+			var ellastinfo = NA.common.getElementID('lastInfoValue'),
                 lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 
-			//(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
-			// FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
-			// FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
-
+			//Sold area
+			//sold_to -->choices id_sold_to_0,choices id_sold_to_1,choices id_sold_to_2
+			var sold_to = ''; var sold_to_p_other = '';var idapp_fk_sold_to_employee =  0;
+			var elidsold_to_p_other = NA.common.getElementID('id_sold_to_p_other');
+			var elidapp_fk_sold_to_employee = NA.common.getElementID('idapp_fk_sold_to_employee');
+			var elfk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');			
+			if (issold === true) {
+				var id_sold_0 = NA.common.getElementID('id_sold_to_0'), id_sold_1 = NA.common.getElementID('id_sold_to_1'), id_sold_2 = NA.common.getElementID('id_sold_2');
+				if (id_sold_0.checked) {
+					sold_to = 'E';
+					sold_to_p_other = '';
+					idapp_fk_sold_to_employee = elidapp_fk_sold_to_employee.value;
+				}
+				if (id_sold_1.checked) {
+					sold_to = 'P';
+					sold_to_p_other = elfk_sold_to_employee.value;
+					idapp_fk_sold_to_employee = 0;
+				}
+				else if (id_sold_2.checked) {
+					sold_to = 'O';
+					sold_to_p_other = elfk_sold_to_employee.value;
+					idapp_fk_sold_to_employee = 0;
+				}
+					//else { ShowAlert('Please define sold to', NA.common.message.titleInfo); win.document.body.style.cursor = 'default'; throw new Error(''); }
+			}			
 			return {
 				idapp: idapp, fk_goods: fk_goods, idapp_fk_goods: idapp_fk_goods, datedisposal: datedisposal, islost: islost,
-				issold: issold, selprice:selprice,bookvalue:bookvalue,
+				issold: issold, sellingprice:selprice,bookvalue:bookvalue,
 				fk_acknowledge1: fk_acknowledge1, idapp_fk_acknowledge1: idapp_fk_acknowledge1,
 				fk_acknowledge2: fk_acknowledge2, idapp_fk_acknowledge2: idapp_fk_acknowledge2,
 				fk_approvedby: fk_approvedby, idapp_fk_approvedby: idapp_fk_approvedby,
 				fk_proposedby: fk_proposedby, idapp_fk_proposedby: idapp_fk_proposedby,
 				descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_maintenance: fk_maintenance, fk_return: fk_return, fk_lending: fk_lending, fk_outwards: fk_outwards,
-				faaccfa:faaccfa,
-				idapp_fk_usedemployee:idapp_fk_usedemployee,status: win.status
+				faaccfa:faaccfa,fk_lost:fklost,idapp_fk_usedemployee: idapp_fk_usedemployee,
+				sold_to: sold_to, idapp_fk_sold_to_employee: idapp_fk_sold_to_employee, sold_to_p_other: sold_to_p_other,
+				status: win.status
 			}
 		};
 		function closeDialog() {
@@ -851,7 +891,7 @@
 			containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
 			containerDialog.style.overflowY = 'auto';
 			containerDialog.style.overflowX = 'hidden';
-			containerDialog.style.top = '0';
+			//containerDialog.style.top = '0';
 			// data dari server {"idapp": 4, "fk_goods": "0004", "goodsname": "HP", "brandname": "SAMSUNG", "type": "J7",
 			//"islost": false, "fk_usedemployee": "0112145678901123", "usedemployee": "Rimba Prayoga", "fk_acc_fa": 0, "bookvalue": 0, 
 			//"lastinfo": "Last used by 0112145678901123|Rimba Prayoga, date lent 11 May 2018, interests FMS TRAINING", "fk_maintenance": 0, 
@@ -914,6 +954,8 @@
 			var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
 			elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];
 
+			var elfklost = NA.common.getElementID('id_fk_lost');
+			elfklost.value = rowData['fk_lost'];
 			if (!serialnumber) {//berarti diambil dari datagrid
 			    elserialnumber = NA.common.getElementID('id_serialnumber');
 			    elserialnumber.value = rowData['serialnumber'] || '';
@@ -921,7 +963,8 @@
 				//set islost dengan rowdata FKlost bernilai bukan null
 				//islost
 			    var elIsLost = NA.common.getElementID('id_islost');
-			    elIsLost.value = rowData['fk_lost'] ?true:false;
+			    elIsLost.value = rowData['fk_lost'] ? true : false;
+			    elfklost.value = rowData['fk_lost']
 
 			    //get book value
 			    var NAAjax = NA.common.AJAX;
@@ -938,14 +981,14 @@
                                 if (this.status === 200) {
                                     var data = JSON.parse(this.responseText);
                                     if (data) {
-                                        //return [int fk_acc_fa,float bookvalue]
-                                        var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
-                                        var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
-                                        elfkAccFA.value = fkAccFA;
-                                        elBookValue.value = bookvalue;
+                                    	//return [int fk_acc_fa,float bookvalue]
+                                    	var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
+                                    	var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
+                                    	elfkAccFA.value = fkAccFA;
+                                    	elBookValue.value = bookvalue;                                  	
                                     }
                                     else {
-                                        XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+                                    	XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
                                     }
                                 }
                                 else {
@@ -966,7 +1009,7 @@
 			    //islost
 			    var elIsLost = NA.common.getElementID('id_islost');
 			    elIsLost.value = rowData['islost'];
-
+			    elfklost.value = rowData['fk_lost']
 			    //fk_acc_fa
 			    var elfk_acc_fa = NA.common.getElementID('id_fk_acc_fa');
 			    elfk_acc_fa.value = rowData['fk_acc_fa']
@@ -979,6 +1022,7 @@
 			    NA.common.getElementID('lastUsedInfo').style.display = 'none';			  
 			}
 			NA.common.getElementID('difInfo').style.display = 'block';
+			isSelectingDate = false;
 		};
 		function fillEmployeeName(event, elmID) {
 			var NAAjax = NA.common.AJAX;
@@ -998,6 +1042,8 @@
                         		//elFKEmp.value = data['nik']||'';
                         		elempname.value = data['employee_name'] || '';
                         		elidapp.value = data['idapp'] || '';
+                        		var sold_to_p_other = NA.common.getElementID('id_sold_to_other');
+                        		sold_to_p_other.value = '';
                         	}
                         }, null, function () {//function untuk ajax error
                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1295,6 +1341,9 @@
 								else if (this.status == 203) {
 									ShowAlert(textStatus.message, NA.common.message.titleInfo);
 								}
+								else {
+									XhrError(this);
+								}
 							}, null,
 							function () { XhrError(this); },
 							function () { window.document.body.style.cursor = 'default'; });
@@ -1333,7 +1382,7 @@
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			btnPrevExport = NA.NAEvent.doc.querySelectorAll('div.dialogButtonRightOther>a.button');
 			//rubah dialog top nya jadi 10px saja
-			dialog.style.top = "10px";
+			//dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 
 			    NA.NAEvent.addHandler(item, 'click', function (evt) {
@@ -1347,25 +1396,25 @@
 			    	}
 					//==============uncommment this after debugging=============
 					//comment this after debugging
-					NA.common.dialog.closeDialog(dialog);
-					//if (!hasLoadDialog) {
-					//	closeDialog(); win.document.body.style.cursor = 'default'; return false;
-					//}
-					//try {
-					//	if (win.status !== 'Open') {
-					//		var textElem = evt.target.innerText;
-					//		if (textElem === 'OK') {
-					//			//ExecuteHandler('OK');
-					//		} else {
-					//			//ExecuteHandler('Close');
-					//		}
-					//	}
-					//} catch (e) {
-					//	ShowAlert(e.message);
-					//}
-					//if (evt) {
-					//	NA.NAEvent.stopPropagation(evt);
-					//}
+					//NA.common.dialog.closeDialog(dialog);
+					if (!hasLoadDialog) {
+						closeDialog(); win.document.body.style.cursor = 'default'; return false;
+					}
+					try {
+						if (win.status !== 'Open') {
+							var textElem = evt.target.innerText;
+							if (textElem === 'OK') {
+								ExecuteHandler('OK');
+							} else {
+								ExecuteHandler('Close');
+							}
+						}
+					} catch (e) {
+						ShowAlert(e.message);
+					}
+					if (evt) {
+						NA.NAEvent.stopPropagation(evt);
+					}
 					win.document.body.style.cursor = 'default';
 					NA.NAEvent.preventDefault(evt);
 					return false;
@@ -1406,25 +1455,25 @@
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
-				//if (hasLoadDialog) {
-				//	try {
-				//		//ExecuteHandler('Close');
-				//	} catch (e) {
-				//		ShowAlert(e.message);
-				//	}
-				//}
-				//if (evt) {
-				//	NA.NAEvent.stopPropagation(evt);
-				//}
-				//win.document.body.style.cursor = 'default';
-				//if (!hasLoadDialog) {
-				//	closeDialog();
-				//}
+				if (hasLoadDialog) {
+					try {
+						ExecuteHandler('Close');
+					} catch (e) {
+						ShowAlert(e.message);
+					}
+				}
+				if (evt) {
+					NA.NAEvent.stopPropagation(evt);
+				}
+				win.document.body.style.cursor = 'default';
+				if (!hasLoadDialog) {
+					closeDialog();
+				}
 				//==============End uncommment this after debugging=============
 
 
 				//comment this after debugging
-				closeDialog();
+				//closeDialog();
 				return false;
 			});
 			try {
@@ -1453,70 +1502,238 @@
                        	    $(this).html(responseTxt);
                        	    //create Element SettingsControl
                        	    var elSetCtrl =   NA.common.doc.createElement('hidden');// "input type='hidden' id='SetCtrlDisposal',name='settingControl'
-                       	    var elIsSold = NA.common.getElementID('id_issold')
+                       	    var elIsSold = NA.common.getElementID('id_issold'),
+								 isSold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
+                       	    var valSold_to = '';
                             elSetCtrl.id = 'SetCtrlDisposal';
                             elSetCtrl.name = 'settingControl';                            
                             valSetCtrl['btnPrintPrev'] = false;
                             valSetCtrl['btnExport'] = false;
-							
+                            var divSold = NA.common.getElementID('divSoldTo');
+                            var divPlanSold = NA.common.getElementID('divPlanSold');
                             var elSelPrice = NA.common.getElementID('id_sellingprice');
                             elSelPrice.setAttribute('placeholder',Number(elSelPrice.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                       		switch (win.status.trim()) {
+                            NA.common.getElementID('difInfo').style.display = 'none';
+                            divPlanSold.style.display = 'none';
+                            divSold.style.display = 'none';
+                            switch (win.status.trim()) {
                        			case 'Add': {
                        				Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
                        					if (item.hasAttribute('disabled')) {
                        						item.removeAttribute('disabled');
                        					}//remove attribute disable untuk button OK dan cancel bila statusnya Add
                        				});
-                       				NA.common.getElementID('difInfo').style.display = 'none';
                        				elSelPrice.value = '';
                        			    //disabledkan selling price
                        				valSetCtrl['btnOK'] = true;
                        				valSetCtrl['btnCancel'] = true
+                       			
+                       				divSold.style.display = 'none';
                        				break;
                        			}
-                       			case 'Edit': {
-                       				var hasref = NA.common.getElementID('id_hasRefData').value
-                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                       				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                       				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                       				if (hasref.valueOf === true) {
-                       					//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                       					//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                       					//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                       					//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                       					//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                       					//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                       					//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-                       					NA.common.getElementID('lastUsedInfo').style.display = 'block';
-                       					if (elSelPrice.value != '') {
-                       						if (typeof elSelPrice.value === 'number' && !isNaN(elSelPrice.value)) {
-                       							//jika selling price di isi 
-                       							//maka disabledkan chekbox IsSold
-                       							elIsSold.setAttribute('disabled', true);
-                       						}
-                       					}
-                       				}
-                       				valSetCtrl['btnOK'] = true;
-                       				valSetCtrl['btnCancel'] = true
-                       				break;
-                       			}
+                            	case 'Edit': {
+                            		//var hasref = NA.common.getElementID('id_hasRefData').value
+                            		//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+                            		NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                            		NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                            		var vaPrice = elSelPrice.value.valueOf();
+                            		if (elSelPrice.value != '') {
+                            			if (typeof elSelPrice.value === 'number' || !isNaN(elSelPrice.value)) {
+                            				//jika selling price di isi 
+                            				//maka disabledkan chekbox IsSold
+                            				elIsSold.setAttribute('disabled', true);
+                            			}
+                            			//elSelPrice.value = Number(vaPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            		}
+                            		valSetCtrl['btnOK'] = true;
+                            		valSetCtrl['btnCancel'] = true
+
+                            		var ellastinfo = NA.common.getElementID('lastInfoValue');
+                            		if (ellastinfo.textContent === '') {
+                            			NA.common.getElementID('lastUsedInfo').style.display = 'none';
+                            		}
+                            		var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
+                            		if (elfk_usedemployeeValue.textContent === '') {
+                            			NA.common.getElementID('lastInfo').style.display = 'none';
+                            			//elfk_usedemployeeValue.style.display = 'none';
+                            		}
+                            		NA.common.getElementID('difInfo').style.display = 'block';
+                            		Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
+                            			if (item.checked) {
+                            				switch (item.value) {
+                            					case 'E': {
+
+                            						//munculkan textbox id_fk_sold_to_employee
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.removeAttribute('disabled');
+                               						fk_sold_to_employee.style.width = '120px';
+                               						fk_sold_to_employee.setAttribute('placeholder','NIK');
+                               						fk_sold_to_employee.setAttribute('data-value','NIK');
+                               						fk_sold_to_employee.setAttribute('tittle', 'please enter NIK');
+ 
+                            						//enabledkan btn FE_fk_sold_employee
+                            						var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                            						btnfk_sold_employee.removeAttribute('disabled');
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'inline-flex';
+
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+                            						//munculka divSoldTo
+                            						divSold.style.display = 'block';
+                            						break;
+                            					}
+                            					case 'P': {
+                            						//munculkan textbox id_fk_sold_to_employee
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.style.width = '75%';
+                            						fk_sold_to_employee.setAttribute('placeholder', 'Personal who buys');
+                            						fk_sold_to_employee.setAttribute('data-value', 'Personal who buys');
+                            						fk_sold_to_employee.setAttribute('tittle', 'Personal who buys');
+
+                            					    //get value sold_to_p_other
+                            					    //tempelkan di sold_to_employee
+                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                            						fk_sold_to_employee.value = fk_sold_to_p_other.value;
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'none';
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                            						//munculka divSoldTo
+                            						divSold.style.display = 'block';
+                            						break;
+                            					}
+                            					case 'O': {
+                            						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                            						fk_sold_to_employee.style.display = 'inline-block';
+                            						fk_sold_to_employee.style.width = '75%';
+
+                            					    //get value sold_to_p_other
+                            						//tempelkan di sold_to_employee
+                            						var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                            						fk_sold_to_employee.value = fk_sold_to_p_other.value;
+
+                            						fk_sold_to_employee.setAttribute('placeholder', 'Employee/Personal/Firm who buys');
+                            						fk_sold_to_employee.setAttribute('data-value', 'Employee/Personal/Firm who buys');
+                            						fk_sold_to_employee.setAttribute('tittle', 'Employee/Personal/Firm who buys');
+
+                            						var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                            						divAreaEmployee.style.display = 'none';
+                            						NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
+                            						//munculka divSoldTo
+                            						divSold.style.display = 'block';
+                            						break;
+                            					}
+                            				}
+                            			}
+                            			valSold_to = item.value;
+                            			if (!valSold_to) {
+                            				divSold.style.display = 'none';
+                            			}
+                            		});
+                            		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                            		var viewportSize = NA.common.dialog.getViewportSize();
+                            		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                            		containerDialog.style.overflowY = 'auto';
+                            		containerDialog.style.overflowX = 'hidden';
+                            		break;
+                            	}
                        			case 'Open': {
-                       				//NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-                       				//NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-                       				//NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_acknowledge1').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_acknowledge2').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_approvedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('id_fk_proposedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_acknowledge1').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_acknowledge2').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_approvedby').setAttribute('disabled', true);
+                       				NA.common.getElementID('FE_fk_proposedby').setAttribute('disabled', true);
                        				NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
-                       				NA.common.getElementID('lastUsedInfo').style.display = 'block';
+                       				NA.common.getElementID('id_datedisposal').setAttribute('disabled', true);
                        				elIsSold.setAttribute('disabled', true);
                        				valSetCtrl['btnOK'] = false;
                        				valSetCtrl['btnCancel'] = false;
+
+                       				var ellastinfo = NA.common.getElementID('lastInfoValue');
+                       				if (ellastinfo.textContent === '') {
+                       					NA.common.getElementID('lastUsedInfo').style.display = 'none';
+                       				}
+                       				var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
+                       				if (elfk_usedemployeeValue.textContent === '') {
+                       					NA.common.getElementID('lastInfo').style.display = 'none';
+                       					//elfk_usedemployeeValue.style.display = 'none';
+                       				}
+                       				containerDialog.style.overflowX = 'hidden';
+                       				//check radiobutton
+                       				Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
+                       					if (item.checked) {
+                       						switch (item.value) {
+                       							case 'E': {
+                       								//munculkan textbox id_fk_sold_to_employee
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.setAttribute('disabled', true);
+
+                       								//enabledkan btn FE_fk_sold_employee
+                       								var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                       								btnfk_sold_employee.setAttribute('disabled', true);
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       							case 'P': {
+                       								//munculkan textbox id_fk_sold_to_employee
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.style.width = '75%';
+
+                       								//get value sold_to_p_other
+                       								//tempelkan di sold_to_employee
+                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       								fk_sold_to_employee.value = fk_sold_to_p_other.value;
+
+                       								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       								divAreaEmployee.style.display = 'none';
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       							case 'O': {
+                       								var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       								fk_sold_to_employee.style.display = 'inline-block';
+                       								fk_sold_to_employee.style.width = '75%';
+
+                       								//get value sold_to_p_other
+                       								//tempelkan di sold_to_employee
+                       								var fk_sold_to_p_other = NA.common.getElementID('id_fk_sold_to_p_other');
+                       								fk_sold_to_employee.value = fk_sold_to_p_other.value;
+
+                       								var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       								divAreaEmployee.style.display = 'none';
+                       								NA.common.getElementID('lblfk_sold_to_employee').textContent = " Sold to Others";
+                       								//munculka divSoldTo
+                       								NA.common.getElementID('divSoldTo').style.display = 'block';
+                       								break;
+                       							}
+                       						}
+                       						item.setAttribute('disabled', true);
+                       						valSold_to = item.value;
+                       					}
+                       				});
+                       				if (!valSold_to) {
+                       					divSold.style.display = 'none';
+                       				}
+                       				NA.common.getElementID('difInfo').style.display = 'block';
+                       				var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                       				var viewportSize = NA.common.dialog.getViewportSize();
+                       				containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                       				containerDialog.style.overflowY = 'auto';
+
                        				break;
                        			}
                        		};
@@ -1541,7 +1758,75 @@
                        					NA.NAEvent.stopPropagation(evt);
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"]');
+                       			Array.prototype.forEach.call(NA.common.qsAll('input[id="id_sold_to_0"],[id="id_sold_to_1"],[id="id_sold_to_2"]'), function (item) {
+                       				NA.NAEvent.addHandler(item, 'click', function (evt) {
+                       					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                       						NA.NAEvent.preventDefault(evt);//prevent from submit
+                       						evt.stopImmediatePropagation();
+                       						return false;
+                       					}
+                       					switch (item.value) {
+                       						case "E": {
+                       							//munculkan textbox id_fk_sold_to_employee
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.removeAttribute('disabled');
+                       							fk_sold_to_employee.style.width = '120px';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'NIK');
+                       							fk_sold_to_employee.setAttribute('data-value', 'NIK');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Please enter NIK');
+
+                       							//enabledkan btn FE_fk_sold_employee
+                       							var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_employee');
+                       							btnfk_sold_employee.removeAttribute('disabled');
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Employee";
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'inline-flex';
+
+                       							//munculka divSoldTo
+                       							divSold.style.display = 'block';
+                      							//focus di fk_sold_to_employee
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       						case "P": {
+                       							//munculkan textbox id_fk_sold_to_employee
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.style.width = '75%';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'Personal who buys');
+                       							fk_sold_to_employee.setAttribute('data-value', 'Personal who buys');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Personal who buys');
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'none';
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Personal";
+                     							//munculka divSoldTo
+                       							divSold.style.display = 'block';
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       						case "O": {
+                       							var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
+                       							fk_sold_to_employee.style.display = 'inline-block';
+                       							fk_sold_to_employee.style.width = '75%';
+                       							fk_sold_to_employee.setAttribute('placeholder', 'Employee/Personal/Firm who buys');
+                       							fk_sold_to_employee.setAttribute('data-value', 'Employee/Personal/Firm who buys');
+                       							fk_sold_to_employee.setAttribute('tittle', 'Employee/Personal/Firm who buys');
+
+                       							var divAreaEmployee = NA.common.getElementID('div-FE_fk_sold_employee');
+                       							divAreaEmployee.style.display = 'none';
+                       							NA.common.getElementID('lblfk_sold_to_employee').textContent = "Sold to Others";
+                       							//munculka divSoldTo
+                       							divSold.style.display = 'block';
+                       							fk_sold_to_employee.focus();
+                       							break;
+                       						}
+                       					};
+                       				});                       				
+                       			});
+                       			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"],[id="id_fk_sold_to_employee"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
                        				NA.NAEvent.addHandler(item, 'keydown', function (evt) {
                        					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
@@ -1555,8 +1840,8 @@
                        							case 'id_serialnumber': {
                        								//ambil data terakhir transaksi
                        								//jika tidak ada ambil di n_a_goods_receive_detail
-                       							    //prevent default
-                       							    var serialNumber = this.id;
+                       								//prevent default
+                       								var serialNumber = this.id;
                        								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
                                                         'application/json',//overrideMimeType returned by the server
@@ -1569,7 +1854,7 @@
                                                         	}
                                                         	else {
                                                         		//#return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
-                                                        	    fillGoodsInfo(data, serialNumber, true);
+                                                        		fillGoodsInfo(data, serialNumber, true);
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1582,8 +1867,15 @@
                        							case 'id_fk_acknowledge1':
                        							case 'id_fk_approvedby':
                        							case 'id_fk_acknowledge2': {
-                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                      								NA.NAEvent.preventDefault(evt);//prevent from submit
                        								fillEmployeeName(evt, this.id);
+                       								break;
+                       							}
+                       							case 'id_fk_sold_to_employee': {
+                       								NA.NAEvent.preventDefault(evt);//prevent from submit
+                       								if (NA.common.getElementID('id_sold_to_0').checked) {
+                       									fillEmployeeName(evt, this.id);
+                       								}
                        								break;
                        							}
                        						};//end switch
@@ -1593,49 +1885,94 @@
                        			});//end Array.prototype.forEach.call(listFK, function (item)
                        			originalData = JSON.stringify(getValuesForm());
                        			//==============date disposal=============
-
-                       			if (win.status !== 'Add') {
-                       				var eloriginalData = JSON.parse(originalData);
-                       				var valDaterequest = new Date(eloriginalData.datedisposal);
-                       				$("#id_datedisposal").datepicker("setDate", valDaterequest);
-                       			}
                        			$('#id_datedisposal').datepicker({
                        				dateFormat: 'dd/mm/yy',
                        				changeMonth: true,
                        				changeYear: true,
                        				beforeShowDay: $.datepicker.noWeekends,
                        				minDate: (function (g) {
+                       					var eloriginalData = JSON.parse(originalData);
                        					if (g.status === 'Edit') {
-                       						var eloriginalData = JSON.parse(originalData),
-                                                hasRef = eloriginalData['hasRefData'];
-                       						if (hasRef) { return 1; }
-                       						var valDateRel = new Date(eloriginalData.datereleased);
-                       						return valDateRel;
+                       						var valdatedisposal = new Date(eloriginalData.datedisposal);
+                       						return valdatedisposal;
                        					}
                        				})(win),
-                       				//maxDate: 0,
+                       				maxDate: 0,
                        				//showOn: "button",
                        				//showButtonPanel: true,
                        				closeText: "Close",
                        				currentText: 'Now',
                        			});
-
+                       			if (win.status !== 'Add') {
+                       				var eloriginalData = JSON.parse(originalData);
+                       				var valdatedisposal = new Date(eloriginalData.datedisposal);
+                       				$("#id_datedisposal").datepicker("setDate", valdatedisposal);
+                       			}
+                       			$('#id_datedisposal').datepicker().on("input change", function (e) {
+                       				//get book value
+                       				if (isSelectingDate) { return; }
+                       				var elserialnumber = NA.common.getElementID('id_serialnumber');
+                       				var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
+                       				//protect jika elidapp_fk_goods.value == null
+                       				if (elidapp_fk_goods == 0 || elidapp_fk_goods == null) {
+                       					ShowAlert('Please Enter goods', NA.common.message.titleInfo, function () {
+                       						var btnFindGoods = NA.common.getElementID('FE_fk_goods');
+                       						btnFindGoods.focus();
+                       					});
+                       				}
+                       				var elDateDisposal = NA.common.getElementID('id_datedisposal');
+                       				var dateDisposal = GetServerFormatDate(new Date($("#id_datedisposal").datepicker("getDate")));
+                       				var params = JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'serialno': elserialnumber.value, 'datedisposal': dateDisposal });
+                       				var NAAjax = NA.common.AJAX;
+                       				NAAjax.POST('getBookValue/', params, 'application/x-www-form-urlencoded', 'application/json',
+									function () { window.document.body.style.cursor = 'wait'; },
+									null,//nggak usah di isi bila tidak perlu
+									function () {//function executed after data has been returned by server(XHR.onload)
+										if (this.status === 200) {
+											var data = JSON.parse(this.responseText);
+											if (data) {
+												//return [int fk_acc_fa,float bookvalue]
+												var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
+												var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
+												elfkAccFA.value = fkAccFA;
+												elBookValue.value = bookvalue;
+											}
+											else {
+												XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+											}
+										}
+										else {
+											XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+										}
+									}, null, function () {//function untuk ajax error
+										window.document.body.style.cursor = 'default'; XhrError(this);
+									}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+									null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+									);
+                       			});
                        			$.datepicker._gotoToday = function (id) {
                        				$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
                        			};
-
                        			originalData = JSON.stringify(getValuesForm());
                        			var initializeForm = NA.common.getElementID('id_initializeForm');
                        			initializeForm.value = originalData;
 
-                       		    //=========EVENT Handler checkbox================
+                       			//=========EVENT Handler checkbox================
 
                        			NA.NAEvent.addHandler(elIsSold, 'click', function (evt) {
-                                	if (evt.target.checked) {
-                                		elSelPrice.removeAttribute('disabled');
-                                	} else {
-                                		elSelPrice.setAttribute('disabled', true);
-                                	}
+                       				var divPlanSold = NA.common.getElementID('divPlanSold');
+                       				if (evt.target.checked) {
+                       					elSelPrice.removeAttribute('disabled');
+                       					elIsSold.value = true;
+                       					divPlanSold.style.display = 'block';
+                       					elSelPrice.focus();
+
+                       				} else {
+                       					elSelPrice.setAttribute('disabled', true);
+                       					elSelPrice.value = '';
+                       					elIsSold.value = false;
+                       					divPlanSold.style.display = 'none';
+                       				}
                        			});
                        			//======================event handler BUTTONS Search================================================ 
                        			var btnFindGoods = NA.common.getElementID('FE_fk_goods');
@@ -1797,173 +2134,184 @@
                        					}]
                        				});
                        			});
-                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_acknowledge1"],[id="FE_fk_acknowledge2"],[id="FE_fk_approvedby"]');
+                       			var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_proposedby"],[id="FE_fk_acknowledge1"],[id="FE_fk_acknowledge2"],[id="FE_fk_approvedby"],[id="FE_fk_sold_employee"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
-                       			    if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-                       			        win.document.body.style.cursor = 'default'; 
-                       			        return false;
-                       			    }
-                       			    else {
-                       			        NA.NAEvent.addHandler(item, 'click', function (evt) {
-                       			            BootstrapDialog.show({
-                       			                draggable: true,
-                       			                title: 'Find Employee',
-                       			                type: BootstrapDialog.TYPE_INFO,
-                       			                size: BootstrapDialog.SIZE_SMALL,
-                       			                message: function (dialogRef) {
-                       			                    var placeHolder = 'Enter Employee name to search for';
-                       			                    //var gridTbl = null, gridPager = null;
-                       			                    var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
+                       				if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+                       					win.document.body.style.cursor = 'default';
+                       					return false;
+                       				}
+                       				else {
+                       					NA.NAEvent.addHandler(item, 'click', function (evt) {
+                       						BootstrapDialog.show({
+                       							draggable: true,
+                       							title: 'Find Employee',
+                       							type: BootstrapDialog.TYPE_INFO,
+                       							size: BootstrapDialog.SIZE_SMALL,
+                       							message: function (dialogRef) {
+                       								var placeHolder = 'Enter Employee name to search for';
+                       								//var gridTbl = null, gridPager = null;
+                       								var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
                                                     function (e) {//event for blur
-                                                        if (this.value === '') {
-                                                            if (this.getAttribute('placeholder') === '') {
-                                                                this.setAttribute('placeholder', placeHolder);
-                                                            }
-                                                        }
+                                                    	if (this.value === '') {
+                                                    		if (this.getAttribute('placeholder') === '') {
+                                                    			this.setAttribute('placeholder', placeHolder);
+                                                    		}
+                                                    	}
                                                     },
                                                     function (e) {//event for focus
-                                                        if (this.value === '') {
-                                                            if (this.getAttribute('placeholder') === placeHolder) {
-                                                                this.setAttribute('placeholder', '');
-                                                            }
-                                                        }
+                                                    	if (this.value === '') {
+                                                    		if (this.getAttribute('placeholder') === placeHolder) {
+                                                    			this.setAttribute('placeholder', '');
+                                                    		}
+                                                    	}
                                                     },
                                                     function (e) {//even for keydown txtSearch
-                                                        if (e.keyCode === 13) {
-                                                            win.document.body.style.cursor = 'wait';
-                                                            //cari data ke database
-                                                            var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                    	if (e.keyCode === 13) {
+                                                    		win.document.body.style.cursor = 'wait';
+                                                    		//cari data ke database
+                                                    		var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
 
-                                                            if (gridTbl) {
-                                                                gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
-                                                            }
-                                                            win.document.body.style.cursor = 'default';
-                                                        }
+                                                    		if (gridTbl) {
+                                                    			gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+                                                    		}
+                                                    		win.document.body.style.cursor = 'default';
+                                                    	}
                                                     }, function (e) {
-                                                        var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-                                                        NA.common.triggerKeyboardEvent(txtSearch, 13);
+                                                    	var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                                                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
                                                     });
-                       			                    var children = containerMessage.childNodes;
-                       			                    var mainContainer = null;
-                       			                    for (var i = 0, len = children.length; i < len; i++) {
-                       			                        if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
-                       			                            mainContainer = children[i]; break;
-                       			                        }
-                       			                    };
-                       			                    //loads Data into JqueryGrid
-                       			                    gridTbl = NA.common.doc.createElement('table');
-                       			                    gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee';
-                       			                    gridPager = NA.common.doc.createElement('div');
-                       			                    gridPager.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee_Pager';
-                       			                    mainContainer.appendChild(gridTbl);
-                       			                    mainContainer.appendChild(gridPager);
-                       			                    return containerMessage;
-                       			                },
-                       			                onshown: function (dialogRef) {
-                       			                    var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-                       			                    //loads Data into JqueryGrid
-                       			                    gridTbl = $('#jqGrid_NA_F_Goods_Disposal_fk_employee');
-                       			                    gridPager = $('#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
-                       			                    var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-                       			                    gridTbl.jqGrid({
-                       			                        url: urlPR,
-                       			                        mtype: "GET",
-                       			                        datatype: "json",
-                       			                        colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
-                       			                        colModel: [
+                       								var children = containerMessage.childNodes;
+                       								var mainContainer = null;
+                       								for (var i = 0, len = children.length; i < len; i++) {
+                       									if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
+                       										mainContainer = children[i]; break;
+                       									}
+                       								};
+                       								//loads Data into JqueryGrid
+                       								gridTbl = NA.common.doc.createElement('table');
+                       								gridTbl.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee';
+                       								gridPager = NA.common.doc.createElement('div');
+                       								gridPager.id = 'jqGrid_NA_F_Goods_Disposal_fk_employee_Pager';
+                       								mainContainer.appendChild(gridTbl);
+                       								mainContainer.appendChild(gridPager);
+                       								return containerMessage;
+                       							},
+                       							onshown: function (dialogRef) {
+                       								var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+                       								//loads Data into JqueryGrid
+                       								gridTbl = $('#jqGrid_NA_F_Goods_Disposal_fk_employee');
+                       								gridPager = $('#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager');
+                       								var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                       								gridTbl.jqGrid({
+                       									url: urlPR,
+                       									mtype: "GET",
+                       									datatype: "json",
+                       									colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
+                       									colModel: [
                                                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                                                             { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
                                                             { name: 'nik', width: 90, align: 'left', sortable: true, editable: false, },
                                                             { name: 'employee_name', index: 'employee_name', width: 290, sortable: true, editable: false, align: 'left', },
-                       			                        ],
-                       			                        ondblClickRow: function (rowId) {
-                       			                            //fire button OK
-                       			                            var btnOK = dialogRef.getButton('btnOK');
-                       			                            btnOK.click();
-                       			                        },
-                       			                        gridComplete: function () {
-                       			                            document.body.style.cursor = 'default';
-                       			                        },
-                       			                        cellEdit: false,
-                       			                        height: '150px',
-                       			                        rowNum: 500,
-                       			                        rowList: [20, 50, 100, 200, 300, 500],
-                       			                        sortname: "employee_name",
-                       			                        sortorder: "asc",
-                       			                        multiSort: true,
-                       			                        //shrinkToFit: false,
-                       			                        iconSet: "fontAwesome",
-                       			                        //forceFit: true,
-                       			                        //toolbar: true,
-                       			                        scrollrows: true,
-                       			                        pager: "#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager"
-                       			                    });
-                       			                    gridTbl.navGrid(gridPager, {
-                       			                        search: false, // show search button on the toolbar
-                       			                        add: false,
-                       			                        edit: false,
-                       			                        del: false,
-                       			                        refresh: false
-                       			                    });
-                       			                },
-                       			                animate: false,
-                       			                closable: false,
-                       			                closeByBackdrop: false,
-                       			                closeByKeyboard: false,
-                       			                buttons: [{
-                       			                    label: 'Cancel',
-                       			                    icon: 'glyphicon glyphicon-remove',
-                       			                    cssClass: 'btn-success',
-                       			                    action: function (dialogRef) {
-                       			                        dialogRef.close();
-                       			                    },
-                       			                }, {
-                       			                    label: 'OK',
-                       			                    id: 'btnOK',
-                       			                    icon: 'glyphicon glyphicon-ok',
-                       			                    cssClass: 'btn-success',
-                       			                    action: function (dialogRef) {
-                       			                        var nik = getGridCellValue(gridTbl, 'nik');
-                       			                        if (nik) {
-                       			                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                       			                            var rowData = gridTbl.getRowData(rowId);
-                       			                            var employeeName = rowData['employee_name'];
-                       			                            var idapp = rowData['idapp'];
-                       			                            var mainIDbtn = item.getAttribute('id').substring(3);
-                       			                            //set nik
-                       			                            var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
-                       			                            //set employee_name
-                       			                            elfk_employee.value = rowData['nik'];
-                       			                            var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
-                       			                            elempname.value = employeeName;
-                       			                            var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
-                       			                            elidapp.value = idapp;
-                       			                            dialogRef.close();
-                       			                        }
-                       			                    }
-                       			                }]
-                       			            });
-                       			            restyleBoostrapDialog();
-                       			            //var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-                       			            //gbox.style.width = '432px';
-                       			            //var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-                       			            //gview.style.width = '432px';
-                       			            //var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
-                       			            //tdInfo.style.width = '110px';
-                       			            //var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
-                       			            //pager.style.width = '430px';
-                       			            evt.stopImmediatePropagation();
-                       			        });
-                       			    }
+                       									],
+                       									ondblClickRow: function (rowId) {
+                       										//fire button OK
+                       										var btnOK = dialogRef.getButton('btnOK');
+                       										btnOK.click();
+                       									},
+                       									gridComplete: function () {
+                       										document.body.style.cursor = 'default';
+                       									},
+                       									cellEdit: false,
+                       									height: '150px',
+                       									rowNum: 500,
+                       									rowList: [20, 50, 100, 200, 300, 500],
+                       									sortname: "employee_name",
+                       									sortorder: "asc",
+                       									multiSort: true,
+                       									//shrinkToFit: false,
+                       									iconSet: "fontAwesome",
+                       									//forceFit: true,
+                       									//toolbar: true,
+                       									scrollrows: true,
+                       									pager: "#jqGrid_NA_F_Goods_Disposal_fk_employee_Pager"
+                       								});
+                       								gridTbl.navGrid(gridPager, {
+                       									search: false, // show search button on the toolbar
+                       									add: false,
+                       									edit: false,
+                       									del: false,
+                       									refresh: false
+                       								});
+                       							},
+                       							animate: false,
+                       							closable: false,
+                       							closeByBackdrop: false,
+                       							closeByKeyboard: false,
+                       							buttons: [{
+                       								label: 'Cancel',
+                       								icon: 'glyphicon glyphicon-remove',
+                       								cssClass: 'btn-success',
+                       								action: function (dialogRef) {
+                       									dialogRef.close();
+                       								},
+                       							}, {
+                       								label: 'OK',
+                       								id: 'btnOK',
+                       								icon: 'glyphicon glyphicon-ok',
+                       								cssClass: 'btn-success',
+                       								action: function (dialogRef) {
+                       									var nik = getGridCellValue(gridTbl, 'nik');
+                       									if (nik) {
+                       										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                       										var rowData = gridTbl.getRowData(rowId);
+                       										var employeeName = rowData['employee_name'];
+                       										var idapp = rowData['idapp'];
+                       										var mainIDbtn = item.getAttribute('id').substring(3);
+                       										//set nik
+                       										var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
+                       										//set employee_name
+                       										elfk_employee.value = rowData['nik'];
+                       										var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
+                       										elempname.value = employeeName;
+                       										var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
+                       										elidapp.value = idapp;
+                       										dialogRef.close();
+                       									}
+                       								}
+                       							}]
+                       						});
+                       						restyleBoostrapDialog();
+                       						//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+                       						//gbox.style.width = '432px';
+                       						//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+                       						//gview.style.width = '432px';
+                       						//var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
+                       						//tdInfo.style.width = '110px';
+                       						//var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
+                       						//pager.style.width = '430px';
+                       						evt.stopImmediatePropagation();
+                       					});
+                       				}
                        			});
                        			hasLoadDialog = true;
                        			win.onbeforeunload = function (e) {
-                       			    var valuesForm = getValuesForm(); var retval = false;
-                       			    if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
-                       			        return NA.common.message.dataHasChanged;
-                       			    }
+                       				var valuesForm = getValuesForm(); var retval = false;
+                       				if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+                       					return NA.common.message.dataHasChanged;
+                       				}
                        			}
+                       			isSelectingDate = false;                       		
                        		}
+                       		//if (win.status !== 'Add') {
+                       		//	setTimeout(function () {
+                       		//		NA.common.getElementID('difInfo').style.display = 'block';
+                       		//		var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+                       		//		var viewportSize = NA.common.dialog.getViewportSize();
+                       		//		containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+                       		//		containerDialog.style.overflowY = 'auto';
+                       		//		containerDialog.style.overflowX = 'hidden';
+                       		//	}, 100)
+                       		//}
                        	}
                     });
 				}

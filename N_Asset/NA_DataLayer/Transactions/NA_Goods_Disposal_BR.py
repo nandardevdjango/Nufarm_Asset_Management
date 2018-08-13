@@ -43,30 +43,36 @@ class NA_BR_Goods_Disposal(models.Manager):
 			colKey = 'ngds.ceateddate'
 		elif columnKey == 'descriptions':
 			colKey = 'ngds.descriptions'
+		elif columnKey == 'soldto':
+			colKey = "(SELECT CASE WHEN (ngds.sold_to = 'E') THEN (CONCAT('Employee ',IFNULL(emp4.employee_name,' '))) WHEN (ngds.sold_to = 'P') THEN (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) ELSE (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) END)"
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Disposal_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
 		#idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		Query = """  CREATE TEMPORARY TABLE T_Disposal_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT ngds.idapp,g.goodsname AS goods,ngd.typeApp AS goodstype,ngd.serialnumber,
-				ngds.bookvalue,	ngds.datedisposal,ngds.islost,ref.refgoodsfrom,							
-				ngds.issold,ngds.sellingprice,IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
+				ngds.bookvalue,	ngds.datedisposal,CONVERT((CASE WHEN(ngds.fk_maintenance IS NULL) THEN 0 ELSE 1 END),INT) AS afterrepair, 
+				CASE WHEN (ngds.fk_maintenance IS NOT NULL) THEN(SELECT CONCAT(IFNULL(PersonalName,' '),', ',IFNULL(MaintenanceBy,'')) FROM n_a_maintenance WHERE idapp = ngds.fk_maintenance) ELSE '' END AS lastrepairfrom,
+				ngds.islost,ref.refgoodsfrom,ngds.issold,ngds.sellingprice,
+				CASE WHEN (ngds.sold_to = 'E') THEN (CONCAT('Employee ',IFNULL(emp4.employee_name,' '))) WHEN (ngds.sold_to = 'P') THEN (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) ELSE (CONCAT('Non Employee ',IFNULL(ngds.sold_to_p_other,' '))) END AS soldto,
+				IFNULL(emp.responsible_by,'') AS proposedby,CONCAT(IFNULL(emp1.employee_name,''), ', ',IFNULL(emp2.employee_name,'')) AS acknowledgeby,IFNULL(emp3.employee_name,'') AS approvedby 
 				,ngds.descriptions,ngds.createdby,ngds.createddate		       
 		        FROM n_a_disposal ngds INNER JOIN n_a_goods g ON g.IDApp = ngds.FK_Goods 
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = ngds.FK_Goods
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 		        AND ngds.SerialNumber = ngd.SerialNumber
 				INNER JOIN (SELECT nd.IDApp,CASE
-							WHEN (ngds.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
-							WHEN (ngds.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
-							WHEN (ngds.FK_Lending IS NOT NULL) THEN '(After being Lent)'
-							WHEN (ngds.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
-							WHEN (ngds.islost = 1) THEN 'goods has lost'
+							WHEN (nd.FK_Return IS NOT NULL) THEN 'Returned Eks Employee'
+							WHEN (nd.fk_maintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+							WHEN (nd.FK_Lending IS NOT NULL) THEN '(After being Lent)'
+							WHEN (nd.FK_Outwards IS NOT NULL) THEN '(Direct Return)'
+							WHEN (nd.islost = 1) THEN 'goods has lost'
 							ELSE 'Other (Uncategorized)'
-							END AS refgoodsfrom FROM n_a_goods_disposal nd)ref ON Ref.IDApp = ngds.IDApp
+							END AS refgoodsfrom FROM n_a_disposal nd)ref ON Ref.IDApp = ngds.IDApp
 		        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp ON emp.idapp = ngds.fk_proposedby
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp1 ON emp1.idapp = ngds.FK_Acknowledge1
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp2 ON emp2.idapp = ngds.FK_Acknowledge2
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp3 ON emp3.idapp = ngds.FK_ApprovedBy
+				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp4 ON emp4.idapp = ngds.fk_sold_to_employee
 		        WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
 		strLimit = '300'
@@ -93,7 +99,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 			:param int idapp = idapp_fk_goods
 			:param SerialNo
 			:param DateDisposal
-			return [int fk_acc_fa,float bookvalue]
+			return [int fk_acc_fa,float bookvalue,datetime StartCurBookValue,EndCurBookValue]
 			"""
 			fk_goods = 0
 			serialno = ''
@@ -101,6 +107,10 @@ class NA_BR_Goods_Disposal(models.Manager):
 			fk_goods = int(kwargs['idapp'])
 			serialno = kwargs['SerialNo'];
 			datedisposal = kwargs['DateDisposal']
+			fkaccfa = 0
+			bookvalue = 0
+			startCurBookValue = None
+			EndCurBookValue = None
 			isNewCur = False
 			Query = """SELECT EXISTS(SELECT fk_goods FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s)"""
 			if cur is None:
@@ -109,13 +119,21 @@ class NA_BR_Goods_Disposal(models.Manager):
 			cur.execute(Query,{'FK_Goods':fk_goods,'SerialNO':kwargs['SerialNo']})
 			row = cur.fetchone()
 			if int(row[0]) > 0:
-				Query = """SELECT idapp, bookvalue FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s AND (DateDepreciation >= %(DateDisposal)s AND DateDepreciation <= (DATE_ADD((DATE_ADD(%(DateDisposal)s , INTERVAL 2 day)),INTERVAL -1 DAY)))"""
-				cur.execute(Query,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
+				Query1 = """SELECT idapp,DateDepreciation AS StartDate, bookvalue FROM n_a_acc_fa WHERE fk_goods = %(FK_Goods)s AND SerialNumber = %(SerialNO)s AND DateDepreciation <= %(DateDisposal)s ORDER BY DateDepreciation DESC LIMIT 1"""
+				cur.execute(Query1,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
 				row = cur.fetchone()
+				Query2 = """ SELECT DateDePreciation AS EndDate FROM n_a_acc_fa WHERE DateDepreciation > %(DateDisposal)s AND fk_goods = %(FK_Goods)s AND SerialNumber =  %(SerialNO)s ORDER BY DateDepreciation ASC LIMIT 1 """
 				if row is not None:
+					#return [int(row[0]),float(row[1])]
+					fkaccfa = int(row[0])
+					bookvalue = float(row[2])
+					startCurBookValue = row[1]
+					cur.execute(Query2,{'FK_Goods':fk_goods,'SerialNO':serialno,'DateDisposal':datedisposal})
+					row = cur.fetchone()
+					EndCurBookValue = row[0]
 					if isNewCur:
 						cur.close()
-					return [int(row[0]),float(row[1])]
+					return [fkaccfa,bookvalue,startCurBookValue,EndCurBookValue]
 				else:
 					if isNewCur:
 						cur.close()
@@ -123,6 +141,34 @@ class NA_BR_Goods_Disposal(models.Manager):
 			else:
 				cur.close()
 				raise Exception(r"Can not find asset's book value")
+	def getData(self,idapp):
+			#idapp,fk_goods,goods,idapp_fk_goods,typeapp,serialnumber,brandvalue,bookvalue,fk_usedemployee,fk_usedemployee_employee,idapp_fk_usedemployee,datedisposal,issold,
+	#sellingprice,fk_proposedby,fk_proposedby_employee,idapp_fk_proposedby,fk_Acknowledge1,fk_Acknowledge1_employee,idapp_fk_acknowledge1,fk_Acknowledge2,
+	#fk_Acknowledge2_employee,idapp_fk_acknowledge2,descriptions,islost,fk_stock,fk_acc_fa,
+	#fk_approvedby,fk_approvedby_employee,idapp_fk_approvedby,fk_maintenance,fk_return,fk_lending,fk_outwards,initializeForm,
+		Query = """SELECT g.itemcode AS fk_goods,g.goodsname AS goods,gd.fk_goods AS idapp_fk_goods,gd.typeapp,gd.serialnumber, 
+				CASE G.typeapp WHEN 'GA' THEN (SELECT Brand FROM n_a_ga_receive WHERE FK_Goods = gd.FK_Goods)
+								WHEN 'IT' THEN (SELECT ngd.BrandName FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngd.fk_app = ngr.IDApp WHERE ngr.FK_Goods = gd.FK_goods AND ngd.serialnumber = gd.serialnumber)								
+							    WHEN 'O' THEN IFNULL(g.BrandName,'Unknown Brand') END AS brandvalue,emp1.NIK AS fk_usedemployee,emp1.employee_name AS fk_usedemployee_employee,
+					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.sold_to,gd.fk_sold_to_employee AS idapp_fk_sold_to_employeee,emp6.NIK AS fk_sold_to_employee,emp6.employee_name AS fk_sold_to_employee_employee,
+				    gd.sold_to_p_other,gd.bookvalue,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
+				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_acknowledge1,emp3.employee_name AS fk_acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_acknowledge1,
+					emp4.NIK AS fk_acknowledge2,emp4.employee_name AS fk_acknowledge2_employee,gd.fk_acknowledge2 as idapp_fk_acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
+					emp5.NIK AS fk_approvedby,emp5.employee_name AS fk_approvedby_employee,gd.fk_approvedby AS idapp_fk_approvedby,gd.fk_maintenance,gd.fk_return,gd.fk_lending,gd.fk_outwards			
+					FROM n_a_goods g INNER JOIN n_a_disposal gd ON gd.fk_goods = g.IDApp 
+					LEFT OUTER JOIN employee emp1 ON emp1.IDApp = gd.fk_usedemployee 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = gd.fk_proposedby	
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = gd.fk_Acknowledge1 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp4 ON emp4.IDApp = gd.fk_Acknowledge2 
+				    LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp5 ON emp5.IDApp = gd.fk_approvedby 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp6 ON emp6.IDApp = gd.fk_sold_to_employee 
+					WHERE gd.idapp = %s""" 
+		cur = connection.cursor()
+		cur.execute(Query,[idapp])
+		data = query.dictfetchall(cur)
+		cur.close()
+		return data
+
 	def getBrandForDisposal(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		cur = connection.cursor()
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_Disposal_" + userName		
@@ -406,18 +452,35 @@ class NA_BR_Goods_Disposal(models.Manager):
 				cur.close()
 				raise Exception('no such data')
 		###idapp_fk_goods,itemcode,goods,brandname,typeappp,islost,idapp_fk_usedemployee,usedemployee,fk_acc_fa,lastinfo,bookvalue,fk_maintenance,fk_return,fk_lending,fk_outwards
-		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards)
-	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel):
-		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(datedisposal=datedisposal).exists())#Q(member=p1) | Q(member=p2)
-	def Delete(self,IDApp):
+		return(idapp_fk_goods,itemcode,goodsname,brandname,typeapp,islost,fk_usedemployee, usedemployee,fk_acc_fa,bookvalue,lastInfo,fkmaintenance,fkreturn,fklending,fkoutwards,fklost)
+	def HasExists(self,idapp_fk_goods,serialnumber):
+		return super(NA_BR_Goods_Disposal,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
+	def Delete(self,IDApp,userName):
 		cur = connection.cursor()
 		#delete di table na_disposal
 		#delete di table history
 		with transaction.atomic():
-			Query = """DELETE FROM n_disposal WHERE IDApp = %s""" 
+			Query = """SELECT FK_Goods FROM n_a_disposal WHERE IDApp = %s"""
 			cur.execute(Query,[IDApp])
-			Query = """DELETE FROM n_goods_history WHERE fk_disposal = %s"""
+			fk_goods = '';
+			if cur.rowcount > 0:
+				row = cur.fetchone()
+				if row is not None:
+					fk_goods = row[0]
+								 
+			Query = """DELETE FROM n_a_disposal WHERE IDApp = %s""" 
 			cur.execute(Query,[IDApp])
+			Query = """DELETE FROM n_a_goods_history WHERE fk_disposal = %s"""
+			cur.execute(Query,[IDApp])
+			#update stock
+			if fk_goods != '':
+				Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
+				cur.execute(Query, {'FK_Goods': fk_goods})
+				if cur.rowcount > 0:
+					row = cur.fetchone()
+					totalDisposal = int(row[0])
+					Query = """UPDATE n_a_stock	SET	ModifiedDate=NOW(), ModifiedBy=%(ModifiedBy)s,TDisposal= %(TDisposal)s WHERE FK_Goods = %(FK_Goods)s """
+					params = {'ModifiedBy':userName,'TDisposal':totalDisposal,'FK_Goods':fk_goods}
 			return "success"
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
@@ -434,24 +497,48 @@ class NA_BR_Goods_Disposal(models.Manager):
 			with transaction.atomic():
 				if Status == StatusForm.Input:
 					Query = """INSERT INTO n_a_disposal
-							(TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice,
+							(TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice,Sold_To,FK_Sold_To_Employee,Sold_To_P_Other,
 								BookValue, FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, FK_ApprovedBy,
-								Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee,CreatedDate, CreatedBy)
-							VALUES (%(TypeApp)s, %(SerialNumber)s, %(DateDisposal)s, %(IsLost)s, %(IsSold)s, %(SellingPrice)s,
+								Descriptions, FK_ProposedBy, FK_Return,FK_Lost, FK_Stock, FK_UsedEmployee,CreatedDate, CreatedBy)
+							VALUES (%(TypeApp)s, %(SerialNumber)s, %(DateDisposal)s, %(IsLost)s, %(IsSold)s, %(SellingPrice)s,%(Sold_To)s,%(FK_Sold_To_Employee)s,%(Sold_To_P_Other)s,
 								%(BookValue)s, %(FK_Acc_FA)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Outwards)s, %(FK_Maintenance)s, 
 								%(FK_Acknowledge1)s, %(FK_Acknowledge2)s, %(FK_ApprovedBy)s,%(Descriptions)s, 
-								%(FK_ProposedBy)s, %(FK_Return)s, %(FK_Stock)s, %(FK_UsedEmployee)s,NOW(), %(CreatedBy)s)"""
+								%(FK_ProposedBy)s, %(FK_Return)s,%(FK_Lost)s, %(FK_Stock)s, %(FK_UsedEmployee)s,NOW(), %(CreatedBy)s)"""
 					params = {'TypeApp':Data['typeapp'], 'SerialNumber':Data['serialnumber'], 'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
-								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['fk_acc_fa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
-								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['fk_acknowledge1'], 'FK_Acknowledge2':Data['fk_acknowledge2'], 'FK_ApprovedBy':Data['fk_approvedby'],
-								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Stock':Data['fk_stock'], 'FK_UsedEmployee':Data['fk_usedemployee'],
-								'CreatedBy':Data['createdby']}		
+							'Sold_To':Data['sold_to'],'FK_Sold_To_Employee':Data['idapp_fk_sold_to_employee'],'Sold_To_P_Other':Data['sold_to_p_other'],
+								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
+								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
+								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Lost':Data['fk_lost'],'FK_Stock':fk_stock, 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
+								'CreatedBy':Data['createdby']}	
+					cur.execute(Query,params)
+					cur.execute('SELECT last_insert_id()')
+					row = cur.fetchone()
+					FKApp = row[0]
+					Query = """INSERT INTO n_a_goods_history
+								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
+								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, NULL, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
+					params = {'SerialNumber':Data['serialnumber'], 'TypeApp':Data['typeapp'],'FK_Disposal':FKApp, 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 
+									'FK_Lost':Data['fk_lost'], 'FK_Maintenance':Data['fk_maintenance'], 'FK_Outwards':Data['fk_outwards'], 'FK_Return':Data['fk_return'], 'Createdby':Data['createdby']}
+					cur.execute(Query,params)
+
+					#update stock
+					Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
+					cur.execute(Query, {'FK_Goods': Data['fk_goods']})
+					if cur.rowcount > 0:
+						row = cur.fetchone()
+						totalDisposal = int(row[0])
+						Query = """UPDATE n_a_stock	SET	ModifiedDate=NOW(), ModifiedBy=%(ModifiedBy)s,TDisposal= %(TDisposal)s WHERE FK_Goods = %(FK_Goods)s """
+						params = {'ModifiedBy':Data['createdby'],'TDisposal':totalDisposal,'FK_Goods':Data['fk_goods']}
+						cur.execute(Query,params)
 				else:
 					Query = """UPDATE n_a_disposal
 							SET	DateDisposal=%(DateDisposal)s,
 								IsLost=%(IsLost)s,
 								IsSold=%(IsSold)s,
 								SellingPrice=%(SellingPrice)s,
+								Sold_To = %(Sold_To)s,
+								FK_Sold_To_Employee = %(FK_Sold_To_Employee),
+								Sold_To_P_Other = %(Sold_To_P_Other)s,
 								BookValue=%(BookValue)s,
 								FK_Acc_FA=%(FK_Acc_FA)s,
 								FK_Goods=%(FK_Goods)s,
@@ -468,16 +555,14 @@ class NA_BR_Goods_Disposal(models.Manager):
 								ModifiedBy = %(ModifiedBy)s,
 								ModifiedDate = NOW() 
 							WHERE IDApp = %(IDApp)s """
-					params = {'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
-								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['fk_acc_fa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
-								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['fk_acknowledge1'], 'FK_Acknowledge2':Data['fk_acknowledge2'], 'FK_ApprovedBy':Data['fk_approvedby'],
-								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['fk_usedemployee'],
+					params = {'IDApp':Data['idapp'],'DateDisposal':Data['datedisposal'], 'IsLost':Data['islost'], 'IsSold':Data['issold'], 'SellingPrice':Data['sellingprice'],
+							 'Sold_To':Data['sold_to'],'FK_Sold_To_Employee':Data['idapp_fk_sold_to_employee'],'Sold_To_P_Other':Data['sold_to_p_other'],
+								'BookValue':Data['bookvalue'], 'FK_Acc_FA':Data['faaccfa'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 'FK_Outwards':Data['fk_outwards'], 
+								'FK_Maintenance':Data['fk_maintenance'], 'FK_Acknowledge1':Data['idapp_fk_acknowledge1'], 'FK_Acknowledge2':Data['idapp_fk_acknowledge2'], 'FK_ApprovedBy':Data['idapp_fk_approvedby'],
+								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
 								'ModifiedBy':Data['modifiedby']}
-				Query = """INSERT INTO n_a_goods_history
-								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
-								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, %(FK_Lending)s, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""
-				params = {'SerialNumber':Data['serialnumber'], 'TypeApp':Data['typeapp'],'FK_Disposal':Data['fk_disposal'], 'FK_Goods':Data['fk_goods'], 'FK_Lending':Data['fk_lending'], 
-									'FK_Lost':Data['fk_lost'], 'FK_Maintenance':Data['fk_maintenance'], 'FK_Outwards':Data['fk_outwards'], 'FK_Return':Data['fk_return'], 'Createdby':Data['createdby']}
+					cur.execute(Query,params)			
+			return "success"
 		except Exception as e :
 			cur.close()
 			return repr(e)

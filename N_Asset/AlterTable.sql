@@ -393,3 +393,30 @@ ALTER TABLE `n_a_disposal`
 
 	ALTER TABLE `n_a_goods`
 	CHANGE COLUMN `typeapp` `typeapp` VARCHAR(32) NULL DEFAULT NULL AFTER `Placement`;
+
+	ALTER TABLE `n_a_stock`
+	ALTER `FK_Goods` DROP DEFAULT;
+ALTER TABLE `n_a_stock`
+	COMMENT='',
+	CHANGE COLUMN `T_Goods_Spare` `T_Goods_Spare` SMALLINT(5) UNSIGNED NULL DEFAULT NULL COMMENT 'column ini untuk menampilkan spare barang yang ada untuk peminjaman saja, ' AFTER `ModifiedBy`,
+	CHANGE COLUMN `TIsNew` `TIsNew` SMALLINT NULL DEFAULT NULL COMMENT 'hanya menampilkan total barang baru, data akan berkurang bila ada peminjaman atau pengeluaran' AFTER `TIsUsed`,
+	CHANGE COLUMN `TIsRenew` `TIsRenew` SMALLINT NULL DEFAULT NULL COMMENT 'menampilkan total barang yang di perbaiki dan berhasil di perbaiki saja' AFTER `TIsNew`,
+	CHANGE COLUMN `IsBroken` `TIsBroken` INT(11) NULL DEFAULT NULL COMMENT 'column ini untuk menampilkan total barang rusak,di peroleh dari return atau sesudah maitenance (static)' AFTER `TIsRenew`,
+	CHANGE COLUMN `TGoods_Return` `TGoods_Return` SMALLINT(6) NULL DEFAULT NULL COMMENT 'menampilkan total barang di return saja' AFTER `TIsBroken`,
+	ADD COLUMN `TDisposal` INT(11) NULL DEFAULT NULL COMMENT 'Menampilkan total barang yang sudah di jual/ di hapuskan assetnya' AFTER `TGoods_Received`,
+	ADD COLUMN `TIsLost` INT(11) NULL DEFAULT NULL COMMENT 'Menampikan barang yang hilang saja' AFTER `TDisposal`,
+	CHANGE COLUMN `TMaintenance` `TMaintenance` SMALLINT(6) NULL DEFAULT NULL COMMENT 'menampilkan total barang yang di perbaiki, masih di bengkel' AFTER `TIsLost`,
+	CHANGE COLUMN `FK_Goods` `FK_Goods` INT(11) ZEROFILL NOT NULL AFTER `TMaintenance`;
+
+	ALTER TABLE `n_a_ga_return`
+	ALTER `Conditions` DROP DEFAULT;
+ALTER TABLE `n_a_ga_return`
+	CHANGE COLUMN `Conditions` `Conditions` CHAR(1) NOT NULL AFTER `DateReturn`;
+
+	ALTER TABLE `n_a_disposal`
+	ADD COLUMN `FK_Lost` INT(11) NULL DEFAULT NULL AFTER `FK_Return`;
+
+	ALTER TABLE `n_a_disposal`
+	ADD COLUMN `Sold_To` CHAR(1) NULL DEFAULT NULL AFTER `SellingPrice`,
+	ADD COLUMN `FK_Sold_To_Employee` INT NULL DEFAULT NULL COMMENT 'di jual ke karyawan mana kalau ke orang lain isinya dbnull' AFTER `Sold_To`,
+	ADD COLUMN `Sold_To_P_Other` VARCHAR(120) NULL DEFAULT NULL COMMENT 'di jual ke siapa bila bukan karyaawan, ke perusahaan atau perorangan' AFTER `FK_Sold_To_Employee`;

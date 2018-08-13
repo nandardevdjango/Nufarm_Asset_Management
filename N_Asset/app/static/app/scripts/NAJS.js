@@ -1033,10 +1033,20 @@ NA.common.dialog = {
             dialog.appendChild(mainContentDialog);
             dialog.appendChild(bottomDialog);
 
+
+            var scrollingPosition = this.getScrollingPosition();
             body.appendChild(dialog);
+       
+
+            //dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
+            //dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2) - parseInt(dialog.offsetHeight/2) + "px";
+
+            dialog.style.visibility = 'visible';
+
+
 
             //trigger showDialogEntry
-            window.showDialogEntry(event);
+             window.showDialogEntry(event);
             
             //============ set dialog to center ================
             dialog.style.top = '50%';

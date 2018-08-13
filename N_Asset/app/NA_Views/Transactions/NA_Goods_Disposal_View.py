@@ -82,13 +82,13 @@ def NA_Goods_Disposal_Search(request):
 		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []
-		#column idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairfrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
+		#column idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairfrom,issold,sellingprice,soldto,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate	
 		i = 0;
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],row['islost'],
-						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['proposedby'],row['acknowledgeby'],
-				row['approvedby'],row['descriptions'],row['createdby'],row['createddate']]}
+			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['bookvalue'],row['datedisposal'],row['afterrepair'],row['lastrepairfrom'],row['islost'],
+						row['refgoodsfrom'],row['issold'],row['sellingprice'],row['soldto'],row['proposedby'],row['acknowledgeby'],
+				row['approvedby'],row['descriptions'],row['createddate'],row['createdby']]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
 		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
@@ -122,6 +122,22 @@ def getGoodsWithHistory(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 
+@ensure_csrf_cookie
+def hasExists(request):
+	try:#check if exists the same data to prevent users double input,parameter data to check FK_goods,datereceived,totalpurchase
+		authentication_classes = []
+		data = request.body
+		data = json.loads(data)
+		idapp_fk_goods = data['idapp_fk_goods']
+		serialnumber = data['serialnumber']
+		statuscode = 200;
+		if NADisposal.objects.HasExists(idapp_fk_goods,serialnumber):
+			statuscode = 200
+			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
+	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:
@@ -130,7 +146,7 @@ def getLastTransGoods(request):
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
 								  'islost':result[5],'fk_usedemployee':result[6],'usedemployee':result[7],'fk_acc_fa':result[8],'bookvalue':result[9],
 								  'lastinfo':result[10],'fk_maintenance':result[11],'fk_return':result[12],
-                                  'fk_lending':result[13],'fk_outwards':result[14],
+                                  'fk_lending':result[13],'fk_outwards':result[14],'fk_lost':result[15],
 								  }),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
@@ -145,7 +161,7 @@ def Delete(request):
 
 		IDApp = data['idapp']
 	
-		result = NADisposal.objects.Delete(IDApp)
+		result = NADisposal.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)
@@ -158,11 +174,11 @@ def getBookValue(request):
 	idappFKGoods = data['idapp_fk_goods']
 	dateDisposal = datetime.date.today() if data['datedisposal'] is None else data['datedisposal']
 	try:
-		result = NADisposal.objects.getBookValue(None,idapp= idappFKGoods,SerialNo=serialNO,DateDisposal=dateDisposal)
+		result = NADisposal.objects.getBookValue(None,idapp=idappFKGoods,SerialNo=serialNO,DateDisposal=dateDisposal)
 		if result is None :
 			statuscode = 500
 			return HttpResponse(json.dumps({'message':'unknown book value'}),status = statuscode, content_type='application/json')
-		return json.dumps({'fk_acc_fa':result[0],'bookvalue':result[1]},cls=DjangoJSONEncoder,status = 200, content_type='application/json')
+		return  HttpResponse(json.dumps({'fk_acc_fa':result[0],'bookvalue':result[1],'startcurbookvalue':result[2],'endcurbookvalue':result[3]},cls=DjangoJSONEncoder),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -173,7 +189,7 @@ def ShowEntry_Disposal(request):
 	initializationForm={}
 	statuscode = 200
 	data = None
-	hasRefData = False
+	#hasRefData = False
 	try:
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 		if request.POST:
@@ -189,6 +205,8 @@ def ShowEntry_Disposal(request):
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
 				data.update(fk_outwards=(None if int(data['fk_outwards']) == 0 else data['fk_outwards']))
+				data.update(fk_lost=(None if int(data['fk_lost']) == 0 else data['fk_lost']))
+				data.update(idapp_fk_sold_to_employee=(None if int(data['idapp_fk_sold_to_employee']) ==0 else data['idapp_fk_sold_to_employee']))
 				if status == 'Add':	
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					result = NADisposal.objects.SaveData(data,StatusForm.Input)
@@ -201,16 +219,20 @@ def ShowEntry_Disposal(request):
 				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Disposal_Form(initial=initializationForm)
-			form.fields['hasrefdata'].widget.attrs = {'value': False}
+			#form.fields['hasrefdata'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})
 		elif status == 'Edit' or status == 'Open':
 			IDApp = request.GET.get('idapp')
-			#Ndata = NAGoodsOutwards.objects.getData(IDApp)
+			Ndata = NADisposal.objects.getData(IDApp)
+
 			Ndata = Ndata[0]
 			Ndata.update(idapp=IDApp)
-			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasrefdata'])))
+			sellingprice = Ndata['sellingprice']
+			bookvalue = Ndata['bookvalue']
+			Ndata.update(sellingprice="{0:.2f}".format(sellingprice))
+			Ndata.update(bookvalue="{0:.2f}".format(bookvalue))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
-			#form = NA_Goods_Outwards_Form(data=Ndata)
+			form = NA_Goods_Disposal_Form(data=Ndata)
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})    
 	except Exception as e:
 		result = repr(e)
@@ -234,12 +256,20 @@ class NA_Goods_Disposal_Form(forms.Form):
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':1,
 									'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)   
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
-	bookvalue = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.HiddenInput,required=False)
+	bookvalue = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.HiddenInput(),required=False)
 	datedisposal = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
 								'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	issold = forms.BooleanField(widget=forms.CheckboxInput(attrs={'tabindex':3,'style':'vertical-align: text-bottom;'},),required=False,)
 	sellingprice = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
-									'class':'NA-Form-Control','style':'width:112px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
+									'class':'NA-Form-Control','style':'width:132px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
+	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
+	
+	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;margin-right:5px;margin-left:5px;display:inline-block;','disabled':True,
+																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
+	fk_sold_to_employee_employee = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+																							'placeholder': 'Employee who buys','data-value':'Employee who buys','tittle':'Employee who buys'}),required=False)
+	idapp_fk_sold_to_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	sold_to_p_other = forms.CharField(required=False,widget=forms.HiddenInput())
 	#proposedby
 	fk_proposedby = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':4,
@@ -252,7 +282,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	fk_acknowledge1 = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':5,
 									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
-	fk_acknowledge1_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
+	fk_acknowledge1_employee = forms.CharField(max_length=120,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	idapp_fk_acknowledge1 = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
@@ -260,7 +290,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	#fk_Acknowledge2
 	fk_acknowledge2 = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':6,
-									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
+									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=False)
 	fk_acknowledge2_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who is responsible','data-value':'employee who is responsible','tittle':'employee who is responsible is required'}))
 	idapp_fk_acknowledge2 = forms.IntegerField(widget=forms.HiddenInput(),required=False)
@@ -275,7 +305,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
   																		'data-value':'descriptions about disposal/deletetion of goods','title':'Remark any other text to describe transactions','tabindex':8}),required=False)
-	
+	fk_lost =  forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	islost = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)#di isi 1 / 0 kalau ada value di form, lainya 0
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_acc_fa = forms.IntegerField(widget=forms.HiddenInput(),required=False)
@@ -291,14 +321,14 @@ class NA_Goods_Disposal_Form(forms.Form):
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_lending = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_outwards = forms.IntegerField(widget=forms.HiddenInput(),required=False) 
-	hasrefdata = forms.BooleanField(widget=forms.HiddenInput(),required=False)
+	#hasrefdata = forms.BooleanField(widget=forms.HiddenInput(),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 	def clean(self):
 		cleaned_data = super(NA_Goods_Disposal_Form,self).clean()
 		serialnumber = self.cleaned_data['serialnumber']
 		fk_proposedby = self.cleaned_data['fk_proposedby']
-		datereleased = self.cleaned_data['datereleased']
+		datereleased = self.cleaned_data['datedisposal']
 		fk_acknowledge1 = self.cleaned_data['fk_acknowledge1']
 		fk_approvedby = self.cleaned_data['fk_approvedby']
 				
@@ -307,7 +337,6 @@ class NA_Goods_Disposal_Form(forms.Form):
 		self.initial['goods'] = ''
 		self.initial['brandvalue'] = ''
 		self.initial['typeapp'] = ''
-		self.initial['hasrefdata'] = False
 		self.initial['issold'] = False
 		self.initial['fk_usedemployee'] = ''
 		self.initial['usedemployee'] = ''

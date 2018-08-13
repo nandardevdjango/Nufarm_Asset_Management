@@ -26,6 +26,7 @@ from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive
 from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
+from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
@@ -501,6 +502,47 @@ class NAGoodsReturn(NAGoodsReturnModel):
     def __str__(self):
         return self.fk_goods.goodsname
 
+class NAGAMaintenance(NA_TransactionModel):
+    fk_employee = None
+
+    requestdate = models.DateField(
+        db_column='RequestDate',
+        blank=True,
+        null=True
+    )
+    startdate = models.DateField(db_column='StartDate')
+    isstillguarantee = models.BooleanField(db_column='IsStillGuarantee')
+    expense = models.DecimalField(
+        db_column='Expense',
+        max_digits=10,
+        decimal_places=4
+    )
+    maintenanceby = models.CharField(
+        db_column='MaintenanceBy',
+        max_length=100
+    )
+    personalname = models.CharField(
+        db_column='PersonalName',
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    enddate = models.DateField(db_column='EndDate', blank=True, null=True)
+    typeapp = models.CharField(db_column='TypeApp', max_length=32)
+    issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True,default=True)
+    isfinished = models.BooleanField(db_column='IsFinished',default=True)
+    descriptions = models.CharField(
+        db_column='Descriptions',
+        max_length=250,
+        blank=True,
+        null=True
+    )
+
+    objects = NA_BR_GA_Maintenance()
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_ga_maintenance'
 
 class NAMaintenance(NA_TransactionModel):
     fk_employee = None
@@ -546,25 +588,26 @@ class NAMaintenance(NA_TransactionModel):
 
 
 class NAStock(NA_BaseModel):
-    fk_goods = models.ForeignKey(
-        goods, db_column='FK_Goods', db_constraint=False)
-    t_goods_spare = models.PositiveSmallIntegerField(
-        db_column='T_Goods_Spare', null=True)
-    totalqty = models.IntegerField(db_column='TotalQty', null=True)
-    tisused = models.IntegerField(db_column='TIsUsed', null=True)
-    tisnew = models.IntegerField(db_column='TIsNew', null=True)
-    tisrenew = models.IntegerField(db_column='TIsRenew', null=True)
-    isbroken = models.IntegerField(db_column='IsBroken', null=True)
-    tgoods_return = models.SmallIntegerField(
-        db_column='TGoods_Return', blank=True, null=True)
-    tgoods_received = models.IntegerField(
-        db_column='TGoods_Received', blank=True, null=True)
-    tmaintenance = models.SmallIntegerField(
-        db_column='TMaintenance', blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_stock'
+	fk_goods = models.ForeignKey(
+		goods, db_column='FK_Goods', db_constraint=False)
+	t_goods_spare = models.PositiveSmallIntegerField(
+		db_column='T_Goods_Spare', null=True)
+	totalqty = models.IntegerField(db_column='TotalQty', null=True)
+	tisused = models.IntegerField(db_column='TIsUsed', null=True)
+	tisnew = models.PositiveSmallIntegerField(db_column='TIsNew', null=True)
+	tisrenew = models.PositiveSmallIntegerField(db_column='TIsRenew', null=True)
+	tisbroken = models.IntegerField(db_column='TIsBroken', null=True)
+	tgoods_return = models.SmallIntegerField(
+		db_column='TGoods_Return', blank=True, null=True)
+	tgoods_received = models.IntegerField(
+		db_column='TGoods_Received', blank=True, null=True)
+	tmaintenance = models.SmallIntegerField(
+		db_column='TMaintenance', blank=True, null=True)
+	tdisposal = models.IntegerField(db_column='TDisposal', null=True)
+	tislost = models.IntegerField(db_column='TIsLost', null=True)
+	class Meta:
+		managed = True
+		db_table = 'n_a_stock'
 
 
 class NAGoodsLending(NA_TransactionModel):
@@ -724,93 +767,99 @@ class NAGoodsLost(NA_TransactionModel):
 
 
 class NADisposal(NA_TransactionModel):
-    fk_employee = None
+	fk_employee = None
 
-    datedisposal = models.DateField(db_column='DateDisposal')
-    islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
-    #ishasvalue = models.IntegerField(db_column='IsHasValue', blank=True, null=True)
-    issold = models.PositiveSmallIntegerField(
-        db_column='IsSold', blank=True, null=True)
-    sellingprice = models.DecimalField(
-        db_column='SellingPrice', max_digits=10, decimal_places=4, blank=True, null=True)
-    bookvalue = models.DecimalField(
-        db_column='BookValue', max_digits=10, decimal_places=4)
-    descriptions = models.CharField(
-        db_column='Descriptions',
-        max_length=250,
-        blank=True,
-        null=True
-    )
-    fk_proposedby = models.ForeignKey('Employee', db_column='FK_ProposedBy', related_name='fk_disposal_emp_proposed', max_length=50, blank=True, null=True,
-                                      db_constraint=False)
+	datedisposal = models.DateField(db_column='DateDisposal')
+	islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
+	fk_lost = models.ForeignKey('NAGoodsLost',db_column='FK_Lost',blank=True,null=True)
+	issold = models.PositiveSmallIntegerField(
+		db_column='IsSold', blank=True, null=True)
+	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=30, decimal_places=4, blank=True, null=True)
+	sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
+	fk_sold_to_employee= models.ForeignKey(
+		'Employee',
+		db_column='FK_Sold_To_Employee',
+		related_name='fk_disposal_emp_Sold',
+		db_constraint=False, blank=True, null=True,
+	)
+	sold_to_p_other = models.CharField(max_length=120,db_column='Sold_To_P_Other',blank=True,null=True)
+	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+	descriptions = models.CharField(
+		db_column='Descriptions',
+		max_length=250,
+		blank=True,
+		null=True
+	)
+	fk_proposedby = models.ForeignKey('Employee', db_column='FK_ProposedBy', related_name='fk_disposal_emp_proposed', max_length=50, blank=True, null=True,
+										db_constraint=False)
 
-    fk_acknowledge1 = models.ForeignKey(
-        'Employee',
-        db_column='FK_Acknowledge1',
-        related_name='fk_disposal_emp_ack1',
-        db_constraint=False, blank=True, null=True,
-    )
-    fk_acknowledge2 = models.ForeignKey(
-        'Employee',
-        db_column='FK_Acknowledge2',
-        related_name='fk_disposal_emp_ack2',
-        db_constraint=False, blank=True, null=True,
-    )
-    fk_approvedby = models.ForeignKey(
-        'Employee',
-        db_column='FK_ApprovedBy',
-        related_name='fk_disposal_emp_app',
-        db_constraint=False, blank=True, null=True,
-    )
-    fk_acc_fa = models.ForeignKey(
-        'NAAccFa', related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
-    fk_stock = models.ForeignKey(
-        'NAStock', related_name='fk_disposal_stock', db_column='FK_Stock', blank=True, null=True)
-    fk_maintenance = models.ForeignKey(
-        'NAMaintenance',
-        null=True,
-        blank=True,
-        db_column='FK_Maintenance',
-        db_constraint=False,
-        related_name='fk_disposal_maintenance'
-    )
-    fk_outwards = models.ForeignKey(
-        'NAGoodsOutwards',
-        db_column='FK_Outwards',
-        null=True,
-        blank=True,
-        db_constraint=False,
-        related_name='fk_disposal_outwards'
-    )
-    fk_lending = models.ForeignKey(
-        'NAGoodsLending',
-        db_column='FK_Lending',
-        null=True,
-        blank=True,
-        db_constraint=False,
-        related_name='fk_disposal_lending'
-    )
-    fk_return = models.ForeignKey('NAGoodsReturn',
-                                  db_column='FK_Return',
-                                  null=True,
-                                  blank=True,
-                                  db_constraint=False,
-                                  related_name='fk_disposal_return'
-                                  )
-    fk_usedemployee = models.ForeignKey(
-        'Employee',
-        db_column='FK_UsedEmployee',
-        null=True,
-        blank=True,
-        db_constraint=False,
-        related_name='fk_disposal_emp_used'
-    )
+	fk_acknowledge1 = models.ForeignKey(
+		'Employee',
+		db_column='FK_Acknowledge1',
+		related_name='fk_disposal_emp_ack1',
+		db_constraint=False, blank=True, null=True,
+	)
+	fk_acknowledge2 = models.ForeignKey(
+		'Employee',
+		db_column='FK_Acknowledge2',
+		related_name='fk_disposal_emp_ack2',
+		db_constraint=False, blank=True, null=True,
+	)
+	fk_approvedby = models.ForeignKey(
+		'Employee',
+		db_column='FK_ApprovedBy',
+		related_name='fk_disposal_emp_app',
+		db_constraint=False, blank=True, null=True,
+	)
+	fk_acc_fa = models.ForeignKey(
+		'NAAccFa', related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
+	fk_stock = models.ForeignKey(
+		'NAStock', related_name='fk_disposal_stock', db_column='FK_Stock', blank=True, null=True)
+	fk_maintenance = models.ForeignKey(
+		'NAMaintenance',
+		null=True,
+		blank=True,
+		db_column='FK_Maintenance',
+		db_constraint=False,
+		related_name='fk_disposal_maintenance'
+	)
+	fk_outwards = models.ForeignKey(
+		'NAGoodsOutwards',
+		db_column='FK_Outwards',
+		null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_outwards'
+	)
+	fk_lending = models.ForeignKey(
+		'NAGoodsLending',
+		db_column='FK_Lending',
+		null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_lending'
+	)
+	fk_return = models.ForeignKey('NAGoodsReturn',
+									db_column='FK_Return',
+									null=True,
+									blank=True,
+									db_constraint=False,
+									related_name='fk_disposal_return'
+									)
+	fk_usedemployee = models.ForeignKey(
+		'Employee',
+		db_column='FK_UsedEmployee',
+		null=True,
+		blank=True,
+		db_constraint=False,
+		related_name='fk_disposal_emp_used'
+	)
 
-    objects = NA_BR_Goods_Disposal()
+	objects = NA_BR_Goods_Disposal()
 
-    class Meta:
-        managed = True
-        db_table = 'n_a_disposal'
+	class Meta:
+		managed = True
+		db_table = 'n_a_disposal'
 
 
 def upload_to_each_dir(instance, filename):

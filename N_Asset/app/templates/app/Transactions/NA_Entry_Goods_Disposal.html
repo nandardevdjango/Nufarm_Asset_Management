@@ -1,12 +1,13 @@
 ﻿<div class="row" style="overflow:auto;">
+	{% load l10n %}
     <form action="." method="post" class="form-horizontal" enctype="multipart/form-data" style="background-color:transparent;font-size: 1em;" id="frm-NA-Entry-Goods-Disposal" onsubmit="return false;">
         {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
             <div class="NA-Entry-div-row">
-                <label for="serialnumber" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Serial Number</label>
+                <label for="serialnumber" class="NA-Entry-label;" style="display:inline-block; width:107px;margin-right:5px;">Serial Number</label>
                 {{ form.serialnumber }}
-                <div class="input-group" style="display: inline-flex; width: 48%;">
+                <div class="input-group" style="display: inline-flex; width: 50%;">
                     {{ form.goods }}
                     <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                         <button class="btn btn-success" type="button" id="FE_fk_goods" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
@@ -29,16 +30,16 @@
                 </div>
                 <div id="bookvalueInfo" style="margin-bottom:5px;margin-right:auto;display:flex;">
                     <label id="fk_bookvalueKey" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Book Value</label>
-                    <label id="fk_bookvalueValue" class="NA-Entry-label;" style="margin-right: 5px;padding-left:5px;width:75%;max-width:360px;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;">{{form.bookvalue.value}}</label>
+                    <label id="fk_bookvalueValue" class="NA-Entry-label;" style="margin-right: 5px;padding-left:5px;width:75%;max-width:360px;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;">{{ form.bookvalue.value|localize }}</label>
                 </div>
                 <!--lastInfo di hide bila status edit /open-->
-                <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                <div id="lastInfo" style="margin-bottom:5px;margin-right:auto;display:flex;">
                     <label id="lastInfoKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:112px;">Last Info</label>
                     <label id="lastInfoValue" class="NA-Entry-label;" style="margin-right: 5px;font-size: small;width:75%;max-width:360px;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;"></label>
                 </div>
                 <div id="lastUsedInfo" style="margin-bottom:5px;margin-right:auto;display:flex;">
                     <label id="fk_usedemployeeKey" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Last Used By</label>
-                    <label id="fk_usedemployeeValue" class="NA-Entry-label;" style="margin-right: 5px;width:75%;max-width:360px;display: inline-block;padding-left: 5px;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;">{{ form.fk_usedemployee|add:"|"|add:form.fk_usedemployee_employee.value }}</label>
+                    <label id="fk_usedemployeeValue" class="NA-Entry-label;" style="margin-right: 5px;width:75%;max-width:360px;display: inline-block;padding-left: 5px;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;">{{ form.fk_usedemployee.value|add:"|"|add:form.fk_usedemployee_employee.value }}</label>
                 </div>
                 <!--
                 fk_usedemployee = forms.CharField(max_length=50,widget=forms.HiddenInput(),required=False)
@@ -48,7 +49,7 @@
             </div>
         </fieldset>
         <div class="NA-Entry-div-row">
-            <label for="datedisposal" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date Deleted</label>
+            <label for="datedisposal" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:107px;">Date Deleted</label>
             {{ form.datedisposal }}
         </div>
         <div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
@@ -56,12 +57,37 @@
                 <legend>
                     purpose for being sold ?
                 </legend>
-                <div class="NA-Entry-inlinve-div" style="width:120px;padding-left:10px;">
-                    <label>  {{ form.issold }} Yess </label>
+                <div class="NA-Entry-div-row">
+                    <div class="NA-Entry-inlinve-div" style="width:75px;padding-left:10px;">
+                        <label>  {{ form.issold }} Yess </label>
+                    </div>
+                    <div class="NA-Entry-inlinve-div" id="divSellingPrice">
+                        <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;width:120px;text-align: right;padding-right: 5px;">Selling Price</label>
+                        {{ form.sellingprice }}
+                    </div>
                 </div>
-                <div class="NA-Entry-inlinve-div" id="divSellingPrice">
-                    <label for="sellingprice" class="NA-Entry-label;" style="display:inline-block;width:120px;text-align: right;padding-right: 5px;">Selling Price</label>
-                    {{ form.sellingprice}}
+                <div id ="divPlanSold" class="NA-Entry-div-row" style="margin-bottom:2px;border-top: 1px solid #0b9910">
+                    <div class="NA-Entry-inlinve-div" style="width:95px;padding-left:10px;vertical-align:middle">
+                        <label>Sold to</label>
+                    </div>
+                    <div class="NA-Entry-inlinve-div" style="width:auto;padding-left:10px;vertical-align:middle">
+                        {{ form.sold_to }}
+                    </div>
+                </div>
+                <div id="divSoldTo"class="NA-Entry-div-row" style="margin-bottom:2px;border-top: 1px solid #0b9910;padding-top:5px">
+                    <label id="lblfk_sold_to_employee" for="fk_sold_to_employee" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:105px;font-size: 0.85em;">Sold to</label>
+                    <!--form.fk_sold_to_employee  di isi NIK dari employee bila form.sold_to widgetnya choice radio select di pilih employee
+						jika di pilih Personal atau other maka textbox ini haru di hide dan textbox sold_to_p_other di set focus btn FE_fk_sold_employee di disabled kan
+						tetapi bila pilihannya employee maka textbox fk_sold_to_employee di enabledkan dan sold_to_p_other di disabledkan dan FE_fk_sold_employee di enabledkan
+						agar user bisa mengetik NIK di fk_sold_to_employee atau find di button FE_fk_sold_employee
+					-->
+                    {{ form.fk_sold_to_employee }}
+                    <div id="div-FE_fk_sold_employee" class="input-group" style="display:inline-flex;width:50%;">
+                        {{ form.fk_sold_to_employee_employee }}                       
+                        <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
+                            <button class="btn btn-success" type="button" id="FE_fk_sold_employee" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
                 </div>
             </fieldset>
         </div>
@@ -115,6 +141,7 @@
         {{ form.idapp }}
         {{ form.idapp_fk_goods }}
         {{ form.islost }}
+        {{ form.fk_lost }}
         {{ form.fk_stock }}
         {{ form.idapp_fk_usedemployee }}
         {{ form.fk_acc_fa }}
@@ -126,6 +153,7 @@
         {{ form.fk_return }}
         {{ form.fk_lending }}
         {{ form.fk_outwards }}
-        {{ form.hasrefdata }}
+		{{ form.idapp_fk_sold_to_employee }}
+		 {{ form.sold_to_p_other }}
     </form>
 </div>

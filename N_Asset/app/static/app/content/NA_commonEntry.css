@@ -32,7 +32,6 @@ form .NA-Entry-inlinve-div {
         display: table;
         content: "";
     }
-
 input[type="text"], input[type="password"], textarea {
     height: 28px;
 }
@@ -149,7 +148,16 @@ div#info_dialog{
 	display: block;
 	background: white;
 }
-
+.NA-Entry-inlinve-div ul.inline{
+    list-style-type:none;
+       overflow: hidden;
+}
+.NA-Entry-inlinve-div ul li{
+        float: left;margin-right:0;padding-right:0;padding-left:5px;
+}
+label input[type='radio'],label input[type='checkbox']{
+    vertical-align:top
+}
 /*input:invalid {
   box-shadow: 0 0 5px 1px red;
 }
