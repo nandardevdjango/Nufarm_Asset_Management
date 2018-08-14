@@ -68,8 +68,8 @@ class NABRGoodsOutwardsGA(models.Manager):
     def search_ga_by_form(self, q):
         cur = connection.cursor()
         query_string = """
-        SELECT ngr.idapp, CONCAT(g.goodsname, ngr.brand, ngr.model) AS goods,
-        ngh.reg_no, ngh.expired_reg, ngh.bpkb_expired, ngr.descriptions,
+        SELECT ngr.idapp, CONCAT(g.goodsname, ' ', ngr.brand, ' ', ngr.model) AS goods,
+        g.itemcode, ngh.reg_no, ngh.expired_reg, ngh.bpkb_expired, ngr.descriptions,
         CASE
             WHEN(
                 SELECT EXISTS(

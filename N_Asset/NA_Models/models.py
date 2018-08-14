@@ -27,6 +27,7 @@ from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsG
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
 from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
+from NA_DataLayer.Transactions.NA_Ga_History_BR import NAGaVnHistoryBR
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
@@ -1579,10 +1580,7 @@ class NAGaReceive(NA_BaseModel):
                 bpkb_expired__gt=today
             )
         except MultipleObjectsReturned:
-            reg = self.nagavnhistory_set.filter(
-                expired_reg__gt=today,
-                bpkb_expired__gt=today
-            ).last()
+            reg = self.nagavnhistory_set.active().last()
         return reg
 
 
@@ -1624,6 +1622,8 @@ class NAGaVnHistory(NA_BaseModel):
     )
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
+    
+    objects = NAGaVnHistoryBR()
 
     @property
     def is_expired_reg(self):

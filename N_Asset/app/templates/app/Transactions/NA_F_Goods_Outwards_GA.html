@@ -895,20 +895,31 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                 valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                             }
                                             gridTbl = $('#NA_Goods_Receive_GA_FK_Goods');
-                                            var urlFKGoods = '/MasterData/Goods/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc')
-												+ '=' + valSearch + '&' + 'type=GA';
+                                            var urlFKGoods = 'search_ga_by_form/?' + win.encodeURIComponent('q');
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
-                                                datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
-                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description','Descriptions','Type App'],
+                                                datatype: "json",
+                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Reg Number', 'Expired Reg', 'BPKB Expired', 'Is New', 'Descriptions'],
                                                 colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
                                                     { name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
                                                     { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
                                                     { name: 'goods', index: 'goods', width: 180, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'reg_no', index: 'reg_no', width: 180, sortable: true, editable: false, align: 'left' },
+                                                    { 
+                                                        name: 'expired_reg', index: 'expired_reg', width: 150, sortable: true, editable: false, align: 'left',
+                                                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } 
+                                                    },
+                                                    { 
+                                                        name: 'bpkb_expired', index: 'bpkb_expired', width: 150, sortable: true, editable: false, align: 'left',
+                                                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }  
+                                                    },
+                                                    { 
+                                                        name: 'is_new', index: 'is_new', width: 50, sortable: true, editable: false, align: 'center',
+                                                        formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } 
+                                                    },
 													{ name: 'descriptions', index: 'descriptions', width: 210, sortable: true, editable: false, align: 'left' },
-													{ name: 'typeApp', index: 'typeApp', hidden: true }
                                                 ],
                                                 ondblClickRow: function (rowId) {
                                                     //fire button OK

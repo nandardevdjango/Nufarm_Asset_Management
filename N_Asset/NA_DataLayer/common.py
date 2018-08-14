@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from django.core.serializers import serialize
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.conf import settings
 from django.db.models.query import QuerySet
@@ -978,7 +979,9 @@ class commonFunct:
                 multi_sort = data
             else:
                 data = multi_sort
-        totalRecord = data.count()
+            totalRecord = data.count()
+        else:
+            totalRecord = len(data)
         paginator = Paginator(data, int(Ilimit))
         try:
             page = request.GET.get('page', '1')
@@ -991,7 +994,7 @@ class commonFunct:
 
         rows = []
         i = 0
-        fields.pop('idapp')
+        fields.remove('idapp')
         for row in dataRows.object_list:
             i += 1
             cell = [row['idapp'], i]
@@ -1003,4 +1006,7 @@ class commonFunct:
             rows.append(datarow)
         results = {"page": page, "total": paginator.num_pages,
                    "records": totalRecord, "rows": rows}
-        return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
+        return HttpResponse(
+            json.dumps(results, indent=4, cls=DjangoJSONEncoder),
+            content_type='application/json'
+        )

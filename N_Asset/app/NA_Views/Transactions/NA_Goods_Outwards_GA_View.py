@@ -7,7 +7,8 @@ from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import NAGaOutwards, goods, NASuplier, NAGoodsEquipment
+from NA_Models.models import (NAGaOutwards, goods, NASuplier,
+                              NAGoodsEquipment, Employee, NAGaVnHistory)
 
 
 def NA_Goods_Outwards_GA(request):
@@ -78,7 +79,14 @@ def getFormData(form):
 
 
 class NAGaOutwardsForm(forms.Form):
-    fk_goods = forms.CharField(widget=forms.HiddenInput())
+    fk_app = forms.ModelChoiceField(
+        queryset=NAGaVnHistory.objects.active()
+    )
+
+    fk_goods = forms.ModelChoiceField(
+        queryset=goods.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
 
     itemcode = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'itemcode',
@@ -89,7 +97,10 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    employee = forms.CharField(widget=forms.HiddenInput())
+    employee = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
 
     employee_nik = forms.CharField(widget=forms.TextInput(
         attrs={
@@ -102,7 +113,10 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
-    used_by = forms.CharField(widget=forms.HiddenInput())
+    used_by = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
 
     used_by_nik = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'used by'}
@@ -112,7 +126,10 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
-    resp_employee = forms.CharField(widget=forms.HiddenInput())
+    resp_employee = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
 
     resp_employee_nik = forms.CharField(widget=forms.TextInput(
         attrs={
@@ -125,7 +142,10 @@ class NAGaOutwardsForm(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
     ), required=False)
 
-    sender = forms.CharField(widget=forms.HiddenInput())
+    sender = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
 
     sender_nik = forms.CharField(widget=forms.TextInput(
         attrs={
@@ -171,6 +191,20 @@ class NAGaOutwardsForm(forms.Form):
 
     def save(self, request):
         outwards = NAGaOutwards()
+        outwards.fk_goods = self.cleaned_data.get('fk_goods')
+        outwards.fk_app = self.cleaned_data.get('fk_app')
+        outwards.fk_employee = self.cleaned_data.get('employee')
+        outwards.fk_usedemployee = self.cleaned_data.get('used_by')
+        outwards.fk_responsibleperson = self.cleaned_data.get('resp_employee')
+        outwards.fk_sender = self.cleaned_data.get('sender')
+        outwards.isnew = self.cleaned_data.get('isnew')
+        outwards.typeapp = self.cleaned_data.get('typeapp')
+        outwards.daterequest = self.cleaned_data.get('daterequest')
+        outwards.datereleased = self.cleaned_data.get('daterequest')
+        outwards.descriptions = self.cleaned_data.get('descriptions')
+        outwards.createdby = request.user.username
+        outwards.createddate = datetime.now()
+        
 
 
 def Entry_Goods_Outwards_GA(request):
@@ -256,8 +290,9 @@ def ShowCustomFilter(request):
 def search_ga_by_form(request):
     q = request.GET.get('q', '')
     data = NAGaOutwards.objects.search_ga_by_form(q)
+    print(data)
     return commonFunct.search_data_by_form(
         request,
         data,
-        fields=['idapp, goods, reg_no, expired_reg, bpkb_expired, is_new, descriptions']
+        fields=['idapp', 'itemcode', 'goods', 'reg_no', 'expired_reg', 'bpkb_expired', 'info_is_new', 'descriptions']
     )
