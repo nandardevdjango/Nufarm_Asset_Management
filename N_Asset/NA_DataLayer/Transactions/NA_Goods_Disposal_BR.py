@@ -150,7 +150,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				CASE G.typeapp WHEN 'GA' THEN (SELECT Brand FROM n_a_ga_receive WHERE FK_Goods = gd.FK_Goods)
 								WHEN 'IT' THEN (SELECT ngd.BrandName FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngd.fk_app = ngr.IDApp WHERE ngr.FK_Goods = gd.FK_goods AND ngd.serialnumber = gd.serialnumber)								
 							    WHEN 'O' THEN IFNULL(g.BrandName,'Unknown Brand') END AS brandvalue,emp1.NIK AS fk_usedemployee,emp1.employee_name AS fk_usedemployee_employee,
-					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.sold_to,gd.fk_sold_to_employee AS idapp_fk_sold_to_employeee,emp6.NIK AS fk_sold_to_employee,emp6.employee_name AS fk_sold_to_employee_employee,
+					gd.fk_usedemployee AS idapp_fk_usedemployee,gd.datedisposal,gd.issold,gd.sellingprice,gd.sold_to,gd.fk_sold_to_employee AS idapp_fk_sold_to_employee,emp6.NIK AS fk_sold_to_employee,emp6.employee_name AS fk_sold_to_employee_employee,
 				    gd.sold_to_p_other,gd.bookvalue,emp2.NIK AS fk_proposedby,emp2.employee_name AS fk_proposedby_employee,
 				    gd.fk_proposedby AS idapp_fk_proposedby,emp3.NIK AS fk_acknowledge1,emp3.employee_name AS fk_acknowledge1_employee,gd.fk_Acknowledge1 as idapp_fk_acknowledge1,
 					emp4.NIK AS fk_acknowledge2,emp4.employee_name AS fk_acknowledge2_employee,gd.fk_acknowledge2 as idapp_fk_acknowledge2,gd.descriptions,gd.islost,gd.fk_stock,gd.fk_acc_fa,
@@ -537,7 +537,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 								IsSold=%(IsSold)s,
 								SellingPrice=%(SellingPrice)s,
 								Sold_To = %(Sold_To)s,
-								FK_Sold_To_Employee = %(FK_Sold_To_Employee),
+								FK_Sold_To_Employee = %(FK_Sold_To_Employee)s,
 								Sold_To_P_Other = %(Sold_To_P_Other)s,
 								BookValue=%(BookValue)s,
 								FK_Acc_FA=%(FK_Acc_FA)s,
