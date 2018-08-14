@@ -608,177 +608,177 @@ class commonFunct:
     # TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
     # buat query union untuk mendapatkan barang mana saja yang sudah di pakai
     def getTotalGoods(FKGoods, cur, username, closeCursor=False):
-		"""FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
-		:param int FKGoods: idapp_fk_goods
-		:param object cur: cursor active
-		totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare dalam bentuk tuples
-		totalNew adalah total barang yang baru yang belum pernah di pakai
-		totalUsed adalah total barang yang sudah di keluarkan/terpakai
-		totalReceived adalah total barang yang di terima
-		totalReturn adalah total barang yang di kembalikan pakai query count distinct
-		totalRenew adalah ketersedian barang yang sudah di maintain/perbaiki dan bisa di ambil untuk baik di pinjam atau inventaris
-		totalMaintenance adalah total barang yang sedang di perbaiki
-		totalSpare adalah total cadangan barang yang akan di pakai untuk peminjaman barang
-		totalSpare akan terjadi bila ada transaksi di n_a_goods_lending dan status sudah R(returned)
-		totalBroken akan terjadi  kondisi barang yang di kembalikan dari user rusak atau dari maintenance tidak bisa di perbaiki lagi
-		totalDisposal total barang yang sudah di hapus
-		totalLost total barang yang hilang
-		"""
-		totalNew = 0
-		totalUsed = 0
-		totalReceived = 0
-		totalReturn = 0
-		totalRenew = 0
-		totalMaintenance = 0
-		totalSpare = 0
-		totalBroken = 0
-		totalLost = 0
-		totalDisposal = 0
-		GoodsCat = "IT"
+        """FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
+        :param int FKGoods: idapp_fk_goods
+        :param object cur: cursor active
+        totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare dalam bentuk tuples
+        totalNew adalah total barang yang baru yang belum pernah di pakai
+        totalUsed adalah total barang yang sudah di keluarkan/terpakai
+        totalReceived adalah total barang yang di terima
+        totalReturn adalah total barang yang di kembalikan pakai query count distinct
+        totalRenew adalah ketersedian barang yang sudah di maintain/perbaiki dan bisa di ambil untuk baik di pinjam atau inventaris
+        totalMaintenance adalah total barang yang sedang di perbaiki
+        totalSpare adalah total cadangan barang yang akan di pakai untuk peminjaman barang
+        totalSpare akan terjadi bila ada transaksi di n_a_goods_lending dan status sudah R(returned)
+        totalBroken akan terjadi  kondisi barang yang di kembalikan dari user rusak atau dari maintenance tidak bisa di perbaiki lagi
+        totalDisposal total barang yang sudah di hapus
+        totalLost total barang yang hilang
+        """
+        totalNew = 0
+        totalUsed = 0
+        totalReceived = 0
+        totalReturn = 0
+        totalRenew = 0
+        totalMaintenance = 0
+        totalSpare = 0
+        totalBroken = 0
+        totalLost = 0
+        totalDisposal = 0
+        GoodsCat = "IT"
 
-		if(cur is None):
-			cur = connection.cursor()
-		#check apakah barang categorynya
-		Query = """SELECT TypeApp FROM n_a_goods WHERE IDApp = %s"""
-		cur.execute(Query,[FKGoods])
-		row = cur.fetchone()
-		if cur.rowcount <= 0:
-			raise Exception('this goods is unknown category')
-		GoodCat = str(row[0])
+        if(cur is None):
+            cur = connection.cursor()
+        #check apakah barang categorynya
+        Query = """SELECT TypeApp FROM n_a_goods WHERE IDApp = %s"""
+        cur.execute(Query,[FKGoods])
+        row = cur.fetchone()
+        if cur.rowcount <= 0:
+            raise Exception('this goods is unknown category')
+        GoodCat = str(row[0])
 
-		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-		cur.execute(Query)
+        Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
+        cur.execute(Query)
 
-		if GoodCat == "IT":
-			Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
-						(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
-						(SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
-						UNION 	
-						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
-						UNION 	
-						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
-						UNION 	
-						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
-						UNION 	
-						(SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """
-		elif GoodCat == "GA":
-			Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
-					(INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
-					(SELECT gr.FK_Goods,gr.TypeApp,gr.Machine_No FROM n_a_ga_receive gr INNER JOIN n_a_ga_outwards go ON gr.IDApp = go.FK_Receive WHERE gr.FK_Goods = %(FK_Goods)s)"""
-		elif GoodCat == "O":
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
+        if GoodCat == "IT":
+            Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
+                        (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+                        (SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
+                        UNION 	
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
+                        UNION 	
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
+                        UNION 	
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
+                        UNION 	
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """
+        elif GoodCat == "GA":
+            Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
+                    (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+                    (SELECT gr.FK_Goods,gr.TypeApp,gr.Machine_No FROM n_a_ga_receive gr INNER JOIN n_a_ga_outwards go ON gr.IDApp = go.FK_Receive WHERE gr.FK_Goods = %(FK_Goods)s)"""
+        elif GoodCat == "O":
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
 
-		# get totalused and totalReceived
-		if GoodCat == "IT":
-			Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
-						ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
-						ON Rec.FK_Goods = T_Used.FK_Goods """
-		elif(GoodCat == "GA"):
-			Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT FK_Goods,COUNT(FK_goods) AS Total FROM n_a_ga_receive WHERE FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec
-		    LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY FK_Goods)T_Used 
-				ON Rec.FK_Goods = T_Used.FK_Goods """
-		elif(GoodCat == "O"):
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalNew = int(row[1])
-			totalReceived = int(row[0])
-			totalUsed = int(row[2])
-		# totalReturn
-		if GoodCat == "IT":
-			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
-		elif GoodCat == "GA":
-			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s )C """
-		elif(GoodCat == "O"):
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalReturn = int(row[0])
-		#totalBroken
-		#total broken di peroleh dari kondisi barang yang di kembalikan dari user(na goods_return/na_ga_return,na_maintenance,ga_maintenance)
+        # get totalused and totalReceived
+        if GoodCat == "IT":
+            Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
+                        ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
+                        ON Rec.FK_Goods = T_Used.FK_Goods """
+        elif(GoodCat == "GA"):
+            Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT FK_Goods,COUNT(FK_goods) AS Total FROM n_a_ga_receive WHERE FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec
+            LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY FK_Goods)T_Used 
+                ON Rec.FK_Goods = T_Used.FK_Goods """
+        elif(GoodCat == "O"):
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalNew = int(row[1])
+            totalReceived = int(row[0])
+            totalUsed = int(row[2])
+        # totalReturn
+        if GoodCat == "IT":
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s )C """
+        elif GoodCat == "GA":
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s )C """
+        elif(GoodCat == "O"):
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalReturn = int(row[0])
+        #totalBroken
+        #total broken di peroleh dari kondisi barang yang di kembalikan dari user(na goods_return/na_ga_return,na_maintenance,ga_maintenance)
 
-		if GoodsCat == "IT":
-			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
-													UNION\
-													SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
-												    )C """
-		elif GoodCat == "GA":
-			Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
-													UNION\
-													SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
-												    )C """
-		elif(GoodCat == "O"):
-			raise Exception('Can di gawean')
+        if GoodsCat == "IT":
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
+                                                    UNION\
+                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
+                                                    )C """
+        elif GoodCat == "GA":
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
+                                                    UNION\
+                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
+                                                    )C """
+        elif(GoodCat == "O"):
+            raise Exception('Can di gawean')
 
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		# totalRenew
-		# TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
-		if GoodCat == "IT":
-			Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
-					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)
-					AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp)
-					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
-					AND mt.FK_Goods = %(FK_Goods)s)C """
-		elif GoodCat == "GA":
-			Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_ga_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
-					AND NOT EXISTS(SELECT IDApp FROM n_a_ga_outwards_outwards WHERE FK_FromMaintenance = mt.IDApp)
-					AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
-					AND mt.FK_Goods = %(FK_Goods)s)C """
-		elif Goodcat == "O":
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        # totalRenew
+        # TotalRenew diperoleh di n_a_maintenance kondisi IsSucced = 1, dan belum ada di n_a_goods_lending dan n_a_goods_outwards,dan  n_a_disposal
+        if GoodCat == "IT":
+            Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
+                    AND NOT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_Maintenance = mt.IDApp)
+                    AND NOT EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_FromMaintenance = mt.IDApp)
+                    AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
+                    AND mt.FK_Goods = %(FK_Goods)s)C """
+        elif GoodCat == "GA":
+            Query = """SELECT COUNT(c.FK_Goods) FROM (SELECT DISTINCT mt.FK_Goods,mt.TypeApp,mt.SerialNumber FROM n_a_ga_maintenance mt WHERE mt.IsSucced = 1 AND mt.IsFinished = 1
+                    AND NOT EXISTS(SELECT IDApp FROM n_a_ga_outwards_outwards WHERE FK_FromMaintenance = mt.IDApp)
+                    AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
+                    AND mt.FK_Goods = %(FK_Goods)s)C """
+        elif Goodcat == "O":
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
 
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalRenew = int(row[0])
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalRenew = int(row[0])
 
-		# TMaintenance
-		# TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
-		if GoodCat == "IT":
-			Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
-		elif GoodCat == "GA":
-			Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
-		elif GoodCat == "O":
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalMaintenance = int(row[0])
-		# TotalSpare
-		# TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
-		if GoodCat == "IT":
-			Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R'
-					AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0)
-					AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp)
-					AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """
-		elif GoodCat == "O":
-			raise Exception('Can di gawean')
-		cur.execute(Query, {'FK_Goods': FKGoods})
+        # TMaintenance
+        # TMaintenance diperoleh di n_a_maintenance kondisi  IsFinished = 0
+        if GoodCat == "IT":
+            Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
+        elif GoodCat == "GA":
+            Query = " SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE IsFinished = 0 AND FK_Goods = %(FK_Goods)s)C "
+        elif GoodCat == "O":
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalMaintenance = int(row[0])
+        # TotalSpare
+        # TotalSpare diperoleh di n_a_goods_lending dengan kondisi status = L dan tidak ada di n_a_goods_lost
+        if GoodCat == "IT":
+            Query = """SELECT COUNT(FK_goods) FROM (SELECT DISTINCT nl.FK_goods,nl.TypeApp,nl.SerialNumber FROM n_a_goods_lending nl WHERE nl.Status = 'R'
+                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_maintenance WHERE SerialNumber = nl.SerialNumber AND IsFinished = 0)
+                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_goods_outwards WHERE FK_Lending = nl.IDApp)
+                    AND NOT EXISTS(SELECT FK_Goods FROM n_a_disposal WHERE SerialNumber = nl.SerialNumber) AND nl.FK_Goods =  %(FK_Goods)s)C """
+        elif GoodCat == "O":
+            raise Exception('Can di gawean')
+        cur.execute(Query, {'FK_Goods': FKGoods})
 
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			TotalSpare = int(row[0])
-		#total disposed
-		Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalDisposal = int(row[0])
-		#totalLost
-		Query = "SELECT COUNT(FK_Goods) FROM n_a_goods_lost WHERE FK_Goods =  %(FK_Goods)s"
-		cur.execute(Query, {'FK_Goods': FKGoods})
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			totalLost = int(row[0])
-		# drop table temporary
-		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
-		cur.execute(Query)
-		if closeCursor:
-			cur.close()
-		return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost)
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            TotalSpare = int(row[0])
+        #total disposed
+        Query = "SELECT COUNT(FK_Goods) FROM n_a_disposal WHERE FK_Goods =  %(FK_Goods)s"
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalDisposal = int(row[0])
+        #totalLost
+        Query = "SELECT COUNT(FK_Goods) FROM n_a_goods_lost WHERE FK_Goods =  %(FK_Goods)s"
+        cur.execute(Query, {'FK_Goods': FKGoods})
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            totalLost = int(row[0])
+        # drop table temporary
+        Query = "DROP TEMPORARY TABLE IF EXISTS Temp_Goods_Used_" + username
+        cur.execute(Query)
+        if closeCursor:
+            cur.close()
+        return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost)
 
 
     def retriveColumn(**kwargs):

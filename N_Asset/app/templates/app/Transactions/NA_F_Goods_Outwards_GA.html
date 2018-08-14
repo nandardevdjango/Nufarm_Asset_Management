@@ -860,7 +860,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                     NA.NAEvent.preventDefault(e);
                                                     win.document.body.style.cursor = 'wait';
                                                     //cari data ke database
-                                                    var url = '/NA_Goods_Receive/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                    var url = 'search_ga_by_form/?' + win.encodeURIComponent('q') + '=' + win.encodeURIComponent(e.target.value.trim());
                                                     if (gridTbl) {
                                                         jQuery(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                                     }
