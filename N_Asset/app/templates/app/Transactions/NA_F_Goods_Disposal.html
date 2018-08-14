@@ -172,6 +172,19 @@
     div#gbox_jqGrid_NA_F_Goods_Disposal, div#gview_jqGrid_NA_F_Goods_Disposal, div#jqGrid_NA_F_Goods_Disposal_Pager, div.ui-jqgrid-titlebar {
         border-radius: 0px;
     }
+    .NA-Entry-inlinve-div ul.inline {
+        list-style-type: none;
+        overflow: hidden;
+    }
+    .NA-Entry-inlinve-div ul li {
+        float: left;
+        margin-right: 0;
+        padding-right: 0;
+        padding-left: 5px;
+    }
+    label input[type='radio'], label input[type='checkbox'] {
+        vertical-align: top;
+    }
 </style>
 <table id="jqGrid_NA_F_Goods_Disposal" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Disposal_Pager" class="scroll" style="text-align:center;"></div>
@@ -660,7 +673,7 @@
 		    elidapp_fk_goods.value = originalData.elidapp_fk_goods || 0;
 
 		    var eldatedisposal = NA.common.getElementID('id_datedisposal');
-		    eldatedisposal.value = originalData.datedisposal;
+		    eldatedisposal.value = originalData.datedisposal||'';
 		    ////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
 		    var elIsLost = NA.common.getElementID('id_islost').value = false;;
 
@@ -765,12 +778,12 @@
 			var elIsLost = NA.common.getElementID('id_islost'),
 			//if (elIsLost.value == '' || elIsLost.value == 'False') { elIsLost.value = false
 		    //elIsLost.value = elIsLost.value || false;
-			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false') ? false : true;
+			islost = (elIsLost.value == '' || elIsLost.value == 'False' || elIsLost.value == 'false' || elIsLost.value == null) ? false : true;
 
 			var elfklost = NA.common.getElementID('id_fk_lost');
 			fklost = elfklost.value||0;
 			var elIsSold = NA.common.getElementID('id_issold'),
-			issold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
+			issold = (elIsSold.checked) ? true : false;
 
 			var elSelPrice = NA.common.getElementID('id_sellingprice');
 			selprice = (elSelPrice.value == '' || elSelPrice.value == null) ? 0 : parseFloat(elSelPrice.value);
@@ -810,8 +823,8 @@
 			var elserialnumber = NA.common.getElementID('id_serialnumber'),
             serialnumber = elserialnumber.value;
 		    //brandvalue nggak usah
-			var elBrandValue = NA.common.getElementID('BrandValue');
-			elBrandValue.textContent = "";
+			//var elBrandValue = NA.common.getElementID('BrandValue');
+			//elBrandValue.textContent = "";
 
 			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
                 fk_maintenance = elfk_maintenance.value || 0;
@@ -840,7 +853,7 @@
 					sold_to_p_other = '';
 					idapp_fk_sold_to_employee = elidapp_fk_sold_to_employee.value;
 				}
-				if (id_sold_1.checked) {
+				else if (id_sold_1.checked) {
 					sold_to = 'P';
 					sold_to_p_other = elfk_sold_to_employee.value;
 					idapp_fk_sold_to_employee = 0;
@@ -1515,7 +1528,7 @@
                             var elSelPrice = NA.common.getElementID('id_sellingprice');
                             elSelPrice.setAttribute('placeholder',Number(elSelPrice.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                             NA.common.getElementID('difInfo').style.display = 'none';
-                            divPlanSold.style.display = 'none';
+
                             divSold.style.display = 'none';
                             switch (win.status.trim()) {
                        			case 'Add': {
@@ -1528,7 +1541,7 @@
                        			    //disabledkan selling price
                        				valSetCtrl['btnOK'] = true;
                        				valSetCtrl['btnCancel'] = true
-                       			
+                       				divPlanSold.style.display = 'none';
                        				divSold.style.display = 'none';
                        				break;
                        			}
@@ -1563,7 +1576,6 @@
                             			if (item.checked) {
                             				switch (item.value) {
                             					case 'E': {
-
                             						//munculkan textbox id_fk_sold_to_employee
                             						var fk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
                             						fk_sold_to_employee.style.display = 'inline-block';

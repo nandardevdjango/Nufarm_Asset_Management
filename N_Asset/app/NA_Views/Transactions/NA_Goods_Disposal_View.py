@@ -217,7 +217,7 @@ def ShowEntry_Disposal(request):
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-		if status == 'Add':
+		elif status == 'Add':
 			form = NA_Goods_Disposal_Form(initial=initializationForm)
 			#form.fields['hasrefdata'].widget.attrs = {'value': False}
 			return render(request, 'app/Transactions/NA_Entry_Goods_Disposal.html', {'form' : form})
@@ -262,7 +262,7 @@ class NA_Goods_Disposal_Form(forms.Form):
 	issold = forms.BooleanField(widget=forms.CheckboxInput(attrs={'tabindex':3,'style':'vertical-align: text-bottom;'},),required=False,)
 	sellingprice = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:132px;display:inline-block;','placeholder':'selling price','data-value':'selling price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value','tabindex':3,'disabled':True,}),required=False)
-	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}))
+	sold_to = forms.ChoiceField(choices=(('E','Employee'),('P','Personal'),('O','Others')), widget=forms.RadioSelect(attrs={'class':'inline'}),)
 	
 	fk_sold_to_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;margin-right:5px;margin-left:5px;display:inline-block;','disabled':True,
 																							'placeholder': 'employee who buys','data-value':'employee who buys','tittle':'employee who buys'}))
