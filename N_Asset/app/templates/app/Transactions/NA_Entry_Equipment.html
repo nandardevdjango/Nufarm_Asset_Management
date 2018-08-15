@@ -1,8 +1,8 @@
-<form id="add_equipment_form" onsubmit="return false;">
+<form id="entry_equipment_form" onsubmit="return false;">
     {% csrf_token %}
     <div class="NA-Entry-inlinve-div">
         <label style="display:inline-block; width:60px;">Name</label>
         {{ form.name_app }}
     </div>
-    <input id="submit_add_equipment" type="submit" style="display:none;" />
+    <input id="submit_entry_equipment" type="submit" style="display:none;" />
 </form>

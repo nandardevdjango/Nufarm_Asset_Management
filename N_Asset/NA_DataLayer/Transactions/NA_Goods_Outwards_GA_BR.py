@@ -26,7 +26,7 @@ class NABRGoodsOutwardsGA(models.Manager):
 
         query_string = """
         CREATE TEMPORARY TABLE IF NOT EXISTS T_Outwards_GA ENGINE=InnoDB AS(
-        SELECT ngo.idapp, ngo.typeapp, ngo.serialnumber, ngo.isnew, ngo.daterequest,
+        SELECT ngo.idapp, ngo.typeapp, ngo.isnew, ngo.daterequest,
         ngo.datereleased, ngo.lastinfo, ngo.descriptions, ngo.equipment,
         ngo.add_equipment, g.goodsname,
         emp1.employee_name, emp2.employee_name AS used_employee,
@@ -68,8 +68,8 @@ class NABRGoodsOutwardsGA(models.Manager):
     def search_ga_by_form(self, q):
         cur = connection.cursor()
         query_string = """
-        SELECT ngr.idapp, CONCAT(g.goodsname, ngr.brand, ngr.model) AS goods,
-        ngh.reg_no, ngr.descriptions,
+        SELECT ngr.idapp, CONCAT(g.goodsname, ' ', ngr.brand, ' ', ngr.model) AS goods,
+        g.itemcode, ngh.reg_no, ngh.expired_reg, ngh.bpkb_expired, ngr.descriptions,
         CASE
             WHEN(
                 SELECT EXISTS(

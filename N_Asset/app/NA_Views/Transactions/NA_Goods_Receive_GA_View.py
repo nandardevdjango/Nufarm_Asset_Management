@@ -271,6 +271,8 @@ class NA_Goods_Receive_GA_Form(forms.Form):
     def save(self, request):
         if self.is_valid():
             receive = NAGaReceive()
+            if self.cleaned_data.get('statusForm') == 'Edit':
+                receive = NAGaReceive.objects.get(idapp=self.cleaned_data.get('idapp'))
             receive.fk_goods = self.cleaned_data.get('fk_goods')
             receive.fk_receivedby = self.cleaned_data.get('received_by')
             receive.fk_p_r_by = self.cleaned_data.get('p_r_by')
@@ -321,7 +323,7 @@ def Entry_Goods_Receive_GA(request):
             elif statusForm == 'Edit':
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = request.user.username
-                result = NAGaReceive.objects.SaveData(StatusForm.Edit, **data)
+                result = form.save(request=request)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)

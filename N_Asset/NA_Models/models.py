@@ -1,10 +1,12 @@
-﻿from os import path
-from datetime import datetime
+﻿import re
+from os import path
+from datetime import datetime, date
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django_mysql.models import JSONField
+from django.core.exceptions import MultipleObjectsReturned
 
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Suplier import NA_BR_Suplier
@@ -25,10 +27,12 @@ from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsG
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
 from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
+from NA_DataLayer.Transactions.NA_Ga_History_BR import NAGaVnHistoryBR
 from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
+from NA_DataLayer.common import commonFunct
 
 
 def forced_mariadb_connection(self):
@@ -367,7 +371,8 @@ class NAAccFa(NA_BaseModel):
         blank=True,
         null=True
     )
-    is_parent = models.PositiveSmallIntegerField(db_column='IsParent', default=0)
+    is_parent = models.PositiveSmallIntegerField(
+        db_column='IsParent', default=0)
     lastupdated = models.DateTimeField(
         db_column='LastUpdated', blank=True, null=True)
     objects = NA_Acc_FA_BR()
@@ -431,7 +436,7 @@ class goods(NA_MasterDataModel):
         db_column='Placement', max_length=50, blank=True, null=True)
     typeapp = models.CharField(
         max_length=32,
-        db_column='typeapp', null=True, choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others'))
+        db_column='typeapp', null=True, choices=(('IT', 'IT'), ('GA', 'GA'), ('IT Accessories', 'IT Accessories'), ('GA Accesories', 'GA Accesories'), ('Others', 'Others'))
     )
 
     class Meta:
@@ -1166,7 +1171,7 @@ class NAPriviledge_form(models.Model):
     TRANSACTION_FORM = [
         Goods_Receive_form
     ]
-    
+
     OTHER_FORM = [
         Fix_asset_form
     ]
@@ -1567,6 +1572,17 @@ class NAGaReceive(NA_BaseModel):
         managed = True
         db_table = 'n_a_ga_receive'
 
+    def get_active_reg_number(self):
+        today = date.today()
+        try:
+            reg = self.nagavnhistory_set.get(
+                expired_reg__gt=today,
+                bpkb_expired__gt=today
+            )
+        except MultipleObjectsReturned:
+            reg = self.nagavnhistory_set.active().last()
+        return reg
+
 
 class NAGaVnHistory(NA_BaseModel):
 
@@ -1606,6 +1622,16 @@ class NAGaVnHistory(NA_BaseModel):
     )
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
+    
+    objects = NAGaVnHistoryBR()
+
+    @property
+    def is_expired_reg(self):
+        return date.today() > self.expired_reg
+
+    @property
+    def is_bpkb_expired(self):
+        return date.today() > self.bpkb_expired
 
     class Meta:
         managed = True
@@ -1626,9 +1652,9 @@ class NAGoodsEquipment(NA_BaseModel):
     @classmethod
     def get_type_app(cls, request):
         url_name = request.resolver_match.url_name
-        if url_name == 'ga_equipment':
+        if re.match(r'ga', url_name):
             return cls.GA
-        elif url_name == 'it_equipment':
+        elif re.match(r'it', url_name):
             return cls.IT
         else:
             raise ValueError('url is not desired')
@@ -1675,7 +1701,11 @@ class NAGAReturn(NAGoodsReturnModel):
     fk_goods_lend = None
 
     fk_ga_outwards = models.ForeignKey(
-        'NAGaOutwards', db_column='fk_ga_outwards', db_constraint=False, blank=True, null=True)
+        'NAGaOutwards',
+        db_column='fk_ga_outwards',
+        db_constraint=False,
+        blank=True, null=True
+    )
 
     objects = NA_BR_Goods_Return_GA()
 

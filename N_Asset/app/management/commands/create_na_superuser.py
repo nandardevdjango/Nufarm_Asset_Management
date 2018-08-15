@@ -6,7 +6,7 @@ from NA_Models.models import NAPriviledge, NASysPriviledge
 
 
 class Command(BaseCommand):
-       
+
     def handle(self, *args, **options):
         email = input('Email: ')
         email_exists = NAPriviledge.objects.filter(email=email).exists()

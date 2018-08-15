@@ -58,35 +58,15 @@
 <script src="{% static 'app/scripts/jquery-ui.js' %}"></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+<script src="{% static 'app/scripts/NAJQuery.js' %}"></script>
+
+<link rel="stylesheet" href="{% static 'app/content/select-multiple-choices.css' %}" />
 <style>
 div#content-0 {
     overflow:hidden;
 }
 div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Goods_Outwards_GA_pager,div.ui-jqgrid-titlebar{
     border-radius: 0px
-}
-
-.equipment-item{
-    padding: 0.5em;
-    font-weight: normal;
-    font-size: 12px;
-    margin: 3px;
-    display: inline-block;
-}
-.equipment-close{
-    padding-right: 5px;
-    font-size: 13px;
-}
-.equipment-close:hover{
-    color: green;
-    cursor: pointer;
-}
-li#item_search p{
-    padding: 5px 14px;
-}
-li.item-selected{
-    background: green;
-    color: white;
 }
 </style>
 {% endblock %}
@@ -799,150 +779,17 @@ li.item-selected{
                                 }
                             };
                             if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit  
-                                $('#container_equipment').click(function(event){
-                                    event.preventDefault();
-                                    setTimeout(function(){
-                                        $('#search_equipment').focus()
-                                    },100);
-                                });
-                                $('ul#dropdown_equipment li#item_search').first().addClass('item-selected');
-                                $('#search_equipment').on({
-                                    click: function(event){
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    },
-                                    keyup: function(event){
-                                        if(event.keyCode == 40 || event.key == 'ArrowDown'){
-                                            var data_id = $('.item-selected').data('id');
-                                            var next_item = $('.item-selected').next('li#item_search');
-                                            if(next_item.length){
-                                                next_item.addClass('item-selected');
-                                            } else {
-                                                $('ul#dropdown_equipment li#item_search').first().addClass('item-selected');
-                                            }
-                                            
-                                            $('li[data-id="'+ data_id +'"]').removeClass('item-selected');
-                                        } else if(event.keyCode == 38 || event.key == 'ArrowUp'){
-                                            var data_id = $('.item-selected').data('id');
-                                            var prev_item = $('.item-selected').prev('li#item_search');
-                                            if(prev_item.length){
-                                                prev_item.addClass('item-selected');
-                                            } else {
-                                                $('ul#dropdown_equipment li#item_search').last().addClass('item-selected');
-                                            }
-                                            
-                                            $('li[data-id="'+ data_id +'"]').removeClass('item-selected');
-                                        } else {
-                                            var q = this.value;
-                                            var pattern = new RegExp(q, 'i')
-                                            $('li#item_search').filter(function(index){
-                                                return $(this).text().match(pattern)
-                                            }).css('display','block');
-                                            $('li#item_search').filter(function(index){
-                                                return !$(this).text().match(pattern)
-                                            }).css('display','none');
-                                            $('ul#dropdown_equipment').children('li#item_search:visible').first().addClass('item-selected');
-                                            $('ul#dropdown_equipment').children('li#item_search:visible').nextAll().removeClass('item-selected');
-                                        }
-                                    },
-                                    keydown: function(event){
-                                        if(event.keyCode == 13){
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                            $('li.item-selected').click();
-                                        }
-                                    },
-                                    blur: function(event){
-                                        this.value = '';
-                                        $('li#item_search').css('display', 'block');
-                                    }
-                                })
-                                $('#dropdown_equipment li#item_search').on({
-                                    click: function(event){
-                                        NA.NAEvent.preventDefault(event);
-                                        var fake_input = $('#fake_input_equipment')
-                                        var equipment_item = '<span class="label label-success equipment-item"><span id="remove_item" class="equipment-close">x</span>'+
-                                            this.textContent+'</span>'
-                                        $(equipment_item).insertBefore(fake_input);
-                                        fake_input.focus();
-                                        this.dataset.selected= true;
-                                    },
-                                    mouseover: function(event){
-                                        var item = $('#dropdown_equipment li.item-selected')
-                                        if(item.length){
-                                            item.removeClass('item-selected');
-                                        }
-                                        $(event.currentTarget).addClass('item-selected');
-                                    },
-                                    mouseleave: function(event){
-                                        if(event.relatedTarget != null){
-                                            if(event.relatedTarget.tagName.toLocaleLowerCase() == 'p'){
-                                                $(event.currentTarget).removeClass('item-selected');
-                                            }
-                                        }
-                                        return;
-                                    }
+                                NA$.Input.SelectMultipleChoice({
+                                    container_input: '#container_equipment',
+                                    input_name: 'equipment',
+                                    input_elm: 'input#id_equipment'
                                 });
 
-                                $('#fake_input_equipment').keydown(function(event){
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    if (event.keyCode == 13){
-                                        $('#container_equipment').click();
-                                    }
+                                NA$.Input.SelectMultipleChoice({
+                                    container_input: '#container_add_equipment',
+                                    input_name: 'add_equipment',
+                                    input_elm: 'input#id_add_equipment'
                                 });
-
-                                $(document).on('click','span#remove_item', function(event){
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    $(this).parent().remove();
-                                    var container_equipment = $('#container_equipment')
-                                    if(!container_equipment.children().length){
-                                        container_equipment.text('Equipment..');
-                                        container_equipment[0].dataset.placeHolder = 'Equipment..'
-                                    }
-                                });
-
-                                $('#add_equipment').click(function(){
-                                    NA_Bootstrap.dialog.dialogConfirm(
-                                        (function(){
-                                            var container_form = $('<div></div>');
-                                            $.ajax({
-                                                url: 'add_equipment/',
-                                                success: function(data){
-                                                    container_form.append($(data));
-                                                }
-                                            });
-                                            return container_form;
-                                        })(),
-                                        'Add Equipment',
-                                        function(){
-                                            var form = document.getElementById('add_equipment_form');
-                                            if (form.checkValidity()){
-                                                $.ajax({
-                                                    url: 'add_equipment/',
-                                                    method: 'POST',
-                                                    data:{
-                                                        name_app: qs('#id_name_app').value.trim()
-                                                    },
-                                                    beforeSend: function(xhr){
-                                                        xhr.setRequestHeader(
-                                                            'X-CSRFToken',
-                                                            form.children[0].value
-                                                        )
-                                                    },
-                                                    success: function(data){
-                                                        return;
-                                                    }
-                                                })
-                                            }
-                                        },
-                                        function(){
-                                            return false;
-                                        },
-                                        true
-                                    )
-                                })
                                 
                             	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_daterequest, input#id_datereleased').datepicker({
@@ -1013,7 +860,7 @@ li.item-selected{
                                                     NA.NAEvent.preventDefault(e);
                                                     win.document.body.style.cursor = 'wait';
                                                     //cari data ke database
-                                                    var url = '/NA_Goods_Receive/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                    var url = 'search_ga_by_form/?' + win.encodeURIComponent('q') + '=' + win.encodeURIComponent(e.target.value.trim());
                                                     if (gridTbl) {
                                                         jQuery(gridTbl).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                                     }
@@ -1048,20 +895,31 @@ li.item-selected{
                                                 valSearch = win.encodeURIComponent(txtSearch.textContent.trim());
                                             }
                                             gridTbl = $('#NA_Goods_Receive_GA_FK_Goods');
-                                            var urlFKGoods = '/MasterData/Goods/SearchGoodsbyForm/?' + win.encodeURIComponent('goods_desc')
-												+ '=' + valSearch + '&' + 'type=GA';
+                                            var urlFKGoods = 'search_ga_by_form/?' + win.encodeURIComponent('q');
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
-                                                datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
-                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description','Descriptions','Type App'],
+                                                datatype: "json",
+                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Reg Number', 'Expired Reg', 'BPKB Expired', 'Is New', 'Descriptions'],
                                                 colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
                                                     { name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
                                                     { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
                                                     { name: 'goods', index: 'goods', width: 180, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'reg_no', index: 'reg_no', width: 180, sortable: true, editable: false, align: 'left' },
+                                                    { 
+                                                        name: 'expired_reg', index: 'expired_reg', width: 150, sortable: true, editable: false, align: 'left',
+                                                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } 
+                                                    },
+                                                    { 
+                                                        name: 'bpkb_expired', index: 'bpkb_expired', width: 150, sortable: true, editable: false, align: 'left',
+                                                        formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }  
+                                                    },
+                                                    { 
+                                                        name: 'is_new', index: 'is_new', width: 50, sortable: true, editable: false, align: 'center',
+                                                        formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } 
+                                                    },
 													{ name: 'descriptions', index: 'descriptions', width: 210, sortable: true, editable: false, align: 'left' },
-													{ name: 'typeApp', index: 'typeApp', hidden: true }
                                                 ],
                                                 ondblClickRow: function (rowId) {
                                                     //fire button OK

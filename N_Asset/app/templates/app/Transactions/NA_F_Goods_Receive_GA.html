@@ -407,8 +407,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
     		received_by: qs('#id_received_by').value.trim(),
     		received_by_nik: qs('#id_received_by_nik').value.trim(),
             descriptions: qs('#id_descriptions').value.trim(),
-            direct_enter: qs('input#id_direct_enter').checked,
-    		status: win.status || qs('#id_status').value.trim()
+            direct_enter: qs('input#id_direct_enter').checked
         };
         var direct_enter_reg = direct_enter_reg || qs('input#id_direct_enter');
         if(direct_enter_reg.checked){
@@ -1174,7 +1173,7 @@ div#gbox_NA_Goods_Receive_GA_grid,div#gview_NA_Goods_Receive_GA_grid,div#NA_Good
                                 				} else if (target.id == 'btn_fk_received_by' || target.id == 'id_received_by_nik') {
                                 					received_by_nik.value = rowData['nik'],
 													received_by_name.value = rowData['employee_name'],
-													received_by.value = rowId;
+													received_by.value = rowData['idapp'];
                                 				}
                                 				
                                 				dialogRef.close();
