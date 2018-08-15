@@ -7,7 +7,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import (NAGaOutwards, goods, NASuplier,
+from NA_Models.models import (NAGaOutwards, goods, NASuplier, NAGaReceive,
                               NAGoodsEquipment, Employee, NAGaVnHistory)
 
 
@@ -80,11 +80,17 @@ def getFormData(form):
 
 class NAGaOutwardsForm(forms.Form):
     fk_app = forms.ModelChoiceField(
-        queryset=NAGaVnHistory.objects.active()
+        queryset=NAGaVnHistory.objects.active(),
+        widget=forms.HiddenInput()
     )
 
     fk_goods = forms.ModelChoiceField(
         queryset=goods.objects.filter(inactive=False),
+        widget=forms.HiddenInput()
+    )
+
+    fk_receive = forms.ModelChoiceField(
+        queryset=NAGaReceive.objects.all(),
         widget=forms.HiddenInput()
     )
 
@@ -115,16 +121,13 @@ class NAGaOutwardsForm(forms.Form):
 
     used_by = forms.ModelChoiceField(
         queryset=Employee.objects.filter(inactive=False),
-        widget=forms.HiddenInput()
+        widget=forms.HiddenInput(),
+        required=False
     )
 
-    used_by_nik = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'used by'}
-    ), required=False)
+    used_by_nik = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    used_by_name = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'employee name'}
-    ), required=False)
+    used_by_name = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     resp_employee = forms.ModelChoiceField(
         queryset=Employee.objects.filter(inactive=False),
@@ -178,7 +181,6 @@ class NAGaOutwardsForm(forms.Form):
         }
     ))
 
-    typeapp = forms.CharField(widget=forms.HiddenInput())
     equipment = forms.CharField(widget=forms.HiddenInput())
 
     add_equipment = forms.CharField(widget=forms.HiddenInput())
@@ -189,21 +191,25 @@ class NAGaOutwardsForm(forms.Form):
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
-    def save(self, request):
+    def save(self, user):
         outwards = NAGaOutwards()
         outwards.fk_goods = self.cleaned_data.get('fk_goods')
         outwards.fk_app = self.cleaned_data.get('fk_app')
+        outwards.fk_receive = self.cleaned_data.get('fk_receive')
         outwards.fk_employee = self.cleaned_data.get('employee')
         outwards.fk_usedemployee = self.cleaned_data.get('used_by')
         outwards.fk_responsibleperson = self.cleaned_data.get('resp_employee')
         outwards.fk_sender = self.cleaned_data.get('sender')
         outwards.isnew = self.cleaned_data.get('isnew')
-        outwards.typeapp = self.cleaned_data.get('typeapp')
+        outwards.typeapp = self.cleaned_data.get('fk_goods').typeapp
         outwards.daterequest = self.cleaned_data.get('daterequest')
         outwards.datereleased = self.cleaned_data.get('daterequest')
         outwards.descriptions = self.cleaned_data.get('descriptions')
-        outwards.createdby = request.user.username
+        outwards.createdby = user
         outwards.createddate = datetime.now()
+        outwards.save()
+
+        return (Data.Success.value, )
         
 
 
@@ -216,8 +222,7 @@ def Entry_Goods_Outwards_GA(request):
             if statusForm == 'Add':
                 data['createddate'] = datetime.now()
                 data['createdby'] = request.user.username
-                result = NAGaOutwards.objects.SaveData(
-                    StatusForm.Input, **data)
+                result = form.save(user=request.user.username)
             elif statusForm == 'Edit':
                 data['modifieddate'] = datetime.now()
                 data['modifiedby'] = request.user.username
@@ -289,10 +294,23 @@ def ShowCustomFilter(request):
 
 def search_ga_by_form(request):
     q = request.GET.get('q', '')
-    data = NAGaOutwards.objects.search_ga_by_form(q)
-    print(data)
     return commonFunct.search_data_by_form(
         request,
-        data,
-        fields=['idapp', 'itemcode', 'goods', 'reg_no', 'expired_reg', 'bpkb_expired', 'info_is_new', 'descriptions']
+        NAGaOutwards.objects.search_ga_by_form(q),
+        fields=[
+            'idapp',
+            'itemcode',
+            'goods',
+            'reg_no',
+            'expired_reg',
+            'bpkb_expired',
+            'info_is_new',
+            'descriptions',
+            'fk_receive',
+            'fk_app',
+            'typeapp',
+            'invoice_no',
+            'year_made',
+            'colour'
+        ]
     )

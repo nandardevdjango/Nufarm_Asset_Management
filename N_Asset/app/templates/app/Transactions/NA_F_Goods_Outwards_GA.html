@@ -388,22 +388,26 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
     }
     function getValues_Form() {
     	return {
-    		fk_goods: qs('#id_fk_goods').value.trim(),
-            goodsname: qs('#id_goodsname').value.trim(),
-            employee: qs('#id_employee').value.trim(),
-            employee_nik: qs('#id_employee_nik').value.trim(),
-            employee_name: qs('#id_employee_name').value.trim(),
-            sender: qs('#id_sender').value.trim(),
-            sender_nik: qs('#id_sender_nik').value.trim(),
-            sender_name: qs('#id_sender_name').value.trim(),
-            resp_employee: qs('#id_resp_employee').value.trim(),
-            resp_employee_nik: qs('#id_resp_employee_nik').value.trim(),
-            resp_employee_name: qs('#id_resp_employee_name').value.trim(),
-    		typeapp: qs('input#id_typeapp').value.trim(),
-            daterequest: qs('#id_daterequest').value.toString().trim(),
-            datereleased: qs('#id_datereleased').value.toString().trim(),
-            equipment: qs('#id_equipment').value.trim(),
-            add_equipment: qs('#id_add_equipment').value.trim(),
+            fk_goods: qs('input#id_fk_goods').value.trim(),
+            fk_receive: qs('input#id_fk_receive').value.trim(),
+            fk_app: qs('input#id_fk_app').value.trim(),
+            goodsname: qs('input#id_goodsname').value.trim(),
+            employee: qs('input#id_employee').value.trim(),
+            employee_nik: qs('input#id_employee_nik').value.trim(),
+            employee_name: qs('input#id_employee_name').value.trim(),
+            used_by: qs('input#id_used_by').value.trim(),
+            used_by_nik: qs('input#id_used_by_nik').value.trim(),
+            used_by_name: qs('input#id_used_by_name').value.trim(),
+            sender: qs('input#id_sender').value.trim(),
+            sender_nik: qs('input#id_sender_nik').value.trim(),
+            sender_name: qs('input#id_sender_name').value.trim(),
+            resp_employee: qs('input#id_resp_employee').value.trim(),
+            resp_employee_nik: qs('input#id_resp_employee_nik').value.trim(),
+            resp_employee_name: qs('input#id_resp_employee_name').value.trim(),
+            daterequest: qs('input#id_daterequest').value.toString().trim(),
+            datereleased: qs('input#id_datereleased').value.toString().trim(),
+            equipment: qs('input#id_equipment').value.trim(),
+            add_equipment: qs('input#id_add_equipment').value.trim(),
     		descriptions: qs('#id_descriptions').value.trim(),
     		status: win.status || qs('#id_status').value.trim()
 		};
@@ -494,7 +498,6 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
             var format_date = function (date) {
                 return $.datepicker.parseDate('dd/mm/yy', date)
             };
-            valuesForm['datereceived'] = GetServerFormatDate(format_date(valuesForm['datereceived']));
             var idapp;
             if (win.status.trim() == 'Edit') {
             	idapp = getGridId()
@@ -599,18 +602,6 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
             }
         }
         
-    };
-    function restyleBoostrapDialog() {
-        var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
-        BSDialogContent.style.cssText = 'width: 500px; height: 350px;';
-        var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
-        ContentBody.style.cssText = 'padding:0px;';
-        var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
-        contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
-        var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
-        mHeader.style.cssText = 'height:30px;padding:0px;';
-        var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
-        footerButton.style.cssText = 'padding-top:8px;';
     };
     function getGridCellValue(thegrid, CeltoGet) {
         var reccount = thegrid.jqGrid('getGridParam', 'reccount');
@@ -806,7 +797,9 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                 
                                 //simpan original data di initializeForm
                                 
-                            	var fk_goods = qs('input#id_fk_goods'),
+                                var fk_goods = qs('input#id_fk_goods'),
+                                    fk_receive = qs('input#id_fk_receive'),
+                                    fk_app = qs('input#id_fk_app'),
 									itemcode = qs('input#id_itemcode'),
 									typeapp = qs('input#id_typeapp'),
                                     goodsname = qs('input#id_goodsname'),
@@ -900,9 +893,10 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                 url: urlFKGoods,
                                                 mtype: "GET",
                                                 datatype: "json",
-                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Reg Number', 'Expired Reg', 'BPKB Expired', 'Is New', 'Descriptions'],
+                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Reg Number', 'Expired Reg', 
+                                                'BPKB Expired', 'Is New', 'Descriptions', 'fk_receive', 'fk_app', 'typeapp', 'invoice_no', 'year_made', 'colour'],
                                                 colModel: [
-                                                    { name: 'idapp', hidden: true, align: 'left' },
+                                                    { name: 'idapp', index: 'idapp', hidden: true, align: 'left' },
                                                     { name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
                                                     { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
                                                     { name: 'goods', index: 'goods', width: 180, sortable: true, editable: false, align: 'left' },
@@ -919,7 +913,13 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                         name: 'is_new', index: 'is_new', width: 50, sortable: true, editable: false, align: 'center',
                                                         formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } 
                                                     },
-													{ name: 'descriptions', index: 'descriptions', width: 210, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'descriptions', index: 'descriptions', width: 210, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'fk_receive', index: 'fk_receive', hidden: true },
+                                                    { name: 'fk_app', index: 'fk_app', hidden: true },
+                                                    { name: 'typeapp', index: 'typeapp', hidden: true },
+                                                    { name: 'invoice_no', index: 'invoice_no', hidden: true },
+                                                    { name: 'year_made', index: 'year_made', hidden: true },
+                                                    { name: 'colour', index: 'colour', hidden: true }
                                                 ],
                                                 ondblClickRow: function (rowId) {
                                                     //fire button OK
@@ -962,7 +962,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                 del: false,
                                                 refresh: false
                                             });
-                                            restyleBoostrapDialog();
+                                            
                                             var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Goods_Pager')
                                             Array.prototype.forEach.call(elGrid, function (el) {
                                                 el.style.width = 'inherit';
@@ -989,7 +989,9 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                                 rowData = gridTbl.getRowData(rowId);
                                             	fk_goods.value = rowData['idapp'],
                                             	itemcode.value = rowData['itemcode'],
-												goodsname.value = rowData['goods'];
+                                                goodsname.value = rowData['goods'],
+                                                fk_receive.value = rowData['fk_receive'],
+                                                fk_app.value = rowData['fk_app'];
                                             	dialogRef.close();
                                             }
                                         }]
@@ -1103,7 +1105,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                 				del: false,
                                 				refresh: false
                                 			});
-                                			restyleBoostrapDialog();
+                                			
                                 			var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Employee_Pager')
                                 			Array.prototype.forEach.call(elGrid, function (el) {
                                 				el.style.width = 'inherit';
@@ -1194,7 +1196,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                     }
                 });
             });
-            NA.NAEvent.addHandler(btnClose,'click', function (event) {
+            NA.NAEvent.addHandler(btnClose, 'click', function (event) {
                 ExecuteHandler('Close');
                 if (event) {
                     NA.NAEvent.stopPropagation(event);
