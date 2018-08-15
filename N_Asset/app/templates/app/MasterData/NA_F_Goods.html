@@ -348,7 +348,7 @@
             if (itemCode) {
                 NA.NAEvent.preventDefault(event);
                 showConfirmation(NA.common.message.confirmDelete,
-                    NA.common.message.confirmDelete, function () {
+                    NA.common.message.confirmInfo, function () {
                         NA.NAEvent.preventDefault(event);
                         try {
                             //delete data di server                  
@@ -671,20 +671,22 @@
             }     
         });
         function clearEntry() {
-        	//id_itemcode, id_goodsname, id_brandname, id_typeapp, id_priceperunit,
-        	//id_unit, id_placement, id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
-        	var parseOri = JSON.parse(originalData);
-        	NA.common.getElementID('id_itemcode').value=parseOri.itemcode||'';
-        	NA.common.getElementID('id_goodsname').value = parseOri.goodsname||'';
-        	NA.common.getElementID('id_brandname').value=parseOri.brandname||'';
-        	NA.common.getElementID('id_typeapp').value=parseOri.typeapp||'';
-        	NA.common.getElementID('id_priceperunit').value = parseOri.priceperunit || 0;
-        	NA.common.getElementID('id_unit').value=parseOri.unit||'';
-        	NA.common.getElementID('id_placement');
-        	NA.common.getElementID('id_economiclife');
-        	NA.common.getElementID('id_depreciationmethod');
-        	NA.common.getElementID('id_inactive');
-        	NA.common.getElementID('id_descriptions');
+            //id_itemcode, id_goodsname, id_brandname, id_typeapp, id_priceperunit,
+            //id_unit, id_placement, id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
+            var parseOri = JSON.parse(originalData);
+            NA.common.getElementID('id_itemcode').value=parseOri.itemcode||'';
+            NA.common.getElementID('id_goodsname').value = parseOri.goodsname||'';
+            NA.common.getElementID('id_brandname').value=parseOri.brandname||'';
+            NA.common.getElementID('id_typeapp').value=parseOri.typeapp||'';
+            NA.common.getElementID('id_priceperunit').value = parseOri.priceperunit || 0;
+            NA.common.getElementID('id_unit').value=parseOri.unit||'';
+            NA.common.getElementID('id_placement').value = parseOri.placement || 'Gudang IT';
+            NA.common.getElementID('id_economiclife').value = parseOri.economiclife||'5';
+            NA.common.getElementID('id_depreciationmethod').value=parseOri.depreciationmethod||'SL';
+            NA.common.getElementID('id_inactive').value = false;
+            NA.common.getElementID('id_inactive').checked = false;
+            NA.common.getElementID('id_descriptions').value = '';
+            NA.common.getElementID('id_itemcode').focus();
         };
     	// event handler btnSubmit form to raise validity event
 
@@ -698,10 +700,10 @@
             })();
             $.post("ShowEntry",valuesForm, function(data, status){                            
                 //reload jqueryGrid
-                if(data.message === 'success'){
-                    var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"); 
-                    NA.common.dialog.closeDialog(dialog);
-                    EraseElHidden();
+                if (data.message === 'success') {                    
+                    //var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"); 
+                    //NA.common.dialog.closeDialog(dialog);
+                    //EraseElHidden();
                     //reload jqueryGrid                        
                     $("#jqGrid_NA_F_Goods").trigger("reloadGrid",[{page:1}]);
                     document.body.style.cursor = 'default';
@@ -720,12 +722,18 @@
                             //NA.NAEvent.preventDefault(event);                                          
                             var inputbtn = NA.common.getElementID('inputButton');
                             inputbtn.click();
-
                             document.body.style.cursor = 'default';
                             return false;
                         }
                         else{
                             submitForm();
+                            if (win.status == 'Add') {
+                                clearEntry();
+                            } else {
+                                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"); 
+                                NA.common.dialog.closeDialog(dialog);
+                                EraseElHidden();
+                            }
                             reload_LogEvent();
                         }
                         //jangan di close 
