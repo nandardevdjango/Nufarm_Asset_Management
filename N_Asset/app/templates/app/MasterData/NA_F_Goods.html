@@ -131,7 +131,8 @@
             btnDelete =  NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
             btnExport =  NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
             btnPrint =  NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
-            btnHelp =  NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+            btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+    		originalData = {},
             containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav');//inistialisasi menu   
         function LoadData(page){          
             if(arguments.length > 0){
@@ -661,14 +662,6 @@
             if(UlHiddenAuto){UlHiddenAuto.parentNode.removeChild(UlHiddenAuto);}
             if(divAutoComplete){divAutoComplete.parentNode.removeChild(divAutoComplete);}
         };
-        //UPDATE ajax settings
-        //$.ajax({
-        //        // obviates need for sameOrigin test
-        //    beforeSend: function(xhr, settings) {
-        //        if (!csrfSafeMethod(settings.type)) {
-        //            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        //        }                                
-        //    }});
         $.ajaxPrefilter( function(options) {
             // Always add "?debug=1" to every URL
             options.beforeSend = function(xhr, settings) {
@@ -680,9 +673,18 @@
         function clearEntry() {
         	//id_itemcode, id_goodsname, id_brandname, id_typeapp, id_priceperunit,
         	//id_unit, id_placement, id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
-        	NA.common.getElementID('id_itemcode');
-        	//id_goodsname, id_brandname, id_typeapp, id_priceperunit, id_unit, id_placement,
-			//id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
+        	var parseOri = JSON.parse(originalData);
+        	NA.common.getElementID('id_itemcode').value=parseOri.itemcode||'';
+        	NA.common.getElementID('id_goodsname').value = parseOri.goodsname||'';
+        	NA.common.getElementID('id_brandname').value=parseOri.brandname||'';
+        	NA.common.getElementID('id_typeapp').value=parseOri.typeapp||'';
+        	NA.common.getElementID('id_priceperunit').value = parseOri.priceperunit || 0;
+        	NA.common.getElementID('id_unit').value=parseOri.unit||'';
+        	NA.common.getElementID('id_placement');
+        	NA.common.getElementID('id_economiclife');
+        	NA.common.getElementID('id_depreciationmethod');
+        	NA.common.getElementID('id_inactive');
+        	NA.common.getElementID('id_descriptions');
         };
     	// event handler btnSubmit form to raise validity event
 
@@ -923,7 +925,7 @@
                                 };                                
                                 if(status !== 'Open' && status !== ''){//hanya untuk status Add/Edit                                   
                                     //simpan original data di initializeForm
-                                    var originalData = JSON.stringify(getValuesForm());
+                                    originalData = JSON.stringify(getValuesForm());
                                     //$('#id_initializeForm').val(originalData);
                                     initializeForm = NA.common.getElementID('id_initializeForm');
                                     initializeForm.Value = originalData;                                    

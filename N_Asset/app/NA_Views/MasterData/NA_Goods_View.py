@@ -286,17 +286,17 @@ class NA_Goods_Form(forms.Form):
 		brandname = forms.CharField(max_length=100,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:250px;margin-left:3px;','placeholder':'enter brand','data-value':'enter brand','tittle':'Please enter valid brand name'}),required=True) #models.CharField(db_column='BrandName', max_length=100, blank=True, null=True)  # Field name made lowercase.
 		typeapp = forms.ChoiceField(required=True,widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))  
+                                   'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('','----choose----'),('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))  
 		priceperunit = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:150px;','placeholder':'price','data-value':'price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}),required=True)#  models.DecimalField(db_column='PricePerUnit', max_digits=20,decimal_places=4)  # Field name made lowercase.
 		depreciationmethod = forms.ChoiceField(widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control select','style':'width:256px;margin-left:auto;'}),choices=(('SL', 'Straight Line Method'),
+                                   'class': 'NA-Form-Control select','style':'width:256px;margin-left:auto;'}),choices=(('','----choose----'),('SL', 'Straight Line Method'),
 																	  ('DDB','Double Declining Balance'),
 																	  ('STYD','Sum of The Year Digit'),
 																	  ('SH','Service Hours')))   # models.CharField(db_column='DepreciationMethod', max_length=2)  # Field name made lowercase.
-		unit = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control select','style':'width:100px',}),choices=(('Unit','Unit'),('Pcs','Pcs'),('Box','Dus/Karton')))# .CharField(db_column='Unit', max_length=30)  # Field name madelowercase.
+		unit = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control select','style':'width:100px',}),choices=(('','----choose----'),('Unit','Unit'),('Pcs','Pcs'),('Box','Dus/Karton')))# .CharField(db_column='Unit', max_length=30)  # Field name madelowercase.
 		economiclife = forms.DecimalField(max_digits=4,decimal_places=2,required=True,widget=forms.NumberInput(attrs={'class':'NA-Form-Control','style':'width:92px;vertical-align:bottom','step':'0.5','tittle':'Please enter valid value'})) #ini manual saja pakai select combo models.DecimalField(db_column='EconomicLife', max_digits=10,decimal_places=2)  # Field name made lowercase.
-		placement = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control.select','style':'width:130px;'}),choices=(('Gudang IT','Gudang IT'),('Gudang 2','Gudang 2'),('Gudang 3','Gudang 3'))) # models.CharField(db_column='Placement', max_length=50, blank=True, null=True)  # Field name made lowercase.
+		placement = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control.select','style':'width:130px;'}),choices=(('','----choose----'),('Gudang IT','Gudang IT'),('Gudang 2','Gudang 2'),('Gudang 3','Gudang 3'))) # models.CharField(db_column='Placement', max_length=50, blank=True, null=True)  # Field name made lowercase.
 		descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods','data-value':'descriptions about goods'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
 		inactive = forms.BooleanField(widget=forms.CheckboxInput(attrs={'style':'vertical-align: text-bottom;'}),required=False)
 		status = forms.CharField(widget=forms.HiddenInput(),required=False)
