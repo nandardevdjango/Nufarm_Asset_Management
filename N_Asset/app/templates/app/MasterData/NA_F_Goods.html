@@ -677,7 +677,15 @@
                 }
             }     
         });
-            // event handler btnSubmit form to raise validity event
+        function clearEntry() {
+        	//id_itemcode, id_goodsname, id_brandname, id_typeapp, id_priceperunit,
+        	//id_unit, id_placement, id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
+        	NA.common.getElementID('id_itemcode');
+        	//id_goodsname, id_brandname, id_typeapp, id_priceperunit, id_unit, id_placement,
+			//id_economiclife, id_depreciationmethod, id_inactive, id_descriptions
+        };
+    	// event handler btnSubmit form to raise validity event
+
         function submitForm(){         
             //var valuesForm = JSON.stringify(getValuesForm());
             var valuesForm = getValuesForm();
