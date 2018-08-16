@@ -45,15 +45,15 @@ class Migration(migrations.Migration):
         #    model_name='nastock',
         #    name='isbroken',
         #),
-        migrations.AddField(
-            model_name='nadisposal',
-            name='fk_lost',
-            field=models.ForeignKey(blank=True, db_column='FK_Lost', null=True, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAGoodsLost'),
-        ),
+        #migrations.AddField(
+        #    model_name='nadisposal',
+        #    name='fk_lost',
+        #    field=models.ForeignKey(blank=True, db_column='FK_Lost', null=True, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAGoodsLost'),
+        #),
         migrations.AddField(
             model_name='nadisposal',
             name='fk_sold_to_employee',
-            field=models.ForeignKey(blank=True, db_column='FK_Sold_To_Employee', db_constraint=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='fk_disposal_emp_Sold', to='NA_Models.Employee'),
+            field=models.ForeignKey(blank=True, db_column='FK_Sold_To_Employee', db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='fk_disposal_emp_Sold', to='NA_Models.Employee'),
         ),
         migrations.AddField(
             model_name='nadisposal',
@@ -94,5 +94,14 @@ class Migration(migrations.Migration):
             model_name='nastock',
             name='tisrenew',
             field=models.PositiveSmallIntegerField(db_column='TIsRenew', null=True),
+        ),
+        migrations.RemoveField(
+            model_name='nastock',
+            name='isbroken',
+        ),
+        migrations.AlterField(
+            model_name='nagamaintenance',
+            name='fk_goods',
+            field=models.ForeignKey(db_column='FK_Goods', db_constraint=False, max_length=30, on_delete=django.db.models.deletion.DO_NOTHING, to='NA_Models.goods'),
         ),
     ]

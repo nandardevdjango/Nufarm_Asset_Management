@@ -70,8 +70,10 @@ def NA_Goods_Search(request):
 		dataRows = paginator.page(paginator.num_pages)
 		
 	rows = []
+	i = 0 if page == '1' else int(Ilimit);#idapp,itemcode,goods
 	for row in dataRows.object_list:
-		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],row['itemcode'],row['goodsname'],row['unit'],row['typeapp'],row['priceperunit'], \
+		i+=1;
+		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['itemcode'],row['goodsname'],row['unit'],row['typeapp'],row['priceperunit'], \
 			row['placement'],row['typeofdepreciation'],row['economiclife'],row['inactive'],datetime.date(row['createddate']),row['createdby']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 		#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -125,7 +127,7 @@ def ShowEntry(request):
 	else:
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 		itemcode = request.GET.get('itemcode')	
-		initializationForm = {'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False,'hasRefData':'false'}
+		initializationForm = {'depreciationmethod':'SL','typeapp':'IT','priceperunit':0,'economiclife':5.00,'placement':'Gudang IT','inactive':False,'hasRefData':'false'}
 	#form = NA_Goods_Form(initial=initializationForm)
 	#form.fields['status'].widget.attrs = {'value':status};	
 	#form.fields['initializeForm'].widget.attrs = json.dumps({'value':initializationForm}) if status == "Add" or status == "Edit" else None
@@ -292,7 +294,7 @@ class NA_Goods_Form(forms.Form):
 		depreciationmethod = forms.ChoiceField(widget=forms.Select(attrs={
                                    'class': 'NA-Form-Control select','style':'width:256px;margin-left:auto;'}),choices=(('SL', 'Straight Line Method'),
 																	  ('DDB','Double Declining Balance'),
-																	  ('STYD','Sum of The Year Digit'),
+																	  ('SYD','Sum of The Year Digit'),
 																	  ('SH','Service Hours')))   # models.CharField(db_column='DepreciationMethod', max_length=2)  # Field name made lowercase.
 		unit = forms.ChoiceField(widget=forms.Select(attrs={'class':'NA-Form-Control select','style':'width:100px',}),choices=(('','--choose--'),('Unit','Unit'),('Pcs','Pcs'),('Box','Dus/Karton')))# .CharField(db_column='Unit', max_length=30)  # Field name madelowercase.
 		economiclife = forms.DecimalField(max_digits=4,decimal_places=2,required=True,widget=forms.NumberInput(attrs={'class':'NA-Form-Control','style':'width:92px;vertical-align:bottom','step':'0.5','tittle':'Please enter valid value'})) #ini manual saja pakai select combo models.DecimalField(db_column='EconomicLife', max_digits=10,decimal_places=2)  # Field name made lowercase.

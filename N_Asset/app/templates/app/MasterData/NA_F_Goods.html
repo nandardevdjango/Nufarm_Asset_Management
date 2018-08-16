@@ -151,9 +151,10 @@
                             '&' +  win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria()),
                         mtype: "GET",
                         datatype: "json",
-                        colNames: ['IDapp','Item Code','Goods Name','Unit','Category','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
+                        colNames: ['IDapp','NO','Item Code','Goods Name','Unit','Category','Price/PerUnit','Placement','Depreciation Method','Economic Life','inactive','Created Date','Created By'],
                         colModel: [
-                            {name: 'idapp', key: true, hidden: true, width:70,align:'left'},
+                            { name: 'idapp', key: true, hidden: true, width: 70, align: 'left' },
+							{ name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
                             {name: 'itemcode', index:'itemcode', width: 80,sortable:true,editable:false,align:'left', filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
                             //{name: 'brandname', index:'brandcame',width: 150,sortable:true,editable:false,hidden: true,  filter: { type: 'textbox', condition: 'contains', listeners: ['keyup'] }},
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
@@ -346,62 +347,61 @@
         NA.NAEvent.addHandler(btnDelete,'click',function(event){
             var itemCode = getGridCellValue(); 
             if (itemCode) {
-                NA.NAEvent.preventDefault(event);
-                showConfirmation(NA.common.message.confirmDelete,
-                    NA.common.message.confirmInfo, function () {
-                        NA.NAEvent.preventDefault(event);
-                        try {
-                            //delete data di server                  
-                            //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
-                            var url = NA.common.addURLParam('Delete/', 'itemCode', itemCode);
-                            $.post(url, {}, function (data, textStatus, jqXHR) {
+            	NA.NAEvent.preventDefault(event);
 
-                                if (textStatus === 'success') {
-                                    var rowNum = grid.getGridParam('rowNum'),
-                                 allRecords = grid.getGridParam('records'),
-                                 totalPages = parseInt((allRecords / rowNum) + 1),
-                                 curPage = grid.getGridParam('page'),
-                                 rowId = grid.jqGrid('getGridParam', 'selrow'),
-                                    curRecount = grid.jqGrid('getGridParam', 'reccount');
-                                    mustReload = true;
-                                    if (parseInt(curRecount) === 1) {
-                                        if (totalPages > 1) {
-                                            curPage--;
-                                        }
-                                        else {
-                                            mustReload = true;
-                                            grid.delRowData(rowId);
-                                        }
-                                    }
-                                    else if (parseInt(totalPages) === 1) {
-                                        mustReload = false;
-                                        grid.delRowData(rowId);
-                                    }
-                                    else if (parseInt(curRecount) > 1) {
-                                        mustReload = false;
-                                        grid.delRowData(rowId);
-                                    }
-                                    if (mustReload) {
-                                        window.document.body.style.cursor = 'wait';
-                                        grid.trigger("reloadGrid", [{ page: curPage }]); win.document.body.style.cursor = 'default';
-                                    };
-                                    reload_LogEvent();
-                                }
-                                else if (this.status == 203) {
-                                    ShowAlert(textStatus.message, NA.common.message.titleInfo);
-                                }
-                            });
-                        } catch (e) {
-                            win.document.body.style.cursor = 'default';
-                            console.log(e);
-                            if (JSON.parse(e.message)) {
-                                ShowAlert(e.name + ': ' + JSON.parse(e.message));
-                            }
-                            else {
-                                ShowAlert(e);
-                            }
-                        }
-                    });
+            	try {
+            		//delete data di server                  
+            		//$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
+					NA.NAEvent.preventDefault(event);
+            		showConfirmation(NA.common.message.confirmDelete,NA.common.message.confirmInfo, function () {
+            			var url = NA.common.addURLParam('Delete/', 'itemCode', itemCode);
+            			$.post(url, {}, function (data, textStatus, jqXHR) {
+            				if (textStatus === 'success') {
+            					var rowNum = grid.getGridParam('rowNum'),
+							 allRecords = grid.getGridParam('records'),
+							 totalPages = parseInt((allRecords / rowNum) + 1),
+							 curPage = grid.getGridParam('page'),
+							 rowId = grid.jqGrid('getGridParam', 'selrow'),
+								curRecount = grid.jqGrid('getGridParam', 'reccount');
+            					mustReload = true;
+            					if (parseInt(curRecount) === 1) {
+            						if (totalPages > 1) {
+            							curPage--;
+            						}
+            						else {
+            							mustReload = true;
+            							grid.delRowData(rowId);
+            						}
+            					}
+            					else if (parseInt(totalPages) === 1) {
+            						mustReload = false;
+            						grid.delRowData(rowId);
+            					}
+            					else if (parseInt(curRecount) > 1) {
+            						mustReload = false;
+            						grid.delRowData(rowId);
+            					}
+            					if (mustReload) {
+            						window.document.body.style.cursor = 'wait';
+            						grid.trigger("reloadGrid", [{ page: curPage }]); win.document.body.style.cursor = 'default';
+            					};
+            					reload_LogEvent();
+            				}
+            				else if (this.status == 203) {
+            					ShowAlert(textStatus.message, NA.common.message.titleInfo);
+            				}
+            			});
+					});
+            	} catch (e) {
+            		win.document.body.style.cursor = 'default';
+            		console.log(e);
+            		if (JSON.parse(e.message)) {
+            			ShowAlert(e.name + ': ' + JSON.parse(e.message));
+            		}
+            		else {
+            			ShowAlert(e);
+            		}
+            	};
             }
             else {
                 document.body.style.cursor = 'default';
@@ -640,7 +640,7 @@
                     goodsname : $.trim($('#id_goodsname').val()),
                     brandname : $.trim($('#id_brandname').val()),
                     typeapp : $.trim($('#id_typeapp').val()),
-                    priceperunit : ($('#id_priceperunit').val() !== '' && $('#id_priceperunit').val() == null)?0:parseFloat($('#id_priceperunit').val()),
+                    priceperunit : ($('#id_priceperunit').val() == '' && $('#id_priceperunit').val() == null)?0:parseFloat($('#id_priceperunit').val()),
                     depreciationmethod : $('#id_depreciationmethod').val(),
                     unit : $('#id_unit').val(),
                     economiclife : parseFloat($('#id_economiclife').val()),
@@ -677,7 +677,7 @@
             NA.common.getElementID('id_itemcode').value=parseOri.itemcode||'';
             NA.common.getElementID('id_goodsname').value = parseOri.goodsname||'';
             NA.common.getElementID('id_brandname').value=parseOri.brandname||'';
-            NA.common.getElementID('id_typeapp').value=parseOri.typeapp||'';
+            NA.common.getElementID('id_typeapp').value=parseOri.typeapp||'IT';
             NA.common.getElementID('id_priceperunit').value = parseOri.priceperunit || 0;
             NA.common.getElementID('id_unit').value=parseOri.unit||'';
             NA.common.getElementID('id_placement').value = parseOri.placement || 'Gudang IT';
@@ -728,7 +728,10 @@
                         else{
                             submitForm();
                             if (win.status == 'Add') {
-                                clearEntry();
+                            	clearEntry();
+                            	originalData = JSON.stringify(getValuesForm());
+                            	var initializeForm = NA.common.getElementID('id_initializeForm');
+                            	initializeForm.value = originalData;
                             } else {
                                 var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"); 
                                 NA.common.dialog.closeDialog(dialog);
@@ -738,7 +741,6 @@
                         }
                         //jangan di close 
                         //clear kan textbox dan set initilize data, focus ke itemCode
-
                         break;
                     }
                     case 'Cancel':
@@ -749,23 +751,28 @@
                         var originalData =  JSON.parse(initializeForm.Value);
                         var valuesForm = getValuesForm();
                         if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                            showConfirmation(NA.common.message.dataHasChanged,
+                        	showConfirmation(NA.common.message.dataHasChanged,
                                 NA.common.message.confirmInfo,
                                 function () {
-                                    if (!frmEntry.checkValidity()) {
-                                        //NA.NAEvent.preventDefault(event);   
-                                        var inputbtn = NA.common.getElementID('inputButton');
-                                        inputbtn.click();
-                                    }
-                                    else {
-                                        submitForm();
-                                        reload_LogEvent();
-                                    }
+                                	if (!frmEntry.checkValidity()) {
+                                		//NA.NAEvent.preventDefault(event);   
+                                		var inputbtn = NA.common.getElementID('inputButton');
+                                		inputbtn.click();
+                                	}
+                                	else {
+                                		submitForm();
+                                		NA.common.dialog.closeDialog(dialog);
+                                		EraseElHidden();
+                                		document.body.style.cursor = 'default';
+                                		reload_LogEvent();
+                                	}
                                 });
-                        }               
-                        NA.common.dialog.closeDialog(dialog);
-                        EraseElHidden();
-                        document.body.style.cursor = 'default';                    
+                        }
+                        else {
+                        	NA.common.dialog.closeDialog(dialog);
+                        	EraseElHidden();
+                        	document.body.style.cursor = 'default';
+                        }                 
                         break;
                     }                      
                 };
