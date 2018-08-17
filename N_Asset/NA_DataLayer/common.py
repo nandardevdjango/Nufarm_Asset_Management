@@ -588,6 +588,14 @@ class query:
             dict(zip(columns, row))
             for row in fetchall
         ]
+    
+    def like(query_param, fields):
+        query_string = ' LIKE {query_param} OR '.join(fields)
+        query_string += ' LIKE {query_param}'
+        query_string = query_string.format(
+            query_param=('%(' + query_param + ')s')
+        )
+        return query_string
 
 
 class commonFunct:

@@ -41,6 +41,7 @@ li.item-hover{
     max-height: 240px;
     overflow: auto;
 }
-/* li#item_choice[data-selected="true"]{
+li#item_choice[data-selected="true"]{
     color: green;
-} */
+    cursor: not-allowed;
+}

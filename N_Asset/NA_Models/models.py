@@ -1649,6 +1649,12 @@ class NAGoodsEquipment(NA_BaseModel):
         db_column='TypeApp',
     )
 
+    def __str__(self):
+        return '{type_app}: {name_app}'.format(
+            type_app=self.get_type_app_display(),
+            name_app=self.name_app
+        )
+
     @classmethod
     def get_type_app(cls, request):
         url_name = request.resolver_match.url_name
@@ -1674,6 +1680,11 @@ class NAGaOutwards(NAGoodsOutwardsModel):
     fk_app = models.ForeignKey(
         NAGaVnHistory,
         db_column='fk_app',
+        db_constraint=False
+    )
+    fk_receive = models.ForeignKey(
+        NAGaReceive,
+        db_column='FK_Receive',
         db_constraint=False
     )
     equipment = models.ManyToManyField(

@@ -71,20 +71,35 @@ class NABRGoodsOutwardsGA(models.Manager):
         SELECT g.idapp, CONCAT(g.goodsname, ' ', ngr.brand, ' ', ngr.model) AS goods,
         g.itemcode, ngh.reg_no, ngh.expired_reg, ngh.bpkb_expired, ngr.descriptions,
         ngr.idapp AS fk_receive, ngh.idapp AS fk_app, ngr.typeapp, ngr.invoice_no,
-        ngr.year_made, ngr.colour,
+        DATE_FORMAT(ngr.year_made,'%%Y') AS year_made, ngr.colour,
         CASE
             WHEN(
                 SELECT EXISTS(
                     SELECT ngo.idapp FROM n_a_ga_outwards ngo WHERE ngo.fk_app = ngh.idapp
                 )
             )
-            THEN '1'
-            ELSE '0'
+            THEN '0'
+            ELSE '1'
             END AS info_is_new
         FROM n_a_ga_receive ngr INNER JOIN
         n_a_goods g ON ngr.fk_goods = g.idapp INNER JOIN n_a_ga_vn_history ngh
         ON ngr.idapp = ngh.fk_app
-        """
+        WHERE """
 
-        cur.execute(query_string)
+        query_string += query.like(
+            query_param='q',
+            fields=[
+                'g.itemcode',
+                'g.goodsname',
+                'ngr.brand',
+                'ngr.model',
+                'ngh.reg_no',
+                'ngr.typeapp',
+                'ngr.invoice_no'
+            ]
+        )
+
+        cur.execute(query_string, {
+            'q': ('%' + q + '%')
+        })
         return query.dictfetchall(cur)

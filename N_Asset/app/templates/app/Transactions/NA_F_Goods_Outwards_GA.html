@@ -392,6 +392,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
             fk_receive: qs('input#id_fk_receive').value.trim(),
             fk_app: qs('input#id_fk_app').value.trim(),
             goodsname: qs('input#id_goodsname').value.trim(),
+            isnew: qs('input#id_isnew').value.trim(),
             employee: qs('input#id_employee').value.trim(),
             employee_nik: qs('input#id_employee_nik').value.trim(),
             employee_name: qs('input#id_employee_name').value.trim(),
@@ -406,8 +407,8 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
             resp_employee_name: qs('input#id_resp_employee_name').value.trim(),
             daterequest: qs('input#id_daterequest').value.toString().trim(),
             datereleased: qs('input#id_datereleased').value.toString().trim(),
-            equipment: qs('input#id_equipment').value.trim(),
-            add_equipment: qs('input#id_add_equipment').value.trim(),
+            equipment: qs('input#id_equipment').value.trim().split(','),
+            add_equipment: qs('input#id_add_equipment').value.trim().split(','),
     		descriptions: qs('#id_descriptions').value.trim(),
     		status: win.status || qs('#id_status').value.trim()
 		};
@@ -489,26 +490,33 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
         if (day.length < 2) day = '0' + day;
 
         return [year, month, day].join('-');
-    };
-    status = status || window.status
+    }
+    status = status || window.status;
     function G_Outwards_GASubmit() {
         var dialog = qs("div.containerDialog");
         function sendData() {
-            var valuesForm = getValues_Form()
+            var valuesForm = getValues_Form();
             var format_date = function (date) {
-                return $.datepicker.parseDate('dd/mm/yy', date)
+                return $.datepicker.parseDate('dd/mm/yy', date);
             };
+            valuesForm.daterequest = GetServerFormatDate(
+                format_date(valuesForm.daterequest)
+            );
+
+            valuesForm.datereleased = GetServerFormatDate(
+                format_date(valuesForm.datereleased)
+            );
             var idapp;
             if (win.status.trim() == 'Edit') {
-            	idapp = getGridId()
+            	idapp = getGridId();
             } else {
-                idapp = ''
+                idapp = '';
             }
             var snData = NA.common.AssignObject({
                 'csrfmiddlewaretoken': get_csrf(),
                 'statusForm': win.status,
             }, valuesForm, {'idapp':idapp})
-            return snData
+            return snData;
         }
         $.ajax({
             url: 'ShowEntry/',
@@ -803,6 +811,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
 									itemcode = qs('input#id_itemcode'),
 									typeapp = qs('input#id_typeapp'),
                                     goodsname = qs('input#id_goodsname'),
+                                    is_new = qs('input#id_isnew'),
 									datereceived = qs('input#id_datereceived'),
 
 									supliercode = qs('input#id_supliercode'),
@@ -823,7 +832,12 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                             	var btn_fk_goods = qs('button#btn_fk_goods'),
 									btn_fk_employee = qs('button#btn_fk_employee'),
 									btn_fk_sender = qs('button#btn_fk_sender'),
-									btn_fk_resp_employee = qs('button#btn_fk_resp_employee');
+                                    btn_fk_resp_employee = qs('button#btn_fk_resp_employee');
+                                    
+                                var typeapp_info = qs('#typeapp_info_value'),
+                                    colour_info = qs('#colour_info_value'),
+                                    invoice_no_info = qs('#invoice_no_info_value'),
+                                    year_made_info = qs('#year_made_info_value');
 
                                 function searchGoods(event) {
                                     BootstrapDialog.show({
@@ -990,8 +1004,14 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                             	fk_goods.value = rowData['idapp'],
                                             	itemcode.value = rowData['itemcode'],
                                                 goodsname.value = rowData['goods'],
+                                                is_new.value = rowData['is_new'],
                                                 fk_receive.value = rowData['fk_receive'],
-                                                fk_app.value = rowData['fk_app'];
+                                                fk_app.value = rowData['fk_app'],
+                                                typeapp_info.textContent = rowData['typeapp'],
+                                                colour_info.textContent = rowData['colour'],
+                                                invoice_no_info.textContent = rowData['invoice_no'],
+                                                year_made_info.textContent = rowData['year_made'];
+                                                qs('#difInfo').style.display = 'block';
                                             	dialogRef.close();
                                             }
                                         }]

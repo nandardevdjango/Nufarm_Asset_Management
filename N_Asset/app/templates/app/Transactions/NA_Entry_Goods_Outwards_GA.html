@@ -1,3 +1,15 @@
+<style>
+    .info_value {
+        margin-right: 5px;
+        width: 74%;
+        display: inline-block;
+        border: 1px solid rgb(76, 175, 80);
+        border-top-right-radius: 5px;
+        padding-left: 5px;
+        margin-left: 20px;
+    }
+</style>
+
 <div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
           style="background-color:transparent;font-size: 1em;width:550px;max-height:485px;overflow:auto;" 
@@ -18,16 +30,28 @@
             <div class="NA-Entry-div-row" id="difInfo" style="display:none">
                 <!--Khusus untuk Goods Info setelah di pilih-->
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="BrandKey" class="NA-Entry-label;" style="display:inline-block;width:100px;">Brand</label>
-                    <label id="BrandValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.brandvalue.value }}</label>
+                    <label id="typeapp_info_label" class="NA-Entry-label;" style="display:inline-block;width:105px;">Type</label>
+                    <label id="typeapp_info_value" class="info_value">
+                        {{ form.typeapp.value }}
+                    </label>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="TypeKey" class="NA-Entry-label;" style="display:inline-block;width:100px;">Tipe</label>
-                    <label id="TypeValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.typeapp.value }}</label>
+                    <label id="colour_info_label" class="NA-Entry-label;" style="display:inline-block;width:105px;">Colour</label>
+                    <label id="colour_info_value" class="info_value">
+                    {{ form.colour.value }}
+                </label>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="fk_goodsKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Item Code</label>
-                    <label id="fk_goodsValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.fk_goods.value }}</label>
+                    <label id="invoice_no_info_label" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Invoice No</label>
+                    <label id="invoice_no_info_value" class="info_value">
+                        {{ form.invoice_no.value }}
+                    </label>
+                </div>
+                <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                    <label id="year_made_info_label" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Year Made</label>
+                    <label id="year_made_info_value" class="info_value">
+                    {{ form.year_made.value }}
+                </label>
                 </div>
                 <!-- condition: new/second -->
             </div>
@@ -138,6 +162,8 @@
         {{ form.fk_goods }}
         {{ form.fk_app }}
         {{ form.fk_receive }}
+        {{ form.isnew }}
+
         {{ form.employee }}
         {{ form.sender }}
         {{ form.resp_employee }}

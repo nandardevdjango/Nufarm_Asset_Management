@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date
 from django import forms
+from django.db import transaction
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
@@ -163,7 +164,7 @@ class NAGaOutwardsForm(forms.Form):
         }
     ), required=False)
 
-    isnew = forms.BooleanField(widget=forms.CheckboxInput())
+    isnew = forms.BooleanField(widget=forms.HiddenInput())
 
     daterequest = forms.CharField(widget=forms.TextInput(
         attrs={
@@ -181,9 +182,17 @@ class NAGaOutwardsForm(forms.Form):
         }
     ))
 
-    equipment = forms.CharField(widget=forms.HiddenInput())
+    equipment = forms.ModelMultipleChoiceField(
+        queryset=NAGoodsEquipment.objects.all(),
+        widget=forms.HiddenInput(),
+        required=False
+    )
 
-    add_equipment = forms.CharField(widget=forms.HiddenInput())
+    add_equipment = forms.ModelMultipleChoiceField(
+        queryset=NAGoodsEquipment.objects.all(),
+        widget=forms.HiddenInput(),
+        required=False
+    )
 
     descriptions = forms.CharField(widget=forms.Textarea(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'description',
@@ -191,6 +200,7 @@ class NAGaOutwardsForm(forms.Form):
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
+    @transaction.atomic
     def save(self, user):
         outwards = NAGaOutwards()
         outwards.fk_goods = self.cleaned_data.get('fk_goods')
@@ -209,13 +219,24 @@ class NAGaOutwardsForm(forms.Form):
         outwards.createddate = datetime.now()
         outwards.save()
 
+        equipment = self.cleaned_data.get('equipment')
+        if equipment:
+            outwards.equipment.add(*equipment)
+        
+        add_equipment = self.cleaned_data.get('add_equipment')
+        if add_equipment:
+            outwards.add_equipment.add(*add_equipment)
+
         return (Data.Success.value, )
         
 
 
 def Entry_Goods_Outwards_GA(request):
     if request.method == 'POST':
-        form = NAGaOutwardsForm(request.POST)
+        data = request.POST.copy()
+        data['equipment'] = data.getlist('equipment[]')
+        data['add_equipment'] = data.getlist('add_equipment[]')
+        form = NAGaOutwardsForm(data)
         statusForm = request.POST['statusForm']
         if form.is_valid():
             data = form.cleaned_data
@@ -295,8 +316,8 @@ def ShowCustomFilter(request):
 def search_ga_by_form(request):
     q = request.GET.get('q', '')
     return commonFunct.search_data_by_form(
-        request,
-        NAGaOutwards.objects.search_ga_by_form(q),
+        request=request,
+        data=NAGaOutwards.objects.search_ga_by_form(q),
         fields=[
             'idapp',
             'itemcode',
