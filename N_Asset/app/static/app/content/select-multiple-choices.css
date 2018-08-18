@@ -5,7 +5,6 @@
     padding: 2px;
     border-radius: 4px;
     position:relative;
-    top:5px;
     min-width: 150px;
     display: inline-block;
     max-width: 370px;
@@ -27,7 +26,7 @@
     color: green;
     cursor: pointer;
 }
-li#item_choice p{
+li#item_choice p, li#no_result p{
     padding: 5px 14px;
 }
 li.item-hover{
@@ -40,6 +39,9 @@ li.item-hover{
 .select-multiple{
     max-height: 240px;
     overflow: auto;
+    width: -moz-available;
+    max-width: -moz-available;
+    margin: 0;
 }
 li#item_choice[data-selected="true"]{
     color: green;
