@@ -126,7 +126,7 @@ class NA_BR_Goods(models.Manager):
 
 class CustomManager(models.Manager):
 	def getGoods(self,itemCode):
-		return super(CustomManager,self).raw("SELECT IDApp,CONCAT(goodsname,' ',IFNULL(brandname,'')) as goods FROM n_a_goods WHERE itemcode = %(itemCode)s",{'itemCode':itemCode})
+		return super(CustomManager,self).raw("SELECT IDApp,goodsname as goods FROM n_a_goods WHERE itemcode = %(itemCode)s",{'itemCode':itemCode})
 	def searchGoodsByForm(self, q, category=None):
 		filter_data = [(Q(goods__icontains=q) | Q(itemcode__icontains=q))]
 		if category:
@@ -138,6 +138,7 @@ class CustomManager(models.Manager):
 			del filter_data
 		data = super(CustomManager,self).get_queryset()\
             .annotate(goods=Concat(F('goodsname'), Value(' '), F('brandname'), Value(' ')))\
+			.annotate(goods =F('goodsname'))\
             .values('idapp','itemcode','goods','typeapp','descriptions')\
             .filter(*Query)
 		if data.exists():
