@@ -1,7 +1,19 @@
+<style>
+    .info_value {
+        margin-right: 5px;
+        width: 74%;
+        display: inline-block;
+        border: 1px solid rgb(76, 175, 80);
+        border-top-right-radius: 5px;
+        padding-left: 5px;
+        margin-left: 20px;
+    }
+</style>
+
 <div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
           style="background-color:transparent;font-size: 1em;width:550px;max-height:485px;overflow:auto;" 
-		  id="form_ga_receive" onsubmit="return false;">
+		  id="form_ga_outwards" onsubmit="return false;">
         {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
@@ -18,16 +30,28 @@
             <div class="NA-Entry-div-row" id="difInfo" style="display:none">
                 <!--Khusus untuk Goods Info setelah di pilih-->
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="BrandKey" class="NA-Entry-label;" style="display:inline-block;width:100px;">Brand</label>
-                    <label id="BrandValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.brandvalue.value }}</label>
+                    <label id="typeapp_info_label" class="NA-Entry-label;" style="display:inline-block;width:105px;">Type</label>
+                    <label id="typeapp_info_value" class="info_value">
+                        {{ form.typeapp.value }}
+                    </label>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="TypeKey" class="NA-Entry-label;" style="display:inline-block;width:100px;">Tipe</label>
-                    <label id="TypeValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.typeapp.value }}</label>
+                    <label id="colour_info_label" class="NA-Entry-label;" style="display:inline-block;width:105px;">Colour</label>
+                    <label id="colour_info_value" class="info_value">
+                    {{ form.colour.value }}
+                </label>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label id="fk_goodsKey" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Item Code</label>
-                    <label id="fk_goodsValue" class="NA-Entry-label;" style="margin-right: 5px;width: 75%;display: inline-block;border: 1px solid rgb(76, 175, 80);border-top-right-radius: 5px;padding-left: 5px;">{{ form.fk_goods.value }}</label>
+                    <label id="invoice_no_info_label" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Invoice No</label>
+                    <label id="invoice_no_info_value" class="info_value">
+                        {{ form.invoice_no.value }}
+                    </label>
+                </div>
+                <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                    <label id="year_made_info_label" class="NA-Entry-label;" style="display:inline-block;margin-right:5px; width:100px;">Year Made</label>
+                    <label id="year_made_info_value" class="info_value">
+                    {{ form.year_made.value }}
+                </label>
                 </div>
                 <!-- condition: new/second -->
             </div>
@@ -86,15 +110,15 @@
                     </div>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto">
-                    <div class="NA-Entry-inlinve-div">
+                    <div id="container_select_multiple" class="NA-Entry-inlinve-div">
                         <label for="id_equipment" style="display:inline-block; width:120px;">Equipment</label>
-                        <ul style="display:inline;vertical-align: bottom;">
-                            <li class="dropdown" style="display:inline;">
-                                <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment..">
+                        <ul style="display:inline-block;vertical-align: bottom;">
+                            <li id="dropdown_select_multiple" class="dropdown" style="display:inline-block;">
+                                <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment.." aria-haspopup="true" aria-expanded="false">
                                     <input id="fake_input_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu select-multiple" id="dropdown_item_equipment">
-                                    <li><input id="search_item_equipment" type="text" class="NA-Form-Control" 
+                                    <li id="search_item_container"><input id="search_item_equipment" type="text" class="NA-Form-Control" 
                                         style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" />
                                     </li>
                                     {% for equipment in equipments %}
@@ -107,15 +131,15 @@
                     </div>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto">
-                    <div class="NA-Entry-inlinve-div">
+                    <div id="container_select_multiple" class="NA-Entry-inlinve-div">
                         <label for="id_add_equipment" style="display:inline-block; width:120px;">Add Equipment</label>
-                        <ul style="display:inline;vertical-align: bottom;">
-                            <li class="dropdown" style="display:inline;">
+                        <ul style="display:inline-block;vertical-align: bottom;">
+                            <li id="dropdown_select_multiple" class="dropdown" style="display:inline-block;">
                                 <ul id="container_add_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment..">
                                     <input id="fake_input_add_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu select-multiple" id="dropdown_item_add_equipment">
-                                    <li><input id="search_item_add_equipment" type="text" class="NA-Form-Control"
+                                    <li id="search_item_container"><input id="search_item_add_equipment" type="text" class="NA-Form-Control"
                                         style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" />
                                     </li>
                                     {% for equipment in equipments %}
@@ -136,11 +160,18 @@
         <input type="submit" style="display:none" id="submit_receive_ga">
         {{ form.initializeForm }}
         {{ form.fk_goods }}
-        {{ form.typeapp }}
+        {{ form.fk_app }}
+        {{ form.fk_receive }}
+        {{ form.isnew }}
+
         {{ form.employee }}
         {{ form.sender }}
         {{ form.resp_employee }}
         {{ form.equipment }}
         {{ form.add_equipment }}
+
+        {{ form.used_by }}
+        {{ form.used_by_nik }}
+        {{ form.used_by_name }}
     </form>
 </div>

@@ -62,7 +62,7 @@ class NA_BR_Employee(models.Manager):
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
             Query = """INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
-            status, telphp, territory, descriptions, inactive,createddate, createdby)
+            status, telphp, territory, inactive, descriptions,createddate, createdby)
             VALUES({})""".format(','.join('%(' + i + ')s' for i in Params))
         elif statusForm == StatusForm.Edit:
             if self.hasRef(data['idapp']):
@@ -164,7 +164,7 @@ class NA_BR_Employee(models.Manager):
         nik = kwargs.get('nik')
         if nik is not None:
             is_nik = super(NA_BR_Employee, self).get_queryset().filter(
-                nik=get_nik).exists()
+                nik=nik).exists()
             if is_nik:
                 return (True, Message.get_specific_exists('Employee', 'Nik', nik))
         telphp = kwargs.get('telphp')
