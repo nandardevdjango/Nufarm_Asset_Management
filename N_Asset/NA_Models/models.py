@@ -66,7 +66,7 @@ class NA_BaseModel(models.Model):
 
 class NA_MasterDataModel(NA_BaseModel):
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    inactive = models.PositiveSmallIntegerField(db_column='InActive')
+    inactive = models.PositiveSmallIntegerField(db_column='InActive', default=0)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -340,7 +340,6 @@ class NAAccFa(NA_BaseModel):
         'goods',
         db_column='FK_Goods',
         related_name='AccFA_goods',
-        to_field='idapp',
         db_constraint=False
     )
     serialnumber = models.CharField(db_column='SerialNumber', max_length=50)
@@ -382,7 +381,7 @@ class NAAccFa(NA_BaseModel):
         db_table = 'n_a_acc_fa'
 
     def __str__(self):
-        return str(self.fk_goods)
+        return self.fk_goods
 
 
 class NAAppparams(models.Model):
@@ -813,9 +812,21 @@ class NADisposal(NA_TransactionModel):
 		db_constraint=False, blank=True, null=True,
 	)
 	fk_acc_fa = models.ForeignKey(
-		'NAAccFa', related_name='fk_disposal_accfa', db_column='FK_Acc_FA', blank=True, null=True)
+		'NAAccFa',
+        related_name='fk_disposal_accfa',
+        db_column='FK_Acc_FA',
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
 	fk_stock = models.ForeignKey(
-		'NAStock', related_name='fk_disposal_stock', db_column='FK_Stock', blank=True, null=True)
+		'NAStock',
+        related_name='fk_disposal_stock',
+        db_column='FK_Stock',
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
 	fk_maintenance = models.ForeignKey(
 		'NAMaintenance',
 		null=True,
@@ -1205,11 +1216,7 @@ class NAPriviledge_form(models.Model):
     @classmethod
     def get_form_IT(cls, must_iterate=False):
         forms = cls.MASTER_DATA_FORM
-        filter_data = [Q(form_name_ori=form) for form in forms]
-        query = filter_data.pop()
-        for form_name in filter_data:
-            query |= form_name
-        fk_form = cls.objects.filter(query)
+        fk_form = cls.objects.filter(form_name_ori__in=forms)
         if must_iterate:
             fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
@@ -1223,12 +1230,7 @@ class NAPriviledge_form(models.Model):
 
     @classmethod
     def get_form_Guest(cls, must_iterate=False):
-        fk_form = cls.objects\
-            .filter(
-                Q(form_name_ori='goods') |
-                Q(form_name_ori='n_a_suplier') |
-                Q(form_name_ori='employee')
-            )
+        fk_form = cls.objects.filter(form_name_ori__in=['goods', 'n_a_suplier', 'employee'])
         if must_iterate:
             fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
@@ -1353,7 +1355,7 @@ class NASysPriviledge(NA_BaseModel):
                 form_name_ori = fk_form.form_name_ori
                 for permission in permissions(form_name_ori):
                     if int(user.role) != NAPriviledge.SUPER_USER:
-                        if fk_form.form_name_ori == NAPriviledge_form.Priviledge_form:
+                        if form_name_ori == NAPriviledge_form.Priviledge_form:
                             if permission != NASysPriviledge.Allow_View:
                                 continue
                     if is_have_permission:

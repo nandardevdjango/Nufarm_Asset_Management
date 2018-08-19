@@ -34,6 +34,21 @@ NA$.Input = {
             );
         }
 
+        function checkInView(elem,partial) {
+            var container = NA$(dropdown_item);
+            var contHeight = container.height();
+            var contTop = container.scrollTop();
+            var contBottom = contTop + contHeight ;
+        
+            var elemTop = NA$(elem).offset().top - container.offset().top;
+            var elemBottom = elemTop + NA$(elem).height();
+            
+            var isTotal = (elemTop >= 0 && elemBottom <=contHeight);
+            var isPart = ((elemTop < 0 && elemBottom > 0 ) || (elemTop > 0 && elemTop <= container.height())) && partial ;
+            
+            return  isTotal  || isPart ;
+        }
+
         function SelectItem (event) { 
             event.preventDefault();
             event.stopPropagation();
@@ -78,8 +93,12 @@ NA$.Input = {
             NA$('#no_result').css('display', 'none');
 
             NA$('.item-hover').removeClass('item-hover');
-            NA$(dropdown_item + ' li#' + item_choice + ':not([data-selected="true"])')
-                .first().addClass('item-hover');
+            var items = NA$(dropdown_item + ' li#' + item_choice + ':not([data-selected="true"])');
+            if (NA$(this).next()[0].dataset.reversed == "true") { 
+                items.last().addClass('item-hover');
+            } else {
+                items.first().addClass('item-hover');
+            }
             setTimeout(function () {
                 NA$(search_item).focus();
             }, 100);
@@ -91,6 +110,7 @@ NA$.Input = {
                 event.stopPropagation();
             },
             keyup: function (event) {
+                // TODO: Create auto scroll when arrowup or arrowdown pressed
                 if (event.keyCode == 40 || event.key == 'ArrowDown') {
                     var data_id = NA$(dropdown_item + ' .item-hover').data('id');
                     var next_item = NA$(dropdown_item).children('.item-hover')
@@ -105,6 +125,8 @@ NA$.Input = {
                     }
                     
                     NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
+                    //NA$(dropdown_item).animate({ scrollTop: 0 }, "fast");
+                    console.log(checkInView(next_item, false));
                 } else if (event.keyCode == 38 || event.key == 'ArrowUp') {
                     var data_id = NA$(dropdown_item + ' .item-hover').data('id');
                     var prev_item = NA$(dropdown_item + ' .item-hover')
@@ -119,6 +141,7 @@ NA$.Input = {
                     }
                     
                     NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
+                    //NA$(dropdown_item).animate({ scrollTop: NA$(dropdown_item).height() }, "fast");
                 } else {
                     var q = this.value;
                     var pattern = new RegExp(q, 'i');
@@ -304,36 +327,58 @@ NA$.Element.Position = {
     }
 };
 
-$(document).on("shown.bs.dropdown", ".dropdown", function (event) {
-    // calculate the required sizes, spaces
-    event.preventDefault();
-    var container_dropdown = NA$(this).parents("#container_select_multiple");
-    console.log(container_dropdown)
+NA$.Element.Dropdown = {
+    SetAutoDropUp: function (kwargs) {
+        this.container_dropdown = kwargs.container_dropdown;
+        this.crazy_ancestor = kwargs.crazy_ancestor;
+    }
+};
 
+NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (event) {
+    // calculate the required sizes, spaces
+
+    event.preventDefault();
+    container_dropdown = NA$(this).parents(NA$.Element.Dropdown.container_dropdown);
     if (container_dropdown.length) {
         var current_position = NA$.Element.Position.GetPositionToSpecificParent(
             container_dropdown,
-            'form'
+            NA$.Element.Dropdown.crazy_ancestor
         );
         
-        var form_height = NA$(this).parents('form')[0].scrollHeight;
-        console.log(form_height - current_position);
-        var $ul = $(this).children(".dropdown-menu");
-        var $button = $(this).children(".dropdown-toggle");
+        var parent = NA$(this).parents(NA$.Element.Dropdown.crazy_ancestor);
+        var current_position = (parent[0].scrollHeight - parent.scrollTop()) - current_position;
+        var $ul = NA$(this).children(".dropdown-menu");
+        var $button = NA$(this).children(".dropdown-toggle");
         var ulOffset = $ul.offset();
         // how much space would be left on the top if the dropdown opened that direction
-        var spaceUp = (ulOffset.top - $button.height() - $ul.height()) - $(window).scrollTop();
+        var spaceUp = (ulOffset.top - $button.height() - $ul.height()) - NA$(window).scrollTop();
         // how much space is left at the bottom
-        var spaceDown = $(window).scrollTop() + $(window).height() - (ulOffset.top + $ul.height());
-        var inline_div = NA$(this).parents('.NA-Entry-inlinve-div').offset().top;
-        var ul_height = Number($ul.css('height').replace('px', ''));
+        var spaceDown = NA$(window).scrollTop() + NA$(window).height() - (ulOffset.top + $ul.height());
         // switch to dropup only if there is no space at the bottom AND there is space at the top, or there isn't either but it would be still better fit
-        if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown) || ul_height > inline_div) {
-            $(this).addClass("dropup");
+        if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown) || current_position < $ul[0].scrollHeight) {
+            NA$(this).addClass("dropup");
+            if ($ul[0].dataset.reversed != "true") {
+                $ul.append($ul.children("li").get().reverse());
+            }
+            
+            if (NA$(this).hasClass('dropup')) { 
+                $ul[0].dataset.reversed = true;
+                console.log('this has dropup');
+                $ul.children().last().children('input').css({
+                    'borderTop': '',
+                    'borderBottom': '0'
+                });
+            }
+        } else {
+            if (typeof $ul[0].dataset.reversed != undefined && $ul[0].dataset.reversed == "true") {
+                $ul[0].dataset.reversed = false;
+                $ul.append($ul.children("li").get().reverse());
+             }
+            
         }
     }
     
 }).on("hidden.bs.dropdown", ".dropdown", function() {
     // always reset after close
-    $(this).removeClass("dropup");
+    NA$(this).removeClass("dropup");
 });

@@ -539,7 +539,7 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
     };
     function ExecuteHandler(TextElement) {
         var dialog = qs("div.containerDialog");
-        var frmEntry = qs('form#form_ga_receive');
+        var frmEntry = qs('form#form_ga_outwards');
         var emailForm = qs('form#email_data');
         var inputbtn = NA.common.getElementID('submit_receive_ga');
         if (frmEntry) {
@@ -788,6 +788,11 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                                     container_input: '#container_add_equipment',
                                     input_name: 'add_equipment',
                                     input_elm: 'input#id_add_equipment'
+                                });
+
+                                NA$.Element.Dropdown.SetAutoDropUp({
+                                    container_dropdown: '#container_select_multiple',
+                                    crazy_ancestor: 'form#form_ga_outwards'
                                 });
                                 
                             	var originalData = JSON.stringify(getValues_Form());

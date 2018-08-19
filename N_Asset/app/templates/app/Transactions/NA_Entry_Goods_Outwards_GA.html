@@ -13,7 +13,7 @@
 <div class="row" style="overflow:auto;">
     <form action="." method="post" class="form-horizontal"
           style="background-color:transparent;font-size: 1em;width:550px;max-height:485px;overflow:auto;" 
-		  id="form_ga_receive" onsubmit="return false;">
+		  id="form_ga_outwards" onsubmit="return false;">
         {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
@@ -113,12 +113,12 @@
                     <div id="container_select_multiple" class="NA-Entry-inlinve-div">
                         <label for="id_equipment" style="display:inline-block; width:120px;">Equipment</label>
                         <ul style="display:inline-block;vertical-align: bottom;">
-                            <li class="dropdown" style="display:inline-block;">
+                            <li id="dropdown_select_multiple" class="dropdown" style="display:inline-block;">
                                 <ul id="container_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment.." aria-haspopup="true" aria-expanded="false">
                                     <input id="fake_input_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu select-multiple" id="dropdown_item_equipment">
-                                    <li><input id="search_item_equipment" type="text" class="NA-Form-Control" 
+                                    <li id="search_item_container"><input id="search_item_equipment" type="text" class="NA-Form-Control" 
                                         style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" />
                                     </li>
                                     {% for equipment in equipments %}
@@ -134,12 +134,12 @@
                     <div id="container_select_multiple" class="NA-Entry-inlinve-div">
                         <label for="id_add_equipment" style="display:inline-block; width:120px;">Add Equipment</label>
                         <ul style="display:inline-block;vertical-align: bottom;">
-                            <li class="dropdown" style="display:inline-block;">
+                            <li id="dropdown_select_multiple" class="dropdown" style="display:inline-block;">
                                 <ul id="container_add_equipment" class="container-multiselect" data-toggle="dropdown" data-placeholder="Equipment..">
                                     <input id="fake_input_add_equipment" type="text" style="border: 0;padding: 0;height: 20px;width: 10px;background: none;" />
                                 </ul>
                                 <ul class="dropdown-menu select-multiple" id="dropdown_item_add_equipment">
-                                    <li><input id="search_item_add_equipment" type="text" class="NA-Form-Control"
+                                    <li id="search_item_container"><input id="search_item_add_equipment" type="text" class="NA-Form-Control"
                                         style="border-top: 0;border-left: 0;border-right: 0;box-shadow: none;outline: 0;border-radius: 0;" />
                                     </li>
                                     {% for equipment in equipments %}
