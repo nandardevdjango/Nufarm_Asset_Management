@@ -124,7 +124,7 @@ def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, tota
 	return {'idapp':form.cleaned_data['idapp'],'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'fk_p_r_by':form.cleaned_data['fk_p_r_by'],
 		 'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'descriptions':form.cleaned_data['descriptions'],'hasRefData':form.cleaned_data['hasRefData'],
-		 'dataForGridDetail':json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal),'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
+		 'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin' }
 @ensure_csrf_cookie
 def HasExists(request):
 	try:#check if exists the same data to prevent users double input,parameter data to check FK_goods,datereceived,totalpurchase
@@ -169,8 +169,9 @@ def ShowEntry_Receive(request):
 					#save data
 					#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
 					form.clean()
-					dataDetail = list(json.loads(data.get('dataForGridDetail')));				
-					data = getCurrentDataModel(request,form)	
+					dataDetail = list(json.loads(data.get('dataForGridDetail')));	
+					data = getCurrentDataModel(request,form)
+					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)	
 					desc = '('				
 					#dataDetail = object_list
 					if len(dataDetail) > 0:
@@ -180,7 +181,9 @@ def ShowEntry_Receive(request):
 							desc += dataDetail[i]['brandname'] + ', Type : ' + dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
 							if i <detCount -1:
 								desc += ', '
+							dict(dataForGridDetail[i]).update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					desc += ')'
+					data['dataForGridDetail'] = dataForGridDetail
 					data.update(descbysystem=desc)
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Input)
 				if result != 'success':

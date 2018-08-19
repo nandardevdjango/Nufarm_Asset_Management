@@ -710,14 +710,14 @@ class commonFunct:
         #total broken di peroleh dari kondisi barang yang di kembalikan dari user(na goods_return/na_ga_return,na_maintenance,ga_maintenance)
 
         if GoodsCat == "IT":
-            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
-                                                    UNION\
-                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s AND `Conditions` = 'B' \
+                                                    UNION 
+                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s AND IsSucced = 0 AND IsFinished = 1 \
                                                     )C """
         elif GoodCat == "GA":
-            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s WHERE Conditions = 'B'\
-                                                    UNION\
-                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE FK_Goods = %(FK_Goods)s WHERE IsSucced = 0 AND IsFinished = 1\
+            Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s AND `Conditions` = 'B' \
+                                                    UNION 
+                                                    SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE FK_Goods = %(FK_Goods)s AND IsSucced = 0 AND IsFinished = 1 \
                                                     )C """
         elif(GoodCat == "O"):
             raise Exception('Can di gawean')
