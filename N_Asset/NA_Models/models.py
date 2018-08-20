@@ -1677,6 +1677,7 @@ class NAGoodsEquipment(NA_BaseModel):
 
 
 class NAGaOutwards(NAGoodsOutwardsModel):
+    # TODO: delete typeapp
     fk_lending = None
     serialnumber = None
     fk_app = models.ForeignKey(

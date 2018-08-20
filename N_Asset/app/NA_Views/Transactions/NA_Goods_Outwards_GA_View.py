@@ -46,9 +46,10 @@ def NA_Goods_Outwards_GAGetData(request):
         i += 1
         datarow = {
             "id": row['idapp'], "cell": [
-                row['idapp'], i, row['goodsname'], row['brand'], row['typeapp'], row['received_by'], row['pr_by'],
-                row['datereceived'], row['price'], row['supliername'], row['invoice_no'], row['machine_no'],
-                row['chassis_no'], row['year_made'], row['colour'], row['model'], row['kind'], row['cylinder'], row['fuel'],
+                row['idapp'], i, row['goodsname'], row['brand'], row['typeapp'],
+                row['invoice_no'], row['reg_no'], row['isnew'], row['daterequest'],
+                row['datereleased'], row['employee_name'], row['sender'],
+                row['resp_employee'], row['equipment'], row['add_equipment'],
                 row['descriptions'], row['createddate'], row['createdby']
             ]
         }
