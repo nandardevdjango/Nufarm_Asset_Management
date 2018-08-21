@@ -18,6 +18,15 @@ NA$.Input = {
             NA$(container_input)[0].dataset.input = input_elm;
             NA$('<li id="no_result" style="display:none"><p>No results found</p></li>')
                 .insertAfter(NA$(search_item).parent('li'));
+            if (NA$(elm).val() != "") { 
+                var value = NA$(elm).val().split(',');
+                console.log(value)
+                for (var i = 0; i < value.length; i++) { 
+                    var item = NA$('li#item_choice[data-id="' + value[i] + '"]');
+                    appendItem(value[i], item.text());
+                    item[0].dataset.selected = true;
+                }
+            }
         })(input_elm);
 
         function refresh_value_elm (input_element) {
@@ -45,6 +54,14 @@ NA$.Input = {
             return  isTotal;
         }
 
+        function appendItem (id, text) { 
+            var item_selected = '<span class="label label-success selected-item" data-id="' +
+                id + '">' +
+                '<span id="remove_item" class="close-item">x</span>' +
+                text + '</span>';
+            NA$(item_selected).insertBefore(NA$(fake_input));
+        }
+
         function SelectItem (event) { 
             event.preventDefault();
             event.stopPropagation();
@@ -63,6 +80,7 @@ NA$.Input = {
             if (item_added.indexOf(this.dataset.id) > -1) {
                 return false;
             }
+            appendItem(this.dataset.id, this.textContent);
             var item_selected = '<span class="label label-success selected-item" data-id="' +
                 this.dataset.id + '">' +
                 '<span id="remove_item" class="close-item">x</span>' +

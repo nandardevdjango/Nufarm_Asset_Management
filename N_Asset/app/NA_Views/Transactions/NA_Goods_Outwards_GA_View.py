@@ -2,7 +2,7 @@ import json
 from datetime import datetime, date
 from django import forms
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
@@ -104,6 +104,11 @@ class NAGaOutwardsForm(forms.Form):
     goodsname = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
+
+    tyepapp = forms.CharField(widget=forms.HiddenInput(), required=False)
+    colour = forms.CharField(widget=forms.HiddenInput(), required=False)
+    invoice_no = forms.CharField(widget=forms.HiddenInput(), required=False)
+    year_made = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     employee = forms.ModelChoiceField(
         queryset=Employee.objects.filter(inactive=False),
@@ -257,12 +262,17 @@ def Entry_Goods_Outwards_GA(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data, result = NAGaOutwards.objects.retrieveData(idapp)
+            data, result = NAGaOutwards.objects.retrieve_data(idapp)
             if data == Data.Success:
-                result = [i for i in result][0]
-                if isinstance(result['datereceived'], datetime):
-                    result['datereceived'] = result['datereceived'].strftime(
-                        '%d/%m/%Y')
+                if isinstance(result['daterequest'], datetime):
+                    result['datereleased'] = result['daterequest'].strftime(
+                        '%d/%m/%Y'
+                    )
+                
+                if isinstance(result['datereleased'], datetime):
+                    result['datereleased'] = result['datereleased'].strftime(
+                        '%d/%m/%Y'
+                    )
 
                 if isinstance(result['year_made'], date):
                     result['year_made'] = result['year_made'].strftime('%Y')
