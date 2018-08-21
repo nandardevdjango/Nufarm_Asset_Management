@@ -105,44 +105,39 @@ div#gbox_NA_Goods_Outwards_GA_grid,div#gview_NA_Goods_Outwards_GA_grid,div#NA_Go
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp', 'NO', 'goods name', 'Brand', 'Type', 'Received By', 'Purchase Request By',
-						'Date Received', 'Price', 'Suplier Name', 'Invoice No', 'Machine No', 'Chassis No',
-						'Year Made', 'Colour', 'Model', 'Kind', 'Cylinder', 'Fuel','Descriptions', 'Created Date', 'Created By'],
+                    // idapp, no, goodsname, brand, tyepapp, invoice_no, reg_no, isnew, daterequest, datereleased, employee_name, sender, resp_employee, equipment, add_equipment, descriptions, createddate, createdby
+                    colNames: ['idapp', 'NO', 'goods name', 'Brand', 'Type', 'Invoice No', 'Reg No',
+						'Is New', 'Date Request', 'Date Released', 'Employee', 'Sender', 'Responsible By',
+						'Equipment', 'Add Equipment', 'Descriptions', 'Created Date', 'Created By'],
                     colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
-                            { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
+                            { name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
 							{ name: 'brand', index: 'brand', width: 120, sortable: true, editable: false, align: 'left', },
 							{ name: 'typeapp', index: 'typeapp', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'received_by', index: 'received_by', width: 120, sortable: true, editable: false, align: 'left', },
-                            { name: 'pr_by', index: 'pr_by', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'invoice_no', index: 'invoice_no', width: 120, sortable: true, editable: false, align: 'left', },
+                            { name: 'reg_no', index: 'reg_no', width: 120, sortable: true, editable: false, align: 'left', },
+                            { 
+                                name: 'is_new', index: 'is_new', width: 50, sortable: true, editable: false, align: 'center',
+                                formatter: 'checkbox', edittype: 'checkbox', editoptions: { value: '1:0' } 
+                            },
                             {
-                            	name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date',
+                            	name: 'daterequest', index: 'daterequest', sortable: true, width: 120, formatter: 'date',
                             	formatoptions: {
                             		srcformat: 'Y-m-d', newformat: 'd F Y'
                             	}
                             },
-							{
-								name: 'price', index: 'price', width: 150, sortable: true, align: 'right', formatter: 'currency',
-								formatoptions: {
-									decimalSeparator: ",",
-									thousandsSeparator: ".",
-									decimalPlaces: 2,
-									prefix: "Rp "
-								}, filter: {
-									type: 'textbox', condition: 'contains', listeners: ['keyup']
-								}
-							},
-                            { name: 'supliername', index: 'supliername', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'invoice_no', index: 'invoice_no', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'machine_no', index: 'machine_no', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'chassis_no', index: 'chassis_no', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'year_made', index: 'year_made', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'colour', index: 'colour', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'model', index: 'model', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'kind', index: 'kind', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'cylinder', index: 'cylinder', width: 120, sortable: true, editable: false, align: 'left', },
-							{ name: 'fuel', index: 'fuel', width: 120, sortable: true, editable: false, align: 'left', },
+                            {
+                            	name: 'datereleased', index: 'datereleased', sortable: true, width: 120, formatter: 'date',
+                            	formatoptions: {
+                            		srcformat: 'Y-m-d', newformat: 'd F Y'
+                            	}
+                            },
+                            { name: 'employee_name', index: 'employee_name', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'sender', index: 'sender', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'resp_employee', index: 'resp_employee', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'equipment', index: 'equipment', width: 120, sortable: true, editable: false, align: 'left', },
+							{ name: 'add_equipment', index: 'add_equipment', width: 120, sortable: true, editable: false, align: 'left', },
                             
 							{ name: 'descriptions', index: 'descriptions', width: 120, sortable: true, editable: false, align: 'left', },
                             {

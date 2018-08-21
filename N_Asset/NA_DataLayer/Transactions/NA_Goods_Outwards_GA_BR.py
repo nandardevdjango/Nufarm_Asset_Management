@@ -9,29 +9,20 @@ class NABRGoodsOutwardsGA(models.Manager):
                        typeofData=DataType.VarChar):
         rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
         cur = connection.cursor()
-
-        query_string = """
-        SELECT eq.nameapp, equipment.nagaoutwards_id
-        FROM n_a_equipment AS eq INNER JOIN n_a_ga_outwards_equipment
-        AS equipment ON eq.idapp = equipment.nagoodsequipment_id
-        """
-
-        # query_string = """
-        # SELECT eq.nameapp, add_equipment.nagaoutwards_id
-        # FROM n_a_equipment AS eq INNER JOIN n_a_ga_outwards_add_equipment
-        # AS add_equipment ON eq.idapp = add_equipment.nagoodsequipment_id
-        # """
-
         query_string = """
         CREATE TEMPORARY TABLE IF NOT EXISTS T_Outwards_GA ENGINE=InnoDB AS(
-        SELECT ngo.idapp, ngo.typeapp, ngo.isnew, ngo.daterequest,
-        ngo.datereleased, ngo.lastinfo, ngo.descriptions, g.goodsname,
+        SELECT ngo.idapp, ngo.isnew, ngo.daterequest,
+        ngo.datereleased, ngo.lastinfo, g.goodsname,
+        ngr.brand, ngr.typeapp, ngr.invoice_no, ngh.reg_no,
         emp1.employee_name, emp2.employee_name AS used_employee,
         emp3.employee_name AS resp_employee, emp4.employee_name AS sender,
-        eq.nameapp AS equipment
+        eq.equipment, add_eq.add_equipment, ngo.createddate, ngo.createdby,
+        ngo.descriptions
         FROM n_a_ga_outwards AS ngo
-        LEFT OUTER JOIN
+        INNER JOIN
         (SELECT idapp, goodsname FROM n_a_goods) AS g ON ngo.fk_goods = g.idapp
+        INNER JOIN n_a_ga_receive AS ngr ON ngo.fk_receive = ngr.idapp
+        INNER JOIN n_a_ga_vn_history ngh ON ngo.fk_app = ngh.idapp
         LEFT OUTER JOIN
         (SELECT idapp, employee_name FROM employee) AS emp1
         ON ngo.fk_employee = emp1.idapp
@@ -44,6 +35,20 @@ class NABRGoodsOutwardsGA(models.Manager):
         LEFT OUTER JOIN
         (SELECT idapp, employee_name FROM employee) AS emp4
         ON ngo.fk_sender = emp4.idapp
+        LEFT OUTER JOIN (
+            SELECT GROUP_CONCAT(na_eq.nameapp SEPARATOR ', ') as equipment, eq.nagaoutwards_id
+            FROM n_a_equipment AS na_eq INNER JOIN n_a_ga_outwards_equipment
+            AS eq ON na_eq.idapp = eq.nagoodsequipment_id 
+            GROUP BY eq.nagaoutwards_id
+        ) AS eq
+        ON ngo.idapp = eq.nagaoutwards_id
+        LEFT OUTER JOIN (
+            SELECT GROUP_CONCAT(na_eq.nameapp SEPARATOR ', ') as add_equipment, eq.nagaoutwards_id
+            FROM n_a_equipment AS na_eq INNER JOIN n_a_ga_outwards_add_equipment
+            AS eq ON na_eq.idapp = eq.nagoodsequipment_id 
+            GROUP BY eq.nagaoutwards_id
+        ) AS add_eq
+        ON ngo.idapp = add_eq.nagaoutwards_id
          """ + ")"
 
         cur.execute(query_string)

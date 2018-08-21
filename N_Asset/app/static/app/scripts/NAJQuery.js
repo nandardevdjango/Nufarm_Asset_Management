@@ -34,19 +34,15 @@ NA$.Input = {
             );
         }
 
-        function checkInView(elem,partial) {
+        function checkInView(elem) {
             var container = NA$(dropdown_item);
             var contHeight = container.height();
-            var contTop = container.scrollTop();
-            var contBottom = contTop + contHeight ;
-        
+            
             var elemTop = NA$(elem).offset().top - container.offset().top;
             var elemBottom = elemTop + NA$(elem).height();
             
-            var isTotal = (elemTop >= 0 && elemBottom <=contHeight);
-            var isPart = ((elemTop < 0 && elemBottom > 0 ) || (elemTop > 0 && elemTop <= container.height())) && partial ;
-            
-            return  isTotal  || isPart ;
+            var isTotal = (elemTop >= 0 && elemBottom <=contHeight);            
+            return  isTotal;
         }
 
         function SelectItem (event) { 
@@ -110,40 +106,14 @@ NA$.Input = {
                 event.stopPropagation();
             },
             keyup: function (event) {
-                // TODO: Create auto scroll when arrowup or arrowdown pressed
-                if (event.keyCode == 40 || event.key == 'ArrowDown') {
-                    var data_id = NA$(dropdown_item + ' .item-hover').data('id');
-                    var next_item = NA$(dropdown_item).children('.item-hover')
-                        .nextAll('li#' + item_choice_visible + ':not([data-selected="true"])')
-                        .first();
-                    if (next_item.length) {
-                        next_item.addClass('item-hover');
-                    } else {
-                        NA$(dropdown_item + ' li#' + item_choice_visible +
-                            ':not([data-selected="true"])')
-                            .first().addClass('item-hover');
-                    }
-                    
-                    NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
-                    //NA$(dropdown_item).animate({ scrollTop: 0 }, "fast");
-                    console.log(checkInView(next_item, false));
-                } else if (event.keyCode == 38 || event.key == 'ArrowUp') {
-                    var data_id = NA$(dropdown_item + ' .item-hover').data('id');
-                    var prev_item = NA$(dropdown_item + ' .item-hover')
-                        .prevAll('li#' + item_choice_visible + ':not([data-selected="true"])')
-                        .first();
-                    if (prev_item.length) {
-                        prev_item.addClass('item-hover');
-                    } else {
-                        NA$(dropdown_item + ' li#' + item_choice_visible +
-                            ':not([data-selected="true"])')
-                            .last().addClass('item-hover');
-                    }
-                    
-                    NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
-                    //NA$(dropdown_item).animate({ scrollTop: NA$(dropdown_item).height() }, "fast");
-                } else {
+                if (event.keyCode != 40 && event.keyCode != 38 && event.keyCode != 13) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
                     var q = this.value;
+                    if (q.match('\\\\')) { 
+                        q = '\\\\';
+                    }
                     var pattern = new RegExp(q, 'i');
 
                     var item_match = NA$(dropdown_item + ' li#' + item_choice).filter(function (index) {
@@ -163,24 +133,82 @@ NA$.Input = {
                     NA$(dropdown_item).children('li#' + item_choice_visible +
                         ':not([data-selected="true"])').first()
                         .addClass('item-hover').nextAll().removeClass('item-hover');
+                    return false;
                 }
             },
             keydown: function (event) {
-                if (event.keyCode == 13) {
+                if (event.keyCode == 40 || event.keyCode == 38 || event.keyCode == 13) {
                     event.preventDefault();
                     event.stopPropagation();
-                    if (NA$(dropdown_item).children('li.item-hover#' + item_choice_visible).length) {
-                        NA$(dropdown_item + ' li.item-hover').click();
-                    } else { 
-                        return false;
+                    event.stopImmediatePropagation();
+                    var bottom_dropdown = NA$(dropdown_item).height();
+                    if (event.keyCode == 40 || event.key == 'ArrowDown') {
+                        var data_id = NA$(dropdown_item + ' .item-hover').data('id');
+                        var next_item = NA$(dropdown_item).children('.item-hover')
+                            .nextAll('li#' + item_choice_visible + ':not([data-selected="true"])')
+                            .first();
+                        if (next_item.length) {
+                            next_item.addClass('item-hover');
+                            if (!checkInView(next_item)) {
+                                NA$(dropdown_item).animate({
+                                    scrollTop: bottom_dropdown - next_item.height()
+                                }, "fast");
+                            }
+                        } else {
+                            NA$(dropdown_item + ' li#' + item_choice_visible +
+                                ':not([data-selected="true"])')
+                                .first().addClass('item-hover');
+                            
+                            NA$(dropdown_item).animate({ scrollTop: 0 }, "fast");
+                        }
+                        
+                        NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
+                    } else if (event.keyCode == 38 || event.key == 'ArrowUp') {
+                        var data_id = NA$(dropdown_item + ' .item-hover').data('id');
+                        var prev_item = NA$(dropdown_item + ' .item-hover')
+                            .prevAll('li#' + item_choice_visible + ':not([data-selected="true"])')
+                            .first();
+                        if (prev_item.length) {
+                            prev_item.addClass('item-hover');
+                            if (prev_item.prev().length) {
+                                if (!checkInView(prev_item.prev())) {
+                                    NA$(dropdown_item).animate({
+                                        scrollTop: prev_item.height()
+                                    }, "fast");
+                                }
+                            } else {
+                                NA$(dropdown_item).animate({
+                                    scrollTop: 0
+                                }, "fast");
+                            }
+                            
+                        } else {
+                            NA$(dropdown_item + ' li#' + item_choice_visible +
+                                ':not([data-selected="true"])')
+                                .last().addClass('item-hover');
+                            
+                            NA$(dropdown_item).animate({
+                                scrollTop: bottom_dropdown
+                            }, "fast");
+                        }
+                        
+                        NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
                     }
-                    
-                    NA$(dropdown_item + ' li#' + item_choice).removeClass('item-hover')
-                        .first().addClass('item-hover');
-                    setTimeout(function () {
-                        NA$(container_input).click();
-                    }, 180);
-                    
+                    else if (event.keyCode == 13) {
+                        
+                        if (NA$(dropdown_item).children('li.item-hover#' + item_choice_visible).length) {
+                            NA$(dropdown_item + ' li.item-hover').click();
+                        } else { 
+                            return false;
+                        }
+                        
+                        NA$(dropdown_item + ' li#' + item_choice).removeClass('item-hover')
+                            .first().addClass('item-hover');
+                        setTimeout(function () {
+                            NA$(container_input).click();
+                        }, 180);
+                    }
+                    return false;
                 }
             }
         });
@@ -363,7 +391,6 @@ NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (eve
             
             if (NA$(this).hasClass('dropup')) { 
                 $ul[0].dataset.reversed = true;
-                console.log('this has dropup');
                 $ul.children().last().children('input').css({
                     'borderTop': '',
                     'borderBottom': '0'
