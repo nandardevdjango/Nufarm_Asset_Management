@@ -118,7 +118,7 @@ class NA_GoodsReceiveModel(NA_BaseModel):
     )
     descbysystem = models.CharField(
         db_column='DescBySystem',
-        max_length=250,
+        max_length=500,
         blank=True,
         null=True
     )

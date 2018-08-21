@@ -11,46 +11,15 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table na_m_s.auth_group
-CREATE TABLE IF NOT EXISTS `auth_group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(80) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.auth_group: ~0 rows (approximately)
 DELETE FROM `auth_group`;
 /*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
 /*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.auth_group_permissions
-CREATE TABLE IF NOT EXISTS `auth_group_permissions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `group_id` int(11) NOT NULL,
-  `permission_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `auth_group_permissions_group_id_permission_id_0cd325b0_uniq` (`group_id`,`permission_id`),
-  KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
-  CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
-  CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.auth_group_permissions: ~0 rows (approximately)
 DELETE FROM `auth_group_permissions`;
 /*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.auth_permission
-CREATE TABLE IF NOT EXISTS `auth_permission` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `content_type_id` int(11) NOT NULL,
-  `codename` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
-  CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.auth_permission: ~102 rows (approximately)
 DELETE FROM `auth_permission`;
@@ -160,38 +129,12 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 	(102, 'Can delete session', 34, 'delete_session');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.django_admin_log
-CREATE TABLE IF NOT EXISTS `django_admin_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `action_time` datetime(6) NOT NULL,
-  `object_id` longtext DEFAULT NULL,
-  `object_repr` varchar(200) NOT NULL,
-  `action_flag` smallint(5) unsigned NOT NULL,
-  `change_message` longtext NOT NULL,
-  `content_type_id` int(11) DEFAULT NULL,
-  `user_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `django_admin_log_content_type_id_c4bce8eb_fk_django_co` (`content_type_id`),
-  KEY `django_admin_log_user_id_c564eba6_fk_N_A_Priviledge_IDApp` (`user_id`),
-  CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
-  CONSTRAINT `django_admin_log_user_id_c564eba6_fk_N_A_Priviledge_IDApp` FOREIGN KEY (`user_id`) REFERENCES `n_a_priviledge` (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.django_admin_log: ~1 rows (approximately)
 DELETE FROM `django_admin_log`;
 /*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
 INSERT INTO `django_admin_log` (`id`, `action_time`, `object_id`, `object_repr`, `action_flag`, `change_message`, `content_type_id`, `user_id`) VALUES
 	(1, '2018-07-29 18:42:49.836000', '8', 'Fix Asset Form', 1, '[{"added": {}}]', 25, 1);
 /*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.django_content_type
-CREATE TABLE IF NOT EXISTS `django_content_type` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_label` varchar(100) NOT NULL,
-  `model` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.django_content_type: ~34 rows (approximately)
 DELETE FROM `django_content_type`;
@@ -232,15 +175,6 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 	(5, 'social_django', 'partial'),
 	(4, 'social_django', 'usersocialauth');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.django_migrations
-CREATE TABLE IF NOT EXISTS `django_migrations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `applied` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.django_migrations: ~37 rows (approximately)
 DELETE FROM `django_migrations`;
@@ -285,15 +219,6 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 	(37, 'NA_Models', '0002_naaccfa_is_parent', '2018-07-25 14:44:44.867695');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.django_session
-CREATE TABLE IF NOT EXISTS `django_session` (
-  `session_key` varchar(40) NOT NULL,
-  `session_data` longtext NOT NULL,
-  `expire_date` datetime(6) NOT NULL,
-  PRIMARY KEY (`session_key`),
-  KEY `django_session_expire_date_a5c62663` (`expire_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.django_session: ~7 rows (approximately)
 DELETE FROM `django_session`;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
@@ -307,42 +232,22 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 	('wo4rqimlfz8wr2uxw8v9q4uq36vl0w32', 'N2I1OWUyMThhNzJhN2I3ZDMzZWRjYTYyZGU3NWYxZjEzYzZmODc2Nzp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiIwYWM3YTJmMGFmNjMwNDg4MGIzNDVlYmExMDYwNTY1NmJkOWRiNzQyIn0=', '2018-08-12 19:48:15.585000');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.employee
-CREATE TABLE IF NOT EXISTS `employee` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `InActive` smallint(5) unsigned NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `NIK` varchar(50) NOT NULL,
-  `Employee_Name` varchar(150) DEFAULT NULL,
-  `JobType` varchar(150) DEFAULT NULL,
-  `Gender` varchar(1) NOT NULL,
-  `Status` varchar(1) NOT NULL,
-  `TelpHP` varchar(20) DEFAULT NULL,
-  `Territory` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table na_m_s.employee: ~0 rows (approximately)
+-- Dumping data for table na_m_s.employee: ~9 rows (approximately)
 DELETE FROM `employee`;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
+INSERT INTO `employee` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `TypeApp`, `InActive`, `Descriptions`, `NIK`, `Employee_Name`, `JobType`, `Gender`, `Status`, `TelpHP`, `Territory`) VALUES
+	(1, '2018-08-20 16:45:37.409544', 'rimba88', NULL, NULL, 'P', 0, 'Nufarm IT Manager', '2011131', 'Tandry Adrian Hartanto', 'IT Bussines Developmen Manager', 'M', 'M', '0818925270', 'JAKARTA'),
+	(2, '2018-08-20 16:49:27.557851', 'rimba88', '2018-08-20 17:28:46.990922', 'rimba88', 'P', 0, 'Pak suroto asalnya Office Boy menggantikan Ridho', 'C020', 'Suroto', 'RECEPTIONIST', 'M', 'M', '087808451709', 'JAKARTA'),
+	(3, '2018-08-20 16:56:03.069993', 'rimba88', NULL, NULL, 'P', 0, 'Luther Juan pengganti Muhammad Syahwil', '2017457', 'Luther Juan Sanda', 'Purchasing Executif', 'M', 'S', '08992474947', 'JAKARTA'),
+	(4, '2018-08-20 17:09:48.969665', 'rimba88', '2018-08-20 17:28:41.245768', 'rimba88', 'P', 0, 'pak iman naik jabatan sekarang jafi GA Supervisor menggantikan Tri Wahyudi', '20050201', 'Iman Utomo', 'GA Supervisor', 'M', 'M', '085693330550', 'JAKARTA'),
+	(5, '2018-08-20 17:18:33.601710', 'rimba88', NULL, NULL, 'P', 0, 'Wahyu bima karyawan menggantikan posisi surya sofianto', '2016367', 'R. Wahyoe Bima D.K', 'Purchasing Executif', 'M', 'M', '082123326963', 'JAKARTA'),
+	(6, '2018-08-20 17:24:45.145917', 'rimba88', '2018-08-20 17:28:33.328118', 'rimba88', 'P', 0, 'SENIOR IT NUFARM', '990642', 'Indradjaja Tjandra Poernama', 'IT SUPERVISOR', 'M', 'M', '08129239707', 'JAKARTA'),
+	(7, '2018-08-20 17:27:55.332142', 'rimba88', '2018-08-20 17:28:29.206281', 'rimba88', 'P', 0, 'Nandar memulai karir di nufarm sebagai programmer di bagian sales retailer dan distributor', '201311', 'Kusnandar', 'IT PROGRAMMER', 'M', 'M', '08118855107', 'JAKARTA'),
+	(8, '2018-08-20 18:29:16.104895', 'rimba88', NULL, NULL, 'P', 0, 'Sudah keluar di ganti sama Luther Juan', 'F212014512', 'Junaid syahwil', 'PURCHASING EXECUTIVE', 'M', 'M', '083876640037', 'JAKARTA'),
+	(9, '2018-08-20 18:48:14.723854', 'rimba88', NULL, NULL, 'P', 0, 'Sidik sebelumnya menjabat sebagai IT technical support, mula tahun 2016 berpindah ke divisi marketing sebagai marketing digital', '20040903', 'SIDIK HARTADI', 'MARKETING DIGITAL', 'M', 'M', '08118855106', 'JAKARTA');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.logevent
-CREATE TABLE IF NOT EXISTS `logevent` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `NameApp` varchar(30) NOT NULL,
-  `descriptions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  PRIMARY KEY (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table na_m_s.logevent: ~12 rows (approximately)
+-- Dumping data for table na_m_s.logevent: ~14 rows (approximately)
 DELETE FROM `logevent`;
 /*!40000 ALTER TABLE `logevent` DISABLE KEYS */;
 INSERT INTO `logevent` (`IDApp`, `CreatedDate`, `CreatedBy`, `NameApp`, `descriptions`) VALUES
@@ -362,256 +267,47 @@ INSERT INTO `logevent` (`IDApp`, `CreatedDate`, `CreatedBy`, `NameApp`, `descrip
 	(14, '2018-08-16 18:16:15.616851', 'rimba88', 'Deleted Goods', '{"deleted": ["GA_003", "HP High End", "SAMSUNG", "0.0000", "SL", "Unit", "5.00", "Gudang IT", "untuk HP yang mempunyai nila tinggi di masukan dalam FA GA", 0, "16 August 2018 00:00:00", "rimba88", null, null]}');
 /*!40000 ALTER TABLE `logevent` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_acc_fa
-CREATE TABLE IF NOT EXISTS `n_a_acc_fa` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `SerialNumber` varchar(50) NOT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `Year` decimal(10,2) NOT NULL,
-  `StartDate` date NOT NULL,
-  `Depr_Expense` decimal(30,4) DEFAULT NULL,
-  `Depr_Accumulation` decimal(30,4) DEFAULT NULL,
-  `BookValue` decimal(30,4) DEFAULT NULL,
-  `LastUpdated` datetime(6) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `DateDepreciation` date DEFAULT NULL,
-  `IsParent` smallint(5) unsigned NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_acc_fa_FK_Goods_33d15428` (`FK_Goods`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_acc_fa: ~0 rows (approximately)
 DELETE FROM `n_a_acc_fa`;
 /*!40000 ALTER TABLE `n_a_acc_fa` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_acc_fa` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_appparams
-CREATE TABLE IF NOT EXISTS `n_a_appparams` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CodeApp` varchar(64) NOT NULL,
-  `NameApp` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(64) DEFAULT NULL,
-  `StartDate` date DEFAULT NULL,
-  `EndDate` date DEFAULT NULL,
-  `ValueChar` varchar(50) DEFAULT NULL,
-  `FKIDApp` smallint(6) DEFAULT NULL,
-  `FKCodeApp` varchar(64) DEFAULT NULL,
-  `AttStrParams` varchar(20) DEFAULT NULL,
-  `AttDecParams` decimal(10,3) DEFAULT NULL,
-  `ValueStrParams` varchar(50) DEFAULT NULL,
-  `ValueDecParams` decimal(10,3) DEFAULT NULL,
-  `InActive` int(11) NOT NULL,
-  `CreatedDate` datetime(6) DEFAULT NULL,
-  `CreatedBy` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  UNIQUE KEY `n_a_appparams_IDApp_CodeApp_98a14be1_uniq` (`IDApp`,`CodeApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_appparams: ~0 rows (approximately)
 DELETE FROM `n_a_appparams`;
 /*!40000 ALTER TABLE `n_a_appparams` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_appparams` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_disposal
-CREATE TABLE IF NOT EXISTS `n_a_disposal` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime DEFAULT NULL,
-  `ModifiedBy` varchar(50) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `DateDisposal` date NOT NULL,
-  `IsLost` tinyint(1) DEFAULT NULL,
-  `IsSold` smallint(5) unsigned DEFAULT NULL,
-  `SellingPrice` decimal(10,4) DEFAULT NULL,
-  `Sold_To` char(1) DEFAULT NULL,
-  `FK_Sold_To_Employee` int(11) DEFAULT NULL COMMENT 'di jual ke karyawan mana kalau ke orang lain isinya dbnull',
-  `Sold_To_P_Other` varchar(120) DEFAULT NULL COMMENT 'di jual ke siapa bila bukan karyaawan, ke perusahaan atau perorangan',
-  `FK_ProposedBy` int(11) DEFAULT NULL COMMENT 'Diajukan/Penanggung jawab',
-  `FK_Acc_FA` int(11) DEFAULT NULL,
-  `FK_Stock` int(11) DEFAULT NULL,
-  `BookValue` decimal(10,4) NOT NULL,
-  `FK_Usedemployee` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Maintenance` int(11) DEFAULT NULL,
-  `FK_Lending` int(11) DEFAULT NULL,
-  `FK_Outwards` int(11) DEFAULT NULL,
-  `FK_Return` int(11) DEFAULT NULL,
-  `FK_Lost` int(11) DEFAULT NULL,
-  `FK_Acknowledge1` int(11) DEFAULT NULL COMMENT 'Diketahui sama siapa',
-  `FK_Acknowledge2` int(11) DEFAULT NULL COMMENT 'Diketahui sama siapa',
-  `FK_ApprovedBy` int(11) DEFAULT NULL COMMENT 'Di setujui sama siapa',
-  `Descriptions` varchar(250) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_disposal_FK_Goods_cf1b33f3` (`FK_Goods`),
-  KEY `n_a_disposal_FK_Maintenance_121b5af1` (`FK_Maintenance`),
-  KEY `n_a_disposal_FK_Acc_FA_40cc05a8` (`FK_Acc_FA`),
-  KEY `n_a_disposal_FK_Stock_12c9c730` (`FK_Stock`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_disposal: ~0 rows (approximately)
 DELETE FROM `n_a_disposal`;
 /*!40000 ALTER TABLE `n_a_disposal` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_disposal` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_ga_outwards
-CREATE TABLE IF NOT EXISTS `n_a_ga_outwards` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `IsNew` tinyint(1) NOT NULL,
-  `DateRequest` datetime(6) NOT NULL,
-  `DateReleased` datetime(6) NOT NULL,
-  `lastinfo` varchar(150) DEFAULT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `Equipment` varchar(200) DEFAULT NULL,
-  `Add_Equipment` varchar(200) DEFAULT NULL,
-  `fk_app` int(11) NOT NULL,
-  `FK_Employee` int(11) NOT NULL,
-  `FK_FromMaintenance` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Receive` int(11) DEFAULT NULL,
-  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
-  `FK_Return` int(11) DEFAULT NULL,
-  `FK_Sender` int(11) DEFAULT NULL,
-  `FK_Stock` int(11) DEFAULT NULL,
-  `FK_UsedEmployee` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_ga_outwards_fk_app_4077b959` (`fk_app`),
-  KEY `n_a_ga_outwards_FK_Employee_0da7476b` (`FK_Employee`),
-  KEY `n_a_ga_outwards_FK_FromMaintenance_2693f00b` (`FK_FromMaintenance`),
-  KEY `n_a_ga_outwards_FK_Goods_f16c0690` (`FK_Goods`),
-  KEY `n_a_ga_outwards_FK_Receive_3639c96c` (`FK_Receive`),
-  KEY `n_a_ga_outwards_FK_ResponsiblePerson_56377345` (`FK_ResponsiblePerson`),
-  KEY `n_a_ga_outwards_FK_Return_2e0ad370` (`FK_Return`),
-  KEY `n_a_ga_outwards_FK_Sender_60cd0d89` (`FK_Sender`),
-  KEY `n_a_ga_outwards_FK_Stock_f0370f3a` (`FK_Stock`),
-  KEY `n_a_ga_outwards_FK_UsedEmployee_42a485ea` (`FK_UsedEmployee`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- Dumping data for table na_m_s.n_a_ga_maintenance: ~0 rows (approximately)
+DELETE FROM `n_a_ga_maintenance`;
+/*!40000 ALTER TABLE `n_a_ga_maintenance` DISABLE KEYS */;
+/*!40000 ALTER TABLE `n_a_ga_maintenance` ENABLE KEYS */;
 
 -- Dumping data for table na_m_s.n_a_ga_outwards: ~0 rows (approximately)
 DELETE FROM `n_a_ga_outwards`;
 /*!40000 ALTER TABLE `n_a_ga_outwards` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_ga_outwards` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_ga_receive
-CREATE TABLE IF NOT EXISTS `n_a_ga_receive` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `DateReceived` datetime(6) NOT NULL,
-  `Brand` varchar(100) NOT NULL,
-  `Invoice_No` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(64) DEFAULT NULL,
-  `Machine_No` varchar(50) NOT NULL,
-  `Chassis_No` varchar(50) NOT NULL,
-  `Year_Made` date NOT NULL,
-  `colour` varchar(20) NOT NULL,
-  `Model` varchar(100) DEFAULT NULL,
-  `Kind` varchar(30) DEFAULT NULL,
-  `Cylinder` varchar(20) DEFAULT NULL,
-  `Fuel` varchar(20) DEFAULT NULL,
-  `Descriptions` varchar(200) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_P_R_By` int(11) DEFAULT NULL,
-  `FK_ReceivedBy` int(11) NOT NULL,
-  `FK_Suplier` varchar(30) NOT NULL,
-  `Price` decimal(30,4) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  UNIQUE KEY `Machine_No` (`Machine_No`),
-  KEY `na_ga_receive_FK_Goods_ea3fe5b7` (`FK_Goods`),
-  KEY `na_ga_receive_FK_P_R_By_0309c1e4` (`FK_P_R_By`),
-  KEY `na_ga_receive_FK_ReceivedBy_826d3802` (`FK_ReceivedBy`),
-  KEY `na_ga_receive_FK_Suplier_a5d877fb` (`FK_Suplier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_ga_receive: ~0 rows (approximately)
 DELETE FROM `n_a_ga_receive`;
 /*!40000 ALTER TABLE `n_a_ga_receive` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_ga_receive` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_ga_return
-CREATE TABLE IF NOT EXISTS `n_a_ga_return` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `DateReturn` datetime(6) NOT NULL,
-  `Conditions` char(1) NOT NULL,
-  `IsCompleted` smallint(5) unsigned NOT NULL,
-  `MinusDesc` varchar(100) DEFAULT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `FK_FromEmployee` int(11) DEFAULT NULL,
-  `FK_GA_Outwards` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_UsedEmployee` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_ga_return_FK_FromEmployee_df523e5c_fk_employee_IDApp` (`FK_FromEmployee`),
-  KEY `n_a_ga_return_fk_ga_outwards_7ab80f54_fk_n_a_ga_outwards_IDApp` (`FK_GA_Outwards`),
-  KEY `n_a_ga_return_FK_Goods_83ba304b_fk_n_a_goods_IDApp` (`FK_Goods`),
-  KEY `n_a_ga_return_FK_UsedEmployee_77110b41_fk_employee_IDApp` (`FK_UsedEmployee`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_ga_return: ~0 rows (approximately)
 DELETE FROM `n_a_ga_return`;
 /*!40000 ALTER TABLE `n_a_ga_return` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_ga_return` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_ga_vn_history
-CREATE TABLE IF NOT EXISTS `n_a_ga_vn_history` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `Reg_No` varchar(50) NOT NULL,
-  `FK_App` int(11) NOT NULL,
-  `Expired_Reg` date NOT NULL,
-  `Date_Reg` date DEFAULT NULL,
-  `BPKP_Expired` date NOT NULL,
-  `Descriptions` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  UNIQUE KEY `Reg_No` (`Reg_No`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_ga_vn_history: ~0 rows (approximately)
 DELETE FROM `n_a_ga_vn_history`;
 /*!40000 ALTER TABLE `n_a_ga_vn_history` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_ga_vn_history` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_goods
-CREATE TABLE IF NOT EXISTS `n_a_goods` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `InActive` smallint(5) unsigned NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `ItemCode` varchar(30) NOT NULL,
-  `GoodsName` varchar(150) NOT NULL,
-  `BrandName` varchar(100) DEFAULT NULL,
-  `PricePerUnit` decimal(30,4) NOT NULL,
-  `DepreciationMethod` varchar(3) NOT NULL,
-  `Unit` varchar(30) NOT NULL,
-  `EconomicLife` decimal(10,2) NOT NULL,
-  `Placement` varchar(50) DEFAULT NULL,
-  `typeapp` varchar(32) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table na_m_s.n_a_goods: ~9 rows (approximately)
+-- Dumping data for table na_m_s.n_a_goods: ~26 rows (approximately)
 DELETE FROM `n_a_goods`;
 /*!40000 ALTER TABLE `n_a_goods` DISABLE KEYS */;
 INSERT INTO `n_a_goods` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `InActive`, `Descriptions`, `ItemCode`, `GoodsName`, `BrandName`, `PricePerUnit`, `DepreciationMethod`, `Unit`, `EconomicLife`, `Placement`, `typeapp`) VALUES
@@ -643,323 +339,61 @@ INSERT INTO `n_a_goods` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `M
 	(28, '2018-08-16 00:00:00.000000', 'rimba88', NULL, NULL, 0, '', 'IT-016', 'FAX', 'CANON', 0.0000, 'SL', 'Unit', 5.00, 'Gudang IT', 'IT');
 /*!40000 ALTER TABLE `n_a_goods` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_goods_history
-CREATE TABLE IF NOT EXISTS `n_a_goods_history` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `FK_Disposal` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Lending` int(11) DEFAULT NULL,
-  `FK_Lost` int(11) DEFAULT NULL,
-  `FK_Maintenance` int(11) DEFAULT NULL,
-  `FK_Outwards` int(11) DEFAULT NULL,
-  `FK_Return` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_history_FK_Disposal_be00d0e5` (`FK_Disposal`),
-  KEY `n_a_goods_history_FK_Goods_80352120` (`FK_Goods`),
-  KEY `n_a_goods_history_FK_Lending_d51d8c56` (`FK_Lending`),
-  KEY `n_a_goods_history_FK_Lost_93f237b1` (`FK_Lost`),
-  KEY `n_a_goods_history_FK_Maintenance_d088f2bf` (`FK_Maintenance`),
-  KEY `n_a_goods_history_FK_Outwards_cc041cd2` (`FK_Outwards`),
-  KEY `n_a_goods_history_FK_Return_2dc8ca11` (`FK_Return`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_goods_history: ~0 rows (approximately)
 DELETE FROM `n_a_goods_history`;
 /*!40000 ALTER TABLE `n_a_goods_history` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_history` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_goods_lending
-CREATE TABLE IF NOT EXISTS `n_a_goods_lending` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `IsNew` int(11) NOT NULL,
-  `DateLending` date DEFAULT NULL,
-  `DateReturn` datetime(6) DEFAULT NULL,
-  `interests` varchar(150) DEFAULT NULL,
-  `Status` varchar(10) DEFAULT NULL,
-  `lastinfo` varchar(150) DEFAULT NULL,
-  `Descriptions` varchar(200) DEFAULT NULL,
-  `FK_CurrentApp` int(11) DEFAULT NULL,
-  `FK_Employee` int(11) NOT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Maintenance` int(11) DEFAULT NULL,
-  `FK_Receive` int(11) DEFAULT NULL,
-  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
-  `FK_RETURN` int(11) DEFAULT NULL,
-  `FK_Sender` int(11) DEFAULT NULL,
-  `FK_Stock` int(11) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_lending_FK_CurrentApp_cf8c1075` (`FK_CurrentApp`),
-  KEY `n_a_goods_lending_FK_Employee_5672e138` (`FK_Employee`),
-  KEY `n_a_goods_lending_FK_Goods_87b3dd65` (`FK_Goods`),
-  KEY `n_a_goods_lending_FK_Maintenance_2b617461` (`FK_Maintenance`),
-  KEY `n_a_goods_lending_FK_Receive_fddbc65e` (`FK_Receive`),
-  KEY `n_a_goods_lending_FK_ResponsiblePerson_39f17dad` (`FK_ResponsiblePerson`),
-  KEY `n_a_goods_lending_FK_RETURN_6aa8be52` (`FK_RETURN`),
-  KEY `n_a_goods_lending_FK_Sender_036a0f94` (`FK_Sender`),
-  KEY `n_a_goods_lending_FK_Stock_1394e31c` (`FK_Stock`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_goods_lending: ~0 rows (approximately)
 DELETE FROM `n_a_goods_lending`;
 /*!40000 ALTER TABLE `n_a_goods_lending` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_lending` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_goods_lost
-CREATE TABLE IF NOT EXISTS `n_a_goods_lost` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `DateLost` datetime(6) NOT NULL,
-  `FromGoods` varchar(10) NOT NULL,
-  `Status` varchar(5) NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `Reason` varchar(250) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Goods_Lending` int(11) DEFAULT NULL,
-  `FK_Goods_Outwards` int(11) DEFAULT NULL,
-  `FK_LostBy` int(11) DEFAULT NULL,
-  `FK_Maintenance` int(11) DEFAULT NULL,
-  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
-  `FK_UsedBy` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_lost_FK_Goods_aba92f90` (`FK_Goods`),
-  KEY `n_a_goods_lost_FK_Goods_Lending_6b337643` (`FK_Goods_Lending`),
-  KEY `n_a_goods_lost_FK_Goods_Outwards_6acbc701` (`FK_Goods_Outwards`),
-  KEY `n_a_goods_lost_FK_LostBy_6bc2cae8` (`FK_LostBy`),
-  KEY `n_a_goods_lost_FK_Maintenance_282c0f2a` (`FK_Maintenance`),
-  KEY `n_a_goods_lost_FK_ResponsiblePerson_0768f0a8` (`FK_ResponsiblePerson`),
-  KEY `n_a_goods_lost_FK_UsedBy_610b0e23` (`FK_UsedBy`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_goods_lost: ~0 rows (approximately)
 DELETE FROM `n_a_goods_lost`;
 /*!40000 ALTER TABLE `n_a_goods_lost` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_lost` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_goods_outwards
-CREATE TABLE IF NOT EXISTS `n_a_goods_outwards` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `IsNew` tinyint(1) NOT NULL,
-  `DateRequest` datetime(6) NOT NULL,
-  `DateReleased` datetime(6) NOT NULL,
-  `lastinfo` varchar(150) DEFAULT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `FK_Employee` int(11) NOT NULL,
-  `FK_FromMaintenance` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Lending` int(11) DEFAULT NULL,
-  `FK_Receive` int(11) DEFAULT NULL,
-  `FK_ResponsiblePerson` int(11) DEFAULT NULL,
-  `FK_Return` int(11) DEFAULT NULL,
-  `FK_Sender` int(11) DEFAULT NULL,
-  `FK_Stock` int(11) DEFAULT NULL,
-  `FK_UsedEmployee` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_outwards_FK_Employee_51e71d5e` (`FK_Employee`),
-  KEY `n_a_goods_outwards_FK_FromMaintenance_98e98e30` (`FK_FromMaintenance`),
-  KEY `n_a_goods_outwards_FK_Goods_f99be397` (`FK_Goods`),
-  KEY `n_a_goods_outwards_FK_Lending_e9c36a17` (`FK_Lending`),
-  KEY `n_a_goods_outwards_FK_Receive_42ad46a3` (`FK_Receive`),
-  KEY `n_a_goods_outwards_FK_ResponsiblePerson_d1d69b26` (`FK_ResponsiblePerson`),
-  KEY `n_a_goods_outwards_FK_Return_cc0724e3` (`FK_Return`),
-  KEY `n_a_goods_outwards_FK_Sender_7cda2779` (`FK_Sender`),
-  KEY `n_a_goods_outwards_FK_Stock_d4374e2a` (`FK_Stock`),
-  KEY `n_a_goods_outwards_FK_UsedEmployee_eb2057f8` (`FK_UsedEmployee`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_goods_outwards: ~0 rows (approximately)
 DELETE FROM `n_a_goods_outwards`;
 /*!40000 ALTER TABLE `n_a_goods_outwards` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_outwards` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_goods_receive
-CREATE TABLE IF NOT EXISTS `n_a_goods_receive` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `DateReceived` datetime(6) NOT NULL,
-  `TotalPurchase` smallint(6) NOT NULL,
-  `TotalReceived` smallint(6) NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `DescBySystem` varchar(250) DEFAULT NULL,
-  `REFNO` varchar(50) NOT NULL,
-  `FK_Suplier` varchar(30) NOT NULL,
-  `fk_goods` int(11) NOT NULL,
-  `FK_P_R_By` int(11) DEFAULT NULL,
-  `FK_ReceivedBy` int(11) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_receive_FK_Suplier_27c38e4b` (`FK_Suplier`),
-  KEY `n_a_goods_receive_fk_goods_4d3aed25` (`fk_goods`),
-  KEY `n_a_goods_receive_FK_P_R_By_4e6fdf1f` (`FK_P_R_By`),
-  KEY `n_a_goods_receive_FK_ReceivedBy_42f8bb5d` (`FK_ReceivedBy`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_goods_receive: ~0 rows (approximately)
 DELETE FROM `n_a_goods_receive`;
 /*!40000 ALTER TABLE `n_a_goods_receive` DISABLE KEYS */;
+INSERT INTO `n_a_goods_receive` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `DateReceived`, `TotalPurchase`, `TotalReceived`, `Descriptions`, `DescBySystem`, `REFNO`, `FK_Suplier`, `fk_goods`, `FK_P_R_By`, `FK_ReceivedBy`) VALUES
+	(1, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, '2016-03-04 00:00:00.000000', 8, 8, 'Pembelian HP J5 tahap pertama untuk IT dan marketing, dan IConcept dan kepentingan FMS lainnya', '(SAMSUNG, Type : J5, SN : 357005072234246-357004072234249, SAMSUNG, Type : J5, SN : 357004071145081-357005071145088, SAMSUNG, Type : J5, SN : 357005071145054-357004071145057, SAMSUNG, Type : J5, SN : 357004071145024-357005071145021, SAMSUNG, Type : J5, SN : 357004071144027-357005071144024, SAMSUNG, Type : J5, SN : 357004072234249-357005072234246, SAMSUNG, Type : J5, SN : 357004071145115-357004071145115, SAMSUNG, Type : J5, SN : ICONCEPT)', '15/16-000128-01', 'ERA004IDR', 3, 8, 9);
 /*!40000 ALTER TABLE `n_a_goods_receive` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_goods_receive_detail
-CREATE TABLE IF NOT EXISTS `n_a_goods_receive_detail` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `BrandName` varchar(100) NOT NULL,
-  `PricePerUnit` decimal(30,4) NOT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `Warranty` decimal(6,2) NOT NULL,
-  `EndOfWarranty` datetime(6) DEFAULT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `FK_App` int(11) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_receive_detail_FK_App_dc14d9df` (`FK_App`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_goods_receive_detail: ~0 rows (approximately)
 DELETE FROM `n_a_goods_receive_detail`;
 /*!40000 ALTER TABLE `n_a_goods_receive_detail` DISABLE KEYS */;
+INSERT INTO `n_a_goods_receive_detail` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `BrandName`, `PricePerUnit`, `TypeApp`, `Warranty`, `EndOfWarranty`, `SerialNumber`, `FK_App`) VALUES
+	(1, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357005072234246-357004072234249', 1),
+	(2, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004071145081-357005071145088', 1),
+	(3, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357005071145054-357004071145057', 1),
+	(4, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004071145024-357005071145021', 1),
+	(5, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004071144027-357005071144024', 1),
+	(6, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004072234249-357005072234246', 1),
+	(7, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004071145115-357004071145115', 1),
+	(8, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', 'ICONCEPT', 1);
 /*!40000 ALTER TABLE `n_a_goods_receive_detail` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_goods_receive_other
-CREATE TABLE IF NOT EXISTS `n_a_goods_receive_other` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `DateReceived` datetime(6) NOT NULL,
-  `TotalPurchase` smallint(6) NOT NULL,
-  `TotalReceived` smallint(6) NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `DescBySystem` varchar(250) DEFAULT NULL,
-  `REFNO` varchar(50) NOT NULL,
-  `fk_goods` int(11) NOT NULL,
-  `FK_P_R_By` int(11) DEFAULT NULL,
-  `FK_ReceivedBy` int(11) NOT NULL,
-  `FK_Suplier` varchar(30) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_receive_other_fk_goods_5aac0bf5` (`fk_goods`),
-  KEY `n_a_goods_receive_other_FK_P_R_By_5cc1a1af` (`FK_P_R_By`),
-  KEY `n_a_goods_receive_other_FK_ReceivedBy_5e2fd3a8` (`FK_ReceivedBy`),
-  KEY `n_a_goods_receive_other_FK_Suplier_ffa95ef8` (`FK_Suplier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_goods_receive_other: ~0 rows (approximately)
 DELETE FROM `n_a_goods_receive_other`;
 /*!40000 ALTER TABLE `n_a_goods_receive_other` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_receive_other` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_goods_return
-CREATE TABLE IF NOT EXISTS `n_a_goods_return` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `DateReturn` datetime(6) NOT NULL,
-  `Conditions` varchar(1) NOT NULL,
-  `IsCompleted` smallint(5) unsigned NOT NULL,
-  `MinusDesc` varchar(100) DEFAULT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `FK_FromEmployee` int(11) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  `FK_Goods_Lend` int(11) DEFAULT NULL,
-  `FK_Goods_Outwards` int(11) DEFAULT NULL,
-  `FK_UsedEmployee` int(11) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_goods_return_FK_FromEmployee_1394a31e` (`FK_FromEmployee`),
-  KEY `n_a_goods_return_FK_Goods_84da38a6` (`FK_Goods`),
-  KEY `n_a_goods_return_FK_Goods_Lend_7d936056` (`FK_Goods_Lend`),
-  KEY `n_a_goods_return_FK_Goods_Outwards_ec9d9728` (`FK_Goods_Outwards`),
-  KEY `n_a_goods_return_FK_UsedEmployee_bf92cae7` (`FK_UsedEmployee`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_goods_return: ~0 rows (approximately)
 DELETE FROM `n_a_goods_return`;
 /*!40000 ALTER TABLE `n_a_goods_return` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_return` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_maintenance
-CREATE TABLE IF NOT EXISTS `n_a_maintenance` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `RequestDate` date DEFAULT NULL,
-  `StartDate` date NOT NULL,
-  `IsStillGuarantee` longtext NOT NULL,
-  `Expense` decimal(10,4) NOT NULL,
-  `MaintenanceBy` varchar(100) NOT NULL,
-  `PersonalName` varchar(100) DEFAULT NULL,
-  `EndDate` date DEFAULT NULL,
-  `TypeApp` varchar(32) NOT NULL,
-  `IsSucced` int(11) DEFAULT NULL,
-  `IsFinished` tinyint(1) NOT NULL,
-  `Descriptions` varchar(250) DEFAULT NULL,
-  `FK_Goods` int(11) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_maintenance_FK_Goods_605ee195` (`FK_Goods`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_maintenance: ~0 rows (approximately)
 DELETE FROM `n_a_maintenance`;
 /*!40000 ALTER TABLE `n_a_maintenance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_maintenance` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_priviledge
-CREATE TABLE IF NOT EXISTS `n_a_priviledge` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `first_name` varchar(20) NOT NULL,
-  `last_name` varchar(20) NOT NULL,
-  `UserName` varchar(250) NOT NULL,
-  `Email` varchar(254) NOT NULL,
-  `Divisi` varchar(5) NOT NULL,
-  `Password` varchar(128) NOT NULL,
-  `Picture` varchar(100) DEFAULT NULL,
-  `Last_login` datetime(6) DEFAULT NULL,
-  `Last_form` varchar(50) DEFAULT NULL,
-  `Computer_Name` varchar(50) NOT NULL,
-  `IP_Address` varchar(20) NOT NULL,
-  `Role` int(11) DEFAULT NULL,
-  `Is_SuperUser` tinyint(1) NOT NULL,
-  `Is_Staff` tinyint(1) NOT NULL,
-  `Is_Active` tinyint(1) NOT NULL,
-  `Date_Joined` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`IDApp`),
-  UNIQUE KEY `UserName` (`UserName`),
-  UNIQUE KEY `Email` (`Email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_priviledge: ~1 rows (approximately)
 DELETE FROM `n_a_priviledge`;
@@ -967,15 +401,6 @@ DELETE FROM `n_a_priviledge`;
 INSERT INTO `n_a_priviledge` (`IDApp`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `first_name`, `last_name`, `UserName`, `Email`, `Divisi`, `Password`, `Picture`, `Last_login`, `Last_form`, `Computer_Name`, `IP_Address`, `Role`, `Is_SuperUser`, `Is_Staff`, `Is_Active`, `Date_Joined`) VALUES
 	(1, '', NULL, NULL, '', '', 'rimba88', 'rimba@88spares.com', 'IT', 'pbkdf2_sha256$36000$vACo7Q3KBjS5$UOEFP68Os1qQVdFh5PlbOOC8WpFufG8MGnrtP/pXQKA=', 'dir_for_rimba88\\20180515_100310.jpg', '2018-08-14 19:13:18.553285', NULL, '', '', 1, 1, 0, 1, NULL);
 /*!40000 ALTER TABLE `n_a_priviledge` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_priviledge_form
-CREATE TABLE IF NOT EXISTS `n_a_priviledge_form` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `Form_id` varchar(20) NOT NULL,
-  `Form_name` varchar(30) NOT NULL,
-  `Form_name_ori` varchar(50) NOT NULL,
-  PRIMARY KEY (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_priviledge_form: ~6 rows (approximately)
 DELETE FROM `n_a_priviledge_form`;
@@ -989,86 +414,28 @@ INSERT INTO `n_a_priviledge_form` (`IDApp`, `Form_id`, `Form_name`, `Form_name_o
 	(8, '0001O', 'Fix Asset Form', 'n_a_acc_fa');
 /*!40000 ALTER TABLE `n_a_priviledge_form` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_priviledge_groups
-CREATE TABLE IF NOT EXISTS `n_a_priviledge_groups` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `napriviledge_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `N_A_Priviledge_groups_napriviledge_id_group_id_1fc422ce_uniq` (`napriviledge_id`,`group_id`),
-  KEY `N_A_Priviledge_groups_group_id_064198b1_fk_auth_group_id` (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_priviledge_groups: ~0 rows (approximately)
 DELETE FROM `n_a_priviledge_groups`;
 /*!40000 ALTER TABLE `n_a_priviledge_groups` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_priviledge_groups` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_priviledge_user_permissions
-CREATE TABLE IF NOT EXISTS `n_a_priviledge_user_permissions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `napriviledge_id` int(11) NOT NULL,
-  `permission_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `N_A_Priviledge_user_perm_napriviledge_id_permissi_f33eb8e5_uniq` (`napriviledge_id`,`permission_id`),
-  KEY `N_A_Priviledge_user__permission_id_ac512c4c_fk_auth_perm` (`permission_id`),
-  CONSTRAINT `N_A_Priviledge_user__napriviledge_id_d800ea12_fk_N_A_Privi` FOREIGN KEY (`napriviledge_id`) REFERENCES `n_a_priviledge` (`IDApp`),
-  CONSTRAINT `N_A_Priviledge_user__permission_id_ac512c4c_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_priviledge_user_permissions: ~0 rows (approximately)
 DELETE FROM `n_a_priviledge_user_permissions`;
 /*!40000 ALTER TABLE `n_a_priviledge_user_permissions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_priviledge_user_permissions` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_stock
-CREATE TABLE IF NOT EXISTS `n_a_stock` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `T_Goods_Spare` smallint(5) unsigned DEFAULT NULL COMMENT 'column ini untuk menampilkan spare barang yang ada untuk peminjaman saja, ',
-  `TotalQty` int(11) DEFAULT NULL,
-  `TIsUsed` int(11) DEFAULT NULL,
-  `TIsNew` smallint(6) DEFAULT NULL COMMENT 'hanya menampilkan total barang baru, data akan berkurang bila ada peminjaman atau pengeluaran',
-  `TIsRenew` smallint(6) DEFAULT NULL COMMENT 'menampilkan total barang yang di perbaiki dan berhasil di perbaiki saja',
-  `TIsBroken` int(11) DEFAULT NULL COMMENT 'column ini untuk menampilkan total barang rusak,di peroleh dari return atau sesudah maitenance (static)',
-  `TGoods_Return` smallint(6) DEFAULT NULL COMMENT 'menampilkan total barang di return saja',
-  `TGoods_Received` int(11) DEFAULT NULL,
-  `TDisposal` int(11) DEFAULT NULL COMMENT 'Menampilkan total barang yang sudah di jual/ di hapuskan assetnya',
-  `TIsLost` int(11) DEFAULT NULL COMMENT 'Menampikan barang yang hilang saja',
-  `TMaintenance` smallint(6) DEFAULT NULL COMMENT 'menampilkan total barang yang di perbaiki, masih di bengkel',
-  `FK_Goods` int(11) unsigned zerofill NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  KEY `n_a_stock_FK_Goods_33dba749` (`FK_Goods`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.n_a_stock: ~0 rows (approximately)
 DELETE FROM `n_a_stock`;
 /*!40000 ALTER TABLE `n_a_stock` DISABLE KEYS */;
+INSERT INTO `n_a_stock` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `T_Goods_Spare`, `TotalQty`, `TIsUsed`, `TIsNew`, `TIsRenew`, `TIsBroken`, `TGoods_Return`, `TGoods_Received`, `TDisposal`, `TIsLost`, `TMaintenance`, `FK_Goods`) VALUES
+	(1, '2018-08-21 17:04:53.000000', 'rimba88', NULL, NULL, 0, NULL, 0, 8, 0, NULL, 0, 8, NULL, NULL, 0, 00000000003);
 /*!40000 ALTER TABLE `n_a_stock` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.n_a_suplier
-CREATE TABLE IF NOT EXISTS `n_a_suplier` (
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `InActive` smallint(5) unsigned NOT NULL,
-  `SuplierCode` varchar(30) NOT NULL,
-  `SuplierName` varchar(100) DEFAULT NULL,
-  `Address` varchar(150) DEFAULT NULL,
-  `Telp` varchar(20) DEFAULT NULL,
-  `HP` varchar(20) DEFAULT NULL,
-  `ContactPerson` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`SuplierCode`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table na_m_s.n_a_suplier: ~6 rows (approximately)
+-- Dumping data for table na_m_s.n_a_suplier: ~7 rows (approximately)
 DELETE FROM `n_a_suplier`;
 /*!40000 ALTER TABLE `n_a_suplier` DISABLE KEYS */;
 INSERT INTO `n_a_suplier` (`CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `InActive`, `SuplierCode`, `SuplierName`, `Address`, `Telp`, `HP`, `ContactPerson`) VALUES
+	('2018-08-20 18:53:37.355965', 'rimba88', NULL, NULL, 0, 'ALD002IDR', 'ALDI JAYA', 'Mangga Dua Mall Lt. IV/A-106 jakarta 10730', '0216018430', '08888099312', 'Bambang'),
 	('2018-08-15 17:47:02.807019', 'rimba88', '2018-08-15 17:47:17.653669', 'rimba88', 1, 'AST002IDR', 'PT. ASTRA HONDA MOTOR', 'Jl. Laksda Yos Sudarso – Sunter I Jakarta 14350, Indonesia Tel. 0811-9-500-989', '021-7252000', '021-7252000', 'ASTRA'),
 	('2018-08-15 17:38:21.108955', 'rimba88', NULL, NULL, 0, 'AST007IDR', 'PT. ASTRA INTERNATIONAL TBK', 'Jl. Pangeran Jayakarta no 28', '021-65906060', '021-6522555', 'Eko'),
 	('2018-08-15 17:00:31.272246', 'rimba88', NULL, NULL, 0, 'CHA001IDR', 'CV CHA-CHA KARYA', 'JLn Sultan Agung Prokyek Pasar Rumput', '021-8033870', '081288725559', 'Rudi'),
@@ -1076,23 +443,6 @@ INSERT INTO `n_a_suplier` (`CreatedDate`, `CreatedBy`, `ModifiedDate`, `Modified
 	('2018-08-15 16:50:03.851840', 'rimba88', '2018-08-15 17:09:32.926966', 'rimba88', 1, 'MUL016IDR', 'CV MULTI SKINDO UTAMA', 'Jln Pangeran Jayakarta No .77 /GATEP, (NO.HP Customer belum di input di accpac)', '021-659030', '0216491264', 'Himawan Setiadi'),
 	('2018-08-15 17:21:44.850050', 'rimba88', NULL, NULL, 0, 'PAR002USD', 'PT PARANTA ANUGERAH PRIMA', 'Wisma CORMIC Delta Building Blok A 4-7 l. Suryopranoto No. 1-9 Jakarta - 10160 Indonesia (No HP belum ada di isi sementara pakai no telp)', '021-3501188', '021-3501555', 'Fermin Setiawan');
 /*!40000 ALTER TABLE `n_a_suplier` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.n_a_sys_priviledge
-CREATE TABLE IF NOT EXISTS `n_a_sys_priviledge` (
-  `IDApp` int(11) NOT NULL AUTO_INCREMENT,
-  `CreatedDate` datetime(6) NOT NULL,
-  `CreatedBy` varchar(100) NOT NULL,
-  `ModifiedDate` datetime(6) DEFAULT NULL,
-  `ModifiedBy` varchar(100) DEFAULT NULL,
-  `Permission` varchar(50) NOT NULL,
-  `InActive` int(11) DEFAULT NULL,
-  `FK_PForm` int(11) NOT NULL,
-  `User_id` int(11) NOT NULL,
-  PRIMARY KEY (`IDApp`),
-  UNIQUE KEY `N_A_Sys_Priviledge_FK_PForm_Permission_User_id_a02f6fa1_uniq` (`FK_PForm`,`Permission`,`User_id`),
-  KEY `N_A_Sys_Priviledge_FK_PForm_84e902b7` (`FK_PForm`),
-  KEY `N_A_Sys_Priviledge_User_id_6374718d` (`User_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.n_a_sys_priviledge: ~16 rows (approximately)
 DELETE FROM `n_a_sys_priviledge`;
@@ -1116,87 +466,25 @@ INSERT INTO `n_a_sys_priviledge` (`IDApp`, `CreatedDate`, `CreatedBy`, `Modified
 	(16, '2018-07-08 22:28:25.668736', '', NULL, NULL, 'Allow Delete', 0, 7, 1);
 /*!40000 ALTER TABLE `n_a_sys_priviledge` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.social_auth_association
-CREATE TABLE IF NOT EXISTS `social_auth_association` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `server_url` varchar(255) NOT NULL,
-  `handle` varchar(255) NOT NULL,
-  `secret` varchar(255) NOT NULL,
-  `issued` int(11) NOT NULL,
-  `lifetime` int(11) NOT NULL,
-  `assoc_type` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `social_auth_association_server_url_handle_078befa2_uniq` (`server_url`,`handle`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.social_auth_association: ~0 rows (approximately)
 DELETE FROM `social_auth_association`;
 /*!40000 ALTER TABLE `social_auth_association` DISABLE KEYS */;
 /*!40000 ALTER TABLE `social_auth_association` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.social_auth_code
-CREATE TABLE IF NOT EXISTS `social_auth_code` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(254) NOT NULL,
-  `code` varchar(32) NOT NULL,
-  `verified` tinyint(1) NOT NULL,
-  `timestamp` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `social_auth_code_email_code_801b2d02_uniq` (`email`,`code`),
-  KEY `social_auth_code_code_a2393167` (`code`),
-  KEY `social_auth_code_timestamp_176b341f` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.social_auth_code: ~0 rows (approximately)
 DELETE FROM `social_auth_code`;
 /*!40000 ALTER TABLE `social_auth_code` DISABLE KEYS */;
 /*!40000 ALTER TABLE `social_auth_code` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.social_auth_nonce
-CREATE TABLE IF NOT EXISTS `social_auth_nonce` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `server_url` varchar(255) NOT NULL,
-  `timestamp` int(11) NOT NULL,
-  `salt` varchar(65) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `social_auth_nonce_server_url_timestamp_salt_f6284463_uniq` (`server_url`,`timestamp`,`salt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.social_auth_nonce: ~0 rows (approximately)
 DELETE FROM `social_auth_nonce`;
 /*!40000 ALTER TABLE `social_auth_nonce` DISABLE KEYS */;
 /*!40000 ALTER TABLE `social_auth_nonce` ENABLE KEYS */;
 
--- Dumping structure for table na_m_s.social_auth_partial
-CREATE TABLE IF NOT EXISTS `social_auth_partial` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` varchar(32) NOT NULL,
-  `next_step` smallint(5) unsigned NOT NULL,
-  `backend` varchar(32) NOT NULL,
-  `data` longtext NOT NULL,
-  `timestamp` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `social_auth_partial_token_3017fea3` (`token`),
-  KEY `social_auth_partial_timestamp_50f2119f` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Dumping data for table na_m_s.social_auth_partial: ~0 rows (approximately)
 DELETE FROM `social_auth_partial`;
 /*!40000 ALTER TABLE `social_auth_partial` DISABLE KEYS */;
 /*!40000 ALTER TABLE `social_auth_partial` ENABLE KEYS */;
-
--- Dumping structure for table na_m_s.social_auth_usersocialauth
-CREATE TABLE IF NOT EXISTS `social_auth_usersocialauth` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `provider` varchar(32) NOT NULL,
-  `uid` varchar(255) NOT NULL,
-  `extra_data` longtext NOT NULL,
-  `user_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `social_auth_usersocialauth_provider_uid_e6b5e668_uniq` (`provider`,`uid`),
-  KEY `social_auth_usersoci_user_id_17d28448_fk_N_A_Privi` (`user_id`),
-  CONSTRAINT `social_auth_usersoci_user_id_17d28448_fk_N_A_Privi` FOREIGN KEY (`user_id`) REFERENCES `n_a_priviledge` (`IDApp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table na_m_s.social_auth_usersocialauth: ~0 rows (approximately)
 DELETE FROM `social_auth_usersocialauth`;
