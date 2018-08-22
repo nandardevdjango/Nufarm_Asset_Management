@@ -28,7 +28,7 @@ DEBUG = True
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*', ]
 
 
 # Application definition
@@ -145,6 +145,10 @@ USE_TZ = False
 
 DATETIME_FORMAT = [
     '%Y-%m-%d %H:%M:%S'
+]
+
+DATE_INPUT_FORMATS = [
+    '%d/%m/%Y'
 ]
 
 # Static files (CSS, JavaScript, Images)

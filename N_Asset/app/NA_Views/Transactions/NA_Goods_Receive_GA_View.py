@@ -272,10 +272,12 @@ class NA_Goods_Receive_GA_Form(forms.Form):
         if self.is_valid():
             receive = NAGaReceive()
             if self.cleaned_data.get('statusForm') == 'Edit':
-                receive = NAGaReceive.objects.get(idapp=self.cleaned_data.get('idapp'))
+                receive = NAGaReceive.objects.get(
+                    idapp=self.cleaned_data.get('idapp')
+                )
             receive.fk_goods = self.cleaned_data.get('fk_goods')
             receive.fk_receivedby = self.cleaned_data.get('received_by')
-            receive.fk_p_r_by = self.cleaned_data.get('p_r_by')
+            receive.fk_p_r_by = self.cleaned_data.get('pr_by')
             receive.fk_suplier = self.cleaned_data.get('supliercode')
             receive.brand = self.cleaned_data.get('brand')
             receive.datereceived = self.cleaned_data.get('datereceived')
@@ -300,8 +302,10 @@ class NA_Goods_Receive_GA_Form(forms.Form):
                 receive_history.fk_app = receive
                 receive_history.reg_no = self.cleaned_data.get('reg_no')
                 receive_history.date_reg = self.cleaned_data.get('date_reg')
-                receive_history.expired_reg = self.cleaned_data.get('expired_reg')
-                receive_history.bpkb_expired = self.cleaned_data.get('bpkb_expired')
+                receive_history.expired_reg = self.cleaned_data.get(
+                    'expired_reg')
+                receive_history.bpkb_expired = self.cleaned_data.get(
+                    'bpkb_expired')
                 receive_history.descriptions = self.cleaned_data.get('remark')
                 receive_history.createddate = datetime.now()
                 receive_history.createdby = request.user.username
@@ -384,3 +388,27 @@ def ShowCustomFilter(request):
     cols.append({'name': 'createdby', 'value': 'createdby',
                  'selected': '', 'dataType': 'varchar', 'text': 'Created By'})
     return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+
+
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def get_history_receive(request, idapp):
+    receive = NAGaReceive.objects.get(idapp=idapp)
+    data_row = []
+    no = 0
+    for row in receive.get_history():
+        no += 1
+        data_row.append({
+            'idapp': row['idapp'],
+            'no': no,
+            'reg_no': row['reg_no'],
+            'expired_reg': row['expired_reg'],
+            'bpkb_expired': row['bpkb_expired'],
+            'createddate': row['createddate'],
+            'createdby': row['createdby']
+        })
+    return HttpResponse(
+        json.dumps(data_row, cls=DjangoJSONEncoder),
+        content_type='application/json'
+    )

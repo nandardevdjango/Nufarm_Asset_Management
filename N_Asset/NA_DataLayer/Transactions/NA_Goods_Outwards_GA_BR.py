@@ -6,7 +6,7 @@ from NA_DataLayer.common import (CriteriaSearch, DataType, StatusForm,
 class NABRGoodsOutwardsGA(models.Manager):
 
     def populate_query(self, columnKey, ValueKey, criteria=CriteriaSearch.Like,
-                       typeofData=DataType.VarChar):
+                       typeofData=DataType.VarChar, sidx='idapp', sord='desc'):
         rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
         cur = connection.cursor()
         query_string = """
@@ -14,8 +14,8 @@ class NABRGoodsOutwardsGA(models.Manager):
         SELECT ngo.idapp, ngo.isnew, ngo.daterequest,
         ngo.datereleased, ngo.lastinfo, g.goodsname,
         ngr.brand, ngr.typeapp, ngr.invoice_no, ngh.reg_no,
-        emp1.employee_name, emp2.employee_name AS used_employee,
-        emp3.employee_name AS resp_employee, emp4.employee_name AS sender,
+        emp1.employee_name, emp2.used_employee,
+        emp3.resp_employee, emp4.sender,
         eq.equipment, add_eq.add_equipment, ngo.createddate, ngo.createdby,
         ngo.descriptions
         FROM n_a_ga_outwards AS ngo
@@ -27,13 +27,13 @@ class NABRGoodsOutwardsGA(models.Manager):
         (SELECT idapp, employee_name FROM employee) AS emp1
         ON ngo.fk_employee = emp1.idapp
         LEFT OUTER JOIN
-        (SELECT idapp, employee_name FROM employee) AS emp2
+        (SELECT idapp, employee_name AS used_employee FROM employee) AS emp2
         ON ngo.fk_usedemployee = emp2.idapp
         LEFT OUTER JOIN
-        (SELECT idapp, employee_name FROM employee) AS emp3
+        (SELECT idapp, employee_name AS resp_employee FROM employee) AS emp3
         ON ngo.fk_responsibleperson = emp3.idapp
         LEFT OUTER JOIN
-        (SELECT idapp, employee_name FROM employee) AS emp4
+        (SELECT idapp, employee_name AS sender FROM employee) AS emp4
         ON ngo.fk_sender = emp4.idapp
         LEFT OUTER JOIN (
             SELECT GROUP_CONCAT(na_eq.nameapp SEPARATOR ', ') as equipment, eq.nagaoutwards_id
@@ -49,8 +49,9 @@ class NABRGoodsOutwardsGA(models.Manager):
             GROUP BY eq.nagaoutwards_id
         ) AS add_eq
         ON ngo.idapp = add_eq.nagaoutwards_id
-         """ + ")"
-
+        WHERE """
+        query_string = query_string + columnKey + rs.Sql() + " ORDER BY " + \
+            sidx + ' ' + sord + ")"
         cur.execute(query_string)
         query_string = """
         SELECT * FROM T_Outwards_GA
