@@ -999,8 +999,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 data: setDetailGridData(),
                 processing: true,
                 loadonce: true,
-                cellsubmit: 'clientArray',
-                editurl: 'clientArray',
+                //cellsubmit: 'clientArray',
+                //editurl: 'clientArray',
                 datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
                 colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef'],
                 colModel: [
@@ -1195,7 +1195,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         name: 'hasref', hidden: true
                     }
                 ],
-                cellEdit: (win.status === 'Add'),
+                //cellEdit: (win.status === 'Add'),
                 pgbuttons: false,     // disable page control like next, back button
                 pgtext: null,         // disable pager text like 'Page 0 of 10'
                 viewrecords: true,    // disable current view record text like 'View 1-10 of 100'
@@ -1293,90 +1293,91 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         }
                     }             
                 },
-                inlineEditing: {
-                    keys: (win.status === 'Edit')
-                },
-                afterEditCell: function (rowid, cellname, value, iRow, iCol) {
-                    // Get a handle to the actual input field
-                    var inputControl = jQuery('#' + (iRow) + '_' + cellname);
-                    // Listen for enter (and shift-enter)
-                    inputControl.bind("keydown", function (e) {
-                        if (e.keyCode === 13) {  // Enter key:
-                            var increment = e.shiftKey ? -1 : 1;
-                            var rowData = gridTbl.getRowData(rowid);
-                            var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
-                            var lastRowInd = gridTbl.jqGrid("getGridParam", "reccount")
-                            if (iRow + increment == 0) {
-                                if (cellname === 'endofwarranty') {
-                                    if (!hasRef) {
-                                        gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
-                                    }
-                                }
-                            }
-                            else if (iRow + increment == lastRowInd + 1) {
-                                if (cellname === 'endofwarranty') {
-                                    return;
-                                }
-                            }
-                            else if (cellname === 'endofwarranty') {
-                                if (!hasRef) {
-                                    gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
-                                }
-                            }// we could re-edit current cell or wrap
-                            gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
-                        }
-                    }); // End keydown binding
-                },
-                beforeSelectRow: function (id) {
-                    if (win.status === 'Edit' && AllowEdit) {
-                        var rowData = gridTbl.getRowData(id);
-                        var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
-                        if (hasRef) {
-                            gridTbl.jqGrid("setColProp", "brandname", { editable: false });
-                            gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
-                            gridTbl.jqGrid("setColProp", "typeapp", { editable: false });
-                            gridTbl.jqGrid("setColProp", "serialnumber", { editable: false });
-                            gridTbl.jqGrid("setColProp", "warranty", { editable: false });
-                            gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
-                        }
-                        else {
-                            //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
-                            gridTbl.jqGrid("setColProp", "brandname", { editable: true });
-                            gridTbl.jqGrid("setColProp", "priceperunit", { editable: true });
-                            gridTbl.jqGrid("setColProp", "typeapp", { editable: true });
-                            gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
-                            gridTbl.jqGrid("setColProp", "warranty", { editable: true });
-                            gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
-                            //var $self = $(this), i,
-                            //    savedRows array is not empty if some row is in inline editing mode
-                            //   savedRows = $self.jqGrid("getGridParam", "savedRow");
-                            //for (i = 0; i < savedRows.length; i++) {
-                            //    if (savedRows[0]['id'] !== id) {
-                            //         save currently editing row
-                            //         one can replace saveRow to restoreRow in the next line
-                            //        $self.jqGrid("saveRow", savedRows[i]['id']);
-                            //    }
-                            //}
-                            //return savedRows.length === 0;
-                        }
-                    }
-                    else if (win.status === 'Add' && AllowEdit) {
-                        //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
-                        gridTbl.jqGrid("setColProp", "brandname", { editable: true });
-                        gridTbl.jqGrid("setColProp", "priceperunit", { editable: true });
-                        gridTbl.jqGrid("setColProp", "typeapp", { editable: true });
-                        gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
-                        gridTbl.jqGrid("setColProp", "warranty", { editable: true });
-                        gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
-                    }
-                },
+                //inlineEditing: {
+                //    keys: (win.status === 'Edit')
+                //},
+                //afterEditCell: function (rowid, cellname, value, iRow, iCol) {
+                //    // Get a handle to the actual input field
+                //    var inputControl = jQuery('#' + (iRow) + '_' + cellname);
+                //    // Listen for enter (and shift-enter)
+                //    inputControl.bind("keydown", function (e) {
+                //        if (e.keyCode === 13) {  // Enter key:
+                //            var increment = e.shiftKey ? -1 : 1;
+                //            var rowData = gridTbl.getRowData(rowid);
+                //            var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
+                //            var lastRowInd = gridTbl.jqGrid("getGridParam", "reccount")
+                //            if (iRow + increment == 0) {
+                //                if (cellname === 'endofwarranty') {
+                //                    if (!hasRef) {
+                //                        gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
+                //                    }
+                //                }
+                //            }
+                //            else if (iRow + increment == lastRowInd + 1) {
+                //                if (cellname === 'endofwarranty') {
+                //                    return;
+                //                }
+                //            }
+                //            else if (cellname === 'endofwarranty') {
+                //                if (!hasRef) {
+                //                    gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
+                //                }
+                //            }// we could re-edit current cell or wrap
+                //            gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
+                //        }
+                //    }); // End keydown binding
+                //},
+                //beforeSelectRow: function (id) {
+                //    if (win.status === 'Edit' && AllowEdit) {
+                //        var rowData = gridTbl.getRowData(id);
+                //        var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
+                //        if (hasRef) {
+                //            gridTbl.jqGrid("setColProp", "brandname", { editable: false });
+                //            gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
+                //            gridTbl.jqGrid("setColProp", "typeapp", { editable: false });
+                //            gridTbl.jqGrid("setColProp", "serialnumber", { editable: false });
+                //            gridTbl.jqGrid("setColProp", "warranty", { editable: false });
+                //            gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
+                //        }
+                //        else {
+                //            //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
+                //            gridTbl.jqGrid("setColProp", "brandname", { editable: true });
+                //            gridTbl.jqGrid("setColProp", "priceperunit", { editable: true });
+                //            gridTbl.jqGrid("setColProp", "typeapp", { editable: true });
+                //            gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
+                //            gridTbl.jqGrid("setColProp", "warranty", { editable: true });
+                //            gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
+                //            //var $self = $(this), i,
+                //            //    savedRows array is not empty if some row is in inline editing mode
+                //            //   savedRows = $self.jqGrid("getGridParam", "savedRow");
+                //            //for (i = 0; i < savedRows.length; i++) {
+                //            //    if (savedRows[0]['id'] !== id) {
+                //            //         save currently editing row
+                //            //         one can replace saveRow to restoreRow in the next line
+                //            //        $self.jqGrid("saveRow", savedRows[i]['id']);
+                //            //    }
+                //            //}
+                //            //return savedRows.length === 0;
+                //        }
+                //    }
+                //    else if (win.status === 'Add' && AllowEdit) {
+                //        //gridTbl.jqGrid('editRow', id, true, null, null, 'clientArray');
+                //        gridTbl.jqGrid("setColProp", "brandname", { editable: true });
+                //        gridTbl.jqGrid("setColProp", "priceperunit", { editable: true });
+                //        gridTbl.jqGrid("setColProp", "typeapp", { editable: true });
+                //        gridTbl.jqGrid("setColProp", "serialnumber", { editable: true });
+                //        gridTbl.jqGrid("setColProp", "warranty", { editable: true });
+                //        gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
+                //    }
+                //},
                 onSelectRow: function (id) {
+                    //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
                     if (AllowEdit) {
                         if (id && id !== lastsel) {
                         	gridTbl.jqGrid('restoreRow', lastsel);
                         	var OrowData = gridTbl.getRowData(id);
                         	gridTbl.jqGrid('editRow', id, {
-                        	    keys: true,
+                        	    keys: false,
                                 url:'clientArray',
                         		aftersavefunc: function (rowid) {
                         			var IRowData = gridTbl.getRowData(rowid);
@@ -1414,13 +1415,16 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         			}
                         		},
                         		//oneditfunc: function (rowid) {
-
+                        		//    ShowAlert('edit');
                         		//},
                         		onerrorfunc: function (rowid) {
                         			ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
-
                         			return false;
-                        		}
+                        		},
+                        		restoreAfterError: true,
+                        		successfunc: function (rowid) {
+                        		    ShowAlert('saved');
+                        		},
                         	});
                             lastsel = id;
                         }
@@ -1587,42 +1591,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             	}
             	return true;
             }
-
-            //SET Icon Validate dan rfresh
-
-            //assigned collumn Editable with condition
-            //var orgRowActions = $.fn.fmatter.rowactions;
-            //$.fn.fmatter.rowactions = function (rid, gid, act, pos) {
-            //    var $grid = $("#" + $.jgrid.jqID(gid)),
-            //        rowData = $grid.jqGrid("getLocalRow", rid),
-            //        isNonEditable = false,
-            //        result;
-            //    // we can test any condition and change
-            //    // editable property of any column
-            //    var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
-            //    var AllowEdit = (!hasRef) && (window.status !== 'Open')
-            //    if (act === "edit" && AllowEdit) {
-            //        //'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
-            //        $grid.jqGrid("setColProp", "brandname", { editable: false });
-            //        $grid.jqGrid("setColProp", "priceperunit", { editable: false });
-            //        $grid.jqGrid("setColProp", "typeapp", { editable: false });
-            //        $grid.jqGrid("setColProp", "serialnumber", { editable: false });
-            //        $grid.jqGrid("setColProp", "warranty", { editable: false });
-            //        $grid.jqGrid("setColProp", "endofwarranty", { editable: false });
-            //        isNonEditable = true;
-            //    }
-            //    result = orgRowActions.call(this, rid, gid, act, pos);
-            //    if (isNonEditable && AllowEdit) {
-            //        // reset the setting to original state
-            //        $grid.jqGrid("setColProp", "brandname", { editable: true });
-            //        $grid.jqGrid("setColProp", "priceperunit", { editable: true });
-            //        $grid.jqGrid("setColProp", "typeapp", { editable: true });
-            //        $grid.jqGrid("setColProp", "serialnumber", { editable: true });
-            //        $grid.jqGrid("setColProp", "warranty", { editable: true });
-            //        $grid.jqGrid("setColProp", "endofwarranty", { editable: true });
-            //    }
-            //    return result;
-            //}
             //set button pagerStyle td tengahnya jadi 200px;
             var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
             if ($midTd) {
