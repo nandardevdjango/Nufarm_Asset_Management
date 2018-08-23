@@ -913,6 +913,18 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 return dummyData;
             }
         };
+        function getDetailGridData() {
+            if (win.status === 'Open' || win.status === 'Edit') {
+                var elDataDetail = NA.common.getElementID('id_dataForGridDetail');
+                var detailData = JSON.parse(elDataDetail.value);
+                return detailData;
+            }
+            else {
+                var elTotalReceived = NA.common.getElementID('id_totalreceived');
+                var dummyData = $('#jqGrid_NA_F_Goods_Receive_Detail').jqGrid('getGridParam', 'data');;
+                return dummyData;
+            }
+        }
         function ValidateGridDetail(gridTbl) {
             var rows = gridTbl.getDataIDs();
             //columns = ['idapp', 'fkapp', 'no', 'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty', 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'hasref']
@@ -1699,10 +1711,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 //},
                 onSelectRow: function (id) {
                     //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
+                    var OrowData = null;
                     if (AllowEdit) {
                     	if (id && id !== lastsel) {
-                        	//validate data
-                    		var OrowData = gridTbl.jqGrid('getLocalRow', lastsel);
+                    	    //validate data                    	    
+                    	    if (typeof lastsel != 'undefined') {
+                    	        OrowData = gridTbl.jqGrid('getLocalRow', lastsel);
+                    	    }
 
                         	gridTbl.jqGrid('restoreRow', lastsel);
 
