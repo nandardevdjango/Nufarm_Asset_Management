@@ -435,7 +435,13 @@ class goods(NA_MasterDataModel):
         db_column='Placement', max_length=50, blank=True, null=True)
     typeapp = models.CharField(
         max_length=32,
-        db_column='typeapp', null=True, choices=(('IT', 'IT'), ('GA', 'GA'), ('IT Accessories', 'IT Accessories'), ('GA Accesories', 'GA Accesories'), ('Others', 'Others'))
+        db_column='typeapp', null=True, choices=(
+            ('IT', 'IT'),
+            ('GA', 'GA'),
+            ('IT Accessories', 'IT Accessories'),
+            ('GA Accesories', 'GA Accesories'),
+            ('Others', 'Others')
+        )
     )
 
     class Meta:
@@ -774,7 +780,13 @@ class NADisposal(NA_TransactionModel):
 	fk_lost = models.ForeignKey('NAGoodsLost',db_column='FK_Lost',blank=True,null=True)
 	issold = models.PositiveSmallIntegerField(
 		db_column='IsSold', blank=True, null=True)
-	sellingprice = models.DecimalField(db_column='SellingPrice', max_digits=30, decimal_places=4, blank=True, null=True)
+	sellingprice = models.DecimalField(
+        db_column='SellingPrice',
+        max_digits=30,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
 	sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
 	fk_sold_to_employee= models.ForeignKey(
 		'Employee',
@@ -782,7 +794,12 @@ class NADisposal(NA_TransactionModel):
 		related_name='fk_disposal_emp_Sold',
 		db_constraint=False, blank=True, null=True,
 	)
-	sold_to_p_other = models.CharField(max_length=120,db_column='Sold_To_P_Other',blank=True,null=True)
+	sold_to_p_other = models.CharField(
+        max_length=120,
+        db_column='Sold_To_P_Other',
+        blank=True,
+        null=True
+    )
 	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
 	descriptions = models.CharField(
 		db_column='Descriptions',
@@ -790,8 +807,15 @@ class NADisposal(NA_TransactionModel):
 		blank=True,
 		null=True
 	)
-	fk_proposedby = models.ForeignKey('Employee', db_column='FK_ProposedBy', related_name='fk_disposal_emp_proposed', max_length=50, blank=True, null=True,
-										db_constraint=False)
+	fk_proposedby = models.ForeignKey(
+        'Employee',
+        db_column='FK_ProposedBy',
+        related_name='fk_disposal_emp_proposed',
+        max_length=50,
+        blank=True,
+        null=True,
+        db_constraint=False
+    )
 
 	fk_acknowledge1 = models.ForeignKey(
 		'Employee',
@@ -1573,6 +1597,16 @@ class NAGaReceive(NA_BaseModel):
     class Meta:
         managed = True
         db_table = 'n_a_ga_receive'
+
+    def get_history(self):
+        return self.nagavnhistory_set.values(
+            'idapp',
+            'reg_no',
+            'expired_reg',
+            'bpkb_expired',
+            'createddate',
+            'createdby'
+        )
 
     def get_active_reg_number(self):
         today = date.today()

@@ -795,37 +795,31 @@ class commonFunct:
         resolve = kwargs['resolve'].lower()
         initialname = kwargs['initial_name']
         fields = []
-        if type(table) == list:
+        if isinstance(table, list):
             for i in range(len(table)):
                 fields.append([j.name.lower()
                                for j in table[i]._meta.local_fields])
         else:
             fields = [i.name.lower() for i in table._meta.local_fields]
-        exclude = None
-        if 'exclude' in kwargs:
-            exclude = kwargs['exclude']
-        if exclude is not None:
-            try:
-                for i in exclude:
-                    fields.remove(i)
-            except ValueError:
-                raise Exception('fields name doesn\'t match with table fields')
+
         result = None
-        if 'custom_fields' in kwargs:
-            cust_fields = kwargs['custom_fields']
-            if len(cust_fields) > 1:
-                for i in cust_fields:
-                    fields.append(i)
+        custom_fields = kwargs.get('custom_fields')
+        if custom_fields:
+            if isinstance(custom_fields, list):
+                for field in custom_fields:
+                    fields.append(field)
             else:
-                if isinstance(cust_fields[0], list):
-                    fields.append(cust_fields[0])
-                else:
-                    fields.append([kwargs['custom_fields']])
+                fields.append([custom_fields])
         for i in range(len(fields)):
             if resolve in fields[i]:
                 result = str(initialname[i] + "." + resolve)
+                if kwargs.get('exclude'):
+                    if result in kwargs.get('exclude'):
+                        continue
                 break
-        return result
+        if result:
+            return result
+        raise ValueError('cannot resolve \'%s\' column' % resolve)
 
     def get_log_data(**kwargs):
         """
@@ -877,7 +871,11 @@ class commonFunct:
                     message = data[1]
                 else:
                     message = Message.Empty.value
-            return HttpResponse(json.dumps({'message': message}), status=statusResp, content_type='application/json')
+            return HttpResponse(
+                json.dumps({'message': message}),
+                status=statusResp,
+                content_type='application/json'
+            )
 
     def multi_sort_queryset(queryset, Isidx, Isord):
         """

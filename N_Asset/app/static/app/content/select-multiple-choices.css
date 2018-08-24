@@ -47,3 +47,7 @@ li#item_choice[data-selected="true"]{
     color: green;
     cursor: not-allowed;
 }
+.disabled {
+    background: #eeeeee;
+    cursor: not-allowed;
+}

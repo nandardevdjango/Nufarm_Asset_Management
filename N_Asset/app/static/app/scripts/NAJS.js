@@ -1,7 +1,7 @@
 ﻿if (typeof NA == "undefined") window.NA = {}
 
 NA.NAEvent = {
-    doc : window.document,
+    doc: window.document,
     addHandler: function (element, type, handler) {
         if (element.addEventListener) {
             element.addEventListener(type, handler, false);
@@ -109,7 +109,7 @@ NA.NAEvent = {
 };
 //=====================COOKIE Utility==========================
 NA.CookieUtil = {
-    doc : window.document,
+    doc: window.document,
     get: function (name) {
         var cookieName = encodeURIComponent(name) + "=",
             cookieStart = this.doc.cookie.indexOf(cookieName),
@@ -119,7 +119,7 @@ NA.CookieUtil = {
         if (cookieStart > -1) {
             cookieEnd = this.doc.cookie.indexOf(";", cookieStart);
             if (cookieEnd == -1) {
-                cookieEnd = this.doc.cookie.length;                
+                cookieEnd = this.doc.cookie.length;
             }
             cookieValue = decodeURIComponent(this.doc.cookie.substring(cookieStart + cookieName.length, cookieEnd));
         }
@@ -310,7 +310,8 @@ NA.client = function () {
     if (system.win == "CE") {
         system.winMobile = system.win;
     } else if (system.win == "Ph") {
-        if (/Windows Phone OS (\d+.\d+)/.test(ua)) {;
+        if (/Windows Phone OS (\d+.\d+)/.test(ua)) {
+            ;
             system.win = "Phone";
             system.winMobile = parseFloat(RegExp["$1"]);
         }
@@ -366,17 +367,17 @@ NA.common = {
 
         if (!e.shiftKey && !e.altKey && !e.ctrlKey &&
             // numbers   
-        key >= 48 && key <= 57 ||
+            key >= 48 && key <= 57 ||
             // Numeric keypad
-        key >= 96 && key <= 105 ||
+            key >= 96 && key <= 105 ||
             // Backspace and Tab and Enter
-        key == 8 || key == 9 || key == 13 ||
+            key == 8 || key == 9 || key == 13 ||
             // Home and End
-        key == 35 || key == 36 ||
+            key == 35 || key == 36 ||
             // left and right arrows
-        key == 37 || key == 39 ||
+            key == 37 || key == 39 ||
             // Del and Ins
-        key == 46 || key == 45) {
+            key == 46 || key == 45) {
             // input is VALID
             return true;
         }
@@ -394,16 +395,16 @@ NA.common = {
         var keyboardEvent = document.createEvent("KeyboardEvent");
         var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
         keyboardEvent[initMethod](
-                           "keydown",
-                            false,      // bubbles oOooOOo0
-                            true,      // cancelable   
-                            window,    // view
-                            false,     // ctrlKeyArg
-                            false,     // altKeyArg
-                            false,     // shiftKeyArg
-                            false,     // metaKeyArg
-                            keyCode,
-                            0          // charCode   
+            "keydown",
+            false,      // bubbles oOooOOo0
+            true,      // cancelable   
+            window,    // view
+            false,     // ctrlKeyArg
+            false,     // altKeyArg
+            false,     // shiftKeyArg
+            false,     // metaKeyArg
+            keyCode,
+            0          // charCode   
         );
         el.dispatchEvent(keyboardEvent);
     },
@@ -422,16 +423,16 @@ NA.common = {
     getQueryStringArgs: function () {
         //get query string without the initial ?
         var qs = (location.search.length > 0 ? location.search.substring(1) : ""),
-        //object to hold data
-        args = {},
-        //get individual items
-        items = qs.length ? qs.split("&") : [],
-        item = null,
-        name = null,
-        value = null,
-        //used in for loop
-        i = 0,
-        len = items.length;
+            //object to hold data
+            args = {},
+            //get individual items
+            items = qs.length ? qs.split("&") : [],
+            item = null,
+            name = null,
+            value = null,
+            //used in for loop
+            i = 0,
+            len = items.length;
         //assign each item onto the args object
         for (i = 0; i < len; i++) {
             item = items[i].split("=");
@@ -545,7 +546,7 @@ NA.common = {
             NNum = Number(num.trim());
         } else {
             NNum = Number(num)
-        }     
+        }
         dec_point = typeof dec_point !== 'undefined' ? dec_point : '.';
         thousands_sep = typeof thousands_sep !== 'undefined' ? thousands_sep : ',';
 
@@ -557,13 +558,13 @@ NA.common = {
     //=======================FORM SERIALIZATION==========================
     serializeForm: function (form) {
         var parts = [],
-        field = null,
-        i,
-        len,
-        j,
-        optLen,
-        option,
-        optValue;
+            field = null,
+            i,
+            len,
+            j,
+            optLen,
+            option,
+            optValue;
         for (i = 0, len = form.elements.length; i < len; i++) {
             field = form.elements[i];
             switch (field.type) {
@@ -576,13 +577,13 @@ NA.common = {
                                 optValue = "";
                                 if (option.hasAttribute) {
                                     optValue = (option.hasAttribute("value") ?
-                                    option.value : option.text);
+                                        option.value : option.text);
                                 } else {
                                     optValue = (option.attributes["value"].specified ?
-                                    option.value : option.text);
+                                        option.value : option.text);
                                 }
                                 parts.push(encodeURIComponent(field.name) + "=" +
-                                encodeURIComponent(optValue));
+                                    encodeURIComponent(optValue));
                             }
                         }
                     }
@@ -598,12 +599,12 @@ NA.common = {
                     if (!field.checked) {
                         break;
                     }
-                    /* falls through */
+                /* falls through */
                 default:
                     //don’t include form fields without names
                     if (field.name.length) {
                         parts.push(encodeURIComponent(field.name) + "=" +
-                        encodeURIComponent(field.value));
+                            encodeURIComponent(field.value));
                     }
             }
         }
@@ -617,7 +618,7 @@ NA.common = {
     //function untuk mendisable kan element form
     //parameter form = document.form[0]/form_id
     //parameter typeofElements = type element apa saja yang akan di disabledkan
-    disableForm: function (form,typeofElements) {
+    disableForm: function (form, typeofElements) {
         var length = form.elements.length,
             i;
         for (i = 0; i < length; i++) {
@@ -632,13 +633,13 @@ NA.common = {
                 if (elementType === 'text' || elementType === 'textarea' || elementType === 'select' || elementType === 'checkbox') {
                     form.elements[i].disabled = true;
                 }
-            }            
+            }
         }
     },
     SearchData: function () {
         var elSearch = elSearch || window.document.querySelector('li.dropdown>a#bySearch');
         //valueKey   = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
-       
+
         var valueKey = '';//valueKey === 'By'?'':valueKey;
         var columnKey = '';//elSearch.dataset.column ? elSearch.dataset.column : 'goodsname';
         var dataType = '';//;elSearch.dataset.column ? elSearch.dataset.tipe : 'Varchar';
@@ -658,7 +659,7 @@ NA.common = {
             setValue: function (nValue) { this.valueKey = nValue; },
             setColumnName: function (ncolKey) { this.columnKey = ncolKey; },
             setDataType: function (nDataType) { this.dataType = nDataType; },
-            setCriteria: function (nCriteria) { this.criteria = nCriteria; },          
+            setCriteria: function (nCriteria) { this.criteria = nCriteria; },
         }
     }(),
 
@@ -681,11 +682,11 @@ NA.common = {
             throw new Error("No way to retrieve element!");
         }
     },
-    
+
 
 };
 NA.common.dialog = {
-    
+
     doc: window.document,
     getPageDimensions: function () {
         var body = this.doc.getElementsByTagName("body")[0];
@@ -948,7 +949,7 @@ NA.common.dialog = {
             spandialogbuttonclose.className = "ui-button-icon";
             spandialogbuttonclose.classList.add("ui-icon");
             spandialogbuttonclose.classList.add("ui-icon-closethick");
-           
+
 
             var spanuibuttonIconSpace = this.doc.createElement("span");
             spanuibuttonIconSpace.className = "ui-button-icon-space";
@@ -1036,7 +1037,7 @@ NA.common.dialog = {
 
             var scrollingPosition = this.getScrollingPosition();
             body.appendChild(dialog);
-       
+
 
             //dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
             //dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2) - parseInt(dialog.offsetHeight/2) + "px";
@@ -1046,8 +1047,8 @@ NA.common.dialog = {
 
 
             //trigger showDialogEntry
-             window.showDialogEntry(event);
-            
+            window.showDialogEntry(event);
+
             //============ set dialog to center ================
             dialog.style.top = '50%';
             dialog.style.left = '50%';
@@ -1077,7 +1078,7 @@ NA.common.dialog = {
             if (dialog) {
                 dialog.parentNode.removeChild(dialog);
             }
-        }       
+        }
         var mnuContainer = this.doc.querySelector('nav.navbar.navbar-default')
         if (mnuContainer) { mnuContainer.style.zIndex = "1000"; }
 
@@ -1093,7 +1094,7 @@ NA.common.dialog = {
         // init dialog untuk Open,  Edit,  Save,  Delete,  Export,  Print,  Help        
         (function (elem, currentObj, titleHead, elements, otherHandler) {
             var settingsEditAdd = { btnOK: true, btnCancel: true, btnPrintPreview: true, btnExport: false, dialogTitle: titleHead },
-			settingsOpen = { btnOK: false, btnCancel: false, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead };
+                settingsOpen = { btnOK: false, btnCancel: false, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead };
             settingsOther = { btnOK: true, btnCancel: true, btnPrintPreview: true, btnExport: true, dialogTitle: titleHead };
             //menu atas
             var ClickHandlerElem = function (event) {
@@ -1140,7 +1141,7 @@ NA.common.dialog = {
                     else {
                         if (!item.getAttribute('disabled')) {
                             NA.NAEvent.addHandler(item, 'click', ClickHandlerElementMenu);
-                        }                       
+                        }
                     }
                 });
             }
@@ -1152,7 +1153,7 @@ NA.common.dialog = {
 
         var dragging = null;
 
-        function handleEvent(event) {
+        function handleEvent (event) {
 
             //get event and target
             event = NA.NAEvent.getEvent(event);
@@ -1172,6 +1173,7 @@ NA.common.dialog = {
                         //assign location
                         dialog.style.left = event.clientX + "px";
                         dialog.style.top = event.clientY + "px";
+                        dialog.style.transform = ''
                     }
                     break;
 
@@ -1222,14 +1224,14 @@ Object.defineProperties(NA.common.message, {
             return this._confirmDelete;
         }
     },
-    canNotDelete:{
-        get:function(){
+    canNotDelete: {
+        get: function () {
             return this._canNotDelete;
         }
     },
     canNotEdit: {
         get: function () {
-        return this._canNotEdit;
+            return this._canNotEdit;
         }
     },
     clearData: {
@@ -1262,8 +1264,8 @@ Object.defineProperties(NA.common.message, {
             return this._titleInfo;
         }
     },
-    titleError:{
-        get:function(){
+    titleError: {
+        get: function () {
             return this._titleError;
         }
     },
@@ -1293,27 +1295,27 @@ Object.defineProperties(NA.common.message, {
         }
     }
 });
-    NA.common.message.server = function(message) {
-        var result;
-        switch (message) {
-            case '__hasref_edit':
-                result = NA.common.message.canNotEdit;
-                break;
-            case '__hasref_del':
-                result = NA.common.message.canNotDelete;
-                break;
-            case '__lost':
-                result = NA.common.message.dataHasLost;
-                break;
-            case '__cannot_add_other_permission_guest':
-                result = NA.common.message.canNotAddOtherPermsForGuest;
-                break;
-            default:
-                result = message;
-                break;
-        }
-        return result;
+NA.common.message.server = function (message) {
+    var result;
+    switch (message) {
+        case '__hasref_edit':
+            result = NA.common.message.canNotEdit;
+            break;
+        case '__hasref_del':
+            result = NA.common.message.canNotDelete;
+            break;
+        case '__lost':
+            result = NA.common.message.dataHasLost;
+            break;
+        case '__cannot_add_other_permission_guest':
+            result = NA.common.message.canNotAddOtherPermsForGuest;
+            break;
+        default:
+            result = message;
+            break;
     }
+    return result;
+}
 //=========================AJAX NAJS,(sudah test) =============================================
 NA.common.AJAX = {
     XHR: {},
@@ -1331,7 +1333,7 @@ NA.common.AJAX.createXHR = function () {
     } else if (typeof ActiveXObject != "undefined") {
         if (typeof arguments.callee.activeXString != "string") {
             var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0",
-                            "MSXML2.XMLHttp"],
+                "MSXML2.XMLHttp"],
                 i, len;
             for (i = 0, len = versions.length; i < len; i++) {
                 try {
@@ -1373,7 +1375,7 @@ NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBe
             return NA.common.dialog.dialogAlert(
                 NA.common.message.unAuthorized,
                 NA.common.message.titleInfo,
-                function(){
+                function () {
                     window.location.href = NA.client.url.login_next
                 }
             )
@@ -1382,8 +1384,7 @@ NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBe
     }
     if (OnLoadEnd) { this.XHR.onloadend = OnLoadEnd; }
     this.XHR.open('POST', Xurl, true);
-    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null)
-    { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
+    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null) { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
     this.XHR.setRequestHeader('Content-Type', XdataType);
     //==========prevent browser catching============================
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -1414,7 +1415,7 @@ NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad,
             return NA.common.dialog.dialogAlert(
                 NA.common.message.unAuthorized,
                 NA.common.message.titleInfo,
-                function(){
+                function () {
                     window.location.href = NA.client.url.login_next
                 }
             )
@@ -1422,8 +1423,7 @@ NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad,
         this.XHR.onerror = OnError;
     }
     if (OnLoadEnd) { this.XHR.onloadend = OnLoadEnd; }
-    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null)
-    { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
+    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null) { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
     //this.XHR.setRequestHeader('Content-Type', XdataType);
     //==========prevent browser catching============================
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -1451,8 +1451,7 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
     if (OnLoadEnd) { this.XHR.onloadend = OnLoadEnd; }
     if (OnProgress) { this.XHR.onprogress = OnProgress; }
     if (OnError) { this.XHR.onerror = OnError; }
-    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null)
-    { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
+    if (typeof customRequestHeader != 'undefined' && customRequestHeader !== '' && customRequestHeader != {} && customRequestHeader != null) { this.XHR.setRequestHeader(customRequestHeader.key, customRequestHeader.value); }
     this.XHR.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     //==========prevent browser catching============================
     this.XHR.setRequestHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -1554,7 +1553,7 @@ NA.Priviledge.get_server_permissions = function (kwargs) {
                 var response = JSON.parse(this.responseText)['message']
                 success(response);
             };
-        },null,null,
+        }, null, null,
         function () {
             done();
         });
@@ -1581,8 +1580,8 @@ NA.Priviledge.read_priviledge = function (form_name) {
             Object.freeze(NA.Priviledge);
             var qs = qs || NA.common.qs
             var btn_add = qs('button#addData'),
-			btn_edit = qs('button#editData'),
-			btn_delete = qs('button#delData');
+                btn_edit = qs('button#editData'),
+                btn_delete = qs('button#delData');
             if (!NA.Priviledge.Permissions.Allow_Add) {
                 btn_add.setAttribute('disabled', '');
                 NA.NAEvent.addHandler(btn_add, 'click', function (event) {

@@ -12,12 +12,26 @@ NA$.Input = {
             dropdown_item = '#dropdown_item_' + input_name,
             item_choice_visible = item_choice + ':visible',
             fake_input = '#fake_input_' + input_name;
-        
+
         (function (elm) {
             NA$(elm).addClass('which_used_this');
             NA$(container_input)[0].dataset.input = input_elm;
             NA$('<li id="no_result" style="display:none"><p>No results found</p></li>')
                 .insertAfter(NA$(search_item).parent('li'));
+            if (NA$(elm).val() != "") {
+                var value = NA$(elm).val().split(',');
+                for (var i = 0; i < value.length; i++) {
+                    var item = NA$('li#item_choice[data-id="' + value[i] + '"]');
+                    appendItem(value[i], item[0].textContent);
+                    for (var j = 0; j < item.length; j++) {
+                        item[j].dataset.selected = true;
+                    }
+                }
+            }
+            if (window.status == 'Open') {
+                NA$(container_input).addClass('disabled');
+                NA$('#entry_' + input_name).attr('disabled', true);
+            }
         })(input_elm);
 
         function refresh_value_elm (input_element) {
@@ -34,18 +48,26 @@ NA$.Input = {
             );
         }
 
-        function checkInView(elem) {
+        function checkInView (elem) {
             var container = NA$(dropdown_item);
             var contHeight = container.height();
-            
+
             var elemTop = NA$(elem).offset().top - container.offset().top;
             var elemBottom = elemTop + NA$(elem).height();
-            
-            var isTotal = (elemTop >= 0 && elemBottom <=contHeight);            
-            return  isTotal;
+
+            var isTotal = (elemTop >= 0 && elemBottom <= contHeight);
+            return isTotal;
         }
 
-        function SelectItem (event) { 
+        function appendItem (id, text) {
+            var item_selected = '<span class="label label-success selected-item" data-id="' +
+                id + '">' +
+                '<span id="remove_item" class="close-item">x</span>' +
+                text + '</span>';
+            NA$(item_selected).insertBefore(NA$(fake_input));
+        }
+
+        function SelectItem (event) {
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
@@ -54,7 +76,7 @@ NA$.Input = {
                 function (index, elm) {
                     var value = elm.value.split(',');
                     if (value.length) {
-                        for (var i = 0; i < value.length; i++) { 
+                        for (var i = 0; i < value.length; i++) {
                             item_added.push(value[i]);
                         }
                     }
@@ -63,11 +85,7 @@ NA$.Input = {
             if (item_added.indexOf(this.dataset.id) > -1) {
                 return false;
             }
-            var item_selected = '<span class="label label-success selected-item" data-id="' +
-                this.dataset.id + '">' +
-                '<span id="remove_item" class="close-item">x</span>' +
-                this.textContent + '</span>';
-            NA$(item_selected).insertBefore(NA$(fake_input));
+            appendItem(this.dataset.id, this.textContent);
             NA$(fake_input).focus();
             NA$.each($('li#item_choice[data-id="' + this.dataset.id + '"]'),
                 function (index, elm) {
@@ -81,7 +99,7 @@ NA$.Input = {
             NA$(this).parents('.dropdown').removeClass('open');
             return false;
         }
-        
+
         NA$(container_input).click(function (event) {
             event.preventDefault();
             NA$(search_item).val('');
@@ -90,7 +108,7 @@ NA$.Input = {
 
             NA$('.item-hover').removeClass('item-hover');
             var items = NA$(dropdown_item + ' li#' + item_choice + ':not([data-selected="true"])');
-            if (NA$(this).next()[0].dataset.reversed == "true") { 
+            if (NA$(this).next().children().index(NA$(this).next().children('li#search_item_container')) > 1) {
                 items.last().addClass('item-hover');
             } else {
                 items.first().addClass('item-hover');
@@ -99,7 +117,7 @@ NA$.Input = {
                 NA$(search_item).focus();
             }, 100);
         });
-        
+
         NA$(search_item).on({
             click: function (event) {
                 event.preventDefault();
@@ -111,7 +129,7 @@ NA$.Input = {
                     event.stopPropagation();
                     event.stopImmediatePropagation();
                     var q = this.value;
-                    if (q.match('\\\\')) { 
+                    if (q.match('\\\\')) {
                         q = '\\\\';
                     }
                     var pattern = new RegExp(q, 'i');
@@ -158,10 +176,10 @@ NA$.Input = {
                             NA$(dropdown_item + ' li#' + item_choice_visible +
                                 ':not([data-selected="true"])')
                                 .first().addClass('item-hover');
-                            
+
                             NA$(dropdown_item).animate({ scrollTop: 0 }, "fast");
                         }
-                        
+
                         NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
                     } else if (event.keyCode == 38 || event.key == 'ArrowUp') {
                         var data_id = NA$(dropdown_item + ' .item-hover').data('id');
@@ -181,27 +199,27 @@ NA$.Input = {
                                     scrollTop: 0
                                 }, "fast");
                             }
-                            
+
                         } else {
                             NA$(dropdown_item + ' li#' + item_choice_visible +
                                 ':not([data-selected="true"])')
                                 .last().addClass('item-hover');
-                            
+
                             NA$(dropdown_item).animate({
                                 scrollTop: bottom_dropdown
                             }, "fast");
                         }
-                        
+
                         NA$('li[data-id="' + data_id + '"]').removeClass('item-hover');
                     }
                     else if (event.keyCode == 13) {
-                        
+
                         if (NA$(dropdown_item).children('li.item-hover#' + item_choice_visible).length) {
                             NA$(dropdown_item + ' li.item-hover').click();
-                        } else { 
+                        } else {
                             return false;
                         }
-                        
+
                         NA$(dropdown_item + ' li#' + item_choice).removeClass('item-hover')
                             .first().addClass('item-hover');
                         setTimeout(function () {
@@ -216,7 +234,7 @@ NA$.Input = {
         NA$(document).on('click', dropdown_item + ' li#' + item_choice, SelectItem);
 
         NA$(document).on('mouseover', dropdown_item + ' li#' + item_choice, function (event) {
-            if (event.currentTarget.dataset.selected == "true") { 
+            if (event.currentTarget.dataset.selected == "true") {
                 return false;
             }
             var item = NA$(dropdown_item + ' li.item-hover');
@@ -230,7 +248,7 @@ NA$.Input = {
         NA$(document).on('mouseleave', dropdown_item + ' li#' + item_choice, function (event) {
             if (event.relatedTarget != null) {
                 if (event.relatedTarget.tagName.toLocaleLowerCase() == 'p') {
-                    if (event.currentTarget.dataset.selected == "true") { 
+                    if (event.currentTarget.dataset.selected == "true") {
                         return false;
                     }
                     NA$(event.currentTarget).removeClass('item-hover');
@@ -254,7 +272,7 @@ NA$.Input = {
             event.stopPropagation();
             event.stopImmediatePropagation();
             var id = NA$(this).parent().data('id');
-            
+
             NA$.each($('li#item_choice[data-id="' + id + '"]'),
                 function (index, elm) {
                     elm.dataset.selected = false;
@@ -263,11 +281,11 @@ NA$.Input = {
             var input_name = NA$(this).parents('.container-multiselect').data('input');
             NA$(this).parent().remove();
             refresh_value_elm(input_name);
-            
+
             return false;
         });
 
-        $('#entry_' + input_name).click(function () {
+        NA$('#entry_' + input_name).click(function () {
             BootstrapDialog.show({
                 draggable: true,
                 type: BootstrapDialog.TYPE_SUCCESS,
@@ -313,7 +331,7 @@ NA$.Input = {
                                     );
                                 },
                                 success: function (data) {
-                                    
+
                                     NA$.ajax({
                                         url: 'equipment/list/',
                                         success: function (data) {
@@ -330,7 +348,7 @@ NA$.Input = {
                                             });
                                         }
                                     });
-                                    
+
                                     dialogRef.close();
                                 }
                             });
@@ -348,7 +366,7 @@ NA$.Element = {};
 NA$.Element.Position = {
     GetPositionToSpecificParent: function (elm, specific_parent, top = NA$(elm).height()) {
         top += NA$(elm).position().top - NA$(elm).parent().position().top;
-        if (NA$(elm)[0] == NA$(specific_parent)[0]) { 
+        if (NA$(elm)[0] == NA$(specific_parent)[0]) {
             return top;
         }
         return this.GetPositionToSpecificParent(NA$(elm).parent(), specific_parent, top);
@@ -372,7 +390,7 @@ NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (eve
             container_dropdown,
             NA$.Element.Dropdown.crazy_ancestor
         );
-        
+
         var parent = NA$(this).parents(NA$.Element.Dropdown.crazy_ancestor);
         var current_position = (parent[0].scrollHeight - parent.scrollTop()) - current_position;
         var $ul = NA$(this).children(".dropdown-menu");
@@ -385,27 +403,29 @@ NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (eve
         // switch to dropup only if there is no space at the bottom AND there is space at the top, or there isn't either but it would be still better fit
         if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown) || current_position < $ul[0].scrollHeight) {
             NA$(this).addClass("dropup");
-            if ($ul[0].dataset.reversed != "true") {
-                $ul.append($ul.children("li").get().reverse());
-            }
-            
-            if (NA$(this).hasClass('dropup')) { 
-                $ul[0].dataset.reversed = true;
-                $ul.children().last().children('input').css({
-                    'borderTop': '',
-                    'borderBottom': '0'
+            if (NA$(this).hasClass('dropup')) {
+                if ($ul.children().index($ul.children('li#search_item_container')[0]) < 2) {
+                    $ul.append($ul.children("li").get().reverse());
+                    $ul.children().last().children('input').css({
+                        'borderTop': '',
+                        'borderBottom': '0'
+                    });
+                }
+            } else {
+                $ul.children().first().children('input').css({
+                    'borderTop': '0',
+                    'borderBottom': ''
                 });
             }
         } else {
-            if (typeof $ul[0].dataset.reversed != undefined && $ul[0].dataset.reversed == "true") {
-                $ul[0].dataset.reversed = false;
+            if ($ul.children().index($ul.children('li#search_item_container')[0]) > 1) {
                 $ul.append($ul.children("li").get().reverse());
-             }
-            
+            }
+
         }
     }
-    
-}).on("hidden.bs.dropdown", ".dropdown", function() {
+
+}).on("hidden.bs.dropdown", ".dropdown", function () {
     // always reset after close
     NA$(this).removeClass("dropup");
 });

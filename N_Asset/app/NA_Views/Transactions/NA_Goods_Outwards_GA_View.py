@@ -2,7 +2,8 @@ import json
 from datetime import datetime, date
 from django import forms
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
+from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
@@ -28,8 +29,22 @@ def NA_Goods_Outwards_GAGetData(request):
     criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
     dataType = ResolveCriteria.getDataType(IdataType)
 
+    column = commonFunct.retriveColumn(
+        table=[goods, NAGaReceive, NAGaVnHistory, NAGaOutwards],
+        custom_fields=[
+            ['employee'],
+            ['used_employee'],
+            ['resp_employee'],
+            ['sender']
+        ],
+        resolve=IcolumnName,
+        initial_name=['g', 'ngr', 'ngh', 'ngo',
+                      'emp1', 'emp2', 'emp3', 'emp4'],
+        exclude=['g.typeapp']
+    )
+
     gaData = NAGaOutwards.objects.populate_query(
-        IcolumnName,
+        column,
         IvalueKey,
         criteria,
         dataType
@@ -75,12 +90,9 @@ def getFormData(form):
     }
     return data
 
-# idapp, fk_goods, fk_employee, typeapp, isnew, daterequest, daterealesed,
-# fk_usedemployee, fk_frommaintenance, fk_responsibleperson, fk_sender, fk_stock,
-# fk_lending, fk_return, fk_receive, descriptions
-
 
 class NAGaOutwardsForm(forms.Form):
+    idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
     fk_app = forms.ModelChoiceField(
         queryset=NAGaVnHistory.objects.active(),
         widget=forms.HiddenInput()
@@ -104,6 +116,11 @@ class NAGaOutwardsForm(forms.Form):
     goodsname = forms.CharField(disabled=True, widget=forms.TextInput(
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
+
+    typeapp = forms.CharField(widget=forms.HiddenInput(), required=False)
+    colour = forms.CharField(widget=forms.HiddenInput(), required=False)
+    invoice_no = forms.CharField(widget=forms.HiddenInput(), required=False)
+    year_made = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     employee = forms.ModelChoiceField(
         queryset=Employee.objects.filter(inactive=False),
@@ -167,21 +184,23 @@ class NAGaOutwardsForm(forms.Form):
 
     isnew = forms.BooleanField(widget=forms.HiddenInput())
 
-    daterequest = forms.CharField(widget=forms.TextInput(
+    daterequest = forms.DateField(widget=forms.DateInput(
         attrs={
             'class': 'NA-Form-Control',
             'placeholder': 'date request',
             'style': 'display:inline-block;width:150px'
-        }
-    ))
+        },
+        format='%d/%m/%Y'
+    ), input_formats=settings.DATE_INPUT_FORMATS)
 
-    datereleased = forms.CharField(widget=forms.TextInput(
+    datereleased = forms.DateField(widget=forms.DateInput(
         attrs={
             'class': 'NA-Form-Control',
             'placeholder': 'date released',
             'style': 'display:inline-block;width:150px'
-        }
-    ))
+        },
+        format='%d/%m/%Y'
+    ), input_formats=settings.DATE_INPUT_FORMATS)
 
     equipment = forms.ModelMultipleChoiceField(
         queryset=NAGoodsEquipment.objects.all(),
@@ -201,9 +220,24 @@ class NAGaOutwardsForm(forms.Form):
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
+    statusForm = forms.CharField(widget=forms.HiddenInput())
+
+    def clean(self):
+        if self.cleaned_data.get('statusForm') == 'Edit':
+            if not self.cleaned_data.get('idapp'):
+                raise forms.ValidationError({
+                    'idapp': 'This field is required'
+                })
+        return super(NAGaOutwardsForm, self).clean()
+
     @transaction.atomic
     def save(self, user):
+        status_form = self.cleaned_data.get('statusForm')
         outwards = NAGaOutwards()
+        if status_form == 'Edit':
+            outwards = NAGaOutwards.objects.get(
+                idapp=self.cleaned_data.get('idapp')
+            )
         outwards.fk_goods = self.cleaned_data.get('fk_goods')
         outwards.fk_app = self.cleaned_data.get('fk_app')
         outwards.fk_receive = self.cleaned_data.get('fk_receive')
@@ -216,20 +250,33 @@ class NAGaOutwardsForm(forms.Form):
         outwards.daterequest = self.cleaned_data.get('daterequest')
         outwards.datereleased = self.cleaned_data.get('daterequest')
         outwards.descriptions = self.cleaned_data.get('descriptions')
-        outwards.createdby = user
-        outwards.createddate = datetime.now()
-        outwards.save()
-
         equipment = self.cleaned_data.get('equipment')
-        if equipment:
-            outwards.equipment.add(*equipment)
-        
         add_equipment = self.cleaned_data.get('add_equipment')
-        if add_equipment:
-            outwards.add_equipment.add(*add_equipment)
+        if status_form == 'Add':
+            outwards.createdby = user
+            outwards.createddate = datetime.now()
+
+            outwards.save()
+            if equipment:
+                outwards.equipment.add(*equipment)
+
+            if add_equipment:
+                outwards.add_equipment.add(*add_equipment)
+
+        elif status_form == 'Edit':
+            outwards.modifiedby = user
+            outwards.modifieddate = datetime.now()
+
+            outwards.equipment.remove(*equipment)
+            if equipment:
+                outwards.equipment.add(*equipment)
+
+            outwards.add_equipment.remove(*add_equipment)
+            if add_equipment:
+                outwards.add_equipment.add(*add_equipment)
+            outwards.save()
 
         return (Data.Success.value, )
-        
 
 
 def Entry_Goods_Outwards_GA(request):
@@ -241,14 +288,7 @@ def Entry_Goods_Outwards_GA(request):
         statusForm = request.POST['statusForm']
         if form.is_valid():
             data = form.cleaned_data
-            if statusForm == 'Add':
-                data['createddate'] = datetime.now()
-                data['createdby'] = request.user.username
-                result = form.save(user=request.user.username)
-            elif statusForm == 'Edit':
-                data['modifieddate'] = datetime.now()
-                data['modifiedby'] = request.user.username
-                result = NAGaOutwards.objects.SaveData(StatusForm.Edit, **data)
+            result = form.save(user=request.user.username)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -257,15 +297,21 @@ def Entry_Goods_Outwards_GA(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data, result = NAGaOutwards.objects.retrieveData(idapp)
+            data, result = NAGaOutwards.objects.retrieve_data(idapp)
             if data == Data.Success:
-                result = [i for i in result][0]
-                if isinstance(result['datereceived'], datetime):
-                    result['datereceived'] = result['datereceived'].strftime(
-                        '%d/%m/%Y')
+                result.update({
+                    'daterequest': result.get('daterequest').strftime(
+                        '%d/%m/%Y'
+                    ),
+                    'datereleased': result.get('datereleased').strftime(
+                        '%d/%m/%Y'
+                    )
+                })
 
                 if isinstance(result['year_made'], date):
-                    result['year_made'] = result['year_made'].strftime('%Y')
+                    result.update({
+                        'year_made': result.get('year_made').strftime('%Y')
+                    })
                 form = NAGaOutwardsForm(initial=result)
             elif data == Data.Lost:
                 return commonFunct.response_default((data, result))
