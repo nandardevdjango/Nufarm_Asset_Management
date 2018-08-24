@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django_mysql.models import JSONField
 from django.core.exceptions import MultipleObjectsReturned
 
@@ -59,6 +60,25 @@ class NA_BaseModel(models.Model):
         blank=True,
         null=True
     )
+
+    @cached_property
+    def log_display(self):
+        return {
+            'idapp': 'idapp',
+            'createddate': 'Created Date',
+            'createdby': 'Created By',
+            'modifieddate': 'Modified Date',
+            'modifiedby': 'Modified By'
+        }
+    
+    def sort_log_display(self, log_data, sort_list):
+        result = {}
+        for field in sort_list:
+            if field in log_data:
+                result.update({
+                    field: log_data.get(field)
+                })
+        return result
 
     class Meta:
         abstract = True
@@ -285,10 +305,26 @@ class Employee(NA_MasterDataModel):
     nik = models.CharField(db_column='NIK', max_length=50)
     employee_name = models.CharField(
         db_column='Employee_Name', max_length=150, blank=True, null=True)
+    typeapp = models.CharField(db_column='TypeApp', max_length=32, choices=(
+            ('P', 'Permanent'),
+            ('C', 'Casual'),
+            ('K', 'Kontrak')
+        ))
     jobtype = models.CharField(
-        db_column='JobType', max_length=150, blank=True, null=True)
-    gender = models.CharField(db_column='Gender', max_length=1)
-    status = models.CharField(db_column='Status', max_length=1)
+        db_column='JobType',
+        max_length=150,
+        blank=True,
+        null=True
+    )
+    gender = models.CharField(db_column='Gender', max_length=1, choices=(
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other')  # this is for crazy human, like a programmer their have other gender
+    ))
+    status = models.CharField(db_column='Status', max_length=1, choices=(
+        ('S', 'Single'),
+        ('M', 'Married')
+    ))
     telphp = models.CharField(
         db_column='TelpHP', max_length=20, blank=True, null=True)
     territory = models.CharField(
@@ -296,6 +332,29 @@ class Employee(NA_MasterDataModel):
 
     objects = NA_BR_Employee()
     customManager = custEmpManager()
+
+    @cached_property
+    def log_display(self):
+        log_parent = super(Employee, self).log_display
+        log_parent.update({
+            'nik': 'Nik',
+            'employee_name': 'Employee Name',
+            'typeapp': 'Employee Type',
+            'jobtype': 'Job Type',
+            'gender': 'Gender',
+            'status': 'Status',
+            'telphp': 'Mobile Phone',
+            'territory': 'Territory'
+        })
+        return log_parent
+
+    @cached_property
+    def log_sort_list(self):
+        return [
+            'idapp', 'Nik', 'Employee Name', 'Job Type', 'Employee Type', 'Gender', 'Status',
+            'Mobile Phone', 'Territory', 'Created Date', 'Created By', 'Modified Date',
+            'Modified By'
+        ]
 
     class Meta:
         managed = True

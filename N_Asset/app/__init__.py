@@ -1,4 +1,4 @@
 """
 Package for the application.
 """
-__all__ = ['NA_Views']
+default_app_config = 'app.apps.NAAppConfig'

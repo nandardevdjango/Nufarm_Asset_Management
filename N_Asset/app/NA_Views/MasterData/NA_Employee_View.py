@@ -15,6 +15,7 @@ from django import forms
 def NA_Employee(request):
     return render(request, 'app/MasterData/NA_F_Employee.html')
 
+
 @decorators.ensure_authorization
 @decorators.ajax_required
 def NA_EmployeeGetData(request):
@@ -239,3 +240,13 @@ def SearchEmployeebyform(request):
     results = {"page": page, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
     return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
+
+
+from django.dispatch import receiver
+from app.signals import logevent
+
+
+@receiver(logevent, sender=None)
+def first_signal(sender, data, **kwargs):
+    print(kwargs)
+    return 'a'
