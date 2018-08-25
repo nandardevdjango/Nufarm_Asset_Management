@@ -3,11 +3,12 @@ from django.db.models import Q
 from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch, DataType, StatusForm,
                                  Data, Message, commonFunct)
+from ..logging import LogActivity
 
 
 class NA_BR_Employee(models.Manager):
     def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like,
-    typeofData=DataType.VarChar):
+                      typeofData=DataType.VarChar):
         employeeData = super(NA_BR_Employee, self).get_queryset()\
             .values('idapp', 'nik', 'employee_name', 'typeapp', 'jobtype', 'gender',
                     'status', 'telphp', 'territory', 'descriptions', 'inactive',
@@ -84,10 +85,20 @@ class NA_BR_Employee(models.Manager):
                 inactive=%(Inactive)s,
                 modifieddate=%(ModifiedDate)s,
                 modifiedby=%(ModifiedBy)s 
-                WHERE idapp=%(IDApp)s"""
-        cur.execute(Query, Params)
-        row = cur.fetchone()
-        connection.close()
+                WHERE idapp = %(IDApp)s"""
+        with transaction.atomic():
+            cur.execute(Query, Params)
+            logging = LogActivity(
+                models=self.model,
+                activity='Updated',
+                user=data['modifiedby'],
+                data={
+                    'Nik': data['nik']
+                }
+            )
+            logging.record_activity()
+            row = cur.fetchone()
+            connection.close()
         return (Data.Success, row)
 
     def delete_employee(self, **kwargs):
@@ -138,7 +149,7 @@ class NA_BR_Employee(models.Manager):
                 return (Data.Success, Message.Success.value)
         else:
             return (Data.Lost, Message.get_lost_info(get_idapp))
-    
+
     def active(self):
         return super(NA_BR_Employee, self).filter(inactive=0)
 

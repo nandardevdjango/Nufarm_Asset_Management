@@ -1,14 +1,17 @@
-﻿from django.http import HttpResponse
-from django.shortcuts import render
-from NA_Models.models import Employee, LogEvent
-from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.auth.decorators import login_required
-import datetime
+﻿import datetime
 import json
-from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria,
-                                 StatusForm, commonFunct, Data, decorators)
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+
 from django import forms
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
+from django.http import HttpResponse, Http404
+from django.shortcuts import render
+
+from NA_DataLayer.common import (CriteriaSearch, Data, ResolveCriteria,
+                                 StatusForm, commonFunct, decorators)
+from NA_DataLayer.logging import LogActivity
+from NA_Models.models import Employee
 
 
 @decorators.ensure_authorization
@@ -53,21 +56,48 @@ def NA_EmployeeGetData(request):
     i = 0
     for row in data.object_list:
         i += 1
-        datarow = {"id": row['idapp'], "cell": [row['idapp'], i, row['nik'], row['employee_name'], row['typeapp'], row['jobtype'], row['gender'],
-                                                row['status'], row['telphp'], row['territory'], row['descriptions'], row['inactive'], row['createddate'], row['createdby']]}
+        datarow = {"id": row['idapp'], "cell": [
+            row['idapp'],
+            i,
+            row['nik'],
+            row['employee_name'],
+            row['typeapp'],
+            row['jobtype'],
+            row['gender'],
+            row['status'],
+            row['telphp'],
+            row['territory'],
+            row['descriptions'],
+            row['inactive'],
+            row['createddate'],
+            row['createdby']
+        ]}
         rows.append(datarow)
     results = {"page": data.number, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
-    return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
+    return HttpResponse(
+        json.dumps(results, indent=4, cls=DjangoJSONEncoder),
+        content_type='application/json'
+    )
 
 
 class NA_Employee_form(forms.Form):
-    nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'}))
-    employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'}))
-    typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'}))
+    idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'
+        }
+    ))
+    employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
+        }
+    ))
+    typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
+        }
+    ))
     jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
         'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
     gender = forms.CharField(required=True, widget=forms.RadioSelect(
@@ -81,9 +111,43 @@ class NA_Employee_form(forms.Form):
     descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(attrs={
         'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee', 'cols': '100', 'rows': '2', 'style': 'height: 50px;clear:left;width:500px;max-width:600px'}))
     inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    window_status = forms.CharField(widget=forms.HiddenInput(), required=False)
+    mode = forms.CharField(widget=forms.HiddenInput(), required=False)
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
+
+    @transaction.atomic
+    def save(self, user):
+        mode = self.cleaned_data.get('mode')
+        employee = Employee()
+        if mode == 'Edit':
+            idapp = self.cleaned_data.get('idapp')
+            try:
+                employee = Employee.objects.get(idapp=idapp)
+            except Employee.DoesNotExist:
+                raise Http404('Data Has Lost')
+        form_data = self.cleaned_data
+        del(form_data['mode'], form_data['initializeForm'])
+
+        for key, value in form_data.items():
+            setattr(employee, key, value)
+
+        activity = 'Created'
+        if mode == 'Add':
+            employee.createddate = datetime.datetime.now()
+            employee.createdby = user
+        elif mode == 'Edit':
+            activity = 'Updated'
+            employee.modifieddate = datetime.datetime.now()
+            employee.modifiedby = user
+        employee.save()
+        log = LogActivity(
+            models=Employee,
+            activity=activity,
+            user=user,
+            data=employee
+        )
+        log.record_activity()
+        return (Data.Success, )
 
 
 def getCurrentUser(request):
@@ -114,30 +178,8 @@ def EntryEmployee(request):
     if request.method == 'POST':
         form = NA_Employee_form(request.POST)
         if form.is_valid():
-            mode = request.POST['mode']
-            data = getData(request, form)
-            if mode == 'Add':
-                data['createddate'] = datetime.datetime.now()
-                data['createdby'] = getCurrentUser(request)
-                result = Employee.objects.SaveData(**data)
-                return commonFunct.response_default(result)
-            elif mode == 'Edit':
-                getIdapp = request.POST['idapp']
-                data['idapp'] = getIdapp
-                data['modifieddate'] = datetime.datetime.now()
-                data['modifiedby'] = getCurrentUser(request)
-                result = Employee.objects.SaveData(StatusForm.Edit, **data)
-                return commonFunct.response_default(result)
-            elif mode == 'Open':
-                if request.POST['employee_name']:
-                    return HttpResponse(
-                        json.dumps({
-                            'messages': 'You\'re try to Edit this Data \
-                            with Open Mode\nWith technic inspect element\n Lol :D'
-                        }),
-                        status=403,
-                        content_type='application/json'
-                    )
+            result = form.save(user=request.user.username)
+            return commonFunct.response_default(result)
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']
@@ -240,13 +282,3 @@ def SearchEmployeebyform(request):
     results = {"page": page, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
     return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
-
-
-from django.dispatch import receiver
-from app.signals import logevent
-
-
-@receiver(logevent, sender=None)
-def first_signal(sender, data, **kwargs):
-    print(kwargs)
-    return 'a'

@@ -2,7 +2,6 @@ from datetime import date, datetime
 from django.db.models import Model
 
 from app.signals import logevent
-from NA_Models.models import LogEvent
 
 
 class LogActivity:
@@ -41,10 +40,10 @@ class LogActivity:
                     data = data.strftime('%d/%m/%Y')
             try:
                 result[log_display.get(name)] = eval(
-                    'model.get_%s_display()' % name)
+                    'model.get_%s_display()' % name
+                )
             except AttributeError:
                 result[log_display.get(name)] = data
-        print(result)
         return model.sort_log_display(
             log_data=result,
             sort_list=model.log_sort_list
@@ -62,6 +61,7 @@ class LogActivity:
 
     @staticmethod
     def record(sender, models, activity, user, data, **kwargs):
+        from NA_Models.models import LogEvent
         log = LogEvent()
         log.nameapp = '{activity} {models}'.format(
             activity=activity,

@@ -573,7 +573,7 @@ class decorators:
                         content_type='application/json'
                     )
                 else:
-                    return redirect('/login/')
+                    return redirect('/login/?next=' + request.get_full_path())
         return wrapper
 
 

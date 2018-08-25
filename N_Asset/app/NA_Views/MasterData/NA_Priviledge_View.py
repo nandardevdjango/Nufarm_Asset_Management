@@ -24,7 +24,7 @@ def NA_PriviledgeGetData(request):
     Ilimit = request.GET.get('rows', '')
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
-   
+
     if(',' in Isidx):
         Isidx = Isidx.split(',')
 
@@ -195,7 +195,7 @@ class NA_Priviledge_Form(forms.Form):
         widget=forms.Select(
             attrs={'class': 'form-control'}
         )
-        
+
     )
     role = forms.ChoiceField(widget=forms.Select(
         attrs={'class': 'form-control'}), choices=(NAPriviledge.ROLE_CHOICES))
@@ -300,7 +300,8 @@ class NA_Priviledge_Form(forms.Form):
                         data_form.pop(same)
 
                     with transaction.atomic():
-                        NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
+                        NAPriviledge.objects.filter(
+                            idapp=idapp).update(**data_form)
                         if 'role' in data_form:
                             if (int(data_form['role']) != NAPriviledge.GUEST
                                     and int(user.role) == NAPriviledge.GUEST):
@@ -464,8 +465,10 @@ def NA_Priviledge_login(request):
                 # authenticates Email & Password
                 user = authenticate(email=email, password=password)
                 login(request, user)
-                next_action = request.GET.get('next')
-                if next_action is not None:
+                next_action = request.GET.get(
+                    'next'
+                ) or request.POST.get('next')
+                if next_action:
                     return redirect(next_action)
                 else:
                     return redirect('home')

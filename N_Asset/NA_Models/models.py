@@ -33,7 +33,6 @@ from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
 
 from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
-from NA_DataLayer.common import commonFunct
 
 
 def forced_mariadb_connection(self):
@@ -93,6 +92,16 @@ class NA_MasterDataModel(NA_BaseModel):
         blank=True,
         null=True
     )
+
+    @cached_property
+    def log_display(self):
+        log_parent = super(NA_MasterDataModel, self).log_display
+        log_parent.update({
+            'typeapp': 'Type App',
+            'inactive': 'In Active',
+            'descriptions': 'Descriptions'
+        })
+        return log_parent
 
     class Meta:
         abstract = True
