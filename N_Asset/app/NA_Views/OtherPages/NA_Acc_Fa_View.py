@@ -145,7 +145,7 @@ def generate_acc_fa(idapp, createdby):
                     'createddate': now,
                     'createdby': createdby
                 }
-                if opt['depr_method'] == 'STYD':
+                if opt['depr_method'] == 'SYD':
                     settings['depr_acc'] = opt['depr_acc']
                 return settings
 
@@ -157,7 +157,7 @@ def generate_acc_fa(idapp, createdby):
                         'month_of': i,
                         'depr_Expense': depr_expense
                     }), values_insert)
-            elif depr_method == 'STYD':
+            elif depr_method == 'SYD':
                 arr_year = [i for i in range(int(economiclife), 0, -1)]
                 total_year = 0
                 for i in arr_year:
@@ -167,7 +167,7 @@ def generate_acc_fa(idapp, createdby):
                 depr_acc = 0
                 month_of = 0
                 generate_acc_value(settings_generate({
-                    'depr_method': 'STYD',
+                    'depr_method': 'SYD',
                     'depr_acc': Decimal('0.00'),
                     'depr_Expense': Decimal(arr_depr_expense[0] / 12),
                     'month_of': 0
@@ -177,7 +177,7 @@ def generate_acc_fa(idapp, createdby):
                         depr_acc += Decimal(i / 12)
                         month_of += 1
                         generate_acc_value(settings_generate({
-                            'depr_method': 'STYD',
+                            'depr_method': 'SYD',
                             'depr_acc': depr_acc,
                             'depr_Expense': Decimal(i / 12),
                             'month_of': month_of
@@ -256,7 +256,7 @@ def generate_acc_value(acc, values_insert):
                 depr_expense = depr_expense * 2
                 #depr_accumulation = 2*(depr_expense*month_of)
             depr_accumulation = depr_expense * month_of
-        elif depr_method == 'STYD':
+        elif depr_method == 'SYD':
             depr_accumulation = acc['depr_acc']
         residue_eccLife = economiclife * (total_rows - month_of) / total_rows
         if residue_eccLife == 0:

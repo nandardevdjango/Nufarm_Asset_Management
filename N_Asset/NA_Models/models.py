@@ -112,7 +112,7 @@ class NA_TransactionModel(NA_BaseModel):
         'goods',
         db_column='FK_Goods',
         max_length=30,
-        db_constraint=False
+        db_constraint=False,
     )
     fk_employee = models.ForeignKey(
         'Employee',
@@ -147,7 +147,7 @@ class NA_GoodsReceiveModel(NA_BaseModel):
     )
     descbysystem = models.CharField(
         db_column='DescBySystem',
-        max_length=250,
+        max_length=500,
         blank=True,
         null=True
     )

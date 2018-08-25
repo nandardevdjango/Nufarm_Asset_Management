@@ -22,7 +22,7 @@ class NA_BR_Goods(models.Manager):
 			NAData.annotate(
 				typeofdepreciation=Case(When(depreciationmethod__iexact='SL', then=Value('Stright Line')),
 											When(depreciationmethod__iexact='DDB',then=Value('Double Declining Balance')),
-											When(depreciationmethod__iexact='STYD',then=Value('Sum of The Year Digit')),
+											When(depreciationmethod__iexact='SYD',then=Value('Sum of The Year Digit')),
 											When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 											output_field=CharField())
 										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')	
@@ -44,7 +44,7 @@ class NA_BR_Goods(models.Manager):
 		#return super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey}).annotate(
 		#			depreciation=Case(When(depreciationmethod__iexact='SL', then=Value('Stright Line')),
 		#									When(depreciationmethod__iexact='DDB',then=Value('Double Declining Balance')),
-		#									When(depreciationmethod__iexact='STYD',then=Value('Sum of The Year Digit')),
+		#									When(depreciationmethod__iexact='SYD',then=Value('Sum of The Year Digit')),
 		#									When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 		#									output_field=CharField())
 		#								  ).values_list('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','depreciationmethod','unit','economiclife','placement','descriptions','inactive')
@@ -62,7 +62,7 @@ class NA_BR_Goods(models.Manager):
 		NAData = NAData.annotate(
 				typeofdepreciation=Case(When(depreciationmethod__iexact='SL', then=Value('Stright Line')),
 											When(depreciationmethod__iexact='DDB',then=Value('Double Declining Balance')),
-											When(depreciationmethod__iexact='STYD',then=Value('Sum of The Year Digit')),
+											When(depreciationmethod__iexact='SYD',then=Value('Sum of The Year Digit')),
 											When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 											output_field=CharField())
 										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')						
@@ -126,7 +126,7 @@ class NA_BR_Goods(models.Manager):
 
 class CustomManager(models.Manager):
 	def getGoods(self,itemCode):
-		return super(CustomManager,self).raw("SELECT IDApp,CONCAT(goodsname,' ',IFNULL(brandname,'')) as goods FROM n_a_goods WHERE itemcode = %(itemCode)s",{'itemCode':itemCode})
+		return super(CustomManager,self).raw("SELECT IDApp,goodsname as goods FROM n_a_goods WHERE itemcode = %(itemCode)s",{'itemCode':itemCode})
 	def searchGoodsByForm(self, q, category=None):
 		filter_data = [(Q(goods__icontains=q) | Q(itemcode__icontains=q))]
 		if category:
@@ -138,6 +138,7 @@ class CustomManager(models.Manager):
 			del filter_data
 		data = super(CustomManager,self).get_queryset()\
             .annotate(goods=Concat(F('goodsname'), Value(' '), F('brandname'), Value(' ')))\
+			.annotate(goods =F('goodsname'))\
             .values('idapp','itemcode','goods','typeapp','descriptions')\
             .filter(*Query)
 		if data.exists():

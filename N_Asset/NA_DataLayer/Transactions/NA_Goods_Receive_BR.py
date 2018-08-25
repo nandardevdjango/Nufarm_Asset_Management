@@ -150,7 +150,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur = self.__class__.c
 		try:
 			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
-			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+			#totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost
+			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
 			if Status == StatusForm.Input:
 				totalNew = totalNew + int(Data['totalreceived'])
 				totalReceived = totalReceived + int(Data['totalreceived'])
@@ -181,6 +182,7 @@ class NA_BR_Goods_Receive(models.Manager):
 						for i in range(detCount):
 							dataDetail[i]['fkapp'] = FKApp
 							details.append(tuple(dataDetail[i].values()))
+							#details.append(Data['createdby'])
 						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
 						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\

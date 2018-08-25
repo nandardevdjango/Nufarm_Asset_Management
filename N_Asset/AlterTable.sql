@@ -420,3 +420,26 @@ ALTER TABLE `n_a_ga_return`
 	ADD COLUMN `Sold_To` CHAR(1) NULL DEFAULT NULL AFTER `SellingPrice`,
 	ADD COLUMN `FK_Sold_To_Employee` INT NULL DEFAULT NULL COMMENT 'di jual ke karyawan mana kalau ke orang lain isinya dbnull' AFTER `Sold_To`,
 	ADD COLUMN `Sold_To_P_Other` VARCHAR(120) NULL DEFAULT NULL COMMENT 'di jual ke siapa bila bukan karyaawan, ke perusahaan atau perorangan' AFTER `FK_Sold_To_Employee`;
+	--DROP SELURUH FOREIGN KEY YANG ADA
+	---TRUNCATE SELURUH TABLE 
+	TRUNCATE TABLE employee;
+TRUNCATE TABLE n_a_acc_fa;
+TRUNCATE TABLE n_a_appparams;
+TRUNCATE TABLE n_a_disposal;
+TRUNCATE TABLE n_a_ga_outwards;
+TRUNCATE TABLE n_a_ga_receive;
+TRUNCATE TABLE n_a_ga_return;
+TRUNCATE TABLE n_a_ga_vn_history;
+TRUNCATE TABLE n_a_goods;
+TRUNCATE TABLE n_a_goods_history;
+TRUNCATE TABLE n_a_goods_lending;
+TRUNCATE TABLE n_a_goods_lost;
+TRUNCATE TABLE n_a_goods_outwards;
+TRUNCATE TABLE n_a_goods_receive;
+TRUNCATE TABLE n_a_goods_receive_detail;
+TRUNCATE TABLE n_a_goods_receive_other;
+TRUNCATE TABLE n_a_goods_return;
+TRUNCATE TABLE n_a_maintenance;
+TRUNCATE TABLE n_a_stock;
+TRUNCATE TABLE n_a_suplier;
+TRUNCATE TABLE n_a_ga_return
