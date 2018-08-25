@@ -2,7 +2,6 @@
 from os import path
 from datetime import datetime, date
 from django.db import models
-from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -841,41 +840,40 @@ class NAGoodsLost(NA_TransactionModel):
 
 
 class NADisposal(NA_TransactionModel):
-	fk_employee = None
+    fk_employee = None
 
-	datedisposal = models.DateField(db_column='DateDisposal')
-	islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
-	fk_lost = models.ForeignKey('NAGoodsLost',db_column='FK_Lost',blank=True,null=True)
-	issold = models.PositiveSmallIntegerField(
-		db_column='IsSold', blank=True, null=True)
-	sellingprice = models.DecimalField(
+    datedisposal = models.DateField(db_column='DateDisposal')
+    islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
+    fk_lost = models.ForeignKey('NAGoodsLost', db_column='FK_Lost', blank=True,null=True)
+    issold = models.PositiveSmallIntegerField(db_column='IsSold', blank=True, null=True)
+    sellingprice = models.DecimalField(
         db_column='SellingPrice',
         max_digits=30,
         decimal_places=4,
         blank=True,
         null=True
     )
-	sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
-	fk_sold_to_employee= models.ForeignKey(
-		'Employee',
-		db_column='FK_Sold_To_Employee',
-		related_name='fk_disposal_emp_Sold',
-		db_constraint=False, blank=True, null=True,
-	)
-	sold_to_p_other = models.CharField(
+    sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
+    fk_sold_to_employee= models.ForeignKey(
+        'Employee',
+        db_column='FK_Sold_To_Employee',
+        related_name='fk_disposal_emp_Sold',
+        db_constraint=False, blank=True, null=True,
+    )
+    sold_to_p_other = models.CharField(
         max_length=120,
         db_column='Sold_To_P_Other',
         blank=True,
         null=True
     )
-	bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
-	descriptions = models.CharField(
-		db_column='Descriptions',
-		max_length=250,
-		blank=True,
-		null=True
-	)
-	fk_proposedby = models.ForeignKey(
+    bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+    descriptions = models.CharField(
+        db_column='Descriptions',
+        max_length=250,
+        blank=True,
+        null=True
+    )
+    fk_proposedby = models.ForeignKey(
         'Employee',
         db_column='FK_ProposedBy',
         related_name='fk_disposal_emp_proposed',
@@ -885,85 +883,85 @@ class NADisposal(NA_TransactionModel):
         db_constraint=False
     )
 
-	fk_acknowledge1 = models.ForeignKey(
-		'Employee',
-		db_column='FK_Acknowledge1',
-		related_name='fk_disposal_emp_ack1',
-		db_constraint=False, blank=True, null=True,
-	)
-	fk_acknowledge2 = models.ForeignKey(
-		'Employee',
-		db_column='FK_Acknowledge2',
-		related_name='fk_disposal_emp_ack2',
-		db_constraint=False, blank=True, null=True,
-	)
-	fk_approvedby = models.ForeignKey(
-		'Employee',
-		db_column='FK_ApprovedBy',
-		related_name='fk_disposal_emp_app',
-		db_constraint=False, blank=True, null=True,
-	)
-	fk_acc_fa = models.ForeignKey(
-		'NAAccFa',
+    fk_acknowledge1 = models.ForeignKey(
+        'Employee',
+        db_column='FK_Acknowledge1',
+        related_name='fk_disposal_emp_ack1',
+        db_constraint=False, blank=True, null=True,
+    )
+    fk_acknowledge2 = models.ForeignKey(
+        'Employee',
+        db_column='FK_Acknowledge2',
+        related_name='fk_disposal_emp_ack2',
+        db_constraint=False, blank=True, null=True,
+    )
+    fk_approvedby = models.ForeignKey(
+        'Employee',
+        db_column='FK_ApprovedBy',
+        related_name='fk_disposal_emp_app',
+        db_constraint=False, blank=True, null=True,
+    )
+    fk_acc_fa = models.ForeignKey(
+        'NAAccFa',
         related_name='fk_disposal_accfa',
         db_column='FK_Acc_FA',
         blank=True,
         null=True,
         db_constraint=False
     )
-	fk_stock = models.ForeignKey(
-		'NAStock',
+    fk_stock = models.ForeignKey(
+        'NAStock',
         related_name='fk_disposal_stock',
         db_column='FK_Stock',
         blank=True,
         null=True,
         db_constraint=False
     )
-	fk_maintenance = models.ForeignKey(
-		'NAMaintenance',
-		null=True,
-		blank=True,
-		db_column='FK_Maintenance',
-		db_constraint=False,
-		related_name='fk_disposal_maintenance'
-	)
-	fk_outwards = models.ForeignKey(
-		'NAGoodsOutwards',
-		db_column='FK_Outwards',
-		null=True,
-		blank=True,
-		db_constraint=False,
-		related_name='fk_disposal_outwards'
-	)
-	fk_lending = models.ForeignKey(
-		'NAGoodsLending',
-		db_column='FK_Lending',
-		null=True,
-		blank=True,
-		db_constraint=False,
-		related_name='fk_disposal_lending'
-	)
-	fk_return = models.ForeignKey('NAGoodsReturn',
-									db_column='FK_Return',
-									null=True,
-									blank=True,
-									db_constraint=False,
-									related_name='fk_disposal_return'
-									)
-	fk_usedemployee = models.ForeignKey(
-		'Employee',
-		db_column='FK_UsedEmployee',
-		null=True,
-		blank=True,
-		db_constraint=False,
-		related_name='fk_disposal_emp_used'
-	)
+    fk_maintenance = models.ForeignKey(
+        'NAMaintenance',
+        null=True,
+        blank=True,
+        db_column='FK_Maintenance',
+        db_constraint=False,
+        related_name='fk_disposal_maintenance'
+    )
+    fk_outwards = models.ForeignKey(
+        'NAGoodsOutwards',
+        db_column='FK_Outwards',
+        null=True,
+        blank=True,
+        db_constraint=False,
+        related_name='fk_disposal_outwards'
+    )
+    fk_lending = models.ForeignKey(
+        'NAGoodsLending',
+        db_column='FK_Lending',
+        null=True,
+        blank=True,
+        db_constraint=False,
+        related_name='fk_disposal_lending'
+    )
+    fk_return = models.ForeignKey('NAGoodsReturn',
+                                    db_column='FK_Return',
+                                    null=True,
+                                    blank=True,
+                                    db_constraint=False,
+                                    related_name='fk_disposal_return'
+                                    )
+    fk_usedemployee = models.ForeignKey(
+        'Employee',
+        db_column='FK_UsedEmployee',
+        null=True,
+        blank=True,
+        db_constraint=False,
+        related_name='fk_disposal_emp_used'
+    )
 
-	objects = NA_BR_Goods_Disposal()
+    objects = NA_BR_Goods_Disposal()
 
-	class Meta:
-		managed = True
-		db_table = 'n_a_disposal'
+    class Meta:
+        managed = True
+        db_table = 'n_a_disposal'
 
 
 def upload_to_each_dir(instance, filename):

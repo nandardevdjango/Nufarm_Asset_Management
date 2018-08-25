@@ -41,15 +41,15 @@ class Migration(migrations.Migration):
                 'managed': True,
             },
         ),
-        #migrations.RemoveField(
-        #    model_name='nastock',
-        #    name='isbroken',
-        #),
-        #migrations.AddField(
-        #    model_name='nadisposal',
-        #    name='fk_lost',
-        #    field=models.ForeignKey(blank=True, db_column='FK_Lost', null=True, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAGoodsLost'),
-        #),
+        migrations.RemoveField(
+           model_name='nastock',
+           name='isbroken',
+        ),
+        migrations.AddField(
+           model_name='nadisposal',
+           name='fk_lost',
+           field=models.ForeignKey(blank=True, db_column='FK_Lost', null=True, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAGoodsLost'),
+        ),
         migrations.AddField(
             model_name='nadisposal',
             name='fk_sold_to_employee',
