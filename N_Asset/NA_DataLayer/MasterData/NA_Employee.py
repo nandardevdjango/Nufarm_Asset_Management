@@ -205,8 +205,7 @@ class NA_BR_Employee(models.Manager):
 
     def setInActive(self, idapp, inactive):
         if self.dataExist(idapp=idapp):
-            data = super(NA_BR_Employee, self).get_queryset().values(
-                'inactive').filter(idapp=idapp)
+            data = super(NA_BR_Employee, self).get_queryset().values('inactive').filter(idapp=idapp)
             if commonFunct.str2bool(data[0]['inactive']) == inactive:
                 return (Data.Changed, Message.has_update_by_other(pk=idapp, table='employee'))
             else:

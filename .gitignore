@@ -259,3 +259,4 @@ N_Asset/N_Asset/local_settings.py
 *.DS_Store
 .editorConfig
 .vscode
+N_Asset/.idea
