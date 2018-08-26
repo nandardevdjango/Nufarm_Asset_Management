@@ -9,7 +9,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render
 
 from NA_DataLayer.common import (CriteriaSearch, Data, ResolveCriteria,
-                                 StatusForm, commonFunct, decorators)
+                                 StatusForm, commonFunct, decorators, Message)
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import Employee
 
@@ -115,6 +115,26 @@ class NA_Employee_form(forms.Form):
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
+    def clean(self):
+        mode = self.cleaned_data.get('mode')
+        if mode == 'Edit':
+            idapp = self.cleaned_data.get('idapp')
+            if not idapp:
+                raise forms.ValidationError({'idapp': 'This Field is required'})
+        return super(NA_Employee_form, self).clean()
+
+    def clean_nik(self):
+        nik = self.cleaned_data.get('nik')
+        is_exists, message = Employee.objects.dataExist(nik=nik)
+        if is_exists:
+            raise forms.ValidationError((Data.Exists, message))
+
+    def clean_telphp(self):
+        telphp = self.cleaned_data.get('telphp')
+        is_exists, message = Employee.objects.dataExist(telphp=telphp)
+        if is_exists:
+            raise forms.ValidationError((Data.Exists, message))
+
     @transaction.atomic
     def save(self, user):
         mode = self.cleaned_data.get('mode')
@@ -124,7 +144,10 @@ class NA_Employee_form(forms.Form):
             try:
                 employee = Employee.objects.get(idapp=idapp)
             except Employee.DoesNotExist:
-                raise Http404('Data Has Lost')
+                return Data.Lost,
+            else:
+                if Employee.objects.hasRef(idapp=idapp):
+                    return Data.HasRef, Message.HasRef_edit
         form_data = self.cleaned_data
         del(form_data['mode'], form_data['initializeForm'])
 
@@ -147,20 +170,7 @@ class NA_Employee_form(forms.Form):
             data=employee
         )
         log.record_activity()
-        return (Data.Success, )
-
-
-def getCurrentUser(request):
-    return str(request.user.username)
-
-
-def getData(request, form):
-    clData = form.cleaned_data
-    data = {'nik': clData['nik'], 'employee_name': clData['employee_name'], 'typeapp': clData['typeapp'],
-            'jobtype': clData['jobtype'], 'gender': clData['gender'], 'status': clData['status'], 'telphp': clData['telphp'],
-            'territory': clData['territory'], 'descriptions': clData['descriptions'], 'inactive': clData['inactive'],
-            }
-    return data
+        return Data.Success,
 
 
 @decorators.ajax_required
@@ -179,7 +189,9 @@ def EntryEmployee(request):
         form = NA_Employee_form(request.POST)
         if form.is_valid():
             result = form.save(user=request.user.username)
-            return commonFunct.response_default(result)
+        else:
+            result = commonFunct.get_form_error_message(form.errors)
+        return commonFunct.response_default(result)
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']

@@ -1016,3 +1016,11 @@ class commonFunct:
             json.dumps(results, indent=4, cls=DjangoJSONEncoder),
             content_type='application/json'
         )
+
+    @staticmethod
+    def get_form_error_message(form_error):
+        form_error = form_error.as_data()
+        if isinstance(form_error, list):
+            return form_error[0].message
+        for k, v in form_error.items():
+            return v[0].message

@@ -30,23 +30,24 @@ def NA_LogEvent_data(request):
             hari.append(d)
         result = []
         for t in tahun:
-          for b in bulan:
-              if b.year == t.year:
-                result.append((str(t.year),b.strftime("%B %Y"))) #b.strftime for returning unique text e.g: December 2017 , if the text is December only .. the date of 2018 may be have this children (atau bisa disebut Bentrok) :D
+            for b in bulan:
+                if b.year == t.year:
+                    result.append((str(t.year), b.strftime("%B %Y"))) #b.strftime for returning unique text e.g: December 2017 , if the text is December only .. the date of 2018 may be have this children (atau bisa disebut Bentrok) :D
         for b in bulan:
-          for h in hari:
-              if h.year == b.year and h.month == b.month:
-                result.append((b.strftime("%B %Y"),h))
+            for h in hari:
+                if h.year == b.year and h.month == b.month:
+                    result.append((b.strftime("%B %Y"), h))
         for h in hari:
-          for e in event:
-              if e['createddate'].year == h.year and e['createddate'].month == h.month and e['createddate'].day == h.day:
-                result.append((h,'{} at {}'.format(e['nameapp'] , e['createddate'].strftime("%H:%M:%S"))))
+            for e in event:
+                if e['createddate'].year == h.year and e['createddate'].month == h.month and e['createddate'].day == h.day:
+                    result.append((h,'{} at {}'.format(e['nameapp'] , e['createddate'].strftime("%H:%M:%S"))))
         parents, children = zip(*result) #get parent and children then return tuple within list .. . :D
         root_nodes = {x for x in parents if x not in children}
         getUser = str(request.user.username)
         for node in root_nodes:
-          result.append((getUser, node))
+            result.append((getUser, node))
         result.append(('Log Event', getUser))
+
         def get_nodes(node):
             data = {}
             data['text'] = node

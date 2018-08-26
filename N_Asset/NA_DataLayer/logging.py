@@ -44,10 +44,12 @@ class LogActivity:
                 )
             except AttributeError:
                 result[log_display.get(name)] = data
-        return model.sort_log_display(
+        result = model.sort_log_display(
             log_data=result,
             sort_list=model.log_sort_list
         )
+        print(result)
+        return result
 
     def record_activity(self):
 

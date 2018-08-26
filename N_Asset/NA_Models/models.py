@@ -310,7 +310,9 @@ class LogEvent(NA_BaseModel):
 
 
 class Employee(NA_MasterDataModel):
-    nik = models.CharField(db_column='NIK', max_length=50)
+    nik = models.CharField(
+        db_column='NIK', max_length=50, unique=True
+    )
     employee_name = models.CharField(
         db_column='Employee_Name', max_length=150, blank=True, null=True)
     typeapp = models.CharField(db_column='TypeApp', max_length=32, choices=(
@@ -334,7 +336,12 @@ class Employee(NA_MasterDataModel):
         ('M', 'Married')
     ))
     telphp = models.CharField(
-        db_column='TelpHP', max_length=20, blank=True, null=True)
+        db_column='TelpHP',
+        max_length=20,
+        blank=True,
+        null=True,
+        unique=True
+    )
     territory = models.CharField(
         db_column='Territory', max_length=50, blank=True, null=True)
 
@@ -384,8 +391,19 @@ class NASuplier(NA_MasterDataModel):
     address = models.CharField(
         db_column='Address', max_length=150, blank=True, null=True)
     telp = models.CharField(
-        db_column='Telp', max_length=20, blank=True, null=True)
-    hp = models.CharField(db_column='HP', max_length=20, blank=True, null=True)
+        db_column='Telp',
+        max_length=20,
+        blank=True,
+        null=True,
+        unique=True
+    )
+    hp = models.CharField(
+        db_column='HP',
+        max_length=20,
+        blank=True,
+        null=True,
+        unique=True
+    )
     contactperson = models.CharField(
         db_column='ContactPerson', max_length=100, blank=True, null=True)
 

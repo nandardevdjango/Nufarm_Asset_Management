@@ -170,6 +170,7 @@ class NA_BR_Employee(models.Manager):
 
     def dataExist(self, **kwargs):
         idapp = kwargs.get('idapp')
+        status_form = kwargs.get('status_form')
         if idapp is not None:
             return super(NA_BR_Employee, self).get_queryset().filter(idapp=idapp).exists()
         nik = kwargs.get('nik')
