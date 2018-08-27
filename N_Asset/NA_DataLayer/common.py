@@ -77,7 +77,7 @@ class Message(Enum):
     def get_specific_exists(table, column, data):
         """
         param:
-        return message existed data : e.g (Suplier with supliercode 0012a has existed)
+        return message existed data : e.g (Supplier with suppliercode 0012a has existed)
         """
         return '{0} with {1} {2} has existed'.format(table, column, data)
 
@@ -109,7 +109,7 @@ class Message(Enum):
         """
         get lost info, 
         param:
-        pk(Primary Key):idapp or supliercode
+        pk(Primary Key):idapp or suppliercode
         table:table_name
         """
         obj = commonFunct.get_log_data(
@@ -138,7 +138,7 @@ class Message(Enum):
         use it , if other user want to edit data .. but the data
         has updated by other user
         param:
-        pk(Primary Key):idapp or supliercode
+        pk(Primary Key):idapp or suppliercode
         table:table_name
         """
         obj = commonFunct.get_log_data(
@@ -530,7 +530,8 @@ class decorators:
                     if _action == 'Open':
                         return HttpResponse('cannot edit data with status open', status=403)
                     masterdata_form = [
-                        'employee', 'n_a_suplier', 'goods', 'n_a_priviledge']
+                        'employee', 'n_a_supplier', 'goods', 'n_a_privilege'
+                    ]
                     transaction_form = ['n_a_goods_receive']
                     all_form = masterdata_form + transaction_form
                     form_action = ['Open', 'Add', 'Edit']
@@ -828,7 +829,7 @@ class commonFunct:
         action: e.g (deleted,updated)
         action for getting type of log event
 
-        PK: primary key e.g (IDApp,SuplierCode)
+        PK: primary key e.g (IDApp,SupplierCode)
         table: to determine , which table to get
         usage :: get_log_data(action='deleted',pk=2,table='employee')
         """

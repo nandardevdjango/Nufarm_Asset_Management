@@ -78,8 +78,8 @@
                             <span class="nav-label"> Master Data </span> <span class="fa{% if not request.user.role == 3 %} fa-angle-down{% else %} fa-angle-up{% endif %} pull-right"></span>
                         </a>
                         <ul class="sub-menu{% if not request.user.role == 3 %} collapse{% else %} in{% endif %}" id="dashboard" aria-expanded="false" style="">
-                            {% if request.user.allow_view_suplier %}
-                            <li><a href="{% url 'MasterData:NA_Suplier:NA_Suplier' %}" {% if url_name == 'NA_Suplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Suplier</a></li>
+                            {% if request.user.allow_view_supplier %}
+                            <li><a href="{% url 'MasterData:NA_Supplier:NA_Supplier' %}" {% if url_name == 'NA_Supplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Supplier</a></li>
                             {% endif %}
 
                             {% if request.user.allow_view_employee %}
@@ -90,8 +90,8 @@
                             <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
                             {% endif %}
                             <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-                            {% if request.user.allow_view_priviledge %}
-                            <li><a href="{% url 'MasterData:NA_Priviledge:NA_Priviledge' %}" {% if url_name == 'NA_Priviledge' %} class="active" {% endif %}><i class="fa fa-user"></i> User Priviledge</a></li>
+                            {% if request.user.allow_view_privilege %}
+                            <li><a href="{% url 'MasterData:NA_Privilege:NA_Privilege' %}" {% if url_name == 'NA_Privilege' %} class="active" {% endif %}><i class="fa fa-user"></i> User Privilege</a></li>
                             {% endif %}
                             <li><a href="#">Others Menu</a></li>
                             <li><a href="#">Others Menu</a></li>
@@ -375,20 +375,20 @@
         <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->
 		{% if request.resolver_match.url_name != 'home' %}
 		<script>
-			NA.Priviledge.Email = '{{ request.user.email }}';
+			NA.Privilege.Email = '{{ request.user.email }}';
 			var roleCode = '{{ request.user.role }}';
 			if (roleCode == 1) {
-				NA.Priviledge.IsAdmin = true;
-				NA.Priviledge.RoleName = 'Super User';
+				NA.Privilege.IsAdmin = true;
+				NA.Privilege.RoleName = 'Super User';
 			} else {
 				if (roleCode == 2) {
-					NA.Priviledge.RoleName = 'User';
+					NA.Privilege.RoleName = 'User';
 				} else if (roleCode == 3) {
-					NA.Priviledge.RoleName = 'Guest';
+					NA.Privilege.RoleName = 'Guest';
 				}
-				NA.Priviledge.IsAdmin = false;
+				NA.Privilege.IsAdmin = false;
 			}
-			NA.Priviledge.password = '{{ request.user.password }}'
+			NA.Privilege.password = '{{ request.user.password }}'
 		</script>
 		{% endif %}
         {% block DialogEntry %}
@@ -553,8 +553,8 @@
     		        formData.append("picture", file);
     		    
     		        $.ajax({
-    		            url: '/MasterData/Priviledge/change_picture/' 
-                            + window.encodeURIComponent(NA.Priviledge.Email) + '/',
+    		            url: '/MasterData/Privilege/change_picture/'
+                            + window.encodeURIComponent(NA.Privilege.Email) + '/',
     		            method: 'POST',
     		            data: formData,
     		            cache: false,
@@ -921,9 +921,9 @@
     				var type_report = args['get_text'][4]
     				var data_report = args['get_text'][5]
     				var data_report_employee = data_report['bio_employee']
-    				var data_report_suplier = data_report['bio_suplier']
+    				var data_report_supplier = data_report['bio_supplier']
     				var tabular_employee = data_report['tabular_data_employee']
-    				var tabular_suplier = data_report['tabular_data_suplier']
+    				var tabular_supplier = data_report['tabular_data_supplier']
     				if (type_report == 'biodata'||type_report == 'Biodata') {
     					if (data_report_employee) {
 
@@ -1026,14 +1026,14 @@
     						content_Name.appendChild(container_dataEmployee);
 
     					};
-    					if (data_report_suplier) {
-    						var container_dataSuplier = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(container_dataSuplier, {
+    					if (data_report_supplier) {
+    						var container_dataSupplier = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(container_dataSupplier, {
     							'id': 'containerElem',
     							'class': 'col-md-12'
     						});
-    						var data_reportSuplier = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(data_reportSuplier, {
+    						var data_reportSupplier = NA.common.doc.createElement('div');
+    						NA.common.NA_setAttr(data_reportSupplier, {
     							'id': 'contentElem',
     							'class': args['contentElem_Class']
     						});
@@ -1043,17 +1043,17 @@
     							'class': args['contentData_Class']
     						});
 
-    						data_reportSuplier.textContent = 'Suplier :';
+    						data_reportSupplier.textContent = 'Supplier :';
     						var ul_bio = NA.common.doc.createElement('ul');
     						NA.common.NA_setAttr(ul_bio, {
     							'id': 'ul_container'
     						})
-    						var create_elem_suplier = function (i) {
+    						var create_elem_supplier = function (i) {
     							var bio = NA.common.doc.createElement('a');
     							var li_bio = NA.common.doc.createElement('li');
     							var ul_data_bio = NA.common.doc.createElement('ul');
-    							var li_bio_supliercode = NA.common.doc.createElement('li');
-    							var li_bio_supliername = NA.common.doc.createElement('li');
+    							var li_bio_suppliercode = NA.common.doc.createElement('li');
+    							var li_bio_suppliername = NA.common.doc.createElement('li');
     							var li_bio_telp = NA.common.doc.createElement('li');
     							var li_bio_hp = NA.common.doc.createElement('li');
     							var li_bio_contactperson = NA.common.doc.createElement('li');
@@ -1073,26 +1073,26 @@
     								'data-toggle': 'dropdown'
     							});
 
-    							var textBio = NA.common.doc.createTextNode(data_report_suplier[i]['supliername']);
-    							var text_supliercode = NA.common.doc.createTextNode('Suplier Code :' + data_report_suplier[i]['supliercode']);
-    							var text_supliername = NA.common.doc.createTextNode('Suplier Name :' + data_report_suplier[i]['supliername']);
-    							var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_suplier[i]['telp']);
-    							var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_suplier[i]['hp']);
-    							var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_suplier[i]['contactperson']);
-    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_suplier[i]['inactive']);
-    							var text_address = NA.common.doc.createTextNode('Address :' + data_report_suplier[i]['address']);
+    							var textBio = NA.common.doc.createTextNode(data_report_supplier[i]['suppliername']);
+    							var text_suppliercode = NA.common.doc.createTextNode('Supplier Code :' + data_report_supplier[i]['suppliercode']);
+    							var text_suppliername = NA.common.doc.createTextNode('Supplier Name :' + data_report_supplier[i]['suppliername']);
+    							var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_supplier[i]['telp']);
+    							var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_supplier[i]['hp']);
+    							var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_supplier[i]['contactperson']);
+    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_supplier[i]['inactive']);
+    							var text_address = NA.common.doc.createTextNode('Address :' + data_report_supplier[i]['address']);
 
     							bio.appendChild(textBio);
     							li_bio.appendChild(bio);
-    							li_bio_supliercode.appendChild(text_supliercode);
-    							li_bio_supliername.appendChild(text_supliername);
+    							li_bio_suppliercode.appendChild(text_suppliercode);
+    							li_bio_suppliername.appendChild(text_suppliername);
     							li_bio_telp.appendChild(text_telp);
     							li_bio_hp.appendChild(text_hp);
     							li_bio_contactperson.appendChild(text_contactperson);
     							li_bio_inactive.appendChild(text_inactive);
     							li_bio_address.appendChild(text_address);
-    							ul_data_bio.appendChild(li_bio_supliercode);
-    							ul_data_bio.appendChild(li_bio_supliername);
+    							ul_data_bio.appendChild(li_bio_suppliercode);
+    							ul_data_bio.appendChild(li_bio_suppliername);
     							ul_data_bio.appendChild(li_bio_telp);
     							ul_data_bio.appendChild(li_bio_hp);
     							ul_data_bio.appendChild(li_bio_contactperson);
@@ -1102,21 +1102,21 @@
     							ul_bio.appendChild(li_bio)
     							data_reportText.appendChild(ul_bio);
     						}
-    						if (data_report_suplier.length > 1) {
-    							for (var i = 0; i < data_report_suplier.length; i++) {
-    								create_elem_suplier(i);
+    						if (data_report_supplier.length > 1) {
+    							for (var i = 0; i < data_report_supplier.length; i++) {
+    								create_elem_supplier(i);
     							}
-    						} else if (data_report_suplier.length == 1) {
-    							create_elem_suplier(0)
+    						} else if (data_report_supplier.length == 1) {
+    							create_elem_supplier(0)
     						};
-    						container_dataSuplier.appendChild(data_reportSuplier);
-    						container_dataSuplier.appendChild(data_reportText);
-    						content_Name.appendChild(container_dataSuplier);
+    						container_dataSupplier.appendChild(data_reportSupplier);
+    						container_dataSupplier.appendChild(data_reportText);
+    						content_Name.appendChild(container_dataSupplier);
     					}
     				} else if (type_report == 'tabular_data' || type_report == 'Tabular Data') {
 
     					var tabular_employee = data_report['tabular_data_employee']
-    					var tabular_suplier = data_report['tabular_data_suplier']
+    					var tabular_supplier = data_report['tabular_data_supplier']
     					var create_tabular = function (tabular) {
     						var containerElm = NA.common.doc.createElement('div');
     						NA.common.NA_setAttr(containerElm, {
@@ -1145,10 +1145,10 @@
     							textData: tabular_employee
     						})
     					};
-    					if (tabular_suplier) {
+    					if (tabular_supplier) {
     						create_tabular({
-    							textContent: 'Total Suplier :',
-    							textData: tabular_suplier
+    							textContent: 'Total Supplier :',
+    							textData: tabular_supplier
     						})
     					}
     				}
@@ -1307,7 +1307,7 @@
     								var match_created = node.text.match(/Created/);
     								var match_updated = node.text.match(/Updated/);
     								var match_deleted = node.text.match(/Deleted/);
-    								var match_suplier = node.text.match(/Suplier/);
+    								var match_supplier = node.text.match(/Supplier/);
     								var match_employee = node.text.match(/Employee/);
     								var match_goods = node.text.match(/Goods/);
     								var match_mail = node.text.match(/Email/);
@@ -1324,32 +1324,32 @@
     									title: 'Nufarm Log Event - Descriptions',
     									parentClass: 'col-md-12'
     								};
-    								if (match_suplier) {
-    									var settings_suplier = NA.common.AssignObject({
-    										textToContent: ['Suplier Code :', 'Suplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
+    								if (match_supplier) {
+    									var settings_supplier = NA.common.AssignObject({
+    										textToContent: ['Supplier Code :', 'Supplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
     										contentElem_Class: 'col-md-4',
     										contentData_Class: 'col-md-7'
     									},settings_default)
     									if (match_created) {
-    										var settings_suplier_create = NA.common.AssignObject({
+    										var settings_supplier_create = NA.common.AssignObject({
     											get_text: label_inactive(get_created)
-    										},settings_suplier)
-    										showDescriptionsLog(settings_suplier_create)
+    										},settings_supplier)
+    										showDescriptionsLog(settings_supplier_create)
     										removeNull(get_created);
     									} else if (match_updated) {
-    										var settings_suplier_update = NA.common.AssignObject({
+    										var settings_supplier_update = NA.common.AssignObject({
     											get_text: get_after,
     											mode: 'update',
     											text_after: get_after,
     											text_before: get_before
-    										},settings_suplier)
-    										showDescriptionsLog(settings_suplier_update)
+    										},settings_supplier)
+    										showDescriptionsLog(settings_supplier_update)
 
     									} else if (match_deleted) {
-    										var settings_suplier_delete = NA.common.AssignObject({
+    										var settings_supplier_delete = NA.common.AssignObject({
     											get_text: get_deleted
-    										},settings_suplier)
-    										showDescriptionsLog(settings_suplier_delete);
+    										},settings_supplier)
+    										showDescriptionsLog(settings_supplier_delete);
     										removeNull(get_deleted);
     									}
     								} else if (match_employee) {

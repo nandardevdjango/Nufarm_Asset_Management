@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from NA_Models.models import NAPriviledge
+from NA_Models.models import NAPrivilege
 
 
 class NA_User_Form(UserCreationForm):
@@ -36,7 +36,7 @@ class NA_User_Form(UserCreationForm):
         return user
 
     class Meta:
-        model = NAPriviledge
+        model = NAPrivilege
         fields = ('first_name','last_name','username','email','picture','password1','password2')
 
 def NA_User_Register(request):

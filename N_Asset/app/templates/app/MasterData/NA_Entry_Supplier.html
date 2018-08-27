@@ -3,7 +3,7 @@
         margin-right:5px
     }
 </style>
-<form action="EntrySuplier/" method="post" style="width:440px;height:260px;" id="suplier_form" onsubmit="return false">
+<form action="EntrySupplier/" method="post" style="width:440px;height:260px;" id="supplier_form" onsubmit="return false">
     {% csrf_token %}
     <style>
         form div.row {
@@ -12,12 +12,12 @@
     </style>
     <div class="NA-Entry-div-row">
         <div class="NA-Entry-inlinve-div">
-            <label for="id_supliercode">Supliercode:</label>
-            {{form.supliercode}}
+            <label for="id_suppliercode">Suppliercode:</label>
+            {{form.suppliercode}}
         </div>
         <div class="NA-Entry-inlinve-div">
-            <label for="id_supliername">Supliername:</label>
-            {{form.supliername}}
+            <label for="id_suppliername">Suppliername:</label>
+            {{form.suppliername}}
         </div>
     </div>
     <div class="NA-Entry-div-row">
@@ -48,6 +48,6 @@
     </div>
     
     {{form.initializeForm}}
-    <input type="submit" style="display:none" id="suplier_submit" />
+    <input type="submit" style="display:none" id="supplier_submit" />
     
 </form>

@@ -3,7 +3,7 @@
 
         var mainDialog = $('div.maindialogContent');
         var is_emplChecked = mainDialog.find('input#employee_email');
-        var is_suplChecked = mainDialog.find('input#suplier_email');
+        var is_suplChecked = mainDialog.find('input#supplier_email');
         var is_selectData = $('select#selectData');
         var searchInput = $(' div.maindialogContent').find('input#searchBiodata');
         mainDialog.find(is_selectData).on('change', function () {
@@ -47,7 +47,7 @@
                                 return $("<li>")
                                 .append("<div>" + item.label + "<br><span style=\"font-size: 10px;color:#999999;vertical-align:text-bottom;clear:left\">nik : " + item.nik + "</span>" + "<span style=\"float:right;font-size:10px;clear:right;\">Employee</span>" + "</div>")
                                 .appendTo(ul);
-                            } else if (item.value.endsWith('-suplier')) {
+                            } else if (item.value.endsWith('-supplier')) {
                                 return $("<li>")
                                 .append("<div>" + item.label + "<br>" + item.value.match(/^\w+/) + "</div>")
                                 .appendTo(ul);
@@ -88,7 +88,7 @@
                                 data_report.push('Employee')
                             };
                             if (is_suplChecked.prop('checked') == true) {
-                                data_report.push('Suplier')
+                                data_report.push('Supplier')
                             }
                             var send_mail = Object.assign({
                                 'data_report_tabular': String(data_report),
@@ -100,8 +100,8 @@
                             $('span.label-success[data-value$=employee]').each(function () {
                                 data_report_empl.push($(this).attr('data-value').replace('-employee', ''));
                             });
-                            $('span.label-success[data-value$=suplier]').each(function () {
-                                data_report_supl.push($(this).attr('data-value').replace('-suplier', ''));
+                            $('span.label-success[data-value$=supplier]').each(function () {
+                                data_report_supl.push($(this).attr('data-value').replace('-supplier', ''));
                             });
                             var send_mail = Object.assign({
                                 'type_report': 'biodata',
@@ -202,7 +202,7 @@
 
                     if (is_suplChecked.prop('checked') == true) {
                         $.ajax({
-                            url: url_suplData() + '?columnName=supliername&valueKey=&dataType=Varchar&criteria=like&_search=false&nd=1517132750079&rows=20&page=1&sidx=createddate&sord=desc',
+                            url: url_suplData() + '?columnName=suppliername&valueKey=&dataType=Varchar&criteria=like&_search=false&nd=1517132750079&rows=20&page=1&sidx=createddate&sord=desc',
                             dataType: 'json',
                             beforeSend: function (jqXHR) {
                                 var csrf_token = get_csrf();
@@ -211,22 +211,22 @@
                             success: function (data) {
                                 var doc = new jsPDF();
                                 var get_data = data['rows']
-                                var column = ['Suplier Code', 'Suplier Name', 'Address', 'Telp', 'Hp', 'Contact Person']
-                                var rowsSuplier = []
+                                var column = ['Supplier Code', 'Supplier Name', 'Address', 'Telp', 'Hp', 'Contact Person']
+                                var rowsSupplier = []
                                 for (var i = 0; i < get_data.length; i++) {
-                                    rowsSuplier.push(get_data[i]['cell'].slice(0, 6)) //slice inactive & createddate
+                                    rowsSupplier.push(get_data[i]['cell'].slice(0, 6)) //slice inactive & createddate
                                 }
                                 //var rows = $.map(get_data, function (value, index) {
-                                //    return [[value.supliercode, value.supliername, value.address, value.telp, value.hp, value.contactperson, value.inactive]];
+                                //    return [[value.suppliercode, value.suppliername, value.address, value.telp, value.hp, value.contactperson, value.inactive]];
                                 //});
-                                console.log(rowsSuplier)
-                                doc.autoTable(column, rowsSuplier, {
+                                console.log(rowsSupplier)
+                                doc.autoTable(column, rowsSupplier, {
                                     styles: {
                                         fontSize: 9,
                                     },
                                     margin: 5,
                                     columnStyles: {
-                                        'Suplier Code': {
+                                        'Supplier Code': {
                                             lineWidth: 2
                                         }
                                     }
@@ -270,7 +270,7 @@
                 } else {
                     match_dataAutoComp = $('span.label-success');
                     match_bioEmpl = $('span.label-success[data-value$=employee]');
-                    match_bioSupl = $('span.label-success[data-value$=suplier]');
+                    match_bioSupl = $('span.label-success[data-value$=supplier]');
                     function getBio_empl() {
                         if (match_bioEmpl.length > 0) {
                             var get_valueBio = []
@@ -294,7 +294,7 @@
                             var get_valueSupl = []
                             if (match_bioSupl.length > 1) {
                                 match_bioSupl.each(function () {
-                                    get_valueSupl.push($(this).attr('data-value').replace('-suplier', ''));
+                                    get_valueSupl.push($(this).attr('data-value').replace('-supplier', ''));
                                 });
                             } else if (match_bioSupl.length == 1) {
                                 get_valueSupl.push(match_bioSupl.attr('data-value').match(/^\w+/));
@@ -319,11 +319,11 @@
                             "bio_empl_idapp": getBio_empl(), //typeof match_dataAutoComp != 'undefined' && match_dataAutoComp.endsWith('employee') ? parseInt(match_dataAutoComp.match(/\d+/)) : ""
                             //"is_supl": is_suplChecked.prop('checked'),
                             "total_bioSupl": match_bioSupl.length,
-                            "bio_supliercode": getBio_supl(),
+                            "bio_suppliercode": getBio_supl(),
                         },
                         success: function (data) {
                             var get_data_empl = data['employee']
-                            var get_data_supl = data['suplier']
+                            var get_data_supl = data['supplier']
                             var empl_doc = new jsPDF();
                             if (get_data_empl) {
                                 var column_empl = ['Nik', 'Employee Name', 'Type App', 'Job type', 'Gender', 'Status', 'Telp/Hp', 'Territory']
@@ -336,9 +336,9 @@
                             };
                             var supl_doc = new jsPDF();
                             if (get_data_supl) {
-                                var column_supl = ['Suplier Code', 'Suplier Name', 'Address', 'Telp', 'Hp', 'Contact Person']
+                                var column_supl = ['Supplier Code', 'Supplier Name', 'Address', 'Telp', 'Hp', 'Contact Person']
                                 var rows_supl = $.map(get_data_supl, function (value, index) {
-                                    return [[value.supliercode, value.supliername, value.address, value.telp, value.hp, value.contactperson]];
+                                    return [[value.suppliercode, value.suppliername, value.address, value.telp, value.hp, value.contactperson]];
                                 });
                                 supl_doc.autoTable(column_supl, rows_supl, {
                                     styles: {
@@ -346,7 +346,7 @@
                                     },
                                     margin: 5,
                                     columnStyles: {
-                                        'Suplier Code': {
+                                        'Supplier Code': {
                                             lineWidth: 2
                                         }
                                     }

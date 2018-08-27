@@ -12,14 +12,14 @@ from NA_DataLayer.common import commonFunct
 class NA_BR_Goods_Receive(models.Manager):
 	c = None
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-		#IDapp,goods,datereceived,suplier,receivedby,pr_by,totalPurchase,totalreceived
+		#IDapp,goods,datereceived,supplier,receivedby,pr_by,totalPurchase,totalreceived
 		colKey = '';
 		if columnKey == "goods":
 			colKey = "g.goodsname"
 		elif columnKey == 'datereceived':
 			colKey = "ngr.datereceived"
-		elif columnKey == "supliername":
-			colKey = "sp.supliername"
+		elif columnKey == "suppliername":
+			colKey = "sp.suppliername"
 		elif columnKey == 'receivedby':
 			colKey =  "emp1.receivedby"
 		elif columnKey == 'pr_by':
@@ -39,8 +39,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.execute(Query)		
 		#CREATE TEMPORARY TABLE IF NOT EXISTS  temp_table ( INDEX(col_2) ) ENGINE=MyISAM AS (SELECT col_1, coll_2, coll_3  FROM mytable)
 		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
-	    ngr.datereceived,sp.supliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
-	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+	    ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
+	    INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"
 		cur.execute(Query)	
@@ -63,15 +63,15 @@ class NA_BR_Goods_Receive(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
 	def getRefNO(self,searchRefNO):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('refno').distinct()
 	def getData(self,IDApp):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		Query = """SELECT ngr.idapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS fk_goods, goodsname as goods_desc,g.economiclife, \
-	    ngr.datereceived,ngr.fk_suplier,sp.supliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
-	    INNER JOIN n_a_suplier AS sp ON sp.SuplierCode = ngr.FK_Suplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
+	    ngr.datereceived,ngr.fk_supplier,sp.suppliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
+	    INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %s"""
 		cur.execute(Query,[IDApp])
@@ -158,15 +158,15 @@ class NA_BR_Goods_Receive(models.Manager):
 			with transaction.atomic():
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
-				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Suplier':Data['fk_suplier'], 'TotalPurchase':Data['totalpurchase'],
+				Params = {'RefNO':Data['refno'],'FK_goods':Data['idapp_fk_goods'], 'DateReceived':Data['datereceived'], 'FK_Supplier':Data['fk_supplier'], 'TotalPurchase':Data['totalpurchase'],
 							'TotalReceived':Data['totalreceived'],'FK_ReceivedBy':Data['idapp_fk_receivedby'],'FK_P_R_By':Data['idapp_fk_p_r_by'],'Descriptions':Data['descriptions'],'descbysystem':Data['descbysystem']}
 				dataDetail = list(Data.get('dataForGridDetail'));
 				detCount = len(dataDetail)
 					#dataDetail = object_list
 				if Status == StatusForm.Input:
 					#insert data transaction
-					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Suplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
-							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Suplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s,%(descbysystem)s)"""
+					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Supplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
+							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Supplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s,%(descbysystem)s)"""
 					Params.update(CreatedBy=Data['createdby']) 
 					cur.execute(Query,Params)
 					#get primary key
@@ -183,7 +183,7 @@ class NA_BR_Goods_Receive(models.Manager):
 							dataDetail[i]['fkapp'] = FKApp
 							details.append(tuple(dataDetail[i].values()))
 							#details.append(Data['createdby'])
-						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Suplier Name', 'suplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]	
+						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Supplier Name', 'supplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]
 						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
 									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
@@ -193,7 +193,7 @@ class NA_BR_Goods_Receive(models.Manager):
 					hasChangedDetail = commonFunct.str2bool(str(Data['hasChangedDetail']))				
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
 					if hasChangedHeader:
-						Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Suplier = %(FK_Suplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
+						Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Supplier = %(FK_Supplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
 									FK_P_R_By = %(FK_P_R_By)s,ModifiedDate = CURRENT_DATE,ModifiedBy = %(ModifiedBy)s,Descriptions = %(Descriptions)s """
 						if not hasRef:#jika sudah ada transaksi,total received tidak bisa di edit
 							Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
@@ -347,12 +347,12 @@ class NA_BR_Goods_Receive(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
-class CustomSuplierManager(models.Manager):
-	def getSuplier(self,supliercode):
-		return super(CustomSuplierManager,self).get_queryset().filter(supliercode__iexact=supliercode).values('supliername')
+class CustomSupplierManager(models.Manager):
+	def getSupplier(self,suppliercode):
+		return super(CustomSupplierManager,self).get_queryset().filter(suppliercode__iexact=suppliercode).values('suppliername')
 		
-	def getSuplierByForm(self,searchText):
-		return super(CustomSuplierManager,self).get_queryset().filter(Q(supliername__icontains=searchText) & Q(inactive__exact=0)).values('supliercode','supliername')
+	def getSupplierByForm(self,searchText):
+		return super(CustomSupplierManager,self).get_queryset().filter(Q(suppliername__icontains=searchText) & Q(inactive__exact=0)).values('suppliercode','suppliername')
 
 class custEmpManager(models.Manager):
 	def getEmployee(self,nik):

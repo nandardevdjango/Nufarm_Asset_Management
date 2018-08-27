@@ -1,6 +1,6 @@
 ﻿{% extends 'app/layout.html' %} {% block SearchData %}
-<li><a href="#" data-tipe="varchar" data-column="supliercode">Suplier Code</a></li>
-<li><a href="#" data-tipe="varchar" data-column="supliername">Suplier Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="suppliercode">Supplier Code</a></li>
+<li><a href="#" data-tipe="varchar" data-column="suppliername">Supplier Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="address">Address</a></li>
 <!--<li class="divider"></li>-->
 <li><a href="#" data-tipe="varchar" data-column="inactive">InActive</a></li>
@@ -55,8 +55,8 @@
     }
 </style>
 {% endblock %} {% block content-0 %}
-<table id="NA_Suplier_grid" style="overflow:auto"></table>
-<div id="NA_Suplier_pager" class="scroll" style="text-align:center;"></div>
+<table id="NA_Supplier_grid" style="overflow:auto"></table>
+<div id="NA_Supplier_pager" class="scroll" style="text-align:center;"></div>
 {% endblock %} {% block DialogEntry %}
 <script>
     function get_csrf() {
@@ -66,30 +66,30 @@
 </script>
 <script type="text/javascript">
     var win = win || window;
-    var suplier_grid = $("#NA_Suplier_grid");
+    var supplier_grid = $("#NA_Supplier_grid");
     var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
-        NA.Priviledge.read_priviledge('n_a_suplier');
+        NA.Privilege.read_privilege('n_a_supplier');
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                 '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
                 '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
                 '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
             if (arguments.length > 0) {
-                suplier_grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
+                supplier_grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
             } else {
-                suplier_grid.jqGrid({
+                supplier_grid.jqGrid({
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['No', 'Suplier Code', 'Suplier Name', 'Address', 'Telp', 'Hp', 'Contact Person', 'Inactive', 'Createddate', 'Createdby'],
+                    colNames: ['No', 'Supplier Code', 'Supplier Name', 'Address', 'Telp', 'Hp', 'Contact Person', 'Inactive', 'Createddate', 'Createdby'],
                     colModel: [
                         { name: 'no', index: 'no', width: 45, align: 'center' },
-                        { name: 'supliercode', index: 'supliercode', width: 125, search: false, editable: true, key: true, formoptions: { label: 'Suplier Code:' } },//
-                        { name: 'supliername', index: 'supliername', width: 170, editable: true, search: false, editrules: { required: true }, formoptions: { label: 'Suplier Name:' } },
+                        { name: 'suppliercode', index: 'suppliercode', width: 125, search: false, editable: true, key: true, formoptions: { label: 'Supplier Code:' } },//
+                        { name: 'suppliername', index: 'suppliername', width: 170, editable: true, search: false, editrules: { required: true }, formoptions: { label: 'Supplier Name:' } },
                         { name: 'address', index: 'address', width: 150, editable: true, editrules: { required: true }, formoptions: { label: 'Address:' } },
                         { name: 'telp', index: 'telp', width: 150, align: 'left', editable: true, search: false, editrules: { required: true }, formoptions: { label: 'Telp:' } },
                         { name: 'hp', index: 'hp', width: 150, align: 'left', editable: true, editrules: { required: true }, formoptions: { label: 'Hp:' } },
@@ -102,7 +102,7 @@
                         repeatitems: false,
                         root: 'rows'
                     },
-                    pager: $('#NA_Suplier_pager'),
+                    pager: $('#NA_Supplier_pager'),
                     rowNum: 20,
                     rowList: [10, 20, 30],
                     sortname: 'createddate',
@@ -110,7 +110,7 @@
                     viewrecords: true,
                     loadui: 'disable',
                     shrinkToFit: false,
-                    caption: 'Master Data -- Suplier',
+                    caption: 'Master Data -- Supplier',
                     shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
@@ -124,7 +124,7 @@
             }
         };
         var SearchData = NA.common.SearchData;
-        SearchData.setDefaultSearchData('supliername', 'Varchar', 'like');
+        SearchData.setDefaultSearchData('suppliername', 'Varchar', 'like');
         LoadData();
 
 
@@ -136,8 +136,8 @@
                     SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
                     SearchInput = NA.common.doc.querySelector('input[name=q]');;
                 if (SearchBy.trim() == 'By') {
-                    NA.common.SearchData.setDefaultSearchData('supliername', 'Varchar', 'like');
-                    var curPage = parseInt(suplier_grid.getGridParam('page'));
+                    NA.common.SearchData.setDefaultSearchData('suppliername', 'Varchar', 'like');
+                    var curPage = parseInt(supplier_grid.getGridParam('page'));
                     window.document.body.style.cursor = 'wait';
                     NA.common.SearchData.setValue(SearchInput.value);
                     LoadData(curPage);
@@ -154,18 +154,18 @@
         NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
         NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
-        suplier_grid.on("keyup", "tr", function (e) {
+        supplier_grid.on("keyup", "tr", function (e) {
             //var rowid = parseInt($(this).attr("id"));
             console.log('deleted')
-            var rowId = suplier_grid.jqGrid('getGridParam', 'selrow');
+            var rowId = supplier_grid.jqGrid('getGridParam', 'selrow');
             if (e.keyCode == 46) {
                 var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
                 btnDelete.click();
                 return false;
             }
         });
-        NA.common.doc.title = 'Nufarm - Suplier';
-        suplier_grid.navGrid('#NA_Suplier_pager', {
+        NA.common.doc.title = 'Nufarm - Supplier';
+        supplier_grid.navGrid('#NA_Supplier_pager', {
             edit: true,
             add: true,
             del: true,
@@ -175,7 +175,7 @@
             cloneToTop: false
         });
 
-        $("div#gbox_NA_Suplier_grid, div#gview_NA_Suplier_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+        $("div#gbox_NA_Supplier_grid, div#gview_NA_Supplier_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
             'width': 'inherit'
         });
 
@@ -255,7 +255,7 @@
             window.document.body.style.cursor = 'wait';
             LoadData(1);
             document.body.style.cursor = 'default';
-            suplier_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
+            supplier_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
         };
 
         //function untuk Reset
@@ -265,7 +265,7 @@
             if (event) {
                 var target = NA.NAEvent.getTarget(event);
             }
-            NA.common.SearchData.setDefaultSearchData('supliername', 'varchar', 'like');
+            NA.common.SearchData.setDefaultSearchData('suppliername', 'varchar', 'like');
             NA.common.SearchData.setValue('');
             LoadData(1);
             window.document.body.style.cursor = 'default';
@@ -326,7 +326,7 @@
         NA.common.dialog.initDialog(null, 'Nufarm Send Email - Master Data', elementMenus);//inistialisasi menu
 
         function getGridId() {
-            return $(suplier_grid).jqGrid('getGridParam', 'selrow')
+            return $(supplier_grid).jqGrid('getGridParam', 'selrow')
         }
 
         function getGridValue(grid, jqgId, column) {
@@ -335,8 +335,8 @@
         }
         function getValues_suplForm() {
             var data = {
-                supliercode: qs('input#id_supliercode').value.trim(),
-                supliername: qs('input#id_supliername').value.trim(),
+                suppliercode: qs('input#id_suppliercode').value.trim(),
+                suppliername: qs('input#id_suppliername').value.trim(),
                 address: qs('textarea#id_address').value.trim(),
                 telp: qs('input#id_telp').value.trim(),
                 hp: qs('input#id_hp').value.trim(),
@@ -347,7 +347,7 @@
         }
         var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)')
         NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
-            var get_supliercode = getGridId()
+            var get_suppliercode = getGridId()
             if (getGridId()) {
                 NA.NAEvent.preventDefault(event);
                 return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.titleInfo, function () {
@@ -356,15 +356,15 @@
                         method: 'POST',
                         data: {
                             'csrfmiddlewaretoken': get_csrf(),
-                            'supliercode': get_supliercode
+                            'suppliercode': get_suppliercode
                         },
                         success: function (data) {
-                            var rowNum = suplier_grid.getGridParam('rowNum'),
-                                allRecords = suplier_grid.getGridParam('records'),
+                            var rowNum = supplier_grid.getGridParam('rowNum'),
+                                allRecords = supplier_grid.getGridParam('records'),
                                 totalPages = parseInt((allRecords / rowNum) + 1),
-                                curPage = suplier_grid.getGridParam('page'),
-                                rowId = suplier_grid.jqGrid('getGridParam', 'selrow'),
-                                curRecount = suplier_grid.jqGrid('getGridParam', 'reccount');
+                                curPage = supplier_grid.getGridParam('page'),
+                                rowId = supplier_grid.jqGrid('getGridParam', 'selrow'),
+                                curRecount = supplier_grid.jqGrid('getGridParam', 'reccount');
                             mustReload = true;
                             if (parseInt(curRecount) === 1) {
                                 if (totalPages > 1) {
@@ -372,20 +372,20 @@
                                 }
                                 else {
                                     mustReload = false;
-                                    suplier_grid.delRowData(rowId);
+                                    supplier_grid.delRowData(rowId);
                                 }
                             }
                             else if (parseInt(totalPages) === 1) {
                                 mustReload = false;
-                                suplier_grid.delRowData(rowId);
+                                supplier_grid.delRowData(rowId);
                             }
                             else if (parseInt(curRecount) > 1) {
                                 mustReload = false;
-                                suplier_grid.delRowData(rowId);
+                                supplier_grid.delRowData(rowId);
                             }
                             if (mustReload) {
                                 window.document.body.style.cursor = 'wait';
-                                suplier_grid.trigger("reloadGrid", [{ page: curPage }]);
+                                supplier_grid.trigger("reloadGrid", [{ page: curPage }]);
                             }
                             reload_LogEvent();
                         }
@@ -403,7 +403,7 @@
         });
 
         status = status || window.status;
-        function SuplierSubmit() {
+        function SupplierSubmit() {
             function sendData() {
                 var valuesForm = getValues_suplForm()
                 var supCode;
@@ -417,7 +417,7 @@
                 return snData
             }
             $.ajax({
-                url: 'EntrySuplier/',
+                url: 'EntrySupplier/',
                 method: 'POST',
                 beforeSend: function (jqXHR) {
                     jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
@@ -426,9 +426,9 @@
                 success: function (data) {
                     var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                     NA.common.dialog.closeDialog(dialog);
-                    suplier_grid.trigger('reloadGrid');
+                    supplier_grid.trigger('reloadGrid');
                     setTimeout(function () {
-                        suplier_grid.setSelection(data['message'], true)
+                        supplier_grid.setSelection(data['message'], true)
                     }, 1000);
                     reload_LogEvent();
                 }
@@ -437,21 +437,21 @@
         function ExecuteHandler(TextElement) {
             var initializeForm = NA.common.getElementID('id_initializeForm');
             var dialog = qs("div.containerDialog"),
-                frmEntry = qs('form#suplier_form'),
+                frmEntry = qs('form#supplier_form'),
                 emailForm = qs('form#email_data'),
                 originalData = status !== 'Open' ? JSON.parse(initializeForm.Value) : '',
                 valuesForm = getValues_suplForm();
 
 
             if (frmEntry) {
-                var inputbtn = NA.common.getElementID('suplier_submit');
+                var inputbtn = NA.common.getElementID('supplier_submit');
                 switch (TextElement) {
                     case 'OK': {
                         if (!frmEntry.checkValidity()) {
                             inputbtn.click();
                         } else {
                             if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                                SuplierSubmit();
+                                SupplierSubmit();
                             } else {
                                 NA.common.dialog.closeDialog(dialog);
                             }
@@ -469,7 +469,7 @@
                                         inputbtn.click();
                                     }
                                     else {
-                                        SuplierSubmit();
+                                        SupplierSubmit();
                                     }
                                 },
                                 function () {
@@ -627,7 +627,7 @@
                             });
                         }
                     }
-                    $('div.maindialogContent').load("EntrySuplier/?" + win.encodeURIComponent('supliercode') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('mode')
+                    $('div.maindialogContent').load("EntrySupplier/?" + win.encodeURIComponent('suppliercode') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('mode')
                         + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
                             if (statusTxt == "success" || xhr.status == 200) {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                                 var dialog = qs("div.containerDialog"),
@@ -683,7 +683,7 @@
                                 return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
                                     var dialog = qs("div.containerDialog");
                                     NA.common.dialog.closeDialog(dialog);
-                                    return suplier_grid.trigger('reloadGrid');
+                                    return supplier_grid.trigger('reloadGrid');
                                 });
                             };
                             NA.NAEvent.preventDefault(event);

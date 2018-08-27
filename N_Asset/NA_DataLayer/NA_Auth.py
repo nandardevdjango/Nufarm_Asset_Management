@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
-from NA_Models.models import NAPriviledge as User
+from NA_Models.models import NAPrivilege as User
 
 class NA_AuthBackend(object):
 

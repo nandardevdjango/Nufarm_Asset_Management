@@ -1,5 +1,5 @@
 ﻿from django.shortcuts import render
-from NA_Models.models import Employee, NASuplier,LogEvent
+from NA_Models.models import Employee, NASupplier,LogEvent
 from django.http import JsonResponse, HttpResponse
 from django.core.mail import EmailMessage, BadHeaderError
 from django.conf import settings
@@ -34,9 +34,9 @@ def NA_EmailData(request):
                         if 'Employee' in data_report_tabular.split(','):
                             total_empl = Employee.objects.count()
                             result_all['tabular_data_employee'] = str(total_empl) + ' Employees' if total_empl > 1 else str(total_empl) + ' Employee'
-                        if 'Suplier' in data_report_tabular.split(','):
-                            total_supl = NASuplier.objects.count()
-                            result_all['tabular_data_suplier'] = str(total_supl) + ' Supliers' if total_supl > 1 else str(total_supl) + ' Suplier'
+                        if 'Supplier' in data_report_tabular.split(','):
+                            total_supl = NASupplier.objects.count()
+                            result_all['tabular_data_supplier'] = str(total_supl) + ' Suppliers' if total_supl > 1 else str(total_supl) + ' Supplier'
                     elif type_report == 'biodata':
                         data_report_empl = request.POST['data_report_empl']
                         data_report_supl = request.POST['data_report_supl']
@@ -56,14 +56,14 @@ def NA_EmailData(request):
                         if data_report_supl != 'none':
                             result_supl = []
                             if len_report_supl > 1:
-                                bio_supl = NASuplier.objects.filter(supliercode__in=(data_report_supl.split(',')))\
-                                    .values('supliercode', 'supliername', 'address', 'telp', 'hp', 'contactperson','inactive')
+                                bio_supl = NASupplier.objects.filter(suppliercode__in=(data_report_supl.split(',')))\
+                                    .values('suppliercode', 'suppliername', 'address', 'telp', 'hp', 'contactperson','inactive')
                             elif len_supl_empl == 1:
-                                bio_supl = NASuplier.objects.retriveData(data_report_supl)\
-                                    .values('supliercode', 'supliername', 'address', 'telp', 'hp', 'contactperson','inactive')
+                                bio_supl = NASupplier.objects.retriveData(data_report_supl)\
+                                    .values('suppliercode', 'suppliername', 'address', 'telp', 'hp', 'contactperson','inactive')
                             for i in bio_supl:
                                 result_supl.append(i)
-                            result_all['bio_suplier'] = result_supl
+                            result_all['bio_supplier'] = result_supl
 
                     LogEvent.objects.create(nameapp='Send Email', typeapp='P', descriptionsapp={
                             'emailData':[
@@ -90,7 +90,7 @@ def searchBiodata(request):
         is_empl = request.POST['is_empl']
         is_supl = request.POST['is_supl']
         get_empl = Employee.objects.filter(employee_name__icontains=q).values('idapp','nik','employee_name')
-        get_supl = NASuplier.objects.filter(supliername__icontains=q).values('supliercode', 'supliername')
+        get_supl = NASupplier.objects.filter(suppliername__icontains=q).values('suppliercode', 'suppliername')
         result = []
         if is_empl and is_supl:
             if is_empl == 'true':
@@ -104,8 +104,8 @@ def searchBiodata(request):
             if is_supl == 'true':
                 for j in get_supl:
                     data = {}
-                    data['value'] = j['supliercode'] + '-suplier'
-                    data['label'] = j['supliername']
+                    data['value'] = j['suppliercode'] + '-supplier'
+                    data['label'] = j['suppliername']
                     result.append(data)
     else:
         result = 'failed'
@@ -136,18 +136,18 @@ def NA_Email_retriveBio(request):
                 biodata['employee'] = bio_Empl
             total_bioSupl = request.POST['total_bioSupl']
             if int(total_bioSupl) > 0:
-                retrive_bioSupl = request.POST['bio_supliercode']
+                retrive_bioSupl = request.POST['bio_suppliercode']
                 bio_Supl = []
                 if int(total_bioSupl) > 1:
                     retrive_bioSuplArr = retrive_bioSupl.split(',')
-                    get_bioSupl = NASuplier.objects.filter(supliercode__in=(retrive_bioSuplArr))\
-                        .values('supliercode', 'supliername', 'address', 'telp', 'hp', 'contactperson')
+                    get_bioSupl = NASupplier.objects.filter(suppliercode__in=(retrive_bioSuplArr))\
+                        .values('suppliercode', 'suppliername', 'address', 'telp', 'hp', 'contactperson')
                 elif int(total_bioSupl) == 1:
-                    get_bioSupl = NASuplier.objects.retriveData(retrive_bioSupl)\
-                        .values('supliercode', 'supliername', 'address', 'telp', 'hp', 'contactperson')
+                    get_bioSupl = NASupplier.objects.retriveData(retrive_bioSupl)\
+                        .values('suppliercode', 'suppliername', 'address', 'telp', 'hp', 'contactperson')
                 for i in get_bioSupl:
                     bio_Supl.append(i)
-                biodata['suplier'] = bio_Supl     
+                biodata['supplier'] = bio_Supl
     return JsonResponse(biodata)
 
 def NA_EmailUplData(request):
@@ -171,7 +171,7 @@ def NA_EmailUplData(request):
     if is_supl == 'true':
         toPDF_supl = request.POST['toPDF_supl']
         if toPDF_supl != 'none':
-            save_supl = open(dir_emailData + '/Report Suplier By %s.pdf' % request.user.username, 'wb')
+            save_supl = open(dir_emailData + '/Report Supplier By %s.pdf' % request.user.username, 'wb')
             save_supl.write(base64.b64decode(toPDF_supl))
             save_supl.close()
     return HttpResponse('Success')

@@ -65,7 +65,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'N_Asset.urls'
 
-AUTH_USER_MODEL = 'NA_Models.NAPriviledge'
+AUTH_USER_MODEL = 'NA_Models.NAPrivilege'
 
 TEMPLATES = [
     {

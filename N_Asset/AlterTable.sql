@@ -441,5 +441,5 @@ TRUNCATE TABLE n_a_goods_receive_other;
 TRUNCATE TABLE n_a_goods_return;
 TRUNCATE TABLE n_a_maintenance;
 TRUNCATE TABLE n_a_stock;
-TRUNCATE TABLE n_a_suplier;
+TRUNCATE TABLE n_a_supplier;
 TRUNCATE TABLE n_a_ga_return

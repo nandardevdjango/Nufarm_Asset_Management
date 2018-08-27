@@ -106,10 +106,18 @@ class NA_Employee_form(forms.Form):
         choices=[('S', 'Single'), ('M', 'Married')]))
     telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
         'class': 'NA-Form-Control', 'placeholder': 'Phone Number'}))
-    territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Territory'}))
-    descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee', 'cols': '100', 'rows': '2', 'style': 'height: 50px;clear:left;width:500px;max-width:600px'}))
+    territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Territory'
+        }
+    ))
+    descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee',
+            'cols': '100', 'rows': '2',
+            'style': 'height: 50px;clear:left;width:500px;max-width:600px'
+        }
+    ))
     inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
     mode = forms.CharField(widget=forms.HiddenInput(), required=False)
     initializeForm = forms.CharField(
@@ -198,7 +206,11 @@ def EntryEmployee(request):
         if mode == 'Edit' or mode == 'Open':
             result = Employee.objects.retriveData(idapp)
             if result[0] == Data.Lost:
-                return HttpResponse(json.dumps({'message': result[0]}), status=404, content_type='application/json')
+                return HttpResponse(
+                    json.dumps({'message': result[0]}),
+                    status=404,
+                    content_type='application/json'
+                )
             form = NA_Employee_form(initial=result[1])
             form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
@@ -293,4 +305,7 @@ def SearchEmployeebyform(request):
         rows.append(datarow)
     results = {"page": page, "total": paginator.num_pages,
                "records": totalRecord, "rows": rows}
-    return HttpResponse(json.dumps(results, indent=4, cls=DjangoJSONEncoder), content_type='application/json')
+    return HttpResponse(
+        json.dumps(results, indent=4, cls=DjangoJSONEncoder),
+        content_type='application/json'
+    )

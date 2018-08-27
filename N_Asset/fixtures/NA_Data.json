@@ -5,7 +5,7 @@
     "fields": {
         "createddate": "2018-05-05T20:39:49",
         "createdby": "Admin",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF122FHJ",
@@ -27,7 +27,7 @@
     "fields": {
         "createddate": "2018-05-05T20:47:28",
         "createdby": "rimba47prayoga",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF122uui",
@@ -49,7 +49,7 @@
     "fields": {
         "createddate": "2018-05-10T19:20:55",
         "createdby": "rimba47prayoga",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF122fg",
@@ -71,7 +71,7 @@
     "fields": {
         "createddate": "2018-05-13T12:54:16",
         "createdby": "rimba47prayoga",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF343534",
@@ -93,7 +93,7 @@
     "fields": {
         "createddate": "2018-05-24T22:13:40",
         "createdby": "rimba47prayoga",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF1229",
@@ -180,7 +180,7 @@
     "fields": {
         "createddate": "2018-06-23T18:05:59",
         "createdby": "admin",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AF1223",
@@ -202,7 +202,7 @@
     "fields": {
         "createddate": "2018-06-23T18:06:06",
         "createdby": "admin",
-        "nameapp": "Deleted Suplier",
+        "nameapp": "Deleted Supplier",
         "descriptions": {
             "deleted": [
                 "AD3323",
@@ -564,7 +564,7 @@
     }
 },
 {
-    "model": "NA_Models.nasuplier",
+    "model": "NA_Models.nasupplier",
     "pk": "AF12245",
     "fields": {
         "createddate": "2018-01-06T00:00:00",
@@ -572,7 +572,7 @@
         "modifieddate": null,
         "modifiedby": null,
         "inactive": 0,
-        "supliername": "Rimba",
+        "suppliername": "Rimba",
         "address": "Cimahi",
         "telp": "0221122331144",
         "hp": "0895322085649",
@@ -7647,7 +7647,7 @@
         "modifieddate": "2018-05-26T00:00:00",
         "modifiedby": "rimba47prayoga",
         "datereceived": "2018-04-05T00:00:00",
-        "fk_suplier": "AF12245",
+        "fk_supplier": "AF12245",
         "totalpurchase": 10,
         "totalreceived": 1,
         "descriptions": "test",
@@ -7667,7 +7667,7 @@
         "modifieddate": null,
         "modifiedby": null,
         "datereceived": "2018-03-07T00:00:00",
-        "fk_suplier": "AF12245",
+        "fk_supplier": "AF12245",
         "totalpurchase": 2,
         "totalreceived": 2,
         "descriptions": "samsung J7 pengganti J5 yang sudah rusak",
@@ -7687,7 +7687,7 @@
         "modifieddate": null,
         "modifiedby": null,
         "datereceived": "2018-03-02T00:00:00",
-        "fk_suplier": "AF12245",
+        "fk_supplier": "AF12245",
         "totalpurchase": 1,
         "totalreceived": 1,
         "descriptions": "test",
@@ -7707,7 +7707,7 @@
         "modifieddate": null,
         "modifiedby": null,
         "datereceived": "2018-03-05T00:00:00",
-        "fk_suplier": "AF12245",
+        "fk_supplier": "AF12245",
         "totalpurchase": 1,
         "totalreceived": 1,
         "descriptions": "TEST",
@@ -7727,7 +7727,7 @@
         "modifieddate": null,
         "modifiedby": null,
         "datereceived": "2018-02-12T00:00:00",
-        "fk_suplier": "AF12245",
+        "fk_supplier": "AF12245",
         "totalpurchase": 1,
         "totalreceived": 1,
         "descriptions": "test",
@@ -8051,16 +8051,16 @@
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 1,
     "fields": {
         "form_id": "0001M",
-        "form_name": "Suplier Form",
-        "form_name_ori": "n_a_suplier"
+        "form_name": "Supplier Form",
+        "form_name_ori": "n_a_supplier"
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 2,
     "fields": {
         "form_id": "0002M",
@@ -8069,7 +8069,7 @@
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 3,
     "fields": {
         "form_id": "0003M",
@@ -8078,7 +8078,7 @@
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 6,
     "fields": {
         "form_id": "0001T",
@@ -8087,16 +8087,16 @@
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 7,
     "fields": {
         "form_id": "0004M",
-        "form_name": "User Priviledge",
-        "form_name_ori": "n_a_priviledge"
+        "form_name": "User Privilege",
+        "form_name_ori": "n_a_privilege"
     }
 },
 {
-    "model": "NA_Models.napriviledge_form",
+    "model": "NA_Models.naprivilege_form",
     "pk": 8,
     "fields": {
         "form_id": "0001O",

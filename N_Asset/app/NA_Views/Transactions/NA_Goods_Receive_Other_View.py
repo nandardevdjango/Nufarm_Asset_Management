@@ -4,7 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator,EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import ResolveCriteria,commonFunct,StatusForm, Data,decorators
-from NA_Models.models import NAGoodsReceive_other,goods,NASuplier
+from NA_Models.models import NAGoodsReceive_other,goods,NASupplier
 from .NA_Goods_Receive_View import NA_Goods_Receive_Form
 from datetime import datetime
 from django import forms
@@ -27,7 +27,7 @@ def NA_Goods_Receive_otherGetData(request):
         table=[NAGoodsReceive_other,goods],
         resolve=IcolumnName,
         initial_name=['ngr','g','emp1','emp2','sp'],
-        custom_fields=[['receivedby'],['pr_by'],['supliername']]
+        custom_fields=[['receivedby'],['pr_by'],['suppliername']]
     )
     maintenanceData = NAGoodsReceive_other.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
     totalRecords = len(maintenanceData)
@@ -42,7 +42,7 @@ def NA_Goods_Receive_otherGetData(request):
         i+=1
         datarow = {
 			"id" :row['IDApp'], "cell" :[
-				row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],
+				row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['suppliername'],
 				row['receivedby'],row['pr_by'],row['totalpurchase'],
 				row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']
 				]
@@ -55,7 +55,7 @@ def getFormData(form):
 	clData = form.cleaned_data
 	data = {
 		'idapp':clData['idapp'],'refno':clData['refno'],'fk_goods':clData['idapp_fk_goods'],
-        'datereceived':clData['datereceived'],'fk_suplier':clData['fk_suplier'],
+        'datereceived':clData['datereceived'],'fk_supplier':clData['fk_supplier'],
         'totalpurchase':clData['totalpurchase'],'totalreceived':clData['totalreceived'],
 		'fk_receivedby':clData['idapp_fk_receivedby'],'fk_p_r_by':clData['idapp_fk_p_r_by'],
         'descriptions':clData['descriptions']
@@ -111,7 +111,7 @@ def ShowCustomFilter(request):
 	cols.append({'name':'refno','value':'refno','selected':'','dataType':'varchar','text':'RefNO'})
 	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'goods name'})
 	cols.append({'name':'datereceived','value':'datereceived','selected':'','dataType':'datetime','text':'Date Received'})
-	cols.append({'name':'supliername','value':'supliername','selected':'','dataType':'varchar','text':'type of brand'})
+	cols.append({'name':'suppliername','value':'suppliername','selected':'','dataType':'varchar','text':'type of brand'})
 	cols.append({'name':'receivedby','value':'receivedby','selected':'','dataType':'varchar','text':'Received By'})
 	cols.append({'name':'pr_by','value':'pr_by','selected':'','dataType':'varchar','text':'Purchase Request By'})
 	cols.append({'name':'totalpurchase','value':'totalpurchase','selected':'','dataType':'int','text':'Total Purchased'})

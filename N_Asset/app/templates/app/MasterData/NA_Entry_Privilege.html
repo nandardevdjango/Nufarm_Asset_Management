@@ -29,7 +29,7 @@ input::-webkit-input-placeholder {
 	font-size: 11px;
 	text-align: center;
 }
-#priviledge_form {
+#privilege_form {
     background:none;
     width:450px;
     margin:10px 0 30px 0;
@@ -47,15 +47,15 @@ span.input-group-addon {
     color:#4CAF50;
 	transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
-form#priviledge_form input.form-control {
+form#privilege_form input.form-control {
     box-shadow:none
 }
-form#priviledge_form input.form-control:focus,select.form-control:focus {
+form#privilege_form input.form-control:focus,select.form-control:focus {
     border-color:#4CAF50;
     box-shadow:none
 }
 </style>
-<form class="form-horizontal" method="post" id="priviledge_form" onsubmit="return false">
+<form class="form-horizontal" method="post" id="privilege_form" onsubmit="return false">
     {% csrf_token %}
 	<div class="row">
 		<div class="col-sm-6">
@@ -123,7 +123,7 @@ form#priviledge_form input.form-control:focus,select.form-control:focus {
 			</div>
 		</div>
     </div>
-    <input type="submit" style="display:none" id="priviledge_submit"/>
+    <input type="submit" style="display:none" id="privilege_submit"/>
 	{{form.idapp}}
     {{form.initializeForm}}
 	{{form.statusForm}}

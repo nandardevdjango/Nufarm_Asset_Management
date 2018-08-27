@@ -4,9 +4,9 @@ from NA_DataLayer.common import (ResolveCriteria, CriteriaSearch, DataType,
 from django.db import connection
 
 
-class NA_BR_Priviledge(UserManager):
+class NA_BR_Privilege(UserManager):
     def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
-        priviledgeData = super(NA_BR_Priviledge, self).get_queryset()\
+        privilegeData = super(NA_BR_Privilege, self).get_queryset()\
             .values('idapp', 'first_name', 'last_name', 'username', 'divisi', 'role',
                     'email', 'password', 'last_login', 'last_form', 'is_active',
                     'date_joined', 'createdby')
@@ -16,10 +16,10 @@ class NA_BR_Priviledge(UserManager):
                 filterfield = columnKey + '__in'
             else:
                 filterfield = columnKey + '__iexact'
-            priviledgeData = priviledgeData.exclude(
+            privilegeData = privilegeData.exclude(
                 **{filterfield: [ValueKey]})
         if criteria == CriteriaSearch.Equal:
-            priviledgeData = priviledgeData.filter(**{filterfield: ValueKey})
+            privilegeData = privilegeData.filter(**{filterfield: ValueKey})
         elif criteria == CriteriaSearch.Greater:
             filterfield = columnKey + '__gt'
         elif criteria == CriteriaSearch.GreaterOrEqual:
@@ -32,28 +32,28 @@ class NA_BR_Priviledge(UserManager):
             filterfield = columnKey + '__lte'
         elif criteria == CriteriaSearch.Like:
             filterfield = columnKey + '__contains'
-            priviledgeData = priviledgeData.filter(
+            privilegeData = privilegeData.filter(
                 **{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
         if criteria == CriteriaSearch.Beetween or criteria == CriteriaSearch.BeginWith or criteria == CriteriaSearch.EndWith:
             rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
-            priviledgeData = priviledgeData.filter(**rs.DefaultModel())
-        return priviledgeData
+            privilegeData = privilegeData.filter(**rs.DefaultModel())
+        return privilegeData
 
-    def Get_Priviledge_Sys(self, user_id):
+    def Get_Privilege_Sys(self, user_id):
         cur = connection.cursor()
         Query = """SELECT ps.idapp, pf.form_name, ps.permission, ps.inactive, ps.createddate,
-        ps.createdby FROM n_a_sys_priviledge ps INNER JOIN n_a_priviledge_form pf ON
+        ps.createdby FROM n_a_sys_privilege ps INNER JOIN n_a_privilege_form pf ON
         ps.fk_pform = pf.idapp WHERE ps.user_id=%(User_id)s ORDER BY pf.form_name_ori"""
         cur.execute(Query, {'User_id': user_id})
         return query.dictfetchall(cur)
 
     def Delete(self, idapp):
-        data = super(NA_BR_Priviledge, self).get_queryset().filter(idapp=idapp)
+        data = super(NA_BR_Privilege, self).get_queryset().filter(idapp=idapp)
         data.delete()
         return (Data.Success,)
 
     def retrieveData(self, idapp):
-        data = super(NA_BR_Priviledge, self).get_queryset()\
+        data = super(NA_BR_Privilege, self).get_queryset()\
             .values('idapp', 'first_name', 'last_name', 'username', 'divisi', 'role', 'email')\
             .filter(idapp=idapp)
         return data[0]

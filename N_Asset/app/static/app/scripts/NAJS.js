@@ -1466,7 +1466,7 @@ NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, O
     return true;
 };
 
-NA.Priviledge = {
+NA.Privilege = {
     _roleName: 'SysAdmin',
     _rolCode: 'SA',
     _email: 'Nandar@yahoo.com',
@@ -1479,7 +1479,7 @@ NA.Priviledge = {
         _allow_delete: false
     }
 }
-Object.defineProperties(NA.Priviledge, {
+Object.defineProperties(NA.Privilege, {
     RoleName: {
         get: function () { return this._roleName; },
         set: function (newValue) { return this._roleName = newValue; }
@@ -1505,7 +1505,7 @@ Object.defineProperties(NA.Priviledge, {
     }
 });
 
-Object.defineProperties(NA.Priviledge.Permissions, {
+Object.defineProperties(NA.Privilege.Permissions, {
     Allow_View: {
         get: function () {
             return this._allow_view;
@@ -1540,13 +1540,13 @@ Object.defineProperties(NA.Priviledge.Permissions, {
     }
 })
 
-NA.Priviledge.get_server_permissions = function (kwargs) {
+NA.Privilege.get_server_permissions = function (kwargs) {
     var form = kwargs['form_name'],
         email = kwargs['email'],
         success = kwargs['success'],
         done = kwargs['done'];
     var NAAjax = NA.common.AJAX;
-    var url = '/MasterData/Priviledge/permission/' + email + '/get_permission/?form_name=' + form;
+    var url = '/MasterData/Privilege/permission/' + email + '/get_permission/?form_name=' + form;
     NAAjax.GET(url, 'application/json', null, null,
         function () {
             if (this.status == 200) {
@@ -1559,30 +1559,30 @@ NA.Priviledge.get_server_permissions = function (kwargs) {
         });
 };
 
-NA.Priviledge.read_priviledge = function (form_name) {
-    return NA.Priviledge.get_server_permissions({
+NA.Privilege.read_privilege = function (form_name) {
+    return NA.Privilege.get_server_permissions({
         form_name: form_name,
-        email: NA.Priviledge.Email, // this is has declared in layout.html
+        email: NA.Privilege.Email, // this is has declared in layout.html
         success: function (permission) {
             for (var i = 0; i < permission.length; i++) {
                 if (permission[i]['permission'] == 'Allow View') {
-                    NA.Priviledge.Permissions.Allow_View = true;
+                    NA.Privilege.Permissions.Allow_View = true;
                 } else if (permission[i]['permission'] == 'Allow Add') {
-                    NA.Priviledge.Permissions.Allow_Add = true;
+                    NA.Privilege.Permissions.Allow_Add = true;
                 } else if (permission[i]['permission'] == 'Allow Edit') {
-                    NA.Priviledge.Permissions.Allow_Edit = true;
+                    NA.Privilege.Permissions.Allow_Edit = true;
                 } else if (permission[i]['permission'] == 'Allow Delete') {
-                    NA.Priviledge.Permissions.Allow_Delete = true;
+                    NA.Privilege.Permissions.Allow_Delete = true;
                 }
             }
         },
         done: function () {
-            Object.freeze(NA.Priviledge);
+            Object.freeze(NA.Privilege);
             var qs = qs || NA.common.qs
             var btn_add = qs('button#addData'),
                 btn_edit = qs('button#editData'),
                 btn_delete = qs('button#delData');
-            if (!NA.Priviledge.Permissions.Allow_Add) {
+            if (!NA.Privilege.Permissions.Allow_Add) {
                 btn_add.setAttribute('disabled', '');
                 NA.NAEvent.addHandler(btn_add, 'click', function (event) {
                     NA.NAEvent.preventDefault(event);
@@ -1592,7 +1592,7 @@ NA.Priviledge.read_priviledge = function (form_name) {
                 });
                 btn_add.style.cursor = 'not-allowed';
             };
-            if (!NA.Priviledge.Permissions.Allow_Edit) {
+            if (!NA.Privilege.Permissions.Allow_Edit) {
                 btn_edit.setAttribute('disabled', '');
                 NA.NAEvent.addHandler(btn_edit, 'click', function (event) {
                     NA.NAEvent.preventDefault(event);
@@ -1602,7 +1602,7 @@ NA.Priviledge.read_priviledge = function (form_name) {
                 });
                 btn_edit.style.cursor = 'not-allowed';
             };
-            if (!NA.Priviledge.Permissions.Allow_Delete) {
+            if (!NA.Privilege.Permissions.Allow_Delete) {
                 btn_delete.setAttribute('disabled', '');
                 NA.NAEvent.addHandler(btn_delete, 'click', function (event) {
                     NA.NAEvent.preventDefault(event);

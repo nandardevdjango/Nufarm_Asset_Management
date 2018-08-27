@@ -3,7 +3,7 @@
 <li><a href="#" data-tipe="varchar" data-column="brand">Brand</a></li>
 <li><a href="#" data-tipe="varchar" data-column="typeapp">Type</a></li>
 <li><a href="#" data-tipe="datetime" data-column="datereceived">Date Received</a></li>
-<li><a href="#" data-tipe="varchar" data-column="supliername">Suplier Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="suppliername">Supplier Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="receivedby">Received By</a></li>
 <li><a href="#" data-tipe="varchar" data-column="pr_by">Purchase Request By</a></li>
 
@@ -101,7 +101,7 @@
                     datatype: 'json',
                     mtype: 'GET',
                     colNames: ['idapp', 'NO', 'goods name', 'Brand', 'Type', 'Received By', 'Purchase Request By',
-                        'Date Received', 'Price', 'Suplier Name', 'Invoice No', 'Machine No', 'Chassis No',
+                        'Date Received', 'Price', 'Supplier Name', 'Invoice No', 'Machine No', 'Chassis No',
                         'Year Made', 'Colour', 'Model', 'Kind', 'Cylinder', 'Fuel', 'Descriptions', 'Created Date', 'Created By'],
                     colModel: [
                         { name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -128,7 +128,7 @@
                                 type: 'textbox', condition: 'contains', listeners: ['keyup']
                             }
                         },
-                        { name: 'supliername', index: 'supliername', width: 120, sortable: true, editable: false, align: 'left', },
+                        { name: 'suppliername', index: 'suppliername', width: 120, sortable: true, editable: false, align: 'left', },
                         { name: 'invoice_no', index: 'invoice_no', width: 120, sortable: true, editable: false, align: 'left', },
                         { name: 'machine_no', index: 'machine_no', width: 120, sortable: true, editable: false, align: 'left', },
                         { name: 'chassis_no', index: 'chassis_no', width: 120, sortable: true, editable: false, align: 'left', },
@@ -451,8 +451,8 @@
                 goodsname: qs('#id_goodsname').value.trim(),
                 typeapp: qs('input#id_typeapp').value.trim(),
                 datereceived: qs('#id_datereceived').value.toString().trim(),
-                supliercode: qs('#id_supliercode').value.trim(),
-                supliername: qs('#id_supliername').value.trim(),
+                suppliercode: qs('#id_suppliercode').value.trim(),
+                suppliername: qs('#id_suppliername').value.trim(),
                 pr_by: qs('#id_pr_by').value.trim(),
                 pr_by_nik: qs('#id_pr_by_nik').value.trim(),
                 received_by: qs('#id_received_by').value.trim(),
@@ -922,8 +922,8 @@
                                         goodsname = qs('input#id_goodsname'),
                                         datereceived = qs('input#id_datereceived'),
 
-                                        supliercode = qs('input#id_supliercode'),
-                                        supliername = qs('input#id_supliername'),
+                                        suppliercode = qs('input#id_suppliercode'),
+                                        suppliername = qs('input#id_suppliername'),
 
                                         pr_by = qs('input#id_pr_by'),
                                         pr_by_nik = qs('input#id_pr_by_nik'),
@@ -934,7 +934,7 @@
                                         received_by_name = qs('input#id_received_by_name');
 
                                     var btn_fk_goods = qs('button#btn_fk_goods'),
-                                        btn_fk_suplier = qs('button#btn_fk_suplier'),
+                                        btn_fk_supplier = qs('button#btn_fk_supplier'),
                                         btn_fk_pr_by = qs('button#btn_fk_pr_by'),
                                         btn_fk_received_by = qs('button#btn_fk_received_by');
 
@@ -1006,7 +1006,7 @@
                                                 gridTbl.jqGrid({
                                                     url: urlFKGoods,
                                                     mtype: "GET",
-                                                    datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                                                    datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
                                                     colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Descriptions', 'Type App'],
                                                     colModel: [
                                                         { name: 'idapp', hidden: true, align: 'left' },
@@ -1158,7 +1158,7 @@
                                                 gridTbl.jqGrid({
                                                     url: urlFKGoods,
                                                     mtype: "GET",
-                                                    datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                                                    datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
                                                     colNames: ['idapp', 'NO', 'Nik', 'Employee Name'],
                                                     colModel: [
                                                         { name: 'idapp', hidden: true, align: 'left' },
@@ -1240,14 +1240,14 @@
                                         });
                                     }
 
-                                    function searchSuplier(event) {
+                                    function searchSupplier(event) {
                                         BootstrapDialog.show({
                                             draggable: true,
                                             type: BootstrapDialog.TYPE_INFO,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             message: function (dialogRef) {
                                                 var placeHolder = 'Enter text to search for .. .';
-                                                var containerMessage = NA.common.dialog.createFormContainer('fk_suplier', placeHolder,
+                                                var containerMessage = NA.common.dialog.createFormContainer('fk_supplier', placeHolder,
                                                     function (e) {//event for blur
                                                         if (this.value === '') {
                                                             if (this.getAttribute('placeholder') === '') {
@@ -1266,7 +1266,7 @@
                                                         if (e.keyCode === 13) {
                                                             win.document.body.style.cursor = 'wait';
                                                             //cari data ke database
-                                                            var url = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                            var url = '/MasterData/Supplier/SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(e.target.value.trim());
 
                                                             if (gridTbl) {
                                                                 gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
@@ -1277,39 +1277,39 @@
                                                 var children = containerMessage.childNodes;
                                                 var mainContainer = null, txtSearch = null;
                                                 for (var i = 0, len = children.length; i < len; i++) {
-                                                    if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_suplier') {
+                                                    if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_supplier') {
                                                         mainContainer = children[i]; break;
                                                     }
                                                 };
                                                 //loads Data into JqueryGrid
                                                 gridTbl = NA.common.doc.createElement('table');
-                                                gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier';
+                                                gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier';
                                                 gridPager = NA.common.doc.createElement('div');
-                                                gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier_Pager';
+                                                gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier_Pager';
                                                 mainContainer.appendChild(gridTbl);
                                                 mainContainer.appendChild(gridPager);
                                                 return containerMessage;
                                             },
                                             onshown: function (dialogRef) {
-                                                txtSearch = NA.common.getElementID('txtsearch_fk_suplier');
+                                                txtSearch = NA.common.getElementID('txtsearch_fk_supplier');
                                                 //loads Data into JqueryGrid 
-                                                gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
-                                                gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
-                                                var urlFKSuplier = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                                                gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_supplier');
+                                                gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager');
+                                                var urlFKSupplier = '/MasterData/Supplier/SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                                                 gridTbl.jqGrid({
-                                                    url: urlFKSuplier,
+                                                    url: urlFKSupplier,
                                                     mtype: "GET",
-                                                    datatype: "json",//column idapp, no,supliercode,supliername
-                                                    colNames: ['NO', 'Suplier Code', 'Suplier Name', 'Address'],
+                                                    datatype: "json",//column idapp, no,suppliercode,suppliername
+                                                    colNames: ['NO', 'Supplier Code', 'Supplier Name', 'Address'],
                                                     colModel: [
                                                         { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-                                                        { name: 'supliercode', index: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
-                                                        { name: 'supliername', index: 'supliername', width: 130, sortable: true, editable: false, align: 'left', },
+                                                        { name: 'suppliercode', index: 'suppliercode', width: 90, align: 'left', sortable: true, editable: false, },
+                                                        { name: 'suppliername', index: 'suppliername', width: 130, sortable: true, editable: false, align: 'left', },
                                                         { name: 'address', index: 'address', width: 250 }
                                                     ],
                                                     ondblClickRow: function (rowId) {
                                                         //fire button OK
-                                                        var btnOK = dialogRef.getButton('btnOKFindsuplier');
+                                                        var btnOK = dialogRef.getButton('btnOKFindsupplier');
                                                         btnOK.click();
                                                     },
                                                     gridComplete: function () {
@@ -1325,7 +1325,7 @@
                                                     height: '150px',
                                                     rowNum: 500,
                                                     rowList: [20, 50, 100, 200, 300, 500],
-                                                    sortname: "supliername",
+                                                    sortname: "suppliername",
                                                     sortorder: "asc",
                                                     multiSort: true,
                                                     //shrinkToFit: false,
@@ -1334,7 +1334,7 @@
                                                     //toolbar: true,
                                                     scrollrows: true,
                                                     //hidegrid: true,
-                                                    pager: "#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager"
+                                                    pager: "#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager"
                                                 });
                                                 gridTbl.navGrid(gridPager, {
                                                     search: false, // show search button on the toolbar
@@ -1357,15 +1357,15 @@
                                                 },
                                             }, {
                                                 label: 'OK',
-                                                id: 'btnOKFindsuplier',
+                                                id: 'btnOKFindsupplier',
                                                 icon: 'glyphicon glyphicon-ok',
                                                 cssClass: 'btn-success',
                                                 action: function (dialogRef) {
                                                     //tempelkan data row di fk_goods, dan valuenya di goods_desc;
                                                     var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                                                     var rowData = gridTbl.getRowData(rowId);
-                                                    supliercode.value = rowData['supliercode'];
-                                                    supliername.value = rowData['supliername'];
+                                                    suppliercode.value = rowData['suppliercode'];
+                                                    suppliername.value = rowData['suppliername'];
                                                     dialogRef.close();
                                                 }
                                             }]
@@ -1383,8 +1383,8 @@
                                         searchGoods(event);
                                     });
 
-                                    NA.NAEvent.addHandler(btn_fk_suplier, 'click', function (event) {
-                                        searchSuplier(event);
+                                    NA.NAEvent.addHandler(btn_fk_supplier, 'click', function (event) {
+                                        searchSupplier(event);
                                     });
 
                                     NA.NAEvent.addHandler(btn_fk_pr_by, 'click', function (event) {

@@ -9,7 +9,7 @@ from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
 from NA_Models.models import (NAGaReceive, NAGaVnHistory,
-                              goods, Employee, NASuplier)
+                              goods, Employee, NASupplier)
 
 
 def NA_Goods_Receive_GA(request):
@@ -55,7 +55,7 @@ def NA_Goods_Receive_GAGetData(request):
                 row['pr_by'],
                 row['datereceived'],
                 row['price'],
-                row['supliername'],
+                row['suppliername'],
                 row['invoice_no'],
                 row['machine_no'],
                 row['chassis_no'],
@@ -83,7 +83,7 @@ def getFormData(form):
         'refno': clData['refno'],
         'fk_goods': clData['fk_goods'],
         'datereceived': clData['datereceived'],
-        'fk_suplier': clData['supliercode'],
+        'fk_supplier': clData['suppliercode'],
         'fk_receivedby': clData['received_by'],
         'fk_pr_by': clData['pr_by'],
         'invoice_no': clData['invoice_no'],
@@ -111,15 +111,15 @@ class NA_Goods_Receive_GA_Form(forms.Form):
         attrs={'class': 'NA-Form-Control', 'placeholder': 'goods name'}
     ), required=False)
 
-    supliercode = forms.ModelChoiceField(
-        queryset=NASuplier.objects.all(),
+    suppliercode = forms.ModelChoiceField(
+        queryset=NASupplier.objects.all(),
         widget=forms.TextInput(
-            attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier code',
+            attrs={'class': 'NA-Form-Control', 'placeholder': 'supplier code',
                    'style': 'width:120px;display:inline-block;margin-right: 5px;'}
         )
     )
-    supliername = forms.CharField(disabled=True, widget=forms.TextInput(
-        attrs={'class': 'NA-Form-Control', 'placeholder': 'suplier name'}
+    suppliername = forms.CharField(disabled=True, widget=forms.TextInput(
+        attrs={'class': 'NA-Form-Control', 'placeholder': 'supplier name'}
     ), required=False)
 
     pr_by = forms.ModelChoiceField(
@@ -278,7 +278,7 @@ class NA_Goods_Receive_GA_Form(forms.Form):
             receive.fk_goods = self.cleaned_data.get('fk_goods')
             receive.fk_receivedby = self.cleaned_data.get('received_by')
             receive.fk_p_r_by = self.cleaned_data.get('pr_by')
-            receive.fk_suplier = self.cleaned_data.get('supliercode')
+            receive.fk_supplier = self.cleaned_data.get('suppliercode')
             receive.brand = self.cleaned_data.get('brand')
             receive.datereceived = self.cleaned_data.get('datereceived')
             receive.invoice_no = self.cleaned_data.get('invoice_no')
@@ -375,7 +375,7 @@ def ShowCustomFilter(request):
                  'dataType': 'varchar', 'text': 'goods name'})
     cols.append({'name': 'datereceived', 'value': 'datereceived',
                  'selected': '', 'dataType': 'datetime', 'text': 'Date Received'})
-    cols.append({'name': 'supliername', 'value': 'supliername',
+    cols.append({'name': 'suppliername', 'value': 'suppliername',
                  'selected': '', 'dataType': 'varchar', 'text': 'type of brand'})
     cols.append({'name': 'receivedby', 'value': 'receivedby',
                  'selected': '', 'dataType': 'varchar', 'text': 'Received By'})
