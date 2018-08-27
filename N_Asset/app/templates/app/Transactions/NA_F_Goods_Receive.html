@@ -1137,7 +1137,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
 						name: 'brandname', width: 140, align: 'left', sortable: true,
 						editable: AllowEdit,
-						editrules: { required: true },
+						//editrules: { required: true },
 						autoResizing: { minColWidth: 140, },
 						edittype: 'text',
 						editoptions: {
@@ -1183,7 +1183,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    editable: AllowEdit,
 					    edittype: 'text',
 					    template: 'number',
-					    editrules: { required: true, integer: false, },
+					    editrules: {
+					        //required: true,
+					        integer: false,
+					    },
 					    autoResizing: { minColWidth: 140, },
 					    editoptions: {
 					    	class: (function () {
@@ -1206,21 +1209,23 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        		if (hasRef) {
 					        			NA.NAEvent.preventDefault(e); return;
 					        		}
-					        		if (!NA.common.numberInput(e)) {
-					        			ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
-					        				$(this).focus();
-					        			});
-					        			return false;
-					        		}
-					        		if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
-					        			value = $(e.target).val();
-					        			if (isNaN(value)) {
-					        				ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
-					        					$(this).focus();
-					        				});
-					        				return false;
-					        			}
-					        		}				        	
+					        		if (NA.common.numberInput(e)) {
+					        		    if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
+					        		        value = $(e.target).val();
+					        		        if (isNaN(value)) {
+					        		            ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
+					        		                $(this).focus();
+					        		            });
+					        		            return false;
+					        		        }
+					        		        if (!value.match(/^\d+$/)) {
+					        		            ShowAlert('can not enter negatif number', NA.common.message.titleInfo, function () {
+					        		                $(this).focus();
+					        		            });
+					        		            return false;
+					        		        }
+					        		    }
+					        		}					        					        	
 					        	}
 					        }]
 					    },
@@ -1235,7 +1240,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    name: 'typeapp', width: 80, align: 'left',
 					    editable: AllowEdit,
 					    edittype: 'text',
-					    editrules: { required:true },
+					    //editrules: { required:true },
 					    editoptions: {
 					    	dataInit: function (elem) {
 					    		fetchTypeApps.call(this, elem, "typeapp");
@@ -1278,7 +1283,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    name: 'serialnumber', width: 100, align: 'left',
 						editable:AllowEdit,
 					    edittype: 'text',
-					    editrules: { required: true, },
+					    //editrules: { required: true, },
 					    editoptions: {
 					    	defaultValue: 'N/A',
 					    	class: (function () {
@@ -1401,16 +1406,21 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        			NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
 					        			var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
 					        			NValEndOfWarranty = NDate;
+					        		    
 					        			//var NVal = FDate.getDate(
 					        			//set grid cell
 					        			//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
 					        			//gridTbl.jqGrid("editCell", $('#' + rowId)[0].rowIndex, 7, true);
 
-					        			//var dtStr = formatDate(NDate)
+					        			var dtStr = formatDate(NDate)
+					        			//gridTbl.jqGrid('getRowData', rowId, 'endofwarranty', dtStr);
 					        			//gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
 					        			// now change the internal local data
-					        			//gridTbl.jqGrid('getLocalRow', rowId).endofwarranty = GetServerFormatDate(NDate);
-
+					        			rowData = gridTbl.jqGrid('getRowData', rowId)
+					        			rowData.endofwarranty = GetServerFormatDate(NDate);
+					        			gridTbl.jqGrid('setRowData', rowId, rowData);
+					        		    //1_endofwarranty
+					        			//$("#" + $.jgrid.jqID(gridTbl) + '_' + 'endofwarranty').val(dtStr);
 					        			return true;
 					        		}
 					        	}
@@ -1466,7 +1476,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		});
 					    	},
 					    },
-					    editrules:{date:true,required:true
+					    editrules: {
+					        date: true,
+					        //required: true
 					    },
 					   formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit')},/*  */						
 					},
