@@ -1161,7 +1161,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 									if (hasRef) {
 										NA.NAEvent.preventDefault(e); return false;
 									}
-									if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
+									if (e.keyCode === 9) {  // tab
 										var value = $(e.target).val();
 										if (value == '') {
 											ShowAlert('Please enter type brandname'); return;
@@ -1210,7 +1210,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        			NA.NAEvent.preventDefault(e); return;
 					        		}
 					        		if (NA.common.numberInput(e)) {
-					        		    if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
+					        		    if (e.keyCode === 9) {  // tab
 					        		        value = $(e.target).val();
 					        		        if (isNaN(value)) {
 					        		            ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
@@ -1262,7 +1262,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        		if (hasRef) {
 					        			NA.NAEvent.preventDefault(e); return;
 					        		}
-					        		if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
+					        		if (e.keyCode === 9) {  //tab
 					        			var value = $(e.target).val();
 					        			if (value == '') {
 					        				ShowAlert('Please enter type of goods'); return;
@@ -1297,7 +1297,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		type: 'keydown',
 					    		fn: function (e) {
 					    			if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					    			if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab										
+					    			if (e.keyCode === 9) {  //tab										
 					    				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 					    				var rowData = gridTbl.jqGrid('getLocalRow', rowId);
 					    				var value = $(e.target).val();
@@ -1382,7 +1382,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        			});
 					        			return false;
 					        		}
-					        		if (e.keyCode === 13 || e.keyCode === 9) {  // Enter key || tab
+					        		if (e.keyCode === 9) {// tab
 					        			value = $(e.target).val();
 					        			if (isNaN(value)) {
 					        				ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
@@ -1486,7 +1486,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		type: 'keydown',
 					    		fn: function (e) {
 					    			if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					    			if (e.keyCode === 13 || e.keyCode === 9) {
+					    			if (e.keyCode === 9) {
 					    				if (!$.datepicker.parseDate('dd/mm/yy', $(e.target).val())) {
 					    					ShowAlert('Please enter date with format dd/mm/yyyy', NA.common.message.titleInfo, function () {
 					    						$(this).focus();
@@ -1772,14 +1772,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //    gridTbl.jqGrid("setColProp", "warranty", { editable: true });
                     //    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
                 	//}
-                	var $self = $(this),
-					savedRowInfos = $self.jqGrid("getGridParam", "savedRow"),
+                	var savedRowInfos = gridTbl.jqGrid("getGridParam", "savedRow"),
 					editingRowId = savedRowInfos == null || savedRowInfos.length < 1 ?
 						null : savedRowInfos[0].id;
 
                 	if (editingRowId != null && editingRowId !== id) {
                 		if (isDataChanged(savedRowInfos)) {
-                			$self.jqGrid("saveRow", editingRowId, {
+                			gridTbl.jqGrid("saveRow", editingRowId, {
                 				'url': 'clientArray',
                 				'restoreAfterError': true,
                 				'extraparam': { IsDirty: "True" }
@@ -1792,17 +1791,25 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 	//check data original
                 	var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getLocalRow', editingRowId)
                 	for (var i = 0; i < oriDetailData.length; i++) {
-                		if (originalData[i].no = NewRowData.no) {
+                		if (oriDetailData[i].no == NewRowData.no) {
                 			//test
-                			if (NewRowData.brandname = oriDetailData[i].brandname && NewRowData.warranty == oriDetailData[i].warranty && NewRowData.typeapp == oriDetailData[i].typeapp) {
+                			if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
                 				//data di anggap kosong isi defaultvalue
                 				//            //isi default newRow
                 				//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
-                				NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                				NewRowData.brandname = LastRowData.brandname;
-                				NewRowData.typeapp = LastRowData.typeapp;
-                				NewRowData.warranty = LastRowData.warranty;
-                				NewRowData.endofwarranty = LastRowData.endofwarranty;
+                				//NewRowData = gridTbl.jqGrid('getLocalRow', id);
+                				if (typeof LastRowData != 'undefined' && LastRowData) {
+                					NewRowData.brandname = LastRowData.brandname;
+                					NewRowData.typeapp = LastRowData.typeapp;
+                					NewRowData.warranty = LastRowData.warranty;
+                					NewRowData.endofwarranty = LastRowData.endofwarranty;
+									//gridTbl.jqGrid('setRowData', id, NewRowData);
+                					gridTbl.jqGrid("saveRow", id, {
+                						'url': 'clientArray',
+                						'restoreAfterError': true,
+                						'extraparam': { IsDirty: "False" }
+                					});                					
+                				}
                 				break;
                 			}
                 		}
@@ -1874,9 +1881,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			//        }
                 			//    }
 
-                			//}                    	    
+                			//}   
+                			if (typeof lastsel != 'undefined') {
+                				gridTbl.jqGrid('restoreRow', lastsel);
+                			}
                 			gridTbl.jqGrid('editRow', id, {
-                				keys: false,
+                				keys: true,
                 				url: 'clientArray',
                 				//oneditfunc: function (rowId) {
                 				//    ShowAlert('edit');
@@ -1890,7 +1900,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			lastsel = id;
                 		}
                 		else {
-                			if (typeof last != 'undefined') {
+                			if (typeof lastsel != 'undefined') {
                 				gridTbl.jqGrid('restoreRow', lastsel);
                 			}
                 		}
@@ -1903,7 +1913,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 //	restoreAfterSelect: false
             	//},
                 //gridview: true,
-                singleSelectClickMode: "toggle",
+                //singleSelectClickMode: "",
                 //cmTemplate: { autoResizable: true, editable: true },
                 autoResizing: { compact: true, resetWidthOrg: true },
             	autoResizable:true,
@@ -3144,9 +3154,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							rowList: [20, 50, 100, 200, 300, 500],
                         							sortname: "itemcode",
                         							sortorder: "asc",
-                        							multiSort: true,
+                        							multiSort: false,
                         							//shrinkToFit: false,
                         							iconSet: "fontAwesome",
+                        							loadui:'disabled',
                         							//forceFit: true,
                         							//toolbar: true,
                         							scrollrows: true,
@@ -3301,8 +3312,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							rowList: [20, 50, 100, 200, 300, 500],
                         							sortname: "supliername",
                         							sortorder: "asc",
-                        							multiSort: true,
+                        							multiSort: false,
                         							//shrinkToFit: false,
+                        							loadui: 'disabled',
                         							iconSet: "fontAwesome",
                         							//forceFit: true,
                         							//toolbar: true,
@@ -3447,7 +3459,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							rowList: [20, 50, 100, 200, 300, 500],
                         							sortname: "employee_name",
                         							sortorder: "asc",
-                        							multiSort: true,
+                        							multiSort: false,
+                        							loadui: 'disabled',
                         							//shrinkToFit: false,
                         							iconSet: "fontAwesome",
                         							//forceFit: true,
@@ -3595,7 +3608,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							rowList: [20, 50, 100, 200, 300, 500],
                         							sortname: "employee_name",
                         							sortorder: "asc",
-                        							multiSort: true,
+                        							multiSort: false,
+                        							loadui: 'disabled',
                         							//shrinkToFit: false,
                         							iconSet: "fontAwesome",
                         							//forceFit: true,

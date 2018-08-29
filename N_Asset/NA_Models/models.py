@@ -122,7 +122,7 @@ class NA_GoodsReceiveModel(NA_BaseModel):
         blank=True,
         null=True
     )
-    refno = models.CharField(db_column='REFNO', max_length=50)
+    refno = models.CharField(db_column='REFNO', max_length=100)
 
     class Meta:
         abstract = True

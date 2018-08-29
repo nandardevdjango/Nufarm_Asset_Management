@@ -8,6 +8,7 @@ from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
+from NA_DataLayer.common import Data
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -378,10 +379,15 @@ def SearchGoodsbyForm(request):
 	Ilimit = request.GET.get('rows', '')
 	NAData = None;
 	if(Isord is not None and str(Isord) != ''):
-		NAData = goods.customs.searchGoodsByForm(searchText).order_by('-' + str(Isidx))
+		NAData = goods.customs.searchGoodsByForm(searchText)
+		if NAData != Data.Empty:
+			NAData.order_by('-' + str(Isidx))
 	else:
 		NAData = goods.customs.searchGoodsByForm(searchText)
-	totalRecord = NAData.count()
+
+	if NAData == Data.Empty:
+		NAData = goods.objects.none()
+	totalRecord = NAData.count()#if (NAData != Data.Empty) else 0
 	paginator = Paginator(NAData, int(Ilimit)) 
 	try:
 		page = request.GET.get('page', '1')
@@ -408,7 +414,9 @@ def SearchSuplierbyForm(request):
 	Isord = request.GET.get('sord', '')
 	NAData = None;
 	if(Isord is not None and str(Isord) != ''):
-		NAData = NASuplier.customManager.getSuplierByForm(searchText).order_by('-' + str(Isidx))
+		NAData = NASuplier.customManager.getSuplierByForm(searchText)
+		if len(NAData):
+			NAData.order_by('-' + str(Isidx))
 	else:
 		NAData = NASuplier.customManager.getSuplierByForm(searchText)
 	totalRecord = NAData.count()
@@ -437,7 +445,9 @@ def SearchEmployeebyform(request):
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
 	if(Isord is not None and str(Isord) != ''):
-		NAData = Employee.customManager.getEmloyeebyForm(searchText).order_by('-' + str(Isidx))
+		NAData = Employee.customManager.getEmloyeebyForm(searchText)
+		if len(NAData):
+			NAData.order_by('-' + str(Isidx))
 	else:
 		NAData = Employee.customManager.getEmloyeebyForm(searchText)
 	totalRecord = NAData.count()
