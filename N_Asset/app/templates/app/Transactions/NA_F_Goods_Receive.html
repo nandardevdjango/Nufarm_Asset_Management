@@ -1218,7 +1218,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        		            });
 					        		            return false;
 					        		        }
-					        		        if (!value.match(/^\d+$/)) {
+					        		        if (!value.match(/^\d+(.|,)\d+$/)) {
 					        		            ShowAlert('can not enter negatif number', NA.common.message.titleInfo, function () {
 					        		                $(this).focus();
 					        		            });
@@ -1788,32 +1788,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 		//	$self.jqGrid("restoreRow", editingRowId);
                 		//}
                 	}
-                	//check data original
-                	var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getLocalRow', editingRowId)
-                	for (var i = 0; i < oriDetailData.length; i++) {
-                		if (oriDetailData[i].no == NewRowData.no) {
-                			//test
-                			if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
-                				//data di anggap kosong isi defaultvalue
-                				//            //isi default newRow
-                				//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
-                				//NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                				if (typeof LastRowData != 'undefined' && LastRowData) {
-                					NewRowData.brandname = LastRowData.brandname;
-                					NewRowData.typeapp = LastRowData.typeapp;
-                					NewRowData.warranty = LastRowData.warranty;
-                					NewRowData.endofwarranty = LastRowData.endofwarranty;
-									//gridTbl.jqGrid('setRowData', id, NewRowData);
-                					gridTbl.jqGrid("saveRow", id, {
-                						'url': 'clientArray',
-                						'restoreAfterError': true,
-                						'extraparam': { IsDirty: "False" }
-                					});                					
-                				}
-                				break;
-                			}
-                		}
-                	}
+   
                 	return true; // allow selection
                 },
                 onSelectRow: function (id) {
@@ -1884,6 +1859,35 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			//}   
                 			if (typeof lastsel != 'undefined') {
                 				gridTbl.jqGrid('restoreRow', lastsel);
+                			}
+                		    //check data original
+                			var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getLocalRow', lastsel)
+                			for (var i = 0; i < oriDetailData.length; i++) {
+                			    if (oriDetailData[i].no == NewRowData.no) {
+                			        //test
+                			        if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
+                			            //data di anggap kosong isi defaultvalue
+                			            //            //isi default newRow
+                			            //            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
+                			            //NewRowData = gridTbl.jqGrid('getLocalRow', id);
+                			            if (typeof LastRowData != 'undefined' && LastRowData) {
+                			                if ((LastRowData.brandname != oriDetailData[i].brandname) && (LastRowData.warranty != oriDetailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != oriDetailData[i].typeapp)) {
+                			                    NewRowData.brandname = LastRowData.brandname;
+                			                    NewRowData.typeapp = LastRowData.typeapp;
+                			                    NewRowData.warranty = LastRowData.warranty;
+                			                    NewRowData.priceperunit = LastRowData.priceperunit;
+                			                    NewRowData.endofwarranty = LastRowData.endofwarranty;
+                			                    gridTbl.jqGrid('setRowData', id, NewRowData);
+                			                    gridTbl.jqGrid("saveRow", id, {
+                			                        'url': 'clientArray',
+                			                        'restoreAfterError': true,
+                			                        'extraparam': { IsDirty: "True" }
+                			                    });
+                			                }
+                			            }
+                			            break;
+                			        }
+                			    }
                 			}
                 			gridTbl.jqGrid('editRow', id, {
                 				keys: true,
