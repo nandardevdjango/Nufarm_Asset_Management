@@ -1,36 +1,35 @@
 ﻿import re
-from os import path
 from datetime import datetime, date
-from django.db import models
+from os import path
+
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_mysql.models import JSONField
-from django.core.exceptions import MultipleObjectsReturned
 
-from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
-from NA_DataLayer.MasterData.NA_Supplier import NA_BR_Supplier
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
+from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Privilege_BR import NA_BR_Privilege
+from NA_DataLayer.MasterData.NA_Supplier import NA_BR_Supplier
 from NA_DataLayer.MasterData.NA_Sys_Privilege_BR import NA_BR_Sys_Privilege
-
+from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
+from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
+from NA_DataLayer.Transactions.NA_Ga_History_BR import NAGaVnHistoryBR
+from NA_DataLayer.Transactions.NA_GoodsLost_BR import NA_BR_GoodsLost
+from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
+from NA_DataLayer.Transactions.NA_Goods_Lending_BR import NA_BR_Goods_Lending
+from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
+from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
+from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
 from NA_DataLayer.Transactions.NA_Goods_Receive_BR import (NA_BR_Goods_Receive,
                                                            CustomSupplierManager,
                                                            custEmpManager)
-from NA_DataLayer.Transactions.NA_GoodsLost_BR import NA_BR_GoodsLost
-from NA_DataLayer.Transactions.NA_Goods_Lending_BR import NA_BR_Goods_Lending
-from NA_DataLayer.Transactions.NA_Goods_Outwards_BR import NA_BR_Goods_Outwards
-from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
-from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
-from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsGA
+from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
+from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
-from NA_DataLayer.Transactions.NA_Goods_Disposal_BR import NA_BR_Goods_Disposal
-from NA_DataLayer.Transactions.NA_Goods_Maintenance_GA_BR import NA_BR_GA_Maintenance
-from NA_DataLayer.Transactions.NA_Ga_History_BR import NAGaVnHistoryBR
-from NA_DataLayer.OtherPages.NA_Maintenance_BR import NA_BR_Maintenance
-
-from NA_DataLayer.OtherPages.NA_Acc_FA import NA_Acc_FA_BR
 from NA_DataLayer.file_storage import NAFileStorage
 
 

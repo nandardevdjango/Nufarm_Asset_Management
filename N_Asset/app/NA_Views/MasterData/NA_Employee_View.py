@@ -5,11 +5,14 @@ from django import forms
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.shortcuts import render
 
-from NA_DataLayer.common import (CriteriaSearch, Data, ResolveCriteria,
-                                 StatusForm, commonFunct, decorators, Message)
+from NA_DataLayer.common import (
+    Data, ResolveCriteria,
+    commonFunct, decorators, Message
+)
+from NA_DataLayer.exceptions import NAErrorHandler
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import Employee
 
@@ -198,7 +201,7 @@ def EntryEmployee(request):
         if form.is_valid():
             result = form.save(user=request.user.username)
         else:
-            result = commonFunct.get_form_error_message(form.errors)
+            result = NAErrorHandler.get_form_error_message(form.errors)
         return commonFunct.response_default(result)
     elif request.method == 'GET':
         idapp = request.GET['idapp']

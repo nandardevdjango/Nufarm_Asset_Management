@@ -16,6 +16,7 @@ from NA_DataLayer.common import (
     commonFunct,
     decorators
 )
+from NA_DataLayer.exceptions import NAErrorHandler
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import NASupplier
 
@@ -175,8 +176,18 @@ class NA_Supplier_form(forms.Form):
         try:
             supplier.save()
         except IntegrityError as e:
-            # TODO: create function for retrieve Integrity Error message
-            return
+            error_field = NAErrorHandler.retrieve_integrity_field(
+                column=NAErrorHandler.retrieve_integrity_column(err=e),
+                model=NASupplier
+            )
+            field_display = NASupplier.log_display.get(error_field)
+            data = (Data.Exists, Message.get_specific_exists(
+                table='Supplier',
+                column=field_display
+            ))
+            return commonFunct.response_default(
+                data=data
+            )
         return Data.Success,
 
 

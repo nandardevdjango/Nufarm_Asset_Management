@@ -1,20 +1,21 @@
-﻿import json
-import errno
-from os import path, makedirs, remove
-from enum import Enum
-from datetime import date
+﻿import errno
+import json
+import re
 from datetime import datetime
-from dateutil.parser import parse
+from enum import Enum
 from functools import wraps
-from django.db import connection
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from os import path, makedirs, remove
+
+from dateutil.parser import parse
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.conf import settings
+from django.db import connection
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
+from django.shortcuts import redirect
 
 
 class CriteriaSearch(Enum):
@@ -1017,11 +1018,3 @@ class commonFunct:
             json.dumps(results, indent=4, cls=DjangoJSONEncoder),
             content_type='application/json'
         )
-
-    @staticmethod
-    def get_form_error_message(form_error):
-        form_error = form_error.as_data()
-        if isinstance(form_error, list):
-            return form_error[0].message
-        for k, v in form_error.items():
-            return v[0].message
