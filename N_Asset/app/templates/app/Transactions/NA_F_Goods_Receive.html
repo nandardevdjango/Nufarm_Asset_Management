@@ -1861,7 +1861,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 				gridTbl.jqGrid('restoreRow', lastsel);
                 			}
                 		    //check data original
-                			var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getLocalRow', lastsel)
+                			var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
                 			for (var i = 0; i < oriDetailData.length; i++) {
                 			    if (oriDetailData[i].no == NewRowData.no) {
                 			        //test
@@ -1876,6 +1876,21 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			                    NewRowData.typeapp = LastRowData.typeapp;
                 			                    NewRowData.warranty = LastRowData.warranty;
                 			                    NewRowData.priceperunit = LastRowData.priceperunit;
+                			                    var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
+                			                    var dtStr = formatDate(FDate)
+
+                			                    //var $tr = $(e.target).closest("tr.jqgrow");
+                			                    //rowId = $tr.attr("id");
+
+                			                	////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
+
+                			                    //var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+                			                    //var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
+
+                			                	////and to change the value of the cell you can use
+
+                			                    //$td.find("input").val(dtStr);
+
                 			                    NewRowData.endofwarranty = LastRowData.endofwarranty;
                 			                    gridTbl.jqGrid('setRowData', id, NewRowData);
                 			                    gridTbl.jqGrid("saveRow", id, {
@@ -3031,6 +3046,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					NA.NAEvent.stopPropagation(e);
                         				});
                         				NA.NAEvent.addHandler(item, 'input', function (evt) {
+                        					var valid = false;
                         					if (item.id === 'id_totalpurchase') {
                         						if (parseInt(item.value) <= 0) {
                         							this.setCustomValidity('total purchase is not allowed to be null or zero or negative');
@@ -3039,6 +3055,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						else {
                         							elTotalReceived.value = item.value;
                         							this.setCustomValidity('');
+                        							valid = true;
                         						}
                         					}
                         					else if (item.id == elTotalReceived.id) {
@@ -3048,8 +3065,18 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						}
                         						else {
                         							this.setCustomValidity('');
+                        							valid = true;
                         						}
                         					}
+                        					if (parseFloat(item.value) > 10) {
+                        						this.setCustomValidity('total receive is over than total purchase');
+                        						this.validity.valid = false;
+                        					}
+                        					else {
+                        						if (valid) {
+                        							this.setCustomValidity('');
+                        						}
+                        					}											
                         					NA.NAEvent.stopPropagation(evt);
                         				});
                         			});

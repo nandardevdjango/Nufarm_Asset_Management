@@ -538,8 +538,8 @@ class NA_Goods_Receive_Form(forms.Form):
 	supliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'suplier name','data-value':'suplier name','tittle':'suplier name is required'}))
 
-	totalpurchase = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
-	totalreceived = forms.IntegerField(max_value=1000,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':4, 'min':1, 'max':9000,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalpurchase = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalreceived = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
 	fk_p_r_by = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':7,
                                    'placeholder': 'P R By','data-value':'P R By','tittle':'Employee code(NIK) who PRs'}),required=True)

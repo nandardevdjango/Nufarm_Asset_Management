@@ -2,7 +2,7 @@
 -- Host:                         127.0.0.1
 -- Server version:               10.2.11-MariaDB - mariadb.org binary distribution
 -- Server OS:                    Win32
--- HeidiSQL Version:             9.4.0.5125
+-- HeidiSQL Version:             9.5.0.5261
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,16 +11,17 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping data for table na_m_s.n_a_goods_receive: ~0 rows (approximately)
+-- Dumping data for table na_m_s.n_a_goods_receive: ~2 rows (approximately)
 /*!40000 ALTER TABLE `n_a_goods_receive` DISABLE KEYS */;
-REPLACE INTO `n_a_goods_receive` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `DateReceived`, `TotalPurchase`, `TotalReceived`, `Descriptions`, `DescBySystem`, `REFNO`, `FK_Suplier`, `fk_goods`, `FK_P_R_By`, `FK_ReceivedBy`) VALUES
+INSERT INTO `n_a_goods_receive` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `DateReceived`, `TotalPurchase`, `TotalReceived`, `Descriptions`, `DescBySystem`, `REFNO`, `FK_Suplier`, `fk_goods`, `FK_P_R_By`, `FK_ReceivedBy`) VALUES
 	(1, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, '2016-03-04 00:00:00.000000', 8, 8, 'Pembelian HP J5 tahap pertama untuk IT dan marketing, dan IConcept dan kepentingan FMS lainnya', '(SAMSUNG, Type : J5, SN : 357005072234246-357004072234249, SAMSUNG, Type : J5, SN : 357004071145081-357005071145088, SAMSUNG, Type : J5, SN : 357005071145054-357004071145057, SAMSUNG, Type : J5, SN : 357004071145024-357005071145021, SAMSUNG, Type : J5, SN : 357004071144027-357005071144024, SAMSUNG, Type : J5, SN : 357004072234249-357005072234246, SAMSUNG, Type : J5, SN : 357004071145115-357004071145115, SAMSUNG, Type : J5, SN : ICONCEPT)', '15/16-000128-01', 'ERA004IDR', 3, 8, 9),
-	(2, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, '2015-07-30 00:00:00.000000', 6, 6, '', '(DELL, Type : LATITUDE E5440, SN : 7SOGWZ1/0001402, DELL, Type : LATITUDE E5440, SN : 3L4Z062/0001403, DELL, Type : LATITUDE E5440, SN :  3S30l32/0001404, DELL, Type : LATITUDE E5440, SN : HHS2F12/0001405, DELL, Type : LATITUDE E5440, SN : 1V1GWZ1/0001406, DELL, Type : LATITUDE E5440, SN : 3K65P12/0001407)', '14/15-000141-01', 'PAR002USD', 2, 8, 9);
+	(2, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, '2015-07-30 00:00:00.000000', 6, 6, '', '(DELL, Type : LATITUDE E5440, SN : 7SOGWZ1/0001402, DELL, Type : LATITUDE E5440, SN : 3L4Z062/0001403, DELL, Type : LATITUDE E5440, SN :  3S30l32/0001404, DELL, Type : LATITUDE E5440, SN : HHS2F12/0001405, DELL, Type : LATITUDE E5440, SN : 1V1GWZ1/0001406, DELL, Type : LATITUDE E5440, SN : 3K65P12/0001407)', '14/15-000141-01', 'PAR002USD', 2, 8, 9),
+	(3, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, '2015-05-07 00:00:00.000000', 10, 10, '', '(DELL, Type : Latitude E5450, SN : G1KFN32/0001385, DELL, Type : Latitude E5450, SN : 81NZFRF2/0001386, DELL, Type : Latitude E5450, SN : 3HSJN32/0001387, DELL, Type : Latitude E5450, SN : F6JHN32/0001388, DELL, Type : Latitude E5450, SN : 8VT2F12/0001389, DELL, Type : Latitude E5450, SN : 6HSJN32/0001390, DELL, Type : Latitude E5450, SN : G1KFN32/0001391, DELL, Type : Latitude E5450, SN : 4T2WR32/0001392, DELL, Type : Latitude E5450, SN : F03WR32/0001393, DELL, Type : Latitude E5450, SN : G1KFN32/0001395)', '14/15-000186-01', 'PAR002USD', 2, 8, 9);
 /*!40000 ALTER TABLE `n_a_goods_receive` ENABLE KEYS */;
 
 -- Dumping data for table na_m_s.n_a_goods_receive_detail: ~14 rows (approximately)
 /*!40000 ALTER TABLE `n_a_goods_receive_detail` DISABLE KEYS */;
-REPLACE INTO `n_a_goods_receive_detail` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `BrandName`, `PricePerUnit`, `TypeApp`, `Warranty`, `EndOfWarranty`, `SerialNumber`, `FK_App`) VALUES
+INSERT INTO `n_a_goods_receive_detail` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `BrandName`, `PricePerUnit`, `TypeApp`, `Warranty`, `EndOfWarranty`, `SerialNumber`, `FK_App`) VALUES
 	(1, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357005072234246-357004072234249', 1),
 	(2, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357004071145081-357005071145088', 1),
 	(3, '2018-08-21 00:00:00.000000', 'rimba88', NULL, NULL, 'SAMSUNG', 2400000.0000, 'J5', 1.00, '2017-03-03 00:00:00.000000', '357005071145054-357004071145057', 1),
@@ -34,18 +35,28 @@ REPLACE INTO `n_a_goods_receive_detail` (`IDApp`, `CreatedDate`, `CreatedBy`, `M
 	(11, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, 'DELL', 15001875.0000, 'LATITUDE E5440', 5.00, '2020-07-28 00:00:00.000000', ' 3S30l32/0001404', 2),
 	(12, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, 'DELL', 15001875.0000, 'LATITUDE E5440', 5.00, '2020-07-28 00:00:00.000000', 'HHS2F12/0001405', 2),
 	(13, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, 'DELL', 15001875.0000, 'LATITUDE E5440', 5.00, '2020-07-28 00:00:00.000000', '1V1GWZ1/0001406', 2),
-	(14, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, 'DELL', 15001875.0000, 'LATITUDE E5440', 5.00, '2020-07-28 00:00:00.000000', '3K65P12/0001407', 2);
+	(14, '2018-08-28 00:00:00.000000', 'nandar', NULL, NULL, 'DELL', 15001875.0000, 'LATITUDE E5440', 5.00, '2020-07-28 00:00:00.000000', '3K65P12/0001407', 2),
+	(15, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', 'G1KFN32/0001385', 3),
+	(16, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', '81NZFRF2/0001386', 3),
+	(17, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', '3HSJN32/0001387', 3),
+	(18, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', 'F6JHN32/0001388', 3),
+	(19, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', '8VT2F12/0001389', 3),
+	(20, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', '6HSJN32/0001390', 3),
+	(21, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', 'G1KFN32/0001391', 3),
+	(22, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', '4T2WR32/0001392', 3),
+	(23, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', 'F03WR32/0001393', 3),
+	(24, '2018-08-30 00:00:00.000000', 'rimba88', NULL, NULL, 'DELL', 14585625.0000, 'Latitude E5450', 5.00, '2020-05-05 00:00:00.000000', 'G1KFN32/0001395', 3);
 /*!40000 ALTER TABLE `n_a_goods_receive_detail` ENABLE KEYS */;
 
 -- Dumping data for table na_m_s.n_a_goods_receive_other: ~0 rows (approximately)
 /*!40000 ALTER TABLE `n_a_goods_receive_other` DISABLE KEYS */;
 /*!40000 ALTER TABLE `n_a_goods_receive_other` ENABLE KEYS */;
 
--- Dumping data for table na_m_s.n_a_stock: ~0 rows (approximately)
+-- Dumping data for table na_m_s.n_a_stock: ~2 rows (approximately)
 /*!40000 ALTER TABLE `n_a_stock` DISABLE KEYS */;
-REPLACE INTO `n_a_stock` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `T_Goods_Spare`, `TotalQty`, `TIsUsed`, `TIsNew`, `TIsRenew`, `TIsBroken`, `TGoods_Return`, `TGoods_Received`, `TDisposal`, `TIsLost`, `TMaintenance`, `FK_Goods`) VALUES
+INSERT INTO `n_a_stock` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `T_Goods_Spare`, `TotalQty`, `TIsUsed`, `TIsNew`, `TIsRenew`, `TIsBroken`, `TGoods_Return`, `TGoods_Received`, `TDisposal`, `TIsLost`, `TMaintenance`, `FK_Goods`) VALUES
 	(1, '2018-08-21 17:04:53.000000', 'rimba88', NULL, NULL, 0, NULL, 0, 8, 0, NULL, 0, 8, NULL, NULL, 0, 00000000003),
-	(2, '2018-08-28 23:21:55.000000', 'nandar', NULL, NULL, 0, NULL, 0, 6, 0, NULL, 0, 6, NULL, NULL, 0, 00000000002);
+	(2, '2018-08-28 23:21:55.000000', 'nandar', '2018-08-30 19:44:09.000000', 'rimba88', 0, NULL, 0, 16, 0, NULL, 0, 16, NULL, NULL, 0, 00000000002);
 /*!40000 ALTER TABLE `n_a_stock` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -447,3 +447,6 @@ ALTER TABLE `n_a_goods_receive`
 	ALTER `REFNO` DROP DEFAULT;
 ALTER TABLE `n_a_goods_receive`
 	CHANGE COLUMN `REFNO` `REFNO` VARCHAR(100) NOT NULL AFTER `DescBySystem`;
+
+	ALTER TABLE `n_a_goods_receive`
+	CHANGE COLUMN `DescBySystem` `DescBySystem` VARCHAR(1000) NULL DEFAULT NULL AFTER `Descriptions`;
