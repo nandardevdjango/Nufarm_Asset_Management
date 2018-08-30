@@ -4,7 +4,7 @@ import json
 from django import forms
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -173,7 +173,10 @@ class NA_Employee_form(forms.Form):
             activity = 'Updated'
             employee.modifieddate = datetime.datetime.now()
             employee.modifiedby = user
-        employee.save()
+        try:
+            employee.save()
+        except IntegrityError as e:
+            pass
         log = LogActivity(
             models=Employee,
             activity=activity,

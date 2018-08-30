@@ -160,6 +160,7 @@ class NA_Supplier_form(forms.Form):
         data = self.cleaned_data
         mode = self.cleaned_data.get('mode')
         supplier = NASupplier()
+        force_insert = True
         if mode == 'Edit':
             try:
                 supplier = NASupplier.objects.get(
@@ -168,25 +169,20 @@ class NA_Supplier_form(forms.Form):
             except NASupplier.DoesNotExist:
                 return Data.Lost,
 
-        del(data['suppliercode'], data['mode'], data['initializeForm'])
+            force_insert = False
+            del data['suppliercode']
+
+        del(data['mode'], data['initializeForm'])
 
         for key, value in data.items():
             setattr(supplier, key, value)
 
         try:
-            supplier.save()
+            supplier.save(force_insert=force_insert)
         except IntegrityError as e:
-            error_field = NAErrorHandler.retrieve_integrity_field(
-                column=NAErrorHandler.retrieve_integrity_column(err=e),
-                model=NASupplier
-            )
-            field_display = NASupplier.log_display.get(error_field)
-            data = (Data.Exists, Message.get_specific_exists(
-                table='Supplier',
-                column=field_display
-            ))
-            return commonFunct.response_default(
-                data=data
+            return NAErrorHandler.handle_data_exists(
+                err=e,
+                instance=supplier
             )
         return Data.Success,
 
@@ -212,25 +208,10 @@ def EntrySupplier(request):
     if request.method == 'POST':
         form = NA_Supplier_form(request.POST)
         if form.is_valid():
-            mode = request.POST['mode']
-            data = getData(request, form)
-            result = None
-            if mode == 'Add':
-                data['createddate'] = datetime.datetime.now()
-                data['createdby'] = getCurrentUser(request)
-                result = NASupplier.objects.SaveData(StatusForm.Input, **data)
-            elif mode == 'Edit':
-                data['modifieddate'] = datetime.datetime.now()
-                data['modifiedby'] = getCurrentUser(request)
-                result = NASupplier.objects.SaveData(StatusForm.Edit, **data)
-            elif mode == 'Open':
-                if request.POST['suppliername']:
-                    return HttpResponse(
-                        json.dumps({'message': 'Cannot Edit Data with inspect element .. .'}),
-                        status=403,
-                        content_type='application/json'
-                    )
-            return commonFunct.response_default(result)
+            result = form.save(user=request.user.username)
+        else:
+            result = Data.ValidationError, form.errors
+        return commonFunct.response_default(result)
     elif request.method == 'GET':
         getSupCode = request.GET['suppliercode']
         mode = request.GET['mode']

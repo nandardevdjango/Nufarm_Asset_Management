@@ -63,6 +63,7 @@ class Data(Enum):
     HasRef = 4
     Empty = 5
     Changed = 6
+    ValidationError = 7
 
 
 class Message(Enum):
@@ -861,8 +862,8 @@ class commonFunct:
                     message = data[1]
                 else:
                     message = Message.Success.value
-            if data[0] == Data.Exists or data[0] == Data.HasRef:
-                statusResp = 403
+            if data[0] in [Data.Exists, Data.HasRef, Data.ValidationError]:
+                statusResp = 400
                 message = data[1]
             elif data[0] == Data.Lost:
                 statusResp = 404

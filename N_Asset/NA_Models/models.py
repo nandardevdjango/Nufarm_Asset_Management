@@ -309,6 +309,8 @@ class LogEvent(NA_BaseModel):
 
 
 class Employee(NA_MasterDataModel):
+    FORM_NAME = 'Employee'
+
     nik = models.CharField(
         db_column='NIK', max_length=50, unique=True
     )
@@ -379,12 +381,18 @@ class Employee(NA_MasterDataModel):
 
 
 class NASupplier(NA_MasterDataModel):
+    FORM_NAME = 'Supplier'
+
     idapp = None
     typeapp = None
     descriptions = None
 
     suppliercode = models.CharField(
-        db_column='SupplierCode', primary_key=True, max_length=30)
+        db_column='SupplierCode',
+        primary_key=True,
+        max_length=30,
+        unique=True
+    )
     suppliername = models.CharField(
         db_column='SupplierName', max_length=100, blank=True, null=True)
     address = models.CharField(
@@ -408,6 +416,19 @@ class NASupplier(NA_MasterDataModel):
 
     def __str__(self):
         return self.suppliername
+
+    @cached_property
+    def log_display(self):
+        log_parent = super(NASupplier, self).log_display
+        log_parent.update({
+            'suppliercode': 'Supplier Code',
+            'suppliername': 'Supplier Name',
+            'telp': 'Telp',
+            'hp': 'Mobile Phone',
+            'address': 'Address',
+            'contactperson': 'Contact Person'
+        })
+        return log_parent
 
     objects = NA_BR_Supplier()
     customManager = CustomSupplierManager()
