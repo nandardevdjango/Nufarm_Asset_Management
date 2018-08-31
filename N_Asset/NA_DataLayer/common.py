@@ -1,6 +1,5 @@
 ﻿import errno
 import json
-import re
 from datetime import datetime
 from enum import Enum
 from functools import wraps
@@ -520,9 +519,9 @@ class decorators:
         def real_decorator(func):
             @wraps(func)
             def wrapper(request, *args, **kwargs):
+                permission_denied = commonFunct.permision_denied
                 if request.method == 'POST':
-                    user = request.user
-                    permission_denied = commonFunct.permision_denied
+
                     if action:
                         _action = action
                     else:
@@ -551,8 +550,13 @@ class decorators:
                         _action = 'Allow Edit'
                     elif _action == 'Delete' or action == 'Delete':
                         _action = 'Allow Delete'
-                    if not user.has_permission(_action, form_name):
+                    if not request.user.has_permission(_action, form_name):
                         return permission_denied()
+
+                elif request.method == 'GET':
+                    if action == 'View':
+                        if not request.user.has_permission('Allow View', form_name):
+                            return permission_denied()
                 return func(request, *args, **kwargs)
             return wrapper
         return real_decorator

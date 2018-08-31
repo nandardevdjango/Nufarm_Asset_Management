@@ -83,7 +83,7 @@ class NA_BaseModel(models.Model):
 
 class NA_MasterDataModel(NA_BaseModel):
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    inactive = models.PositiveSmallIntegerField(db_column='InActive', default=0)
+    inactive = models.BooleanField(db_column='InActive', default=False)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -310,6 +310,7 @@ class LogEvent(NA_BaseModel):
 
 class Employee(NA_MasterDataModel):
     FORM_NAME = 'Employee'
+    FORM_NAME_ORI = 'employee'
 
     nik = models.CharField(
         db_column='NIK', max_length=50, unique=True
@@ -367,9 +368,9 @@ class Employee(NA_MasterDataModel):
     @cached_property
     def log_sort_list(self):
         return [
-            'idapp', 'Nik', 'Employee Name', 'Job Type', 'Employee Type', 'Gender', 'Status',
-            'Mobile Phone', 'Territory', 'Created Date', 'Created By', 'Modified Date',
-            'Modified By'
+            'idapp', 'Nik', 'Employee Name', 'Job Type', 'Employee Type', 'Gender',
+            'Status', 'Mobile Phone', 'Territory', 'Created Date', 'Created By',
+            'Modified Date', 'Modified By'
         ]
 
     class Meta:
@@ -382,6 +383,7 @@ class Employee(NA_MasterDataModel):
 
 class NASupplier(NA_MasterDataModel):
     FORM_NAME = 'Supplier'
+    FORM_NAME_ORI = 'n_a_supplier'
 
     idapp = None
     typeapp = None
@@ -429,6 +431,13 @@ class NASupplier(NA_MasterDataModel):
             'contactperson': 'Contact Person'
         })
         return log_parent
+
+    @cached_property
+    def log_sort_list(self):
+        return [
+            'Supplier Code', 'Supplier Name', 'Telp', 'Mobile Phone',
+            'Contact Person', 'Address'
+        ]
 
     objects = NA_BR_Supplier()
     customManager = CustomSupplierManager()

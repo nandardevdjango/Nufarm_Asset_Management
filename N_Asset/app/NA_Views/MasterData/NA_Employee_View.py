@@ -12,7 +12,7 @@ from NA_DataLayer.common import (
     Data, ResolveCriteria,
     commonFunct, decorators, Message
 )
-from NA_DataLayer.exceptions import NAErrorHandler
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import Employee
 
@@ -134,18 +134,6 @@ class NA_Employee_form(forms.Form):
                 raise forms.ValidationError({'idapp': 'This Field is required'})
         return super(NA_Employee_form, self).clean()
 
-    def clean_nik(self):
-        nik = self.cleaned_data.get('nik')
-        is_exists, message = Employee.objects.dataExist(nik=nik)
-        if is_exists:
-            raise forms.ValidationError((Data.Exists, message))
-
-    def clean_telphp(self):
-        telphp = self.cleaned_data.get('telphp')
-        is_exists, message = Employee.objects.dataExist(telphp=telphp)
-        if is_exists:
-            raise forms.ValidationError((Data.Exists, message))
-
     @transaction.atomic
     def save(self, user):
         mode = self.cleaned_data.get('mode')
@@ -176,7 +164,11 @@ class NA_Employee_form(forms.Form):
         try:
             employee.save()
         except IntegrityError as e:
-            pass
+            raise NAError(
+                error_code=NAErrorConstant.DATA_EXISTS,
+                message=e,
+                instance=employee
+            )
         log = LogActivity(
             models=Employee,
             activity=activity,
@@ -197,7 +189,8 @@ def Set_InActive(request):
     return commonFunct.response_default(result)
 
 
-@decorators.read_permission(form_name='employee')
+@decorators.ensure_authorization
+@decorators.read_permission(form_name=Employee.FORM_NAME_ORI)
 def EntryEmployee(request):
     if request.method == 'POST':
         form = NA_Employee_form(request.POST)
@@ -210,15 +203,17 @@ def EntryEmployee(request):
         idapp = request.GET['idapp']
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
-            result = Employee.objects.retriveData(idapp)
-            if result[0] == Data.Lost:
+            try:
+                result = Employee.objects.get(idapp=idapp)
+            except Employee.DoesNotExist:
                 return HttpResponse(
                     json.dumps({'message': result[0]}),
                     status=404,
                     content_type='application/json'
                 )
-            form = NA_Employee_form(initial=result[1])
-            form.fields['nik'].widget.attrs['disabled'] = 'disabled'
+            else:
+                form = NA_Employee_form(initial=forms.model_to_dict(result))
+                form.fields['nik'].widget.attrs['disabled'] = 'disabled'
         else:
             form = NA_Employee_form()
             del form.fields['inactive']
@@ -255,7 +250,7 @@ def ShowCustomFilter(request):
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-@decorators.read_permission(form_name='employee', action='Delete')
+@decorators.read_permission(form_name=Employee.FORM_NAME_ORI, action='Delete')
 def NA_Employee_delete(request):
     if request.user.is_authenticated():
         get_idapp = request.POST.get('idapp')

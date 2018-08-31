@@ -1,10 +1,24 @@
 import re
 from NA_DataLayer.common import Data, Message
 
+
+class NAError(Exception):
+    def __init__(self, error_code, message, *args, **kwargs):
+        super(NAError, self).__init__(message)
+        self.error_code = error_code
+        self.message = message
+        self.args = args
+        self.kwargs = kwargs
+
+
 class NAErrorConstant(object):
+    """
+    Error Code
+    """
 
     DATA_EXISTS = 'Data-Exist'
     DATA_HAS_REF = 'Data-Has-Ref'
+
 
 class NAErrorHandler(object):
     @staticmethod
@@ -39,8 +53,9 @@ class NAErrorHandler(object):
         return fields_model[fields_db.index(column)]
 
     @staticmethod
-    def handle_data_exists(err, instance):
-        error_column = NAErrorHandler.retrieve_integrity_column(err=err)
+    def handle_data_exists(err):
+        instance = err.kwargs.get('instance')
+        error_column = NAErrorHandler.retrieve_integrity_column(err=err.message)
         error_field = NAErrorHandler.retrieve_integrity_field(
             column=error_column,
             model=instance._meta.model

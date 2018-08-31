@@ -9,18 +9,18 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from NA_DataLayer.common import (
-    StatusForm,
     ResolveCriteria,
     Data,
     Message,
     commonFunct,
     decorators
 )
-from NA_DataLayer.exceptions import NAErrorHandler
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import NASupplier
 
 
+@decorators.ensure_authorization
 def NA_Supplier(request):
     return render(request, 'app/MasterData/NA_F_Supplier.html')
 
@@ -161,7 +161,14 @@ class NA_Supplier_form(forms.Form):
         mode = self.cleaned_data.get('mode')
         supplier = NASupplier()
         force_insert = True
-        if mode == 'Edit':
+        activity = 'Created'
+        if mode == 'Add':
+            data.update({
+                'createddate': datetime.datetime.now(),
+                'createdby': user
+            })
+        elif mode == 'Edit':
+            activity = 'Updated'
             try:
                 supplier = NASupplier.objects.get(
                     suppliercode=self.cleaned_data.get('suppliercode')
@@ -169,6 +176,10 @@ class NA_Supplier_form(forms.Form):
             except NASupplier.DoesNotExist:
                 return Data.Lost,
 
+            data.update({
+                'modifieddate': datetime.datetime.now(),
+                'modifiedby': user
+            })
             force_insert = False
             del data['suppliercode']
 
@@ -180,56 +191,60 @@ class NA_Supplier_form(forms.Form):
         try:
             supplier.save(force_insert=force_insert)
         except IntegrityError as e:
-            return NAErrorHandler.handle_data_exists(
-                err=e,
+            raise NAError(
+                error_code=NAErrorConstant.DATA_EXISTS,
+                message=e,
                 instance=supplier
             )
+        else:
+            log = LogActivity(
+                models=NASupplier,
+                activity=activity,
+                user=user,
+                data=supplier
+            )
+            log.record_activity()
         return Data.Success,
 
 
-def getCurrentUser(request):
-    return str(request.user.username)
-
-
-def getData(request, form):
-    clData = form.cleaned_data
-    data = {
-        'suppliercode': clData['suppliercode'],
-        'suppliername': clData['suppliername'],
-        'address': clData['address'],
-        'telp': clData['telp'],
-        'hp': clData['hp'],
-        'contactperson': clData['contactperson'],
-        'inactive': clData['inactive']}
-    return data
-
-
+@decorators.ensure_authorization
+@decorators.read_permission(form_name=NASupplier.FORM_NAME_ORI)
 def EntrySupplier(request):
     if request.method == 'POST':
         form = NA_Supplier_form(request.POST)
         if form.is_valid():
-            result = form.save(user=request.user.username)
+            try:
+                result = form.save(user=request.user.username)
+            except NAError as e:
+                if e.error_code == NAErrorConstant.DATA_EXISTS:
+                    result = NAErrorHandler.handle_data_exists(err=e)
         else:
             result = Data.ValidationError, form.errors
         return commonFunct.response_default(result)
     elif request.method == 'GET':
-        getSupCode = request.GET['suppliercode']
+        supplier_code = request.GET['suppliercode']
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
-            result = NASupplier.objects.retriveData(getSupCode)  # return tuple
-            if result[0] == Data.Success:
-                form = NA_Supplier_form(initial=result[1][0])
-                form.fields['suppliercode'].widget.attrs['disabled'] = 'disabled'
-                return render(request,
-                              'app/MasterData/NA_Entry_Supplier.html',
-                              {'form': form})
-            elif result[0] == Data.Lost:
+            try:
+                result = NASupplier.objects.get(suppliercode=supplier_code) # return tuple
+            except NASupplier.DoesNotExist:
                 return HttpResponse(
                     json.dumps(
-                        {'message': Message.get_lost_info(pk=getSupCode, table='supplier')}
+                        {
+                            'message': Message.get_lost_info(pk=supplier_code,
+                                                             table='supplier')
+                        }
                     ),
                     status=404,
                     content_type='application/json'
+                )
+            else:
+                form = NA_Supplier_form(initial=forms.model_to_dict(result))
+                form.fields['suppliercode'].widget.attrs['disabled'] = 'disabled'
+                return render(
+                    request,
+                    'app/MasterData/NA_Entry_Supplier.html',
+                    {'form': form}
                 )
         else:
             form = NA_Supplier_form()
@@ -276,14 +291,31 @@ def ShowCustomFilter(request):
     return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 
+@decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
+@decorators.read_permission(form_name=NASupplier.FORM_NAME_ORI, action='Delete')
 def NA_Supplier_delete(request):
     if request.user.is_authenticated():
-        get_supcode = request.POST.get('suppliercode')
-        deleteObj = NASupplier.objects.delete_supplier(
-            suppliercode=get_supcode, NA_User=request.user.username)
-        return commonFunct.response_default(deleteObj)
+        supplier_code = request.POST.get('suppliercode')
+        try:
+            supplier = NASupplier.objects.get(suppliercode=supplier_code)
+        except NASupplier.DoesNotExist:
+            result = Data.Lost,
+        if NASupplier.objects.HasRef(supplier_code):
+            result = Data.HasRef, Message.HasRef_del
+        else:
+            with transaction.atomic():
+                log = LogActivity(
+                    models=NASupplier,
+                    activity='Deleted',
+                    user=request.user.username,
+                    data=supplier_code
+                )
+                log.record_activity()
+                supplier.delete()
+                result = Data.Success,
+        return commonFunct.response_default(result)
 
 
 @decorators.ajax_required
