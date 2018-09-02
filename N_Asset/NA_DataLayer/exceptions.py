@@ -18,6 +18,7 @@ class NAErrorConstant(object):
 
     DATA_EXISTS = 'Data-Exist'
     DATA_HAS_REF = 'Data-Has-Ref'
+    DATA_LOST = 'Data-Lost'
 
 
 class NAErrorHandler(object):
@@ -67,3 +68,7 @@ class NAErrorHandler(object):
             data=getattr(instance, error_field)
         ))
         return data
+
+    @staticmethod
+    def handle_data_lost(pk, table):
+        return Data.Lost, Message.get_lost_info(pk=pk, table=table)

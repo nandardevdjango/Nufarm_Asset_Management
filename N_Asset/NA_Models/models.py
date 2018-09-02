@@ -58,25 +58,6 @@ class NA_BaseModel(models.Model):
         null=True
     )
 
-    @cached_property
-    def log_display(self):
-        return {
-            'idapp': 'idapp',
-            'createddate': 'Created Date',
-            'createdby': 'Created By',
-            'modifieddate': 'Modified Date',
-            'modifiedby': 'Modified By'
-        }
-    
-    def sort_log_display(self, log_data, sort_list):
-        result = {}
-        for field in sort_list:
-            if field in log_data:
-                result.update({
-                    field: log_data.get(field)
-                })
-        return result
-
     class Meta:
         abstract = True
 
@@ -295,6 +276,7 @@ class LogEvent(NA_BaseModel):
     modifiedby = None
 
     nameapp = models.CharField(db_column='NameApp', max_length=30)
+    model = models.CharField(db_column='Model', max_length=30)
     descriptions = JSONField()
 
     def __str__(self):
@@ -311,6 +293,23 @@ class LogEvent(NA_BaseModel):
 class Employee(NA_MasterDataModel):
     FORM_NAME = 'Employee'
     FORM_NAME_ORI = 'employee'
+
+    LOG_EVENT = {
+        'idapp': 'idapp',
+        'nik': 'Nik',
+        'employee_name': 'Employee Name',
+        'typeapp': 'Employee Type',
+        'jobtype': 'Job Type',
+        'gender': 'Gender',
+        'status': 'Status',
+        'telphp': 'Mobile Phone',
+        'territory': 'Territory',
+        'descriptions': 'Descriptions',
+        'createddate': 'Created Date',
+        'createdby': 'Created By',
+        'modifieddate': 'Modified Date',
+        'modifiedby': 'Modified By'
+    }
 
     nik = models.CharField(
         db_column='NIK', max_length=50, unique=True
@@ -350,29 +349,6 @@ class Employee(NA_MasterDataModel):
     objects = NA_BR_Employee()
     customManager = custEmpManager()
 
-    @cached_property
-    def log_display(self):
-        log_parent = super(Employee, self).log_display
-        log_parent.update({
-            'nik': 'Nik',
-            'employee_name': 'Employee Name',
-            'typeapp': 'Employee Type',
-            'jobtype': 'Job Type',
-            'gender': 'Gender',
-            'status': 'Status',
-            'telphp': 'Mobile Phone',
-            'territory': 'Territory'
-        })
-        return log_parent
-
-    @cached_property
-    def log_sort_list(self):
-        return [
-            'idapp', 'Nik', 'Employee Name', 'Job Type', 'Employee Type', 'Gender',
-            'Status', 'Mobile Phone', 'Territory', 'Created Date', 'Created By',
-            'Modified Date', 'Modified By'
-        ]
-
     class Meta:
         managed = True
         db_table = 'employee'
@@ -384,6 +360,19 @@ class Employee(NA_MasterDataModel):
 class NASupplier(NA_MasterDataModel):
     FORM_NAME = 'Supplier'
     FORM_NAME_ORI = 'n_a_supplier'
+
+    LOG_EVENT = {
+        'suppliercode': 'Supplier Code',
+        'suppliername': 'Supplier Name',
+        'telp': 'Telp',
+        'hp': 'Mobile Phone',
+        'address': 'Address',
+        'contactperson': 'Contact Person',
+        'createddate': 'Created Date',
+        'createdby': 'Created By',
+        'modifieddate': 'Modified Date',
+        'modifiedby': 'Modified By'
+    }
 
     idapp = None
     typeapp = None
@@ -418,26 +407,6 @@ class NASupplier(NA_MasterDataModel):
 
     def __str__(self):
         return self.suppliername
-
-    @cached_property
-    def log_display(self):
-        log_parent = super(NASupplier, self).log_display
-        log_parent.update({
-            'suppliercode': 'Supplier Code',
-            'suppliername': 'Supplier Name',
-            'telp': 'Telp',
-            'hp': 'Mobile Phone',
-            'address': 'Address',
-            'contactperson': 'Contact Person'
-        })
-        return log_parent
-
-    @cached_property
-    def log_sort_list(self):
-        return [
-            'Supplier Code', 'Supplier Name', 'Telp', 'Mobile Phone',
-            'Contact Person', 'Address'
-        ]
 
     objects = NA_BR_Supplier()
     customManager = CustomSupplierManager()

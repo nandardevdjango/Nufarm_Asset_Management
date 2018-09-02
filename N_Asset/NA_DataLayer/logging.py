@@ -1,4 +1,6 @@
 from datetime import date, datetime
+
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 
 from app.signals import logevent
@@ -16,10 +18,7 @@ class LogActivity:
                 model=data,
                 to_json=True
             )
-        if isinstance(data, list):
-            self.data = data
-        else:
-            self.data = [data]
+        self.data = data
 
     @staticmethod
     def model_to_dict(model, to_json=False):
@@ -27,9 +26,6 @@ class LogActivity:
         helper for serialize instance of model
         """
         result = {}
-        log_display = None
-        if hasattr(model, 'log_display'):
-            log_display = model.log_display
         for field in model._meta.fields:
             name = field.name  # field name
             data = getattr(model, name)
@@ -39,15 +35,11 @@ class LogActivity:
                 elif isinstance(data, date):
                     data = data.strftime('%d/%m/%Y')
             try:
-                result[log_display.get(name)] = eval(
+                result[name] = eval(
                     'model.get_%s_display()' % name
                 )
             except AttributeError:
-                result[log_display.get(name)] = data
-        result = model.sort_log_display(
-            log_data=result,
-            sort_list=model.log_sort_list
-        )
+                result[name] = data
         return result
 
     def record_activity(self):
@@ -62,15 +54,15 @@ class LogActivity:
 
     @staticmethod
     def record(sender, models, activity, user, data, **kwargs):
+
         from NA_Models.models import LogEvent
         log = LogEvent()
         log.nameapp = '{activity} {models}'.format(
             activity=activity,
-            models=models.__name__
+            models=models.FORM_NAME
         )
-        log.descriptions = {
-            activity: data
-        }
+        log.model = ContentType.objects.get_for_model(models).model
+        log.descriptions = data
         log.createdby = user
         log.createddate = datetime.now()
         log.save()

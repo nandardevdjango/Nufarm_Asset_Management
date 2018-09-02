@@ -573,593 +573,6 @@
     		$('button#btn_sign_out').click(function(event){
                 window.location.href = '/logout/'
     		});
-    		function showDescriptionsLog(args) {//title, content, classContent, textToContent
-    			var body = NA.common.doc.body;
-    			var pageDimensions = NA.common.dialog.getPageDimensions();
-    			var viewportSize = NA.common.dialog.getViewportSize();
-
-    			if (viewportSize[1] > pageDimensions[1]) {
-    				pageDimensions[1] = viewportSize[1];
-    			}
-    			var mnuContainer = NA.common.doc.querySelector('nav.navbar.navbar-default')
-    			if (mnuContainer) { mnuContainer.style.zIndex = "0"; }
-    			var dropSheet = NA.common.doc.createElement("div");
-
-    			dropSheet.setAttribute("id", "dropSheet");
-    			dropSheet.style.position = "absolute";
-    			dropSheet.style.left = "0";
-    			dropSheet.style.top = "0";
-
-    			dropSheet.style.zIndex = 1;
-    			dropSheet.style.width = pageDimensions[0] + "px";
-    			dropSheet.style.height = pageDimensions[1] + "px";
-    			body.appendChild(dropSheet);
-
-    			var dialog = NA.common.doc.querySelector("div.containerDialog");
-    			if (!dialog) {
-    				dialog = NA.common.doc.createElement("div");
-    				dialog.className = 'containerDialog';
-    			}
-    			//dialog.classList.add("draggable");
-    			dialog.style.visibility = "hidden";
-    			dialog.style.position = "absolute";
-    			dialog.style.zIndex = "2";
-    			//=============create Header Dialog======================
-
-    			var headerDialog = NA.common.doc.createElement("div");
-    			headerDialog.className = "ui-dialog-titlebar"
-    			headerDialog.classList.add("ui-corner-all");
-    			headerDialog.classList.add("ui-widget-header");
-    			headerDialog.classList.add("ui-helper-clearfix");
-    			headerDialog.classList.add("ui-draggable-handle");
-    			dialog.classList.add("draggable");
-    			headerDialog.style.cursor = 'move'
-    			//create Span element
-    			var spanDialogTitle = NA.common.doc.createElement('span');
-    			spanDialogTitle.setAttribute('id', 'ui-id-18');
-
-    			spanDialogTitle.className = "ui-dialog-title";
-
-    			//get title value from parameter
-    			//var dialogTitle = args['dialogTitle'];
-    			spanDialogTitle.textContent =args['title'];
-
-
-    			//create button element
-    			var dialogCloseButton = NA.common.doc.createElement("button");
-    			dialogCloseButton.className = "ui-button";
-    			dialogCloseButton.classList.add("ui-corner-all");
-    			dialogCloseButton.classList.add("ui-widget");
-    			dialogCloseButton.classList.add("ui-button-icon-only");
-    			dialogCloseButton.classList.add("ui-dialog-titlebar-close");
-    			dialogCloseButton.style.cssFloat = "right";
-    			dialogCloseButton.style.marginTop = "3px";
-    			dialogCloseButton.style.paddingLeft = ".5em";
-    			dialogCloseButton.style.paddingRight = ".5em"
-    			//create element spanDialogbutton close
-    			var spandialogbuttonclose = NA.common.doc.createElement("span");
-    			spandialogbuttonclose.className = "ui-button-icon";
-    			spandialogbuttonclose.classList.add("ui-icon");
-    			spandialogbuttonclose.classList.add("ui-icon-closethick");
-
-
-    			var spanuibuttonIconSpace = NA.common.doc.createElement("span");
-    			spanuibuttonIconSpace.className = "ui-button-icon-space";
-    			dialogCloseButton.appendChild(spanuibuttonIconSpace);
-    			dialogCloseButton.appendChild(spandialogbuttonclose);
-
-    			headerDialog.appendChild(spanDialogTitle);
-    			headerDialog.appendChild(dialogCloseButton);//1
-
-    			//===============create maincontendialog===============
-
-    			var mainContentDialog = NA.common.doc.createElement("div");
-    			mainContentDialog.className = "maindialogContent";//2
-    			//isi content di loag pakai ajax Jquery(diluar object ini) setelah dialog di create
-
-
-    			//=============create bottom dialog=====================
-    			var bottomDialog = NA.common.doc.createElement("div");
-    			bottomDialog.className = "bottomDialogContent";
-
-    			var dialogButtonSet1 = NA.common.doc.createElement("div");
-    			dialogButtonSet1.className = "dialogButtonEntry";
-
-    			//==========create tombol OK Cancel Print dan Export==================
-    			//create dulu container untuk button OK Cancelnya
-    			dialogButtonSet1.classList.add('dialogButtonOKCancel');
-    			//Create tombol OK Cancel
-    			var btnOK = NA.common.doc.createElement("a");
-    			btnOK.className = "button";
-    			btnOK.nodeValue = "OK";
-    			btnOK.textContent = "OK";
-    			//var isDisableOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
-    			btnOK.style.width = "80px";
-    			//btnOK.disabled = isDisableOK.valueOf();
-
-    			//btnOK.disabled = true;
-
-    			var btnCancel = NA.common.doc.createElement("a");
-    			btnCancel.className = "button";
-    			btnCancel.nodeValue = "Cancel";
-    			btnCancel.textContent = "Cancel";
-    			btnCancel.style.width = "80px";
-    			//var isDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
-    			//btnCancel.disabled = isDisabledCancel.valueOf();
-
-    			dialogButtonSet1.appendChild(btnOK);
-    			dialogButtonSet1.appendChild(btnCancel);
-
-
-    			var dialogButtonSet2 = NA.common.doc.createElement("div");
-    			dialogButtonSet2.className = "dialogButtonEntry";
-    			dialogButtonSet2.classList.add("dialogButtonRightOther");
-    			//create tombol Print dan Export
-    			var btnPrint = NA.common.doc.createElement("a");
-    			btnPrint.className = "btn-link";
-    			btnPrint.nodeValue = "Print Preview";
-    			btnPrint.textContent = "Print Preview";
-    			btnPrint.style.width = "120px";
-    			//var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
-    			//btnPrint.disabled = isDisabledPrint.valueOf();
-    			btnPrint.style.marginRight = "0";
-    			btnPrint.style.paddingRight = "0";
-    			var btnExport = NA.common.doc.createElement("a");
-    			btnExport.className = "btn-link";
-    			btnExport.nodeValue = "Export";
-    			btnExport.textContent = "Export"
-    			btnExport.style.width = "100px";
-
-    			//var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnPrintPreview"];
-    			btnExport.style.marginRight = "0";
-    			btnExport.style.paddingRight = "0";
-
-    			//btnExport.disabled = isDisabledExport.valueOf()
-    			dialogButtonSet2.appendChild(btnPrint);
-    			dialogButtonSet2.appendChild(btnExport);
-
-
-    			bottomDialog.appendChild(dialogButtonSet1);
-    			bottomDialog.appendChild(dialogButtonSet2);//3
-
-    			dialog.appendChild(headerDialog);
-    			dialog.appendChild(mainContentDialog);
-    			dialog.appendChild(bottomDialog);
-
-    			var scrollingPosition = NA.common.dialog.getScrollingPosition();
-    			body.appendChild(dialog);
-    			dialog.style.left = scrollingPosition[0] + parseInt(viewportSize[0] / 2) - parseInt(dialog.offsetWidth / 2) + "px";
-    			dialog.style.top = scrollingPosition[1] + parseInt(viewportSize[1] / 2.5) - parseInt(dialog.offsetHeight) + "px";
-
-    			dialog.style.visibility = 'visible';
-
-
-    			//===============Enabled kan Dragdrop=================================
-    			NA.common.dialog.DragDrop.enable();
-
-
-
-    			var ParentContent = document.createElement('div');
-    			NA.common.NA_setAttr(ParentContent, {
-    				"class": args['parentClass'],
-    				"id": "contentName",
-    				"style":"width:"+args['width']+""
-    			});
-    			var contentElem;
-    			for (var i = 0; i < args['textToContent'].length; i++) {
-    				containerElem = document.createElement('div')
-    				NA.common.NA_setAttr(containerElem, {
-    					'class': 'col-md-12',
-    					'id':'containerElem'
-    				});
-
-    				contentElem = document.createElement('div');
-    				NA.common.NA_setAttr(contentElem, {
-    					'class': args['contentElem_Class'],
-    					'id': 'contentElem'
-
-    				});
-    				contentData = document.createElement('div');
-    				NA.common.NA_setAttr(contentData, {
-    					'class': args['contentData_Class'],
-    					'id': 'contentData'
-
-    				});
-
-    				var textContent = document.createTextNode(args['textToContent'][i]);
-    				contentElem.appendChild(textContent);
-    				var textData = document.createTextNode(args['get_text'][i]);
-    				contentData.appendChild(textData)
-    				containerElem.innerHTML += contentElem.outerHTML + contentData.outerHTML
-
-    				contentData.appendChild(textData);
-
-    				ParentContent.appendChild(containerElem);
-    			};
-    			mainContentDialog.appendChild(ParentContent);
-    			var close_Dialog = NA.common.doc.querySelector('button.ui-button.ui-dialog-titlebar-close')
-    			var theDialog = NA.common.doc.querySelector("div.containerDialog");
-    			NA.NAEvent.addHandler(close_Dialog, 'click', function () {
-    				NA.common.dialog.closeDialog(theDialog)
-    			});
-    			var cancelButton = NA.common.doc.querySelector('div.dialogButtonOKCancel > a.button:nth-child(2)');
-    			NA.NAEvent.addHandler(cancelButton, 'click', function () {
-    				NA.common.dialog.closeDialog(theDialog)
-    			});
-    			var content_Name = NA.common.doc.querySelector('div#contentName');
-    			if (args['mode'] == 'update') {
-    				var main_Dialog = NA.common.doc.querySelector('div.maindialogContent');
-    				var btnContainer = NA.common.doc.createElement('div');
-    				NA.common.NA_setAttr(btnContainer, {
-    					'style': 'clear:left;padding-top:20px'
-    				});
-    				var prevBtn = NA.common.doc.createElement('button');
-    				NA.common.NA_setAttr(prevBtn, {
-    					'id': 'prev',
-    					'class': 'btn btn-success'
-    				});
-    				var nextBtn = NA.common.doc.createElement('button');
-    				NA.common.NA_setAttr(nextBtn, {
-    					'id': 'next',
-    					'class': 'btn btn-success'
-    				});
-    				var iconPrev = NA.common.doc.createElement('i');
-    				NA.common.NA_setAttr(iconPrev, {
-    					'class': 'fa fa-angle-double-left'
-    				});
-    				var iconNext = NA.common.doc.createElement('i');
-    				NA.common.NA_setAttr(iconNext, {
-    					'class': 'fa fa-angle-double-right'
-    				});
-    				prevBtn.appendChild(iconPrev)
-    				nextBtn.appendChild(iconNext)
-    				btnContainer.appendChild(prevBtn)
-    				btnContainer.appendChild(nextBtn)
-    				main_Dialog.appendChild(btnContainer);
-
-    				var getPrev = NA.common.doc.querySelector('button#prev')
-    				var getNext = NA.common.doc.querySelector('button#next')
-    				var text_before = args['text_before']
-    				var text_after = args['text_after'];
-
-    				var changeText = function () {
-    					return $('div#contentData').text('');
-    				};
-    				NA.NAEvent.addHandler(getPrev, 'click', function () {
-    					changeText();
-    					if (text_before.length < text_after.length) {
-    						if ($('div.' + args['contentElem_Class'] + ':contains(Modified)').length == 0) {
-    							var container_Elem = NA.common.doc.createElement('div');
-    							NA.common.NA_setAttr(container_Elem, {
-    								'class': 'col-md-12',
-    								'id': 'containerElem'
-    							});
-    							var container_Elem2 = NA.common.doc.createElement('div');
-    							NA.common.NA_setAttr(container_Elem2, {
-    								'class': 'col-md-12',
-    								'id': 'containerElem'
-    							});
-    							var modifieddate = NA.common.doc.createElement('div');
-    							NA.common.NA_setAttr(modifieddate, {
-    								'class': args['contentElem_Class'],
-    								'id': 'contentElem'
-    							});
-    							modifieddate.textContent = 'Modified Date :'
-    							var modifiedby = NA.common.doc.createElement('div')
-    							NA.common.NA_setAttr(modifiedby, {
-    								'class': args['contentElem_Class'],
-    								'id': 'contentElem'
-    							});
-    							modifiedby.textContent = 'Modified By :'
-
-    							var data_modifiedDate = NA.common.doc.createElement('div');
-    							NA.common.NA_setAttr(data_modifiedDate, {
-    								'id': 'contentData',
-    								'class': args['contentData_Class']
-    							});
-    							var data_modifiedBy = NA.common.doc.createElement('div');
-    							NA.common.NA_setAttr(data_modifiedBy, {
-    								'id': 'contentData',
-    								'class': args['contentData_Class']
-    							})
-
-    							container_Elem.appendChild(modifieddate);
-    							container_Elem.appendChild(data_modifiedDate);
-    							container_Elem2.appendChild(modifiedby);
-    							container_Elem2.appendChild(data_modifiedBy);
-    							content_Name.appendChild(container_Elem);
-    							content_Name.appendChild(container_Elem2);
-    						}
-
-    					};
-    					for (var i = 0; i < text_after.length; i++) {
-    						$('div#contentData:eq(' + i + ')').text(text_after[i])
-    					};
-    				});
-    				NA.NAEvent.addHandler(getNext, 'click', function () {
-    					changeText();
-    					for (var i = 0; i < text_before.length; i++) {
-    						$('div#contentData:eq(' + i + ')').text(text_before[i])
-    					};
-    					if (text_before.length < text_after.length) {
-    						$('div.'+args['contentElem_Class']+':contains(Modified)').parent().remove()
-    					}
-
-    				})
-    			} else if (args['mode'] == 'emailData') {
-    				function createElem(data,callback) {
-    					(function(data_args){
-    						var containerElem = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(containerElem, {
-    							'id': 'containerElem',
-    							'class': 'col-md-12'
-    						});
-    						var contentElem = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(contentElem, {
-    							'id': 'contentElem',
-    							'class': args['contentElem_Class']
-    						});
-    						var contentData = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(contentData, {
-    							'id': 'contentData',
-    							'class': args['contentData_Class']
-    						});
-    						contentElem.textContent = data_args['text_elem']
-    						contentData.textContent = data_args['text_data']
-    						if (data_args['type'] == 'tabular_data') {
-    							containerElem.appendChild(contentElem);
-    							containerElem.appendChild(contentData);
-    							content_Name.appendChild(containerElem);
-    						} else if (data_args['type'] == 'biodata') {
-    							callback(containerElem, contentElem, contentData);
-    						}
-    					})(data)
-
-    				}
-
-
-    				var type_report = args['get_text'][4]
-    				var data_report = args['get_text'][5]
-    				var data_report_employee = data_report['bio_employee']
-    				var data_report_supplier = data_report['bio_supplier']
-    				var tabular_employee = data_report['tabular_data_employee']
-    				var tabular_supplier = data_report['tabular_data_supplier']
-    				if (type_report == 'biodata'||type_report == 'Biodata') {
-    					if (data_report_employee) {
-
-    						var container_dataEmployee = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(container_dataEmployee, {
-    							'id': 'containerElem',
-    							'class': 'col-md-12'
-    						});
-    						var data_reportEmployee = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(data_reportEmployee, {
-    							'id': 'contentElem',
-    							'class': args['contentElem_Class']
-    						});
-    						var data_reportText = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(data_reportText, {
-    							'id': 'contentData',
-    							'class': args['contentData_Class']
-    						});
-
-    						data_reportEmployee.textContent = 'Employee :';
-    						var ul_bio = NA.common.doc.createElement('ul');
-    						NA.common.NA_setAttr(ul_bio, {
-    							'id': 'ul_container'
-    						});
-
-
-
-
-    						var create_elem_employee = function (i) {
-    							var bio = NA.common.doc.createElement('a');
-    							var li_bio = NA.common.doc.createElement('li');
-    							var ul_data_bio = NA.common.doc.createElement('ul');
-    							var li_bio_nik = NA.common.doc.createElement('li');
-    							var li_bio_typeapp = NA.common.doc.createElement('li');
-    							var li_bio_jobtype = NA.common.doc.createElement('li');
-    							var li_bio_gender = NA.common.doc.createElement('li');
-    							var li_bio_statusEmpl = NA.common.doc.createElement('li');
-    							var li_bio_telphp = NA.common.doc.createElement('li');
-    							var li_bio_territory = NA.common.doc.createElement('li');
-    							var li_bio_descriptions = NA.common.doc.createElement('li');
-    							var li_bio_inactive = NA.common.doc.createElement('li');
-    							NA.common.NA_setAttr(ul_data_bio, {
-    								'class': 'dropdown-menu triangle',
-    								'id': 'data-dropdown'
-    							});
-    							NA.common.NA_setAttr(li_bio, {
-    								'class': 'dropdown',
-    								'id': 'dropdown-bio'
-    							});
-    							NA.common.NA_setAttr(bio, {
-    								'href': '#',
-    								'class': 'dropdown-toggle',
-    								'data-toggle': 'dropdown'
-    							});
-
-    							var textBio = NA.common.doc.createTextNode(data_report_employee[i]['employee_name']);
-    							var text_nik = NA.common.doc.createTextNode('Nik :' + data_report_employee[i]['nik']);
-    							var text_typeapp = NA.common.doc.createTextNode('Type App :' + data_report_employee[i]['typeapp']);
-    							var text_jobtype = NA.common.doc.createTextNode('Job Type :' + data_report_employee[i]['jobtype']);
-    							var text_gender = NA.common.doc.createTextNode('Gender :' + data_report_employee[i]['gender']);
-    							var text_statusEmpl = NA.common.doc.createTextNode('Status :' + data_report_employee[i]['status']);
-    							var text_telphp = NA.common.doc.createTextNode('Telp/HP :' + data_report_employee[i]['telphp']);
-    							var text_territory = NA.common.doc.createTextNode('Territory :' + data_report_employee[i]['territory']);
-    							var text_descriptions = NA.common.doc.createTextNode('Descriptions :' + data_report_employee[i]['descriptions']);
-    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_employee[i]['inactive']);
-
-    							bio.appendChild(textBio);
-    							li_bio.appendChild(bio);
-    							li_bio_nik.appendChild(text_nik);
-    							li_bio_typeapp.appendChild(text_typeapp);
-    							li_bio_jobtype.appendChild(text_jobtype);
-    							li_bio_gender.appendChild(text_gender);
-    							li_bio_statusEmpl.appendChild(text_statusEmpl);
-    							li_bio_telphp.appendChild(text_telphp);
-    							li_bio_territory.appendChild(text_territory);
-    							li_bio_descriptions.appendChild(text_descriptions);
-    							li_bio_inactive.appendChild(text_inactive);
-    							ul_data_bio.appendChild(li_bio_nik);
-    							ul_data_bio.appendChild(li_bio_typeapp);
-    							ul_data_bio.appendChild(li_bio_jobtype);
-    							ul_data_bio.appendChild(li_bio_gender);
-    							ul_data_bio.appendChild(li_bio_statusEmpl);
-    							ul_data_bio.appendChild(li_bio_telphp);
-    							ul_data_bio.appendChild(li_bio_territory);
-    							ul_data_bio.appendChild(li_bio_descriptions);
-    							ul_data_bio.appendChild(li_bio_inactive);
-    							li_bio.appendChild(ul_data_bio);
-    							ul_bio.appendChild(li_bio)
-    							data_reportText.appendChild(ul_bio);
-    						}
-    						if (data_report_employee.length > 1) {
-    							for (var i = 0; i < data_report_employee.length; i++) {
-    								create_elem_employee(i);
-    							}
-    						} else if (data_report_employee.length == 1) {
-    							create_elem_employee(0)
-    						};
-    						container_dataEmployee.appendChild(data_reportEmployee);
-    						container_dataEmployee.appendChild(data_reportText);
-    						content_Name.appendChild(container_dataEmployee);
-
-    					};
-    					if (data_report_supplier) {
-    						var container_dataSupplier = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(container_dataSupplier, {
-    							'id': 'containerElem',
-    							'class': 'col-md-12'
-    						});
-    						var data_reportSupplier = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(data_reportSupplier, {
-    							'id': 'contentElem',
-    							'class': args['contentElem_Class']
-    						});
-    						var data_reportText = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(data_reportText, {
-    							'id': 'contentData',
-    							'class': args['contentData_Class']
-    						});
-
-    						data_reportSupplier.textContent = 'Supplier :';
-    						var ul_bio = NA.common.doc.createElement('ul');
-    						NA.common.NA_setAttr(ul_bio, {
-    							'id': 'ul_container'
-    						})
-    						var create_elem_supplier = function (i) {
-    							var bio = NA.common.doc.createElement('a');
-    							var li_bio = NA.common.doc.createElement('li');
-    							var ul_data_bio = NA.common.doc.createElement('ul');
-    							var li_bio_suppliercode = NA.common.doc.createElement('li');
-    							var li_bio_suppliername = NA.common.doc.createElement('li');
-    							var li_bio_telp = NA.common.doc.createElement('li');
-    							var li_bio_hp = NA.common.doc.createElement('li');
-    							var li_bio_contactperson = NA.common.doc.createElement('li');
-    							var li_bio_inactive = NA.common.doc.createElement('li');
-    							var li_bio_address = NA.common.doc.createElement('li');
-    							NA.common.NA_setAttr(ul_data_bio, {
-    								'class': 'dropdown-menu triangle',
-    								'id': 'data-dropdown'
-    							});
-    							NA.common.NA_setAttr(li_bio, {
-    								'class': 'dropdown',
-    								'id': 'dropdown-bio'
-    							});
-    							NA.common.NA_setAttr(bio, {
-    								'href': '#',
-    								'class': 'dropdown-toggle',
-    								'data-toggle': 'dropdown'
-    							});
-
-    							var textBio = NA.common.doc.createTextNode(data_report_supplier[i]['suppliername']);
-    							var text_suppliercode = NA.common.doc.createTextNode('Supplier Code :' + data_report_supplier[i]['suppliercode']);
-    							var text_suppliername = NA.common.doc.createTextNode('Supplier Name :' + data_report_supplier[i]['suppliername']);
-    							var text_telp = NA.common.doc.createTextNode('Telp :' + data_report_supplier[i]['telp']);
-    							var text_hp = NA.common.doc.createTextNode('Hp :' + data_report_supplier[i]['hp']);
-    							var text_contactperson = NA.common.doc.createTextNode('Contact Person :' + data_report_supplier[i]['contactperson']);
-    							var text_inactive = NA.common.doc.createTextNode('InActive :' + data_report_supplier[i]['inactive']);
-    							var text_address = NA.common.doc.createTextNode('Address :' + data_report_supplier[i]['address']);
-
-    							bio.appendChild(textBio);
-    							li_bio.appendChild(bio);
-    							li_bio_suppliercode.appendChild(text_suppliercode);
-    							li_bio_suppliername.appendChild(text_suppliername);
-    							li_bio_telp.appendChild(text_telp);
-    							li_bio_hp.appendChild(text_hp);
-    							li_bio_contactperson.appendChild(text_contactperson);
-    							li_bio_inactive.appendChild(text_inactive);
-    							li_bio_address.appendChild(text_address);
-    							ul_data_bio.appendChild(li_bio_suppliercode);
-    							ul_data_bio.appendChild(li_bio_suppliername);
-    							ul_data_bio.appendChild(li_bio_telp);
-    							ul_data_bio.appendChild(li_bio_hp);
-    							ul_data_bio.appendChild(li_bio_contactperson);
-    							ul_data_bio.appendChild(li_bio_inactive);
-    							ul_data_bio.appendChild(li_bio_address);
-    							li_bio.appendChild(ul_data_bio);
-    							ul_bio.appendChild(li_bio)
-    							data_reportText.appendChild(ul_bio);
-    						}
-    						if (data_report_supplier.length > 1) {
-    							for (var i = 0; i < data_report_supplier.length; i++) {
-    								create_elem_supplier(i);
-    							}
-    						} else if (data_report_supplier.length == 1) {
-    							create_elem_supplier(0)
-    						};
-    						container_dataSupplier.appendChild(data_reportSupplier);
-    						container_dataSupplier.appendChild(data_reportText);
-    						content_Name.appendChild(container_dataSupplier);
-    					}
-    				} else if (type_report == 'tabular_data' || type_report == 'Tabular Data') {
-
-    					var tabular_employee = data_report['tabular_data_employee']
-    					var tabular_supplier = data_report['tabular_data_supplier']
-    					var create_tabular = function (tabular) {
-    						var containerElm = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(containerElm, {
-    							'class': 'col-md-12',
-    							'id': 'containerElem'
-    						});
-    						var contentElem_t = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(contentElem_t, {
-    							'class': args['contentElem_Class'],
-    							'id': 'contentElem'
-    						});
-    						contentElem_t.textContent = tabular['textContent']
-    						var contentData_t = NA.common.doc.createElement('div');
-    						NA.common.NA_setAttr(contentData_t, {
-    							'id': 'contentData',
-    							'class': args['contentData_Class']
-    						});
-    						contentData_t.textContent = tabular['textData'];
-    						containerElm.appendChild(contentElem_t);
-    						containerElm.appendChild(contentData_t);
-    						content_Name.appendChild(containerElm);
-    					};
-    					if (tabular_employee) {
-    						create_tabular({
-    							textContent: 'Total Employee :',
-    							textData: tabular_employee
-    						})
-    					};
-    					if (tabular_supplier) {
-    						create_tabular({
-    							textContent: 'Total Supplier :',
-    							textData: tabular_supplier
-    						})
-    					}
-    				}
-
-
-
-    			}
-
-    		}
-
-
 
     		var inputLogEvent = NA.common.getElementID('searchLogEvent'),
 				btn_search_log = NA.common.getElementID('btnSearchLogEvent');
@@ -1179,7 +592,6 @@
 					  null);
     		};
     		NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
-    			console.log(event);
     			if(event.keyCode == 13){
     				searchLog(event);
     			}
@@ -1187,15 +599,6 @@
     		NA.NAEvent.addHandler(btn_search_log,'click',function(event){
     			searchLog(event);
     		});
-    		var months = [
-				'January', 'February', 'March', 'April', 'May',
-				'June', 'July', 'August', 'September',
-				'October', 'November', 'December'
-    		];
-    		function retriveMonth(monthname) {
-    			var month = months.indexOf(monthname);
-    			return month ? month + 1 : 0;
-    		};
     		using('tree', function () {
     			$("#EventLogs").tree({
     				url: url_logEvent(),
@@ -1218,7 +621,16 @@
     						}
     					};
     					forNodes(data, function (node) {
-    						if (!node.children) {
+    						if (node.children) {
+    							if (node.text.match(/\d+ \w+ \d+/)) {
+    								node.state = 'closed'
+    								node.iconCls = 'fa fa-calendar'
+    							} else if (node.text.match(/^Log/)) {
+    								node.iconCls = 'fa fa-indent'
+    							} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
+    								node.iconCls = 'fa fa-calendar-o'
+    							}
+    						} else {
     							if (node.text.match(/Created/)) {
     								node.iconCls = 'fa fa-plus';
     							};
@@ -1232,16 +644,6 @@
     								node.iconCls = 'fa fa-envelope'
     							}
     						};
-    						if (node.children) {
-    							if (node.text.match(/\d+ \w+ \d+/)) {
-    								node.state = 'closed'
-    								node.iconCls = 'fa fa-calendar'
-    							} else if (node.text.match(/^Log/)) {
-    								node.iconCls = 'fa fa-indent'
-    							} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-    								node.iconCls = 'fa fa-calendar-o'
-    							}
-    						}
 
     					});
 
@@ -1249,178 +651,41 @@
     				},
     				onClick: function (node) {
     					if (!node.children) {
-    						var obj = $(node.target).parent()['context']['id']; //get id of the clicked object/node .. . :D
-    						var get_tanggal = $('#' + obj).parents().eq(1).prev().text(); //get date of the clicked object, by access parent of element .. . :D
-    						var dynamic_field = (get_tanggal + 'T' + get_waktu); //this is the default format time of the django, and can optional if change it .. . :D
-    						var descrModal = $('#mYmodal'); // Modal Log Descriptions
-    						var get_waktu = node.text.match(/\d+:\d+:\d+/);
-    						var get_year = get_tanggal.match(/\d{4}/),
-                                get_month = retriveMonth(get_tanggal.match(/\s\w+\s/).toString().trim()),
-                                get_day = get_tanggal.match(/\d{2}/);
-    						var get_clicked = get_year + '-' + get_month + '-' + get_day + 'T' + get_waktu;
     						$.ajax({
     							type: 'GET',
-    							url: url_logDesc() + '?createddate=' + get_clicked,
+    							url: url_logDesc() + '?idapp=' + node.idapp,
     							dataType: 'json',
     							success: function (data) {
-    								if (data[0]['created']) {
-    									var get_created = data[0]['created'];
-    								} else if (data[0]['before']) {
-    									var get_before = data[0]['before'];
-    									var get_after = data[0]['after'];
-    								} else if (data[0]['deleted']) {
-    									var get_deleted = data[0]['deleted'];
-    								} else if (data[0]['emailData']) {
-    									var get_mailData = data[0]['emailData'];
-    								};
-    								// ===== Label for Display Log Event
-    								function label_inactive(text){
-    									if (text.indexOf('0') > -1){
-    										var i_inactive = text.indexOf('0');
-    										text[i_inactive] = 'No'
-    									}else if(text.indexOf('1') > -1){
-    										var i_active = text.indexOf('1');
-    										text[i_active] = 'Yes'
-    									};
-    									return text
-    								};
-
-    								function label_empl() {
-    									var txt_data = get_created;
-    									if (txt_data.indexOf('M') > -1) {
-    										var i_Male = txt_data.indexOf('M');
-    										txt_data[i_Male] = 'Male';
-    									}else if(txt_data.indexOf('F') > -1){
-    										var i_Female = txt_data.indexOf('F');
-    										txt_data[i_Female] = 'Female';
-    									};
-    									if (txt_data.indexOf('S') > -1) {
-    										var i_Single = txt_data.indexOf('S');
-    										txt_data[i_Single] = 'Single'
-    									} else if (txt_data.indexOf('M') > -1) {
-    										var i_Married = txt_data.indexOf('M');
-    										txt_data[i_Married] = 'Married'
-    									};
-    									label_inactive(txt_data);
-    									return txt_data
-    								};
-    								var match_created = node.text.match(/Created/);
-    								var match_updated = node.text.match(/Updated/);
-    								var match_deleted = node.text.match(/Deleted/);
-    								var match_supplier = node.text.match(/Supplier/);
-    								var match_employee = node.text.match(/Employee/);
-    								var match_goods = node.text.match(/Goods/);
-    								var match_mail = node.text.match(/Email/);
-    								function removeNull(text) {
-    									if ($('div#contentName').is(':visible')) {
-    										if(text[text.length - 1] == null || text.length < $('div#contentElem').length){
-    											$('div#contentElem:contains(Modified), div#contentData:contains(null), div#contentData:contains(undefined)').remove()
-    										}
-    									} else {
-    										setTimeout(removeNull, 50); //wait 50 ms, then try again this is recursive function :D
-    									}
-    								};
-    								var settings_default = {
-    									title: 'Nufarm Log Event - Descriptions',
-    									parentClass: 'col-md-12'
-    								};
-    								if (match_supplier) {
-    									var settings_supplier = NA.common.AssignObject({
-    										textToContent: ['Supplier Code :', 'Supplier Name :', 'Address :', 'Telp :', 'Hp :', 'Contact Person :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-    										contentElem_Class: 'col-md-4',
-    										contentData_Class: 'col-md-7'
-    									},settings_default)
-    									if (match_created) {
-    										var settings_supplier_create = NA.common.AssignObject({
-    											get_text: label_inactive(get_created)
-    										},settings_supplier)
-    										showDescriptionsLog(settings_supplier_create)
-    										removeNull(get_created);
-    									} else if (match_updated) {
-    										var settings_supplier_update = NA.common.AssignObject({
-    											get_text: get_after,
-    											mode: 'update',
-    											text_after: get_after,
-    											text_before: get_before
-    										},settings_supplier)
-    										showDescriptionsLog(settings_supplier_update)
-
-    									} else if (match_deleted) {
-    										var settings_supplier_delete = NA.common.AssignObject({
-    											get_text: get_deleted
-    										},settings_supplier)
-    										showDescriptionsLog(settings_supplier_delete);
-    										removeNull(get_deleted);
-    									}
-    								} else if (match_employee) {
-    									var settings_employee = NA.common.AssignObject({
-    										textToContent: ['Nik:', 'Employee Name :', 'Type App :', 'Jobtype :', 'Gender :', 'Status :', 'Telp/Hp :', 'Territory :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-    										contentElem_Class: 'col-md-4',
-    										contentData_Class: 'col-md-7'
-    									}, settings_default)
-    									if (match_created) {
-    										var settings_employee_create = NA.common.AssignObject({
-    											get_text: label_empl()
-    										},settings_employee)
-    										showDescriptionsLog(settings_employee_create)
-    										removeNull(get_created);
-    									} else if (match_updated) {
-    										var settings_employee_update = NA.common.AssignObject({
-    											get_text: get_after,
-    											mode: 'update',
-    											text_after: get_after,
-    											text_before: get_before
-    										}, settings_employee);
-    										showDescriptionsLog(settings_employee_update);
-    									} else if (match_deleted) {
-    										var settings_employee_delete = NA.common.AssignObject({
-    											mode: 'delete',
-    											get_text: get_deleted
-    										}, settings_employee);
-    										showDescriptionsLog(settings_employee_delete);
-    										removeNull(get_deleted);
-    									}
-
-    								} else if (match_goods) {
-    									var settings_goods = NA.common.AssignObject({
-    										textToContent: ['Item Code :', 'Goods Name :', 'Brand Name :', 'Type App :', 'Price/Unit :', 'Depreciation :', 'Unit :', 'Economic Life :', 'Placement :', 'Descriptions :', 'Inactive :', 'Created Date :', 'Created By :', 'Modified Date :', 'Modified By :'],
-    										contentElem_Class: 'col-md-3',
-    										contentData_Class: 'col-md-7'
-    									}, settings_default);
-    									if (match_created) {
-    										var settings_goods_create = NA.common.AssignObject({
-    											get_text: get_created
-    										}, settings_goods);
-    										showDescriptionsLog(settings_goods_create);
-    										removeNull(get_created);
-    									} else if (match_updated) {
-    										var settings_goods_update = NA.common.AssignObject({
-    											get_text: get_after,
-    											mode: 'update',
-    											text_after: get_after,
-    											text_before: get_before
-    										}, settings_goods);
-    										showDescriptionsLog(settings_goods_update);
-    									} else if (match_deleted) {
-    										var settings_goods_delete = NA.common.AssignObject({
-    											get_text: get_deleted,
-    											mode: 'delete'
-    										}, settings_goods);
-    										showDescriptionsLog(settings_goods_delete);
-    										removeNull(get_deleted);
-    									}
-    								} else if (match_mail) {
-    									showDescriptionsLog({
-    										title: 'Nufarm Log Event - Descriptions',
-    										textToContent: ['To :','From :', 'Subject :', 'Message :', 'Type Report :'],
-    										parentClass: 'col-md-12',
-    										contentElem_Class: 'col-md-4',
-    										contentData_Class:'col-md-7',
-    										get_text: get_mailData,
-    										mode: 'emailData'
-    									});
-    								}
-
+    								BootstrapDialog.show({
+                                        draggable: true,
+                                        type: BootstrapDialog.TYPE_SUCCESS,
+                                        size: BootstrapDialog.SIZE_SMALL,
+                                        title: data.name_app,
+                                        cssClass: 'form-dialog-change-role',
+                                        message: (function(){
+                                            var container = $('<div class="row"></div>');
+                                            for (var key in data.data){
+                                                var container_field = $('<div class="col-md-12"></div>')
+                                                var label = $('<div class="col-md-3">' + key + '</div>');
+                                                var value = $('<div class="col-md-7">' + data.data[key] + '</div>');
+                                                container_field.append(label);
+                                                container_field.append(value);
+                                                container.append(container_field);
+                                            }
+                                            return container;
+                                        })(),
+                                        closable: false,
+                                        animate: true,
+                                        closeByBackdrop: false,
+                                        closeByKeyboard: false,
+                                        buttons: [{
+                                            label: 'OK',
+                                            cssClass: 'btn-default',
+                                            action: function (dialogRef) {
+                                                dialogRef.close();
+                                            }
+                                        }]
+                                    })
     							}
     						})
     					}

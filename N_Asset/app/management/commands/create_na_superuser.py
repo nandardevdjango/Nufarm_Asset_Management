@@ -43,4 +43,4 @@ class Command(BaseCommand):
             user.is_staff = True
             user.save()
             NASysPrivilege.set_permission(user)
-        return 'NA Super User Created Successfully'
+        self.stdout.write(self.style.SUCCESS('NA Super User Created Successfully'))

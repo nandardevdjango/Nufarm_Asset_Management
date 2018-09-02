@@ -114,7 +114,8 @@ class Message(Enum):
         table:table_name
         """
         obj = commonFunct.get_log_data(
-            pk=kwargs['pk'], table=kwargs['table'], action='deleted')
+            pk=kwargs['pk'], table=kwargs['table'], action='deleted'
+        )
         if obj == []:
             return 'This data doesn\'t lost'
         else:
@@ -927,6 +928,7 @@ class commonFunct:
             raise ValueError(
                 'Cannot assign "None" type object \n make sure if arguments/parameter is not None')
 
+    @staticmethod
     def EmptyGrid():
         return {"page": "1", "total": 0, "records": 0, "rows": []}
 

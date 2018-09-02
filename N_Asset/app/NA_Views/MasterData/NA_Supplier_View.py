@@ -296,26 +296,25 @@ def ShowCustomFilter(request):
 @decorators.detail_request_method('POST')
 @decorators.read_permission(form_name=NASupplier.FORM_NAME_ORI, action='Delete')
 def NA_Supplier_delete(request):
-    if request.user.is_authenticated():
-        supplier_code = request.POST.get('suppliercode')
-        try:
-            supplier = NASupplier.objects.get(suppliercode=supplier_code)
-        except NASupplier.DoesNotExist:
-            result = Data.Lost,
-        if NASupplier.objects.HasRef(supplier_code):
-            result = Data.HasRef, Message.HasRef_del
-        else:
-            with transaction.atomic():
-                log = LogActivity(
-                    models=NASupplier,
-                    activity='Deleted',
-                    user=request.user.username,
-                    data=supplier_code
-                )
-                log.record_activity()
-                supplier.delete()
-                result = Data.Success,
-        return commonFunct.response_default(result)
+    supplier_code = request.POST.get('suppliercode')
+    try:
+        supplier = NASupplier.objects.get(suppliercode=supplier_code)
+    except NASupplier.DoesNotExist:
+        result = Data.Lost,
+    if NASupplier.objects.HasRef(supplier_code):
+        result = Data.HasRef, Message.HasRef_del
+    else:
+        with transaction.atomic():
+            log = LogActivity(
+                models=NASupplier,
+                activity='Deleted',
+                user=request.user.username,
+                data=supplier_code
+            )
+            log.record_activity()
+            supplier.delete()
+            result = Data.Success,
+    return commonFunct.response_default(result)
 
 
 @decorators.ajax_required

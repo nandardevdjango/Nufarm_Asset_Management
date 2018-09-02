@@ -1,17 +1,25 @@
 import json
-from datetime import datetime, date
+from datetime import datetime
+
 from django import forms
-from django.db import transaction
-from django.http import HttpResponse
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, EmptyPage
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
-from NA_DataLayer.common import (ResolveCriteria, commonFunct,
-                                 StatusForm, Data, decorators)
-from NA_Models.models import (NAGaReceive, NAGaVnHistory,
-                              goods, Employee, NASupplier)
 
+from NA_DataLayer.common import (
+    ResolveCriteria, commonFunct,
+    Data, decorators
+)
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
+from NA_Models.models import (
+    NAGaReceive, NAGaVnHistory,
+    goods, Employee, NASupplier
+)
 
+@decorators.ensure_authorization
+#@decorators.read_permission()
 def NA_Goods_Receive_GA(request):
     return render(request, 'app/Transactions/NA_F_Goods_Receive_GA.html')
 
@@ -74,27 +82,6 @@ def NA_Goods_Receive_GAGetData(request):
     results = {"page": Ipage, "total": paginator.num_pages,
                "records": totalRecords, "rows": rows}
     return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder), content_type='application/json')
-
-
-def getFormData(form):
-    clData = form.cleaned_data
-    data = {
-        'idapp': clData['idapp'],
-        'refno': clData['refno'],
-        'fk_goods': clData['fk_goods'],
-        'datereceived': clData['datereceived'],
-        'fk_supplier': clData['suppliercode'],
-        'fk_receivedby': clData['received_by'],
-        'fk_pr_by': clData['pr_by'],
-        'invoice_no': clData['invoice_no'],
-        'typeapp': 'typeapp',
-        'brand': clData['brand'],
-        'machine_no': clData['machine_no'],
-        'chassis_no': clData['chassis_no'],
-        'price': clData['price'],
-        'descriptions': clData['descriptions']
-    }
-    return data
 
 
 class NA_Goods_Receive_GA_Form(forms.Form):
@@ -250,11 +237,6 @@ class NA_Goods_Receive_GA_Form(forms.Form):
 
     def clean(self):
         if self.cleaned_data.get('direct_enter'):
-            reg_no = self.cleaned_data.get('reg_no')
-            expired_reg = self.cleaned_data.get('expired_reg')
-            date_reg = self.cleaned_data.get('date_reg')
-            bpkb_expired = self.cleaned_data.get('bpkb_expired')
-            remark = self.cleaned_data.get('remark')
             history_fields = [
                 'reg_no',
                 'expired_reg',
@@ -269,49 +251,49 @@ class NA_Goods_Receive_GA_Form(forms.Form):
 
     @transaction.atomic
     def save(self, request):
-        if self.is_valid():
-            receive = NAGaReceive()
-            if self.cleaned_data.get('statusForm') == 'Edit':
+        receive = NAGaReceive()
+        if self.cleaned_data.get('statusForm') == 'Edit':
+            try:
                 receive = NAGaReceive.objects.get(
                     idapp=self.cleaned_data.get('idapp')
                 )
-            receive.fk_goods = self.cleaned_data.get('fk_goods')
-            receive.fk_receivedby = self.cleaned_data.get('received_by')
-            receive.fk_p_r_by = self.cleaned_data.get('pr_by')
-            receive.fk_supplier = self.cleaned_data.get('suppliercode')
-            receive.brand = self.cleaned_data.get('brand')
-            receive.datereceived = self.cleaned_data.get('datereceived')
-            receive.invoice_no = self.cleaned_data.get('invoice_no')
-            receive.typeapp = self.cleaned_data.get('typeapp')
-            receive.machine_no = self.cleaned_data.get('machine_no')
-            receive.chassis_no = self.cleaned_data.get('chassis_no')
-            receive.year_made = self.cleaned_data.get('year_made') + '-1-1'
-            receive.colour = self.cleaned_data.get('colour')
-            receive.model = self.cleaned_data.get('model')
-            receive.kind = self.cleaned_data.get('kind')
-            receive.cylinder = self.cleaned_data.get('cylinder')
-            receive.fuel = self.cleaned_data.get('fuel')
-            receive.price = self.cleaned_data.get('price')
-            receive.descriptions = self.cleaned_data.get('descriptions')
-            receive.createddate = datetime.now()
-            receive.createdby = request.user.username
-            receive.save()
+            except NAGaReceive.DoesNotExist:
+                raise NAError(NAErrorConstant.DATA_LOST)
+        receive.fk_goods = self.cleaned_data.get('fk_goods')
+        receive.fk_receivedby = self.cleaned_data.get('received_by')
+        receive.fk_p_r_by = self.cleaned_data.get('pr_by')
+        receive.fk_supplier = self.cleaned_data.get('suppliercode')
+        receive.brand = self.cleaned_data.get('brand')
+        receive.datereceived = self.cleaned_data.get('datereceived')
+        receive.invoice_no = self.cleaned_data.get('invoice_no')
+        receive.typeapp = self.cleaned_data.get('typeapp')
+        receive.machine_no = self.cleaned_data.get('machine_no')
+        receive.chassis_no = self.cleaned_data.get('chassis_no')
+        receive.year_made = self.cleaned_data.get('year_made') + '-1-1'
+        receive.colour = self.cleaned_data.get('colour')
+        receive.model = self.cleaned_data.get('model')
+        receive.kind = self.cleaned_data.get('kind')
+        receive.cylinder = self.cleaned_data.get('cylinder')
+        receive.fuel = self.cleaned_data.get('fuel')
+        receive.price = self.cleaned_data.get('price')
+        receive.descriptions = self.cleaned_data.get('descriptions')
+        receive.createddate = datetime.now()
+        receive.createdby = request.user.username
+        receive.save()
 
-            if self.cleaned_data.get('direct_enter'):
-                receive_history = NAGaVnHistory()
-                receive_history.fk_app = receive
-                receive_history.reg_no = self.cleaned_data.get('reg_no')
-                receive_history.date_reg = self.cleaned_data.get('date_reg')
-                receive_history.expired_reg = self.cleaned_data.get(
-                    'expired_reg')
-                receive_history.bpkb_expired = self.cleaned_data.get(
-                    'bpkb_expired')
-                receive_history.descriptions = self.cleaned_data.get('remark')
-                receive_history.createddate = datetime.now()
-                receive_history.createdby = request.user.username
-                receive_history.save()
+        if self.cleaned_data.get('direct_enter'):
+            receive_history = NAGaVnHistory()
+            receive_history.fk_app = receive
+            receive_history.reg_no = self.cleaned_data.get('reg_no')
+            receive_history.date_reg = self.cleaned_data.get('date_reg')
+            receive_history.expired_reg = self.cleaned_data.get('expired_reg')
+            receive_history.bpkb_expired = self.cleaned_data.get('bpkb_expired')
+            receive_history.descriptions = self.cleaned_data.get('remark')
+            receive_history.createddate = datetime.now()
+            receive_history.createdby = request.user.username
+            receive_history.save()
 
-            return (Data.Success,)
+        return (Data.Success,)
 
 
 def Entry_Goods_Receive_GA(request):
