@@ -54,6 +54,8 @@ class LogActivity:
 
     @staticmethod
     def record(sender, models, activity, user, data, **kwargs):
+        if not hasattr(models, 'FORM_NAME'):
+            raise AttributeError('Please define form name')
 
         from NA_Models.models import LogEvent
         log = LogEvent()

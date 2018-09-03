@@ -660,18 +660,25 @@
                                         draggable: true,
                                         type: BootstrapDialog.TYPE_SUCCESS,
                                         size: BootstrapDialog.SIZE_SMALL,
-                                        title: data.name_app,
+                                        title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
                                         cssClass: 'form-dialog-change-role',
                                         message: (function(){
-                                            var container = $('<div class="row"></div>');
+                                            var container = $('<div class="container" style="padding:0;"></div>');
+                                            var table = $('<table class="table logevent"></table>');
+                                            var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+                                            var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+                                            table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+                                            var tbody = $('<tbody></tbody>');
                                             for (var key in data.data){
-                                                var container_field = $('<div class="col-md-12"></div>')
-                                                var label = $('<div class="col-md-3">' + key + '</div>');
-                                                var value = $('<div class="col-md-7">' + data.data[key] + '</div>');
-                                                container_field.append(label);
-                                                container_field.append(value);
-                                                container.append(container_field);
+                                                var tr = $('<tr></tr>');
+                                                var label = $('<td style="font-weight:bold;">' + key + '</td>');
+                                                var value = $('<td>' + data.data[key] + '</td>');
+                                                tr.append(label);
+                                                tr.append(value);
+                                                tbody.append(tr);
                                             }
+                                            table.append(tbody);
+                                            container.append(table);
                                             return container;
                                         })(),
                                         closable: false,

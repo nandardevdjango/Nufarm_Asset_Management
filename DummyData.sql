@@ -29,21 +29,6 @@ INSERT INTO `employee` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `Mo
 -- Dumping data for table na_m_s.logevent: ~14 rows (approximately)
 DELETE FROM `logevent`;
 /*!40000 ALTER TABLE `logevent` DISABLE KEYS */;
-INSERT INTO `logevent` (`IDApp`, `CreatedDate`, `CreatedBy`, `NameApp`, `descriptions`) VALUES
-	(1, '2018-05-05 20:39:49.000000', 'Admin', 'Deleted Supplier', '{"deleted": ["AF122FHJ", "Rimba P", "Cimahi", "0221122331144", "0895322085649", "Mang Nandar", 1, "2018-01-06", "admin"]}'),
-	(2, '2018-05-05 20:47:28.000000', 'rimba47prayoga', 'Deleted Supplier', '{"deleted": ["AF122uui", "Rimba", "Cimahi", "0221122331144", "0895322085649", "Mang Nandar", 0, "2018-01-01", "admin"]}'),
-	(3, '2018-05-10 19:20:55.000000', 'rimba47prayoga', 'Deleted Supplier', '{"deleted": ["AF122fg", "Rimba", "Cimahi", "0221122331144", "0895322085649", "Mang Nandar", 0, "2018-01-01", "admin"]}'),
-	(4, '2018-05-13 12:54:16.000000', 'rimba47prayoga', 'Deleted Supplier', '{"deleted": ["AF343534", "Teja", "Unknown", "0898985968", "0875764786545", "Rimba", 1, "2018-05-13", "rimba47prayoga"]}'),
-	(5, '2018-05-24 22:13:40.000000', 'rimba47prayoga', 'Deleted Supplier', '{"deleted": ["AF1229", "Rimba", "Cimahi", "0221122331144", "0895322085649", "Mang Nandar", 0, "2018-01-01", "admin"]}'),
-	(6, '2018-05-27 21:28:08.000000', 'rimba47prayoga', 'Deleted Employee', '{"C": "C", "M": "S", "Descriptions": "rimba47prayoga", "0895322085649": "Cimahi", "011247487875411": "Rimba"}'),
-	(7, '2018-06-23 18:02:21.000000', 'admin', 'Deleted Employee', '{"deleted": ["00111234887898", "Rimba", "C", "C", "M", "S", "08984512313574", "Cimahi", "Employee", "27 January 2018 00:00:00", "rimba47prayoga"]}'),
-	(8, '2018-06-23 18:05:27.000000', 'admin', 'Deleted Employee', '{"deleted": ["1121246345", "Rimba P", "P", "P", "M", "M", "0895322085649", "Citeureup", "There\'s No Descriptions", 0, "28 January 2018 00:00:00", "rimba47prayoga"]}'),
-	(9, '2018-06-23 18:05:59.000000', 'admin', 'Deleted Supplier', '{"deleted": ["AF1223", "Rimba", "Cimahi", "0221122331144", "0895322085649", "Mang Nandar", 0, "06 January 2018 00:00:00", "admin"]}'),
-	(10, '2018-06-23 18:06:06.000000', 'admin', 'Deleted Supplier', '{"deleted": ["AD3323", "Teja", "Unknown", "0223544464", "0223544464", "Rimba", 1, "13 May 2018 00:00:00", "rimba47prayoga"]}'),
-	(11, '2018-06-23 18:31:19.000000', 'admin', 'Deleted Employee', '{"deleted": ["11223445", "Rimba P", "K", "K", "M", "S", "08953320215121", "Cisurupan", "There\'s No Descriptions", 1, "25 January 2018 00:00:00", "rimba47prayoga"]}'),
-	(12, '2018-08-16 16:46:39.068477', 'rimba88', 'Deleted Goods', '{"deleted": ["it-008", "EKSTERNAL HARDISK", "SEAGATE", "0.0000", "SL", "Pcs", "5.00", "Gudang IT", "Price tidak di input di sini", 0, "16 August 2018 00:00:00", "rimba88", null, null]}'),
-	(13, '2018-08-16 17:22:11.039349', 'rimba88', 'Deleted Goods', '{"deleted": ["it-008", "EKSTERNAL HARDISK", "SEAGATE", "0.0000", "SL", "Pcs", "5.00", "Gudang IT", "Price tidak di input di sini", 0, "16 August 2018 00:00:00", "rimba88", null, null]}'),
-	(14, '2018-08-16 18:16:15.616851', 'rimba88', 'Deleted Goods', '{"deleted": ["GA_003", "HP High End", "SAMSUNG", "0.0000", "SL", "Unit", "5.00", "Gudang IT", "untuk HP yang mempunyai nila tinggi di masukan dalam FA GA", 0, "16 August 2018 00:00:00", "rimba88", null, null]}');
 /*!40000 ALTER TABLE `logevent` ENABLE KEYS */;
 
 -- Dumping data for table na_m_s.n_a_acc_fa: ~0 rows (approximately)

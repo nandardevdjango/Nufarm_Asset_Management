@@ -143,7 +143,9 @@ class NA_Employee_form(forms.Form):
             try:
                 employee = Employee.objects.get(idapp=idapp)
             except Employee.DoesNotExist:
-                return Data.Lost,
+                raise NAError(
+                    error_code=NAErrorConstant.DATA_LOST
+                )
             else:
                 if Employee.objects.hasRef(idapp=idapp):
                     return Data.HasRef, Message.HasRef_edit
@@ -195,9 +197,13 @@ def EntryEmployee(request):
     if request.method == 'POST':
         form = NA_Employee_form(request.POST)
         if form.is_valid():
-            result = form.save(user=request.user.username)
+            try:
+                result = form.save(user=request.user.username)
+            except NAError as e:
+                if e.error_code == NAErrorConstant.DATA_EXISTS:
+                    result = NAErrorHandler.handle_data_exists(err=e)
         else:
-            result = NAErrorHandler.get_form_error_message(form.errors)
+            result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)
     elif request.method == 'GET':
         idapp = request.GET['idapp']

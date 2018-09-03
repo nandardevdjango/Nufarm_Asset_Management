@@ -243,6 +243,16 @@ ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover
     background:#47a447;
 }
 
+.table.logevent tbody td{
+    padding-left: 20px;
+}
+
+.table.logevent .title-logevent{
+    text-align:center;
+    padding: 10px;
+    font-size: 15px;
+}
+
 /*================== Checkbox ======================*/
 .checkbox {
   padding-left: 20px;

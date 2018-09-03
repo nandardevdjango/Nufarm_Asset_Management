@@ -3,7 +3,7 @@ from NA_DataLayer.common import Data, Message
 
 
 class NAError(Exception):
-    def __init__(self, error_code, message, *args, **kwargs):
+    def __init__(self, error_code, message=None, *args, **kwargs):
         super(NAError, self).__init__(message)
         self.error_code = error_code
         self.message = message
@@ -53,11 +53,11 @@ class NAErrorHandler(object):
 
         return fields_model[fields_db.index(column)]
 
-    @staticmethod
-    def handle_data_exists(err):
+    @classmethod
+    def handle_data_exists(cls, err):
         instance = err.kwargs.get('instance')
-        error_column = NAErrorHandler.retrieve_integrity_column(err=err.message)
-        error_field = NAErrorHandler.retrieve_integrity_field(
+        error_column = cls.retrieve_integrity_column(err=err.message)
+        error_field = cls.retrieve_integrity_field(
             column=error_column,
             model=instance._meta.model
         )
@@ -72,3 +72,8 @@ class NAErrorHandler(object):
     @staticmethod
     def handle_data_lost(pk, table):
         return Data.Lost, Message.get_lost_info(pk=pk, table=table)
+
+    @classmethod
+    def handle_form_error(cls, form_error):
+        result = cls.get_form_error_message(form_error)
+        return Data.ValidationError, result

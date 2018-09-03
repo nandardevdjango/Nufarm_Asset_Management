@@ -1,5 +1,6 @@
 ﻿import datetime
 import json
+import re
 from collections import OrderedDict
 
 from django.contrib.contenttypes.models import ContentType
@@ -103,10 +104,21 @@ def NA_LogEvent_data(request):
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
-def LogDescriptions(request):
+def log_activity_data(request):
     idapp = request.GET.get('idapp')
     log = LogEvent.objects.get(idapp=idapp)
-    result = OrderedDict(name_app=log.nameapp, data={})
+    activity_type = None
+    if re.match(r'Created', log.nameapp):
+        activity_type = 'created'
+    elif re.match(r'Updated', log.nameapp):
+        activity_type = 'updated'
+    elif re.match(r'Deleted', log.nameapp):
+        activity_type = 'deleted'
+    result = OrderedDict(
+        activity_type=activity_type,
+        created_date=log.createddate.strftime('%d/%m/%Y %H:%M:%S'),
+        data={}
+    )
     model = ContentType.objects.get(model=log.model).model_class()
     for key in model.LOG_EVENT.keys():
         result['data'].update({

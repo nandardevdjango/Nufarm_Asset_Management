@@ -174,7 +174,9 @@ class NA_Supplier_form(forms.Form):
                     suppliercode=self.cleaned_data.get('suppliercode')
                 )
             except NASupplier.DoesNotExist:
-                return Data.Lost,
+                raise NAError(
+                    error_code=NAErrorConstant.DATA_LOST
+                )
 
             data.update({
                 'modifieddate': datetime.datetime.now(),
@@ -218,15 +220,17 @@ def EntrySupplier(request):
             except NAError as e:
                 if e.error_code == NAErrorConstant.DATA_EXISTS:
                     result = NAErrorHandler.handle_data_exists(err=e)
+                elif e.error_code == NAErrorConstant.DATA_LOST:
+                    raise NotImplementedError
         else:
-            result = Data.ValidationError, form.errors
+            result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)
     elif request.method == 'GET':
         supplier_code = request.GET['suppliercode']
         mode = request.GET['mode']
         if mode == 'Edit' or mode == 'Open':
             try:
-                result = NASupplier.objects.get(suppliercode=supplier_code) # return tuple
+                result = NASupplier.objects.get(suppliercode=supplier_code)
             except NASupplier.DoesNotExist:
                 return HttpResponse(
                     json.dumps(
@@ -297,23 +301,25 @@ def ShowCustomFilter(request):
 @decorators.read_permission(form_name=NASupplier.FORM_NAME_ORI, action='Delete')
 def NA_Supplier_delete(request):
     supplier_code = request.POST.get('suppliercode')
-    try:
-        supplier = NASupplier.objects.get(suppliercode=supplier_code)
-    except NASupplier.DoesNotExist:
-        result = Data.Lost,
     if NASupplier.objects.HasRef(supplier_code):
         result = Data.HasRef, Message.HasRef_del
+        return commonFunct.response_default(result)
+    try:
+        supplier = NASupplier.objects.get(suppliercode=supplier_code)
+        result = Data.Success,
+    except NASupplier.DoesNotExist:
+        result = Data.Lost,
     else:
         with transaction.atomic():
             log = LogActivity(
                 models=NASupplier,
                 activity='Deleted',
                 user=request.user.username,
-                data=supplier_code
+                data=supplier
             )
             log.record_activity()
             supplier.delete()
-            result = Data.Success,
+            raise Exception('error taiii ...')
     return commonFunct.response_default(result)
 
 
