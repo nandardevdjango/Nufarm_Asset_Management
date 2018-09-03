@@ -331,9 +331,9 @@ class NA_BR_Goods_Receive(models.Manager):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		if FKGoods is not None:
-			cur.execute(Query,["%"+searchText+"%",FKGoods])
+			cur.execute(Query,['%'+searchText+'%',FKGoods])
 		else:
-			cur.execute(Query,["%"+searchText+"%","%"+searchText+"%"])
+			cur.execute(Query,['%'+searchText+'%','%'+searchText+'%'])
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data

@@ -823,23 +823,23 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         function fetcBrands(elem) {
         	var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value
         	var NAAjax = NA.common.AJAX;
-        	NAAjax.GET("getBrandForDetailEntry/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=''",
+        	NAAjax.GET("getBrandForDetailEntry/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=",
                                                             'application/json',//overrideMimeType returned by the server
                                                             function (e) { window.document.body.style.cursor = 'wait'; },
                                                             null,//nggak usah di isi bila tidak perlu
                                                             function (e) {//function executed after data has been returned by server(XHR.onload)
-                                                            	var data = JSON.parse(this.responseText);
-                                                            	var OlistBrands = listBrands.slice();
-                                                            	if (data) {
-                                                            		//simpen di listType
-                                                            		Array.prototype.forEach.call(data, function (item) {
-                                                            			if (OlistBrands.indexOf(item.value) <= 0) {
-                                                            				listBrands.push[item.value];
-                                                            			}
-                                                            		});
-                                                            	}
+                                                                var data = JSON.parse(this.responseText);
+                                                                var OlistBrands = listBrands.slice();
+                                                                if (data) {
+                                                                    //simpen di list
+                                                                    Array.prototype.forEach.call(data, function (item) {
+                                                                        if (OlistBrands.indexOf(item.value) <= 0) {
+                                                                            listBrands.push(item.value);
+                                                                        }
+                                                                    });
+                                                                }
                                                             }, null, function (e) {//function untuk ajax error
-                                                            	throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+                                                                throw new Error(this.responseText + '\nStatus code :' + this.statusText);
                                                             }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
                                                             null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                                             );
@@ -847,7 +847,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             $(elem).autocomplete({
                 //source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
             	//source: "getBrandForDetailEntry/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
-				source:listBrands,
+                source: (function (lst) {
+                    var retvals = [];
+                    for (var i = 0; i < lst.length; i++) {
+                        retvals.push({ label: lst[i], value: lst[i] });
+                    }
+                    return retvals;
+                })(listBrands),
                 minLength: 1,
                 delay: 0,
                 //minLength: 0
@@ -857,7 +863,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         	var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value;
         	//bikin ajax
         	var NAAjax = NA.common.AJAX;
-        	NAAjax.GET("getTypeApps/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=''" ,
+        	NAAjax.GET("getTypeApps/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=" ,
                                                             'application/json',//overrideMimeType returned by the server
                                                             function (e) { window.document.body.style.cursor = 'wait'; },
                                                             null,//nggak usah di isi bila tidak perlu
@@ -868,7 +874,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                             		//simpen di listType
                                                             		Array.prototype.forEach.call(data, function (item) {
                                                             			if (OListype.indexOf(item.value) <= 0) {
-                                                            				listTypeApp.push[item.value];
+                                                            				listTypeApp.push(item.value);
                                                             			}
                                                             		});
                                                             	}
@@ -880,7 +886,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         	$(elem).autocomplete({
         		//source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
         		//source: "getTypeApps/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
-        		source: listTypeApp,
+        	    source: (function (lst) {
+        	        var retvals = [];
+        	        for (var i = 0; i < lst.length; i++) {
+        	            retvals.push({ label: lst[i], value: lst[i] });
+        	        }
+        	        return retvals;
+        	    })(listTypeApp),
         		minLength: 1,
         		delay: 0,
         		//minLength: 0
@@ -908,8 +920,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             	var elDataDetail = NA.common.getElementID('id_dataForGridDetail');
             	var detailData = JSON.parse(elDataDetail.value);
             	Array.prototype.forEach.call(detailData, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-            		listBrands.push[item.brandname];
-            		listTypeApp.push[item.typeapp];
+            		listBrands.push(item.brandname);
+            		listTypeApp.push(item.typeapp);
             	});
             	return detailData;
             }
@@ -1240,9 +1252,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    edittype: 'text',
 					    editrules: { required:false},
 					    editoptions: {
-					    	dataInit: function (elem) {
-					    		fetchTypeApps.call(this, elem, "typeapp");
-					    	},
+					    	//dataInit: function (elem) {
+					    	//	fetchTypeApps.call(this, elem, "typeapp");
+					    	//},
 					    	class: (function () {
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
 					    		return 'NA-Form-Control';
@@ -1855,52 +1867,52 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			//    }
 
                 			//}   
-                			if (typeof lastsel != 'undefined') {
-                				gridTbl.jqGrid('restoreRow', lastsel);
-                			}
-                		    //check data original
-                			var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
-                			for (var i = 0; i < oriDetailData.length; i++) {
-                			    if (oriDetailData[i].no == NewRowData.no) {
-                			        //test
-                			        if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
-                			            //data di anggap kosong isi defaultvalue
-                			            //            //isi default newRow
-                			            //            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
-                			            //NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                			            if (typeof LastRowData != 'undefined' && LastRowData) {
-                			                if ((LastRowData.brandname != oriDetailData[i].brandname) && (LastRowData.warranty != oriDetailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != oriDetailData[i].typeapp)) {
-                			                    NewRowData.brandname = LastRowData.brandname;
-                			                    NewRowData.typeapp = LastRowData.typeapp;
-                			                    NewRowData.warranty = LastRowData.warranty;
-                			                    NewRowData.priceperunit = LastRowData.priceperunit;
-                			                    var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
-                			                    var dtStr = formatDate(FDate)
+                		    if (typeof lastsel != 'undefined') {
+                		        gridTbl.jqGrid('restoreRow', lastsel);
+                		        //check data original
+                		        var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
+                		        for (var i = 0; i < oriDetailData.length; i++) {
+                		            if (oriDetailData[i].no == NewRowData.no) {
+                		                //test
+                		                if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
+                		                    //data di anggap kosong isi defaultvalue
+                		                    //            //isi default newRow
+                		                    //            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
+                		                    //NewRowData = gridTbl.jqGrid('getLocalRow', id);
+                		                    if (typeof LastRowData != 'undefined' && LastRowData) {
+                		                        if ((LastRowData.brandname != oriDetailData[i].brandname) && (LastRowData.warranty != oriDetailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != oriDetailData[i].typeapp)) {
+                		                            NewRowData.brandname = LastRowData.brandname;
+                		                            NewRowData.typeapp = LastRowData.typeapp;
+                		                            NewRowData.warranty = LastRowData.warranty;
+                		                            NewRowData.priceperunit = LastRowData.priceperunit;
+                		                            var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
+                		                            var dtStr = formatDate(FDate)
 
-                			                    //var $tr = $(e.target).closest("tr.jqgrow");
-                			                    //rowId = $tr.attr("id");
+                		                            //var $tr = $(e.target).closest("tr.jqgrow");
+                		                            //rowId = $tr.attr("id");
 
-                			                	////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
+                		                            ////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
 
-                			                    //var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-                			                    //var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
+                		                            //var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+                		                            //var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
 
-                			                	////and to change the value of the cell you can use
+                		                            ////and to change the value of the cell you can use
 
-                			                    //$td.find("input").val(dtStr);
+                		                            //$td.find("input").val(dtStr);
 
-                			                    NewRowData.endofwarranty = LastRowData.endofwarranty;
-                			                    gridTbl.jqGrid('setRowData', id, NewRowData);
-                			                    gridTbl.jqGrid("saveRow", id, {
-                			                        'url': 'clientArray',
-                			                        'restoreAfterError': true
-                			                    });
-                			                }
-                			            }
-                			            break;
-                			        }
-                			    }
-                			}
+                		                            NewRowData.endofwarranty = LastRowData.endofwarranty;
+                		                            gridTbl.jqGrid('setRowData', id, NewRowData);
+                		                            gridTbl.jqGrid("saveRow", id, {
+                		                                'url': 'clientArray',
+                		                                'restoreAfterError': true
+                		                            });
+                		                        }
+                		                    }
+                		                    break;
+                		                }
+                		            }
+                		        }
+                		    }   
                 			gridTbl.jqGrid('editRow', id, {
                 				keys: true,
                 				url: 'clientArray',
@@ -1931,7 +1943,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 	//For the more common case you can use jqID function which escapes the meta-characters if needed:
 
                 	//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
-                	if ($("tr#" + rowid).attr("editable") === "1") {
+                    if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0") {
                 		if (AllowEdit) {
                 			gridTbl.jqGrid('editRow', rowid, {
                 				keys: true,
