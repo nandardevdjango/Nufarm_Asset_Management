@@ -559,8 +559,8 @@ class NA_Goods_Receive_Form(forms.Form):
 		#initializeForm = forms.CharField(widget=forms.HiddenInput(attrs={'value':{'depreciationmethod':'SL','economiclife':5.00,'placement':'Gudang IT','inactive':False}}),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
-	descbysystem = forms.CharField(max_length=250,widget=forms.HiddenInput(),required=False)
-	dataForGridDetail = forms.CharField(max_length=2000,widget=forms.HiddenInput(),required=False)
+	descbysystem = forms.CharField(widget=forms.HiddenInput(),required=False)
+	dataForGridDetail = forms.CharField(widget=forms.HiddenInput(),required=False)
 	 #var data = [
   #          { id: "10", Name: "Name 1", PackageCode: "83123a", other: "x", subobject: { x: "a", y: "b", z: [1, 2, 3]} },
   #          { id: "20", Name: "Name 3", PackageCode: "83432a", other: "y", subobject: { x: "c", y: "d", z: [4, 5, 6]} },

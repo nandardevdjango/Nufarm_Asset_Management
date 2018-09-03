@@ -323,18 +323,17 @@ class NA_BR_Goods_Receive(models.Manager):
 
 		#ambil data di receive_goods_detail,union dengan brandname di table goods
 		if FKGoods is not None:
-			Query =  """SELECT DISTINCT(ngd.BrandName) FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App WHERE ngd.BrandName LIKE '%{0!s}%' AND ngr.FK_Goods = {1!s}"""
-			Query = Query.format(searchText,FKGoods)
+			Query =  "SELECT DISTINCT(ngd.BrandName) FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App WHERE ngd.BrandName LIKE %s AND ngr.FK_Goods = %s"
 		else:
-			Query = "SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE '%{0!s}%' \
+			Query = """SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE %s \
 				   UNION \
-				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE '%{1!s}%' """
+				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE %s """
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		if FKGoods is not None:
-			cur.execute(Query)
+			cur.execute(Query,["%"+searchText+"%",FKGoods])
 		else:
-			cur.execute(Query.format(searchText,searchText))
+			cur.execute(Query,["%"+searchText+"%","%"+searchText+"%"])
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data

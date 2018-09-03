@@ -981,76 +981,74 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             		return false;
             	}
             	seriaNumbers.push(serialnumber);
-            	if (row["IsDirty"] === "True") {
-            		var priceperunit = row['priceperunit'];
-            		if (typeof priceperunit == 'undefined') {
-            			priceperunit = 0
-            		}
-            		else if (priceperunit.toString() === '') {
-            			priceperunit = 0
-            		}
-            		else if (parseFloat(priceperunit) <= 0) {
-            			priceperunit = 0
-            		}
-
-            		var warranty = row['warranty'];
-            		if (typeof warranty == 'undefined') {
-            			warranty = 0
-            		}
-            		else if (warranty.toString() === '') {
-            			warranty = 0
-            		}
-            		else if (Math.round(warranty) <= 0) {
-            			warranty = 0
-            		}
-
-            		var hasRef = row.hasref.valueOf == true || row.hasref.valueOf == 1;
-            		var endofwarranty = row['endofwarranty'];
-            		if (typeof endofwarranty == 'undefined') {
-            			endofwarranty = null;
-            		}
-            		else if (endofwarranty.toString() === '') {
-            			endofwarranty = null;
-            		}
-            		if (!hasRef) {
-            			//gridTbl.jgrid('cellEdit', true);
-            			gridTbl.jqGrid('setCell', rowID, 'brandname', brandname.toString().toUpperCase());
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).brandname = brandname.toString().toUpperCase();
-            			//SET UPPER CASE FOR All Data
-            			gridTbl.jqGrid('setCell', rowID, 'typeapp', typeapp.toString().toUpperCase());
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase();
-
-            			gridTbl.jqGrid('setCell', rowID, 'serialnumber', serialnumber.toString().toUpperCase());
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).serialnumber = serialnumber.toString().toUpperCase();
-            			gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
-            			gridTbl.jqGrid('setCell', rowID, 'warranty', warranty);
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).warranty = warranty;
-
-            			//endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
-            			////gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
-            			//// now change the internal local data
-            			//gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
-
-            			if (win.status === 'Add') {
-            				gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
-            				// now change the internal local data
-            				gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
-            			}
-            			else if (win.status === 'Edit') {
-            				gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Priviledge.UserName);
-            				// now change the internal local data
-            				gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Priviledge.UserName;
-            				// now change the internal local data
-            			}
-            		}
-            		//  row.colname1; row.colname2;
+            	var priceperunit = row['priceperunit'];
+            	if (typeof priceperunit == 'undefined') {
+            		priceperunit = 0
             	}
+            	else if (priceperunit.toString() === '') {
+            		priceperunit = 0
+            	}
+            	else if (parseFloat(priceperunit) <= 0) {
+            		priceperunit = 0
+            	}
+
+            	var warranty = row['warranty'];
+            	if (typeof warranty == 'undefined') {
+            		warranty = 0
+            	}
+            	else if (warranty.toString() === '') {
+            		warranty = 0
+            	}
+            	else if (Math.round(warranty) <= 0) {
+            		warranty = 0
+            	}
+
+            	var hasRef = row.HasRef.valueOf == true || row.HasRef.valueOf == 1;
+            	var endofwarranty = row['endofwarranty'];
+            	if (typeof endofwarranty == 'undefined') {
+            		endofwarranty = null;
+            	}
+            	else if (endofwarranty.toString() === '') {
+            		endofwarranty = null;
+            	}
+            	if (!hasRef) {
+            		//gridTbl.jgrid('cellEdit', true);
+            		gridTbl.jqGrid('setCell', rowID, 'brandname', brandname.toString().toUpperCase());
+            		// now change the internal local data
+            		gridTbl.jqGrid('getLocalRow', rowID).brandname = brandname.toString().toUpperCase();
+            		//SET UPPER CASE FOR All Data
+            		gridTbl.jqGrid('setCell', rowID, 'typeapp', typeapp.toString().toUpperCase());
+            		// now change the internal local data
+            		gridTbl.jqGrid('getLocalRow', rowID).typeapp = typeapp.toString().toUpperCase();
+
+            		gridTbl.jqGrid('setCell', rowID, 'serialnumber', serialnumber.toString().toUpperCase());
+            		// now change the internal local data
+            		gridTbl.jqGrid('getLocalRow', rowID).serialnumber = serialnumber.toString().toUpperCase();
+            		gridTbl.jqGrid('setCell', rowID, 'priceperunit', priceperunit);
+            		// now change the internal local data
+            		gridTbl.jqGrid('getLocalRow', rowID).priceperunit = priceperunit;
+            		gridTbl.jqGrid('setCell', rowID, 'warranty', warranty);
+            		// now change the internal local data
+            		gridTbl.jqGrid('getLocalRow', rowID).warranty = warranty;
+
+            		//endofwarranty = $.datepicker.parseDate('dd/mm/yy', endofwarranty);
+            		////gridTbl.jqGrid('setCell', rowID, 'endofwarranty', endofwarranty);
+            		//// now change the internal local data
+            		//gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
+
+            		if (win.status === 'Add') {
+            			gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
+            			// now change the internal local data
+            			gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
+            		}
+            		else if (win.status === 'Edit') {
+            			gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Priviledge.UserName);
+            			// now change the internal local data
+            			gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Priviledge.UserName;
+            			// now change the internal local data
+            		}
+            	}
+            	//  row.colname1; row.colname2;
             }
             ////method getRowData
             //var rowData = gridTbl.getRowData(rowId);
@@ -1781,7 +1779,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			gridTbl.jqGrid("saveRow", editingRowId, {
                 				'url': 'clientArray',
                 				'restoreAfterError': true,
-                				'extraparam': { IsDirty: "True" }
+                				//'extraparam': { IsDirty: "True" }
                 			});
                 		}
                 		//else {
@@ -1895,8 +1893,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			                    gridTbl.jqGrid('setRowData', id, NewRowData);
                 			                    gridTbl.jqGrid("saveRow", id, {
                 			                        'url': 'clientArray',
-                			                        'restoreAfterError': true,
-                			                        'extraparam': { IsDirty: "True" }
+                			                        'restoreAfterError': true
                 			                    });
                 			                }
                 			            }
@@ -1924,6 +1921,33 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			}
                 		}
                 	}
+                },
+                ondblClickRow: function (rowid, iRow, iCol, e) {
+
+                	//The index of the row (iRow) you can get using rowIndex property of the DOM object which represent ther row <tr>. So you need just get the DOM of the row. If the rowId don't contain any meta-characters you can do just the following
+
+                	//var iRow = $('#' + rowId)[0].rowIndex;
+
+                	//For the more common case you can use jqID function which escapes the meta-characters if needed:
+
+                	//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
+                	if ($("tr#" + rowid).attr("editable") === "1") {
+                		if (AllowEdit) {
+                			gridTbl.jqGrid('editRow', rowid, {
+                				keys: true,
+                				url: 'clientArray',
+                				//oneditfunc: function (rowId) {
+                				//    ShowAlert('edit');
+                				//},
+                				onerrorfunc: function (rowId) {
+                					ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
+                					return false;
+                				},
+                				restoreAfterError: true,
+                			});
+                		}
+                	}
+					//$(e.target).focus();
                 },
                 //inlineNavOptions: {
                 //	save: true,
