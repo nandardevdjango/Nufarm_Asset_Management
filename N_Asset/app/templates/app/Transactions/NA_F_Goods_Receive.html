@@ -1101,14 +1101,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         };
 
         function CreateGridDetail() {
-        	var AllowEdit = false;
+            var AllowEdit = false, AllowDelete = false;
+            
         	switch (win.status) {
         		case 'Add': {
-        			AllowEdit = NA.Priviledge.Permissions.Allow_Add;
+        		    AllowEdit = NA.Priviledge.Permissions.Allow_Add;
+        		    AllowDelete = true;
         			break;
         		}
         		case 'Edit': {
-        			AllowEdit = NA.Priviledge.Permissions.Allow_Edit;
+        		    AllowEdit = NA.Priviledge.Permissions.Allow_Edit;
+        		    AllowDelete = NA.Priviledge.Permissions.Allow_Delete;
         			break;
         		}
         	};
@@ -2044,16 +2047,19 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
                         }, position: "last"
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                    	caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+                        caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
                     		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                     			var eltreceived = NA.common.getElementID('id_totalreceived'),
 																 valTrec = eltreceived.value;
                     			var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                                //var IDApp = (win.status === 'Edit')?
                     			var NRowid = rowId;
                     			valTrec = valTrec - 1;
                     			valTrec = (valTrec < 0) ? 0 : valTrec;
                     			eltreceived.value = valTrec;
+                                //delete di localrow
                     			gridTbl.delRowData(NRowid);
+
                     		});
                     	}, position: "last"
                     });
@@ -2100,7 +2106,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                             return true;
                         }, position: "last"
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                    	caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+                        caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+                            if (!AllowDelete) { NA.NAEvent.preventDefault(e); return false; }
                     		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                     			var NAAjax = NA.common.AJAX;
                     			var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
@@ -2126,7 +2133,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
 							   		//Update Grid Master
 							   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-							   		var IRowData = gridTbl.jqGrid('getLocalRow', IrowId);
+							   		var IRowData = grid.jqGrid('getRowData', IrowId);
 							   		IRowData.totalreceived = valTrec;
 							   		grid.jqGrid('setRowData', IrowId, IRowData);
 							   	}
@@ -2196,6 +2203,58 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 //matikan btnAddDetail
                 var btnAddDetail = NA.common.getElementID('btnAddDetail');
                 btnAddDetail.style.display = 'none';
+            }
+            if (AllowDelete) {
+                //assign delete key event
+                gridTbl.on("keyup", "tr", function (e) {
+                    //var rowId = parseInt($(this).attr("id")); 
+                    var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                    if (e.keyCode == 46) {
+                        if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0") {  
+                            showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+                                win.document.body.style.cursor = 'wait';
+                                var eltreceived = NA.common.getElementID('id_totalreceived'),
+																 valTrec = eltreceived.value;
+                                valTrec = valTrec - 1;
+                                valTrec = (valTrec < 0) ? 0 : valTrec;
+                                eltreceived.value = valTrec;
+                                //delete di localrow
+                                var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+                                gridTbl.delRowData(rowId);
+                                if (win.status === 'Edit') {
+                                    var NAAjax = NA.common.AJAX;
+                                    NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+                                   null, function () { }, function () {
+                                       //rubah totalreceived -1;
+                                       var textStatus = JSON.parse(this.responseText);
+                                       var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+                                       NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+                                       var initializeForm = NA.common.getElementID('id_initializeForm');
+                                       originalData = JSON.stringify(getValuesForm());
+                                       initializeForm.value = originalData;
+                                       //Update Grid Master
+                                       var IrowId = grid.jqGrid('getGridParam', 'selrow');
+                                       var IRowData = grid.jqGrid('getRowData', IrowId);
+                                       IRowData.totalreceived = valTrec;
+                                       grid.jqGrid('setRowData', IrowId, IRowData);
+
+                                   }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); });
+                                }
+                                if (valTrec <= 0) {
+                                    if (win.status === 'Add') {
+                                        var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+                                        btnCancelDetail.click();//fire event btnCancellDetail;
+                                    }
+                                    else {
+                                        NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+                                    }
+                                    win.document.body.style.cursor = 'default';
+                                }
+                            });
+                        }
+                        return false;
+                    }
+                });
             }
             hasGridDetail = true;
         };
@@ -3054,11 +3113,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					            if (btnAddDetail.style.display === 'none') {
                         					                //grid sudah di buat
                         					                //buat manual rowdata
-                        					                for (var i = 0; i < totalReceived; i++) {
-                        					                    //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                        					                	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
-                        					                    gridTbl.jqGrid('addRowData', 'no', rowData, "last");
-                        					                };
+                        					                createDummyRowData(totalReceived);
                         					            }
                         					            else {
                         					                btnAddDetail.click();
@@ -3843,8 +3898,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				//var gridpager = $('#jqGrid_NA_F_Goods_Receive_Detail_pager');
                         				//gridpager.remove();
                         				//recreate table
-                        				NA.common.doc.createElement('table');
-
                         				var ngridTbl = NA.common.doc.createElement('table');
                         				ngridTbl.id = 'jqGrid_NA_F_Goods_Receive_Detail';
                         				var ngridPager = NA.common.doc.createElement('div');
