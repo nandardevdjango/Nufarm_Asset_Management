@@ -295,7 +295,6 @@ class Employee(NA_MasterDataModel):
     FORM_NAME_ORI = 'employee'
 
     LOG_EVENT = {
-        'idapp': 'idapp',
         'nik': 'Nik',
         'employee_name': 'Employee Name',
         'typeapp': 'Employee Type',

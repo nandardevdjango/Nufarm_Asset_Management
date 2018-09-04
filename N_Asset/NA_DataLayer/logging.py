@@ -8,6 +8,10 @@ from app.signals import logevent
 
 class LogActivity:
 
+    CREATED = 'Created'
+    UPDATED = 'Updated'
+    DELETED = 'Deleted'
+
     def __init__(self, models, activity, user, data):
         self.models = models
         self.activity = activity

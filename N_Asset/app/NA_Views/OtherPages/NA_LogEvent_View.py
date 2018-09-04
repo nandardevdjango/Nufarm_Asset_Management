@@ -29,36 +29,36 @@ def NA_LogEvent_data(request):
     if ev.exists():
         event = [i for i in ev.iterator()]  # get log event filter by user
 
+        for date in ev.dates('createddate', 'year', order='DESC').iterator():
+            tahun.append(date)
+
+        for date in ev.dates('createddate', 'month', order='DESC').iterator():
+            bulan.append(date)
+
         for date in ev.dates('createddate', 'day', order='DESC').iterator():
-            if date.year not in tahun:
-                tahun.append(date)
-            if date.month not in bulan:
-                bulan.append(date)
-            if date.day not in hari:
-                hari.append(date)
+            hari.append(date)
 
         result = []
         for t in tahun:
             for b in bulan:
                 if b.year == t.year:
                     result.append((str(t.year), b.strftime("%B %Y")))
-        for b in bulan:
-            for h in hari:
-                if h.year == b.year and h.month == b.month:
-                    result.append((b.strftime("%B %Y"), h))
-        for h in hari:
-            for e in event:
-                if (e['createddate'].year == h.year and e['createddate'].month == h.month
-                        and e['createddate'].day == h.day):
-                    activity = [e['idapp']]
-                    activity.append('{} at {}'.format(
-                        e['nameapp'],
-                        e['createddate'].strftime("%H:%M:%S")
-                    ))
-                    result.append(
-                        (h, activity)
-                    )
-        # get parent and children then return tuple within list .. . :D
+                for h in hari:
+                    if h.year == b.year and h.month == b.month:
+                        result.append((b.strftime("%B %Y"), h))
+                    for e in event:
+                        if (e['createddate'].year == h.year and e[
+                            'createddate'].month == h.month
+                                and e['createddate'].day == h.day):
+                            activity = [e['idapp']]
+                            activity.append('{} at {}'.format(
+                                e['nameapp'],
+                                e['createddate'].strftime("%H:%M:%S")
+                            ))
+                            result.append(
+                                (h, activity)
+                            )
+
         parents, children = zip(*result)
         root_nodes = {x for x in parents if x not in children}
         getUser = str(request.user.username)
@@ -77,13 +77,17 @@ def NA_LogEvent_data(request):
                 data['iconCls'] = 'fa fa-user'
             if must_filter:
                 data['state'] = 'Open'
-            children = get_children(node)
+            children = get_children(data['text'])
             if children:
                 data['children'] = [get_nodes(child) for child in children]
             return data
 
         def get_children(node):
-            return [x[1] for x in result if x[0] == node]
+            _result = []
+            for x in result:
+                if x[0] == node:
+                    _result.append(x[1])
+            return _result
 
         log = get_nodes('Log Event')
         LogEvent_data.append(log)
@@ -121,8 +125,10 @@ def log_activity_data(request):
     )
     model = ContentType.objects.get(model=log.model).model_class()
     for key in model.LOG_EVENT.keys():
-        result['data'].update({
-            model.LOG_EVENT.get(key): log.descriptions.get(key)
-        })
+        value = log.descriptions.get(key)
+        if value:
+            result['data'].update({
+                model.LOG_EVENT.get(key): value
+            })
 
     return HttpResponse(json.dumps(result), content_type='application/json')

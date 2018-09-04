@@ -22,6 +22,21 @@ class NAErrorConstant(object):
 
 
 class NAErrorHandler(object):
+
+    @classmethod
+    def handle(cls, err):
+        result = None
+        if err.error_code == NAErrorConstant.DATA_EXISTS:
+            result = NAErrorHandler.handle_data_exists(err=e)
+        elif err.error_code == NAErrorConstant.DATA_LOST:
+            result = NAErrorHandler.handle_data_lost()
+        elif err.error_code == NAErrorConstant.DATA_HAS_REF:
+            result = cls.handle_data_hasref()
+
+        if result:
+            return result
+        raise Exception('Unhandled error')
+
     @staticmethod
     def get_form_error_message(form_error):
         form_error = form_error.as_data()
@@ -68,6 +83,10 @@ class NAErrorHandler(object):
             data=getattr(instance, error_field)
         ))
         return data
+
+    @staticmethod
+    def handle_data_hasref():
+        raise NotImplementedError
 
     @staticmethod
     def handle_data_lost(pk, table):

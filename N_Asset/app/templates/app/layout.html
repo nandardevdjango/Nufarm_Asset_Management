@@ -99,12 +99,13 @@
                             <li><a href="#">Others Menu</a></li>
                         </ul>
                     </li>
+
                     {% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
                     <li>
                         <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false">
                             <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span>
                         </a>
-                        <ul class="sub-menu collapse" id="products" aria-expanded="false" style="">
+                        <ul class="sub-menu collapse" id="products" aria-expanded="false">
                             <li>
                                 <a href="#" data-toggle="collapse" data-target="#it" class="active collapsed" aria-expanded="false">
                                     <i class="fa fa-laptop"></i><span class="nav-label">IT</span>
@@ -139,6 +140,17 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li>
+                        <a href="#" data-toggle="collapse" data-target="#reports" class="active collapsed" aria-expanded="false">
+                            <i class="fa  fa-bar-chart" aria-hidden="true"></i>
+                            <span class="nav-label"> Reports </span> <span class="fa fa-angle-down pull-right"></span>
+                        </a>
+                        <ul class="sub-menu collapse" id="reports" aria-expanded="false">
+                            <li><a href="#">Report Ad Hoc</a></li>
+                        </ul>
+                    </li>
+
                     <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
                     <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
                     <li> <a href="#"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>

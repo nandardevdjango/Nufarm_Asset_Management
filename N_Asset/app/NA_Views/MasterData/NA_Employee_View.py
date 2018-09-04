@@ -155,12 +155,12 @@ class NA_Employee_form(forms.Form):
         for key, value in form_data.items():
             setattr(employee, key, value)
 
-        activity = 'Created'
+        activity = LogActivity.CREATED
         if mode == 'Add':
             employee.createddate = datetime.datetime.now()
             employee.createdby = user
         elif mode == 'Edit':
-            activity = 'Updated'
+            activity = LogActivity.UPDATED
             employee.modifieddate = datetime.datetime.now()
             employee.modifiedby = user
         try:
@@ -200,8 +200,7 @@ def EntryEmployee(request):
             try:
                 result = form.save(user=request.user.username)
             except NAError as e:
-                if e.error_code == NAErrorConstant.DATA_EXISTS:
-                    result = NAErrorHandler.handle_data_exists(err=e)
+                result = NAErrorHandler.handle(err=e)
         else:
             result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)
@@ -212,11 +211,8 @@ def EntryEmployee(request):
             try:
                 result = Employee.objects.get(idapp=idapp)
             except Employee.DoesNotExist:
-                return HttpResponse(
-                    json.dumps({'message': result[0]}),
-                    status=404,
-                    content_type='application/json'
-                )
+                # TODO: handle data lost with message
+                raise NotImplementedError
             else:
                 form = NA_Employee_form(initial=forms.model_to_dict(result))
                 form.fields['nik'].widget.attrs['disabled'] = 'disabled'
@@ -258,11 +254,23 @@ def ShowCustomFilter(request):
 @decorators.detail_request_method('POST')
 @decorators.read_permission(form_name=Employee.FORM_NAME_ORI, action='Delete')
 def NA_Employee_delete(request):
-    if request.user.is_authenticated():
-        get_idapp = request.POST.get('idapp')
-        result = Employee.objects.delete_employee(
-            idapp=get_idapp, NA_User=request.user.username)
-        return commonFunct.response_default(result)
+    idapp = request.POST.get('idapp')
+    try:
+        employee = Employee.objects.get(idapp=idapp)
+    except Employee.DoesNotExist:
+        result = Data.Lost,
+    else:
+        with transaction.atomic():
+            log = LogActivity(
+                models=Employee,
+                activity=LogActivity.DELETED,
+                user=request.user.username,
+                data=employee
+            )
+            log.record_activity()
+            employee.delete()
+            result = Data.Success,
+    return commonFunct.response_default(result)
 
 
 def SearchEmployeebyform(request):

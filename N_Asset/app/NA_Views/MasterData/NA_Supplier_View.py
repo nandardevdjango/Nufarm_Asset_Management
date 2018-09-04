@@ -161,14 +161,14 @@ class NA_Supplier_form(forms.Form):
         mode = self.cleaned_data.get('mode')
         supplier = NASupplier()
         force_insert = True
-        activity = 'Created'
+        activity = LogActivity.CREATED
         if mode == 'Add':
             data.update({
                 'createddate': datetime.datetime.now(),
                 'createdby': user
             })
         elif mode == 'Edit':
-            activity = 'Updated'
+            activity = LogActivity.UPDATED
             try:
                 supplier = NASupplier.objects.get(
                     suppliercode=self.cleaned_data.get('suppliercode')
@@ -218,10 +218,7 @@ def EntrySupplier(request):
             try:
                 result = form.save(user=request.user.username)
             except NAError as e:
-                if e.error_code == NAErrorConstant.DATA_EXISTS:
-                    result = NAErrorHandler.handle_data_exists(err=e)
-                elif e.error_code == NAErrorConstant.DATA_LOST:
-                    raise NotImplementedError
+                result = NAErrorHandler.handle(err=e)
         else:
             result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)
