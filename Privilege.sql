@@ -13,13 +13,13 @@
 
 -- Dumping data for table na_m_s_old.n_a_priviledge: ~1 rows (approximately)
 /*!40000 ALTER TABLE `n_a_priviledge` DISABLE KEYS */;
-INSERT INTO `n_a_priviledge` (`IDApp`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `first_name`, `last_name`, `UserName`, `Email`, `Divisi`, `Password`, `Picture`, `Last_login`, `Last_form`, `Computer_Name`, `IP_Address`, `Role`, `Is_SuperUser`, `Is_Staff`, `Is_Active`, `Date_Joined`) VALUES
+INSERT INTO `n_a_privilege` (`IDApp`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `first_name`, `last_name`, `UserName`, `Email`, `Divisi`, `Password`, `Picture`, `Last_login`, `Last_form`, `Computer_Name`, `IP_Address`, `Role`, `Is_SuperUser`, `Is_Staff`, `Is_Active`, `Date_Joined`) VALUES
 	(1, '', NULL, NULL, '', '', 'rimba88', 'rimba@88spares.com', 'IT', 'pbkdf2_sha256$36000$vACo7Q3KBjS5$UOEFP68Os1qQVdFh5PlbOOC8WpFufG8MGnrtP/pXQKA=', 'dir_for_rimba88\\20180515_100310.jpg', '2018-08-29 11:55:12.414875', NULL, '', '', 1, 1, 0, 1, NULL);
 /*!40000 ALTER TABLE `n_a_priviledge` ENABLE KEYS */;
 
 -- Dumping data for table na_m_s_old.n_a_priviledge_form: ~6 rows (approximately)
 /*!40000 ALTER TABLE `n_a_priviledge_form` DISABLE KEYS */;
-INSERT INTO `n_a_priviledge_form` (`IDApp`, `Form_id`, `Form_name`, `Form_name_ori`) VALUES
+INSERT INTO `n_a_privilege_form` (`IDApp`, `Form_id`, `Form_name`, `Form_name_ori`) VALUES
 	(1, '0001M', 'Suplier Form', 'n_a_suplier'),
 	(2, '0002M', 'Employee Form', 'employee'),
 	(3, '0003M', 'Goods Form', 'goods'),
@@ -38,7 +38,7 @@ INSERT INTO `n_a_priviledge_form` (`IDApp`, `Form_id`, `Form_name`, `Form_name_o
 
 -- Dumping data for table na_m_s_old.n_a_sys_priviledge: ~20 rows (approximately)
 /*!40000 ALTER TABLE `n_a_sys_priviledge` DISABLE KEYS */;
-INSERT INTO `n_a_sys_priviledge` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `Permission`, `InActive`, `FK_PForm`, `User_id`) VALUES
+INSERT INTO `n_a_sys_privilege` (`IDApp`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`, `Permission`, `InActive`, `FK_PForm`, `User_id`) VALUES
 	(1, '2018-07-08 22:28:25.668736', '', NULL, NULL, 'Allow View', 0, 1, 1),
 	(2, '2018-07-08 22:28:25.668736', '', NULL, NULL, 'Allow Add', 0, 1, 1),
 	(3, '2018-07-08 22:28:25.668736', '', NULL, NULL, 'Allow Edit', 0, 1, 1),
