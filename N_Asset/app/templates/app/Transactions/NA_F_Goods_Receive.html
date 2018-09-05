@@ -1944,9 +1944,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
                 						        //set grid cell
                 						        var dtStr = formatDate(NDate)
-                						        //var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
-                						        //IRowData.endofwarranty = dtStr;
-
+                						        https://stackoverflow.com/questions/16216541/editrow-not-working-after-setcell-in-jqgrid
                 						        //gridTbl.jqGrid('setCell', curRowid, 'endofwarranty', dtStr);
                 						        //now change the internal local data
                 						        gridTbl.jqGrid('getRowData', curRowid).endofwarranty = GetServerFormatDate(NDate);
