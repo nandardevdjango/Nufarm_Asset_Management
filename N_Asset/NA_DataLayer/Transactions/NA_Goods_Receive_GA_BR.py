@@ -11,11 +11,11 @@ class NA_BR_Goods_Receive_GA(models.Manager):
         gaData = super(NA_BR_Goods_Receive_GA, self).get_queryset()\
             .annotate(
                 goodsname=F('fk_goods__goodsname'),
-                supliername=F('fk_suplier__supliername'),
+                suppliername=F('fk_supplier__suppliername'),
                 received_by=F('fk_receivedby__employee_name'),
                 pr_by=F('fk_p_r_by__employee_name')
         )\
-            .values('idapp', 'goodsname', 'typeapp', 'price', 'received_by', 'pr_by', 'supliername',
+            .values('idapp', 'goodsname', 'typeapp', 'price', 'received_by', 'pr_by', 'suppliername',
                     'datereceived', 'brand', 'invoice_no', 'machine_no', 'chassis_no', 'year_made',
                     'colour', 'model', 'kind', 'cylinder', 'fuel', 'descriptions',
                     'createddate', 'createdby')
@@ -54,7 +54,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             'FK_goods': data['fk_goods'],
             'FK_ReceivedBy': data['received_by'],
             'FK_P_R_By': data['pr_by'],
-            'FK_Suplier': data['supliercode'],
+            'FK_Supplier': data['suppliercode'],
             'DateReceived': data['datereceived'],
             'brand': data['brand'],
             'invoice_no': data['invoice_no'],
@@ -74,7 +74,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
             Query = """INSERT INTO n_a_ga_receive
-            (FK_goods, FK_ReceivedBy, FK_P_R_By, FK_Suplier, DateReceived, Brand, Invoice_no,
+            (FK_goods, FK_ReceivedBy, FK_P_R_By, FK_Supplier, DateReceived, Brand, Invoice_no,
             TypeApp, Machine_no, Chassis_no, Year_made, Colour, Model,Kind, Cylinder, Fuel,
             Price, Descriptions,CreatedDate, CreatedBy)
             VALUES ({})""".format(','.join('%(' + i + ')s' for i in Params))
@@ -86,7 +86,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             Query = """UPDATE n_a_ga_receive SET
             FK_Goods = %(FK_goods)s,
             DateReceived = %(DateReceived)s,
-            FK_Suplier = %(FK_Suplier)s,
+            FK_Supplier = %(FK_Supplier)s,
             FK_ReceivedBy = %(FK_ReceivedBy)s,
             FK_P_R_By = %(FK_P_R_By)s,
             brand = %(brand)s,
@@ -127,8 +127,8 @@ class NA_BR_Goods_Receive_GA(models.Manager):
             cur = connection.cursor()
             query_string = """
             CREATE TEMPORARY TABLE T_form_ga_receive ENGINE=InnoDB AS(
-                SELECT ngr.idapp, ngr.fk_goods, g.itemcode, g.goodsname, s.supliercode,
-                s.supliername, ngr.fk_p_r_by AS pr_by, emp1.pr_by_nik, emp1.pr_by_name,
+                SELECT ngr.idapp, ngr.fk_goods, g.itemcode, g.goodsname, s.suppliercode,
+                s.suppliername, ngr.fk_p_r_by AS pr_by, emp1.pr_by_nik, emp1.pr_by_name,
                 ngr.fk_receivedby AS received_by, emp2.received_by_nik, emp2.received_by_name,
                 DATE_FORMAT(ngr.datereceived, \'%%d/%%m/%%Y\') AS datereceived, ngr.brand,
                 ngr.invoice_no, ngr.typeapp, ngr.machine_no,
@@ -141,7 +141,7 @@ class NA_BR_Goods_Receive_GA(models.Manager):
                 ngh.descriptions AS remark
                 FROM n_a_ga_receive AS ngr
                 INNER JOIN n_a_goods AS g ON ngr.fk_goods = g.idapp
-                INNER JOIN n_a_suplier AS s ON ngr.fk_suplier = s.supliercode
+                INNER JOIN n_a_supplier AS s ON ngr.fk_supplier = s.suppliercode
                 LEFT OUTER JOIN (
                     SELECT idapp, nik AS pr_by_nik, employee_name AS pr_by_name
                     FROM employee

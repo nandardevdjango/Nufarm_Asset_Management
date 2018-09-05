@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render
 from NA_DataLayer.common import (ResolveCriteria, commonFunct,
                                  StatusForm, Data, decorators)
-from NA_Models.models import (NAGaOutwards, goods, NASuplier, NAGaReceive,
+from NA_Models.models import (NAGaOutwards, goods, NASupplier, NAGaReceive,
                               NAGoodsEquipment, Employee, NAGaVnHistory)
 
 
@@ -82,7 +82,7 @@ def getFormData(form):
     clData = form.cleaned_data
     data = {
         'idapp': clData['idapp'], 'refno': clData['refno'], 'fk_goods': clData['fk_goods'],
-        'datereceived': clData['datereceived'], 'fk_suplier': clData['supliercode'],
+        'datereceived': clData['datereceived'], 'fk_supplier': clData['suppliercode'],
         'fk_receivedby': clData['received_by'], 'fk_pr_by': clData['pr_by'],
         'invoice_no': clData['invoice_no'], 'typeapp': 'typeapp', 'brand': clData['brand'],
         'machine_no': clData['machine_no'], 'chassis_no': clData['chassis_no'],
@@ -345,7 +345,7 @@ def ShowCustomFilter(request):
                  'dataType': 'varchar', 'text': 'goods name'})
     cols.append({'name': 'datereceived', 'value': 'datereceived',
                  'selected': '', 'dataType': 'datetime', 'text': 'Date Received'})
-    cols.append({'name': 'supliername', 'value': 'supliername',
+    cols.append({'name': 'suppliername', 'value': 'suppliername',
                  'selected': '', 'dataType': 'varchar', 'text': 'type of brand'})
     cols.append({'name': 'receivedby', 'value': 'receivedby',
                  'selected': '', 'dataType': 'varchar', 'text': 'Received By'})

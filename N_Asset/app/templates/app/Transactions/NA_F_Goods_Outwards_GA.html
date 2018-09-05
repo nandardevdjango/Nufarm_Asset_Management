@@ -806,8 +806,8 @@
                                         is_new = qs('input#id_isnew'),
                                         datereceived = qs('input#id_datereceived'),
 
-                                        supliercode = qs('input#id_supliercode'),
-                                        supliername = qs('input#id_supliername'),
+                                        suppliercode = qs('input#id_suppliercode'),
+                                        suppliername = qs('input#id_suppliername'),
 
                                         employee = qs('input#id_employee'),
                                         employee_nik = qs('input#id_employee_nik'),
@@ -1077,7 +1077,7 @@
                                                 gridTbl.jqGrid({
                                                     url: urlFKGoods,
                                                     mtype: "GET",
-                                                    datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                                                    datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
                                                     colNames: ['idapp', 'NO', 'Nik', 'Employee Name'],
                                                     colModel: [
                                                         { name: 'idapp', hidden: true, align: 'left' },

@@ -216,12 +216,12 @@ CREATE TABLE `na_user_user_user_permissions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `n_a_suplier`
+-- Table structure for table `n_a_supplier`
 --
 
-CREATE TABLE `n_a_suplier` (
-  `SuplierCode` varchar(30) NOT NULL,
-  `SuplierName` varchar(100) DEFAULT NULL,
+CREATE TABLE `n_a_supplier` (
+  `SupplierCode` varchar(30) NOT NULL,
+  `SupplierName` varchar(100) DEFAULT NULL,
   `Address` varchar(150) DEFAULT NULL,
   `Telp` varchar(20) DEFAULT NULL,
   `HP` varchar(20) DEFAULT NULL,
@@ -234,19 +234,19 @@ CREATE TABLE `n_a_suplier` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Triggers `n_a_suplier`
+-- Triggers `n_a_supplier`
 --
 DELIMITER $$
-CREATE TRIGGER `Create_Suplier_Log` AFTER INSERT ON `n_a_suplier` FOR EACH ROW begin
-set @toJSON = concat("{""created""",":", "[", """",new.supliercode,"""",",","""",new.supliername,"""", ",", """",new.address,"""",",", """",new.telp,"""",",","""",new.hp,"""",",","""",new.contactperson,"""",",","""",new.inactive,"""",",","""",new.createddate,"""",",", """",new.createdby,"""" "]}");
-insert into LogEvent(NameApp, TypeApp, descriptionsapp, CreatedDate, CreatedBy) values("Created Suplier", "P", @toJSON, now(), new.createdby);
+CREATE TRIGGER `Create_Supplier_Log` AFTER INSERT ON `n_a_supplier` FOR EACH ROW begin
+set @toJSON = concat("{""created""",":", "[", """",new.suppliercode,"""",",","""",new.suppliername,"""", ",", """",new.address,"""",",", """",new.telp,"""",",","""",new.hp,"""",",","""",new.contactperson,"""",",","""",new.inactive,"""",",","""",new.createddate,"""",",", """",new.createdby,"""" "]}");
+insert into LogEvent(NameApp, TypeApp, descriptionsapp, CreatedDate, CreatedBy) values("Created Supplier", "P", @toJSON, now(), new.createdby);
 end
 $$
 DELIMITER ;
 DELIMITER $$
-CREATE TRIGGER `Update_Suplier_Log` AFTER UPDATE ON `n_a_suplier` FOR EACH ROW begin
-set @toJSON = concat("{""after""",":", "[", """",new.supliercode,"""",",","""",new.supliername,"""",",","""",new.address,"""", ",", """",new.telp,"""",",", """",new.hp,"""",",","""",new.contactperson,"""",",", """",new.inactive,"""",",","""",new.createddate,"""",",", """",new.createdby,"""",",","""",new.modifieddate,"""",",","""",new.modifiedby,"""" "]",",","""before""",":","[","""",old.supliercode,"""",",","""",old.supliername,"""",",","""",old.address,"""",",","""",old.telp,"""",",","""",old.hp,"""",",","""",old.contactperson,"""",",","""",old.inactive,"""",",","""",old.createddate,"""",",","""",old.createdby,"""","]}");
-insert into LogEvent(NameApp, TypeApp, descriptionsapp, CreatedDate, CreatedBy) values("Updated Suplier", "P", @toJSON, now(), new.modifiedby);
+CREATE TRIGGER `Update_Supplier_Log` AFTER UPDATE ON `n_a_supplier` FOR EACH ROW begin
+set @toJSON = concat("{""after""",":", "[", """",new.suppliercode,"""",",","""",new.suppliername,"""",",","""",new.address,"""", ",", """",new.telp,"""",",", """",new.hp,"""",",","""",new.contactperson,"""",",", """",new.inactive,"""",",","""",new.createddate,"""",",", """",new.createdby,"""",",","""",new.modifieddate,"""",",","""",new.modifiedby,"""" "]",",","""before""",":","[","""",old.suppliercode,"""",",","""",old.suppliername,"""",",","""",old.address,"""",",","""",old.telp,"""",",","""",old.hp,"""",",","""",old.contactperson,"""",",","""",old.inactive,"""",",","""",old.createddate,"""",",","""",old.createdby,"""","]}");
+insert into LogEvent(NameApp, TypeApp, descriptionsapp, CreatedDate, CreatedBy) values("Updated Supplier", "P", @toJSON, now(), new.modifiedby);
 end
 $$
 DELIMITER ;
@@ -342,10 +342,10 @@ ALTER TABLE `na_user_user_user_permissions`
   ADD KEY `NA_User_user_user_pe_permission_id_6cbe9ddb_fk_auth_perm` (`permission_id`);
 
 --
--- Indexes for table `n_a_suplier`
+-- Indexes for table `n_a_supplier`
 --
-ALTER TABLE `n_a_suplier`
-  ADD PRIMARY KEY (`SuplierCode`);
+ALTER TABLE `n_a_supplier`
+  ADD PRIMARY KEY (`SupplierCode`);
 
 --
 -- AUTO_INCREMENT for dumped tables

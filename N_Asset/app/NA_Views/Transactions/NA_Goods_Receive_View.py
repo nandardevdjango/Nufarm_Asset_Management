@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
-from NA_Models.models import NAGoodsReceive, goods,NASuplier,Employee
+from NA_Models.models import NAGoodsReceive, goods,NASupplier,Employee
 from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
@@ -29,7 +29,7 @@ def NA_Goods_Receive(request):
 	populate_combo.append({'label':'RefNO','columnName':'refno','dataType':'varchar'})
 	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
 	populate_combo.append({'label':'Date Received','columnName':'datereceived','dataType':'datetime'})
-	populate_combo.append({'label':'Suplier Name','columnName':'supliername','dataType':'varchar'})
+	populate_combo.append({'label':'Supplier Name','columnName':'suppliername','dataType':'varchar'})
 	populate_combo.append({'label':'Received By','columnName':'receivedby','dataType':'varchar'})
 	populate_combo.append({'label':'Purchase Request By','columnName':'pr_by','dataType':'varchar'})
 	populate_combo.append({'label':'Total Purchased','columnName':'totalpurchase','dataType':'int'})
@@ -38,12 +38,12 @@ def NA_Goods_Receive(request):
 def ShowCustomFilter(request):
 	if request.is_ajax():
 		cols = []
-		#//#column idapp  no refno, goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
-		# label idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'
+		#//#column idapp  no refno, goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
+		# label idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Supplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'
 		cols.append({'name':'refno','value':'refno','selected':'','dataType':'varchar','text':'RefNO'})
 		cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'goods name'})
 		cols.append({'name':'datereceived','value':'datereceived','selected':'','dataType':'datetime','text':'Date Received'})
-		cols.append({'name':'supliername','value':'supliername','selected':'','dataType':'varchar','text':'type of brand'})
+		cols.append({'name':'suppliername','value':'suppliername','selected':'','dataType':'varchar','text':'type of brand'})
 		cols.append({'name':'receivedby','value':'receivedby','selected':'','dataType':'varchar','text':'Received By'})
 		cols.append({'name':'pr_by','value':'pr_by','selected':'','dataType':'varchar','text':'Purchase Request By'})
 		cols.append({'name':'totalpurchase','value':'totalpurchase','selected':'','dataType':'int','text':'Total Purchased'})
@@ -60,11 +60,11 @@ def NA_Goods_Receive_Search(request):
 		Ilimit = request.GET.get('rows', '')
 		Isidx = request.GET.get('sidx', '')
 		Isord = request.GET.get('sord', '')
-		#if 'suplier' in Isidx:#ganti suplier key column jadi supliername
-		#	#IndexS = Isidx.index['suplier']
+		#if 'supplier' in Isidx:#ganti supplier key column jadi suppliername
+		#	#IndexS = Isidx.index['supplier']
 		#	#del(Isidx[IndexS])
-		#	#Isindx.insert(IndexS,'supliername')
-		#	str(Isidx).replace('suplier','supliername') 
+		#	#Isindx.insert(IndexS,'suppliername')
+		#	str(Isidx).replace('supplier','suppliername')
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
 		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
@@ -75,11 +75,11 @@ def NA_Goods_Receive_Search(request):
 		dataRows = NAData[0]
 		
 		rows = []
-		#column IDapp 	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
+		#column IDapp 	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
 		i = 0;
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['supliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
+			datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['suppliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
 				row['pr_by'],row['totalpurchase'],row['totalreceived'],row['descriptions'],datetime.date(row['CreatedDate']),row['CreatedBy']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -121,8 +121,8 @@ def getRefNO(request):
 		return HttpResponse(data, content_type='application/json')
 	else:
 		return HttpResponse(content='',content_type='application/json')	
-def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
-	return {'idapp':form.cleaned_data['idapp'],'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_suplier':form.cleaned_data['fk_suplier'],
+def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_supplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
+	return {'idapp':form.cleaned_data['idapp'],'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_supplier':form.cleaned_data['fk_supplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'fk_p_r_by':form.cleaned_data['fk_p_r_by'],
 		 'idapp_fk_p_r_by':form.cleaned_data['idapp_fk_p_r_by'],'descriptions':form.cleaned_data['descriptions'],'hasRefData':form.cleaned_data['hasRefData'],
 		 'createddate':str(datetime.now().date()),'createdby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin','dataForGridDetail':{} }
@@ -241,8 +241,8 @@ def ShowEntry_Receive(request):
 				Ndata = NAGoodsReceive.objects.getData(IDApp)
 				Ndata = Ndata[0]
 				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':Ndata['idapp'],'idapp_fk_goods':Ndata['idapp_fk_goods'], 'datereceived':Ndata['datereceived']},None)
-				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
-				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_suplier':Ndata['fk_suplier'],'supliername':Ndata['supliername'],
+				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
+				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_supplier':Ndata['fk_supplier'],'suppliername':Ndata['suppliername'],
 						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_receivedby':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
 						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['idapp_fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
@@ -334,13 +334,13 @@ def getGoods(request):
 	except Exception as e:					
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-def getSuplier(request):
-	"""get supliername by supliercode return supliername criteria = ixact'
+def getSupplier(request):
+	"""get suppliername by suppliercode return suppliername criteria = ixact'
 	"""
 	result={}
 	try:
-		supliercode = request.GET.get('supliercode')
-		result = NASuplier.customManager.getSuplier(supliercode)
+		suppliercode = request.GET.get('suppliercode')
+		result = NASupplier.customManager.getSupplier(suppliercode)
 		if len(list(result)):
 			result = result[0]
 		else :
@@ -406,19 +406,19 @@ def SearchGoodsbyForm(request):
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
-def SearchSuplierbyForm(request):
-	"""get suplier data for grid return suplier code,supliername, criteria = icontains"""
-	searchText = request.GET.get('supliername')
+def SearchSupplierbyForm(request):
+	"""get supplier data for grid return supplier code,suppliername, criteria = icontains"""
+	searchText = request.GET.get('suppliername')
 	Ilimit = request.GET.get('rows', '')
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
 	NAData = None;
 	if(Isord is not None and str(Isord) != ''):
-		NAData = NASuplier.customManager.getSuplierByForm(searchText)
+		NAData = NASupplier.customManager.getSupplierByForm(searchText)# NASuplier.customManager.getSuplierByForm(searchText)
 		if len(NAData):
 			NAData.order_by('-' + str(Isidx))
 	else:
-		NAData = NASuplier.customManager.getSuplierByForm(searchText)
+		NAData = NASupplier.customManager.getSupplierByForm(searchText)
 	totalRecord = NAData.count()
 	paginator = Paginator(NAData, int(Ilimit)) 
 	try:
@@ -434,7 +434,7 @@ def SearchSuplierbyForm(request):
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:
 		i+=1
-		datarow = {"id" :row['supliercode'], "cell" :[i,row['supliercode'],row['supliername']]}
+		datarow = {"id" :row['suppliercode'], "cell" :[i,row['suppliercode'],row['suppliername']]}
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
 	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -532,11 +532,11 @@ class NA_Goods_Receive_Form(forms.Form):
 	goods_desc = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'goods item code','data-value':'goods item code','tittle':'goods Desc is required'}))
 	 
-	fk_suplier = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
+	fk_supplier = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':4,
-                                   'placeholder': 'suplier code','data-value':'suplier code','tittle':'Please enter suplier code'}),required=True)
-	supliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
-																						 'placeholder': 'suplier name','data-value':'suplier name','tittle':'suplier name is required'}))
+                                   'placeholder': 'supplier code','data-value':'supplier code','tittle':'Please enter supplier code'}),required=True)
+	suppliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
+																						 'placeholder': 'supplier name','data-value':'supplier name','tittle':'supplier name is required'}))
 
 	totalpurchase = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
 	totalreceived = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
@@ -569,12 +569,12 @@ class NA_Goods_Receive_Form(forms.Form):
 	#class Meta:
 	#	model = NAGoodsReceive
 	#	exclude = ('createdby','createddate','modifiedby','modifieddate')
-	def clean(self):#fk_goods, datereceived, fk_suplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
+	def clean(self):#fk_goods, datereceived, fk_supplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
 		cleaned_data = super(NA_Goods_Receive_Form,self).clean()
 		refno =  self.cleaned_data.get('refno')
 		fk_goods = self.cleaned_data.get('fk_goods')
 		datereceived = self.cleaned_data.get('datereceived')
-		fk_suplier = self.cleaned_data.get('fk_suplier')
+		fk_supplier = self.cleaned_data.get('fk_supplier')
 		totalpurchase = self.cleaned_data.get('totalpurchase')
 		totalreceived = self.cleaned_data.get('totalreceived')
 		fk_receivedby = self.cleaned_data.get('fk_receivedby')

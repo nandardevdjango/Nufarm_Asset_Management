@@ -8,15 +8,15 @@ from django import forms
 from django.db import transaction
 from django.contrib.auth import login, logout, authenticate
 
-from NA_Models.models import NAPriviledge, NASysPriviledge, NAPriviledge_form
+from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 
 
-def NA_Priviledge(request):
-    return render(request, 'app/MasterData/NA_F_Priviledge.html')
+def NA_Privilege(request):
+    return render(request, 'app/MasterData/NA_F_Privilege.html')
 
 
-def NA_PriviledgeGetData(request):
+def NA_PrivilegeGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
     IdataType = request.GET.get('dataType')
@@ -24,21 +24,21 @@ def NA_PriviledgeGetData(request):
     Ilimit = request.GET.get('rows', '')
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
-   
+
     if(',' in Isidx):
         Isidx = Isidx.split(',')
 
     criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
     dataType = ResolveCriteria.getDataType(str(IdataType))
     if(Isord is not None and str(Isord) != ''):
-        priviledgeData = NAPriviledge.objects.PopulateQuery(
+        privilegeData = NAPrivilege.objects.PopulateQuery(
             IcolumnName, IvalueKey, criteria, dataType).order_by('-' + str(Isidx))
     else:
-        priviledgeData = NAPriviledge.objects.PopulateQuery(
+        privilegeData = NAPrivilege.objects.PopulateQuery(
             IcolumnName, IvalueKey, criteria, dataType)
 
-    totalRecord = priviledgeData.count()
-    paginator = Paginator(priviledgeData, int(Ilimit))
+    totalRecord = privilegeData.count()
+    paginator = Paginator(privilegeData, int(Ilimit))
     try:
         page = request.GET.get('page', '1')
     except ValueError:
@@ -86,9 +86,9 @@ def ShowCustomFilter(request):
     return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 
-def NA_Priviledge_sys(request):
+def NA_Privilege_sys(request):
     user_id = request.GET['user_id']
-    data = NAPriviledge.objects.Get_Priviledge_Sys(user_id)
+    data = NAPrivilege.objects.Get_Privilege_Sys(user_id)
     totalRecords = len(data)
     page = request.GET.get('page', '1')
     limit_row = request.GET.get('rows', '10')
@@ -133,9 +133,9 @@ def NA_Priviledge_sys(request):
     )
 
 
-def Entry_Priviledge(request):
+def Entry_Privilege(request):
     if request.method == 'POST':
-        form = NA_Priviledge_Form(request.POST)
+        form = NA_Privilege_Form(request.POST)
         if form.is_valid():
             result = form.save(request)
             return commonFunct.response_default(result)
@@ -145,28 +145,28 @@ def Entry_Priviledge(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
-            data = NAPriviledge.objects.retrieveData(idapp)
-            form = NA_Priviledge_Form(initial=data)
-            if int(data['role']) == NAPriviledge.GUEST:
+            data = NAPrivilege.objects.retrieveData(idapp)
+            form = NA_Privilege_Form(initial=data)
+            if int(data['role']) == NAPrivilege.GUEST:
                 form.fields['divisi'].widget.attrs['disabled'] = ''
         else:
-            form = NA_Priviledge_Form()
+            form = NA_Privilege_Form()
             form.fields['password'].widget.attrs['required'] = ''
             form.fields['confirm_password'].widget.attrs['required'] = ''
             form.fields['divisi'].widget.attrs['disabled'] = ''
-        return render(request, 'app/MasterData/NA_Entry_Priviledge.html', {'form': form})
+        return render(request, 'app/MasterData/NA_Entry_Privilege.html', {'form': form})
 
 
 def Delete_user(request):
     idapp = request.POST['idapp']
-    result = NAPriviledge.objects.Delete(idapp)
+    result = NAPrivilege.objects.Delete(idapp)
     return commonFunct.response_default(result)
 
 
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def ChangeRole(request, email):
-    user = NAPriviledge.objects.get(email=email)
+    user = NAPrivilege.objects.get(email=email)
     role = request.POST['role']
     divisi = request.POST['divisi']
     user.role = role
@@ -175,7 +175,7 @@ def ChangeRole(request, email):
     return commonFunct.response_default((Data.Success,))
 
 
-class NA_Priviledge_Form(forms.Form):
+class NA_Privilege_Form(forms.Form):
     idapp = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'First Name', 'style': 'height:unset'}))
@@ -195,10 +195,10 @@ class NA_Priviledge_Form(forms.Form):
         widget=forms.Select(
             attrs={'class': 'form-control'}
         )
-        
+
     )
     role = forms.ChoiceField(widget=forms.Select(
-        attrs={'class': 'form-control'}), choices=(NAPriviledge.ROLE_CHOICES))
+        attrs={'class': 'form-control'}), choices=(NAPrivilege.ROLE_CHOICES))
     statusForm = forms.CharField(widget=forms.TextInput(
         attrs={'style': 'display:none'}), required=True)
     password = forms.CharField(max_length=30, required=False, widget=forms.PasswordInput(
@@ -229,7 +229,7 @@ class NA_Priviledge_Form(forms.Form):
         role = self.cleaned_data['role']
         if isinstance(role, str):
             role = int(role)
-        if role != NAPriviledge.GUEST:
+        if role != NAPrivilege.GUEST:
             divisi = self.cleaned_data['divisi']
             if divisi is None or divisi == '':
                 raise forms.ValidationError('Please fill out divisi')
@@ -243,7 +243,7 @@ class NA_Priviledge_Form(forms.Form):
             raise forms.ValidationError(
                 'Password didn\'t match with confirm password'
             )
-        return super(NA_Priviledge_Form, self).clean()
+        return super(NA_Privilege_Form, self).clean()
 
     def getFormData(self):
         return {
@@ -264,25 +264,25 @@ class NA_Priviledge_Form(forms.Form):
         else:
             if statusForm == 'Add':
                 with transaction.atomic():
-                    user = NAPriviledge()
+                    user = NAPrivilege()
                     user.first_name = self.cleaned_data['first_name']
                     user.last_name = self.cleaned_data['last_name']
                     user.username = self.cleaned_data['username']
                     user.email = self.cleaned_data['email']
                     user.role = self.cleaned_data['role']
-                    if user.role != NAPriviledge.GUEST:
+                    if user.role != NAPrivilege.GUEST:
                         user.divisi = self.cleaned_data['divisi']
                     user.set_password(self.cleaned_data['password'])
                     user.date_joined = datetime.now()
                     user.createdby = request.user.username
                     user.save()
-                    NASysPriviledge.set_permission(user)
+                    NASysPrivilege.set_permission(user)
 
             elif statusForm == 'Edit':
                 idapp = self.cleaned_data.get('idapp')
                 try:
-                    user = NAPriviledge.objects.get(idapp=idapp)
-                except NAPriviledge.DoesNotExist:
+                    user = NAPrivilege.objects.get(idapp=idapp)
+                except NAPrivilege.DoesNotExist:
                     return (Data.Lost,)
                 else:
                     data_init = {
@@ -300,35 +300,36 @@ class NA_Priviledge_Form(forms.Form):
                         data_form.pop(same)
 
                     with transaction.atomic():
-                        NAPriviledge.objects.filter(idapp=idapp).update(**data_form)
+                        NAPrivilege.objects.filter(
+                            idapp=idapp).update(**data_form)
                         if 'role' in data_form:
-                            if (int(data_form['role']) != NAPriviledge.GUEST
-                                    and int(user.role) == NAPriviledge.GUEST):
+                            if (int(data_form['role']) != NAPrivilege.GUEST
+                                    and int(user.role) == NAPrivilege.GUEST):
                                 user.refresh_from_db()
-                                NASysPriviledge.set_permission(user)
+                                NASysPrivilege.set_permission(user)
         return (Data.Success,)
 
 
 @decorators.admin_required_action('change')
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-def NA_Sys_Priviledge_setInactive(request, idapp):
+def NA_Sys_Privilege_setInactive(request, idapp):
     inactive = request.POST['inactive']
-    result = NASysPriviledge.objects.setInActive(idapp, inactive)
+    result = NASysPrivilege.objects.setInActive(idapp, inactive)
     return commonFunct.response_default(result)
 
 
 @decorators.admin_required_action('delete')
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-def NA_Sys_Priviledge_delete(request, idapp):
-    result = NASysPriviledge.objects.Delete(idapp)
+def NA_Sys_Privilege_delete(request, idapp):
+    result = NASysPrivilege.objects.Delete(idapp)
     return commonFunct.response_default(result)
 
 
 @decorators.admin_required_action('add')
 @decorators.ajax_required
-def NA_Sys_Priviledge_add(request, email):
+def NA_Sys_Privilege_add(request, email):
     if request.method == 'POST':
         form = NA_Permission_Form(request.POST)
         if form.is_valid():
@@ -343,9 +344,9 @@ def NA_Sys_Priviledge_add(request, email):
         return render(request, 'app/MasterData/NA_Entry_Permission.html', {'form': form})
 
 
-def NA_Sys_Priviledge_check_permission(request, user_id):
+def NA_Sys_Privilege_check_permission(request, user_id):
     fk_form = request.GET['fk_form']
-    data = NASysPriviledge.objects.CheckPermission(fk_form, user_id)
+    data = NASysPrivilege.objects.CheckPermission(fk_form, user_id)
     if data == Data.Empty:
         return HttpResponse(
             json.dumps(commonFunct.EmptyGrid()),
@@ -369,24 +370,24 @@ def NA_Sys_Priviledge_check_permission(request, user_id):
     )
 
 
-def NA_Sys_Priviledge_get_permission(request, email):
+def NA_Sys_Privilege_get_permission(request, email):
     form_name_ori = request.GET['form_name']
-    user = NAPriviledge.objects.get(email=email)
+    user = NAPrivilege.objects.get(email=email)
     return commonFunct.response_default(
         (Data.Success, user.get_permission(form_name_ori))
     )
 
 
-def NA_Sys_Priviledge_SetDefaultPermission(request, email):
-    user = NAPriviledge.objects.get(email=email)
-    if int(user.role) != NAPriviledge.GUEST:
-        NASysPriviledge.set_permission(user)
+def NA_Sys_Privilege_SetDefaultPermission(request, email):
+    user = NAPrivilege.objects.get(email=email)
+    if int(user.role) != NAPrivilege.GUEST:
+        NASysPrivilege.set_permission(user)
         return commonFunct.response_default((Data.Success,))
 
 
 class NA_Permission_Form(forms.Form):
     fk_form = forms.ModelChoiceField(
-        queryset=NAPriviledge_form.objects.all(),
+        queryset=NAPrivilege_form.objects.all(),
         widget=forms.Select(
             attrs={'class': 'form-control', 'style': 'display:inline-block'})
     )
@@ -404,7 +405,7 @@ class NA_Permission_Form(forms.Form):
 
     def save(self, request):
         user_id = self.cleaned_data['user_id']
-        # instance of NA_Priviledge_form
+        # instance of NA_Privilege_form
         fk_form = self.cleaned_data['fk_form']
         allow_view = self.cleaned_data['allow_view']
         allow_add = self.cleaned_data['allow_add']
@@ -416,8 +417,8 @@ class NA_Permission_Form(forms.Form):
             'Allow Edit': allow_edit,
             'Allow Delete': allow_delete
         }
-        user = NAPriviledge.objects.get(idapp=user_id)
-        if user.role == NAPriviledge.GUEST:
+        user = NAPrivilege.objects.get(idapp=user_id)
+        if user.role == NAPrivilege.GUEST:
             if allow_add or allow_edit or allow_delete:
                 message = '__cannot_add_other_permission_guest'
                 return HttpResponse(
@@ -442,7 +443,7 @@ class NA_Permission_Form(forms.Form):
                     data_permissions.pop(
                         data_permissions.index(i['permission']))
 
-        NASysPriviledge.set_custom_permission(
+        NASysPrivilege.set_custom_permission(
             user_id=user_id,
             fk_form=fk_form.idapp,
             permissions=data_permissions,
@@ -451,21 +452,23 @@ class NA_Permission_Form(forms.Form):
         return (Data.Success,)
 
 
-def NA_Priviledge_login(request):
+def NA_Privilege_login(request):
     if request.user.is_authenticated():
         return redirect(request.GET.get('next', '/'))
     else:
         title = "Login"
         if request.method == 'POST':
-            form = NA_Priviledge_Login_Form(request.POST or None)
+            form = NA_Privilege_Login_Form(request.POST or None)
             if form.is_valid():
                 email = form.cleaned_data.get("email")
                 password = form.cleaned_data.get("password")
                 # authenticates Email & Password
                 user = authenticate(email=email, password=password)
                 login(request, user)
-                next_action = request.GET.get('next')
-                if next_action is not None:
+                next_action = request.GET.get(
+                    'next'
+                ) or request.POST.get('next')
+                if next_action:
                     return redirect(next_action)
                 else:
                     return redirect('home')
@@ -479,7 +482,7 @@ def NA_Priviledge_login(request):
         )
 
 
-class NA_Priviledge_Login_Form(forms.Form):
+class NA_Privilege_Login_Form(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
     next = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -497,26 +500,26 @@ class NA_Priviledge_Login_Form(forms.Form):
             if not user.is_active:
                 raise forms.ValidationError("User is not Active.")
 
-        return super(NA_Priviledge_Login_Form, self).clean(*args, **kwargs)
+        return super(NA_Privilege_Login_Form, self).clean(*args, **kwargs)
 
 
-def NA_Priviledge_register(request):
+def NA_Privilege_register(request):
     if request.method == 'POST':
-        form = NA_Priviledge_Register_Form(request.POST, request.FILES or None)
+        form = NA_Privilege_Register_Form(request.POST, request.FILES or None)
         if form.is_valid():
             user = form.save()
             login(request, user, backend='NA_DataLayer.NA_Auth.NA_AuthBackend')
             return redirect('home')
     else:
-        form = NA_Priviledge_Register_Form()
+        form = NA_Privilege_Register_Form()
         return render(
             request,
-            'app/MasterData/NA_Priviledge_Register.html',
+            'app/MasterData/NA_Privilege_Register.html',
             {'form': form}
         )
 
 
-def NA_Priviledge_logout(request):
+def NA_Privilege_logout(request):
     if not request.user.is_authenticated:
         return redirect('login')
     else:
@@ -524,7 +527,7 @@ def NA_Priviledge_logout(request):
         return redirect('home')
 
 
-class NA_Priviledge_Register_Form(forms.Form):
+class NA_Privilege_Register_Form(forms.Form):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
         'class': 'form-control', 'placeholder': 'Enter First Name'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
@@ -543,7 +546,7 @@ class NA_Priviledge_Register_Form(forms.Form):
 
     def save(self):
         with transaction.atomic():
-            user = NAPriviledge()
+            user = NAPrivilege()
             user.username = self.cleaned_data['username']
             user.email = self.cleaned_data['email']
             user.first_name = self.cleaned_data['first_name']
@@ -553,14 +556,14 @@ class NA_Priviledge_Register_Form(forms.Form):
                 user.picture = pict
             user.set_password(self.cleaned_data['password1'])
             user.save()
-            NASysPriviledge.set_permission(user)
+            NASysPrivilege.set_permission(user)
         return user
 
 
-def NA_Priviledge_change_picture(request, email):
+def NA_Privilege_change_picture(request, email):
     if request.user.email != email:
         return commonFunct.permision_denied('<h1>403 Forbidden</h1>')
-    user = NAPriviledge.objects.get(idapp=request.user.idapp)
+    user = NAPrivilege.objects.get(idapp=request.user.idapp)
     picture = request.FILES['picture']
     user.picture = picture
     user.save()

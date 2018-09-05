@@ -6,7 +6,7 @@
 
 }
 
-div#gbox_NA_Priviledge_grid,div#gview_NA_Priviledge_grid, div.ui-jqgrid-titlebar,div#NA_Suplier_pager {
+div#gbox_NA_Privilege_grid,div#gview_NA_Privilege_grid, div.ui-jqgrid-titlebar,div#NA_Supplier_pager {
     border-radius:0px
 }
 
@@ -241,6 +241,16 @@ ul.ui-menu {
 }
 ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover {
     background:#47a447;
+}
+
+.table.logevent tbody td{
+    padding-left: 20px;
+}
+
+.table.logevent .title-logevent{
+    text-align:center;
+    padding: 10px;
+    font-size: 15px;
 }
 
 /*================== Checkbox ======================*/

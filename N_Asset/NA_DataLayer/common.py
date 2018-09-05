@@ -1,20 +1,20 @@
-﻿import json
-import errno
-from os import path, makedirs, remove
-from enum import Enum
-from datetime import date
+﻿import errno
+import json
 from datetime import datetime
-from dateutil.parser import parse
+from enum import Enum
 from functools import wraps
-from django.db import connection
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from os import path, makedirs, remove
+
+from dateutil.parser import parse
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.conf import settings
+from django.db import connection
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
+from django.shortcuts import redirect
 
 
 class CriteriaSearch(Enum):
@@ -62,6 +62,7 @@ class Data(Enum):
     HasRef = 4
     Empty = 5
     Changed = 6
+    ValidationError = 7
 
 
 class Message(Enum):
@@ -77,7 +78,7 @@ class Message(Enum):
     def get_specific_exists(table, column, data):
         """
         param:
-        return message existed data : e.g (Suplier with supliercode 0012a has existed)
+        return message existed data : e.g (Supplier with suppliercode 0012a has existed)
         """
         return '{0} with {1} {2} has existed'.format(table, column, data)
 
@@ -109,11 +110,12 @@ class Message(Enum):
         """
         get lost info, 
         param:
-        pk(Primary Key):idapp or supliercode
+        pk(Primary Key):idapp or suppliercode
         table:table_name
         """
         obj = commonFunct.get_log_data(
-            pk=kwargs['pk'], table=kwargs['table'], action='deleted')
+            pk=kwargs['pk'], table=kwargs['table'], action='deleted'
+        )
         if obj == []:
             return 'This data doesn\'t lost'
         else:
@@ -138,7 +140,7 @@ class Message(Enum):
         use it , if other user want to edit data .. but the data
         has updated by other user
         param:
-        pk(Primary Key):idapp or supliercode
+        pk(Primary Key):idapp or suppliercode
         table:table_name
         """
         obj = commonFunct.get_log_data(
@@ -518,9 +520,9 @@ class decorators:
         def real_decorator(func):
             @wraps(func)
             def wrapper(request, *args, **kwargs):
+                permission_denied = commonFunct.permision_denied
                 if request.method == 'POST':
-                    user = request.user
-                    permission_denied = commonFunct.permision_denied
+
                     if action:
                         _action = action
                     else:
@@ -530,7 +532,8 @@ class decorators:
                     if _action == 'Open':
                         return HttpResponse('cannot edit data with status open', status=403)
                     masterdata_form = [
-                        'employee', 'n_a_suplier', 'goods', 'n_a_priviledge']
+                        'employee', 'n_a_supplier', 'goods', 'n_a_privilege'
+                    ]
                     transaction_form = ['n_a_goods_receive']
                     all_form = masterdata_form + transaction_form
                     form_action = ['Open', 'Add', 'Edit']
@@ -548,8 +551,13 @@ class decorators:
                         _action = 'Allow Edit'
                     elif _action == 'Delete' or action == 'Delete':
                         _action = 'Allow Delete'
-                    if not user.has_permission(_action, form_name):
+                    if not request.user.has_permission(_action, form_name):
                         return permission_denied()
+
+                elif request.method == 'GET':
+                    if action == 'View':
+                        if not request.user.has_permission('Allow View', form_name):
+                            return permission_denied()
                 return func(request, *args, **kwargs)
             return wrapper
         return real_decorator
@@ -573,7 +581,7 @@ class decorators:
                         content_type='application/json'
                     )
                 else:
-                    return redirect('/login/')
+                    return redirect('/login/?next=' + request.get_full_path())
         return wrapper
 
 
@@ -828,7 +836,7 @@ class commonFunct:
         action: e.g (deleted,updated)
         action for getting type of log event
 
-        PK: primary key e.g (IDApp,SuplierCode)
+        PK: primary key e.g (IDApp,SupplierCode)
         table: to determine , which table to get
         usage :: get_log_data(action='deleted',pk=2,table='employee')
         """
@@ -859,8 +867,8 @@ class commonFunct:
                     message = data[1]
                 else:
                     message = Message.Success.value
-            if data[0] == Data.Exists or data[0] == Data.HasRef:
-                statusResp = 403
+            if data[0] in [Data.Exists, Data.HasRef, Data.ValidationError]:
+                statusResp = 400
                 message = data[1]
             elif data[0] == Data.Lost:
                 statusResp = 404
@@ -920,6 +928,7 @@ class commonFunct:
             raise ValueError(
                 'Cannot assign "None" type object \n make sure if arguments/parameter is not None')
 
+    @staticmethod
     def EmptyGrid():
         return {"page": "1", "total": 0, "records": 0, "rows": []}
 

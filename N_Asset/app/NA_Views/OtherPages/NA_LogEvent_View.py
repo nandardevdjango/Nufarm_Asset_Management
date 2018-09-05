@@ -1,15 +1,24 @@
-﻿from django.http import HttpResponse, JsonResponse
-from NA_Models.models import LogEvent
-from django.db import connection, transaction
+﻿import datetime
 import json
-import datetime
+import re
+from collections import OrderedDict
 
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
+
+from NA_DataLayer.common import decorators
+from NA_Models.models import LogEvent
+
+
+@decorators.ensure_authorization
+@decorators.detail_request_method('GET')
 def NA_LogEvent_data(request):
     LogEvent_data = []
     tahun = []
     bulan = []
     hari = []
-    ev = LogEvent.objects.filter(createdby=request.user.username).values('nameapp', 'createddate')
+    ev = (LogEvent.objects.filter(createdby=request.user.username)
+                          .values('idapp', 'nameapp', 'createddate'))
     is_filter = request.GET.get('_Search')
     must_filter = False
     if is_filter is not None:
@@ -18,49 +27,67 @@ def NA_LogEvent_data(request):
         filter_log = request.GET['search']
         ev = ev.filter(nameapp__icontains=filter_log)
     if ev.exists():
-        event = [i for i in ev.iterator()] #get log event filter by user
-        get_dyn_year = [i for i in ev.dates('createddate', 'year', order='DESC').iterator()] #get dynamic year
-        get_dyn_month = [i for i in ev.dates('createddate', 'month', order='DESC').iterator()] #get dynamic month
-        get_dyn_day = [i for i in ev.dates('createddate', 'day', order='DESC').iterator()] #get dynamic day
-        for y in get_dyn_year:
-            tahun.append(y)
-        for m in get_dyn_month:
-            bulan.append(m)
-        for d in get_dyn_day:
-            hari.append(d)
+        event = [i for i in ev.iterator()]  # get log event filter by user
+
+        for date in ev.dates('createddate', 'year', order='DESC').iterator():
+            tahun.append(date)
+
+        for date in ev.dates('createddate', 'month', order='DESC').iterator():
+            bulan.append(date)
+
+        for date in ev.dates('createddate', 'day', order='DESC').iterator():
+            hari.append(date)
+
         result = []
         for t in tahun:
-          for b in bulan:
-              if b.year == t.year:
-                result.append((str(t.year),b.strftime("%B %Y"))) #b.strftime for returning unique text e.g: December 2017 , if the text is December only .. the date of 2018 may be have this children (atau bisa disebut Bentrok) :D
-        for b in bulan:
-          for h in hari:
-              if h.year == b.year and h.month == b.month:
-                result.append((b.strftime("%B %Y"),h))
-        for h in hari:
-          for e in event:
-              if e['createddate'].year == h.year and e['createddate'].month == h.month and e['createddate'].day == h.day:
-                result.append((h,'{} at {}'.format(e['nameapp'] , e['createddate'].strftime("%H:%M:%S"))))
-        parents, children = zip(*result) #get parent and children then return tuple within list .. . :D
+            for b in bulan:
+                if b.year == t.year:
+                    result.append((str(t.year), b.strftime("%B %Y")))
+                for h in hari:
+                    if h.year == b.year and h.month == b.month:
+                        result.append((b.strftime("%B %Y"), h))
+                    for e in event:
+                        if (e['createddate'].year == h.year and e[
+                            'createddate'].month == h.month
+                                and e['createddate'].day == h.day):
+                            activity = [e['idapp']]
+                            activity.append('{} at {}'.format(
+                                e['nameapp'],
+                                e['createddate'].strftime("%H:%M:%S")
+                            ))
+                            result.append(
+                                (h, activity)
+                            )
+
+        parents, children = zip(*result)
         root_nodes = {x for x in parents if x not in children}
         getUser = str(request.user.username)
         for node in root_nodes:
-          result.append((getUser, node))
+            result.append((getUser, node))
         result.append(('Log Event', getUser))
+
         def get_nodes(node):
             data = {}
-            data['text'] = node
+            if isinstance(node, list):
+                data['idapp'] = node[0]
+                data['text'] = node[1]
+            else:
+                data['text'] = node
             if data['text'] == str(request.user.username):
                 data['iconCls'] = 'fa fa-user'
             if must_filter:
                 data['state'] = 'Open'
-            children = get_children(node)
+            children = get_children(data['text'])
             if children:
                 data['children'] = [get_nodes(child) for child in children]
             return data
 
         def get_children(node):
-            return [x[1] for x in result if x[0] == node]
+            _result = []
+            for x in result:
+                if x[0] == node:
+                    _result.append(x[1])
+            return _result
 
         log = get_nodes('Log Event')
         LogEvent_data.append(log)
@@ -70,11 +97,38 @@ def NA_LogEvent_data(request):
 
     def convert(o):
         if isinstance(o, datetime.date):
-            return '{} {} {}'.format(o.strftime('%d'), o.strftime('%B'), o.strftime('%Y'))
+            return '{} {} {}'.format(
+                o.strftime('%d'),
+                o.strftime('%B'),
+                o.strftime('%Y')
+            )
     return HttpResponse(json.dumps(LogEvent_data, indent=4, default=convert))
 
-def LogDescriptions(request):
-    if request.method == 'GET':
-        Createddate = request.GET.get('createddate')
-        data = LogEvent.objects.filter(createddate=Createddate,createdby=request.user.username).values('descriptions')[0]['descriptions']
-    return HttpResponse(json.dumps([data]), content_type='application/json')
+
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def log_activity_data(request):
+    idapp = request.GET.get('idapp')
+    log = LogEvent.objects.get(idapp=idapp)
+    activity_type = None
+    if re.match(r'Created', log.nameapp):
+        activity_type = 'created'
+    elif re.match(r'Updated', log.nameapp):
+        activity_type = 'updated'
+    elif re.match(r'Deleted', log.nameapp):
+        activity_type = 'deleted'
+    result = OrderedDict(
+        activity_type=activity_type,
+        created_date=log.createddate.strftime('%d/%m/%Y %H:%M:%S'),
+        data={}
+    )
+    model = ContentType.objects.get(model=log.model).model_class()
+    for key in model.LOG_EVENT.keys():
+        value = log.descriptions.get(key)
+        if value:
+            result['data'].update({
+                model.LOG_EVENT.get(key): value
+            })
+
+    return HttpResponse(json.dumps(result), content_type='application/json')

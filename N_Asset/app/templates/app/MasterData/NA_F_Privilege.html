@@ -56,12 +56,12 @@
         overflow: hidden;
     }
 
-    div[id*=gbox_NA_Priviledge_grid],
-    div[id*=gview_NA_Priviledge_grid],
-    div[id*=NA_Priviledge_pager],
+    div[id*=gbox_NA_Privilege_grid],
+    div[id*=gview_NA_Privilege_grid],
+    div[id*=NA_Privilege_pager],
     div.ui-jqgrid-titlebar,
     div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,
-    div[id*=NA_Priviledge_grid] {
+    div[id*=NA_Privilege_grid] {
         border-radius: 0px
     }
 
@@ -70,8 +70,8 @@
     }
 </style>
 {% endblock %} {% block content-0 %}
-<table id="NA_Priviledge_grid" style="overflow:auto"></table>
-<div id="NA_Priviledge_pager" class="scroll" style="text-align:center;"></div>
+<table id="NA_Privilege_grid" style="overflow:auto"></table>
+<div id="NA_Privilege_pager" class="scroll" style="text-align:center;"></div>
 {% endblock %} {% block DialogEntry %}
 <script>
     function get_csrf() {
@@ -81,22 +81,22 @@
 </script>
 <script type="text/javascript">
     var win = win || window;
-    var priviledge_grid = $("#NA_Priviledge_grid");
+    var privilege_grid = $("#NA_Privilege_grid");
     var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
-        NA.Priviledge.read_priviledge('n_a_priviledge');
+        NA.Privilege.read_privilege('n_a_privilege');
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                 '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
                 '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
                 '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
             if (arguments.length > 0) {
-                priviledge_grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
+                privilege_grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
             } else {
-                priviledge_grid.jqGrid({
+                privilege_grid.jqGrid({
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
@@ -126,7 +126,7 @@
                         repeatitems: false,
                         root: 'rows'
                     },
-                    pager: $('#NA_Priviledge_pager'),
+                    pager: $('#NA_Privilege_pager'),
                     rowNum: 20,
                     rowList: [10, 20, 30],
                     sortname: 'idapp',
@@ -134,7 +134,7 @@
                     viewrecords: true,
                     loadui: 'disable',
                     shrinkToFit: false,
-                    caption: 'Master Data -- User Priviledge',
+                    caption: 'Master Data -- User Privilege',
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
                     ondblClickRow: function (rowId) {
@@ -144,7 +144,7 @@
                         }
                     },
                     onSelectRow: function (rowId, status, event) {
-                        $('#NA_Priviledge_grid_' + rowId + '_table').jqGrid('resetSelection');
+                        $('#NA_Privilege_grid_' + rowId + '_table').jqGrid('resetSelection');
                     },
                     gridComplete: function () {
                         $('.ui-sgcollapsed').dblclick(function (event) {
@@ -184,7 +184,7 @@
                 $.extend($.fn.fmatter, {
                     dynamic_checkbox: function (cellValue, options,
                         rowObject, action) {
-                        if (NA.Priviledge.IsAdmin) {
+                        if (NA.Privilege.IsAdmin) {
                             options.checkbox.disabled = false;
                         } else {
                             options.checkbox.disabled = true;
@@ -234,7 +234,7 @@
                     NA.NAEvent.stopPropagation(event);
                 },
                 onSelectRow: function (rowId, status, event) {
-                    priviledge_grid.jqGrid('resetSelection');
+                    privilege_grid.jqGrid('resetSelection');
                 },
                 beforeSelectRow: function (rowid, e) {
                     var $self = $(this),
@@ -273,10 +273,10 @@
             function getChildGridId() {
                 return $('#' + childGridID).jqGrid('getGridParam', 'selrow');
             }
-            var rowData = priviledge_grid.getRowData(parentRowKey);
+            var rowData = privilege_grid.getRowData(parentRowKey);
             var idapp = rowData['idapp']; // user_id
             var email = rowData['email'];
-            if (NA.Priviledge.IsAdmin) { // only admin can manipulate user's permission
+            if (NA.Privilege.IsAdmin) { // only admin can manipulate user's permission
                 $('#' + childGridID).navGrid('#' + childGridPagerID, {
                     edit: false,
                     add: false,
@@ -297,7 +297,7 @@
                                 return dialogAlert(NA.common.message.server(JSON.parse(responseTxt)['message']), NA.common.message.titleInfo, function () {
                                     var dialog = qs("div.containerDialog");
                                     NA.common.dialog.closeDialog(dialog);
-                                    return priviledge_grid.trigger('reloadGrid');
+                                    return privilege_grid.trigger('reloadGrid');
                                 });
                             };
                             qs('.ui-dialog-title').textContent += email;
@@ -322,7 +322,7 @@
 
                             function LoadPermission_grid(fk_form) {
                                 var url = "permission/" + win.encodeURIComponent(
-                                    priviledge_grid.getRowData(parentRowKey)['idapp']
+                                    privilege_grid.getRowData(parentRowKey)['idapp']
                                 ) + "/check_permission/?"
                                     + win.encodeURIComponent('fk_form')
                                     + '=' + win.encodeURIComponent(fk_form)
@@ -460,7 +460,7 @@
                                             var permission_list = ['Allow View', 'Allow Add', 'Allow Edit', 'Allow Delete']
                                             var cur_permission = []
                                             if (row_count == 1) {
-                                                if (priviledge_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
+                                                if (privilege_grid.getRowData(parentRowKey)['role'] == 3) { // 3  = Guest ,, don't use variable for realtime data (after reloadGrid)
                                                     var DialogChange_role = new BootstrapDialog({
                                                         draggable: true,
                                                         type: BootstrapDialog.TYPE_SUCCESS,
@@ -555,7 +555,7 @@
                                                                                                     label: 'Custom Permission',
                                                                                                     cssClass: 'btn-default',
                                                                                                     action: function (dialogRef) {
-                                                                                                        priviledge_grid.trigger('reloadGrid');
+                                                                                                        privilege_grid.trigger('reloadGrid');
                                                                                                         dialogRef.close();
                                                                                                     }
                                                                                                 }, {
@@ -573,7 +573,7 @@
                                                                                                                     dialogRef.close();
                                                                                                                     var dialog = qs("div.containerDialog");
                                                                                                                     NA.common.dialog.closeDialog(dialog);
-                                                                                                                    priviledge_grid.trigger('reloadGrid');
+                                                                                                                    privilege_grid.trigger('reloadGrid');
                                                                                                                 }
                                                                                                             }
                                                                                                         });
@@ -836,7 +836,7 @@
                     SearchInput = NA.common.doc.querySelector('input[name=q]');
                 if (SearchBy.trim() == 'By') {
                     NA.common.SearchData.setDefaultSearchData('username', 'Varchar', 'like');
-                    var curPage = parseInt(priviledge_grid.getGridParam('page'));
+                    var curPage = parseInt(privilege_grid.getGridParam('page'));
                     window.document.body.style.cursor = 'wait';
                     NA.common.SearchData.setValue(SearchInput.value);
                     LoadData(curPage);
@@ -853,17 +853,17 @@
         NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
         NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
-        priviledge_grid.on("keyup", "tr", function (e) {
+        privilege_grid.on("keyup", "tr", function (e) {
             //var rowid = parseInt($(this).attr("id"));
-            var rowId = priviledge_grid.jqGrid('getGridParam', 'selrow');
+            var rowId = privilege_grid.jqGrid('getGridParam', 'selrow');
             if (e.keyCode == 46) {
                 var btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)')
                 btnDelete.click();
                 return false;
             }
         });
-        NA.common.doc.title = 'MasterData - User Priviledge';
-        priviledge_grid.navGrid('#NA_Priviledge_pager', {
+        NA.common.doc.title = 'MasterData - User Privilege';
+        privilege_grid.navGrid('#NA_Privilege_pager', {
             edit: true,
             add: true,
             del: true,
@@ -873,7 +873,7 @@
             cloneToTop: false
         });
 
-        $("div#gbox_NA_Priviledge_grid, div#gview_NA_Priviledge_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+        $("div#gbox_NA_Privilege_grid, div#gview_NA_Privilege_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
             'width': 'inherit'
         });
 
@@ -953,7 +953,7 @@
             window.document.body.style.cursor = 'wait';
             LoadData(1);
             document.body.style.cursor = 'default';
-            priviledge_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
+            privilege_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
         };
 
         //function untuk Reset
@@ -1024,7 +1024,7 @@
         NA.common.dialog.initDialog(null, 'Nufarm Send Email - Master Data', elementMenus);//inistialisasi menu
 
         function getGridId() {
-            return $(priviledge_grid).jqGrid('getGridParam', 'selrow')
+            return $(privilege_grid).jqGrid('getGridParam', 'selrow')
         }
 
         function getGridValue(grid, jqgId, column) {
@@ -1060,12 +1060,12 @@
                             'idapp': get_idapp
                         },
                         success: function (data) {
-                            var rowNum = priviledge_grid.getGridParam('rowNum'),
-                                allRecords = priviledge_grid.getGridParam('records'),
+                            var rowNum = privilege_grid.getGridParam('rowNum'),
+                                allRecords = privilege_grid.getGridParam('records'),
                                 totalPages = parseInt((allRecords / rowNum) + 1),
-                                curPage = priviledge_grid.getGridParam('page'),
-                                rowId = priviledge_grid.jqGrid('getGridParam', 'selrow'),
-                                curRecount = priviledge_grid.jqGrid('getGridParam', 'reccount');
+                                curPage = privilege_grid.getGridParam('page'),
+                                rowId = privilege_grid.jqGrid('getGridParam', 'selrow'),
+                                curRecount = privilege_grid.jqGrid('getGridParam', 'reccount');
                             mustReload = true;
                             if (parseInt(curRecount) === 1) {
                                 if (totalPages > 1) {
@@ -1073,20 +1073,20 @@
                                 }
                                 else {
                                     mustReload = false;
-                                    priviledge_grid.delRowData(rowId);
+                                    privilege_grid.delRowData(rowId);
                                 }
                             }
                             else if (parseInt(totalPages) === 1) {
                                 mustReload = false;
-                                priviledge_grid.delRowData(rowId);
+                                privilege_grid.delRowData(rowId);
                             }
                             else if (parseInt(curRecount) > 1) {
                                 mustReload = false;
-                                priviledge_grid.delRowData(rowId);
+                                privilege_grid.delRowData(rowId);
                             }
                             if (mustReload) {
                                 window.document.body.style.cursor = 'wait';
-                                priviledge_grid.trigger("reloadGrid", [{ page: curPage }]);
+                                privilege_grid.trigger("reloadGrid", [{ page: curPage }]);
                             }
                             reload_LogEvent();
                         }
@@ -1104,7 +1104,7 @@
         });
 
         status = status || window.status;
-        function PriviledgeSubmit() {
+        function PrivilegeSubmit() {
             function sendData() {
                 var valuesForm = getValues_form();
                 var idapp;
@@ -1126,9 +1126,9 @@
                 success: function (data) {
                     var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                     NA.common.dialog.closeDialog(dialog);
-                    priviledge_grid.trigger('reloadGrid');
+                    privilege_grid.trigger('reloadGrid');
                     setTimeout(function () {
-                        priviledge_grid.setSelection(data['message'], true)
+                        privilege_grid.setSelection(data['message'], true)
                     }, 1000);
                     reload_LogEvent();
                 }
@@ -1137,14 +1137,14 @@
         function ExecuteHandler(TextElement) {
             var initializeForm = NA.common.getElementID('id_initializeForm');
             var dialog = qs("div.containerDialog"),
-                frmEntry = qs('form#priviledge_form'),
+                frmEntry = qs('form#privilege_form'),
                 emailForm = qs('form#email_data'),
                 originalData = status !== 'Open' ? JSON.parse(initializeForm.Value) : '',
                 valuesForm = getValues_form();
 
 
             if (frmEntry) {
-                var inputbtn = NA.common.getElementID('priviledge_submit');
+                var inputbtn = NA.common.getElementID('privilege_submit');
                 switch (TextElement) {
                     case 'OK': {
                         var password = qs('input#id_password');
@@ -1158,7 +1158,7 @@
                             inputbtn.click();
                         } else {
                             if (NA.common.detectInputChanges(originalData, valuesForm)) {
-                                PriviledgeSubmit();
+                                PrivilegeSubmit();
                             } else {
                                 NA.common.dialog.closeDialog(dialog);
                             }
@@ -1176,7 +1176,7 @@
                                         inputbtn.click();
                                     }
                                     else {
-                                        PriviledgeSubmit();
+                                        PrivilegeSubmit();
                                     }
                                 },
                                 function () {
@@ -1410,7 +1410,7 @@
                                 return dialogAlert(NA.common.message.server(JSON.parse(responseTxt['message'])), NA.common.message.titleInfo, function () {
                                     var dialog = qs("div.containerDialog");
                                     NA.common.dialog.closeDialog(dialog);
-                                    return priviledge_grid.trigger('reloadGrid');
+                                    return privilege_grid.trigger('reloadGrid');
                                 });
                             };
                             NA.NAEvent.preventDefault(event);

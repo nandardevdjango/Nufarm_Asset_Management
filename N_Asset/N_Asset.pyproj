@@ -46,10 +46,10 @@
     <Compile Include="app\NA_Urls\MasterData\NA_Goods_url.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Urls\MasterData\NA_Priviledge_url.py">
+    <Compile Include="app\NA_Urls\MasterData\NA_Privilege_url.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\NA_Urls\MasterData\NA_Suplier_url.py">
+    <Compile Include="app\NA_Urls\MasterData\NA_Supplier_url.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Urls\MasterData_url.py">
@@ -125,9 +125,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\NA_Views\OtherPages\NA_Maintenance_View.py" />
-    <Compile Include="app\NA_Views\MasterData\NA_Priviledge_View.py" />
+    <Compile Include="app\NA_Views\MasterData\NA_Privilege_View.py" />
     <Compile Include="app\NA_Views\NA_Report_View.py" />
-    <Compile Include="app\NA_Views\MasterData\NA_Suplier_View.py" />
+    <Compile Include="app\NA_Views\MasterData\NA_Supplier_View.py" />
     <Compile Include="app\NA_Views\NA_User_View.py">
       <SubType>Code</SubType>
     </Compile>
@@ -144,7 +144,7 @@
     <Compile Include="manage.py" />
     <Compile Include="NA_DataLayer\admin.py" />
     <Compile Include="NA_DataLayer\file_storage.py" />
-    <Compile Include="NA_DataLayer\MasterData\NA_Sys_Priviledge_BR.py">
+    <Compile Include="NA_DataLayer\MasterData\NA_Sys_Privilege_BR.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\MasterData\__init__.py">
@@ -176,8 +176,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\OtherPages\NA_Maintenance_BR.py" />
-    <Compile Include="NA_DataLayer\MasterData\NA_Priviledge_BR.py" />
-    <Compile Include="NA_DataLayer\MasterData\NA_Suplier.py">
+    <Compile Include="NA_DataLayer\MasterData\NA_Privilege_BR.py" />
+    <Compile Include="NA_DataLayer\MasterData\NA_Supplier.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NA_DataLayer\NA_User\models.py" />
@@ -299,8 +299,8 @@
     <Content Include="app\templates\app\MasterData\NA_Entry_GoodsLost.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_Maintenance.html" />
     <Content Include="app\templates\app\MasterData\NA_Entry_Permission.html" />
-    <Content Include="app\templates\app\MasterData\NA_Entry_Priviledge.html" />
-    <Content Include="app\templates\app\MasterData\NA_Entry_Suplier.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Privilege.html" />
+    <Content Include="app\templates\app\MasterData\NA_Entry_Supplier.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Acc_FA.html" />
     <Content Include="app\templates\app\MasterData\NA_F_EmailData.html">
       <SubType>Code</SubType>
@@ -309,9 +309,9 @@
     <Content Include="app\templates\app\MasterData\NA_F_Employee.html" />
     <Content Include="app\templates\app\MasterData\NA_F_GoodsLost.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Maintenance.html" />
-    <Content Include="app\templates\app\MasterData\NA_F_Priviledge.html" />
-    <Content Include="app\templates\app\MasterData\NA_F_Suplier.html" />
-    <Content Include="app\templates\app\MasterData\NA_Priviledge_register.html" />
+    <Content Include="app\templates\app\MasterData\NA_F_Privilege.html" />
+    <Content Include="app\templates\app\MasterData\NA_F_Supplier.html" />
+    <Content Include="app\templates\app\MasterData\NA_Privilege_register.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />

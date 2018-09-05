@@ -2,12 +2,12 @@
 from NA_Models.models import *
 
 admin.site.register(Employee)
-admin.site.register(NASuplier)
+admin.site.register(NASupplier)
 admin.site.register(NAAccFa)
 admin.site.register(goods)
-admin.site.register(NAPriviledge)
-admin.site.register(NAPriviledge_form)
-admin.site.register(NASysPriviledge)
+admin.site.register(NAPrivilege)
+admin.site.register(NAPrivilege_form)
+admin.site.register(NASysPrivilege)
 class LogAdmin(admin.ModelAdmin):
 
     list_filter = ["nameapp", "createddate"]

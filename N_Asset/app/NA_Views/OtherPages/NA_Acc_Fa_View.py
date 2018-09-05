@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 from celery.decorators import task
 
-from NA_Models.models import NAAccFa, goods, NAPriviledge_form
+from NA_Models.models import NAAccFa, goods, NAPrivilege_form
 from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria, commonFunct,
                                  Data, decorators)
 
@@ -97,7 +97,7 @@ class NA_Acc_Form(forms.Form):
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-@decorators.read_permission(form_name=NAPriviledge_form.Fix_asset_form)
+@decorators.read_permission(form_name=NAPrivilege_form.Fix_asset_form)
 def EntryAcc(request):
     form = NA_Acc_Form(request.POST)
     if form.is_valid():
@@ -348,7 +348,7 @@ def SearchGoodsbyForm(request):
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 @decorators.read_permission(
-    form_name=NAPriviledge_form.Fix_asset_form,
+    form_name=NAPrivilege_form.Fix_asset_form,
     action='Delete'
 )
 def delete_acc_fa(request):

@@ -4,7 +4,7 @@
 <li><a href="#" data-tipe="varchar" data-column="refno">RefNO</a></li>
 <li><a href="#" data-tipe="varchar" data-column="goods">Goods Name</a></li>
 <li><a href="#" data-tipe="datetime" data-column="datereceived">Date Received</a></li>
-<li><a href="#" data-tipe="varchar" data-column="supliername">Suplier Name</a></li>
+<li><a href="#" data-tipe="varchar" data-column="suppliername">Supplier Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="receivedby">Received By</a></li>
 <li><a href="#" data-tipe="varchar" data-column="pr_by">Purchase Request By</a></li>
 <li><a href="#" data-tipe="int" data-column="totalpurchase">Total Purchased</a></li>
@@ -103,8 +103,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-					//idapp,refno,fk_goods,datereceived,fk_suplier,totalpurchase,totalreceived,fk_receivedby,fk_p_r_by,descriptions,createddate,createdby
-                    colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'Received By', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
+					//idapp,refno,fk_goods,datereceived,fk_supplier,totalpurchase,totalreceived,fk_receivedby,fk_p_r_by,descriptions,createddate,createdby
+                    colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Supplier Name', 'Received By', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
                     colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -116,7 +116,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                             		srcformat: 'Y-m-d', newformat: 'd F Y'
                             	}
                             },
-                            { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
+                            { name: 'suppliername', index: 'suppliername', width: 150, sortable: true, editable: false, align: 'left', },
                             { name: 'receivedby', index: 'receivedby', width: 120, sortable: true, editable: false, align: 'left', },
                             { name: 'pr_by', index: 'pr_by', width: 120, sortable: true, editable: false, align: 'left', },
                             {
@@ -368,7 +368,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
         return col
     }
     function getValues_Form() {
-    	//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+    	//idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
     	var elidapp = qs('#id_idapp'),
 			idapp = elidapp.value.trim();
     	var elRefNO = qs('#id_refno'),
@@ -383,10 +383,10 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 			typeApp = eltypeApp.value.trim();
     	var eldatereceived = qs('#id_datereceived'),
 			datereceived = eldatereceived.value.toString().trim();
-    	var elfk_suplier = qs('#id_fk_suplier'),
-			fk_suplier = elfk_suplier.value.trim();
-    	var elsupliername = qs('#id_supliername'),
-			supliername = elsupliername.value.trim();
+    	var elfk_supplier = qs('#id_fk_supplier'),
+			fk_supplier = elfk_supplier.value.trim();
+    	var elsuppliername = qs('#id_suppliername'),
+			suppliername = elsuppliername.value.trim();
     	var eltotalpurchase = qs('#id_totalpurchase'),
 			totalpurchase = eltotalpurchase.value.trim();
     	var eltotalreceived = qs('#id_totalreceived'),
@@ -414,8 +414,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
     		refno: RefNO,
     		goods_desc: goods_desc,
     		datereceived: datereceived,
-    		fk_suplier: fk_suplier,
-    		supliername: supliername,
+    		fk_supplier: fk_supplier,
+    		suppliername: suppliername,
     		totalpurchase: totalpurchase,
     		totalreceived: totalreceived,
     		idapp_fk_p_r_by: idapp_fk_p_r_by,
@@ -822,8 +822,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                     refno = qs('input#id_refno'),
 									datereceived = qs('input#id_datereceived'),
 
-									fk_suplier = qs('input#id_fk_suplier'),
-									supliername = qs('input#id_supliername'),
+									fk_supplier = qs('input#id_fk_supplier'),
+									suppliername = qs('input#id_suppliername'),
 
 									total_purchase = qs('input#id_totalpurchase'),
 									total_received = qs('input#id_totalreceived'),
@@ -837,7 +837,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 									employee_received = qs('input#id_employee_received');
 									
                             	var btn_fk_goods = qs('button#btn_fk_goods'),
-									btn_fk_suplier = qs('button#btn_fk_suplier'),
+									btn_fk_supplier = qs('button#btn_fk_supplier'),
 									btn_fk_p_r_by = qs('button#btn_fk_p_r_by'),
 									btn_fk_receivedby = qs('button#btn_fk_receivedby');
 
@@ -908,7 +908,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                             gridTbl.jqGrid({
                                                 url: urlFKGoods,
                                                 mtype: "GET",
-                                                datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                                                datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
                                                 colNames: ['idapp', 'NO', 'itemcode', 'goods Description','Descriptions','Type App'],
                                                 colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
@@ -1061,7 +1061,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			gridTbl.jqGrid({
                                 				url: urlFKGoods,
                                 				mtype: "GET",
-                                				datatype: "json",//column IDapp, NO,    goods   datereceived supliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                                				datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
                                 				colNames: ['idapp', 'NO', 'Nik', 'Employee Name'],
                                 				colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
@@ -1143,14 +1143,14 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 	});
                                 }
 
-                                function searchSuplier(event) {
+                                function searchSupplier(event) {
                                 	BootstrapDialog.show({
                                 		draggable: true,
                                 		type: BootstrapDialog.TYPE_INFO,
                                 		size: BootstrapDialog.SIZE_SMALL,
                                 		message: function (dialogRef) {
                                 			var placeHolder = 'Enter text to search for .. .';
-                                			var containerMessage = NA.common.dialog.createFormContainer('fk_suplier', placeHolder,
+                                			var containerMessage = NA.common.dialog.createFormContainer('fk_supplier', placeHolder,
 											function (e) {//event for blur
 												if (this.value === '') {
 													if (this.getAttribute('placeholder') === '') {
@@ -1169,7 +1169,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
 												if (e.keyCode === 13) {
 													win.document.body.style.cursor = 'wait';
 													//cari data ke database
-													var url = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
+													var url = '/MasterData/Supplier/SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(e.target.value.trim());
 
 													if (gridTbl) {
 														gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
@@ -1180,39 +1180,39 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			var children = containerMessage.childNodes;
                                 			var mainContainer = null, txtSearch = null;
                                 			for (var i = 0, len = children.length; i < len; i++) {
-                                				if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_suplier') {
+                                				if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_supplier') {
                                 					mainContainer = children[i]; break;
                                 				}
                                 			};
                                 			//loads Data into JqueryGrid
                                 			gridTbl = NA.common.doc.createElement('table');
-                                			gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier';
+                                			gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier';
                                 			gridPager = NA.common.doc.createElement('div');
-                                			gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier_Pager';
+                                			gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier_Pager';
                                 			mainContainer.appendChild(gridTbl);
                                 			mainContainer.appendChild(gridPager);
                                 			return containerMessage;
                                 		},
                                 		onshown: function (dialogRef) {
-                                			txtSearch = NA.common.getElementID('txtsearch_fk_suplier');
+                                			txtSearch = NA.common.getElementID('txtsearch_fk_supplier');
                                 			//loads Data into JqueryGrid 
-                                			gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
-                                			gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
-                                			var urlFKSuplier = '/MasterData/Suplier/SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                                			gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_supplier');
+                                			gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager');
+                                			var urlFKSupplier = '/MasterData/Supplier/SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                                 			gridTbl.jqGrid({
-                                				url: urlFKSuplier,
+                                				url: urlFKSupplier,
                                 				mtype: "GET",
-                                				datatype: "json",//column idapp, no,supliercode,supliername
-                                				colNames: ['NO', 'Suplier Code', 'Suplier Name', 'Address'],
+                                				datatype: "json",//column idapp, no,suppliercode,suppliername
+                                				colNames: ['NO', 'Supplier Code', 'Supplier Name', 'Address'],
                                 				colModel: [
 													{ name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-													{ name: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
-													{ name: 'supliername', index: 'supliername', width: 130, sortable: true, editable: false, align: 'left', },
+													{ name: 'suppliercode', width: 90, align: 'left', sortable: true, editable: false, },
+													{ name: 'suppliername', index: 'suppliername', width: 130, sortable: true, editable: false, align: 'left', },
 													{name:'address',index:'address',width:250}
                                 				],
                                 				ondblClickRow: function (rowId) {
                                 					//fire button OK
-                                					var btnOK = dialogRef.getButton('btnOKFindsuplier');
+                                					var btnOK = dialogRef.getButton('btnOKFindsupplier');
                                 					btnOK.click();
                                 				},
                                 				gridComplete: function () {
@@ -1228,7 +1228,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 				height: '150px',
                                 				rowNum: 500,
                                 				rowList: [20, 50, 100, 200, 300, 500],
-                                				sortname: "supliername",
+                                				sortname: "suppliername",
                                 				sortorder: "asc",
                                 				multiSort: true,
                                 				//shrinkToFit: false,
@@ -1237,7 +1237,7 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 				//toolbar: true,
                                 				scrollrows: true,
                                 				//hidegrid: true,
-                                				pager: "#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager"
+                                				pager: "#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager"
                                 			});
                                 			gridTbl.navGrid(gridPager, {
                                 				search: false, // show search button on the toolbar
@@ -1260,22 +1260,22 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                 			},
                                 		}, {
                                 			label: 'OK',
-                                			id: 'btnOKFindsuplier',
+                                			id: 'btnOKFindsupplier',
                                 			icon: 'glyphicon glyphicon-ok',
                                 			cssClass: 'btn-success',
                                 			action: function (dialogRef) {
-                                				var supliercode = getGridCellValue(gridTbl, 'supliercode');
-                                				if (supliercode) {//cell di select sama user
+                                				var suppliercode = getGridCellValue(gridTbl, 'suppliercode');
+                                				if (suppliercode) {//cell di select sama user
                                 					//tempelkan data row di fk_goods, dan valuenya di goods_desc;
                                 					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                                 					var rowData = gridTbl.getRowData(rowId);
-                                					var supliername = rowData['supliername'];
-                                					var txtid_fk_suplier = NA.common.getElementID('id_fk_suplier');
-                                					txtid_fk_suplier.value = supliercode;
-                                					txtid_fk_suplier.attributes['placeholder'] = '';
-                                					var txtsupliername = NA.common.getElementID('id_supliername');
-                                					txtsupliername.value = supliername;
-                                					txtsupliername.attributes['placeholder'] = '';
+                                					var suppliername = rowData['suppliername'];
+                                					var txtid_fk_supplier = NA.common.getElementID('id_fk_supplier');
+                                					txtid_fk_supplier.value = suppliercode;
+                                					txtid_fk_supplier.attributes['placeholder'] = '';
+                                					var txtsuppliername = NA.common.getElementID('id_suppliername');
+                                					txtsuppliername.value = suppliername;
+                                					txtsuppliername.attributes['placeholder'] = '';
                                 				}
                                 				dialogRef.close();
                                 			}
@@ -1294,8 +1294,8 @@ div#gbox_NA_Goods_Receive_other_grid,div#gview_NA_Goods_Receive_other_grid,div#N
                                     searchGoods(event);
                                 });
 
-                                NA.NAEvent.addHandler(btn_fk_suplier, 'click', function (event) {
-                                	searchSuplier(event);
+                                NA.NAEvent.addHandler(btn_fk_supplier, 'click', function (event) {
+                                	searchSupplier(event);
                                 });
 
                                 NA.NAEvent.addHandler(btn_fk_p_r_by, 'click', function (event) {

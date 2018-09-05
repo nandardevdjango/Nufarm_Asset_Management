@@ -253,15 +253,15 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     grid.jqGrid({
                         url: url,
                         mtype: "GET",
-                        datatype: "json",//#column idapp  no refno, goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy 
-                        colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Suplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
+                        datatype: "json",//#column idapp  no refno, goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
+                        colNames: ['idapp', 'NO', 'RefNO', 'goods name', 'Date Received', 'Supplier Name', 'FK_ReceivedBy', 'Received By', 'FK_P_R_By ', 'Purchase Request By', 'Total Purchased', 'Total Received', 'Descriptions', 'Created Date', 'Created By'],
                         colModel: [
                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
 							{ name: 'refno', width: 80,index:'refno', align: 'left', sortable: true, editable: false, },
                             { name: 'goods', index: 'goods', width: 120, sortable: true, editable: false, align: 'left', },
                             { name: 'datereceived', index: 'datereceived', sortable: true, width: 120, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
-                            { name: 'supliername', index: 'supliername', width: 150, sortable: true, editable: false, align: 'left', },
+                            { name: 'suppliername', index: 'suppliername', width: 150, sortable: true, editable: false, align: 'left', },
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             { name: 'FK_ReceivedBy', index: 'FK_ReceivedBy', hidden: true, },
                             { name: 'receivedby', index: 'receivedby', width: 120, sortable: true, editable: false, align: 'left', },
@@ -350,7 +350,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         //====================GROUP FUNCTION DECLARATION===============================
 
         function getValuesForm() {
-            //idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_suplier,supliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions	
+            //idapp,fk_goods, idapp_fk_goods,goods_desc,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
             var elidapp = NA.common.getElementID('id_idapp'),
 				idapp = elidapp.value||0;
             var elRefNO = NA.common.getElementID('id_refno'),
@@ -363,10 +363,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 				goods_desc = elgoods_desc.value;
             var eldatereceived = NA.common.getElementID('id_datereceived'),
 				datereceived = eldatereceived.value.toString().trim();
-            var elfk_suplier = NA.common.getElementID('id_fk_suplier'),
-				fk_suplier = elfk_suplier.value;
-            var elsupliername = NA.common.getElementID('id_supliername'),
-				supliername = elsupliername.value;
+            var elfk_supplier = NA.common.getElementID('id_fk_supplier'),
+				fk_supplier = elfk_supplier.value;
+            var elsuppliername = NA.common.getElementID('id_suppliername'),
+				suppliername = elsuppliername.value;
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'),
 				totalpurchase = eltotalpurchase.value;
             var eltotalreceived = NA.common.getElementID('id_totalreceived'),
@@ -389,7 +389,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 				hasRefData = NA.common.getElementID('id_hasRefData').value;
             var eldescBySystem = NA.common.getElementID('id_descbysystem'),
 				descbysystem = eldescBySystem.value;
-            var createdby = NA.Priviledge.UserName, modifiedby = NA.Priviledge.UserName;
+            var createdby = NA.Privilege.UserName, modifiedby = NA.Privilege.UserName;
             return {
                 idapp: idapp,
                 idapp_fk_goods: idapp_fk_goods,
@@ -397,8 +397,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 refno: RefNO,
                 goods_desc: goods_desc,
                 datereceived: datereceived,
-                fk_suplier: fk_suplier,
-                supliername: supliername,
+                fk_supplier: fk_supplier,
+                suppliername: suppliername,
                 totalpurchase: totalpurchase,
                 totalreceived: totalreceived,
                 idapp_fk_p_r_by: idapp_fk_p_r_by,
@@ -480,8 +480,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.value = originalData.idapp_fk_goods||'';
             var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.value = originalData.goods_desc||'';
             var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.value = originalData.datereceived||'';
-            var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.value = originalData.fk_suplier||'';
-            var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.value = originalData.supliername||'';
+            var elfk_supplier = NA.common.getElementID('id_fk_supplier'); elfk_supplier.value = originalData.fk_supplier||'';
+            var elsuppliername = NA.common.getElementID('id_suppliername'); elsuppliername.value = originalData.suppliername||'';
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.value = originalData.totalpurchase||'';
             var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.value = originalData.totalreceived||'';
             var elidapp_fk_p_r_by = NA.common.getElementID('id_idapp_fk_p_r_by'); elidapp_fk_p_r_by.value = originalData.idapp_fk_p_r_by||null;
@@ -1048,17 +1048,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             		//// now change the internal local data
             		//gridTbl.jqGrid('getLocalRow', rowID).endofwarranty = endofwarranty;
 
-            		if (win.status === 'Add') {
-            			gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Priviledge.UserName);
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Priviledge.UserName;
-            		}
-            		else if (win.status === 'Edit') {
-            			gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Priviledge.UserName);
-            			// now change the internal local data
-            			gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Priviledge.UserName;
-            			// now change the internal local data
-            		}
+            		//if (win.status === 'Add') {
+            		//	gridTbl.jqGrid('setCell', rowID, 'createdby', NA.Privilege.);
+            		//	// now change the internal local data
+            		//	gridTbl.jqGrid('getLocalRow', rowID).createdby = NA.Privilege.UserName;
+            		//}
+            		//else if (win.status === 'Edit') {
+            		//	gridTbl.jqGrid('setCell', rowID, 'modifiedby', NA.Privilege.UserName);
+            		//	// now change the internal local data
+            		//	gridTbl.jqGrid('getLocalRow', rowID).modifiedby = NA.Privilege.UserName;
+
+            		//}
             	}
             	//  row.colname1; row.colname2;
             }
@@ -1105,17 +1105,16 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             
         	switch (win.status) {
         		case 'Add': {
-        		    AllowEdit = NA.Priviledge.Permissions.Allow_Add;
+        			AllowEdit = NA.Privilege.Permissions.Allow_Add;
         		    AllowDelete = true;
         			break;
         		}
         		case 'Edit': {
-        		    AllowEdit = NA.Priviledge.Permissions.Allow_Edit;
-        		    AllowDelete = NA.Priviledge.Permissions.Allow_Delete;
-        			break;
+        		    AllowEdit = NA.Privilege.Permissions.Allow_Edit;
+        		    AllowDelete = NA.Privilege.Permissions.Allow_Delete;
         		}
         	};
-        	//get priviledge apakah allow edit/insert
+        	//get privilege apakah allow edit/insert
         	
         	var lastsel
         	var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
@@ -1138,7 +1137,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		loadonce: true,
         		//cellsubmit: 'clientArray',
         		//editurl: 'clientArray',
-        		datatype: "local",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+        		datatype: "local",//column IDapp, NO,	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived
         		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef'],
         		colModel: [
 					{ name: 'idapp', hidden: true },
@@ -1367,7 +1366,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    editable: AllowEdit,
 					    edittype: 'text',
 					    template: 'number',
-					    editrules: { required: (function () { return NA.Priviledge.IsAdmin; })(), integer: false,required:false },
+					    editrules: { required: (function () { return NA.Privilege.IsAdmin; })(), integer: false,required:false },
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
 					    	class: (function () {
@@ -1554,7 +1553,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
-					        defaultValue: (function () { return NA.Priviledge.UserName; })(),
+					        defaultValue: (function () { return NA.Privilege.UserName; })(),
 					        class: 'NA-Form-Control',
 					    },
 					},
@@ -1575,21 +1574,21 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					{
 					    name: 'modifiedby',
 					    hidden: //(function () {
-					        //return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
+					        //return ((win.status === 'Open' || win.status === 'Edit') && (NA.Privilege.IsAdmin === true))
 			//		    })()
 						true,
 					    editable: false,
 					    cellEdit: false,
 					    autoResizing: { minColWidth: 100, },
 					    editoptions: {
-					        defaultValue: (function () { return NA.Priviledge.UserName; })(),
+					        defaultValue: (function () { return NA.Privilege.UserName; })(),
 					        class: 'NA-Form-Control',
 					    },
 					},
 					{
 					    name: 'modifieddate', width: 100, align: 'left',
 					    hidden: //(function () {
-					       // return ((win.status === 'Open' || win.status === 'Edit') && (NA.Priviledge.IsAdmin === true))
+					       // return ((win.status === 'Open' || win.status === 'Edit') && (NA.Privilege.IsAdmin === true))
 					    //})(),
 						true,
 					    editable: false,
@@ -1922,6 +1921,40 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 				//oneditfunc: function (rowId) {
                 				//    ShowAlert('edit');
                 				//},
+                				aftersavefunc: function (curRowid, response) {
+                					//var $tr = $('tr#' + curRowid);
+                					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+                					//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
+                					var LastRowData = gridTbl.jqGrid('getRowData', curRowid);
+                					var warranty = LastRowData.warranty;
+                					if (warranty) {
+                						if (!isNaN(warranty)) {
+                							if (parseFloat(warranty) > 0) {
+                								//isi column endofwarranty
+                								var dtReceived = $('#id_datereceived').val();
+                								var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
+                								var intVal = Math.round(warranty) - Math.round(modVal);
+                								var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+                								//var NmodVal = parseFloat(modVal) * 12;
+                								//var NM = FDate.getMonth();
+                								//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
+                								var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+                								var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+
+                								//set grid cell
+                								var dtStr = formatDate(NDate)
+                								//var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
+                								//IRowData.endofwarranty = dtStr;
+                								gridTbl.jqGrid('setCell', curRowid, 'endofwarranty', dtStr);
+                								//now change the internal local data
+                								LastRowData.endofwarranty = GetServerFormatDate(NDate);
+                								gridTbl.jqGrid('getLocalRow', curRowid).endofwarranty = GetServerFormatDate(NDate);
+                								gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+                								return true;
+                							}
+                						}
+                					}
+                				},
                 				onerrorfunc: function (rowId) {
                 					ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
                 					return false;
@@ -1951,9 +1984,41 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			gridTbl.jqGrid('editRow', rowid, {
                 				keys: true,
                 				url: 'clientArray',
-                				//oneditfunc: function (rowId) {
-                				//    ShowAlert('edit');
-                				//},
+                				aftersavefunc: function (curRowid, response) {
+                					//var $tr = $('tr#' + curRowid);
+                					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+                					//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
+                					var dtReceived = $('#id_datereceived').val();
+                					var LastRowData = gridTbl.jqGrid('getRowData', curRowid);
+                					var warranty = LastRowData.warranty;
+                					if (warranty) {
+                						if (!isNaN(warranty)) {
+                							if (parseFloat(warranty) > 0) {
+                								//isi column endofwarranty
+                								var dtReceived = $('#id_datereceived').val();
+                								var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
+                								var intVal = Math.round(warranty) - Math.round(modVal);
+                								var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+                								//var NmodVal = parseFloat(modVal) * 12;
+                								//var NM = FDate.getMonth();
+                								//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
+                								var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+                								var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+
+                								//set grid cell
+                								var dtStr = formatDate(NDate)
+                								//var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
+                								//IRowData.endofwarranty = dtStr;
+                								gridTbl.jqGrid('setCell', curRowid, 'endofwarranty', dtStr);
+                								//now change the internal local data
+                								LastRowData.endofwarranty = GetServerFormatDate(NDate);
+                								gridTbl.jqGrid('getLocalRow', curRowid).endofwarranty = GetServerFormatDate(NDate);
+                								gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+                								return true;
+                							}
+                						}
+                					}
+                				},
                 				onerrorfunc: function (rowId) {
                 					ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
                 					return false;
@@ -2357,8 +2422,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
             var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
             var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('disabled', true);
-            var elfk_suplier = NA.common.getElementID('id_fk_suplier'); elfk_suplier.setAttribute('readonly', true);
-            var elsupliername = NA.common.getElementID('id_supliername'); elsupliername.setAttribute('readonly', true);
+            var elfk_supplier = NA.common.getElementID('id_fk_supplier'); elfk_supplier.setAttribute('readonly', true);
+            var elsuppliername = NA.common.getElementID('id_suppliername'); elsuppliername.setAttribute('readonly', true);
             var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
             var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.setAttribute('readonly', true);
             var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.setAttribute('readonly', true);
@@ -2374,13 +2439,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             gridTbl.jqGrid("setColProp", "warranty", { editable: false });
             gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
             var btnFindGoods = NA.common.getElementID('FE_fk_goods'),
-                btnFindSuplier = NA.common.getElementID('FE_fk_suplier'),
+                btnFindSupplier = NA.common.getElementID('FE_fk_supplier'),
                 btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
                 btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
                 btnAddDetail = NA.common.getElementID('btnAddDetail'),
                 btnCancelDetail = NA.common.getElementID('btnCancelDetail');
             btnFindGoods.setAttribute('disabled', true);
-            btnFindSuplier.setAttribute('disabled', true);
+            btnFindSupplier.setAttribute('disabled', true);
             btnFindPRBy.setAttribute('disabled', true);
             btnFindReceivedBy.setAttribute('disabled', true);
             btnAddDetail.setAttribute('disabled', true);
@@ -2827,7 +2892,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         		//======================BUTTONS Search================================================
 
                         		var btnFindGoods = NA.common.getElementID('FE_fk_goods'),
-									btnFindSuplier = NA.common.getElementID('FE_fk_suplier'),
+									btnFindSupplier = NA.common.getElementID('FE_fk_supplier'),
 									btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
 									btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
                                     btnAddDetail = NA.common.getElementID('btnAddDetail'),
@@ -2857,7 +2922,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				var txtTPurchase = NA.common.getElementID('id_totalpurchase');
                         				txtTPurchase.setAttribute('readonly', true);
                         				var txtTreceived = NA.common.getElementID('id_totalreceived');
-                                        //get priviledge allow edit
+                                        //get privilege allow edit
                         				//txtTreceived.setAttribute('readonly', parseInt(txtTPurchase.value) === parseInt(txtTreceived.value));
                         				if (parseInt(txtTPurchase.value) < parseInt(txtTreceived.value)) {
                         					txtTreceived.setAttribute('readonly', true);
@@ -2910,7 +2975,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         			//Auto Complete RefNO
                         			$("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                         			NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
-                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_suplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
+                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_supplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                         				NA.NAEvent.addHandler(item, 'keydown', function (event) {
                         					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                         						NA.NAEvent.preventDefault(event);//prevent from submit
@@ -2942,19 +3007,19 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                             );
                         								break;
                         							}
-                        							case 'id_fk_suplier': {
+                        							case 'id_fk_supplier': {
 
-                        								//jika ada tampilkan data di form supliername
+                        								//jika ada tampilkan data di form suppliername
                         								NA.NAEvent.preventDefault(event);//prevent from submit
-                        								NAAjax.GET('getSuplier/?' + win.encodeURIComponent('supliercode') + '=' + win.encodeURIComponent(event.target.value),
+                        								NAAjax.GET('getSupplier/?' + win.encodeURIComponent('suppliercode') + '=' + win.encodeURIComponent(event.target.value),
                                                             'application/json',//overrideMimeType returned by the server
                                                             function () { window.document.body.style.cursor = 'wait'; },
                                                             null,//nggak usah di isi bila tidak perlu
                                                             function (e) {//function executed after data has been returned by server(XHR.onload)
                                                             	var data = JSON.parse(this.responseText);
                                                             	if (data) {
-                                                            		var txtsuplier = NA.common.getElementID('id_supliername');
-                                                            		txtsuplier.value = data['supliername'] || '';
+                                                            		var txtsupplier = NA.common.getElementID('id_suppliername');
+                                                            		txtsupplier.value = data['suppliername'] || '';
                                                             	}
                                                             }, null, function (e) {//function untuk ajax error
                                                             	throw new Error(this.responseText + '\nStatus code :' + this.statusText);
@@ -3248,7 +3313,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						gridTbl.jqGrid({
                         							url: urlFKGoods,
                         							mtype: "GET",
-                        							datatype: "json",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                        							datatype: "json",//column IDapp, NO,	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived
                         							colNames: ['idapp', 'NO', 'itemcode', 'goods Description', ],
                         							colModel: [
                                                         { name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -3347,15 +3412,15 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				pager.style.width = '430px';
                         				evt.stopImmediatePropagation();
                         			});
-                        			NA.NAEvent.addHandler(btnFindSuplier, 'click', function (evt) {
+                        			NA.NAEvent.addHandler(btnFindSupplier, 'click', function (evt) {
                         				//create bootstrapDialog
                         				BootstrapDialog.show({
                         					draggable: true,
                         					type: BootstrapDialog.TYPE_INFO,
                         					size: BootstrapDialog.SIZE_SMALL,
                         					message: function (dialogRef) {
-                        						var placeHolder = 'Enter Suplier name to search for';
-                        						var containerMessage = NA.common.dialog.createFormContainer('fk_suplier', placeHolder,
+                        						var placeHolder = 'Enter Supplier name to search for';
+                        						var containerMessage = NA.common.dialog.createFormContainer('fk_supplier', placeHolder,
                                                 function (e) {//event for blur
                                                 	if (this.value === '') {
                                                 		if (this.getAttribute('placeholder') === '') {
@@ -3374,7 +3439,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                 	if (e.keyCode === 13) {
                                                 		win.document.body.style.cursor = 'wait';
                                                 		//cari data ke database
-                                                		var url = 'SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(e.target.value.trim());
+                                                		var url = 'SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(e.target.value.trim());
 
                                                 		if (gridTbl) {
                                                 			gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
@@ -3385,38 +3450,38 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						var children = containerMessage.childNodes;
                         						var mainContainer = null, txtSearch = null;
                         						for (var i = 0, len = children.length; i < len; i++) {
-                        							if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_suplier') {
+                        							if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_supplier') {
                         								mainContainer = children[i]; break;
                         							}
                         						};
                         						//loads Data into JqueryGrid
                         						gridTbl = NA.common.doc.createElement('table');
-                        						gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier';
+                        						gridTbl.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier';
                         						gridPager = NA.common.doc.createElement('div');
-                        						gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_suplier_Pager';
+                        						gridPager.id = 'jqGrid_NA_F_Goods_Receive_fk_supplier_Pager';
                         						mainContainer.appendChild(gridTbl);
                         						mainContainer.appendChild(gridPager);
                         						return containerMessage;
                         					},
                         					onshown: function (dialogRef) {
-                        						txtSearch = NA.common.getElementID('txtsearch_fk_suplier');
+                        						txtSearch = NA.common.getElementID('txtsearch_fk_supplier');
                         						//loads Data into JqueryGrid 
-                        						gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_suplier');
-                        						gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
-                        						var urlFKSuplier = 'SearchSuplierbyForm/?' + win.encodeURIComponent('supliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+                        						gridTbl = $('#jqGrid_NA_F_Goods_Receive_fk_supplier');
+                        						gridPager = $('#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager');
+                        						var urlFKSupplier = 'SearchSupplierbyForm/?' + win.encodeURIComponent('suppliername') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
                         						gridTbl.jqGrid({
-                        							url: urlFKSuplier,
+                        							url: urlFKSupplier,
                         							mtype: "GET",
-                        							datatype: "json",//column idapp, no,supliercode,supliername
-                        							colNames: ['NO', 'suplier code', 'suplier name', ],
+                        							datatype: "json",//column idapp, no,suppliercode,suppliername
+                        							colNames: ['NO', 'supplier code', 'supplier name', ],
                         							colModel: [
                                                         { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-                                                        { name: 'supliercode', width: 90, align: 'left', sortable: true, editable: false, },
-                                                        { name: 'supliername', index: 'supliername', width: 300, sortable: true, editable: false, align: 'left', },
+                                                        { name: 'suppliercode', width: 90, align: 'left', sortable: true, editable: false, },
+                                                        { name: 'suppliername', index: 'suppliername', width: 300, sortable: true, editable: false, align: 'left', },
                         							],
                         							ondblClickRow: function (rowId) {
                         								//fire button OK
-                        								var btnOK = dialogRef.getButton('btnOKFindsuplier');
+                        								var btnOK = dialogRef.getButton('btnOKFindsupplier');
                         								btnOK.click();
                         							},
                         							gridComplete: function () {
@@ -3432,7 +3497,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							height: '150px',
                         							rowNum: 500,
                         							rowList: [20, 50, 100, 200, 300, 500],
-                        							sortname: "supliername",
+                        							sortname: "suppliername",
                         							sortorder: "asc",
                         							multiSort: false,
                         							//shrinkToFit: false,
@@ -3442,7 +3507,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							//toolbar: true,
                         							scrollrows: true,
                         							//hidegrid: true,
-                        							pager: "#jqGrid_NA_F_Goods_Receive_fk_suplier_Pager"
+                        							pager: "#jqGrid_NA_F_Goods_Receive_fk_supplier_Pager"
                         						});
                         						gridTbl.navGrid(gridPager, {
                         							search: false, // show search button on the toolbar
@@ -3465,22 +3530,22 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						},
                         					}, {
                         						label: 'OK',
-                        						id: 'btnOKFindsuplier',
+                        						id: 'btnOKFindsupplier',
                         						icon: 'glyphicon glyphicon-ok',
                         						cssClass: 'btn-success',
                         						action: function (dialogRef) {
-                        							var supliercode = getGridCellValue(gridTbl, 'supliercode');
-                        							if (supliercode) {//cell di select sama user
+                        							var suppliercode = getGridCellValue(gridTbl, 'suppliercode');
+                        							if (suppliercode) {//cell di select sama user
                         								//tempelkan data row di fk_goods, dan valuenya di goods_desc;
                         								var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                         								var rowData = gridTbl.getRowData(rowId);
-                        								var supliername = rowData['supliername'];
-                        								var txtid_fk_suplier = NA.common.getElementID('id_fk_suplier');
-                        								txtid_fk_suplier.value = supliercode;
-                        								txtid_fk_suplier.attributes['placeholder'] = '';
-                        								var txtsupliername = NA.common.getElementID('id_supliername');
-                        								txtsupliername.value = supliername;
-                        								txtsupliername.attributes['placeholder'] = '';
+                        								var suppliername = rowData['suppliername'];
+                        								var txtid_fk_supplier = NA.common.getElementID('id_fk_supplier');
+                        								txtid_fk_supplier.value = suppliercode;
+                        								txtid_fk_supplier.attributes['placeholder'] = '';
+                        								var txtsuppliername = NA.common.getElementID('id_suppliername');
+                        								txtsuppliername.value = suppliername;
+                        								txtsuppliername.attributes['placeholder'] = '';
                         							}
                         							dialogRef.close();
                         						}
@@ -3488,13 +3553,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				});
                         				//Atur tampilan                        			
                         				restyleBoostrapDialog();
-                        				var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_suplier');
+                        				var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_supplier');
                         				gbox.style.width = '432px';
-                        				var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_suplier');
+                        				var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_supplier');
                         				gview.style.width = '432px';
-                        				var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_suplier_Pager_right');
+                        				var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_supplier_Pager_right');
                         				tdInfo.style.width = '110px';
-                        				var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_suplier_Pager');
+                        				var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_supplier_Pager');
                         				pager.style.width = '430px';
                         				evt.stopImmediatePropagation();
                         			});
@@ -3559,7 +3624,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						gridTbl.jqGrid({
                         							url: urlPR,
                         							mtype: "GET",
-                        							datatype: "json",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                        							datatype: "json",//column IDapp, NO,	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived
                         							colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
                         							colModel: [
                                                         { name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -3708,7 +3773,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						gridTbl.jqGrid({
                         							url: urlPR,
                         							mtype: "GET",
-                        							datatype: "json",//column IDapp, NO,	goods 	datereceived supliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived 
+                        							datatype: "json",//column IDapp, NO,	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived
                         							colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
                         							colModel: [
                                                         { name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -3814,13 +3879,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					ShowAlert('Please enter goods');
                         					txtgoodsDesc.focus(); return false;
                         				}
-                        			    //check suplier 
-                        				var supliername = NA.common.getElementID('id_supliername');
-                        				if (supliername.value == '') {
-                        				    ShowAlert('Please enter suplier name');
-                        				    supliername.focus(); return false;
+                        			    //check supplier
+                        				var suppliername = NA.common.getElementID('id_suppliername');
+                        				if (suppliername.value == '') {
+                        				    ShowAlert('Please enter supplier name');
+                        				    suppliername.focus(); return false;
                         				}
-                        			    //check suplier
+                        			    //check supplier
                         				var pr_by = NA.common.getElementID('id_employee_pr');
                         				if (pr_by.value == '') {
                         				    ShowAlert('Please enter who created P R');
@@ -3974,7 +4039,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         	}
         	
         };
-        NA.Priviledge.read_priviledge('n_a_goods_receive');
+        NA.Privilege.read_privilege('n_a_goods_receive');
     })();
    
 </script>
