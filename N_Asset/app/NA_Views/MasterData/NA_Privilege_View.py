@@ -10,6 +10,10 @@ from django.contrib.auth import login, logout, authenticate
 
 from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
+
+from NA_Worker.task import NATask
+from NA_Worker.worker import NATaskWorker
 
 
 def NA_Privilege(request):
@@ -133,11 +137,17 @@ def NA_Privilege_sys(request):
     )
 
 
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.read_permission(form_name=NAPrivilege.FORM_NAME_ORI)
 def Entry_Privilege(request):
     if request.method == 'POST':
-        form = NA_Privilege_Form(request.POST)
+        form = NAPrivilegeForm(request.POST)
         if form.is_valid():
-            result = form.save(request)
+            try:
+                result, user = form.save(request)
+            except NAError as e:
+                result = NAErrorHandler.handle(err=e)
             return commonFunct.response_default(result)
         else:
             raise forms.ValidationError(form.errors)
@@ -146,11 +156,11 @@ def Entry_Privilege(request):
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
             data = NAPrivilege.objects.retrieveData(idapp)
-            form = NA_Privilege_Form(initial=data)
+            form = NAPrivilegeForm(initial=data)
             if int(data['role']) == NAPrivilege.GUEST:
                 form.fields['divisi'].widget.attrs['disabled'] = ''
         else:
-            form = NA_Privilege_Form()
+            form = NAPrivilegeForm()
             form.fields['password'].widget.attrs['required'] = ''
             form.fields['confirm_password'].widget.attrs['required'] = ''
             form.fields['divisi'].widget.attrs['disabled'] = ''
@@ -166,16 +176,21 @@ def Delete_user(request):
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def ChangeRole(request, email):
-    user = NAPrivilege.objects.get(email=email)
-    role = request.POST['role']
-    divisi = request.POST['divisi']
-    user.role = role
-    user.divisi = divisi
-    user.save()
-    return commonFunct.response_default((Data.Success,))
+    try:
+        user = NAPrivilege.objects.get(email=email)
+        result = Data.Success,
+    except NAPrivilege.DoesNotExist:
+        result = NAErrorHandler.handle_data_lost()
+    else:
+        role = request.POST['role']
+        divisi = request.POST['divisi']
+        user.role = role
+        user.divisi = divisi
+        user.save()
+    return commonFunct.response_default(result)
 
 
-class NA_Privilege_Form(forms.Form):
+class NAPrivilegeForm(forms.Form):
     idapp = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'First Name', 'style': 'height:unset'}))
@@ -212,16 +227,14 @@ class NA_Privilege_Form(forms.Form):
         if self.cleaned_data['statusForm'] == 'Add':
             password = self.cleaned_data.get('password')
             if password is None or password == '':
-                raise forms.ValidationError(
-                    'Please fill out password'
-                )
+                raise forms.ValidationError({'password': 'This field is required'})
 
     def clean_confirm_password(self):
         if self.cleaned_data['statusForm'] == 'Add':
             confirm_password = self.cleaned_data.get('confirm_password')
             if confirm_password is None or confirm_password == '':
                 raise forms.ValidationError(
-                    'Please fill out confirm password'
+                    {'confirm_password': 'This field is required'}
                 )
 
     def clean(self):
@@ -229,85 +242,79 @@ class NA_Privilege_Form(forms.Form):
         role = self.cleaned_data['role']
         if isinstance(role, str):
             role = int(role)
-        if role != NAPrivilege.GUEST:
-            divisi = self.cleaned_data['divisi']
-            if divisi is None or divisi == '':
-                raise forms.ValidationError('Please fill out divisi')
+
+        divisi = self.cleaned_data.get('divisi')
+        if role == NAPrivilege.GUEST:
+            if divisi:
+                raise forms.ValidationError({
+                    'divisi': 'Can\'t set divisi to user guest.'
+                })
+        else:
+
+            if not divisi:
+                raise forms.ValidationError({
+                    'divisi': 'This field is required'
+                })
         if statusForm == 'Edit':
             idapp = self.cleaned_data.get('idapp')
-            if idapp is None or idapp == '':
-                raise forms.ValidationError('Please fill out idapp')
+            if not idapp:
+                raise forms.ValidationError({
+                    'idapp': 'This field is required'
+                })
         confirm_password = self.cleaned_data.get('confirm_password')
         password = self.cleaned_data.get('password')
         if password != confirm_password:
             raise forms.ValidationError(
                 'Password didn\'t match with confirm password'
             )
-        return super(NA_Privilege_Form, self).clean()
+        return super(NAPrivilegeForm, self).clean()
 
-    def getFormData(self):
-        return {
-            'first_name': self.cleaned_data.get('first_name'),
-            'last_name': self.cleaned_data.get('last_name'),
-            'username': self.cleaned_data.get('username'),
-            'email': self.cleaned_data.get('email'),
-            'divisi': self.cleaned_data.get('divisi'),
-            'role': self.cleaned_data.get('role')
-        }
-
+    @transaction.atomic
     def save(self, request):
-        statusForm = self.cleaned_data.get('statusForm')
-        if statusForm is None or statusForm == '':
-            raise forms.ValidationError(
-                'Status Form cannot be null'
+        status_form = self.cleaned_data.get('statusForm')
+        must_set_perms = False
+        password = self.cleaned_data.get('password')
+        if status_form == 'Add':
+            user = NAPrivilege()
+            user.set_password(password)
+            user.date_joined = datetime.now()
+            user.createdby = request.user.username
+            must_set_perms = True
+        elif status_form == 'Edit':
+            try:
+                user = NAPrivilege.objects.get(
+                    idapp=self.cleaned_data.get('idapp')
+                )
+            except NAPrivilege.DoesNotExist:
+                raise NAError(
+                    error_code=NAErrorConstant.DATA_LOST
+                )
+            else:
+                if (user.role == NAPrivilege.GUEST and
+                        self.cleaned_data.get('role') != NAPrivilege.GUEST):
+                    must_set_perms = True
+                if password:
+                    user.set_password(password)
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.username = self.cleaned_data['username']
+        user.email = self.cleaned_data['email']
+        user.role = self.cleaned_data['role']
+        if user.role != NAPrivilege.GUEST:
+            user.divisi = self.cleaned_data['divisi']
+
+        user.save()
+        if must_set_perms:
+            NASysPrivilege.set_permission(user)
+
+        if password:
+            worker = NATaskWorker(
+                func=NATask.task_email_password_user,
+                args=[user.email, password]
             )
-        else:
-            if statusForm == 'Add':
-                with transaction.atomic():
-                    user = NAPrivilege()
-                    user.first_name = self.cleaned_data['first_name']
-                    user.last_name = self.cleaned_data['last_name']
-                    user.username = self.cleaned_data['username']
-                    user.email = self.cleaned_data['email']
-                    user.role = self.cleaned_data['role']
-                    if user.role != NAPrivilege.GUEST:
-                        user.divisi = self.cleaned_data['divisi']
-                    user.set_password(self.cleaned_data['password'])
-                    user.date_joined = datetime.now()
-                    user.createdby = request.user.username
-                    user.save()
-                    NASysPrivilege.set_permission(user)
+            worker.run()
 
-            elif statusForm == 'Edit':
-                idapp = self.cleaned_data.get('idapp')
-                try:
-                    user = NAPrivilege.objects.get(idapp=idapp)
-                except NAPrivilege.DoesNotExist:
-                    return (Data.Lost,)
-                else:
-                    data_init = {
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
-                        'username': user.username,
-                        'email': user.email,
-                        'divisi': user.divisi,
-                        'role': user.role
-                    }
-                    data_form = self.getFormData()
-                    sames = [k for k in data_form if data_form[k]
-                             == data_init[k]]
-                    for same in sames:
-                        data_form.pop(same)
-
-                    with transaction.atomic():
-                        NAPrivilege.objects.filter(
-                            idapp=idapp).update(**data_form)
-                        if 'role' in data_form:
-                            if (int(data_form['role']) != NAPrivilege.GUEST
-                                    and int(user.role) == NAPrivilege.GUEST):
-                                user.refresh_from_db()
-                                NASysPrivilege.set_permission(user)
-        return (Data.Success,)
+        return Data.Success,
 
 
 @decorators.admin_required_action('change')

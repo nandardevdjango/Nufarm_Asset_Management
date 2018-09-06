@@ -1,18 +1,21 @@
-﻿import json
-import datetime
+﻿import datetime
+import json
 from decimal import Decimal
+
 from django import forms
-from django.shortcuts import render
-from django.db import transaction
-from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.auth.decorators import login_required
-from celery.decorators import task
+from django.http import HttpResponse
+from django.shortcuts import render
 
+from NA_DataLayer.common import (
+    ResolveCriteria, commonFunct,
+    Data, decorators
+)
 from NA_Models.models import NAAccFa, goods, NAPrivilege_form
-from NA_DataLayer.common import (CriteriaSearch, ResolveCriteria, commonFunct,
-                                 Data, decorators)
+from NA_Worker.worker import NATaskWorker
+from NA_Worker.task import NATask
 
 
 @login_required
@@ -104,92 +107,15 @@ def EntryAcc(request):
         idapp_detail_receive = form.cleaned_data.get('idapp_detail_receive')
         if request.POST['mode'] == 'Add':
             idapp = idapp_detail_receive.split(',')
-            try:
-                generate_acc_fa.delay(
-                    idapp,
-                    request.user.username
-                )
-            except Exception as e:
-                raise e
-            else:
-                return commonFunct.response_default((Data.Success,))
+            worker = NATaskWorker(
+                func=NATask.task_generate_fix_asset,
+                args=[idapp, request.user.username]
+            )
+            worker.run()
+            return commonFunct.response_default((Data.Success,))
     else:
         raise forms.ValidationError(form.errors)
 
-
-@task(name='generate_fix_asset')
-def generate_acc_fa(idapp, createdby):
-    sid = transaction.savepoint()
-    try:
-        data_arr = NAAccFa.objects.searchAcc_ByForm(idapp=idapp)
-        for data in data_arr:
-            fk_goods = data['fk_goods']
-            startdate = data['startdate'].strftime('%Y-%m-%d')
-            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            price = data['priceperunit']
-            depr_method = data['depreciationmethod']
-            economiclife = data['economiclife']
-            values_insert = []
-
-            def settings_generate(opt):
-                settings = {
-                    'month_of': opt['month_of'],
-                    'economiclife': economiclife,
-                    'typeApp': data['typeapp'],
-                    'serialNumber': data['serialnumber'],
-                    'price': price,
-                    'depr_method': depr_method,
-                    'depr_expense': opt['depr_Expense'],
-                    'startdate': startdate,
-                    'fk_goods': data['fk_goods'],
-                    'createddate': now,
-                    'createdby': createdby
-                }
-                if opt['depr_method'] == 'SYD':
-                    settings['depr_acc'] = opt['depr_acc']
-                return settings
-
-            if depr_method == 'SL' or depr_method == 'DDB':
-                depr_expense = price / (economiclife * 12)
-                for i in range(int(economiclife * 12) + 1):
-                    generate_acc_value(settings_generate({
-                        'depr_method': depr_method,
-                        'month_of': i,
-                        'depr_Expense': depr_expense
-                    }), values_insert)
-            elif depr_method == 'SYD':
-                arr_year = [i for i in range(int(economiclife), 0, -1)]
-                total_year = 0
-                for i in arr_year:
-                    total_year += i
-                arr_depr_expense = [int(i / total_year * int(price))
-                                    for i in arr_year]  # per tahun
-                depr_acc = 0
-                month_of = 0
-                generate_acc_value(settings_generate({
-                    'depr_method': 'SYD',
-                    'depr_acc': Decimal('0.00'),
-                    'depr_Expense': Decimal(arr_depr_expense[0] / 12),
-                    'month_of': 0
-                }), values_insert)
-                for i in arr_depr_expense:
-                    for j in range(1, 13):
-                        depr_acc += Decimal(i / 12)
-                        month_of += 1
-                        generate_acc_value(settings_generate({
-                            'depr_method': 'SYD',
-                            'depr_acc': depr_acc,
-                            'depr_Expense': Decimal(i / 12),
-                            'month_of': month_of
-                        }), values_insert)
-            str_values = ','.join(values_insert)
-            NAAccFa.objects.create_acc_FA(str_values)
-
-    except Exception as e:
-        transaction.savepoint_rollback(sid)
-        raise e
-    else:
-        return (Data.Success.value,)
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')

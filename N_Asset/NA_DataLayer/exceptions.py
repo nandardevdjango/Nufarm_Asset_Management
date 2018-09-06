@@ -20,6 +20,8 @@ class NAErrorConstant(object):
     DATA_HAS_REF = 'Data-Has-Ref'
     DATA_LOST = 'Data-Lost'
 
+    UNCAUGHT_ERROR = 'Uncaught-Error'
+
 
 class NAErrorHandler(object):
 

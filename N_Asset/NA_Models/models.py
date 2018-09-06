@@ -984,6 +984,8 @@ def upload_to_each_dir(instance, filename):
 
 
 class NAPrivilege(AbstractUser, NA_BaseModel):
+    FORM_NAME = 'User Privilege'
+    FORM_NAME_ORI = 'n_a_privilege'
 
     IT = 'IT'
     GA = 'GA'
