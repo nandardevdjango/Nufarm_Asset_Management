@@ -1482,16 +1482,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    			changeYear: true,
 					    			changeMonth: true,
 					    			beforeShowDay: $.datepicker.noWeekends,
-					    			//minDate: (function (g, dtrec) {
-					    			//	if (g.status === 'Edit') {
-					    			//	    var EndOfWarranty = $(this).val();
-					    			//		return new Date(EndOfWarranty);
-					    			//	}
-					    			//	else {
-					    			//		return $.datepicker.parseDate('dd/mm/yy', dtrec)
-					    			//	}
-					    			//	//get date datereceived
-					    			//})(win, dtReceived),
+					    			minDate: (function (g, dtrec) {
+					    				if (g.status === 'Edit') {
+					    					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+					    					var EndOfWarranty = gridTbl.jqGrid('getLocalRow', rowId).endofwarranty;
+					    					return new Date(EndOfWarranty);
+					    				}
+					    				else {
+					    					return $.datepicker.parseDate('dd/mm/yy', dtrec)
+					    				}
+					    				//get date datereceived
+					    			})(win, dtReceived),
 					    			maxDate: NA.common.addMonths(dtReceived, maxMonth),
 					    		});
 					    	},
@@ -1538,6 +1539,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        required: false
 					    },
 					    formatter: "date", formatoptions: {
+					    	srcformat: 'Y-m-d',
 					    	newformat: "d/m/Y",
 					    	//reformatAfterEdit: (win.status === 'Edit'),
 					    	reformatAfterEdit:true
@@ -1797,9 +1799,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 				//'extraparam': { IsDirty: "True" }
                 			});
                 		}
-                		//else {
-                		//	$self.jqGrid("restoreRow", editingRowId);
-                		//}
                 	}
    
                 	return true; // allow selection
@@ -1808,68 +1807,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
                 	if (AllowEdit) {
                 		if (id && id !== lastsel) {
-                			//validate data                    	    
-                			//if (typeof lastsel != 'undefined') {
-                			//    OrowData = gridTbl.jqGrid('getLocalRow', lastsel);
-                			//}
-                			//if (OrowData) {
-                			//    if (isDataChanged(OrowData)) {
-                			//        var dtReceived = $('#id_datereceived').val();
-                			//        if (dtReceived === '') {
-                			//            ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
-                			//                NA.common.getElementID('id_datereceived').focus();
-                			//            });
-                			//            gridTbl.jqGrid('restoreRow', lastsel);
-                			//            return false;
-                			//        }
-                			//        var LasRowData = null, NewRowData = null;
-                			//        //saverow
-                			//        //jQuery("#grid_id").jqGrid('saveRow', rowid, successfunc, url, extraparam, aftersavefunc, errorfunc, afterrestorefunc);
-                			//        gridTbl.jqGrid('saveRow', lastsel, {
-                			//            'url': 'clientArray',
-                			//            'restoreAfterError': true,
-                			//            'extraparam': { IsDirty: "True" },
-                			//            aftersavefunc: function (rowId) {
-                			//                var IRowData = gridTbl.jqGrid('getLocalRow', rowId);
-                			//                var Owarranty = OrowData['warranty'];
-                			//                var IWarranty = IRowData['warranty'];
-                			//                if (IWarranty != Owarranty) {
-                			//                    var modVal = (IWarranty % 1).toFixed(2);//modulus value decimal number
-                			//                    var intVal = Math.round(IWarranty) - Math.round(modVal);
-                			//                    FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-                			//                    //var NmodVal = parseFloat(modVal) * 12;
-                			//                    //var NM = dtReceived.getMonth();
-                			//                    //NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
-                			//                    NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
-                			//                    var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-                			//                    NValEndOfWarranty = NDate;
-                			//                    //var NVal = FDate.getDate(
-                			//                    //set grid cell
-                			//                    var dtStr = formatDate(NDate)
-                			//                    //var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
-                			//                    IRowData.endofwarranty = dtStr;
-                			//                    gridTbl.jqGrid('setRowData', rowId, IRowData);
-                			//                    //gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
-                			//                    // now change the internal local data
-                			//                    gridTbl.jqGrid('getLocalRow', rowId).endofwarranty = GetServerFormatDate(NDate);
-                			//                    LasRowData = gridTbl.jqGrid('getLocalRow', IRowData);
-                			//                    return true;
-                			//                }
-                			//            }
-                			//        });
-                			//        //set newrow with lastSell LastSelrow = NRowData
-                			//        if (LastRowData) {
-                			//            //isi default newRow
-                			//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
-                			//            NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                			//            NewRowData.brandname = LastRowData.brandname;
-                			//            NewRowData.typeapp = LastRowData.typeapp;
-                			//            NewRowData.warranty = LastRowData.warranty;
-                			//            NewRowData.endofwarranty = LastRowData.endofwarranty;
-                			//        }
-                			//    }
-
-                			//}   
                 		    if (typeof lastsel != 'undefined') {
                 		        gridTbl.jqGrid('restoreRow', lastsel);
                 		        //check data original
@@ -1919,9 +1856,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			gridTbl.jqGrid('editRow', id, {
                 				keys: true,
                 				url: 'clientArray',
-                				//oneditfunc: function (rowId) {
-                				//    ShowAlert('edit');
-                				//},
                 				aftersavefunc: function (curRowid, response) {
                 					//var $tr = $('tr#' + curRowid);
                 					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
@@ -1936,19 +1870,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						        var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
                 						        var intVal = Math.round(warranty) - Math.round(modVal);
                 						        var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-                						        //var NmodVal = parseFloat(modVal) * 12;
-                						        //var NM = FDate.getMonth();
-                						        //NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
                 						        var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
                 						        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-
                 						        //set grid cell
-                						        var dtStr = formatDate(NDate)
                 						        https://stackoverflow.com/questions/16216541/editrow-not-working-after-setcell-in-jqgrid
-                						        //gridTbl.jqGrid('setCell', curRowid, 'endofwarranty', dtStr);
-                						        //now change the internal local data
-                						        gridTbl.jqGrid('getRowData', curRowid).endofwarranty = GetServerFormatDate(NDate);
-                						        //gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+                						    		//$('#' + curRowid + '_endofwarranty').val(dtStr);
+                						    	LastRowData.endofwarranty = NDate;
+                						        gridTbl.jqGrid('setRowData', curRowid, LastRowData)
                 						        gridTbl.jqGrid("saveRow", curRowid, {
                 						            'url': 'clientArray',
                 						            'restoreAfterError': true,
@@ -1957,7 +1885,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						            errorfunc:null,
                 						            afterrestorefunc:null
                 						        });
-                						        gridTbl.jqGrid('restoreRow', curRowid);
                 						       
                 						        return true;
                 						    }
@@ -1998,7 +1925,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
                 					//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
                 					var dtReceived = $('#id_datereceived').val();
-                					var LastRowData = gridTbl.jqGrid('getRowData', curRowid);
+                					var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
                 					var warranty = LastRowData.warranty;
                 					if (warranty) {
                 						if (!isNaN(warranty)) {
@@ -2008,21 +1935,18 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 								var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
                 								var intVal = Math.round(warranty) - Math.round(modVal);
                 								var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-                								//var NmodVal = parseFloat(modVal) * 12;
-                								//var NM = FDate.getMonth();
-                								//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
                 								var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
                 								var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-
-                								//set grid cell
-                								var dtStr = formatDate(NDate)
-                								//var rowData = $('#my-jqgrid-table').jqGrid('getRowData', rowId);
-                								//IRowData.endofwarranty = dtStr;
-                								gridTbl.jqGrid('setCell', curRowid, 'endofwarranty', dtStr);
-                								//now change the internal local data
-                								LastRowData.endofwarranty = GetServerFormatDate(NDate);
-                								gridTbl.jqGrid('getLocalRow', curRowid).endofwarranty = GetServerFormatDate(NDate);
+                								LastRowData.endofwarranty = NDate;
                 								gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+                								gridTbl.jqGrid("saveRow", curRowid, {
+                									'url': 'clientArray',
+                									'restoreAfterError': true,
+                									'extraparam': null,
+                									aftersavefunc: null,
+                									errorfunc: null,
+                									afterrestorefunc: null
+                								});
                 								return true;
                 							}
                 						}
