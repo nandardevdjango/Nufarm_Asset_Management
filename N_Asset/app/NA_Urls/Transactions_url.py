@@ -3,6 +3,8 @@ from django.conf.urls import url, include
 urlpatterns = [
     url(r'^Goods_Receive/IT/', include('app.NA_Urls.Transactions.NA_Goods_Receive_url',
                                        namespace='NA_Goods_Receive')),
+	url(r'^Goods_Receive_Details/IT/', include('app.NA_Urls.Transactions.NA_Goods_Receive_url',
+                                       namespace='NA_Goods_Receive_Detail')),
     url(r'^Goods_Receive/Accessories/',
         include('app.NA_Urls.Transactions.NA_Goods_Receive_other_url', namespace='NA_Goods_Receive_other')),
     url(r'^Goods_Receive/GA/', include('app.NA_Urls.Transactions.NA_Goods_Receive_GA_url',
