@@ -7,8 +7,8 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django_mysql.models import JSONField
 
+from NA_DataLayer.fields import JSONField
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Privilege_BR import NA_BR_Privilege
@@ -32,13 +32,6 @@ from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.file_storage import NAFileStorage
 
-
-def forced_mariadb_connection(self):
-    errors = []
-    return errors
-
-
-JSONField._check_mysql_version = forced_mariadb_connection
 
 
 class NA_BaseModel(models.Model):
@@ -1739,10 +1732,14 @@ class NAGaVnHistory(NA_BaseModel):
         null=True,
         blank=True
     )
+    is_active = models.BooleanField(default=True)
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
     
     objects = NAGaVnHistoryBR()
+
+    def __str__(self):
+        return self.reg_no
 
     @property
     def is_expired_reg(self):
@@ -1751,6 +1748,24 @@ class NAGaVnHistory(NA_BaseModel):
     @property
     def is_bpkb_expired(self):
         return date.today() > self.bpkb_expired
+
+    @classmethod
+    def get_expired_regs(cls):
+        result = {}
+        regs = cls.objects.filter(is_active=True)
+        if regs.exists():
+            for reg in regs:
+                if reg.is_expired_reg:
+                    if result.get('reg'):
+                        result.get('reg').append(reg.reg_no)
+                    else:
+                        result['reg'] = [reg.reg_no]
+                if reg.is_bpkb_expired:
+                    if result.get('bpkb'):
+                        result.get('bpkb').append(reg.reg_no)
+                    else:
+                        result['bpkb'] = [reg.reg_no]
+        return result
 
     class Meta:
         managed = True

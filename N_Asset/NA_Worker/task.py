@@ -2,7 +2,7 @@ from celery.decorators import task
 from datetime import datetime
 from decimal import Decimal
 
-from Notifications.email import EmailNotification, EmailSubject
+from NA_Notifications.email import EmailNotification, EmailSubject
 
 
 class NATask(object):

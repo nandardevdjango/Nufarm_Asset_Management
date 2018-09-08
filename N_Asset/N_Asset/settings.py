@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['*', ]
 # Application definition
 
 INSTALLED_APPS = [
+    'NA_Notifications',
     'social_django',
     'sslserver',
     'app',
@@ -61,6 +62,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'NA_Notifications.middleware.NotificationMiddleware'
 ]
 
 ROOT_URLCONF = 'N_Asset.urls'

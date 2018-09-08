@@ -776,5 +776,19 @@
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+    {% if request.session.ga_reg_notif %}
+    <script>
+        $.ajax({
+            url: '/Notifications/',
+            method: 'GET',
+            data: {
+                name: 'ga_reg_notif'
+            },
+            success: function(data){
+                console.log(data);
+            }
+        })
+    </script>
+    {% endif %}
 </body>
 </html>

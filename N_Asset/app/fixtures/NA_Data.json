@@ -1,0 +1,1139 @@
+[
+{
+    "model": "NA_Models.logevent",
+    "pk": 3,
+    "fields": {
+        "createddate": "2018-09-02T17:33:14.416",
+        "createdby": "rimba88",
+        "nameapp": "Updated Supplier",
+        "model": "nasupplier",
+        "descriptions": {
+            "hp": "08888099312",
+            "telp": "0216018430",
+            "address": "Mangga Dua Mall Lt. IV/A-106 jakarta 10730.",
+            "inactive": false,
+            "createdby": "rimba88",
+            "modifiedby": "rimba88",
+            "createddate": "20/08/2018 18:53:37",
+            "modifieddate": "02/09/2018 17:33:14",
+            "suppliercode": "ALD002IDR",
+            "suppliername": "ALDI JAYA",
+            "contactperson": "Bambang"
+        }
+    }
+},
+{
+    "model": "NA_Models.logevent",
+    "pk": 6,
+    "fields": {
+        "createddate": "2018-09-04T15:09:48.654",
+        "createdby": "rimba88",
+        "nameapp": "Updated Employee",
+        "model": "employee",
+        "descriptions": {
+            "nik": "20040903",
+            "idapp": 9,
+            "gender": "Male",
+            "status": "Married",
+            "telphp": "08118855106",
+            "jobtype": "MARKETING DIGITAL",
+            "typeapp": "Permanent",
+            "inactive": false,
+            "createdby": "rimba88",
+            "territory": "JAKARTA",
+            "modifiedby": "rimba88",
+            "createddate": "20/08/2018 18:48:14",
+            "descriptions": "Sidik sebelumnya menjabat sebagai IT technical support, mula tahun 2016 berpindah ke divisi marketing sebagai marketing digital.",
+            "modifieddate": "04/09/2018 15:09:48",
+            "employee_name": "SIDIK HARTADI"
+        }
+    }
+},
+{
+    "model": "NA_Models.logevent",
+    "pk": 7,
+    "fields": {
+        "createddate": "2018-09-04T16:11:52.825",
+        "createdby": "rimba88",
+        "nameapp": "Deleted Employee",
+        "model": "employee",
+        "descriptions": {
+            "nik": "2011131",
+            "idapp": 1,
+            "gender": "Male",
+            "status": "Married",
+            "telphp": "0818925270",
+            "jobtype": "IT Bussines Developmen Manager",
+            "typeapp": "Permanent",
+            "inactive": false,
+            "createdby": "rimba88",
+            "territory": "JAKARTA",
+            "modifiedby": null,
+            "createddate": "20/08/2018 16:45:37",
+            "descriptions": "Nufarm IT Manager",
+            "modifieddate": null,
+            "employee_name": "Tandry Adrian Hartanto"
+        }
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 2,
+    "fields": {
+        "createddate": "2018-08-20T16:49:27.557",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-20T17:28:46.990",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "Pak suroto asalnya Office Boy menggantikan Ridho",
+        "nik": "C020",
+        "employee_name": "Suroto",
+        "typeapp": "P",
+        "jobtype": "RECEPTIONIST",
+        "gender": "M",
+        "status": "M",
+        "telphp": "087808451709",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 3,
+    "fields": {
+        "createddate": "2018-08-20T16:56:03.069",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Luther Juan pengganti Muhammad Syahwil",
+        "nik": "2017457",
+        "employee_name": "Luther Juan Sanda",
+        "typeapp": "P",
+        "jobtype": "Purchasing Executif",
+        "gender": "M",
+        "status": "S",
+        "telphp": "08992474947",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 4,
+    "fields": {
+        "createddate": "2018-08-20T17:09:48.969",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-20T17:28:41.245",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "pak iman naik jabatan sekarang jafi GA Supervisor menggantikan Tri Wahyudi",
+        "nik": "20050201",
+        "employee_name": "Iman Utomo",
+        "typeapp": "P",
+        "jobtype": "GA Supervisor",
+        "gender": "M",
+        "status": "M",
+        "telphp": "085693330550",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 5,
+    "fields": {
+        "createddate": "2018-08-20T17:18:33.601",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Wahyu bima karyawan menggantikan posisi surya sofianto",
+        "nik": "2016367",
+        "employee_name": "R. Wahyoe Bima D.K",
+        "typeapp": "P",
+        "jobtype": "Purchasing Executif",
+        "gender": "M",
+        "status": "M",
+        "telphp": "082123326963",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 6,
+    "fields": {
+        "createddate": "2018-08-20T17:24:45.145",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-20T17:28:33.328",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "SENIOR IT NUFARM",
+        "nik": "990642",
+        "employee_name": "Indradjaja Tjandra Poernama",
+        "typeapp": "P",
+        "jobtype": "IT SUPERVISOR",
+        "gender": "M",
+        "status": "M",
+        "telphp": "08129239707",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 7,
+    "fields": {
+        "createddate": "2018-08-20T17:27:55.332",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-20T17:28:29.206",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "Nandar memulai karir di nufarm sebagai programmer di bagian sales retailer dan distributor",
+        "nik": "201311",
+        "employee_name": "Kusnandar",
+        "typeapp": "P",
+        "jobtype": "IT PROGRAMMER",
+        "gender": "M",
+        "status": "M",
+        "telphp": "08118855107",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 8,
+    "fields": {
+        "createddate": "2018-08-20T18:29:16.104",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Sudah keluar di ganti sama Luther Juan",
+        "nik": "F212014512",
+        "employee_name": "Junaid syahwil",
+        "typeapp": "P",
+        "jobtype": "PURCHASING EXECUTIVE",
+        "gender": "M",
+        "status": "M",
+        "telphp": "083876640037",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.employee",
+    "pk": 9,
+    "fields": {
+        "createddate": "2018-08-20T18:48:14.723",
+        "createdby": "rimba88",
+        "modifieddate": "2018-09-04T15:09:48.644",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "Sidik sebelumnya menjabat sebagai IT technical support, mula tahun 2016 berpindah ke divisi marketing sebagai marketing digital.",
+        "nik": "20040903",
+        "employee_name": "SIDIK HARTADI",
+        "typeapp": "P",
+        "jobtype": "MARKETING DIGITAL",
+        "gender": "M",
+        "status": "M",
+        "telphp": "08118855106",
+        "territory": "JAKARTA"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "ALD002IDR",
+    "fields": {
+        "createddate": "2018-08-20T18:53:37.355",
+        "createdby": "rimba88",
+        "modifieddate": "2018-09-02T17:33:14.414",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "suppliername": "ALDI JAYA",
+        "address": "Mangga Dua Mall Lt. IV/A-106 jakarta 10730.",
+        "telp": "0216018430",
+        "hp": "08888099312",
+        "contactperson": "Bambang"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "AST002IDR",
+    "fields": {
+        "createddate": "2018-08-15T17:47:02.807",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-15T17:47:17.653",
+        "modifiedby": "rimba88",
+        "inactive": true,
+        "suppliername": "PT. ASTRA HONDA MOTOR",
+        "address": "Jl. Laksda Yos Sudarso \u2013 Sunter I Jakarta 14350, Indonesia Tel. 0811-9-500-989",
+        "telp": "021-7252000",
+        "hp": "021-7252000",
+        "contactperson": "ASTRA"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "AST007IDR",
+    "fields": {
+        "createddate": "2018-08-15T17:38:21.108",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "suppliername": "PT. ASTRA INTERNATIONAL TBK",
+        "address": "Jl. Pangeran Jayakarta no 28",
+        "telp": "021-65906060",
+        "hp": "021-6522555",
+        "contactperson": "Eko"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "CHA001IDR",
+    "fields": {
+        "createddate": "2018-08-15T17:00:31.272",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "suppliername": "CV CHA-CHA KARYA",
+        "address": "JLn Sultan Agung Prokyek Pasar Rumput",
+        "telp": "021-8033870",
+        "hp": "081288725559",
+        "contactperson": "Rudi"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "ERA004IDR",
+    "fields": {
+        "createddate": "2018-08-15T17:08:39.503",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "suppliername": "PT. ERAPOINT GLOBALINDO",
+        "address": "Jl. KH. Hasyim Azhari No.125 Komp. Niaga Roxy Mas Blok D4/21-22 JakartaPusat 10150",
+        "telp": "021-6322555",
+        "hp": "082111188729",
+        "contactperson": "Debby Cintya Dewi"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "MUL016IDR",
+    "fields": {
+        "createddate": "2018-08-15T16:50:03.851",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-15T17:09:32.926",
+        "modifiedby": "rimba88",
+        "inactive": true,
+        "suppliername": "CV MULTI SKINDO UTAMA",
+        "address": "Jln Pangeran Jayakarta No .77 /GATEP, (NO.HP Customer belum di input di accpac)",
+        "telp": "021-659030",
+        "hp": "0216491264",
+        "contactperson": "Himawan Setiadi"
+    }
+},
+{
+    "model": "NA_Models.nasupplier",
+    "pk": "PAR002USD",
+    "fields": {
+        "createddate": "2018-08-15T17:21:44.850",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "suppliername": "PT PARANTA ANUGERAH PRIMA",
+        "address": "Wisma CORMIC Delta Building Blok A 4-7 l. Suryopranoto No. 1-9 Jakarta - 10160 Indonesia (No HP belum ada di isi sementara pakai no telp)",
+        "telp": "021-3501188",
+        "hp": "021-3501555",
+        "contactperson": "Fermin Setiawan"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 1,
+    "fields": {
+        "createddate": "2018-08-15T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Price tidak di includekan di sini karena price di entry dilain form, kecuali untuk barang-barang lain,(others)",
+        "itemcode": "IT-001",
+        "goodsname": "COMPUTER DESKTOP",
+        "brandname": "DELL",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 2,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-16T16:14:13.461",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "Price tidak di isi di bagian form ini , tapi di bagian penerimaan barang baru",
+        "itemcode": "IT-002",
+        "goodsname": "LAPTOP",
+        "brandname": "DELL",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 3,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Price tidak di input di form ini",
+        "itemcode": "IT-003",
+        "goodsname": "HANDPHONE",
+        "brandname": "SAMSUNG",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 4,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Harga tidak di cantumkan di sini karena ini master barang global",
+        "itemcode": "IT-004",
+        "goodsname": "LCD PROJECTOR",
+        "brandname": "NEC",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "3.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 5,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Price tidak di input di form ini karena ini form master general/pengelompokan barang",
+        "itemcode": "IT-005",
+        "goodsname": "CAMERA",
+        "brandname": "CANON",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "3.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 6,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-006",
+        "goodsname": "HANDYCAM",
+        "brandname": "SONY",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 7,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Price tidak di input di sini",
+        "itemcode": "IT-007",
+        "goodsname": "PRINTER",
+        "brandname": "HEWLET PACKARD",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 9,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Price tidak di input di sini",
+        "itemcode": "IT-009",
+        "goodsname": "SCANNER",
+        "brandname": "CANNON",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 10,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-008",
+        "goodsname": "EKSTERNAL HARDDISK",
+        "brandname": "SEAGATE",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "3.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 11,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-16T17:40:08.987",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-010",
+        "goodsname": "SERVER",
+        "brandname": "DELL",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SYD",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 12,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-16T17:29:10.200",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-011",
+        "goodsname": "UPS",
+        "brandname": "ICA",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "DDB",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 13,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-16T17:28:41.482",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-012",
+        "goodsname": "ROUTER",
+        "brandname": "CISCO",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SH",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 14,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-013",
+        "goodsname": "SWITCH/HUB",
+        "brandname": "HEWLET PACKARD",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 15,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": "2018-08-16T17:43:49.325",
+        "modifiedby": "rimba88",
+        "inactive": false,
+        "descriptions": "Merek bukan cuma satu, tapi sebagai global saja",
+        "itemcode": "GA-001",
+        "goodsname": "MOTOR",
+        "brandname": "KAWASAKI",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "GA"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 16,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Merek bukan cuma Toyota, tapi diambil sebagai global saja",
+        "itemcode": "GA-002",
+        "goodsname": "MOBIL",
+        "brandname": "TOYOTA",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 18,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Untuk HP yang mahal di pegang sama GA",
+        "itemcode": "GA-003",
+        "goodsname": "HP HIGH-END",
+        "brandname": "SAMSUNG",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Pcs",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 19,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-004",
+        "goodsname": "TV",
+        "brandname": "SONY",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang 2",
+        "typeapp": "GA"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 20,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Brand di isi ke other karena tidak ada brand standar",
+        "itemcode": "IT-014",
+        "goodsname": "SOUND SYSTEM",
+        "brandname": "Other",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 21,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-015",
+        "goodsname": "STABILIZER",
+        "brandname": "ICA",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 22,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "Brand untuk kulkas tidak global",
+        "itemcode": "GA-005",
+        "goodsname": "COOLCASE",
+        "brandname": "SANYO",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang 2",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 23,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-006",
+        "goodsname": "DISPENSER",
+        "brandname": "Other",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang 2",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 24,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-007",
+        "goodsname": "COPYING MACHINE",
+        "brandname": "KYOCERA",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang 2",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 25,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-008",
+        "goodsname": "PAPER SHREDDER",
+        "brandname": "Other",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 26,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-009",
+        "goodsname": "PABX",
+        "brandname": "Other",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 27,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "GA-010",
+        "goodsname": "TELP",
+        "brandname": "NEC",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.goods",
+    "pk": 28,
+    "fields": {
+        "createddate": "2018-08-16T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "inactive": false,
+        "descriptions": "",
+        "itemcode": "IT-016",
+        "goodsname": "FAX",
+        "brandname": "CANON",
+        "priceperunit": "0.0000",
+        "depreciationmethod": "SL",
+        "unit": "Unit",
+        "economiclife": "5.00",
+        "placement": "Gudang IT",
+        "typeapp": "IT"
+    }
+},
+{
+    "model": "NA_Models.nagoodsreceive",
+    "pk": 1,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "datereceived": "2016-03-04T00:00:00",
+        "fk_supplier": "ERA004IDR",
+        "totalpurchase": 8,
+        "totalreceived": 8,
+        "descriptions": "Pembelian HP J5 tahap pertama untuk IT dan marketing, dan IConcept dan kepentingan FMS lainnya",
+        "descbysystem": "(SAMSUNG, Type : J5, SN : 357005072234246-357004072234249, SAMSUNG, Type : J5, SN : 357004071145081-357005071145088, SAMSUNG, Type : J5, SN : 357005071145054-357004071145057, SAMSUNG, Type : J5, SN : 357004071145024-357005071145021, SAMSUNG, Type : J5, SN : 357004071144027-357005071144024, SAMSUNG, Type : J5, SN : 357004072234249-357005072234246, SAMSUNG, Type : J5, SN : 357004071145115-357004071145115, SAMSUNG, Type : J5, SN : ICONCEPT)",
+        "refno": "15/16-000128-01",
+        "idapp_fk_goods": 3,
+        "idapp_fk_receivedby": 9,
+        "idapp_fk_p_r_by": 8
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 1,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357005072234246-357004072234249"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 2,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357004071145081-357005071145088"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 3,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357005071145054-357004071145057"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 4,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357004071145024-357005071145021"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 5,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357004071144027-357005071144024"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 6,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357004072234249-357005072234246"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 7,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "357004071145115-357004071145115"
+    }
+},
+{
+    "model": "NA_Models.na_goodsreceive_detail",
+    "pk": 8,
+    "fields": {
+        "createddate": "2018-08-21T00:00:00",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_app": 1,
+        "brandname": "SAMSUNG",
+        "priceperunit": "2400000.0000",
+        "typeapp": "J5",
+        "warranty": "1.00",
+        "endofwarranty": "2017-03-03T00:00:00",
+        "serialnumber": "ICONCEPT"
+    }
+},
+{
+    "model": "NA_Models.nastock",
+    "pk": 1,
+    "fields": {
+        "createddate": "2018-08-21T17:04:53",
+        "createdby": "rimba88",
+        "modifieddate": null,
+        "modifiedby": null,
+        "fk_goods": 3,
+        "t_goods_spare": 0,
+        "totalqty": null,
+        "tisused": 0,
+        "tisnew": 8,
+        "tisrenew": 0,
+        "tisbroken": null,
+        "tgoods_return": 0,
+        "tgoods_received": 8,
+        "tmaintenance": 0,
+        "tdisposal": null,
+        "tislost": null
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 1,
+    "fields": {
+        "form_id": "0001M",
+        "form_name": "Supplier Form",
+        "form_name_ori": "n_a_supplier"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 2,
+    "fields": {
+        "form_id": "0002M",
+        "form_name": "Employee Form",
+        "form_name_ori": "employee"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 3,
+    "fields": {
+        "form_id": "0003M",
+        "form_name": "Goods Form",
+        "form_name_ori": "goods"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 6,
+    "fields": {
+        "form_id": "0001T",
+        "form_name": "Goods Receive",
+        "form_name_ori": "n_a_goods_receive"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 7,
+    "fields": {
+        "form_id": "0004M",
+        "form_name": "User Privilege",
+        "form_name_ori": "n_a_privilege"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 8,
+    "fields": {
+        "form_id": "0001O",
+        "form_name": "Fix Asset Form",
+        "form_name_ori": "n_a_acc_fa"
+    }
+},
+{
+    "model": "NA_Models.nagoodsequipment",
+    "pk": 1,
+    "fields": {
+        "createddate": "2018-09-02T22:21:27.015",
+        "createdby": "rimba88",
+        "name_app": "spion",
+        "type_app": 1
+    }
+}
+]
