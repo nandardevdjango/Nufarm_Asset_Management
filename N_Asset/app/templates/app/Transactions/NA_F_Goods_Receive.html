@@ -837,66 +837,63 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                                             listBrands.push(item.value);
                                                                         }
                                                                     });
+                                                                    $(elem).autocomplete({
+                                                                        //source: "getBrandForDetailEntry/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
+                                                                        source: (function (lst) {
+                                                                            var retvals = [];
+                                                                            for (var i = 0; i < lst.length; i++) {
+                                                                                retvals.push({ id: lst[i], label: lst[i], value: lst[i] });
+                                                                            }
+                                                                            return retvals;
+                                                                        })(listBrands),
+                                                                        minLength: 1,
+                                                                        delay: 0,
+                                                                    });
+                                                                }
+                                                            }, null, function (e) {//function untuk ajax error
+                                                                throw new Error(this.responseText + '\nStatus code :' + this.statusText);                                                                                                                               
+                                                                 }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                                            null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                                            );
+
+        };
+        function fetchTypeApps(elem) {
+        	var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value;
+        	//bikin ajax
+        	var NAAjax = NA.common.AJAX;
+        	NAAjax.GET("getTypeApps/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=",
+                                                            'application/json',//overrideMimeType returned by the server
+                                                            function (e) { window.document.body.style.cursor = 'wait'; },
+                                                            null,//nggak usah di isi bila tidak perlu
+                                                            function (e) {//function executed after data has been returned by server(XHR.onload)
+                                                                var data = JSON.parse(this.responseText);
+                                                                var OListype = listTypeApp.slice();
+                                                                if (data) {
+                                                                    //simpen di listType
+                                                                    Array.prototype.forEach.call(data, function (item) {
+                                                                        if (OListype.indexOf(item.value) <= 0) {
+                                                                            listTypeApp.push(item.value);
+                                                                        }
+                                                                    });
+                                                                    $(elem).autocomplete({
+                                                                        //source: "getTypeApps/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
+                                                                        source: (function (lst) {
+                                                                            var retvals = [];
+                                                                            for (var i = 0; i < lst.length; i++) {
+                                                                                retvals.push({ label: lst[i], value: lst[i] });
+                                                                            }
+                                                                            return retvals;
+                                                                        })(listTypeApp),
+                                                                        minLength: 1,
+                                                                        delay: 0,
+                                                                    });
                                                                 }
                                                             }, null, function (e) {//function untuk ajax error
                                                                 throw new Error(this.responseText + '\nStatus code :' + this.statusText);
                                                             }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
                                                             null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                                             );
-            //$("#id_brandname").autocomplete({ source: "SearchBrand/", minLength: 1, });
-            $(elem).autocomplete({
-                //source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
-            	//source: "getBrandForDetailEntry/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
-                source: (function (lst) {
-                    var retvals = [];
-                    for (var i = 0; i < lst.length; i++) {
-                        retvals.push({ label: lst[i], value: lst[i] });
-                    }
-                    return retvals;
-                })(listBrands),
-                minLength: 1,
-                delay: 0,
-                //minLength: 0
-            });
-        };
-        function fetchTypeApps(elem) {
-        	var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value;
-        	//bikin ajax
-        	var NAAjax = NA.common.AJAX;
-        	NAAjax.GET("getTypeApps/?" + win.encodeURIComponent("fk_goods") + "=" + win.encodeURIComponent(idAppFKGoods) + "&term=" ,
-                                                            'application/json',//overrideMimeType returned by the server
-                                                            function (e) { window.document.body.style.cursor = 'wait'; },
-                                                            null,//nggak usah di isi bila tidak perlu
-                                                            function (e) {//function executed after data has been returned by server(XHR.onload)
-                                                            	var data = JSON.parse(this.responseText);
-                                                            	var OListype = listTypeApp.slice();
-                                                            	if (data) {
-                                                            		//simpen di listType
-                                                            		Array.prototype.forEach.call(data, function (item) {
-                                                            			if (OListype.indexOf(item.value) <= 0) {
-                                                            				listTypeApp.push(item.value);
-                                                            			}
-                                                            		});
-                                                            	}
-                                                            }, null, function (e) {//function untuk ajax error
-                                                            	throw new Error(this.responseText + '\nStatus code :' + this.statusText);
-                                                            }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
-                                                            null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                                                            );
-        	$(elem).autocomplete({
-        		//source: $(this).jqGrid("getUniqueValueFromColumnIndex", cmName),
-        		//source: "getTypeApps/?fk_goods=" + win.encodeURIComponent(idAppFKGoods),
-        	    source: (function (lst) {
-        	        var retvals = [];
-        	        for (var i = 0; i < lst.length; i++) {
-        	            retvals.push({ label: lst[i], value: lst[i] });
-        	        }
-        	        return retvals;
-        	    })(listTypeApp),
-        		minLength: 1,
-        		delay: 0,
-        		//minLength: 0
-        	});
+
         }
         function createDummyRowData(intLength) {
             //check datarows di jqgrid
@@ -1254,9 +1251,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    edittype: 'text',
 					    editrules: { required:false},
 					    editoptions: {
-					    	//dataInit: function (elem) {
-					    	//	fetchTypeApps.call(this, elem, "typeapp");
-					    	//},
+					    	dataInit: function (elem) {
+					    		fetchTypeApps.call(this, elem, "typeapp");
+					    	},
 					    	class: (function () {
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
 					    		return 'NA-Form-Control';
@@ -1846,6 +1843,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 		                                'url': 'clientArray',
                 		                                'restoreAfterError': true
                 		                            });
+                		                            //push listtypeapps
+                		                            if (listTypeApp.indexOf(NewRowData.typeapp) <= 0) {
+                		                                listTypeApp.push(NewRowData.typeapp);
+                		                            }
+                		                            if (listBrands.indexOf(NewRowData.brandname) <= 0) {
+                		                                listBrands.push(NewRowData.brandname);
+                		                            }
                 		                        }
                 		                    }
                 		                    break;
@@ -1872,9 +1876,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						        var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
                 						        var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
                 						        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-                						        //set grid cell
-                						        https://stackoverflow.com/questions/16216541/editrow-not-working-after-setcell-in-jqgrid
-                						    		//$('#' + curRowid + '_endofwarranty').val(dtStr);
+               						    		//$('#' + curRowid + '_endofwarranty').val(dtStr);
                 						    	LastRowData.endofwarranty = NDate;
                 						        gridTbl.jqGrid('setRowData', curRowid, LastRowData)
                 						        gridTbl.jqGrid("saveRow", curRowid, {
@@ -1885,7 +1887,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						            errorfunc:null,
                 						            afterrestorefunc:null
                 						        });
-                						       
+                						        if (listTypeApp.indexOf(LastRowData.typeapp) <= 0) {
+                						            listTypeApp.push(LastRowData.typeapp);
+                						        }
+                						        if (listBrands.indexOf(LastRowData.brandname) <= 0) {
+                						            listBrands.push(LastRowData.brandname);
+                						        }
                 						        return true;
                 						    }
                 						}
@@ -2057,7 +2064,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     			eltreceived.value = valTrec;
                                 //delete di localrow
                     			gridTbl.delRowData(NRowid);
-
                     		});
                     	}, position: "last"
                     });
@@ -2208,7 +2214,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //var rowId = parseInt($(this).attr("id")); 
                     var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                     if (e.keyCode == 46) {
-                        if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0") {  
+                        if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0") {
                             showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                                 win.document.body.style.cursor = 'wait';
                                 var eltreceived = NA.common.getElementID('id_totalreceived'),
@@ -2246,10 +2252,11 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                     else {
                                         NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
                                     }
-                                    win.document.body.style.cursor = 'default';
                                 }
+                                win.document.body.style.cursor = 'default';
                             });
                         }
+                        win.document.body.style.cursor = 'default';
                         return false;
                     }
                 });
@@ -3096,8 +3103,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					    if (e.keyCode === 13) {
                         					        //check apakah grid sedang di buka dan ada rowsnya
                         					        var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
-                        					        var reccount = gridTbl.jqGrid('getGridParam', 'reccount');
+                        					        var reccount = gridTbl.jqGrid('getGridParam', 'reccount')||0;
                         					        var totalReceived = item.value || 0;
+                        					        if (totalReceived <= 0) { ShowAlert('total received can not be less or zero'); e.stopImmediatePropagation(); return false; }
                         					        if (reccount > parseInt(totalReceived)) {
                         					            //prevent Default
                         					            NA.NAEvent.preventDefault(e);
@@ -3126,6 +3134,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					            	gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                         					            };
                         					        }
+
                         					        e.stopImmediatePropagation(); return false;
                         					    }
                         					}
