@@ -833,7 +833,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                                 if (data) {
                                                                     //simpen di list
                                                                     Array.prototype.forEach.call(data, function (item) {
-                                                                        if (OlistBrands.indexOf(item.value) <= 0) {
+                                                                        if (OlistBrands.indexOf(item.value) < 0) {
                                                                             listBrands.push(item.value);
                                                                         }
                                                                     });
@@ -871,7 +871,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                                                 if (data) {
                                                                     //simpen di listType
                                                                     Array.prototype.forEach.call(data, function (item) {
-                                                                        if (OListype.indexOf(item.value) <= 0) {
+                                                                        if (OListype.indexOf(item.value) < 0) {
                                                                             listTypeApp.push(item.value);
                                                                         }
                                                                     });
@@ -1156,6 +1156,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 								if ($(this).val() === '') { return 'Choose if exists'; }
 
 							}, title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control',
+							autocomplete:'off',
 							class: (function () {
 								if (!AllowEdit) { return 'not-editable-cell'; }
 								return 'NA-Form-Control';
@@ -1202,6 +1203,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
 					    		return 'NA-Form-Control';
 					    	})(),
+					    	autocomplete: 'off',
 					    	patern: '^[0-9]+([\.,][0-9]+)?$',
 					        step: 'any',
 					        tittle: 'Please enter valid value',
@@ -1258,6 +1260,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
 					    		return 'NA-Form-Control';
 					    	})(),
+					    	autocomplete: 'off',
 					    	placeholder: function () {
 					            if ($(this).val() === '') { return 'type of brand'; }
 					        },
@@ -1299,6 +1302,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
 					    		return 'NA-Form-Control';
 					    	})(),
+					    	autocomplete: 'off',
 					    	placeholder: function () {
 					            if ($(this).val() === '') { return 'serial number/Service tag'; }
 					    	},
@@ -1844,10 +1848,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 		                                'restoreAfterError': true
                 		                            });
                 		                            //push listtypeapps
-                		                            if (listTypeApp.indexOf(NewRowData.typeapp) <= 0) {
+                		                            if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
                 		                                listTypeApp.push(NewRowData.typeapp);
                 		                            }
-                		                            if (listBrands.indexOf(NewRowData.brandname) <= 0) {
+                		                            if (listBrands.indexOf(NewRowData.brandname) < 0) {
                 		                                listBrands.push(NewRowData.brandname);
                 		                            }
                 		                        }
@@ -1887,10 +1891,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						            errorfunc:null,
                 						            afterrestorefunc:null
                 						        });
-                						        if (listTypeApp.indexOf(LastRowData.typeapp) <= 0) {
+                						        if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
                 						            listTypeApp.push(LastRowData.typeapp);
                 						        }
-                						        if (listBrands.indexOf(LastRowData.brandname) <= 0) {
+                						        if (listBrands.indexOf(LastRowData.brandname) < 0) {
                 						            listBrands.push(LastRowData.brandname);
                 						        }
                 						        return true;
@@ -1922,7 +1926,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 	//For the more common case you can use jqID function which escapes the meta-characters if needed:
 
                 	//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
-                    if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0") {
+                    if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0" || $(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === undefined){
                 		if (AllowEdit) {
                 			gridTbl.jqGrid('editRow', rowid, {
                 				keys: true,
@@ -1954,6 +1958,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 									errorfunc: null,
                 									afterrestorefunc: null
                 								});
+                								if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
+                								    listTypeApp.push(LastRowData.typeapp);
+                								}
+                								if (listBrands.indexOf(LastRowData.brandname) < 0) {
+                								    listBrands.push(LastRowData.brandname);
+                								}
                 								return true;
                 							}
                 						}
@@ -2019,14 +2029,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         edit: false, add: false, del: false, search: false, refresh: false,
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
                         caption: "  Reset ||  ", buttonicon: 'fa-undo', onClickButton: function () {
-                            showConfirmation(NA.common.message.clearData, NA.common.message.confirmInfo, function () {
-                                gridTbl.jqGrid('clearGridData').jqGrid('setGridParam', {
-                                    data: setDetailGridData(),
-                                    processing: true,
-                                    loadonce: true,
-                                    datatype: 'local'
-                                }).trigger("reloadGrid", [{ page: 1 }]);
-                            }, null)
+                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+                            if (recCount > 0) {
+                                showConfirmation(NA.common.message.clearData, NA.common.message.confirmInfo, function () {
+                                    gridTbl.jqGrid('clearGridData', false).jqGrid('setGridParam', {
+                                        data: setDetailGridData(),
+                                        //processing: true,
+                                        //loadonce: true,
+                                        datatype: 'local'
+                                    }).trigger("reloadGrid", [{ page: 1 }]).jqGrid('resetSelection');
+                                }, null)
+                            }
                         },
                         position: "last"
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
@@ -2035,10 +2048,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         }, position: "last"
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
                         caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
-
+                            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
                             //add row data position in last row
                             var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+                            if (totalReceived <= 0) { return false; }
                             if (recCount >= parseInt(totalReceived)) {
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
@@ -2053,10 +2066,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         }, position: "last"
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
                         caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+                            if (recCount <= 0) { return false; }
+                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                            if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
                     		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                     			var eltreceived = NA.common.getElementID('id_totalreceived'),
-																 valTrec = eltreceived.value;
-                    			var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+																 valTrec = eltreceived.value;                    			
                                 //var IDApp = (win.status === 'Edit')?
                     			var NRowid = rowId;
                     			valTrec = valTrec - 1;
@@ -2064,6 +2080,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     			eltreceived.value = valTrec;
                                 //delete di localrow
                     			gridTbl.delRowData(NRowid);
+                    			if (valTrec <= 0) {//cancel detail
+                    			    btnCancel.click();
+                    			}
                     		});
                     	}, position: "last"
                     });
@@ -2098,6 +2117,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                             //add row data position in last row
                             var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
                             var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+                            if (totalReceived <= 0) { return false; }
                             if (recCount >= parseInt(totalReceived)) {
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
@@ -2112,9 +2132,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
                         caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
                             if (!AllowDelete) { NA.NAEvent.preventDefault(e); return false; }
+                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+                            if (recCount <= 0) { return false; }
+                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                            if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
                     		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                     			var NAAjax = NA.common.AJAX;
-                    			var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                     			var NRowid = rowId;
                     			var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
                     			NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
@@ -2140,6 +2163,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 							   		var IRowData = grid.jqGrid('getRowData', IrowId);
 							   		IRowData.totalreceived = valTrec;
 							   		grid.jqGrid('setRowData', IrowId, IRowData);
+							   		if (valTrec <= 0) {
+							   		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+							   		}
 							   	}
 							   	else {
 							   		ShowAlert(textStatus.message, NA.common.message.titleError);
@@ -3119,13 +3145,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					            if (btnAddDetail.style.display === 'none') {
                         					                //grid sudah di buat
                         					                //buat manual rowdata
-                        					                createDummyRowData(totalReceived);
+                        					                if (totalReceived > 0) {
+                        					                    createDummyRowData(totalReceived);
+                        					                }                        					                
                         					            }
                         					            else {
-                        					                btnAddDetail.click();
+                        					                if (totalReceived > 0) {
+                        					                   btnAddDetail.click();
+                        					                }                        					               
                         					            }
                         					        }
-                        					        if (reccount < totalReceived) {
+                        					        else if (reccount < totalReceived) {
                         					            var countAdd = totalReceived - reccount;
                         					            for (var i = 0; i < countAdd; i++) {
                         					            	reccount += 1;

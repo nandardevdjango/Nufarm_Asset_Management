@@ -1,3 +1,5 @@
+from django.conf.urls import url
+from app.NA_Views.Transactions import NA_Goods_Receive_Detail
 urlpatterns = [
-		url(r'^$',NA_Goods_Receive_View.NA_Goods_Receive,name='entrybatchdetail'),
+		url(r'^$',NA_Goods_Receive_Detail.entrybatchdetail,name='entrybatchdetail'),
 	]
