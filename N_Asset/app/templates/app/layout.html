@@ -114,16 +114,20 @@
                             </li>
                             <li>
                                 <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
-                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a></li>
+                                    <li class="active">
+                                        <a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a>
+										<ul class="sub-menu" id="GRDetails" aria-expanded="false">
+											 <li><a href="{% url 'Transactions:NA_Goods_Receive_Detail:entrybatchdetail' %}" style="padding-left:18px;font-size:0.9em;">Entry Batch Detail</a></li>
+										</ul>
+                                    </li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
-									<li><a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'GoodsDisposal' %} class="active" {% endif %}>Asset Deletion</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'GoodsDisposal' %} class="active" {% endif %}>Asset Deletion</a></li>
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
                                 </ul>
                             </li>
-
 							<li>
                                 <a href="#" data-toggle="collapse" data-target="#ga" class="active collapsed" aria-expanded="false">
                                     <i class="fa fa-archive"></i><span class="nav-label">GA</span>
