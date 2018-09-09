@@ -1,7 +1,8 @@
-from django.contrib.auth import get_user_model
-from django.db import models
-from django.utils.functional import cached_property
+from datetime import datetime
 
+from django.contrib.auth import get_user_model
+from django.db import models, transaction
+from django.utils.functional import cached_property
 
 from NA_DataLayer.fields import JSONField
 
@@ -28,6 +29,20 @@ class NANotifications(models.Model):
     @cached_property
     def recipients(self):
         return list(self.user.all())
+
+    @classmethod
+    @transaction.atomic
+    def push_notifications(cls, to, name, title, data):
+        notifications = cls()
+        notifications.name = name
+        notifications.title = title
+        notifications.data = data
+        notifications.created_date = datetime.now()
+        notifications.save()
+
+        if isinstance(to, models.query.QuerySet):
+            to = list(to)
+        notifications.user.add(*to)
 
     class Meta:
         managed = True

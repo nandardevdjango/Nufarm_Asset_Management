@@ -7,3 +7,5 @@ class NATaskWorker(object):
     def run(self):
         if callable(self.func):
             return self.func.delay(*self.args, **self.kwargs)
+        else:
+            raise TypeError('func must be callable')

@@ -1,5 +1,4 @@
-from datetime import date, timedelta
-from django.contrib.sessions.models import Session
+from datetime import date, datetime, timedelta
 
 TEMPLATE_URL = [
     'home',
@@ -23,22 +22,32 @@ class NotificationMiddleware(object):
 
     def process_response(self, request, response):
         if request.user.is_authenticated():
-            if (not request.session.get('ga_reg_notif')  # if session doesn't exists
+            if (request.session.get('ga_reg_notif') is None  # if session doesn't exists
                     and hasattr(request.resolver_match, 'url_name')  # handle attribute error
                     and request.resolver_match.url_name in TEMPLATE_URL):
-
                 # set session only one time
-                from .models import NANotifications
+                self._check_notifications(request=request)
+            else:
+                notif_expired = request.session.get('ga_notif_expired')
+                if notif_expired:
+                    notif_expired = datetime.strptime(notif_expired, '%d/%m/%Y').date()
+                    if notif_expired <= date.today():
+                        del request.session['ga_reg_notif']
+                        self._check_notifications(request=request)
 
-                notifications = NANotifications.objects.filter(
-                    is_active=True,
-                    name='ga_reg_notif'
-                )
-                if notifications.exists():
-                    request.session['ga_reg_notif'] = True
-                else:
-                    request.session['ga_reg_notif'] = False
-                db_session = Session.objects.get(session_key=request.session.session_key)
-                db_session.expired_date = date.today() + timedelta(days=1)
-                db_session.save()
         return response
+
+    def _check_notifications(self, request):
+        from .models import NANotifications
+
+        notifications = NANotifications.objects.filter(
+            is_active=True,
+            name='ga_reg_notif'
+        )
+        if notifications.exists():
+            request.session['ga_reg_notif'] = True
+        else:
+            request.session['ga_reg_notif'] = False
+        request.session['ga_notif_expired'] = (
+                date.today() + timedelta(days=1)
+        ).strftime('%d/%m/%Y')

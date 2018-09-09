@@ -106,6 +106,7 @@ div[id*=NA_Acc_grid]{
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
+        NA.Privilege.read_privilege('n_a_acc_fa');
         
         function LoadData(page) {
             var url_parent = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
