@@ -120,7 +120,7 @@ def log_activity_data(request):
         activity_type = 'deleted'
     result = OrderedDict(
         activity_type=activity_type,
-        created_date=log.createddate.strftime('%d/%m/%Y %H:%M:%S'),
+        created_date=log.createddate.strftime('%d %b %Y %H:%M:%S'),
         data={}
     )
     model = ContentType.objects.get(model=log.model).model_class()

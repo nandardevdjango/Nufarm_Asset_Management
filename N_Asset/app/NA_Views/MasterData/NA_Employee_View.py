@@ -258,7 +258,10 @@ def NA_Employee_delete(request):
     try:
         employee = Employee.objects.get(idapp=idapp)
     except Employee.DoesNotExist:
-        result = Data.Lost,
+        result = NAErrorHandler.handle_data_lost(
+            pk=idapp,
+            model=Employee
+        )
     else:
         with transaction.atomic():
             log = LogActivity(

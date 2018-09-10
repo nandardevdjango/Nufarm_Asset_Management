@@ -22,6 +22,8 @@ class NotificationMiddleware(object):
 
     def process_response(self, request, response):
         if request.user.is_authenticated():
+            # TODO: handle for specific user
+
             if (request.session.get('ga_reg_notif') is None  # if session doesn't exists
                     and hasattr(request.resolver_match, 'url_name')  # handle attribute error
                     and request.resolver_match.url_name in TEMPLATE_URL):

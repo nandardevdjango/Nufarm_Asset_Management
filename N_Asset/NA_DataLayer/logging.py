@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
+from django.db.models.fields.files import ImageFieldFile
 
 from app.signals import logevent
 
@@ -33,6 +34,8 @@ class LogActivity:
         for field in model._meta.fields:
             name = field.name  # field name
             data = getattr(model, name)
+            if isinstance(data, ImageFieldFile):
+                data = data.name
             if to_json:
                 if isinstance(data, datetime):
                     data = data.strftime('%d/%m/%Y %H:%M:%S')

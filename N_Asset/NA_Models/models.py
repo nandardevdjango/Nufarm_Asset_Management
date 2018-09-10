@@ -3,9 +3,11 @@ from datetime import datetime, date
 from os import path
 
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import MultipleObjectsReturned
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldError, MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 
 from NA_DataLayer.fields import JSONField
@@ -275,8 +277,62 @@ class LogEvent(NA_BaseModel):
     def __str__(self):
         return '{}'.format(self.nameapp)
 
-    def __get_descriptions__(self):
-        return self.descriptionsapp
+    @staticmethod
+    def get_log_data(model, action, values=None, pk=None, **kwargs):
+        """
+        to get log event data, use it to get date informations if data has deleted,
+        existed or updated
+        param
+        action: e.g (deleted,updated)
+        action for getting type of log event
+
+        PK: primary key e.g (IDApp,SupplierCode)
+        model: can fill with model class or string
+        usage :: LogEvent.get_log_data(pk=1, model=Employee, action='Deleted',
+        values='createddate')
+        """
+
+        filter_kwargs = {
+            'nameapp__istartswith': action,
+            'model': model
+        }
+
+        if not isinstance(model, type):
+            try:
+                model = ContentType.objects.get(model=model)
+            except ContentType.DoesNotExist:
+                raise ValueError('cannot get model %s' % model)
+            model = model.model_class()
+
+        if pk is None:
+            for field in kwargs.keys():
+                filter_kwargs.update({
+                    'descriptions__%s' % field: kwargs.get(field)
+                })
+        else:
+            pk_field = model._meta.pk.name
+            filter_kwargs.update({
+                'descriptions__%s' % pk_field: pk
+            })
+        filter_kwargs['model'] = force_text(model._meta.verbose_name).replace(' ', '')
+
+        try:
+            log = LogEvent.objects.get(**filter_kwargs)
+        except FieldError:
+            raise ValueError('Please ensure lookup fields in models')
+        except MultipleObjectsReturned:
+            log = LogEvent.objects.filter(**filter_kwargs).first()
+        except LogEvent.DoesNotExist as e:
+            raise e
+
+        if values:
+            if isinstance(values, str):
+                log = eval('log.%s' % values)
+            elif isinstance(values, list):
+                log = [eval('log.%s' % i) for i in values]
+            else:
+                raise TypeError('values must be list or str')
+        return log
 
     class Meta:
         managed = True
@@ -979,6 +1035,19 @@ def upload_to_each_dir(instance, filename):
 class NAPrivilege(AbstractUser, NA_BaseModel):
     FORM_NAME = 'User Privilege'
     FORM_NAME_ORI = 'n_a_privilege'
+
+    LOG_EVENT = {
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'username': 'User Name',
+        'email': 'Email',
+        'divisi': 'Divisi',
+        'role': 'Role',
+        'password': 'Password',
+        'picture': 'Picture',
+        'date_joined': 'Date Joined',
+        'createdby': 'Created By'
+    }
 
     IT = 'IT'
     GA = 'GA'

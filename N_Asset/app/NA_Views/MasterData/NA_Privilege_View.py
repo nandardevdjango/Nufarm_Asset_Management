@@ -5,12 +5,13 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.shortcuts import render, redirect
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.contrib.auth import login, logout, authenticate
 
 from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
+from NA_DataLayer.logging import LogActivity
 
 from NA_Worker.task import NATask
 from NA_Worker.worker import NATaskWorker
@@ -145,7 +146,7 @@ def Entry_Privilege(request):
         form = NAPrivilegeForm(request.POST)
         if form.is_valid():
             try:
-                result, user = form.save(request)
+                result = form.save(user=request.user.username)
             except NAError as e:
                 result = NAErrorHandler.handle(err=e)
             return commonFunct.response_default(result)
@@ -167,9 +168,29 @@ def Entry_Privilege(request):
         return render(request, 'app/MasterData/NA_Entry_Privilege.html', {'form': form})
 
 
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('POST')
+@decorators.read_permission(form_name=NAPrivilege.FORM_NAME_ORI)
 def Delete_user(request):
     idapp = request.POST['idapp']
-    result = NAPrivilege.objects.Delete(idapp)
+    try:
+        user = NAPrivilege.objects.get(idapp=idapp)
+    except NAPrivilege.DoesNotExist:
+        result = NAErrorHandler.handle_data_lost(
+            pk=idapp, model=NAPrivilege
+        )
+    else:
+        with transaction.atomic():
+            log = LogActivity(
+                models=NAPrivilege,
+                activity=LogActivity.DELETED,
+                user=request.user.username,
+                data=user
+            )
+            log.record_activity()
+            user.delete()
+            result = Data.Success,
     return commonFunct.response_default(result)
 
 
@@ -180,7 +201,10 @@ def ChangeRole(request, email):
         user = NAPrivilege.objects.get(email=email)
         result = Data.Success,
     except NAPrivilege.DoesNotExist:
-        result = NAErrorHandler.handle_data_lost()
+        result = NAErrorHandler.handle_data_lost(
+            model=NAPrivilege,
+            email=email
+        )
     else:
         role = request.POST['role']
         divisi = request.POST['divisi']
@@ -219,7 +243,12 @@ class NAPrivilegeForm(forms.Form):
     password = forms.CharField(max_length=30, required=False, widget=forms.PasswordInput(
         attrs={'class': 'form-control', 'placeholder': 'Password', 'style': 'height:unset'}))
     confirm_password = forms.CharField(max_length=30, required=False, widget=forms.PasswordInput(
-        attrs={'class': 'form-control', 'placeholder': 'Confirm Password', 'style': 'height:unset'}))
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm Password',
+            'style': 'height:unset'
+        }
+    ))
     initializeForm = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
@@ -270,19 +299,20 @@ class NAPrivilegeForm(forms.Form):
         return super(NAPrivilegeForm, self).clean()
 
     @transaction.atomic
-    def save(self, request):
+    def save(self, user):
         status_form = self.cleaned_data.get('statusForm')
         must_set_perms = False
         password = self.cleaned_data.get('password')
         if status_form == 'Add':
-            user = NAPrivilege()
-            user.set_password(password)
-            user.date_joined = datetime.now()
-            user.createdby = request.user.username
+            user_ = NAPrivilege()
+            user_.set_password(password)
+            user_.date_joined = datetime.now()
+            user_.createdby = user
             must_set_perms = True
+            activity = LogActivity.CREATED
         elif status_form == 'Edit':
             try:
-                user = NAPrivilege.objects.get(
+                user_ = NAPrivilege.objects.get(
                     idapp=self.cleaned_data.get('idapp')
                 )
             except NAPrivilege.DoesNotExist:
@@ -290,27 +320,44 @@ class NAPrivilegeForm(forms.Form):
                     error_code=NAErrorConstant.DATA_LOST
                 )
             else:
-                if (user.role == NAPrivilege.GUEST and
+                if (user_.role == NAPrivilege.GUEST and
                         self.cleaned_data.get('role') != NAPrivilege.GUEST):
                     must_set_perms = True
                 if password:
-                    user.set_password(password)
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.username = self.cleaned_data['username']
-        user.email = self.cleaned_data['email']
-        user.role = self.cleaned_data['role']
-        if user.role != NAPrivilege.GUEST:
-            user.divisi = self.cleaned_data['divisi']
+                    user_.set_password(password)
+            activity = LogActivity.UPDATED
 
-        user.save()
+        user_.first_name = self.cleaned_data['first_name']
+        user_.last_name = self.cleaned_data['last_name']
+        user_.username = self.cleaned_data['username']
+        user_.email = self.cleaned_data['email']
+        user_.role = self.cleaned_data['role']
+        if user_.role != NAPrivilege.GUEST:
+            user_.divisi = self.cleaned_data['divisi']
+
+        try:
+            user_.save()
+        except IntegrityError as e:
+            raise NAError(
+                error_code=NAErrorConstant.DATA_EXISTS,
+                message=e,
+                instance=user_
+            )
+        else:
+            log = LogActivity(
+                models=NAPrivilege,
+                activity=activity,
+                user=user,
+                data=user_
+            )
+            log.record_activity()
         if must_set_perms:
-            NASysPrivilege.set_permission(user)
+            NASysPrivilege.set_permission(user_)
 
         if password:
             worker = NATaskWorker(
                 func=NATask.task_email_password_user,
-                args=[user.email, password]
+                args=[user_.email, password]
             )
             worker.run()
 
@@ -527,7 +574,7 @@ def NA_Privilege_register(request):
 
 
 def NA_Privilege_logout(request):
-    if not request.user.is_authenticated:
+    if not request.user.is_authenticated():
         return redirect('login')
     else:
         logout(request)
