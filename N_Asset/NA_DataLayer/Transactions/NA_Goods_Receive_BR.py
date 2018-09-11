@@ -255,7 +255,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur = self.__class__.c
 		#cek reference detail
 		#[data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
-		Query = """SELECT ngr.IDApp AS idapp_fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
+		Query = """SELECT ngr.idapp_fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber,ngr.IDApp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
 					ON ngd.FK_App = ngr.IDApp WHERE ngd.idapp = %s"""
 		cur.execute(Query,[Data['idapp']])
 		if cur.rowcount > 0:
@@ -263,26 +263,42 @@ class NA_BR_Goods_Receive(models.Manager):
 			Params = {'idapp_fk_goods':row[0], 'datereceived':row[1],'typeapp':row[2],'serialnumber':row[3]}
 			if self.hasRefDetail(Params):
 				cur.close()
-				return 'Can not delete data\Data has child-referenced'
+				return 'Can not delete data\nData has child-referenced'
 			try:
 				with transaction.atomic():
-					FKApp = int(row[0])	
-					TStock = commonFunct.getTotalGoods(FKApp,cur,Data['deletedby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+					idapp_fk_goods = int(row[0])
+					FKApp = int(row[4])
+					TStock = commonFunct.getTotalGoods(idapp_fk_goods,cur,Data['deletedby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
 					totalNew = TStock[0];totalReceived = TStock[1]				
 					Query = """DELETE FROM n_a_goods_receive_detail WHERE IDApp = %s"""
 					cur.execute(Query,[Data['idapp']]);
-					#update stock
-					Query = """SELECT COUNT(IDApp) FROM n_a_goods_receive_detail WHERE FK_App = %s"""
-					cur.execute(Query,[FKApp])
-					row = cur.fetchone()
-					tgoodsRec = int(row[0])
-					Query = """UPDATE n_a_goods_receive SET TotalReceived = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
-					cur.execute(Query,[tgoodsRec,Data['deletedby'],FKApp])
+					##update stock
+					#Query = """SELECT COUNT(IDApp) FROM n_a_goods_receive_detail WHERE FK_App = %s"""
+					#cur.execute(Query,[FKApp])
+					#row = cur.fetchone()
+					#tgoodsRec = int(row[0])
+					##update header
+					#get datafor grid detail
+
+					NADetailRows = list(self.getDetailData(FKApp,row['idapp_fk_goods']))
+					desc = '('				
+					#dataDetail = object_list
+					detCount = 0			
+					if len(NADetailRows) > 0 and len(NADetailRows) <= 10:
+						detCount = len(NADetailRows)
+						#build descriptions
+						for i in range(detCount):
+							desc += NADetailRows[i]['brandname'] + ', Type : ' + NADetailRows[i]['typeapp'] + ', SN : ' + NADetailRows[i]['serialnumber']
+							if i <detCount -1:
+								desc += ', '							
+					desc += ')'
+					Query = """UPDATE n_a_goods_receive SET TotalReceived = %s,DescBySystem = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
+					cur.execute(Query,[detCount,desc,Data['deletedby'],FKApp])
 					totalNew = totalNew - 1
 					totalReceived = totalReceived - 1
 
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
-					Params = [totalNew,totalReceived,Data['deletedby'],FKApp]
+					Params = [totalNew,totalReceived,Data['deletedby'],idapp_fk_goods]
 					cur.execute(Query,Params)
 
 					cur.close()	
@@ -296,14 +312,17 @@ class NA_BR_Goods_Receive(models.Manager):
 		try:
 			self.__class__.c = connection.cursor()
 			cur = self.__class__.c
-			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['deletedby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
+			tStock =  commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['deletedby'])
+			totalNew = tStock[0]
+			totalReceived = tStock[1]
+			#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLos) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['deletedby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
 			row = {};treceived = 0
 			cur.execute("""SELECT COUNT(IDApp) FROM n_a_goods_receive_detail WHERE FK_App = %s""",[Data['idapp']])
 			if cur.rowcount >0:
 				row = cur.fetchone()
 				treceived = int(row[0])
-			with transaction.atomic():
-				if not self.hasReference(Data,cur):		
+			if not self.hasReference(Data,cur):
+				with transaction.atomic():
 					cur.execute("""Delete FROM n_a_goods_receive_detail WHERE FK_App = %s""",[Data['idapp']])
 					cur.execute("""Delete FROM n_a_goods_receive WHERE IDApp = %s""",[Data['idapp']])
 					#update stock
@@ -314,9 +333,9 @@ class NA_BR_Goods_Receive(models.Manager):
 					cur.execute(Query,Params)
 					cur.close()	
 					return 'success'
-				else:
-					cur.close()
-					return 'Can not delete data\Data has child-referenced'
+			else:
+				cur.close()
+				return 'Can not delete data\Data has child-referenced'		
 		except Exception as e:
 			cur.close()
 			return repr(e)

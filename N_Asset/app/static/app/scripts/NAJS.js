@@ -1210,7 +1210,7 @@ NA.common.message = {
     _existsData: 'Data has existed',
     _titleInfo: 'Information',
     _confirmInfo: 'Confirmation',
-    _titleError: 'Unhandled system exception due to the following occurs',
+    _titleError: 'Unhandled system exception due to the following error',
     _dataHasLost: 'Data has Lost',
     _unsupportedCriteria: 'Operator is not supported for this kind of data\nPlease change criteria or column name',
 

@@ -172,7 +172,8 @@ def ShowEntry_Receive(request):
 					form.clean()
 					dataDetail = list(json.loads(data.get('dataForGridDetail')));	
 					data = getCurrentDataModel(request,form)
-					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)	
+					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)
+					totalReceived = data['totalreceived'];	
 					desc = '('				
 					#dataDetail = object_list
 					if len(dataDetail) > 0:
@@ -186,6 +187,9 @@ def ShowEntry_Receive(request):
 					desc += ')'
 					data['dataForGridDetail'] = dataForGridDetail
 					data.update(descbysystem=desc)
+					if len(dataDetail) != totalReceived:
+						totalReceived = len(dataDetail)
+					data.update(totalreceived=totalReceived)
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Input)
 				if result != 'success':
 					statuscode = 500
@@ -226,6 +230,9 @@ def ShowEntry_Receive(request):
 					desc += ')'
 					data['dataForGridDetail'] = dataForGridDetail
 					data.update(descbysystem=desc)
+					if len(dataDetail) != totalReceived:
+						totalReceived = len(dataDetail)
+					data.update(totalreceived=totalReceived)
 					result = NAGoodsReceive.objects.SaveData(data,StatusForm.Edit)
 					if result != 'success':
 						statuscode = 500
@@ -244,7 +251,7 @@ def ShowEntry_Receive(request):
 				#idapp,fk_goods,refno, idapp_fk_goods,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
 				NAData = {'idapp':Ndata['idapp'],'refno':Ndata['refno'],'idapp_fk_goods':Ndata['idapp_fk_goods'],'fk_goods':Ndata['fk_goods'],'goods_desc':Ndata['goods_desc'],'datereceived':Ndata['datereceived'],'fk_supplier':Ndata['fk_supplier'],'suppliername':Ndata['suppliername'],
 						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_receivedby':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
-						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['idapp_fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
+						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
 				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
 				rows = []			
@@ -254,18 +261,20 @@ def ShowEntry_Receive(request):
 		  #  	DummyData.push(rowData);
 				for row in NADetailRows:
 					i = i+1
-					datarow = {'idapp':row['IDApp'],'.fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
+					datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
 						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'], \
-						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef']))}
+						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef'])),'isnew':'0'}
 					rows.append(datarow)					
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 				NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
+				NAData.update(status=status)
+				NAData.update(hasRefData=hasRefData)
 				form = NA_Goods_Receive_Form(data=NAData)
-				form.fields['status'].widget.attrs = {'value':status}
+				#form.fields['status'].widget.attrs = {'value':status}
 				if hasRefData:
 					form.fields['totalreceived'].disabled = True
-				form.fields['hasRefData'].widget.attrs = {'value': hasRefData} 
+				#form.fields['hasRefData'].widget.attrs = {'value':hasRefData}
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
 	except Exception as e:
 		result = repr(e)

@@ -492,7 +492,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.value = originalData.employee_received||'';
             var eldescriptions = NA.common.getElementID('id_descriptions'); eldescriptions.value = originalData.descriptions||'';
             NA.common.getElementID('id_status').value = 'Add';
-            NA.common.getElementID('id_hasRefData').value = false;
+            NA.common.getElementID('id_hasRefData').value = 'False';
             NA.common.getElementID('id_descbysystem').value = originalData.descbysystem||'';
             win.document.forms[0].reset();
             originalData = JSON.stringify(getValuesForm());
@@ -719,9 +719,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             if (data.length > 0) {
                 var ValidData = ValidateGridDetail(gridDetail);
                 if (!ValidData) {
-                    if (win.status === 'Add') {
-                        ShowAlert('Please enter detail data', NA.common.message.titleInfo);
-                    }
+                    //if (win.status === 'Add') {
+                    //    ShowAlert('Please enter detail data', NA.common.message.titleInfo);
+                    //}
                     return false;
                 }
             }
@@ -906,8 +906,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //    }
             //}
             for (var i = 0; i < intLength; i++) {
-                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }
+                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate',isnew
+            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
                 DummyData.push(rowData);
             };
             return DummyData;
@@ -1012,7 +1012,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             		warranty = 0
             	}
 
-            	var hasRef = row.HasRef.valueOf == true || row.HasRef.valueOf == 1;
+            	var hasRef = row.HasRef.valueOf() == true || row.HasRef.valueOf() == 1 || row.HasRef.valueOf() === "true" || row.HasRef.valueOf() === "True";
             	var endofwarranty = row['endofwarranty'];
             	if (typeof endofwarranty == 'undefined') {
             		endofwarranty = null;
@@ -1134,11 +1134,11 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		loadonce: true,
         		//cellsubmit: 'clientArray',
         		//editurl: 'clientArray',
-        		datatype: "local",//column IDapp, NO,	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived
-        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef'],
+        		datatype: "local",//column idapp, fkapp.no,'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
+        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew'],
         		colModel: [
 					{ name: 'idapp', hidden: true },
-					{ name: 'fk_appp', hidden: true },
+					{ name: 'fkapp', hidden: true },
 					{ name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
 
 					//========================BRAND NAME ================================================================
@@ -1167,7 +1167,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return; }
 									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1;
+									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === 'true' || rowData.HasRef.valueOf === "True";
 									if (hasRef) {
 										NA.NAEvent.preventDefault(e); return false;
 									}
@@ -1216,7 +1216,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        		if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 					        		var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 					        		var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1;
+					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
 					        		if (hasRef) {
 					        			NA.NAEvent.preventDefault(e); return;
 					        		}
@@ -1270,7 +1270,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        		if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 					        		var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 					        		var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1;
+					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
 					        		if (hasRef) {
 					        			NA.NAEvent.preventDefault(e); return;
 					        		}
@@ -1387,7 +1387,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
 					        	        var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 					        	        var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        	        var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1;
+					        	        var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
 					        	        if (hasRef) {
 					        	            NA.NAEvent.preventDefault(e); return;
 					        	        }
@@ -1604,9 +1604,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
 					},
                     {
-                        name: 'hasref', hidden: true
-                    }
-                ],
+                        name: 'HasRef', hidden: true
+                    },
+					{ name: 'isnew', hidden: true }
+        		],
                 //cellEdit: (win.status === 'Add'),
                 pgbuttons: false,     // disable page control like next, back button
                 pgtext: null,         // disable pager text like 'Page 0 of 10'
@@ -1808,59 +1809,63 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
                 	if (AllowEdit) {
                 		if (id && id !== lastsel) {
-                		    if (typeof lastsel != 'undefined') {
-                		        gridTbl.jqGrid('restoreRow', lastsel);
-                		        //check data original
-                		        var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
-                		        for (var i = 0; i < oriDetailData.length; i++) {
-                		            if (oriDetailData[i].no == NewRowData.no) {
-                		                //test
-                		                if (NewRowData.brandname == oriDetailData[i].brandname && (NewRowData.warranty == oriDetailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == oriDetailData[i].typeapp) {
-                		                    //data di anggap kosong isi defaultvalue
-                		                    //            //isi default newRow
-                		                    //            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false
-                		                    //NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                		                    if (typeof LastRowData != 'undefined' && LastRowData) {
-                		                        if ((LastRowData.brandname != oriDetailData[i].brandname) && (LastRowData.warranty != oriDetailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != oriDetailData[i].typeapp)) {
-                		                            NewRowData.brandname = LastRowData.brandname;
-                		                            NewRowData.typeapp = LastRowData.typeapp;
-                		                            NewRowData.warranty = LastRowData.warranty;
-                		                            NewRowData.priceperunit = LastRowData.priceperunit;
-                		                            var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
-                		                            var dtStr = formatDate(FDate)
+                			if (typeof lastsel != 'undefined') {
+                				gridTbl.jqGrid('restoreRow', lastsel);
+                				//check data original
+                				var detailData = gridTbl.jqGrid('getGridParam', 'data');
+                				var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
+                				if (win.status == "Add") {
+                					detailData = oriDetailData;
+                				}
+                				for (var i = 0; i < detailData.length; i++) {
+                					if (detailData[i].no == NewRowData.no) {
+                						//test
+                						if (NewRowData.brandname == detailData[i].brandname && (NewRowData.warranty == detailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == detailData[i].typeapp) {
+                							//data di anggap kosong isi defaultvalue
+                							//            //isi default newRow
+                							//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
+                							//NewRowData = gridTbl.jqGrid('getLocalRow', id);
+                							if (typeof LastRowData != 'undefined' && LastRowData) {
+                								if ((LastRowData.brandname != detailData[i].brandname) && (LastRowData.warranty != detailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != detailData[i].typeapp)) {
+                									NewRowData.brandname = LastRowData.brandname;
+                									NewRowData.typeapp = LastRowData.typeapp;
+                									NewRowData.warranty = LastRowData.warranty;
+                									NewRowData.priceperunit = LastRowData.priceperunit;
+                									var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
+                									var dtStr = formatDate(FDate)
 
-                		                            //var $tr = $(e.target).closest("tr.jqgrow");
-                		                            //rowId = $tr.attr("id");
+                									//var $tr = $(e.target).closest("tr.jqgrow");
+                									//rowId = $tr.attr("id");
 
-                		                            ////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
+                									////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
 
-                		                            //var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-                		                            //var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
+                									//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+                									//var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
 
-                		                            ////and to change the value of the cell you can use
+                									////and to change the value of the cell you can use
 
-                		                            //$td.find("input").val(dtStr);
+                									//$td.find("input").val(dtStr);
 
-                		                            NewRowData.endofwarranty = LastRowData.endofwarranty;
-                		                            gridTbl.jqGrid('setRowData', id, NewRowData);
-                		                            gridTbl.jqGrid("saveRow", id, {
-                		                                'url': 'clientArray',
-                		                                'restoreAfterError': true
-                		                            });
-                		                            //push listtypeapps
-                		                            if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
-                		                                listTypeApp.push(NewRowData.typeapp);
-                		                            }
-                		                            if (listBrands.indexOf(NewRowData.brandname) < 0) {
-                		                                listBrands.push(NewRowData.brandname);
-                		                            }
-                		                        }
-                		                    }
-                		                    break;
-                		                }
-                		            }
-                		        }
-                		    }   
+                									NewRowData.endofwarranty = LastRowData.endofwarranty;
+                									gridTbl.jqGrid('setRowData', id, NewRowData);
+                									gridTbl.jqGrid("saveRow", id, {
+                										'url': 'clientArray',
+                										'restoreAfterError': true
+                									});
+                									//push listtypeapps
+                									if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
+                										listTypeApp.push(NewRowData.typeapp);
+                									}
+                									if (listBrands.indexOf(NewRowData.brandname) < 0) {
+                										listBrands.push(NewRowData.brandname);
+                									}
+                								}
+                							}
+                							break;
+                						}
+                					}
+                				}
+                			}
                 			gridTbl.jqGrid('editRow', id, {
                 				keys: true,
                 				url: 'clientArray',
@@ -2080,6 +2085,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     			eltreceived.value = valTrec;
                                 //delete di localrow
                     			gridTbl.delRowData(NRowid);
+
                     			if (valTrec <= 0) {//cancel detail
                     			    btnCancel.click();
                     			}
@@ -2166,6 +2172,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 							   		if (valTrec <= 0) {
 							   		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
 							   		}
+							   		//matikan tombol excel
+							   		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+							   		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+							   			if (item.textContent === "Cancel") {
+							   				item.setAttribute('disabled', true);
+							   			}
+							   		});
 							   	}
 							   	else {
 							   		ShowAlert(textStatus.message, NA.common.message.titleError);
@@ -2267,7 +2280,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                        var IRowData = grid.jqGrid('getRowData', IrowId);
                                        IRowData.totalreceived = valTrec;
                                        grid.jqGrid('setRowData', IrowId, IRowData);
-
+                                       var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+                                       Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+                                       	if (item.textContent === "Cancel") {
+                                       		item.setAttribute('disabled', true);
+                                       	}
+                                       });
                                    }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); });
                                 }
                                 if (valTrec <= 0) {
@@ -2382,21 +2400,35 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 dtpicker.parentNode.removeChild(dtpicker);
             }           
         };
-
+        function setDisabledHeader() {
+        	var elRefNO = NA.common.getElementID('id_refno'); elRefNO.setAttribute('readonly', true);
+        	var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
+        	var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
+        	var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('disabled', true);
+        	var elfk_supplier = NA.common.getElementID('id_fk_supplier'); elfk_supplier.setAttribute('readonly', true);
+        	var elsuppliername = NA.common.getElementID('id_suppliername'); elsuppliername.setAttribute('readonly', true);
+        	var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
+        	var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.setAttribute('readonly', true);
+        	var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.setAttribute('readonly', true);
+        	var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.setAttribute('readonly', true);
+        	var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.setAttribute('readonly', true);
+        	var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.setAttribute('readonly', true);
+        	var elDesc = NA.common.getElementID('id_descriptions'); elDesc.setAttribute('readonly', true);
+        	var btnFindGoods = NA.common.getElementID('FE_fk_goods'),
+				btnFindSupplier = NA.common.getElementID('FE_fk_supplier'),
+				btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
+				btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
+				btnAddDetail = NA.common.getElementID('btnAddDetail'),
+				btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+        	btnFindGoods.setAttribute('disabled', true);
+        	btnFindSupplier.setAttribute('disabled', true);
+        	btnFindPRBy.setAttribute('disabled', true);
+        	btnFindReceivedBy.setAttribute('disabled', true);
+        	btnAddDetail.setAttribute('disabled', true);
+        	btnCancelDetail.setAttribute('disabled', true);
+        };
         function setDisabledControls() {
-            var elRefNO = NA.common.getElementID('id_refno'); elRefNO.setAttribute('readonly', true);
-            var elfk_goods = NA.common.getElementID('id_fk_goods'); elfk_goods.setAttribute('readonly', true);;
-            var elgoods_desc = NA.common.getElementID('id_goods_desc'); elgoods_desc.setAttribute('readonly', true);
-            var eldatereceived = NA.common.getElementID('id_datereceived'); eldatereceived.setAttribute('disabled', true);
-            var elfk_supplier = NA.common.getElementID('id_fk_supplier'); elfk_supplier.setAttribute('readonly', true);
-            var elsuppliername = NA.common.getElementID('id_suppliername'); elsuppliername.setAttribute('readonly', true);
-            var eltotalpurchase = NA.common.getElementID('id_totalpurchase'); eltotalpurchase.setAttribute('readonly', true);
-            var eltotalreceived = NA.common.getElementID('id_totalreceived'); eltotalreceived.setAttribute('readonly', true);
-            var elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'); elfk_p_r_by.setAttribute('readonly', true);
-            var elemployee_pr = NA.common.getElementID('id_employee_pr'); elemployee_pr.setAttribute('readonly', true);
-            var elfk_receivedby = NA.common.getElementID('id_fk_receivedby'); elfk_receivedby.setAttribute('readonly', true);
-            var elemployee_received = NA.common.getElementID('id_employee_received'); elemployee_received.setAttribute('readonly', true);
-            var elDesc = NA.common.getElementID('id_descriptions'); elDesc.setAttribute('readonly', true);
+        	setDisabledHeader();
             var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
             gridTbl.jqGrid("setColProp", "brandname", { editable: false });
             gridTbl.jqGrid("setColProp", "priceperunit", { editable: false });
@@ -2404,18 +2436,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             gridTbl.jqGrid("setColProp", "serialnumber", { editable: false });
             gridTbl.jqGrid("setColProp", "warranty", { editable: false });
             gridTbl.jqGrid("setColProp", "endofwarranty", { editable: false });
-            var btnFindGoods = NA.common.getElementID('FE_fk_goods'),
-                btnFindSupplier = NA.common.getElementID('FE_fk_supplier'),
-                btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
-                btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
-                btnAddDetail = NA.common.getElementID('btnAddDetail'),
-                btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-            btnFindGoods.setAttribute('disabled', true);
-            btnFindSupplier.setAttribute('disabled', true);
-            btnFindPRBy.setAttribute('disabled', true);
-            btnFindReceivedBy.setAttribute('disabled', true);
-            btnAddDetail.setAttribute('disabled', true);
-            btnCancelDetail.setAttribute('disabled', true);
         }
 
         //function ConfirmPageLeave(e) {
@@ -2901,6 +2921,14 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				//remove btnCancellDetail
                         				btnAddDetail.parentNode.removeChild(btnAddDetail);
                         				btnCancelDetail.parentNode.removeChild(btnCancelDetail);
+                        				//check reference
+                        				var hasRef = NA.common.getElementID('id_hasRefData').value;
+                        				if (hasRef) {
+                        					if (hasRef.valueOf() === 'True') {
+                        						//disabled kan header entry
+                        						setDisabledHeader();
+                        					}
+                        				}
                         				break;
                         			}
                         			case 'Open': {
@@ -3057,7 +3085,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					if (g.status === 'Edit') {
                         						var eloriginalData = JSON.parse(originalData),
 													hasRef = eloriginalData['hasRefData'];
-                        						if (hasRef) { return 1; }
+                        						if (hasRef === 'True') { return 1; }
                         						valDateReceived = new Date(eloriginalData.datereceived);
                         						return valDateReceived;
                         					}
@@ -3836,7 +3864,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				pager.style.width = '430px';
                         				evt.stopImmediatePropagation();
                         			});
-
+                        			var dtReceived = NA.common.getElementID('id_datereceived');
                         			NA.NAEvent.addHandler(btnAddDetail, 'click', function (e) {
                         			    //check totalReveive
                         			    //check refno
@@ -3869,7 +3897,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				    ShowAlert('Please enter employee who received');
                         				    employee_received.focus(); return false;
                         				}
-                        				var dtReceived = NA.common.getElementID('id_datereceived');
+                        				
                         				if (dtReceived.value === '') {
                         					ShowAlert('Please enter date received');
                         					elTotalReceived.focus(); return false;
@@ -3877,6 +3905,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				var elTotalReceived = NA.common.getElementID('id_totalreceived');
                         				var elTotalPurchase = NA.common.getElementID('id_totalpurchase');
                         				if (elTotalReceived.value === '') {
+                        					ShowAlert('Please enter total receive');
+                        					elTotalReceived.focus(); return false;
+                        				}
+                        				else if (parseInt(elTotalReceived.value) <= 0) {
                         					ShowAlert('Please enter total receive');
                         					elTotalReceived.focus(); return false;
                         				}
@@ -3911,7 +3943,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				txtTPurchase.setAttribute('readonly', true);
                         				var txtTreceived = NA.common.getElementID('id_totalreceived');
                         				txtTreceived.setAttribute('readonly', true);                        				
-                        				dtReceived.setAttribute('readonly', true);
+                        				dtReceived.setAttribute('disabled', true);
                         				win.document.body.style.cursor = 'default';
                         				e.stopImmediatePropagation();
                         			});
@@ -3961,6 +3993,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         				var txtTreceived = NA.common.getElementID('id_totalreceived');
                         				txtTreceived.removeAttribute('readonly');
                         				hasGridDetail = false;
+                        				dtReceived.removeAttribute('disabled');
                         				e.stopImmediatePropagation();
                         			});
                         			//assign delete key event
@@ -3991,6 +4024,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         		        }
                         		    }
                         		    if (hasChangedDetail || hasChangedHeader) {
+                        		    	if (document.body.style.cursor != 'default') { document.body.style.cursor = 'default'; }
                         		        return NA.common.message.dataHasChanged;
                         		    }
                         		}
