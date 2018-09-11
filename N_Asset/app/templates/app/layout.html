@@ -782,25 +782,85 @@
                 url: '/Notifications/',
                 method: 'GET',
                 data: {
-                    name: 'ga_reg_notif'
+                    name: 'ga_reg_notif',
+                    'type': 'popup'
                 },
                 success: function(data){
-                    data.forEach(function(obj, index){
+                    if (data.length){
                         BootstrapDialog.show({
                             draggable: true,
                             type: BootstrapDialog.TYPE_WARNING,
                             size: BootstrapDialog.SIZE_SMALL,
-                            title: obj.title,
-                            message: obj.message,
+                            cssClass: 'ga-popup-notif',
+                            title: 'Notifications',
+                            message: (function(){
+                                var container = $('<div class="container" style="padding:0;"></div>');
+                                var table = $('<table id="table-notif-popup" class="table"></table>');
+                                var text_title = 'Please extend taxes below';
+                                var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+
+                                var thead = $('<thead></thead>');
+                                var tr_thead = $('<tr class="active"></tr>');
+                                tr_thead.append($('<th><input type="checkbox" id="check_all" /></th>'));
+                                ['No', 'Reg Number', 'Expire Date', 'Days Left', 'Employee', 'Phone Number'].forEach(function(obj, index){
+                                    tr_thead.append(
+                                    $('<th>'+ obj +'</th>')
+                                )
+                                })
+                                thead.append(tr_thead);
+                                table.append(thead);
+                                var tbody = $('<tbody></tbody>');
+                                data.forEach(function(obj, index){
+                                    var tr = $('<tr id="'+ obj.notif_id +'"></tr>');
+                                    if (obj.notif_type == 'warning'){
+                                        tr = $('<tr id="'+ obj.notif_id +'" class="warning"></tr>');
+                                    } else if (obj.notif_type == 'danger'){
+                                        tr = $('<tr id="'+ obj.notif_id +'" class="danger"></tr>');
+                                    }
+                                    tr.append($('<td><input type="checkbox" /></td>'));
+                                    tr.append($('<td>' + obj.no + '</td>'));
+                                    tr.append($('<td>' + obj.reg_number + '</td>'));
+                                    tr.append($('<td>' + obj.date_expire + '</td>'));
+                                    tr.append($('<td>' + obj.day_left + '</td>'));
+                                    tr.append($('<td>' + obj.employee_name + '</td>'));
+                                    tr.append($('<td>' + obj.employee_phone + '</td>'))
+                                    tbody.append(tr);
+                                })
+                                table.append(tbody);
+                                container.append(table);
+                                return container
+                            }),
                             closable: false,
                             animate: true,
                             closeByBackdrop: false,
                             closeByKeyboard: false,
                             buttons: [{
+                                'id': 'dismiss_popup',
                                 label: 'Dismiss',
                                 cssClass: 'btn-default',
                                 action: function (dialogRef) {
-                                    dialogRef.close();
+                                    var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
+                                        return this.checked;
+                                    });
+                                    var data = [];
+                                    checkbox_checked.each(function(index, elem){
+                                        data.push(
+                                            $(elem).parents('tr').attr('id')
+                                        )
+                                    });
+                                    $.ajax({
+                                        url: '/Notifications/dismiss/',
+                                        method: 'POST',
+                                        data: {
+                                            notif_id: String(data)
+                                        },
+                                        beforeSend: function(xhr){
+                                            xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+                                        },
+                                        success: function(){
+                                            dialogRef.close();
+                                        }
+                                    })
                                 }
                             },
                             {
@@ -809,9 +869,46 @@
                                 action: function(dialogRef){
                                     dialogRef.close();
                                 }
-                            }]
+                            }],
+                            onshow: function(dialog){
+                                dialog.getButton('dismiss_popup').disable();
+                            },
+                            onshown: function(dialog){
+                                $(document).on('click', '#table-notif-popup input#check_all', function(event){
+                                    if(this.checked){
+                                        $('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
+                                            elem.checked = true;
+                                            dialog.getButton('dismiss_popup').enable();
+                                        })
+                                    } else {
+                                        $('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
+                                            elem.checked = false;
+                                            dialog.getButton('dismiss_popup').disable();
+                                        })
+                                    }
+                                });
+
+                                var total_checkbox = $('#table-notif-popup tbody input[type="checkbox"]').length;
+
+                                $(document).on('click', '#table-notif-popup tbody input[type="checkbox"]', function(event){
+                                    var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
+                                        return this.checked;
+                                    });
+                                    if (this.checked){
+                                        dialog.getButton('dismiss_popup').enable();
+                                        if (checkbox_checked.length == total_checkbox){
+                                            document.querySelector('#table-notif-popup input#check_all').checked = true;
+                                        }
+                                    } else {
+                                        if (!checkbox_checked.length){
+                                            dialog.getButton('dismiss_popup').disable();
+                                            document.querySelector('#table-notif-popup input#check_all').checked = false;
+                                        }
+                                    }
+                                })
+                            }
                         })
-                    })
+                    }
                 }
             })
         })

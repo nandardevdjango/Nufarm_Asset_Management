@@ -83,28 +83,36 @@ class Message(Enum):
         return '{0} with {1} {2} has existed'.format(table, column, data)
 
     @classmethod
-    def get_time_info(cls, times):
+    def get_time_info(cls, times, format=None):
         """
         function get time
         param:
         must instance of datetime
         return (tuple): {digits} {unit} e.g : 1 minute, 2 minutes
         """
-        diff = (datetime.now() - times)
+        now = datetime.now()
+        if format:
+            if format == 'day':
+                now = now.date()
+                times = times.date()
+        diff = (now - times)
+        if diff.days < 0 or diff.seconds < 0:
+            diff = (times - now)
         unit = 'seconds'
-        result = None
+        result = diff.seconds
         total_seconds = diff.total_seconds()
+
         if total_seconds >= 60 and total_seconds < 3600:
             result = total_seconds / 60
             unit = 'minute'
             if total_seconds >= 120:
                 unit = 'minutes'
-        elif total_seconds >= 3600 and total_seconds < 86400:
+        elif total_seconds >= 3600 and diff.days < 1:
             result = total_seconds / 3600
             unit = 'hour'
             if total_seconds >= 7200:
                 unit = 'hours'
-        elif diff.days >= 1 and diff.days < 7:
+        elif diff.days >= 1:
             result = diff.days
             unit = 'day'
             if result > 1:

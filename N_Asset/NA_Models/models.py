@@ -1,11 +1,12 @@
 ﻿import re
-from datetime import datetime, date
+from datetime import date, datetime, timedelta
 from os import path
 
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -1846,14 +1847,30 @@ class NAGaVnHistory(NA_BaseModel):
     @classmethod
     def get_expired_regs(cls):
         result = []
-        regs = cls.objects.filter(is_active=True)
-        # TODO: filter regs 10 days before expired
-        if regs.exists():
+        now = datetime.now()
+        filter_kwargs = {
+            'fk_app__is_active': True,
+            'fk_app__expired_reg__range': [
+                (now - timedelta(days=10)),
+                now
+            ]
+        }
+        regs = list(NAGaOutwards.objects.filter(
+            Q(**filter_kwargs) | Q(fk_app__expired_reg__gte=now)
+        ).select_related('fk_app', 'fk_employee'))
+
+        if regs:
             for reg in regs:
                 result.append({
-                    'idapp': int(reg.idapp),
-                    'reg_number': reg.reg_no,
-                    'date_expire': reg.expired_reg
+                    'idapp': int(reg.fk_app_id),
+                    'reg_number': reg.fk_app.reg_no,
+                    'date_expire': reg.fk_app.expired_reg.strftime('%d/%m/%Y'),
+                    'is_expire': reg.fk_app.is_expired_reg,
+                    'is_dismissed': False,
+                    'idapp_outwards': reg.idapp,
+                    'employee_name': reg.fk_employee.employee_name,
+                    'employee_phone': reg.fk_employee.telphp,
+                    'employee_inactive': reg.fk_employee.inactive
                 })
         return result
 

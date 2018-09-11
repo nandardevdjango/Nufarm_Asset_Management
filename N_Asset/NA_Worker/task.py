@@ -97,10 +97,10 @@ class NATaskSchedule(object):
 
     @staticmethod
     @periodic_task(run_every=(crontab(hour=23, minute=59)),
-                   name="task_check_ga_reg_number_expired",
+                   name="task_push_notification_ga_reg_expire",
                    ignore_result=True)
     @transaction.atomic
-    def task_check_ga_reg_number_expired():
+    def task_push_notification_ga_reg_expire():
         reg_expire = NAGaVnHistory.get_expired_regs()
         if reg_expire:
             ga_user = NAPrivilege.objects.filter(
@@ -117,10 +117,21 @@ class NATaskSchedule(object):
                     reg_number=reg.get('reg_number'),
                     date_expire=reg.get('date_expire')
                 )
-                recent_notif = NANotifications.objects.filter(
-                    data__idapp=reg.get('idapp')
-                )
-                if not recent_notif.exists():
+
+                try:
+                    recent_notif = NANotifications.objects.get(
+                        data__idapp=reg.get('idapp')
+                    )
+                    if reg.get('is_expire'):
+                        message = 'Reg Number {reg_number} has expired at {date_expire}'
+                        message = message.format(
+                            reg_number=reg.get('reg_number'),
+                            date_expire=reg.get('date_expire')
+                        )
+                    recent_notif.message = message
+                    recent_notif.data = reg
+                    recent_notif.save(update_fields=['message', 'data'])
+                except NANotifications.DoesNotExist:
                     NANotifications.push_notifications(
                         to=ga_user,
                         name='ga_reg_notif',
