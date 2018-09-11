@@ -149,9 +149,9 @@ def Entry_Privilege(request):
                 result = form.save(user=request.user.username)
             except NAError as e:
                 result = NAErrorHandler.handle(err=e)
-            return commonFunct.response_default(result)
         else:
-            raise forms.ValidationError(form.errors)
+            result = NAErrorHandler.handle_form_error(form_error=form.errors)
+        return commonFunct.response_default(result)
     elif request.method == 'GET':
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
@@ -347,8 +347,8 @@ class NAPrivilegeForm(forms.Form):
             log = LogActivity(
                 models=NAPrivilege,
                 activity=activity,
-                user=user,
-                data=user_
+                user=user,  # user's who created this data
+                data=user_  # instance
             )
             log.record_activity()
         if must_set_perms:

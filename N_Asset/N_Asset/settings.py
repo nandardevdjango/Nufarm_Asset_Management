@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
+    'app.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
@@ -66,6 +66,8 @@ MIDDLEWARE_CLASSES = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'NA_Notifications.middleware.NotificationMiddleware'
 ]
+
+SESSION_ENGINE = 'app.sessions'
 
 ROOT_URLCONF = 'N_Asset.urls'
 

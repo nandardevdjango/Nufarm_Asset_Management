@@ -19,6 +19,7 @@ class NANotifications(models.Model):
     )
     name = models.CharField(max_length=100, db_column='name')
     title = models.CharField(max_length=150, db_column='title')
+    message = models.CharField(max_length=255, db_column='message')
     is_active = models.BooleanField(default=True, db_column='is_active')
     data = JSONField(db_column='data')
     created_date = models.DateTimeField(db_column='created_date')
@@ -32,10 +33,11 @@ class NANotifications(models.Model):
 
     @classmethod
     @transaction.atomic
-    def push_notifications(cls, to, name, title, data):
+    def push_notifications(cls, to, name, title, message, data):
         notifications = cls()
         notifications.name = name
         notifications.title = title
+        notifications.message = message
         notifications.data = data
         notifications.created_date = datetime.now()
         notifications.save()

@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from celery.schedules import crontab
 from celery.task import task, periodic_task
+from django.db import transaction
 
 from NA_Models.models import NAGaVnHistory, NAPrivilege
 from NA_Notifications.email import EmailNotification, EmailSubject
@@ -98,17 +99,32 @@ class NATaskSchedule(object):
     @periodic_task(run_every=(crontab(hour=23, minute=59)),
                    name="task_check_ga_reg_number_expired",
                    ignore_result=True)
+    @transaction.atomic
     def task_check_ga_reg_number_expired():
-        reg = NAGaVnHistory.get_expired_regs()
-        if reg:
+        reg_expire = NAGaVnHistory.get_expired_regs()
+        if reg_expire:
             ga_user = NAPrivilege.objects.filter(
                 divisi=NAPrivilege.GA,
                 is_active=True,
                 role=NAPrivilege.SUPER_USER
             )
-            NANotifications.push_notifications(
-                to=list(ga_user),
-                name='ga_reg_notif',
-                title='Update Reg Number',
-                data=reg
-            )
+            ga_user = list(ga_user)
+            for reg in reg_expire:
+                title = 'Please extend the tax {reg_number}'.format(
+                    reg_number=reg.get('reg_number')
+                )
+                message = 'Reg Number {reg_number} will expire at {date_expire}'.format(
+                    reg_number=reg.get('reg_number'),
+                    date_expire=reg.get('date_expire')
+                )
+                recent_notif = NANotifications.objects.filter(
+                    data__idapp=reg.get('idapp')
+                )
+                if not recent_notif.exists():
+                    NANotifications.push_notifications(
+                        to=ga_user,
+                        name='ga_reg_notif',
+                        title=title,
+                        message=message,
+                        data=reg
+                    )

@@ -22,6 +22,7 @@ class NANotificationView(View):
         for notif in notifications:
             result.append({
                 'title': notif.title,
+                'message': notif.message,
                 'data': notif.data
             })
         return JsonResponse(result, safe=False)

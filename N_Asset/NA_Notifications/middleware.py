@@ -1,5 +1,7 @@
 from datetime import date, datetime, timedelta
 
+from NA_Models.models import NAPrivilege
+
 TEMPLATE_URL = [
     'home',
     'NA_Employee',
@@ -21,17 +23,21 @@ TEMPLATE_URL = [
 class NotificationMiddleware(object):
 
     def process_response(self, request, response):
-        if request.user.is_authenticated():
-            # TODO: handle for specific user
+        if (request.user.is_authenticated()
+                and request.user.divisi == NAPrivilege.GA
+                and request.user.role == NAPrivilege.SUPER_USER):
 
-            if (request.session.get('ga_reg_notif') is None  # if session doesn't exists
-                    and hasattr(request.resolver_match, 'url_name')  # handle attribute error
-                    and request.resolver_match.url_name in TEMPLATE_URL):
+            is_template_url = (hasattr(request.resolver_match, 'url_name')  # handle
+                               # attribute error
+                               and request.resolver_match.url_name in TEMPLATE_URL)
+
+            if (request.session.get('ga_reg_notif') is None
+                    and is_template_url):
                 # set session only one time
                 self._check_notifications(request=request)
             else:
                 notif_expired = request.session.get('ga_notif_expired')
-                if notif_expired:
+                if is_template_url and notif_expired:
                     notif_expired = datetime.strptime(notif_expired, '%d/%m/%Y').date()
                     if notif_expired <= date.today():
                         del request.session['ga_reg_notif']

@@ -777,15 +777,43 @@
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
     {% if request.session.ga_reg_notif %}
     <script>
-        $.ajax({
-            url: '/Notifications/',
-            method: 'GET',
-            data: {
-                name: 'ga_reg_notif'
-            },
-            success: function(data){
-                console.log(data);
-            }
+        $(document).ready(function(){
+            $.ajax({
+                url: '/Notifications/',
+                method: 'GET',
+                data: {
+                    name: 'ga_reg_notif'
+                },
+                success: function(data){
+                    data.forEach(function(obj, index){
+                        BootstrapDialog.show({
+                            draggable: true,
+                            type: BootstrapDialog.TYPE_WARNING,
+                            size: BootstrapDialog.SIZE_SMALL,
+                            title: obj.title,
+                            message: obj.message,
+                            closable: false,
+                            animate: true,
+                            closeByBackdrop: false,
+                            closeByKeyboard: false,
+                            buttons: [{
+                                label: 'Dismiss',
+                                cssClass: 'btn-default',
+                                action: function (dialogRef) {
+                                    dialogRef.close();
+                                }
+                            },
+                            {
+                                label: 'Snooze',
+                                cssClass: 'btn-default',
+                                action: function(dialogRef){
+                                    dialogRef.close();
+                                }
+                            }]
+                        })
+                    })
+                }
+            })
         })
     </script>
     {% endif %}

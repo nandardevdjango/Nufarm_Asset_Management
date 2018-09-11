@@ -25,6 +25,10 @@ class Command(BaseCommand):
             print('\t User with this Username has exists')
             username = input('Username: ')
 
+        divisi = input('Divisi: ').upper()
+        while divisi not in ['IT', 'GA']:
+            self.stdout.write(self.style.ERROR_OUTPUT('Choose divisi IT or GA'))
+
         password = getpass.getpass(prompt='Password: ')
         confirm_password = getpass.getpass(prompt='Confirm Password: ')
         while password != confirm_password:
@@ -38,7 +42,7 @@ class Command(BaseCommand):
             user.username = username
             user.set_password(password)
             user.role = NAPrivilege.SUPER_USER
-            user.divisi = NAPrivilege.IT
+            user.divisi = divisi
             user.is_superuser = True
             user.is_staff = True
             user.save()

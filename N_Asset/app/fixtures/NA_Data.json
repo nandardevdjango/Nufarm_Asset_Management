@@ -77,6 +77,38 @@
     }
 },
 {
+    "model": "NA_Models.logevent",
+    "pk": 8,
+    "fields": {
+        "createddate": "2018-09-09T21:42:49.968",
+        "createdby": "rimba88",
+        "nameapp": "Updated User Privilege",
+        "model": "naprivilege",
+        "descriptions": {
+            "role": "1",
+            "email": "rimba@88spares.com",
+            "idapp": 1,
+            "divisi": "IT",
+            "picture": "default.png",
+            "is_staff": true,
+            "password": "pbkdf2_sha256$36000$q0YOwRKoziok$WBa94rlKw1enR3BXiylqWaopZCrjK11iLypGRqLhUZ4=",
+            "username": "rimba88",
+            "createdby": "",
+            "is_active": true,
+            "last_form": null,
+            "last_name": "Prayoga",
+            "first_name": "Rimba",
+            "ip_address": "",
+            "last_login": "09/09/2018 11:12:23",
+            "modifiedby": null,
+            "date_joined": null,
+            "is_superuser": true,
+            "modifieddate": null,
+            "computer_name": ""
+        }
+    }
+},
+{
     "model": "NA_Models.employee",
     "pk": 2,
     "fields": {
@@ -1127,6 +1159,33 @@
     }
 },
 {
+    "model": "NA_Models.naprivilege_form",
+    "pk": 9,
+    "fields": {
+        "form_id": "0002T",
+        "form_name": "Goods Outwards Form",
+        "form_name_ori": "n_a_goods_outwards"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 10,
+    "fields": {
+        "form_id": "0003T",
+        "form_name": "GA Receive Form",
+        "form_name_ori": "n_a_ga_receive"
+    }
+},
+{
+    "model": "NA_Models.naprivilege_form",
+    "pk": 11,
+    "fields": {
+        "form_id": "0004T",
+        "form_name": "GA Outwards Form",
+        "form_name_ori": "n_a_ga_outwards"
+    }
+},
+{
     "model": "NA_Models.nagoodsequipment",
     "pk": 1,
     "fields": {
@@ -1134,6 +1193,45 @@
         "createdby": "rimba88",
         "name_app": "spion",
         "type_app": 1
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+        "action_time": "2018-09-11T10:45:35.758",
+        "user": 1,
+        "content_type": 28,
+        "object_id": "9",
+        "object_repr": "Goods Outwards Form",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+        "action_time": "2018-09-11T11:01:55.788",
+        "user": 1,
+        "content_type": 28,
+        "object_id": "10",
+        "object_repr": "GA Receive Form",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+        "action_time": "2018-09-11T11:02:34.191",
+        "user": 1,
+        "content_type": 28,
+        "object_id": "11",
+        "object_repr": "GA Outwards Form",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
     }
 }
 ]
