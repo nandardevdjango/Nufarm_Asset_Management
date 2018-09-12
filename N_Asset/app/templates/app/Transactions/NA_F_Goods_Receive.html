@@ -916,9 +916,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             if (win.status === 'Open' || win.status === 'Edit') {
             	var elDataDetail = NA.common.getElementID('id_dataForGridDetail');
             	var detailData = JSON.parse(elDataDetail.value);
-            	Array.prototype.forEach.call(detailData, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-            		listBrands.push(item.brandname);
-            		listTypeApp.push(item.typeapp);
+            	Array.prototype.forEach.call(detailData, function (item) {//buat jadi foreach mesti convert dulu ke array
+            		if (listBrands.indexOf(item.brandname) <= -1) {
+            			listBrands.push(item.brandname);
+            		}
+            		if (listTypeApp.indexOf(item.typeapp) <= -1) {
+            			listTypeApp.push(item.typeapp);
+            		}
             	});
             	return detailData;
             }
@@ -2268,24 +2272,28 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                     var NAAjax = NA.common.AJAX;
                                     NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
                                    null, function () { }, function () {
-                                       //rubah totalreceived -1;
-                                       var textStatus = JSON.parse(this.responseText);
-                                       var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-                                       NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-                                       var initializeForm = NA.common.getElementID('id_initializeForm');
-                                       originalData = JSON.stringify(getValuesForm());
-                                       initializeForm.value = originalData;
-                                       //Update Grid Master
-                                       var IrowId = grid.jqGrid('getGridParam', 'selrow');
-                                       var IRowData = grid.jqGrid('getRowData', IrowId);
-                                       IRowData.totalreceived = valTrec;
-                                       grid.jqGrid('setRowData', IrowId, IRowData);
-                                       var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-                                       Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-                                       	if (item.textContent === "Cancel") {
-                                       		item.setAttribute('disabled', true);
-                                       	}
-                                       });
+                                   	//rubah totalreceived -1;
+                                   	if (this.status == 200) {
+                                   		var textStatus = JSON.parse(this.responseText);
+                                   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+                                   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+                                   		var initializeForm = NA.common.getElementID('id_initializeForm');
+                                   		originalData = JSON.stringify(getValuesForm());
+                                   		initializeForm.value = originalData;
+                                   		//Update Grid Master
+                                   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
+                                   		var IRowData = grid.jqGrid('getRowData', IrowId);
+                                   		IRowData.totalreceived = valTrec;
+                                   		grid.jqGrid('setRowData', IrowId, IRowData);
+                                   		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+                                   		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+                                   			if (item.textContent === "Cancel") {
+                                   				item.setAttribute('disabled', true);
+                                   			}
+                                   		});
+                                   	} else {
+                                   		XhrError(this);
+                                   	}  
                                    }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); });
                                 }
                                 if (valTrec <= 0) {
@@ -2835,6 +2843,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         			}
         			win.document.body.style.cursor = 'default';
         			return false;
+        			listBrands = []; listTypeApp = [];
+        			listBrands.length = 0; listTypeApp.length = 0;
         		});
         	});
         	NA.NAEvent.addHandler(btnClose, 'click', function (event) {
@@ -2847,6 +2857,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		if (!hasLoadDialog) {
         		    closeDialog();
         		}
+        		listBrands = []; listTypeApp = [];
+        		listBrands.length = 0; listTypeApp.length = 0;
         		return false;
         	});
         	try {

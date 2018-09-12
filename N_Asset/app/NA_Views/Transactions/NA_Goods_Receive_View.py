@@ -230,6 +230,7 @@ def ShowEntry_Receive(request):
 					desc += ')'
 					data['dataForGridDetail'] = dataForGridDetail
 					data.update(descbysystem=desc)
+					totalReceived = data['totalreceived']
 					if len(dataDetail) != totalReceived:
 						totalReceived = len(dataDetail)
 					data.update(totalreceived=totalReceived)

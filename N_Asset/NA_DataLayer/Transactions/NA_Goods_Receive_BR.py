@@ -255,7 +255,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur = self.__class__.c
 		#cek reference detail
 		#[data.idapp_fk_goods, data.datereceived,data.serialnumber,data.idapp_fk_goods, data.datereceived,data.serialnumber]
-		Query = """SELECT ngr.idapp_fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber,ngr.IDApp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
+		Query = """SELECT ngr.fk_goods,ngr.datereceived,ngd.typeapp,ngd.serialnumber,ngr.IDApp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd \
 					ON ngd.FK_App = ngr.IDApp WHERE ngd.idapp = %s"""
 		cur.execute(Query,[Data['idapp']])
 		if cur.rowcount > 0:
@@ -280,7 +280,7 @@ class NA_BR_Goods_Receive(models.Manager):
 					##update header
 					#get datafor grid detail
 
-					NADetailRows = list(self.getDetailData(FKApp,row['idapp_fk_goods']))
+					NADetailRows = list(self.getDetailData(FKApp,idapp_fk_goods))
 					desc = '('				
 					#dataDetail = object_list
 					detCount = 0			
@@ -288,7 +288,7 @@ class NA_BR_Goods_Receive(models.Manager):
 						detCount = len(NADetailRows)
 						#build descriptions
 						for i in range(detCount):
-							desc += NADetailRows[i]['brandname'] + ', Type : ' + NADetailRows[i]['typeapp'] + ', SN : ' + NADetailRows[i]['serialnumber']
+							desc += NADetailRows[i]['BrandName'] + ', Type : ' + NADetailRows[i]['TypeApp'] + ', SN : ' + NADetailRows[i]['SerialNumber']
 							if i <detCount -1:
 								desc += ', '							
 					desc += ')'
