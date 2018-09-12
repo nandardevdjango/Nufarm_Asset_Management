@@ -7,8 +7,10 @@ from django.db import transaction
 
 from NA_Models.models import NAGaVnHistory, NAPrivilege
 from NA_Notifications.email import EmailNotification, EmailSubject
-from NA_Notifications.models import NANotifications
-
+from NA_Notifications.services.notifications_service import (
+    NAPushNotificationService,
+    NAUpdateNotificationService
+)
 
 class NATask(object):
 
@@ -22,6 +24,7 @@ class NATask(object):
         if not isinstance(email, list):
             email = [email]
         notification.send(to=email)
+        return 'Successfully send email notifications to %s' % email
 
     @staticmethod
     @task(name='task_generate_fix_asset')
@@ -91,6 +94,17 @@ class NATask(object):
                         }), values_insert)
             str_values = ','.join(values_insert)
             NAAccFa.objects.create_acc_FA(str_values)
+        return 'Successfully generate fix asset'
+
+    @staticmethod
+    @task(name='task_update_notifications')
+    def task_update_notications(lookup, data):
+        services = NAUpdateNotificationService(
+            lookup=lookup,
+            data=data
+        )
+        services.execute()
+        return 'Successfully update notifications'
 
 
 class NATaskSchedule(object):
@@ -109,33 +123,9 @@ class NATaskSchedule(object):
                 role=NAPrivilege.SUPER_USER
             )
             ga_user = list(ga_user)
-            for reg in reg_expire:
-                title = 'Please extend the tax {reg_number}'.format(
-                    reg_number=reg.get('reg_number')
-                )
-                message = 'Reg Number {reg_number} will expire at {date_expire}'.format(
-                    reg_number=reg.get('reg_number'),
-                    date_expire=reg.get('date_expire')
-                )
-
-                try:
-                    recent_notif = NANotifications.objects.get(
-                        data__idapp=reg.get('idapp')
-                    )
-                    if reg.get('is_expire'):
-                        message = 'Reg Number {reg_number} has expired at {date_expire}'
-                        message = message.format(
-                            reg_number=reg.get('reg_number'),
-                            date_expire=reg.get('date_expire')
-                        )
-                    recent_notif.message = message
-                    recent_notif.data = reg
-                    recent_notif.save(update_fields=['message', 'data'])
-                except NANotifications.DoesNotExist:
-                    NANotifications.push_notifications(
-                        to=ga_user,
-                        name='ga_reg_notif',
-                        title=title,
-                        message=message,
-                        data=reg
-                    )
+            if ga_user:
+                services = NAPushNotificationService(reg_expire=reg_expire, user=ga_user)
+                services.execute()
+                return 'Successfully push notifications'
+            return 'There\'s No User for receive notifications'
+        return 'There\'s no notifications'

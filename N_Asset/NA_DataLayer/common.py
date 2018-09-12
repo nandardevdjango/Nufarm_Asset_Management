@@ -1016,3 +1016,13 @@ class commonFunct:
             json.dumps(results, indent=4, cls=DjangoJSONEncoder),
             content_type='application/json'
         )
+
+    @staticmethod
+    def get_difference_dict_values(dict1, dict2):
+        result = {}
+        for k, v in dict1.items():
+            if v != dict2[k]:
+                result.update({
+                    k: dict2[k]
+                })
+        return result

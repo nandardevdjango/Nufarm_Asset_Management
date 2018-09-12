@@ -46,6 +46,22 @@ class NANotifications(models.Model):
             to = list(to)
         notifications.user.add(*to)
 
+    @classmethod
+    def dismiss_notifications(cls, notif_id):
+        filter_kwargs = {
+            'idapp': notif_id
+        }
+        if isinstance(notif_id, list):
+            filter_kwargs = {
+                'idapp__in': notif_id
+            }
+        notifications = cls.objects.filter(**filter_kwargs)
+        for notif in notifications:
+            notif.data.update({
+                'is_dismissed': True
+            })
+            notif.save()
+
     class Meta:
         managed = True
         db_table = 'n_a_notifications'

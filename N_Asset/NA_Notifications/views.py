@@ -58,15 +58,14 @@ class NANotificationView(View):
 
         return JsonResponse(result, safe=False)
 
+
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def dismiss_notification(request):
-    notif_id = request.POST['notif_id'].split(',')
-    notifications = NANotifications.objects.filter(idapp__in=notif_id)
-    for notif in notifications:
-        notif.data.update({
-            'is_dismissed': True
-        })
-        notif.save()
+    notif_id = request.POST['notif_id']
+    if ',' in notif_id:
+        notif_id = notif_id.split(',')
+    NANotifications.dismiss_notifications(notif_id=notif_id)
+
     return JsonResponse({'success': True})

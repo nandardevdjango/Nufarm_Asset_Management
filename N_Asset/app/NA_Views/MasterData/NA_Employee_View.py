@@ -15,7 +15,8 @@ from NA_DataLayer.common import (
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
 from NA_Models.models import Employee
-
+from NA_Worker.task import NATask
+from NA_Worker.worker import NATaskWorker
 
 @decorators.ensure_authorization
 def NA_Employee(request):
@@ -142,6 +143,11 @@ class NA_Employee_form(forms.Form):
             idapp = self.cleaned_data.get('idapp')
             try:
                 employee = Employee.objects.get(idapp=idapp)
+                initial_data = {
+                    'employee_name': employee.employee_name,
+                    'employee_phone': employee.telphp,
+                    'employee_inactive': employee.inactive
+                }
             except Employee.DoesNotExist:
                 raise NAError(
                     error_code=NAErrorConstant.DATA_LOST
@@ -171,6 +177,18 @@ class NA_Employee_form(forms.Form):
                 message=e,
                 instance=employee
             )
+        changed_data = {
+            'employee_name': employee.employee_name,
+            'employee_phone': employee.telphp,
+            'employee_inactive': employee.inactive
+        }
+        diff = commonFunct.get_difference_dict_values(initial_data, changed_data)
+        if diff:
+            worker = NATaskWorker(
+                func=NATask.task_update_notications,
+                args=[initial_data, diff]
+            )
+            worker.run()
         log = LogActivity(
             models=Employee,
             activity=activity,
