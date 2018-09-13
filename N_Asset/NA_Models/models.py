@@ -1,14 +1,17 @@
 ﻿import re
-from datetime import datetime, date
+from datetime import date, datetime, timedelta
 from os import path
 
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import MultipleObjectsReturned
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldError, MultipleObjectsReturned
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
-from django_mysql.models import JSONField
 
+from NA_DataLayer.fields import JSONField
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
 from NA_DataLayer.MasterData.NA_Privilege_BR import NA_BR_Privilege
@@ -32,13 +35,6 @@ from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
 from NA_DataLayer.file_storage import NAFileStorage
 
-
-def forced_mariadb_connection(self):
-    errors = []
-    return errors
-
-
-JSONField._check_mysql_version = forced_mariadb_connection
 
 
 class NA_BaseModel(models.Model):
@@ -282,8 +278,62 @@ class LogEvent(NA_BaseModel):
     def __str__(self):
         return '{}'.format(self.nameapp)
 
-    def __get_descriptions__(self):
-        return self.descriptionsapp
+    @staticmethod
+    def get_log_data(model, action, values=None, pk=None, **kwargs):
+        """
+        to get log event data, use it to get date informations if data has deleted,
+        existed or updated
+        param
+        action: e.g (deleted,updated)
+        action for getting type of log event
+
+        PK: primary key e.g (IDApp,SupplierCode)
+        model: can fill with model class or string
+        usage :: LogEvent.get_log_data(pk=1, model=Employee, action='Deleted',
+        values='createddate')
+        """
+
+        filter_kwargs = {
+            'nameapp__istartswith': action,
+            'model': model
+        }
+
+        if not isinstance(model, type):
+            try:
+                model = ContentType.objects.get(model=model)
+            except ContentType.DoesNotExist:
+                raise ValueError('cannot get model %s' % model)
+            model = model.model_class()
+
+        if pk is None:
+            for field in kwargs.keys():
+                filter_kwargs.update({
+                    'descriptions__%s' % field: kwargs.get(field)
+                })
+        else:
+            pk_field = model._meta.pk.name
+            filter_kwargs.update({
+                'descriptions__%s' % pk_field: pk
+            })
+        filter_kwargs['model'] = force_text(model._meta.verbose_name).replace(' ', '')
+
+        try:
+            log = LogEvent.objects.get(**filter_kwargs)
+        except FieldError:
+            raise ValueError('Please ensure lookup fields in models')
+        except MultipleObjectsReturned:
+            log = LogEvent.objects.filter(**filter_kwargs).first()
+        except LogEvent.DoesNotExist as e:
+            raise e
+
+        if values:
+            if isinstance(values, str):
+                log = eval('log.%s' % values)
+            elif isinstance(values, list):
+                log = [eval('log.%s' % i) for i in values]
+            else:
+                raise TypeError('values must be list or str')
+        return log
 
     class Meta:
         managed = True
@@ -984,6 +1034,21 @@ def upload_to_each_dir(instance, filename):
 
 
 class NAPrivilege(AbstractUser, NA_BaseModel):
+    FORM_NAME = 'User Privilege'
+    FORM_NAME_ORI = 'n_a_privilege'
+
+    LOG_EVENT = {
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'username': 'User Name',
+        'email': 'Email',
+        'divisi': 'Divisi',
+        'role': 'Role',
+        'password': 'Password',
+        'picture': 'Picture',
+        'date_joined': 'Date Joined',
+        'createdby': 'Created By'
+    }
 
     IT = 'IT'
     GA = 'GA'
@@ -1273,9 +1338,13 @@ class NAPrivilege_form(models.Model):
     Employee_form = 'employee'
     Supplier_form = 'n_a_supplier'
     Goods_form = 'goods'
-    Goods_Receive_form = 'n_a_goods_receive'
     Privilege_form = 'n_a_privilege'
     Fix_asset_form = 'n_a_acc_fa'
+
+    Goods_Receive_form = 'n_a_goods_receive'
+    Goods_Outwards_form = 'n_a_goods_outwards'
+    GA_Receive_form = 'n_a_ga_receive'
+    GA_Outwards_form = 'n_a_ga_outwards'
 
     MASTER_DATA_FORM = [
         Employee_form,
@@ -1285,7 +1354,10 @@ class NAPrivilege_form(models.Model):
     ]
 
     TRANSACTION_FORM = [
-        Goods_Receive_form
+        Goods_Receive_form,
+        Goods_Outwards_form,
+        GA_Receive_form,
+        GA_Outwards_form
     ]
 
     OTHER_FORM = [
@@ -1294,13 +1366,28 @@ class NAPrivilege_form(models.Model):
 
     ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM + OTHER_FORM
 
+    IT_FORM = [
+        Goods_Receive_form,
+        Goods_Outwards_form,
+        Fix_asset_form
+    ] + MASTER_DATA_FORM
+
+    GA_FORM = [
+        GA_Receive_form,
+        GA_Outwards_form,
+        Fix_asset_form
+    ] + MASTER_DATA_FORM
+
     FORM_NAME_ORI_CHOICES = (
         (Employee_form, 'employee'),
         (Supplier_form, 'n_a_supplier'),
         (Goods_form, 'goods'),
-        (Goods_Receive_form, 'n_a_goods_receive'),
         (Privilege_form, 'n_a_privilege'),
-        (Fix_asset_form, 'n_a_acc_fa')
+        (Fix_asset_form, 'n_a_acc_fa'),
+        (Goods_Receive_form, 'n_a_goods_receive'),
+        (Goods_Outwards_form, 'n_a_goods_outwards'),
+        (GA_Receive_form, 'n_a_ga_receive_form'),
+        (GA_Outwards_form, 'n_a_ga_outwards')
     )
 
     idapp = models.AutoField(primary_key=True, db_column='IDApp')
@@ -1319,22 +1406,21 @@ class NAPrivilege_form(models.Model):
         return self.form_name
 
     @classmethod
-    def get_form_IT(cls, must_iterate=False):
-        forms = cls.MASTER_DATA_FORM
-        fk_form = cls.objects.filter(form_name_ori__in=forms)
+    def get_form_it(cls, must_iterate=False):
+        fk_form = cls.objects.filter(form_name_ori__in=cls.IT_FORM)
         if must_iterate:
             fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
 
-    @staticmethod
-    def get_form_GA(must_iterate):
-        """
-        not yet determine
-        """
-        raise NotImplementedError
+    @classmethod
+    def get_form_ga(cls, must_iterate):
+        fk_form = cls.objects.filter(form_name_ori__in=cls.GA_FORM)
+        if must_iterate:
+            fk_form = fk_form.iterator()
+        return fk_form
 
     @classmethod
-    def get_form_Guest(cls, must_iterate=False):
+    def get_form_guest(cls, must_iterate=False):
         fk_form = cls.objects.filter(form_name_ori__in=['goods', 'n_a_supplier', 'employee'])
         if must_iterate:
             fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
@@ -1346,12 +1432,12 @@ class NAPrivilege_form(models.Model):
         return queryset
         """
         if int(role) == NAPrivilege.GUEST:
-            return cls.get_form_Guest(must_iterate)
+            return cls.get_form_guest(must_iterate)
 
         if divisi == NAPrivilege.IT:
-            return cls.get_form_IT(must_iterate)
+            return cls.get_form_it(must_iterate)
         elif divisi == NAPrivilege.GA:
-            return cls.get_form_GA(must_iterate)
+            return cls.get_form_ga(must_iterate)
 
 
 class NASysPrivilege(NA_BaseModel):
@@ -1408,13 +1494,13 @@ class NASysPrivilege(NA_BaseModel):
         )
 
     @staticmethod
-    def default_permission_IT(form_name_ori):
+    def default_permission_it(form_name_ori):
         """
         return list of permissions [Allow View, Allow Add, etc.]
         """
 
         permissions = []
-        if form_name_ori in NAPrivilege_form.MASTER_DATA_FORM:
+        if form_name_ori in NAPrivilege_form.IT_FORM:
             permissions.append(NASysPrivilege.Allow_View)
             permissions.append(NASysPrivilege.Allow_Add)
             permissions.append(NASysPrivilege.Allow_Edit)
@@ -1424,14 +1510,19 @@ class NASysPrivilege(NA_BaseModel):
             raise ValueError()
 
     @staticmethod
-    def default_permission_GA(form_name_ori):
-        """
-        not yet determine
-        """
-        raise NotImplementedError
+    def default_permission_ga(form_name_ori):
+        permissions = []
+        if form_name_ori in NAPrivilege_form.GA_FORM:
+            permissions.append(NASysPrivilege.Allow_View)
+            permissions.append(NASysPrivilege.Allow_Add)
+            permissions.append(NASysPrivilege.Allow_Edit)
+            permissions.append(NASysPrivilege.Allow_Delete)
+            return permissions
+        else:
+            raise ValueError()
 
     @staticmethod
-    def default_permission_Guest(form_name_ori):
+    def default_permission_guest(form_name_ori):
         return [NASysPrivilege.Allow_View]
 
     @classmethod
@@ -1442,12 +1533,12 @@ class NASysPrivilege(NA_BaseModel):
         """
         permissions = None
         if int(user.role) == NAPrivilege.GUEST:
-            permissions = cls.default_permission_Guest
+            permissions = cls.default_permission_guest
         else:
             if user.divisi == NAPrivilege.IT:
-                permissions = cls.default_permission_IT
+                permissions = cls.default_permission_it
             elif user.divisi == NAPrivilege.GA:
-                permissions = cls.default_permission_GA
+                permissions = cls.default_permission_ga
 
         fk_forms = NAPrivilege_form.get_user_form(
             user.role,
@@ -1456,6 +1547,7 @@ class NASysPrivilege(NA_BaseModel):
         )
         if permissions is not None:
             is_have_permission = user.is_have_permission()
+            user_permissions = user.get_all_permission()
             for fk_form in fk_forms:  # loop queryset
                 form_name_ori = fk_form.form_name_ori
                 for permission in permissions(form_name_ori):
@@ -1464,13 +1556,11 @@ class NASysPrivilege(NA_BaseModel):
                             if permission != NASysPrivilege.Allow_View:
                                 continue
                     if is_have_permission:
-                        user_permissions = user.get_all_permission()
                         must_continue = False
 
-                        # aya bug didieu euy .. .
                         for i in user_permissions:
-                            if i['form'] == form_name_ori \
-                                    and permission == i['permission']:
+                            if (i['form'] == form_name_ori and
+                                    permission == i['permission']):
                                 must_continue = True
                                 break
                             else:
@@ -1515,7 +1605,7 @@ class NASysPrivilege(NA_BaseModel):
                     'createddate': datetime.now(),
                     'createdby': createdby
                 })
-            sys_privilege = cls.objects.bulk_create([
+            cls.objects.bulk_create([
                 cls(**field) for field in data
             ])
         elif len_permissions == 1:
@@ -1737,10 +1827,14 @@ class NAGaVnHistory(NA_BaseModel):
         null=True,
         blank=True
     )
+    is_active = models.BooleanField(default=True)
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
     
     objects = NAGaVnHistoryBR()
+
+    def __str__(self):
+        return self.reg_no
 
     @property
     def is_expired_reg(self):
@@ -1749,6 +1843,36 @@ class NAGaVnHistory(NA_BaseModel):
     @property
     def is_bpkb_expired(self):
         return date.today() > self.bpkb_expired
+
+    @classmethod
+    def get_expired_regs(cls):
+        result = []
+        now = datetime.now()
+        filter_kwargs = {
+            'fk_app__is_active': True,
+            'fk_app__expired_reg__range': [
+                (now - timedelta(days=10)),
+                now
+            ]
+        }
+        regs = list(NAGaOutwards.objects.filter(
+            Q(**filter_kwargs) | Q(fk_app__expired_reg__gte=now)
+        ).select_related('fk_app', 'fk_employee'))
+
+        if regs:
+            for reg in regs:
+                result.append({
+                    'idapp': int(reg.fk_app_id),
+                    'reg_number': reg.fk_app.reg_no,
+                    'date_expire': reg.fk_app.expired_reg.strftime('%d/%m/%Y'),
+                    'is_expire': reg.fk_app.is_expired_reg,
+                    'is_dismissed': False,
+                    'idapp_outwards': reg.idapp,
+                    'employee_name': reg.fk_employee.employee_name,
+                    'employee_phone': reg.fk_employee.telphp,
+                    'employee_inactive': reg.fk_employee.inactive
+                })
+        return result
 
     class Meta:
         managed = True

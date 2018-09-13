@@ -20,6 +20,8 @@ class NAErrorConstant(object):
     DATA_HAS_REF = 'Data-Has-Ref'
     DATA_LOST = 'Data-Lost'
 
+    UNCAUGHT_ERROR = 'Uncaught-Error'
+
 
 class NAErrorHandler(object):
 
@@ -89,8 +91,8 @@ class NAErrorHandler(object):
         raise NotImplementedError
 
     @staticmethod
-    def handle_data_lost(pk, table):
-        return Data.Lost, Message.get_lost_info(pk=pk, table=table)
+    def handle_data_lost(model, pk=None, **kwargs):
+        return Data.Lost, Message.get_lost_info(model=model, pk=pk, **kwargs)
 
     @classmethod
     def handle_form_error(cls, form_error):

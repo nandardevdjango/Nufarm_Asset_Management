@@ -83,45 +83,59 @@ class Message(Enum):
         return '{0} with {1} {2} has existed'.format(table, column, data)
 
     @classmethod
-    def get_time_info(cls, times):
+    def get_time_info(cls, times, format=None):
         """
         function get time
         param:
         must instance of datetime
         return (tuple): {digits} {unit} e.g : 1 minute, 2 minutes
         """
-        diff = (datetime.now() - times).seconds
+        now = datetime.now()
+        if format:
+            if format == 'day':
+                now = now.date()
+                times = times.date()
+        diff = (now - times)
+        if diff.days < 0 or diff.seconds < 0:
+            diff = (times - now)
         unit = 'seconds'
-        result = diff
-        if diff >= 60:
-            result = result / 60
+        result = diff.seconds
+        total_seconds = diff.total_seconds()
+
+        if total_seconds >= 60 and total_seconds < 3600:
+            result = total_seconds / 60
             unit = 'minute'
-            if diff >= 120:
+            if total_seconds >= 120:
                 unit = 'minutes'
-        elif diff >= 3600:
-            result = result / 3600
+        elif total_seconds >= 3600 and diff.days < 1:
+            result = total_seconds / 3600
             unit = 'hour'
-            if diff >= 7200:
+            if total_seconds >= 7200:
                 unit = 'hours'
-        return (int(result), unit)
+        elif diff.days >= 1:
+            result = diff.days
+            unit = 'day'
+            if result > 1:
+                unit = 'days'
+        return int(result), unit
 
     @classmethod
-    def get_lost_info(cls, **kwargs):
+    def get_lost_info(cls, model, pk=None, **kwargs):
         """
         get lost info, 
         param:
         pk(Primary Key):idapp or suppliercode
         table:table_name
         """
-        obj = commonFunct.get_log_data(
-            pk=kwargs['pk'], table=kwargs['table'], action='deleted'
+        from NA_Models.models import LogEvent
+        obj = LogEvent.get_log_data(
+            model=model,
+            action='Deleted',
+            values='createddate',
+            pk=pk, **kwargs
         )
-        if obj == []:
-            return 'This data doesn\'t lost'
-        else:
-            obj = obj[0]
-            result, unit = cls.get_time_info(obj['createddate'])
-            return 'This data has lost or deleted by other user, {0} {1} ago'.format(result, unit)
+        result, unit = cls.get_time_info(obj)
+        return 'This data has lost or deleted by other user, {0} {1} ago'.format(result, unit)
 
     @classmethod
     def get_exists_info(cls, createddate):
@@ -829,29 +843,6 @@ class commonFunct:
             return result
         raise ValueError('cannot resolve \'%s\' column' % resolve)
 
-    def get_log_data(**kwargs):
-        """
-        to get log event data, use it to get date informations if data has deleted, existed or updated
-        param
-        action: e.g (deleted,updated)
-        action for getting type of log event
-
-        PK: primary key e.g (IDApp,SupplierCode)
-        table: to determine , which table to get
-        usage :: get_log_data(action='deleted',pk=2,table='employee')
-        """
-
-        cur = connection.cursor()
-        action = kwargs['action']
-        Query = """SELECT createddate FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
-            action + \
-                """[0])=%(PK)s AND nameapp LIKE %(NameApp)%"""  # PK (Primary Key)
-        if action == 'updated':
-            Query = Query + """ AND idapp = (SELECT Max(idapp) FROM logevent WHERE JSON_EXTRACT(descriptions,$.""" + \
-                action+"""[0])=%(PK)s AND nameapp LIKE %(NameApp)%)"""
-        cur.execute(Query, {'PK': kwargs['pk'], 'NameApp': kwargs['table']})
-        return query.dictfetchall(cur)
-
     def response_default(data):
         """
         this is default HttpResponse, use it to correct and neat response
@@ -1025,3 +1016,13 @@ class commonFunct:
             json.dumps(results, indent=4, cls=DjangoJSONEncoder),
             content_type='application/json'
         )
+
+    @staticmethod
+    def get_difference_dict_values(dict1, dict2):
+        result = {}
+        for k, v in dict1.items():
+            if v != dict2[k]:
+                result.update({
+                    k: dict2[k]
+                })
+        return result

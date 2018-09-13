@@ -37,6 +37,10 @@ urlpatterns = [
     
     url(r'^Report/', include('app.NA_Urls.Reports_url', namespace='Report')),
 
+    # Notifications URL
+    url(r'^Notifications/', include('NA_Notifications.urls',
+                                    namespace='NA_Notifications')),
+
     # URL Facebook,Google,Twitter Login
     url(r'^oauth/', include('social_django.urls', namespace='social')),
     # Uncomment the next line to enable the admin:

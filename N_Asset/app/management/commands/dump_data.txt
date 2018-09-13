@@ -1,0 +1,1 @@
+python manage.py dumpdata --indent 4 --exclude=auth --exclude=contenttypes --exclude=sessions --exclude=NA_Models.NAAccFa --exclude=NA_Models.NAPrivilege --exclude=NA_Models.NASysPrivilege > app/fixtures/NA_Data.json

@@ -253,6 +253,10 @@ ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover
     font-size: 15px;
 }
 
+.ga-popup-notif .modal-dialog.modal-sm{
+    width: 800px;
+}
+
 /*================== Checkbox ======================*/
 .checkbox {
   padding-left: 20px;
