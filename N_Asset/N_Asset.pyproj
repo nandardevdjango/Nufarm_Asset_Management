@@ -138,9 +138,6 @@
     <Compile Include="app\NA_Views\MasterData\NA_Employee_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\templates\app\Transactions\NA_F_Goods_Receive_Batch_Detail.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="app\tests.py" />
     <Compile Include="app\views.py" />
     <Compile Include="app\__init__.py" />

@@ -1,11 +1,155 @@
-﻿<!DOCTYPE html>
+﻿{% extends "../../app/layout.html" %}
+{% block SearchData %}
+{% for itemCombo in populateColumn %}
+<li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
+{% endfor %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% endblock %}
 
-</body>
-</html>
+{% block javascriptAndUI %}
+<!--================================Load Script Modules NA ===========================================-->
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<!--=======================================================================================================-->
+
+<script type="text/javascript">
+    
+	(function(){ 
+	    var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+	    var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
+	    if (!NA.common.getElementID('CustomSearch')) {
+	        var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+	        lastLi = NA.common.doc.createElement('li'),
+			lastLi_a = NA.common.doc.createElement('a');
+	        lastLi_a.setAttribute('id', 'custSearch');
+	        lastLi_a.textContent = 'CustomSearch';
+	        lastLi.appendChild(lastLi_a);
+	        parentC.appendChild(lastLi);
+	    }
+	   
+//=================add Dynamic Styles=============================
+        NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");   
+        var doc = doc||window.document;
+        var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+        (function(elm){
+            var listElem = elm.children;
+             var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+            var numPlaceHolder = 'enter numeric type';
+            Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
+                NA.NAEvent.addHandler(item, 'click', function (event) {
+                    event.preventDefault();
+                    if (item.firstChild.id === 'custSearch') {
+                        //=========='show dialog search'==================
+                        NA.common.dialog.createSearchDialog(event)
+                        txtSearchMaster.setAttribute('disabled', true);
+                        txtSearchMaster.setAttribute('placeholder', '');
+                        btnSearchMaster.setAttribute('disabled', true)
+                    }
+                    else {
+                        txtSearchMaster.removeAttribute('disabled');
+                        btnSearchMaster.removeAttribute('disabled');
+                        var textSearch = NA.common.getElementID('bySearch');
+                        textSearch.firstChild.nodeValue = item.textContent;
+                        var elSearch = item.firstChild;
+                        switch (elSearch.dataset.tipe) {
+                            case "varchar":
+                            case "nchar":
+                            case "char":
+                            case "nvarchar": {
+                                txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+                                break;
+                            }
+                            case "int":
+                            case "integer":
+                            case "decimal":
+                            case "floatt":
+                            case "bigint": {
+                                txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+                                break;
+                            }
+                            case "datetime": {
+                                txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+                                break;
+                            }
+                        }
+                    }
+                    //event.stopImmediatePropagation();
+                });
+            });
+       
+            NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+                //get textcontent IDbySearch
+                //looping dropdown li a textContent
+                var SearchByText = NA.common.getElementID('bySearch').textContent;
+                var elSearch = null;
+                Array.prototype.forEach.call(listElem, function (item) {
+                    if (item.firstChild.text == SearchByText) {
+                        elSearch = item.firstChild;
+                        return;
+                    }                        
+                });
+                switch (elSearch.dataset.tipe) {
+                    case "varchar":
+                    case "nchar":
+                    case "char":
+                    case "nvarchar": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== defPlaceHolder) {
+                                this.setAttribute('placeholder', defPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "int":
+                    case "integer":
+                    case "decimal":
+                    case "floatt":
+                    case "bigint": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== numPlaceHolder) {
+                                this.setAttribute('placeholder', numPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "datetime": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== datePlaceHolder) {
+                                this.setAttribute('placeholder', datePlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                }
+            });
+            NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+                if (this.value === '') {
+                    if (this.getAttribute('placeholder') !== '') {
+                        this.setAttribute('placeholder', '');
+                    }
+                }
+            });            
+        })(DivSearch);
+    })();   
+</script>
+
+
+<!--SETUP Jquery grid-->
+<!-- The jQuery library is a prerequisite for all jqSuite products -->
+<script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
+
+<!-- This is the Javascript file of jqGrid -->
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
+
+<!-- This is the localization file of the grid controlling messages, labels, etc. -->
+<!-- We support more than 40 localizations -->
+<script src="../../../static/app/scripts/grid.locale-en.js"></script>
+<!----------------------------Load Jquery UI. JS file-------------------------------->
+<script src="../../../static/app/scripts/jquery-ui.js"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+{% endblock %}
