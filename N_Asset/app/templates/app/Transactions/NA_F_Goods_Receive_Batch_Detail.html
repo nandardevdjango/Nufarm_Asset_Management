@@ -1,11 +1,237 @@
-﻿<!DOCTYPE html>
+﻿{% extends "../../app/layout.html" %}
+{% block SearchData %}
+{% for itemCombo in populateColumn %}
+<li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
+{% endfor %}
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+{% endblock %}
 
-</body>
-</html>
+{% block javascriptAndUI %}
+<!--================================Load Script Modules NA ===========================================-->
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<!--=======================================================================================================-->
+
+<script type="text/javascript">
+
+    (function () {
+        var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+        var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
+        if (!NA.common.getElementID('CustomSearch')) {
+            var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+            lastLi = NA.common.doc.createElement('li'),
+			lastLi_a = NA.common.doc.createElement('a');
+            lastLi_a.setAttribute('id', 'custSearch');
+            lastLi_a.textContent = 'CustomSearch';
+            lastLi.appendChild(lastLi_a);
+            parentC.appendChild(lastLi);
+        }
+
+        //=================add Dynamic Styles=============================
+        NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
+        var doc = doc || window.document;
+        var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+        (function (elm) {
+            var listElem = elm.children;
+            var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+            var numPlaceHolder = 'enter numeric type';
+            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+                NA.NAEvent.addHandler(item, 'click', function (event) {
+                    event.preventDefault();
+                    if (item.firstChild.id === 'custSearch') {
+                        //=========='show dialog search'==================
+                        NA.common.dialog.createSearchDialog(event)
+                        txtSearchMaster.setAttribute('disabled', true);
+                        txtSearchMaster.setAttribute('placeholder', '');
+                        btnSearchMaster.setAttribute('disabled', true)
+                    }
+                    else {
+                        txtSearchMaster.removeAttribute('disabled');
+                        btnSearchMaster.removeAttribute('disabled');
+                        var textSearch = NA.common.getElementID('bySearch');
+                        textSearch.firstChild.nodeValue = item.textContent;
+                        var elSearch = item.firstChild;
+                        switch (elSearch.dataset.tipe) {
+                            case "varchar":
+                            case "nchar":
+                            case "char":
+                            case "nvarchar": {
+                                txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+                                break;
+                            }
+                            case "int":
+                            case "integer":
+                            case "decimal":
+                            case "floatt":
+                            case "bigint": {
+                                txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+                                break;
+                            }
+                            case "datetime": {
+                                txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+                                break;
+                            }
+                        }
+                    }
+                    //event.stopImmediatePropagation();
+                });
+            });
+
+            NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+                //get textcontent IDbySearch
+                //looping dropdown li a textContent
+                var SearchByText = NA.common.getElementID('bySearch').textContent;
+                var elSearch = null;
+                Array.prototype.forEach.call(listElem, function (item) {
+                    if (item.firstChild.text == SearchByText) {
+                        elSearch = item.firstChild;
+                        return;
+                    }
+                });
+                switch (elSearch.dataset.tipe) {
+                    case "varchar":
+                    case "nchar":
+                    case "char":
+                    case "nvarchar": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== defPlaceHolder) {
+                                this.setAttribute('placeholder', defPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "int":
+                    case "integer":
+                    case "decimal":
+                    case "floatt":
+                    case "bigint": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== numPlaceHolder) {
+                                this.setAttribute('placeholder', numPlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                    case "datetime": {
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') !== datePlaceHolder) {
+                                this.setAttribute('placeholder', datePlaceHolder);
+                            }
+                        }
+                        e.stopImmediatePropagation();
+                        break;
+                    }
+                }
+            });
+            NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+                if (this.value === '') {
+                    if (this.getAttribute('placeholder') !== '') {
+                        this.setAttribute('placeholder', '');
+                    }
+                }
+            });
+        })(DivSearch);
+    })();
+</script>
+
+
+<!--SETUP Jquery grid-->
+<!-- The jQuery library is a prerequisite for all jqSuite products -->
+<script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
+
+<!-- This is the Javascript file of jqGrid -->
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
+
+<!-- This is the localization file of the grid controlling messages, labels, etc. -->
+<!-- We support more than 40 localizations -->
+<script src="../../../static/app/scripts/grid.locale-en.js"></script>
+<!----------------------------Load Jquery UI. JS file-------------------------------->
+<script src="../../../static/app/scripts/jquery-ui.js"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+{% endblock %}
+{%block content-0 %}
+<style type="text/css">
+    div#content-0 {
+        overflow: hidden;
+    }
+
+    div#gbox_jqGrid_NA_F_Goods_Receive, div#gview_jqGrid_NA_F_Goods_Receive, div#jqGrid_NA_F_Goods_Receive_Pager, div.ui-jqgrid-titlebar {
+        border-radius: 0px;
+    }
+
+    td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left {
+        width: 55%;
+    }
+
+        td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
+            width: auto;
+            padding: 2px;
+        }
+
+    .not-editable-cell {
+        cursor: not-allowed;
+        background-color: #eeeeee;
+    }
+
+    .row_RBD {
+        margin-top: 40px;
+        padding: 0 10px;
+    }
+
+    .clickable {
+        cursor: pointer;
+    }
+
+    .panel-heading span {
+        margin-top: -20px;
+        font-size: 15px;
+    }
+</style>
+<div class="container">
+    <div class="row row_RBD">
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Reference Number</h3>
+                    <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+                </div>
+                <div class="panel-body">
+                    <div class="NA-Entry-div-row">
+                        <label for="id_refno" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Reference Number</label>
+                        <div class="input-group" style="display:inline-flex;width:46%;">
+                            <input name="refno" class="NA-Form-Control" style="width:200px;display:inline-block;margin-right:5px;" tabindex="0" placeholder="Ref number" data-value="Please enter ref number"
+                                   tittle="Enter Reference number to show data to edit to" maxlength="50" required="" id="id_refno" type="text">
+                            <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
+                                <button class="btn btn-success" type="button" id="FE_Ref_No" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    (function () {
+        $('.panel-heading span.clickable').click(function (event) {
+        var $this = $(this);
+            if (!$this.hasClass('panel-collapsed')) {
+                $this.parents('.panel').find('.panel-body').slideUp();
+                $this.addClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+            } else {
+                $this.parents('.panel').find('.panel-body').slideDown();
+                $this.removeClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+            }
+        });
+    })
+</script>
+
+
+{% endblock %}
