@@ -18,6 +18,7 @@ from NA_Models.models import Employee
 from NA_Worker.task import NATask
 from NA_Worker.worker import NATaskWorker
 
+
 @decorators.ensure_authorization
 def NA_Employee(request):
     return render(request, 'app/MasterData/NA_F_Employee.html')
@@ -25,6 +26,7 @@ def NA_Employee(request):
 
 @decorators.ensure_authorization
 @decorators.ajax_required
+@decorators.detail_request_method('GET')
 def NA_EmployeeGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey = request.GET.get('valueKey')
@@ -185,7 +187,7 @@ class NA_Employee_form(forms.Form):
         diff = commonFunct.get_difference_dict_values(initial_data, changed_data)
         if diff:
             worker = NATaskWorker(
-                func=NATask.task_update_notications,
+                func=NATask.task_update_notifications,
                 args=[initial_data, diff]
             )
             worker.run()
@@ -229,8 +231,9 @@ def EntryEmployee(request):
             try:
                 result = Employee.objects.get(idapp=idapp)
             except Employee.DoesNotExist:
-                # TODO: handle data lost with message
-                raise NotImplementedError
+                raise NAError(
+                    error_code=NAErrorConstant.DATA_LOST
+                )
             else:
                 form = NA_Employee_form(initial=forms.model_to_dict(result))
                 form.fields['nik'].widget.attrs['disabled'] = 'disabled'
@@ -294,6 +297,9 @@ def NA_Employee_delete(request):
     return commonFunct.response_default(result)
 
 
+@decorators.ensure_authorization
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
 def SearchEmployeebyform(request):
     """
     for common search employee by form
@@ -316,8 +322,7 @@ def SearchEmployeebyform(request):
         multi_sort = commonFunct.multi_sort_queryset(NAData, Isidx, Isord)
     except ValueError:
         multi_sort = NAData
-    else:
-        NAData = multi_sort
+    NAData = multi_sort
     totalRecord = NAData.count()
     paginator = Paginator(NAData, int(Ilimit))
     try:

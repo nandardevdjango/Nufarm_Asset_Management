@@ -344,7 +344,7 @@ class Employee(NA_MasterDataModel):
     FORM_NAME = 'Employee'
     FORM_NAME_ORI = 'employee'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'nik': 'Nik',
         'employee_name': 'Employee Name',
         'typeapp': 'Employee Type',
@@ -410,7 +410,7 @@ class NASupplier(NA_MasterDataModel):
     FORM_NAME = 'Supplier'
     FORM_NAME_ORI = 'n_a_supplier'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'suppliercode': 'Supplier Code',
         'suppliername': 'Supplier Name',
         'telp': 'Telp',
@@ -1037,7 +1037,7 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     FORM_NAME = 'User Privilege'
     FORM_NAME_ORI = 'n_a_privilege'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'first_name': 'First Name',
         'last_name': 'Last Name',
         'username': 'User Name',

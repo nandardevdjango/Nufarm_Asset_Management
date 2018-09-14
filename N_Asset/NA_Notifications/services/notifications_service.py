@@ -55,8 +55,14 @@ class NAUpdateNotificationService(object):
             filter_kwargs.update({
                 'data__%s' % k: v
             })
-        notifications = NANotifications.objects.filter(**filter_kwargs)
-        if notifications.exists():
-            for notif in notifications:
+        try:
+            notification = NANotifications.objects.get(**filter_kwargs)
+            notification.data.update(self.data)
+            notification.save()
+        except NANotifications.MultipleObjectsReturned:
+            notification = NANotifications.objects.filter(**filter_kwargs)
+            for notif in notification:
                 notif.data.update(self.data)
                 notif.save()
+        except NANotifications.DoesNotExist:
+            pass

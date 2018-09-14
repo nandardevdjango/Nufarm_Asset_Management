@@ -12,6 +12,7 @@ from NA_Notifications.services.notifications_service import (
     NAUpdateNotificationService
 )
 
+
 class NATask(object):
 
     @staticmethod
@@ -98,7 +99,7 @@ class NATask(object):
 
     @staticmethod
     @task(name='task_update_notifications')
-    def task_update_notications(lookup, data):
+    def task_update_notifications(lookup, data):
         services = NAUpdateNotificationService(
             lookup=lookup,
             data=data

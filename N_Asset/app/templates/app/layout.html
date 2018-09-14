@@ -113,7 +113,7 @@
                                 </a>
                             </li>
                             <li>
-                                <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
+                                <ul class="sub-menu collapse" id="it" aria-expanded="false">
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
@@ -132,7 +132,8 @@
                             </li>
 							<li>
                                 <ul class="sub-menu collapse" id="ga" aria-expanded="false">
-                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
+                                    <li><a href="#">Extend taxes</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="#">Goods Returned</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
@@ -283,11 +284,33 @@
                     <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
                     {%block ImgUserLogin %}
                     {% if request.user.is_authenticated %}
-                    <li class="dropdown" style="position: absolute;right: 40px;top: 8px;">
+                    <li class="dropdown notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
+                        <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
+                            <div class="profile-circle shadow" style="background: rgba(0,0,0,.55);width: 30px;height: 30px;position: relative;top: 50%;left: 50%;transform: translate(-50%, -50%) !important;">
+                                <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
+                                    <span class="badge badge-success pull-right">2</span>
+                                </i>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu triangle triangle-bell-notif pull-right shadow" style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
+                            <li>
+                                psakdpas
+                            </li>
+                            <li>
+                                sadbaks
+                            </li>
+                            <li class="divider" style="margin-bottom:0px;"></li>
+                            <li style="height:47px;background:#f5f5f5;">
+                            </li>
+                        </ul>
+                    </li>
+
+
+                    <li class="dropdown" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
                         </div>
-                        <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
+                        <ul class="dropdown-menu triangle triange-profile-dropdown pull-right shadow" style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
                             <li>
                                 <div class="row" style="margin:15px;height:110px;">
                                     <div class="col-md-5" style="padding:0px;">
@@ -792,12 +815,15 @@
                             type: BootstrapDialog.TYPE_WARNING,
                             size: BootstrapDialog.SIZE_SMALL,
                             cssClass: 'ga-popup-notif',
-                            title: 'Notifications',
+                            title: 'Notifications - Please extend taxes below !',
                             message: (function(){
+                                var row = $('<div></div>');
                                 var container = $('<div class="container" style="padding:0;"></div>');
-                                var table = $('<table id="table-notif-popup" class="table"></table>');
-                                var text_title = 'Please extend taxes below';
-                                var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+                                var text_title = 'Below are taxes that will be expired :';
+                                var table_title = '<div style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
+                                row.append(table_title);
+
+                                var table = $('<table id="table-notif-popup" class="table table-hover"></table>');
 
                                 var thead = $('<thead></thead>');
                                 var tr_thead = $('<tr class="active"></tr>');
@@ -828,7 +854,8 @@
                                 })
                                 table.append(tbody);
                                 container.append(table);
-                                return container
+                                row.append(container)
+                                return row
                             }),
                             closable: false,
                             animate: true,
@@ -900,11 +927,14 @@
                                             document.querySelector('#table-notif-popup input#check_all').checked = true;
                                         }
                                     } else {
-                                        if (!checkbox_checked.length){
-                                            dialog.getButton('dismiss_popup').disable();
-                                            document.querySelector('#table-notif-popup input#check_all').checked = false;
-                                        }
+                                        dialog.getButton('dismiss_popup').disable();
+                                        document.querySelector('#table-notif-popup input#check_all').checked = false;
                                     }
+                                });
+
+                                $(document).on('click', 'table#table-notif-popup tbody tr', function(event){
+                                    var checkbox = $(this).children().first().children();
+                                    checkbox.click();
                                 })
                             }
                         })

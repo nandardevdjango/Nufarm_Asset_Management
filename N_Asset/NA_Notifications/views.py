@@ -39,6 +39,7 @@ class NANotificationView(View):
                 notif_type = 'normal'
                 days_left = f'{time} {unit}'
                 if notif['data'].get('is_expire'):
+                    # TODO: tell if 0 days is expire
                     notif_type = 'danger'
                     days_left = 'has expired'
                 elif time <= 3:

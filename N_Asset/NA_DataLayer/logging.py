@@ -38,7 +38,7 @@ class LogActivity:
                 data = data.name
             if to_json:
                 if isinstance(data, datetime):
-                    data = data.strftime('%d/%m/%Y %H:%M:%S')
+                    data = data.strftime('%d/%m/%Y %H:%M')
                 elif isinstance(data, date):
                     data = data.strftime('%d/%m/%Y')
             try:

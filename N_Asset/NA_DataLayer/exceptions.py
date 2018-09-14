@@ -29,7 +29,7 @@ class NAErrorHandler(object):
     def handle(cls, err):
         result = None
         if err.error_code == NAErrorConstant.DATA_EXISTS:
-            result = NAErrorHandler.handle_data_exists(err=e)
+            result = NAErrorHandler.handle_data_exists(err=err)
         elif err.error_code == NAErrorConstant.DATA_LOST:
             result = NAErrorHandler.handle_data_lost()
         elif err.error_code == NAErrorConstant.DATA_HAS_REF:
