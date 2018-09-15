@@ -12,7 +12,13 @@ class NAPushNotificationService(object):
                 title = 'Please extend the tax {reg_number}'.format(
                     reg_number=reg.get('reg_number')
                 )
-                message = 'Reg Number {reg_number} will expire at {date_expire}'.format(
+
+                if reg.get('is_expire'):
+                    message = 'Reg Number {reg_number} has expired at {date_expire}'
+                else:
+                    message = 'Reg Number {reg_number} will expire at {date_expire}'
+
+                message = message.format(
                     reg_number=reg.get('reg_number'),
                     date_expire=reg.get('date_expire')
                 )
@@ -22,12 +28,6 @@ class NAPushNotificationService(object):
                         is_active=True,
                         data__idapp=reg.get('idapp')
                     )
-                    if reg.get('is_expire'):
-                        message = 'Reg Number {reg_number} has expired at {date_expire}'
-                        message = message.format(
-                            reg_number=reg.get('reg_number'),
-                            date_expire=reg.get('date_expire')
-                        )
                     reg['is_dismissed'] = recent_notif.data['is_dismissed']
                     recent_notif.message = message
                     recent_notif.data = reg
@@ -44,6 +44,10 @@ class NAPushNotificationService(object):
 
 class NAUpdateNotificationService(object):
     def __init__(self, lookup, data):
+        """
+        :param lookup: -- for filter notifications by field(data) json
+        :param data: -- data that has changed
+        """
         self.lookup = lookup
         self.data = data
 
@@ -66,3 +70,5 @@ class NAUpdateNotificationService(object):
                 notif.save()
         except NANotifications.DoesNotExist:
             pass
+
+# TODO: Create service clear notifications if reg number has extended and clear session

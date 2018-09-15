@@ -286,22 +286,28 @@
                     {% if request.user.is_authenticated %}
                     <li class="dropdown notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
-                            <div class="profile-circle shadow" style="background: rgba(0,0,0,.55);width: 30px;height: 30px;position: relative;top: 50%;left: 50%;transform: translate(-50%, -50%) !important;">
+                            <div class="profile-circle shadow">
                                 <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
-                                    <span class="badge badge-success pull-right">2</span>
+                                    <span id="notification-count" class="badge badge-success pull-right"></span>
                                 </i>
                             </div>
                         </div>
-                        <ul class="dropdown-menu triangle triangle-bell-notif pull-right shadow" style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
+                        <ul
+                        class="dropdown-menu triangle triangle-bell-notif pull-right shadow" 
+                        style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px"
+                        >
+                            <li style="background: #f5f5f5;padding:10px;color:forestgreen;font-weight:bold;">
+                                Notifications <span id="notification-count" class="badge badge-success pull-right"></span>
+                            </li>
+                            <li class="divider" style="margin:0px;"></li>
                             <li>
-                                psakdpas
+                                <ul id="notification-content" data-pull="false">
+                                    <div style="color:#999;"><i class="fa fa-bell fa-4x"></i></div>
+                                    <p class="no-notification">There's no notifications here</p>
+                                </ul>
                             </li>
-                            <li>
-                                sadbaks
-                            </li>
-                            <li class="divider" style="margin-bottom:0px;"></li>
-                            <li style="height:47px;background:#f5f5f5;">
-                            </li>
+                            <li class="divider" style="margin:0px;"></li>
+                            <li class="see-all-notification">See all notifications</li>
                         </ul>
                     </li>
 
@@ -753,7 +759,21 @@
                             }
                         )
                     } else {
-                        var message = resp.responseText
+                        var message;
+                        try {
+                            response = JSON.parse(resp.responseText);
+                            if (typeof response.message != "undefined") {
+                                message = response.message
+                            } else {
+                                message = response
+                            }
+                        } catch (e) {
+                            if (e instanceof SyntaxError) {
+                                message = resp.responseText;
+                            } else {
+                                console.log(e);
+                            }
+                        }
                         if (typeof resp.responseJSON != 'undefined'){
                             if (typeof resp['message'] != 'undefined'){
                                 message = resp['message']
@@ -806,7 +826,7 @@
                 method: 'GET',
                 data: {
                     name: 'ga_reg_notif',
-                    'type': 'popup'
+                    type: 'popup'
                 },
                 success: function(data){
                     if (data.length){
@@ -819,8 +839,19 @@
                             message: (function(){
                                 var row = $('<div></div>');
                                 var container = $('<div class="container" style="padding:0;"></div>');
-                                var text_title = 'Below are taxes that will be expired :';
-                                var table_title = '<div style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
+                                var is_expire = false;
+                                data.forEach(function(obj, index){
+                                    if (obj.is_expire && !is_expire){
+                                        is_expire = true;
+                                    }
+                                })
+                                if (is_expire){
+                                    var text_title = 'Below are taxes that will be or has been expired :';
+                                } else {
+                                    var text_title = 'Below are taxes that will be expired :';
+                                }
+                                
+                                var table_title = '<div id="notif_popup_title" style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
                                 row.append(table_title);
 
                                 var table = $('<table id="table-notif-popup" class="table table-hover"></table>');
@@ -836,7 +867,9 @@
                                 thead.append(tr_thead);
                                 table.append(thead);
                                 var tbody = $('<tbody></tbody>');
+                                
                                 data.forEach(function(obj, index){
+                                    
                                     var tr = $('<tr id="'+ obj.notif_id +'"></tr>');
                                     if (obj.notif_type == 'warning'){
                                         tr = $('<tr id="'+ obj.notif_id +'" class="warning"></tr>');
@@ -940,6 +973,53 @@
                         })
                     }
                 }
+            })
+            
+            $.ajax({
+                url: '/Notifications/',
+                method: 'GET',
+                data: {
+                    name: 'ga_reg_notif',
+                    type: 'count'
+                },
+                success: function(data){
+                    if(data.count > 0){
+                        $('span#notification-count').text(data.count);
+                        $('#notification-content').children().remove();
+                    }
+                }
+            })
+
+            $(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
+                $(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
+                var notif_content = $('#notification-content');
+                if(notif_content[0].dataset.pull == "false"){
+                    $.ajax({
+                        url: '/Notifications/',
+                        method: 'GET',
+                        data: {
+                            name: 'ga_reg_notif'
+                        },
+                        success: function(data){
+                            if(data.length){
+                                notif_content.children().remove();
+                                for(var i=0; i < data.length; i++){
+                                    var notif_item = $('<li class="notification-item"></li>');
+                                    var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
+                                    var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
+        
+                                    notif_item.append(notif_title);
+                                    notif_item.append(notif_message);
+                                    notif_content.append(notif_item);
+                                }
+                            }
+                            notif_content[0].dataset.pull = true;
+                        }
+                    })
+                }
+                
+            }).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
+                $(this).find('.profile-circle').css('background', '');
             })
         })
     </script>

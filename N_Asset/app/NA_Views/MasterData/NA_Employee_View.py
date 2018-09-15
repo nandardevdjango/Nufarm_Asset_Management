@@ -152,7 +152,9 @@ class NA_Employee_form(forms.Form):
                 }
             except Employee.DoesNotExist:
                 raise NAError(
-                    error_code=NAErrorConstant.DATA_LOST
+                    error_code=NAErrorConstant.DATA_LOST,
+                    model=Employee,
+                    pk=idapp
                 )
             else:
                 if Employee.objects.hasRef(idapp=idapp):
@@ -231,9 +233,8 @@ def EntryEmployee(request):
             try:
                 result = Employee.objects.get(idapp=idapp)
             except Employee.DoesNotExist:
-                raise NAError(
-                    error_code=NAErrorConstant.DATA_LOST
-                )
+                result = NAErrorHandler.handle_data_lost(model=Employee, pk=idapp)
+                return commonFunct.response_default(result)
             else:
                 form = NA_Employee_form(initial=forms.model_to_dict(result))
                 form.fields['nik'].widget.attrs['disabled'] = 'disabled'

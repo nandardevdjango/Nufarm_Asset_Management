@@ -128,11 +128,17 @@ class Message(Enum):
         table:table_name
         """
         from NA_Models.models import LogEvent
+
+        try:
+            pk = int(pk)
+        except ValueError:
+            pass
         obj = LogEvent.get_log_data(
             model=model,
             action='Deleted',
             values='createddate',
-            pk=pk, **kwargs
+            pk=pk,
+            **kwargs
         )
         result, unit = cls.get_time_info(obj)
         return 'This data has lost or deleted by other user, {0} {1} ago'.format(result, unit)
@@ -850,7 +856,7 @@ class commonFunct:
         must instance of tuple
         e.g (Data.Success,Message.Success) or (Data.Exists,Message.get_exists_info)
         """
-        statusResp = 200
+        status = 200
         if isinstance(data, tuple):
             message = None
             if data[0] == Data.Success:
@@ -859,20 +865,20 @@ class commonFunct:
                 else:
                     message = Message.Success.value
             if data[0] in [Data.Exists, Data.HasRef, Data.ValidationError]:
-                statusResp = 400
+                status = 400
                 message = data[1]
             elif data[0] == Data.Lost:
-                statusResp = 404
+                status = 404
                 message = data[1]
             elif data[0] == Data.Empty:
-                statusResp = 404
+                status = 404
                 if len(data) > 1:
                     message = data[1]
                 else:
                     message = Message.Empty.value
             return HttpResponse(
                 json.dumps({'message': message}),
-                status=statusResp,
+                status=status,
                 content_type='application/json'
             )
 

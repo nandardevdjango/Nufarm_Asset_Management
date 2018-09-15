@@ -31,7 +31,7 @@ class NAErrorHandler(object):
         if err.error_code == NAErrorConstant.DATA_EXISTS:
             result = NAErrorHandler.handle_data_exists(err=err)
         elif err.error_code == NAErrorConstant.DATA_LOST:
-            result = NAErrorHandler.handle_data_lost()
+            result = NAErrorHandler.handle_data_lost(**err.kwargs)
         elif err.error_code == NAErrorConstant.DATA_HAS_REF:
             result = cls.handle_data_hasref()
 

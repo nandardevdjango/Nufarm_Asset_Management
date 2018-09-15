@@ -68,17 +68,32 @@ class NA_Acc_FA_BR(models.Manager):
 
         query_param = {}
         if q is not None:
-            query_string += ")"
-            cur.execute(query_string)  # create temporary table
             query_string = """
-            SELECT * FROM T_search_acc_fa saf WHERE
-            saf.goods LIKE %(q)s
-            OR saf.itemcode LIKE %(q)s OR saf.serialnumber LIKE %(q)s OR saf.depreciationmethod
-            LIKE %(q)s
-            """
+            CREATE TEMPORARY TABLE T_search_acc_fa ENGINE=InnoDB AS (
+            SELECT gr.idapp,g.itemcode,
+            CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(grd.typeapp, 
+            ' ')) as goods,
+            grd.serialnumber, gr.datereceived AS startdate, grd.idapp AS 
+            idapp_detail_receive,
+            g.depreciationmethod, grd.priceperunit, g.economiclife, g.idapp AS 
+            fk_goods, grd.typeapp
+            FROM n_a_goods g INNER JOIN n_a_goods_receive gr
+            ON g.idapp = gr.fk_goods INNER JOIN n_a_goods_receive_detail grd
+            ON gr.idapp = grd.fk_app WHERE NOT EXISTS (SELECT ac.fk_goods FROM 
+            n_a_acc_fa ac
+            WHERE ac.serialnumber = grd.serialnumber) AND 
+            CONCAT(g.goodsname, ' ',grd.brandname, ' ',IFNULL(grd.typeapp, ' '))
+            LIKE %(q)s OR g.itemcode LIKE %(q)s OR grd.serialnumber LIKE %(q)s
+            OR g.depreciationmethod LIKE %(q)s)"""
+
             query_param.update({
                 'q': '%' + q + '%'
             })
+            cur.execute(query_string, query_param)
+            query_string = """
+            SELECT * FROM T_search_acc_fa
+            """
+            query_param.clear()
         elif idapp is not None:
             if isinstance(idapp, list):
                 idapp = ','.join(idapp)

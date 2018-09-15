@@ -154,6 +154,18 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     prmNames: {
                         oper: 'oper', addoper: 'add', editoper: 'edit', deloper: 'del', id: 'idapp'
                     },
+
+                    loadError: function(jqXHR, textStatus, errorThrown){
+                        if (jqXHR.status == 401 || errorThrown == 'Unauthorized'){
+                            NA_Bootstrap.dialog.dialogAlert(
+                                NA.common.message.unAuthorized,
+                                NA.common.message.titleInfo,
+                                function(){
+                                    window.location.href = NA.client.url.login_next
+                                }
+                            )
+                        }
+                    },
                     ondblClickRow: function (rowId) {
                         var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
                         if (btnOpen) {
@@ -750,6 +762,9 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                                 //setting Custom Validity
                             }
 
+                        } else {
+                            var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
+                            NA.common.dialog.closeDialog(dialog);
                         }
                         NA.NAEvent.preventDefault(event);
                         if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
