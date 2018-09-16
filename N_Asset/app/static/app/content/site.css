@@ -118,6 +118,10 @@ li.notification-item {
     padding: 9px;
 }
 
+li.notification-item:hover{
+    background: #f1f1f1;
+}
+
 p.notification-title {
     font-weight: bold;
     font-size: 13px;
@@ -638,3 +642,26 @@ input[type="radio"] .styled:checked + label::before {
 input[type="checkbox"] .styled:checked + label::after,
 input[type="radio"] .styled:checked + label::after {
   color: #fff; }
+
+  .table-fixed tbody {
+    height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    }
+    .table-fixed thead,
+    .table-fixed tbody,
+    .table-fixed tr,
+    .table-fixed td,
+    .table-fixed th {
+    display: block;
+    }
+    .table-fixed tr:after {
+    content: "";
+    display: block;
+    visibility: hidden;
+    clear: both;
+    }
+    .table-fixed tbody td,
+    .table-fixed thead > tr > th {
+    float: left;
+    }

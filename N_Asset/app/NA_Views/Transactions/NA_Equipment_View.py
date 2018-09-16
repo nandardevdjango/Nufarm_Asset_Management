@@ -33,7 +33,7 @@ class NAEquipmentForm(forms.Form):
         equipment.createdby = request.user.username
         equipment.createddate = datetime.now()
         equipment.save()
-        return (Data.Success, forms.model_to_dict(equipment, fields=['idapp', 'name_app']))
+        return Data.Success, forms.model_to_dict(equipment, fields=['idapp', 'name_app'])
 
 
 class NAEquipmentView(View):

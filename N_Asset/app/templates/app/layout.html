@@ -132,7 +132,7 @@
                             </li>
 							<li>
                                 <ul class="sub-menu collapse" id="ga" aria-expanded="false">
-                                    <li><a href="#">Extend taxes</a></li>
+                                    <li><a id="extend_tax_menu" href="#">Extend taxes</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="#">Goods Returned</a></li>
@@ -704,15 +704,15 @@
                                         title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
                                         message: (function(){
                                             var container = $('<div class="container" style="padding:0;"></div>');
-                                            var table = $('<table class="table logevent"></table>');
+                                            var table = $('<table class="table table-hover logevent"></table>');
                                             var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
                                             var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
                                             table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
                                             var tbody = $('<tbody></tbody>');
                                             for (var key in data.data){
                                                 var tr = $('<tr></tr>');
-                                                var label = $('<td style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td>' + data.data[key] + '</td>');
+                                                var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+                                                var value = $('<td class="col-xs-8">' + data.data[key] + '</td>');
                                                 tr.append(label);
                                                 tr.append(value);
                                                 tbody.append(tr);
@@ -814,6 +814,12 @@
             $.expr[':'].icontains = function(a, i, m) {
                 return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
               };
+            
+            var extend_tax_menu = document.getElementById('extend_tax_menu')
+            NA.common.dialog.initDialog(null, 'Nufarm extend taxes - Transaction', [extend_tax_menu]);
+            $(extend_tax_menu).click(function(event){
+                
+            })
     	});
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
@@ -867,7 +873,7 @@
                                 thead.append(tr_thead);
                                 table.append(thead);
                                 var tbody = $('<tbody></tbody>');
-                                
+
                                 data.forEach(function(obj, index){
                                     
                                     var tr = $('<tr id="'+ obj.notif_id +'"></tr>');

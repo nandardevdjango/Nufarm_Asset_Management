@@ -281,7 +281,8 @@ class NA_Goods_Receive_GA_Form(forms.Form):
         receive.createdby = request.user.username
         receive.save()
 
-        if self.cleaned_data.get('direct_enter'):
+        if (self.cleaned_data.get('direct_enter') and
+                self.cleaned_data.get('statusForm') == 'Add'):
             receive_history = NAGaVnHistory()
             receive_history.fk_app = receive
             receive_history.reg_no = self.cleaned_data.get('reg_no')
@@ -293,26 +294,20 @@ class NA_Goods_Receive_GA_Form(forms.Form):
             receive_history.createdby = request.user.username
             receive_history.save()
 
-        return (Data.Success,)
+        return Data.Success,
 
 
 def Entry_Goods_Receive_GA(request):
     if request.method == 'POST':
         form = NA_Goods_Receive_GA_Form(request.POST)
-        statusForm = request.POST['statusForm']
         if form.is_valid():
-            data = form.cleaned_data
-            if statusForm == 'Add':
-                data['createddate'] = datetime.now()
-                data['createdby'] = request.user.username
+            try:
                 result = form.save(request=request)
-            elif statusForm == 'Edit':
-                data['modifieddate'] = datetime.now()
-                data['modifiedby'] = request.user.username
-                result = form.save(request=request)
-            return commonFunct.response_default(result)
+            except NAError as e:
+                result = NAErrorHandler.handle(err=e)
         else:
-            raise forms.ValidationError(form.errors)
+            result = NAErrorHandler.handle_form_error(form_error=form.errors)
+        return commonFunct.response_default(result)
 
     elif request.method == 'GET':
         statusForm = request.GET['statusForm']
