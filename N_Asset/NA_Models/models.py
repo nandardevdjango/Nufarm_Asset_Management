@@ -1855,9 +1855,19 @@ class NAGaVnHistory(NA_BaseModel):
                 now
             ]
         }
+        only_fields = [  # improve performance
+            'idapp',
+            'fk_app__reg_no',
+            'fk_app__expired_reg',
+            'fk_employee__employee_name',
+            'fk_employee__telphp',
+            'fk_employee__inactive'
+        ]
         regs = list(NAGaOutwards.objects.filter(
-            Q(**filter_kwargs) | Q(fk_app__expired_reg__gte=now)
-        ).select_related('fk_app', 'fk_employee'))
+            Q(**filter_kwargs) |
+            Q(fk_app__expired_reg__gte=now)
+        ).select_related('fk_app', 'fk_employee')
+         .only(*only_fields))
 
         if regs:
             for reg in regs:
