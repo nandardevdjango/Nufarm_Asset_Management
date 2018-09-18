@@ -1111,6 +1111,15 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def __str__(self):
         return self.username
 
+    @classmethod
+    def get_ga_super_user(cls):
+        ga_user = cls.objects.filter(
+            divisi=cls.GA,
+            is_active=True,
+            role=cls.SUPER_USER
+        )
+        return ga_user
+
     def get_dir_image(self, filename):
         return path.join(
             'dir_for_{username}'.format(
@@ -1845,7 +1854,7 @@ class NAGaVnHistory(NA_BaseModel):
         return date.today() > self.bpkb_expired
 
     @classmethod
-    def get_expired_regs(cls):
+    def get_expired_regs(cls, reg_id=None):
         result = []
         now = datetime.now()
         filter_kwargs = {
@@ -1863,11 +1872,15 @@ class NAGaVnHistory(NA_BaseModel):
             'fk_employee__telphp',
             'fk_employee__inactive'
         ]
-        regs = list(NAGaOutwards.objects.filter(
+        regs = (NAGaOutwards.objects.filter(
             Q(**filter_kwargs) |
             Q(fk_app__expired_reg__gte=now)
         ).select_related('fk_app', 'fk_employee')
          .only(*only_fields))
+
+        if reg_id:
+            regs = regs.filter(fk_app=reg_id)
+        regs = list(regs)
 
         if regs:
             for reg in regs:

@@ -17,6 +17,9 @@ from NA_Models.models import (
     NAGaReceive, NAGaVnHistory,
     goods, Employee, NASupplier
 )
+from NA_Worker.task import NATask
+from NA_Worker.worker import NATaskWorker
+
 
 @decorators.ensure_authorization
 #@decorators.read_permission()
@@ -293,6 +296,15 @@ class NA_Goods_Receive_GA_Form(forms.Form):
             receive_history.createddate = datetime.now()
             receive_history.createdby = request.user.username
             receive_history.save()
+
+            # TODO: tell it if goods not yet in outwards but reg number is expired
+
+            if receive_history.is_expired_reg:
+                worker = NATaskWorker(
+                    func=NATask.task_push_notification_ga_reg_expire,
+                    args=[receive_history.idapp]
+                )
+                worker.run()
 
         return Data.Success,
 

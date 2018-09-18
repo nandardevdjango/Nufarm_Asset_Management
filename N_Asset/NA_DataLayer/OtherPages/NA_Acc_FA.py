@@ -54,6 +54,9 @@ class NA_Acc_FA_BR(models.Manager):
 
     # search By Form
     def searchAcc_ByForm(self, q=None, idapp=None):
+        # TODO: Change it with ORM (Subquery, Exist, When) and move it to models with
+        # cache
+
         cur = connection.cursor()
         query_string = """
         CREATE TEMPORARY TABLE T_search_acc_fa ENGINE=InnoDB AS (

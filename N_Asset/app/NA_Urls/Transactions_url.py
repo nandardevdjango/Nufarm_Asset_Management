@@ -18,5 +18,6 @@ urlpatterns = [
     url(r'^Goods_Disposal/', include('app.NA_Urls.Transactions.NA_Goods_Disposal_url',
                                      namespace='NA_Goods_Disposal')),
     url(r'^Goods_Outwards/GA/', include('app.NA_Urls.Transactions.NA_Goods_Outwards_GA_url',
-                                    namespace='NA_Goods_Outwards_GA'))
+                                    namespace='NA_Goods_Outwards_GA')),
+    url(r'^GA_History/', include('app.NA_Urls.Transactions.NA_GA_History_url'))
 ]

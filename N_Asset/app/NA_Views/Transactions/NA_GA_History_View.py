@@ -1,6 +1,7 @@
 from django import forms
 from django.http import JsonResponse
 from django.db.models import Q
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from NA_DataLayer.common import decorators
@@ -13,8 +14,8 @@ class NAGaVnHistoryForm(forms.Form):
     expired_reg = forms.CharField(widget=forms.TextInput())
 
 
-@decorators.ensure_authorization
-@decorators.ajax_required
+@method_decorator(decorators.ensure_authorization, name='dispatch')
+@method_decorator(decorators.ajax_required, name='dispatch')
 class NAGaVnHistoryView(View):
 
     def get(self, request):
@@ -27,7 +28,7 @@ class NAGaVnHistoryView(View):
             'fk_employee__employee_name',
             'fk_employee__telphp',
             'fk_employee__inactive',
-            'fk_goods__goods_name',
+            'fk_goods__goodsname',
             'fk_receive__brand',
             'fk_receive__typeapp',
             'fk_receive__colour',
@@ -50,19 +51,22 @@ class NAGaVnHistoryView(View):
 
         result = []
         if regs:
+            no = 0
             for reg in regs:
+                no += 1
                 result.append({
-                    'idapp': reg.fk_app,
+                    'no': no,
+                    'idapp': reg.fk_app_id,
                     'reg_number': reg.fk_app.reg_no,
-                    'date_expire': reg.fk_app.expired_reg.strftime('%d/%m/%Y'),
                     'is_expire': reg.fk_app.is_expired_reg,
+                    'expire_date': reg.fk_app.expired_reg,
                     'idapp_outwards': reg.idapp,
                     'employee_name': reg.fk_employee.employee_name,
-                    'employee_phone': reg.fk_employee.telphp,
-                    'employee_inactive': reg.fk_employee.inactive,
+                    'mobile_phone': reg.fk_employee.telphp,
+                    'inactive': reg.fk_employee.inactive,
 
                     'goods_name': reg.fk_goods.goodsname,
-                    'brand_name': reg.fk_receive.brand,
+                    'brand': reg.fk_receive.brand,
                     'type': reg.fk_receive.typeapp,
                     'colour': reg.fk_receive.colour,
                     'invoice_no': reg.fk_receive.invoice_no

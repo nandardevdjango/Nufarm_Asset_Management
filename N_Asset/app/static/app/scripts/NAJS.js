@@ -1049,6 +1049,10 @@ NA.common.dialog = {
             //trigger showDialogEntry
             window.showDialogEntry(event);
 
+            if (window.showOtherDialog) { 
+                window.showOtherDialog(event);
+            }
+
             //============ set dialog to center ================
             dialog.style.top = '50%';
             dialog.style.left = '50%';

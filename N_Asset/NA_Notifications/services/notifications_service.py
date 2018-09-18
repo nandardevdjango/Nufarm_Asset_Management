@@ -2,13 +2,13 @@ from NA_Notifications.models import NANotifications
 
 
 class NAPushNotificationService(object):
-    def __init__(self, reg_expire, user):
-        self.reg_expire = reg_expire
+    def __init__(self, data, user):
+        self.data = data
         self.user = user
 
     def execute(self):
-        if self.reg_expire:
-            for reg in self.reg_expire:
+        if self.data:
+            for reg in self.data:
                 title = 'Please extend the tax {reg_number}'.format(
                     reg_number=reg.get('reg_number')
                 )

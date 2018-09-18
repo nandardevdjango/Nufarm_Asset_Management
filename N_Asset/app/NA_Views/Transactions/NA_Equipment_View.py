@@ -4,7 +4,6 @@ from django import forms
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import View
-from django.core.serializers import serialize
 
 from NA_Models.models import NAGoodsEquipment
 from NA_DataLayer.common import Data, decorators, commonFunct
