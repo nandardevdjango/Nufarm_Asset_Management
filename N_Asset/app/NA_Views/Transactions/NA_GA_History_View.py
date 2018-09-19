@@ -1,17 +1,41 @@
+from datetime import timedelta
+
 from django import forms
 from django.http import JsonResponse
 from django.db.models import Q
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
-from NA_DataLayer.common import decorators
-from NA_Models.models import NAGaOutwards
+from NA_DataLayer.common import commonFunct, decorators, Data
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
+from NA_Models.models import NAGaOutwards, NAGaVnHistory
 
 
 class NAGaVnHistoryForm(forms.Form):
     idapp = forms.IntegerField(widget=forms.HiddenInput())
     reg_no = forms.CharField(widget=forms.TextInput())
-    expired_reg = forms.CharField(widget=forms.TextInput())
+    date_reg = forms.DateField(widget=forms.TextInput())
+    expired_reg = forms.DateField(widget=forms.TextInput())
+
+    def save(self):
+        try:
+            ga_history = NAGaVnHistory.objects.get(
+                idapp=self.cleaned_data.get('idapp')
+            )
+        except NAGaVnHistory.DoesNotExist:
+            raise NAError(
+                error_code=NAErrorConstant.DATA_LOST,
+                model=NAGaVnHistory,
+                pk=self.cleaned_data.get('idapp')
+            )
+        else:
+            date_reg = self.cleaned_data.get('date_reg')
+            ga_history.date_reg = date_reg
+            ga_history.expired_reg = date_reg + timedelta(days=365)
+            ga_history.purpose = NAGaVnHistory.EXTENDS
+            ga_history.save()
+        return Data.Success.value,
 
 
 @method_decorator(decorators.ensure_authorization, name='dispatch')
@@ -73,7 +97,23 @@ class NAGaVnHistoryView(View):
                 })
         return JsonResponse(result, safe=False)
 
+
+@method_decorator(decorators.ensure_authorization, name='dispatch')
+@method_decorator(decorators.ajax_required, name='dispatch')
+class NAEntryGaVnHistoryView(View):
+
+    def get(self, request):
+        form = NAGaVnHistoryForm()
+        return render(
+            request,
+            'app/Transactions/NA_Entry_GA_History.html',
+            {'form': form}
+        )
+
     def post(self, request):
         form = NAGaVnHistoryForm(request.POST)
         if form.is_valid():
-            pass
+            result = form.save()
+        else:
+            result = NAErrorHandler.handle_form_error(form_error=form.errors)
+        return commonFunct.response_default(result)

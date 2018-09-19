@@ -905,7 +905,7 @@
                             }
                         },
                         ondblClickRow: function (rowId) {
-                            alert('')
+                            
                         }
                     });
                 }
@@ -924,7 +924,12 @@
                         event.preventDefault();
                         NA.common.dialog.closeDialog(dialog);
                     });
-
+                    var cancel_btn = dialog_content.next().find('div.dialogButtonOKCancel')
+                        .children().last()
+                    cancel_btn.click(function(event){
+                        event.preventDefault();
+                        NA.common.dialog.closeDialog(dialog);
+                    });
                 }
                 
             }
