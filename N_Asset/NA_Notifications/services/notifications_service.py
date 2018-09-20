@@ -2,17 +2,23 @@ from NA_Notifications.models import NANotifications
 
 
 class NAPushNotificationService(object):
-    def __init__(self, reg_expire, user):
-        self.reg_expire = reg_expire
+    def __init__(self, data, user):
+        self.data = data
         self.user = user
 
     def execute(self):
-        if self.reg_expire:
-            for reg in self.reg_expire:
+        if self.data:
+            for reg in self.data:
                 title = 'Please extend the tax {reg_number}'.format(
                     reg_number=reg.get('reg_number')
                 )
-                message = 'Reg Number {reg_number} will expire at {date_expire}'.format(
+
+                if reg.get('is_expire'):
+                    message = 'Reg Number {reg_number} has expired at {date_expire}'
+                else:
+                    message = 'Reg Number {reg_number} will expire at {date_expire}'
+
+                message = message.format(
                     reg_number=reg.get('reg_number'),
                     date_expire=reg.get('date_expire')
                 )
@@ -22,12 +28,6 @@ class NAPushNotificationService(object):
                         is_active=True,
                         data__idapp=reg.get('idapp')
                     )
-                    if reg.get('is_expire'):
-                        message = 'Reg Number {reg_number} has expired at {date_expire}'
-                        message = message.format(
-                            reg_number=reg.get('reg_number'),
-                            date_expire=reg.get('date_expire')
-                        )
                     reg['is_dismissed'] = recent_notif.data['is_dismissed']
                     recent_notif.message = message
                     recent_notif.data = reg
@@ -44,6 +44,10 @@ class NAPushNotificationService(object):
 
 class NAUpdateNotificationService(object):
     def __init__(self, lookup, data):
+        """
+        :param lookup: -- for filter notifications by field(data) json
+        :param data: -- data that has changed
+        """
         self.lookup = lookup
         self.data = data
 
@@ -55,8 +59,16 @@ class NAUpdateNotificationService(object):
             filter_kwargs.update({
                 'data__%s' % k: v
             })
-        notifications = NANotifications.objects.filter(**filter_kwargs)
-        if notifications.exists():
-            for notif in notifications:
+        try:
+            notification = NANotifications.objects.get(**filter_kwargs)
+            notification.data.update(self.data)
+            notification.save()
+        except NANotifications.MultipleObjectsReturned:
+            notification = NANotifications.objects.filter(**filter_kwargs)
+            for notif in notification:
                 notif.data.update(self.data)
                 notif.save()
+        except NANotifications.DoesNotExist:
+            pass
+
+# TODO: Create service clear notifications if reg number has extended and clear session

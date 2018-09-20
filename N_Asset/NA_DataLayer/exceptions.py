@@ -10,6 +10,9 @@ class NAError(Exception):
         self.args = args
         self.kwargs = kwargs
 
+        if not message:
+            self.message = error_code
+
 
 class NAErrorConstant(object):
     """
@@ -29,9 +32,9 @@ class NAErrorHandler(object):
     def handle(cls, err):
         result = None
         if err.error_code == NAErrorConstant.DATA_EXISTS:
-            result = NAErrorHandler.handle_data_exists(err=e)
+            result = NAErrorHandler.handle_data_exists(err=err)
         elif err.error_code == NAErrorConstant.DATA_LOST:
-            result = NAErrorHandler.handle_data_lost()
+            result = NAErrorHandler.handle_data_lost(**err.kwargs)
         elif err.error_code == NAErrorConstant.DATA_HAS_REF:
             result = cls.handle_data_hasref()
 
@@ -49,6 +52,11 @@ class NAErrorHandler(object):
 
     @staticmethod
     def retrieve_integrity_column(err):
+        """
+        :param err:     -- error message
+        :return:        -- column name in database
+        """
+
         err = err.args[1]
         if re.match(r'Duplicate', err):
             result = err.split(' ')[-1]
@@ -60,6 +68,12 @@ class NAErrorHandler(object):
 
     @staticmethod
     def retrieve_integrity_field(column, model):
+        """
+        :param column:  -- column name in database
+        :param model:   -- models in django
+        :return:        -- field in models
+        """
+
         if column == 'PRIMARY':
             return model._meta.pk.name
         fields_db = []
@@ -72,6 +86,12 @@ class NAErrorHandler(object):
 
     @classmethod
     def handle_data_exists(cls, err):
+        """
+        only for Django ORM
+        :param err:     -- instance of NAError
+        :return:        -- tuple of Data and Message error for user
+        """
+
         instance = err.kwargs.get('instance')
         error_column = cls.retrieve_integrity_column(err=err.message)
         error_field = cls.retrieve_integrity_field(
@@ -92,6 +112,14 @@ class NAErrorHandler(object):
 
     @staticmethod
     def handle_data_lost(model, pk=None, **kwargs):
+        """
+        only for Django ORM
+        :param model:   -- models Name
+        :param pk:      -- primary key of models
+        :param kwargs:  -- other lookup for filter query
+        :return:        -- tuple of Data and Message error for user
+        """
+
         return Data.Lost, Message.get_lost_info(model=model, pk=pk, **kwargs)
 
     @classmethod

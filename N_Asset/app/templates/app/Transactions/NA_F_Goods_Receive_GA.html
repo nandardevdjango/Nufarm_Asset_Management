@@ -662,18 +662,6 @@
             }
 
         };
-        function restyleBoostrapDialog() {
-            var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
-            BSDialogContent.style.cssText = 'width: 500px; height: 350px;';
-            var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
-            ContentBody.style.cssText = 'padding:0px;';
-            var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
-            contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
-            var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
-            mHeader.style.cssText = 'height:30px;padding:0px;';
-            var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
-            footerButton.style.cssText = 'padding-top:8px;';
-        };
         function getGridCellValue(thegrid, CeltoGet) {
             var reccount = thegrid.jqGrid('getGridParam', 'reccount');
             var rowId, rowData, colData;
@@ -1057,7 +1045,6 @@
                                                     del: false,
                                                     refresh: false
                                                 });
-                                                restyleBoostrapDialog();
                                                 var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Goods_Pager')
                                                 Array.prototype.forEach.call(elGrid, function (el) {
                                                     el.style.width = 'inherit';
@@ -1198,7 +1185,6 @@
                                                     del: false,
                                                     refresh: false
                                                 });
-                                                restyleBoostrapDialog();
                                                 var elGrid = qsAll('div#gbox_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Receive_GA_FK_Employee > div.ui-jqgrid-bdiv, div#NA_Goods_Receive_GA_FK_Employee_Pager')
                                                 Array.prototype.forEach.call(elGrid, function (el) {
                                                     el.style.width = 'inherit';
@@ -1370,8 +1356,6 @@
                                                 }
                                             }]
                                         });
-                                        //Atur tampilan                        			
-                                        restyleBoostrapDialog();
                                     };
 
                                     NA.NAEvent.addHandler(fk_goods, 'keydown', function (event) {

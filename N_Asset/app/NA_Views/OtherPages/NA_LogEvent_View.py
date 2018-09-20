@@ -53,7 +53,7 @@ def NA_LogEvent_data(request):
                             activity = [e['idapp']]
                             activity.append('{} at {}'.format(
                                 e['nameapp'],
-                                e['createddate'].strftime("%H:%M:%S")
+                                e['createddate'].strftime("%H:%M")
                             ))
                             result.append(
                                 (h, activity)
@@ -120,15 +120,15 @@ def log_activity_data(request):
         activity_type = 'deleted'
     result = OrderedDict(
         activity_type=activity_type,
-        created_date=log.createddate.strftime('%d %b %Y %H:%M:%S'),
+        created_date=log.createddate.strftime('%d %b %Y %H:%M'),
         data={}
     )
     model = ContentType.objects.get(model=log.model).model_class()
-    for key in model.LOG_EVENT.keys():
+    for key in model.HUMAN_DISPLAY.keys():
         value = log.descriptions.get(key)
         if value:
             result['data'].update({
-                model.LOG_EVENT.get(key): value
+                model.HUMAN_DISPLAY.get(key): value
             })
 
     return HttpResponse(json.dumps(result), content_type='application/json')

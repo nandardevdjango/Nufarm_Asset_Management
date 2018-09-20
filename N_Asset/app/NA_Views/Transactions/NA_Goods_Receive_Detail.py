@@ -31,6 +31,6 @@ def entrybatchdetail(request):
 	populate_combo.append({'label':'BrandName','columnName':'brandname','dataType':'varchar'})
 	populate_combo.append({'label':'Serial Number','columnName':'serialnumber','dataType':'varchar'})
 	populate_combo.append({'label':'Warranty','columnName':'warranty','dataType':'decimal'})
-	populate_combo.append({'label':'endofwarranty','columnName':'datereceived','dataType':'datetime'})
+	populate_combo.append({'label':'End Of Warranty','columnName':'endofwarranty','dataType':'datetime'})
 	populate_combo.append({'label':'Price','columnName':'price','dataType':'decimal'})
 	return render(request,'app/Transactions/NA_F_Goods_Receive_Batch_Detail.html',{'populateColumn':populate_combo})

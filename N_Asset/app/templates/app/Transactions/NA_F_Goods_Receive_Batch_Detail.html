@@ -163,11 +163,24 @@
         border-radius: 0px;
     }
 
-    td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left {
+    td#jqGrid_NA_F_Goods_Receive_Pager_left {
         width: 55%;
     }
 
-        td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
+        td#jqGrid_NA_F_Goods_Receive_Pager_left td.ui-pg-button ui-corner-all {
+            width: auto;
+            padding: 2px;
+        }
+
+		    div#gbox_jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail, div#gview_jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail, div#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail, div.ui-jqgrid-titlebar {
+        border-radius: 0px;
+    }
+
+    td#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager_left {
+        width: 55%;
+    }
+
+        td#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager_left td.ui-pg-button ui-corner-all {
             width: auto;
             padding: 2px;
         }
@@ -178,8 +191,8 @@
     }
 
     .row_RBD {
-        margin-top: 40px;
-        padding: 0 10px;
+        margin-top: 5px;
+        padding: 0 5px;
     }
 
     .clickable {
@@ -196,41 +209,48 @@
         <div class="col-md-6">
             <div class="panel panel-success">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Reference Number</h3>
+                    <h3 class="panel-title">Choose Reference Number</h3>
                     <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
                 </div>
                 <div class="panel-body">
                     <div class="NA-Entry-div-row">
-                        <label for="id_refno" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Reference Number</label>
-                        <div class="input-group" style="display:inline-flex;width:46%;">
-                            <input name="refno" class="NA-Form-Control" style="width:200px;display:inline-block;margin-right:5px;" tabindex="0" placeholder="Ref number" data-value="Please enter ref number"
+                        <div class="input-group" style="display:inline-flex;width:75%;">
+                            <input name="refno" class="NA-Form-Control" style="width:400px;display:inline-block;margin-right:5px;" tabindex="0" placeholder="Ref number" data-value="Please enter ref number"
                                    tittle="Enter Reference number to show data to edit to" maxlength="50" required="" id="id_refno" type="text">
                             <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                                 <button class="btn btn-success" type="button" id="FE_Ref_No" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>
+                <div id="divTable" class="NA-Entry-div-row" style="overflow:auto">
+                    <table id="jqGrid_NA_F_Goods_Receive" style="overflow:auto"></table>
+                    <div id="jqGrid_NA_F_Goods_Receive_Pager" style="overflow:auto"></div>
+                </div>
                 </div>
             </div>
         </div>
     </div>
+	<div class="row row_RBD" style="border-top:1px solid #0b9910">
+	<table id="jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail" style="overflow:auto"></table>
+    <div id="jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager" style="overflow:auto"></div>
+	</div>
 </div>
 
 <script type="text/javascript">
-    (function () {
-        $('.panel-heading span.clickable').click(function (event) {
-        var $this = $(this);
-            if (!$this.hasClass('panel-collapsed')) {
-                $this.parents('.panel').find('.panel-body').slideUp();
-                $this.addClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-            } else {
-                $this.parents('.panel').find('.panel-body').slideDown();
-                $this.removeClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-            }
-        });
-    })
+	(function () {
+		$('.panel-heading span.clickable').click(function (event) {
+			var $this = $(this);
+			if (!$this.hasClass('panel-collapsed')) {
+				$this.parents('.panel').find('.panel-body').slideUp();
+				$this.addClass('panel-collapsed');
+				$this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+			} else {
+				$this.parents('.panel').find('.panel-body').slideDown();
+				$this.removeClass('panel-collapsed');
+				$this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+			}
+		});
+	})();
 </script>
 
 

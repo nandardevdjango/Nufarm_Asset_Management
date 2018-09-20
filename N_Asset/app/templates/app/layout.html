@@ -136,7 +136,8 @@
                             </li>
 							<li>
                                 <ul class="sub-menu collapse" id="ga" aria-expanded="false">
-                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
+                                    <li><a id="extend_tax_menu" href="#">Extend taxes</a></li>
+                                    <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="#">Goods Returned</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
@@ -287,11 +288,39 @@
                     <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
                     {%block ImgUserLogin %}
                     {% if request.user.is_authenticated %}
-                    <li class="dropdown" style="position: absolute;right: 40px;top: 8px;">
+                    <li class="dropdown notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
+                        <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
+                            <div class="profile-circle shadow">
+                                <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
+                                    <span id="notification-count" class="badge badge-success pull-right"></span>
+                                </i>
+                            </div>
+                        </div>
+                        <ul
+                        class="dropdown-menu triangle triangle-bell-notif pull-right shadow" 
+                        style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px"
+                        >
+                            <li style="background: #f5f5f5;padding:10px;color:forestgreen;font-weight:bold;">
+                                Notifications <span id="notification-count" class="badge badge-success pull-right"></span>
+                            </li>
+                            <li class="divider" style="margin:0px;"></li>
+                            <li>
+                                <ul id="notification-content" data-pull="false">
+                                    <div style="color:#999;"><i class="fa fa-bell fa-4x"></i></div>
+                                    <p class="no-notification">There's no notifications here</p>
+                                </ul>
+                            </li>
+                            <li class="divider" style="margin:0px;"></li>
+                            <li class="see-all-notification">See all notifications</li>
+                        </ul>
+                    </li>
+
+
+                    <li class="dropdown" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
                         </div>
-                        <ul class="dropdown-menu triangle pull-right shadow" style="min-width: 320px;height:190px;padding:0px;right:8px;border-radius:2px">
+                        <ul class="dropdown-menu triangle triange-profile-dropdown pull-right shadow" style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
                             <li>
                                 <div class="row" style="margin:15px;height:110px;">
                                     <div class="col-md-5" style="padding:0px;">
@@ -679,15 +708,15 @@
                                         title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
                                         message: (function(){
                                             var container = $('<div class="container" style="padding:0;"></div>');
-                                            var table = $('<table class="table logevent"></table>');
+                                            var table = $('<table class="table table-hover logevent"></table>');
                                             var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
                                             var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
                                             table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
                                             var tbody = $('<tbody></tbody>');
                                             for (var key in data.data){
                                                 var tr = $('<tr></tr>');
-                                                var label = $('<td style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td>' + data.data[key] + '</td>');
+                                                var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+                                                var value = $('<td class="col-xs-8">' + data.data[key] + '</td>');
                                                 tr.append(label);
                                                 tr.append(value);
                                                 tbody.append(tr);
@@ -734,7 +763,21 @@
                             }
                         )
                     } else {
-                        var message = resp.responseText
+                        var message;
+                        try {
+                            response = JSON.parse(resp.responseText);
+                            if (typeof response.message != "undefined") {
+                                message = response.message
+                            } else {
+                                message = response
+                            }
+                        } catch (e) {
+                            if (e instanceof SyntaxError) {
+                                message = resp.responseText;
+                            } else {
+                                console.log(e);
+                            }
+                        }
                         if (typeof resp.responseJSON != 'undefined'){
                             if (typeof resp['message'] != 'undefined'){
                                 message = resp['message']
@@ -775,6 +818,120 @@
             $.expr[':'].icontains = function(a, i, m) {
                 return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
               };
+            
+            var extend_tax_menu = document.getElementById('extend_tax_menu');
+            NA.common.dialog.initDialog(null, 'Nufarm extend taxes - Transaction', [extend_tax_menu]);
+            
+            function BuildExtendGrid(q) {
+                var url = '/Transactions/GA_History/?q='
+                if (arguments.length > 0) {
+                    $('table#extend_tax').setGridParam({ url: url + q }).trigger("reloadGrid");
+                } else {
+                    $('table#extend_tax').jqGrid({
+                        url: url,
+                        datatype: 'json',
+                        mtype: 'GET',
+                        colNames: ['idapp', 'No', 'Goods Name', 'Brand', 'Type', 'Colour', 
+                                   'Invoice No', 'Reg Number', 'Is Expire', 'Expire Date', 'Employee Name', 
+                                   'Mobile Phone', 'In active'],
+                        colModel: [
+                            { 
+                                name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true 
+                            },
+                            { 
+                                name: 'no', index: 'no', width: 45 ,align:'center'
+                            },
+                            { 
+                                name: 'goods_name', index: 'goods_name', width: 130, editable: false, search: false, sortable: true 
+                            },
+                            { 
+                                name: 'brand', index: 'brand', width: 150, editable: false, editrules: { required: true }, sortable: true 
+                            },
+                            {
+                                name: 'type', index: 'type', width: 100, align: 'left', editable: false, search: false
+                            },
+                            { 
+                                name: 'colour', index: 'colour', width: 130, align: 'left', editable: true
+                            },
+                            {
+                                name: 'invoice_no', index: 'gender', width: 100, align: 'left', editable: true, search: false
+                            },
+                            { name: 'reg_number', index: 'reg_number', width: 150, editable: true, search: false },
+                            { 
+                                name: 'is_expire', index: 'is_expire', width: 80, align: 'center', search: false, formatter: 'checkbox', 
+                                edittype: 'checkbox', editoptions: { value: 'true:false' } 
+                            },
+                            { 
+                                name: 'expire_date', index: 'expire_date', width: 150, editable: false, search: false, formatter: 'date',
+                                formatoptions: {
+                                    srcformat: 'Y-m-d', newformat: 'd F Y'
+                                }
+                            },
+                            { name: 'employee_name', index: 'employee_name', width: 120, editable: true, editrules: { required: true } },
+                            { name: 'mobile_phone', index: 'mobile_phone', width: 120, editable: false, search: false },
+                            { 
+                                name: 'inactive', index: 'inactive', width: 80, align: 'center', search: false, formatter: 'checkbox',
+                                edittype: 'checkbox', editoptions: { value: 'true:false' } 
+                            },
+                        ],
+                        jsonreader: {
+                            repeatitems: false,
+                            id: 'idapp',
+                            root: 'rows'
+                        },
+                        pager: $('div#extend_tax_pager'),
+                        rowList: [20, 50, 100, 200, 300, 500],
+                        rowNum: 20,
+                        loadui: 'disable', // Disable Loading Text
+                        cellEdit: false,
+                        sortname: 'idapp',
+                        sortorder: "desc",
+                        viewrecords: true,
+                        iconSet: "fontAwesome",
+                        hidegrid: true,
+                        shrinkToFit: false,
+                        shrinkToFit: false,
+                        height: 350,
+                        width: 650,
+                        prmNames: {
+                            oper: 'oper', addoper: 'add', editoper: 'edit', deloper: 'del', id: 'idapp'
+                        },
+    
+                        loadError: function(jqXHR, textStatus, errorThrown){
+                            if (jqXHR.status == 401 || errorThrown == 'Unauthorized'){
+                                NA_Bootstrap.dialog.dialogAlert(
+                                    NA.common.message.unAuthorized,
+                                    NA.common.message.titleInfo,
+                                    function(){
+                                        window.location.href = NA.client.url.login_next
+                                    }
+                                )
+                            }
+                        },
+                        ondblClickRow: function (rowId) {
+                            alert('')
+                        }
+                    });
+                }
+            }
+
+            window.showOtherDialog = function(event){
+                if(event.target == extend_tax_menu){
+                    var dialog = $('div.containerDialog')[0];
+                    var dialog_content = $('div.maindialogContent');
+                    dialog_content.append($('<table id="extend_tax"></table>'));
+                    dialog_content.append($('<div id="extend_tax_pager"></div>'));
+                    BuildExtendGrid();
+                    var close_btn = $('#extend_tax').parents('div.maindialogContent')
+                        .prev().find('button');
+                    close_btn.click(function(event){
+                        event.preventDefault();
+                        NA.common.dialog.closeDialog(dialog);
+                    });
+
+                }
+                
+            }
     	});
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
@@ -787,7 +944,7 @@
                 method: 'GET',
                 data: {
                     name: 'ga_reg_notif',
-                    'type': 'popup'
+                    type: 'popup'
                 },
                 success: function(data){
                     if (data.length){
@@ -796,12 +953,26 @@
                             type: BootstrapDialog.TYPE_WARNING,
                             size: BootstrapDialog.SIZE_SMALL,
                             cssClass: 'ga-popup-notif',
-                            title: 'Notifications',
+                            title: 'Notifications - Please extend taxes below !',
                             message: (function(){
+                                var row = $('<div></div>');
                                 var container = $('<div class="container" style="padding:0;"></div>');
-                                var table = $('<table id="table-notif-popup" class="table"></table>');
-                                var text_title = 'Please extend taxes below';
-                                var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+                                var is_expire = false;
+                                data.forEach(function(obj, index){
+                                    if (obj.is_expire && !is_expire){
+                                        is_expire = true;
+                                    }
+                                })
+                                if (is_expire){
+                                    var text_title = 'Below are taxes that will be or has been expired :';
+                                } else {
+                                    var text_title = 'Below are taxes that will be expired :';
+                                }
+                                
+                                var table_title = '<div id="notif_popup_title" style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
+                                row.append(table_title);
+
+                                var table = $('<table id="table-notif-popup" class="table table-hover"></table>');
 
                                 var thead = $('<thead></thead>');
                                 var tr_thead = $('<tr class="active"></tr>');
@@ -814,7 +985,9 @@
                                 thead.append(tr_thead);
                                 table.append(thead);
                                 var tbody = $('<tbody></tbody>');
+
                                 data.forEach(function(obj, index){
+                                    
                                     var tr = $('<tr id="'+ obj.notif_id +'"></tr>');
                                     if (obj.notif_type == 'warning'){
                                         tr = $('<tr id="'+ obj.notif_id +'" class="warning"></tr>');
@@ -832,7 +1005,8 @@
                                 })
                                 table.append(tbody);
                                 container.append(table);
-                                return container
+                                row.append(container)
+                                return row
                             }),
                             closable: false,
                             animate: true,
@@ -904,16 +1078,66 @@
                                             document.querySelector('#table-notif-popup input#check_all').checked = true;
                                         }
                                     } else {
-                                        if (!checkbox_checked.length){
-                                            dialog.getButton('dismiss_popup').disable();
-                                            document.querySelector('#table-notif-popup input#check_all').checked = false;
-                                        }
+                                        dialog.getButton('dismiss_popup').disable();
+                                        document.querySelector('#table-notif-popup input#check_all').checked = false;
                                     }
+                                });
+
+                                $(document).on('click', 'table#table-notif-popup tbody tr', function(event){
+                                    var checkbox = $(this).children().first().children();
+                                    checkbox.click();
                                 })
                             }
                         })
                     }
                 }
+            })
+            
+            $.ajax({
+                url: '/Notifications/',
+                method: 'GET',
+                data: {
+                    name: 'ga_reg_notif',
+                    type: 'count'
+                },
+                success: function(data){
+                    if(data.count > 0){
+                        $('span#notification-count').text(data.count);
+                        $('#notification-content').children().remove();
+                    }
+                }
+            })
+
+            $(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
+                $(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
+                var notif_content = $('#notification-content');
+                if(notif_content[0].dataset.pull == "false"){
+                    $.ajax({
+                        url: '/Notifications/',
+                        method: 'GET',
+                        data: {
+                            name: 'ga_reg_notif'
+                        },
+                        success: function(data){
+                            if(data.length){
+                                notif_content.children().remove();
+                                for(var i=0; i < data.length; i++){
+                                    var notif_item = $('<li class="notification-item"></li>');
+                                    var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
+                                    var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
+        
+                                    notif_item.append(notif_title);
+                                    notif_item.append(notif_message);
+                                    notif_content.append(notif_item);
+                                }
+                            }
+                            notif_content[0].dataset.pull = true;
+                        }
+                    })
+                }
+                
+            }).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
+                $(this).find('.profile-circle').css('background', '');
             })
         })
     </script>

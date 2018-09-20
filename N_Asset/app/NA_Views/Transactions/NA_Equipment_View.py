@@ -4,7 +4,6 @@ from django import forms
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import View
-from django.core.serializers import serialize
 
 from NA_Models.models import NAGoodsEquipment
 from NA_DataLayer.common import Data, decorators, commonFunct
@@ -33,7 +32,7 @@ class NAEquipmentForm(forms.Form):
         equipment.createdby = request.user.username
         equipment.createddate = datetime.now()
         equipment.save()
-        return (Data.Success, forms.model_to_dict(equipment, fields=['idapp', 'name_app']))
+        return Data.Success, forms.model_to_dict(equipment, fields=['idapp', 'name_app'])
 
 
 class NAEquipmentView(View):

@@ -12,6 +12,19 @@ from NA_Notifications.services.notifications_service import (
     NAUpdateNotificationService
 )
 
+
+def _push_notification(reg_id=None):
+    reg_expire = NAGaVnHistory.get_expired_regs(reg_id)
+    if reg_expire:
+        ga_user = NAPrivilege.get_ga_super_user()
+        if ga_user:
+            services = NAPushNotificationService(data=reg_expire, user=ga_user)
+            services.execute()
+            return 'Successfully push notifications'
+        return 'There\'s No User for receive notifications'
+    return 'There\'s no notifications'
+
+
 class NATask(object):
 
     @staticmethod
@@ -97,8 +110,13 @@ class NATask(object):
         return 'Successfully generate fix asset'
 
     @staticmethod
+    @task(name='push_notifications')
+    def task_push_notification_ga_reg_expire(reg_id=None):
+        return _push_notification(reg_id=reg_id)
+
+    @staticmethod
     @task(name='task_update_notifications')
-    def task_update_notications(lookup, data):
+    def task_update_notifications(lookup, data):
         services = NAUpdateNotificationService(
             lookup=lookup,
             data=data
@@ -115,17 +133,4 @@ class NATaskSchedule(object):
                    ignore_result=True)
     @transaction.atomic
     def task_push_notification_ga_reg_expire():
-        reg_expire = NAGaVnHistory.get_expired_regs()
-        if reg_expire:
-            ga_user = NAPrivilege.objects.filter(
-                divisi=NAPrivilege.GA,
-                is_active=True,
-                role=NAPrivilege.SUPER_USER
-            )
-            ga_user = list(ga_user)
-            if ga_user:
-                services = NAPushNotificationService(reg_expire=reg_expire, user=ga_user)
-                services.execute()
-                return 'Successfully push notifications'
-            return 'There\'s No User for receive notifications'
-        return 'There\'s no notifications'
+        return _push_notification()

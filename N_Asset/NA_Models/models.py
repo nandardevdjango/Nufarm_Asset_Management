@@ -344,7 +344,7 @@ class Employee(NA_MasterDataModel):
     FORM_NAME = 'Employee'
     FORM_NAME_ORI = 'employee'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'nik': 'Nik',
         'employee_name': 'Employee Name',
         'typeapp': 'Employee Type',
@@ -410,7 +410,7 @@ class NASupplier(NA_MasterDataModel):
     FORM_NAME = 'Supplier'
     FORM_NAME_ORI = 'n_a_supplier'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'suppliercode': 'Supplier Code',
         'suppliername': 'Supplier Name',
         'telp': 'Telp',
@@ -1037,7 +1037,7 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     FORM_NAME = 'User Privilege'
     FORM_NAME_ORI = 'n_a_privilege'
 
-    LOG_EVENT = {
+    HUMAN_DISPLAY = {
         'first_name': 'First Name',
         'last_name': 'Last Name',
         'username': 'User Name',
@@ -1110,6 +1110,15 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
 
     def __str__(self):
         return self.username
+
+    @classmethod
+    def get_ga_super_user(cls):
+        ga_user = cls.objects.filter(
+            divisi=cls.GA,
+            is_active=True,
+            role=cls.SUPER_USER
+        )
+        return ga_user
 
     def get_dir_image(self, filename):
         return path.join(
@@ -1845,7 +1854,7 @@ class NAGaVnHistory(NA_BaseModel):
         return date.today() > self.bpkb_expired
 
     @classmethod
-    def get_expired_regs(cls):
+    def get_expired_regs(cls, reg_id=None):
         result = []
         now = datetime.now()
         filter_kwargs = {
@@ -1855,9 +1864,23 @@ class NAGaVnHistory(NA_BaseModel):
                 now
             ]
         }
-        regs = list(NAGaOutwards.objects.filter(
-            Q(**filter_kwargs) | Q(fk_app__expired_reg__gte=now)
-        ).select_related('fk_app', 'fk_employee'))
+        only_fields = [  # improve performance
+            'idapp',
+            'fk_app__reg_no',
+            'fk_app__expired_reg',
+            'fk_employee__employee_name',
+            'fk_employee__telphp',
+            'fk_employee__inactive'
+        ]
+        regs = (NAGaOutwards.objects.filter(
+            Q(**filter_kwargs) |
+            Q(fk_app__expired_reg__gte=now)
+        ).select_related('fk_app', 'fk_employee')
+         .only(*only_fields))
+
+        if reg_id:
+            regs = regs.filter(fk_app=reg_id)
+        regs = list(regs)
 
         if regs:
             for reg in regs:
