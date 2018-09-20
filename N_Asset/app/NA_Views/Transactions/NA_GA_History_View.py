@@ -12,11 +12,49 @@ from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_Models.models import NAGaOutwards, NAGaVnHistory
 
 
-class NAGaVnHistoryForm(forms.Form):
+class NAExtendGaVnHistoryForm(forms.Form):
     idapp = forms.IntegerField(widget=forms.HiddenInput())
-    reg_no = forms.CharField(widget=forms.TextInput())
-    date_reg = forms.DateField(widget=forms.TextInput())
-    expired_reg = forms.DateField(widget=forms.TextInput())
+    reg_no = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    date_reg = forms.DateField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    expired_reg = forms.DateField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+
+    goods_name = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    brand = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    type_app = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    colour = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+    invoice_no = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
 
     def save(self):
         try:
@@ -100,18 +138,36 @@ class NAGaVnHistoryView(View):
 
 @method_decorator(decorators.ensure_authorization, name='dispatch')
 @method_decorator(decorators.ajax_required, name='dispatch')
-class NAEntryGaVnHistoryView(View):
+class NAExtendGaVnHistoryView(View):
 
     def get(self, request):
-        form = NAGaVnHistoryForm()
+        idapp = request.GET.get('idapp')
+        try:
+            ga_history = NAGaVnHistory.objects.get(idapp=idapp)
+        except NAGaVnHistory.DoesNotExist:
+            result = NAErrorHandler.handle_data_lost(
+                model=NAGaVnHistory,
+                pk=idapp
+            )
+            return commonFunct.response_default(result)
+        else:
+            data = {
+                'reg_no': ga_history.reg_no,
+                'goods_name': ga_history.fk_app.fk_goods.goodsname,
+                'brand': ga_history.fk_app.brand,
+                'type_app': ga_history.fk_app.typeapp,
+                'colour': ga_history.fk_app.colour,
+                'invoice_no': ga_history.fk_app.invoice_no
+            }
+            form = NAExtendGaVnHistoryForm(initial=data)
         return render(
             request,
-            'app/Transactions/NA_Entry_GA_History.html',
+            'app/Transactions/NA_Extend_GA_History.html',
             {'form': form}
         )
 
     def post(self, request):
-        form = NAGaVnHistoryForm(request.POST)
+        form = NAExtendGaVnHistoryForm(request.POST)
         if form.is_valid():
             result = form.save()
         else:

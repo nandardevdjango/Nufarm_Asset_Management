@@ -924,12 +924,37 @@
                         event.preventDefault();
                         NA.common.dialog.closeDialog(dialog);
                     });
-                    var cancel_btn = dialog_content.next().find('div.dialogButtonOKCancel')
-                        .children().last()
+                    var ok_btn = dialog_content.next().find('div.dialogButtonOKCancel')
+                    .children().first();
+                    var cancel_btn = ok_btn.next();
                     cancel_btn.click(function(event){
                         event.preventDefault();
                         NA.common.dialog.closeDialog(dialog);
                     });
+                    ok_btn.click(function(event){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                        var idapp = $('#extend_tax').getGridParam('selrow');
+                        $.ajax({
+                            url: '/Transactions/GA_History/Extend/',
+                            data: {
+                                idapp: idapp
+                            },
+                            success: function(data){
+                                BootstrapDialog.show({
+                                    draggable: true,
+                                    type: BootstrapDialog.TYPE_WARNING,
+                                    size: BootstrapDialog.SIZE_SMALL,
+                                    cssClass: 'ga-popup-notif',
+                                    title: 'Notifications - Please extend taxes below !',
+                                    message: (function(){
+                                        return $(data)
+                                    })
+                                })
+                            }
+                        })
+                    })
                 }
                 
             }

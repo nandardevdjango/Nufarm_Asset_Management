@@ -1,0 +1,51 @@
+<div class="container" style="padding:0">
+    <table class="table table-hover">
+        <thead>
+            <tr class="active">
+                <th colspan="2" class="title" style="text-align:center;">Goods Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;">Goods Name</td>
+                <td class="col-xs-8">{{ form.goods_name.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;">Brand</td>
+                <td class="col-xs-8">{{ form.brand.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;">Type</td>
+                <td class="col-xs-8">{{ form.type_app.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;">Colour</td>
+                <td class="col-xs-8">{{ form.colour.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;">Invoice No</td>
+                <td class="col-xs-8">{{ form.invoice_no.value }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="container">
+    <form id="extend_ga_history" onsubmit="return false;">
+        {% csrf_token %}
+        <div class="NA-Entry-div-row">
+            <div class="NA-Entry-inlinve-div">
+                <label style="display:inline-block; width:60px;">Registration Date</label>
+                {{ form.date_reg }}
+            </div>
+        </div>
+
+        <div class="NA-Entry-div-row">
+            <div class="NA-Entry-inlinve-div">
+                <label style="display:inline-block; width:60px;">Expire Date</label>
+                <input class="form-control" type="text" disabled="" />
+            </div>
+        </div>
+        <input id="submit_entry_equipment" type="submit" style="display:none;" />
+    </form>
+</div>
