@@ -439,6 +439,7 @@
         <!--====================================================================-->
     </div>
     <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+    <script src="{% static 'app/scripts/material.spinner.min.js' %}"></script>
     {% with request.resolver_match.url_name as url_name %}
     {% if url_name == 'home' or url_name == 'login' %}
     <script>window.NA || document.write('<script src="../../static/app/scripts/NAJS.js"><\/script>')</script>
@@ -582,14 +583,9 @@
                 return typeof elemEvents != 'undefined';
             }
             
-            // TODO: fix it .. fucking javashit ...
-            //$('div.AsideLoginArea ul.dropdown-menu.triangle.shadow').click(function(event){ //prevent menu user from close
-            //    console.log(event)
-            //    if (!checkEventExists(event.target)){
-            //        event.stopPropagation();
-            //    }
-    			
-    		//});
+            $('div.AsideLoginArea ul.dropdown-menu.triangle.shadow').click(function(event){ //prevent menu user from close
+                event.preventDefault();
+    		});
     		$('p#change_user_picture').on({
     			'click': function(event){
     				NA.NAEvent.preventDefault(event);
@@ -774,6 +770,21 @@
     <!--====================Jquery untuk menu============================ -->
     <script>
     	$(function () {
+            $('.dropdown').on({
+                "click": function(event) {
+                  if ($(event.target).closest('.dropdown-toggle').length) {
+                    $(this).data('closable', true);
+                  } else {
+                    $(this).data('closable', false);
+                  }
+                },
+                "hide.bs.dropdown": function(event) {
+                  hide = $(this).data('closable');
+                  $(this).data('closable', true);
+                  return hide;
+                }
+            });
+
             // ====== common ajax setup if user was logged out
             $.ajaxSetup({
                 error: function(resp){
@@ -940,6 +951,76 @@
                 }
             }
 
+
+            window.ShowDialogExtend = function(data){
+                BootstrapDialog.show({
+                    draggable: true,
+                    type: BootstrapDialog.TYPE_WARNING,
+                    size: BootstrapDialog.SIZE_SMALL,
+                    cssClass: 'dialog-extend-tax',
+                    title: 'Nufarm - Extend tax number',
+                    closable: false,
+                    animate: true,
+                    closeByBackdrop: false,
+                    closeByKeyboard: false,
+                    message: (function(){
+                        return $(data)
+                    }),
+                    onshown: function(){
+                        $('#id_new_date_reg').datepicker({
+                            dateFormat: 'dd/mm/yy',
+                            changeMonth: true,
+                            changeYear: true,
+                            dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
+                            beforeShowDay: $.datepicker.noWeekends,
+                            maxDate: 1,
+                            showButtonPanel: true,
+                            closeText: "Close",
+                            currentText: 'Now',
+                            onSelect: function (dateText) {
+                                var date = $.datepicker.parseDate('dd/mm/yy', dateText);
+
+                                var expire_date = document.querySelector('#id_new_expired_reg');
+                                expire_date.value = date.getDate() + (date.getMonth() > 9 ? '/' : '/0') 
+                                + (date.getMonth() + 1) + '/' + (date.getFullYear() + 1);
+                            }
+                        });
+                    },
+                    buttons: [{
+                        label: 'OK',
+                        cssClass: 'btn-success',
+                        action: function (dialogRef) {
+                            var idapp = $('form#extend_ga_history').find('#id_idapp').val();
+                            var date_reg = $('form#extend_ga_history').find('#id_new_date_reg').val();
+
+                            $.ajax({
+                                url: '/Transactions/GA_History/Extend/',
+                                method: 'POST',
+                                beforeSend: function(xhr){
+                                    xhr.setRequestHeader(
+                                        'X-CSRFToken', 
+                                        $('form#extend_ga_history').find('input[name="csrfmiddlewaretoken"]').val()
+                                    )
+                                },
+                                data: {
+                                    idapp: idapp,
+                                    new_date_reg: date_reg
+                                },
+                                success: function(){
+                                    dialogRef.close();
+                                }
+                            })
+                        }
+                    },
+                    {
+                        label: 'Cancel',
+                        cssClass: 'btn-default',
+                        action: function (dialogRef) {
+                            dialogRef.close();
+                        }
+                    }]
+                })
+            }
             window.showOtherDialog = function(event){
                 if(event.target == extend_tax_menu){
                     var dialog = $('div.containerDialog')[0];
@@ -1011,73 +1092,7 @@
                                 idapp: idapp
                             },
                             success: function(data){
-                                BootstrapDialog.show({
-                                    draggable: true,
-                                    type: BootstrapDialog.TYPE_WARNING,
-                                    size: BootstrapDialog.SIZE_SMALL,
-                                    cssClass: 'dialog-extend-tax',
-                                    title: 'Nufarm - Extend tax number',
-                                    closable: false,
-                                    animate: true,
-                                    closeByBackdrop: false,
-                                    closeByKeyboard: false,
-                                    message: (function(){
-                                        return $(data)
-                                    }),
-                                    onshown: function(){
-                                        $('#id_new_date_reg').datepicker({
-                                            dateFormat: 'dd/mm/yy',
-                                            changeMonth: true,
-                                            changeYear: true,
-                                            dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
-                                            beforeShowDay: $.datepicker.noWeekends,
-                                            maxDate: 1,
-                                            showButtonPanel: true,
-                                            closeText: "Close",
-                                            currentText: 'Now',
-                                            onSelect: function (dateText) {
-                                                var date = $.datepicker.parseDate('dd/mm/yy', dateText);
-    
-                                                var expire_date = document.querySelector('#id_new_expired_reg');
-                                                expire_date.value = date.getDate() + (date.getMonth() > 9 ? '/' : '/0') 
-                                                + (date.getMonth() + 1) + '/' + (date.getFullYear() + 1);
-                                            }
-                                        });
-                                    },
-                                    buttons: [{
-                                        label: 'OK',
-                                        cssClass: 'btn-success',
-                                        action: function (dialogRef) {
-                                            var idapp = $('form#extend_ga_history').find('#id_idapp').val();
-                                            var date_reg = $('form#extend_ga_history').find('#id_new_date_reg').val();
-
-                                            $.ajax({
-                                                url: '/Transactions/GA_History/Extend/',
-                                                method: 'POST',
-                                                beforeSend: function(xhr){
-                                                    xhr.setRequestHeader(
-                                                        'X-CSRFToken', 
-                                                        $('form#extend_ga_history').find('input[name="csrfmiddlewaretoken"]').val()
-                                                    )
-                                                },
-                                                data: {
-                                                    idapp: idapp,
-                                                    new_date_reg: date_reg
-                                                },
-                                                success: function(){
-                                                    dialogRef.close();
-                                                }
-                                            })
-                                        }
-                                    },
-                                    {
-                                        label: 'Cancel',
-                                        cssClass: 'btn-default',
-                                        action: function (dialogRef) {
-                                            dialogRef.close();
-                                        }
-                                    }]
-                                })
+                                window.ShowDialogExtend(data);
                             }
                         })
                     })
@@ -1263,13 +1278,25 @@
             $(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
                 $(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
                 var notif_content = $('#notification-content');
+                
                 if(notif_content[0].dataset.pull == "false"){
+                    var container_spinner = $('<div class="container-spinner"></div>');
+                    notif_content.append(container_spinner);
                     $.ajax({
                         url: '/Notifications/',
                         method: 'GET',
                         data: {
                             name: 'ga_reg_notif'
                         },
+
+                        beforeSend: function(){
+                            container_spinner.spinner({
+                                color: 'forestgreen',
+                                strokeWidth: 4,
+                                radius: 20
+                            })
+                        },
+
                         success: function(data){
                             if(data.length){
                                 notif_content.children().remove();
@@ -1279,7 +1306,10 @@
                                     var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
                                     var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
                                     var extend_tax = $('<div id="extend_button" data-regid="'+ data[i].reg_id +'">EXTEND</div>');
+                                    var cancel = $('<div id="cancel_button">CANCEL</div>');
+
                                     notif_item.append(extend_tax);
+                                    notif_item.append(cancel);
                                     container.append(notif_title);
                                     container.append(notif_message);
                                     notif_item.append(container);
@@ -1287,6 +1317,9 @@
                                 }
                             }
                             notif_content[0].dataset.pull = true;
+                        },
+                        complete: function(){
+                            container_spinner.remove();
                         }
                     })
                 }
@@ -1294,24 +1327,24 @@
             }).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
                 $(this).find('.profile-circle').css('background', '');
                 $('li.notification-item').css('background', '');
-                $('li.notification-item').find('#extend_button').css('display', '');
+                $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
                 $('li.notification-item').find('p').css('color', '');
             })
-            
+
             $(document).on('click', 'li.notification-item', function(event){
                 event.preventDefault();
                 event.stopPropagation();
                 if ($(this).find('#extend_button').css('display') == 'block'){ // if extend button was displayed
                     $('li.notification-item').css('background', '');
-                    $('li.notification-item').find('#extend_button').css('display', '');
+                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
                     $(this).find('p').css('color', '');
                 } else {
                     $('li.notification-item').css('background', '');
-                    $('li.notification-item').find('#extend_button').css('display', '');
+                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
                     $('li.notification-item').find('p').css('color', '');
                     $(this).css('background', 'rgba(117,117,117,.9)');
-                    $(this).find('#extend_button').css('display', 'block');
-                    $(this).find('p').css('color', 'transparent');
+                    $(this).find('#extend_button, #cancel_button').css('display', 'block');
+                    $(this).find('p').css('color', '#666');
                 }
             });
 
@@ -1319,7 +1352,15 @@
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-                alert(this.dataset.regid);
+                $.ajax({
+                    url: '/Transactions/GA_History/Extend/',
+                    data: {
+                        idapp: this.dataset.regid
+                    },
+                    success: function(data){
+                        window.ShowDialogExtend(data);
+                    }
+                })
             })
         })
     </script>

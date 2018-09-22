@@ -76,8 +76,6 @@ class NAUpdateNotificationService(object):
         except NANotifications.DoesNotExist:
             pass
 
-# TODO: Create service clear notifications if reg number has extended and clear session
-
 
 class NAClearNotificationService(object):
     def __init__(self, lookup):
