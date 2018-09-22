@@ -116,10 +116,32 @@ div#gbox_NA_Privilege_grid,div#gview_NA_Privilege_grid, div.ui-jqgrid-titlebar,d
 li.notification-item {
     border-bottom: 1px solid #e5e5e5;
     padding: 9px;
+    cursor: pointer;
 }
 
 li.notification-item:hover{
     background: #f1f1f1;
+}
+
+div#extend_button{
+    display: none;
+    position:absolute;
+    color: #fff;
+    padding: 7px 10px;
+    font-weight: bold;
+    border-radius: 2px;
+    background: rgba(0,0,0,.30);
+    font-size: 13px;
+    -webkit-transition: all 100ms ease-in-out;
+    -moz-transition: all 100ms ease-in-out;
+    -ms-transition: all 100ms ease-in-out;
+    -o-transition: all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
+}
+
+div#extend_button:hover{
+    background: rgba(0,0,0,.45);
+    color: forestgreen;
 }
 
 p.notification-title {
@@ -354,6 +376,10 @@ ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover
 
 .ga-popup-notif .modal-dialog.modal-sm{
     width: 800px;
+}
+
+.dialog-extend-tax .modal-dialog.modal-sm{
+    width: 500px;
 }
 
 /*================== Checkbox ======================*/

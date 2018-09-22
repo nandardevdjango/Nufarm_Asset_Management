@@ -1872,11 +1872,9 @@ class NAGaVnHistory(NA_BaseModel):
             'fk_employee__telphp',
             'fk_employee__inactive'
         ]
-        regs = (NAGaOutwards.objects.filter(
-            Q(**filter_kwargs) |
-            Q(fk_app__expired_reg__gte=now)
-        ).select_related('fk_app', 'fk_employee')
-         .only(*only_fields))
+        regs = (NAGaOutwards.objects.filter(**filter_kwargs)
+                                    .select_related('fk_app', 'fk_employee')
+                                    .only(*only_fields))
 
         if reg_id:
             regs = regs.filter(fk_app=reg_id)

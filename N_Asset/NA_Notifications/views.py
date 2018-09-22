@@ -62,9 +62,13 @@ class NANotificationView(View):
                 'count': notifications.count()
             }
         else:
-            notifications = notifications.values('title', 'message')
+            notifications = notifications.only('idapp', 'title', 'message', 'data')
             for notif in notifications:
-                result.append(notif)
+                result.append({
+                    'reg_id': notif.data.get('idapp'),
+                    'title': notif.title,
+                    'message': notif.message
+                })
 
         return JsonResponse(result, safe=False)
 

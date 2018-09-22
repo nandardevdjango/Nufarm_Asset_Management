@@ -2,50 +2,60 @@
     <table class="table table-hover">
         <thead>
             <tr class="active">
-                <th colspan="2" class="title" style="text-align:center;">Goods Info</th>
+                <th colspan="2" class="title">Goods Info & old tax number {{ form.reg_no.value }}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td class="col-xs-4" style="font-weight:bold;">Goods Name</td>
-                <td class="col-xs-8">{{ form.goods_name.value }}</td>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Goods Name</td>
+                <td class="col-xs-8">: {{ form.goods_name.value }}</td>
             </tr>
             <tr>
-                <td class="col-xs-4" style="font-weight:bold;">Brand</td>
-                <td class="col-xs-8">{{ form.brand.value }}</td>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Brand</td>
+                <td class="col-xs-8">: {{ form.brand.value }}</td>
             </tr>
             <tr>
-                <td class="col-xs-4" style="font-weight:bold;">Type</td>
-                <td class="col-xs-8">{{ form.type_app.value }}</td>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Type</td>
+                <td class="col-xs-8">: {{ form.type_app.value }}</td>
             </tr>
             <tr>
-                <td class="col-xs-4" style="font-weight:bold;">Colour</td>
-                <td class="col-xs-8">{{ form.colour.value }}</td>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Colour</td>
+                <td class="col-xs-8">: {{ form.colour.value }}</td>
             </tr>
             <tr>
-                <td class="col-xs-4" style="font-weight:bold;">Invoice No</td>
-                <td class="col-xs-8">{{ form.invoice_no.value }}</td>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Invoice No</td>
+                <td class="col-xs-8">: {{ form.invoice_no.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Registration Date</td>
+                <td class="col-xs-8">: {{ form.old_date_reg.value }}</td>
+            </tr>
+            <tr>
+                <td class="col-xs-4" style="font-weight:bold;padding-left:20px;">Expired Date</td>
+                <td class="col-xs-8">: {{ form.old_expired_reg.value }}</td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<div class="container">
-    <form id="extend_ga_history" onsubmit="return false;">
+<div class="container" style="margin-top:15px;padding:0;">
+    <div style="background: #f5f5f5;padding: 8px;border-bottom: 2px solid #ddd;font-weight:bold">Update new data</div>
+    <form id="extend_ga_history" onsubmit="return false;" style="padding:12px 20px;">
         {% csrf_token %}
         <div class="NA-Entry-div-row">
             <div class="NA-Entry-inlinve-div">
-                <label style="display:inline-block; width:60px;">Registration Date</label>
-                {{ form.date_reg }}
+                <label style="display:inline-block; width:132px;">Registration Date</label>
+                {{ form.new_date_reg }}
             </div>
         </div>
 
         <div class="NA-Entry-div-row">
             <div class="NA-Entry-inlinve-div">
-                <label style="display:inline-block; width:60px;">Expire Date</label>
-                <input class="form-control" type="text" disabled="" />
+                <label style="display:inline-block; width:132px;">Expire Date</label>
+                {{ form.new_expired_reg }}
             </div>
         </div>
         <input id="submit_entry_equipment" type="submit" style="display:none;" />
+        {{ form.idapp }}
     </form>
 </div>

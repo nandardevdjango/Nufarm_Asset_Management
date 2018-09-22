@@ -48,7 +48,7 @@ class NAErrorHandler(object):
         if isinstance(form_error, list):
             return form_error[0].message
         for k, v in form_error.items():
-            return v[0].message
+            return v[0].message.title()
 
     @staticmethod
     def retrieve_integrity_column(err):

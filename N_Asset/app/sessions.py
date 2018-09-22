@@ -41,3 +41,7 @@ class SessionStore(DBStore):
             user_id = None
         obj.user_id = user_id
         return obj
+
+    @classmethod
+    def encode_session(cls, data):
+        return cls().encode(session_dict=data)

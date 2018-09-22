@@ -9,7 +9,8 @@ from NA_Models.models import NAGaVnHistory, NAPrivilege
 from NA_Notifications.email import EmailNotification, EmailSubject
 from NA_Notifications.services.notifications_service import (
     NAPushNotificationService,
-    NAUpdateNotificationService
+    NAUpdateNotificationService,
+    NAClearNotificationService
 )
 
 
@@ -123,6 +124,13 @@ class NATask(object):
         )
         services.execute()
         return 'Successfully update notifications'
+
+    @staticmethod
+    @task(name='task_clear_notifications')
+    def task_clear_notifications(lookup):
+        services = NAClearNotificationService(lookup=lookup)
+        services.execute()
+        return 'Successfully clear notifications'
 
 
 class NATaskSchedule(object):

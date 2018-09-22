@@ -876,6 +876,7 @@ class commonFunct:
                     message = data[1]
                 else:
                     message = Message.Empty.value
+
             return HttpResponse(
                 json.dumps({'message': message}),
                 status=status,
