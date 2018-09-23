@@ -33,20 +33,21 @@ class LogActivity:
         result = {}
         for field in model._meta.fields:
             name = field.name  # field name
-            data = getattr(model, name)
-            if isinstance(data, ImageFieldFile):
-                data = data.name
-            if to_json:
-                if isinstance(data, datetime):
-                    data = data.strftime('%d/%m/%Y %H:%M')
-                elif isinstance(data, date):
-                    data = data.strftime('%d/%m/%Y')
-            try:
-                result[name] = eval(
-                    'model.get_%s_display()' % name
-                )
-            except AttributeError:
-                result[name] = data
+            if model.HUMAN_DISPLAY.get(name):
+                data = getattr(model, name)
+                if isinstance(data, ImageFieldFile):
+                    data = data.name
+                if to_json:
+                    if isinstance(data, datetime):
+                        data = data.strftime('%d/%m/%Y %H:%M')
+                    elif isinstance(data, date):
+                        data = data.strftime('%d/%m/%Y')
+                try:
+                    result[name] = eval(
+                        'model.get_%s_display()' % name
+                    )
+                except AttributeError:
+                    result[name] = data
         return result
 
     def record_activity(self):

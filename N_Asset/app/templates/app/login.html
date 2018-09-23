@@ -1,50 +1,240 @@
-{% extends "app/layout.html" %}
+<html>
+<head>
+    <title>Nufarm - Login Page</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+            background-repeat: no-repeat;
+            font-family: sans-serif;
+            height: 100%;
+        }
+        .login-box{
+            width: 340px;
+            height: 450px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%,-50%);
+            box-sizing: border-box;
+            padding: 70px 30px;
+        }
 
-{% block content %}
+        .blur::before{
+            content: ' ';
+            width: 320px;
+            height: 420px;
+            background: inherit;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
+            filter: blur(10px);
+        }
 
-<h2>{{ title }}</h2>
-<div class="row">
-    <div class="col-md-8">
-        <section id="loginForm">
-            <form action="." method="post" class="form-horizontal">
+        .avatar{
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: absolute;
+            top: -50px;
+            left: calc(50% - 50px);
+        }
+        h1{
+            margin: 0;
+            padding: 0 0 12px;
+            text-align: center;
+            font-size: 22px;
+        }
+        .login-box form p{
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+        }
+        .login-box input{
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .login-box input[type="email"], input[type="password"]
+        {
+            border:none;
+            border-bottom: 1.5px solid #fff;
+            background: transparent;
+            outline: none;
+            height: 40px;
+            color: #fff;
+            font-size: 16px;
+        }
+        .login-box input[type="submit"]
+        {
+            border: none;
+            outline: none;
+            height: 40px;
+            background: #228b22;
+            color: #fff;
+            font-size: 18px;
+            border-radius: 20px;
+            -webkit-transition: all 100ms ease-in-out;
+            -moz-transition: all 100ms ease-in-out;
+            -ms-transition: all 100ms ease-in-out;
+            -o-transition: all 100ms ease-in-out;
+            transition: all 100ms ease-in-out;
+        }
+        .login-box input[type="submit"]:hover
+        {
+            cursor: pointer;
+            background: #1d771d;
+        }
+        
+        .login-box a{
+            font-size: 13px;
+            color: #fff;
+        }
+        .login-box a:hover
+        {
+            color: forestgreen;
+        }
+
+        input:invalid {
+            box-shadow:0 0 0px red;
+        }
+        input[type="email"]:focus, input[type="password"]:focus{
+            border-color: forestgreen;
+        }
+
+        .container-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) !important;
+        }
+        a{
+            text-decoration: underline;
+            -webkit-transition: all 100ms ease-in-out;
+            -moz-transition: all 100ms ease-in-out;
+            -ms-transition: all 100ms ease-in-out;
+            -o-transition: all 100ms ease-in-out;
+            transition: all 100ms ease-in-out;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+        .no-underline{
+            text-decoration: none;
+        }
+        .container-social-login{
+            text-align:center;
+            margin-top: 28px;
+        }
+        .container-social-login a{
+            margin: 0 10px;
+        }
+    </style>
+</head>
+    <body>
+        <div class="login-box">
+            <img src="/static/NA_User_Image/img/avatar_user.png" class="avatar">
+            <h1>Login</h1>
+            <form id="login_form" action="/login/" method="POST" style="margin:0">
                 {% csrf_token %}
-                <h4>Use a local account to log in.</h4>
-                <hr />
-                <div class="form-group">
-                    <label for="id_username" class="col-md-2 control-label">User name</label>
-                    <div class="col-md-10">
-                        {{ form.username }}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="id_password" class="col-md-2 control-label">Password</label>
-                    <div class="col-md-10">
-                        {{ form.password }}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="hidden" name="next" value="/" />
-                        <input type="submit" value="Log in" class="btn btn-default" />
-                    </div>
-                </div>
-                {% if form.errors %}
-                <p class="validation-summary-errors">Please enter a correct user name and password.</p>
-                {% endif %}
+                <p>Email</p>
+                <input type="email" name="email" placeholder="mail@nufarm.co.id" required>
+                <p>Password</p>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="submit" name="submit" value="Login">
             </form>
-        </section>
-    </div>
-    <div class="col-md-4">
-        <section id="socialLoginForm"></section>
-    </div>
-</div>
+            <div style="line-height:10px">
+                <a href="#">Forget Password</a>
+                <p style="font-size:13px;">Don't Have Account ? <a href="#">Register Here</a></p>
+                <div class="container-social-login">
+                    <p>Or Login With</p>
+                    <a class="no-underline" href="#">
+                        <i class="fa fa-facebook fa-2x"></i>
+                    </a>
+                    <a class="no-underline" href="#">
+                        <i class="fa fa-twitter fa-2x"></i>
+                    </a>
+                    <a class="no-underline" href="#">
+                        <i class="fa fa-google fa-2x"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <script src="{% static 'app/scripts/jquery-1.11.1.js' %}"></script>
+    <script src="{% static 'app/scripts/material.spinner.min.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            var company_picture = [
+                'nufarm_image.jpg', 
+                'nufarm_image1.jpg', 
+                'nufarm_image2.png',
+                'nufarm_image3.jpg',
+                'nufarm_image4.jpg',
+                'nufarm_image5.jpg'
+                ]
+            var random_pict = company_picture[Math.floor(Math.random() * company_picture.length)];
+            var path_pict = '/static/app/images/company_picture/' + random_pict;
+            $('body').css('backgroundImage', 'url(' + path_pict + ')');
+            $('#login_form').submit(function(event){
+                event.preventDefault();
+                if (this.checkValidity()){
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    $.ajax({
+                        url: this.action,
+                        method: 'POST',
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader(
+                                'X-CSRFToken', 
+                                $('input[name="csrfmiddlewaretoken"]').val()
+                            )
+                            var container_loading = $('<div class="container-spinner"></div>');
+                            $('.login-box').addClass('blur');
+                            container_loading.spinner({
+                                color: 'forestgreen',
+                                strokeWidth: 4,
+                                radius: 20
+                            })
+                            $('div.login-box').append(container_loading);
+                        },
+                        data: {
+                            email: $(this).find('input[type="email"]').val(),
+                            password: $(this).find('input[type="password"]').val()
+                        },
+                        success: function(data){
+                            // TODO: Handle it, in layout.html --> don't use tag session
+                            setTimeout(function(){
+                                window.location.href = data.redirect;
+                            }, 500);
+                            
+                        },
+                        error: function(data){
+                            data = data.responseJSON
+                            for (var key in data){
+                                var input = $('input[name="'+ key +'"]').get(0);
+                                input.setCustomValidity(data[key]);
+                                $('form#login_form').find('input[type="submit"]').click();
+                            }
+                        },
+                        complete: function(){
+                            
+                            $('div.container-spinner').fadeOut(1000);
+                            $('.login-box').removeClass('blur', 1000);
+                        }
+                    })
+                return false;
+                }
+            });
 
-{% endblock %}
-
-
-{% block scripts %}
-
-    {% load staticfiles %}
-<script src="{% static 'app/scripts/jquery.validate.min.js' %}"></script>
-
-{% endblock %}
+            $('form#login_form').find('input[type="password"], input[type="email"]').on('change', function(){
+                this.setCustomValidity('');
+            });
+        });
+    </script>
+    </body>
+</html>

@@ -735,7 +735,7 @@
                                             for (var key in data.data){
                                                 var tr = $('<tr></tr>');
                                                 var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td class="col-xs-8">' + data.data[key] + '</td>');
+                                                var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
                                                 tr.append(label);
                                                 tr.append(value);
                                                 tbody.append(tr);
@@ -1352,6 +1352,10 @@
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
+                if (typeof $.datepicker == "undefined"){
+                    $('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
+                        .appendTo($('body'));
+                }
                 $.ajax({
                     url: '/Transactions/GA_History/Extend/',
                     data: {

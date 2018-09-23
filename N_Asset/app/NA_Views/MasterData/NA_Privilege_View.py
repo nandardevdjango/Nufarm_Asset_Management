@@ -1,18 +1,19 @@
 import json
 from datetime import datetime
-from django.http import HttpResponse
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.shortcuts import render, redirect
-from django.core.serializers.json import DjangoJSONEncoder
-from django import forms
-from django.db import transaction, IntegrityError
-from django.contrib.auth import login, logout, authenticate
 
-from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
+from django import forms
+from django.contrib.auth import login, logout, authenticate
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.urlresolvers import resolve, Resolver404
+from django.db import transaction, IntegrityError
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
-
+from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
 from NA_Worker.task import NATask
 from NA_Worker.worker import NATaskWorker
 
@@ -514,24 +515,28 @@ def NA_Privilege_login(request):
         if request.method == 'POST':
             form = NA_Privilege_Login_Form(request.POST or None)
             if form.is_valid():
-                email = form.cleaned_data.get("email")
-                password = form.cleaned_data.get("password")
-                # authenticates Email & Password
-                user = authenticate(email=email, password=password)
-                login(request, user)
-                next_action = request.GET.get(
-                    'next'
-                ) or request.POST.get('next')
-                if next_action:
-                    return redirect(next_action)
+                form.login(request)
+                try:
+                    next_action = request.META.get('HTTP_REFERER').split('?')[1]
+                    next_action = next_action.replace('next=', '')
+                except IndexError:
+                    next_action = '/'
                 else:
-                    return redirect('home')
+                    try:
+                        resolve(next_action)
+                    except Resolver404:
+                        next_action = '/'
+                return JsonResponse({'redirect': next_action})
             else:
-                raise forms.ValidationError(form.errors)
+                _, result = NAErrorHandler.handle_form_error(
+                    form_error=form.errors,
+                    as_dict=True
+                )
+                return JsonResponse(result, status=400)
         form = NA_Permission_Form()
         return render(
             request,
-            "app/layout.html",
+            "app/login.html",
             {"form": form, "title": title}
         )
 
@@ -546,15 +551,26 @@ class NA_Privilege_Login_Form(forms.Form):
         password = self.cleaned_data.get("password")
 
         if email and password:
-            user = authenticate(email=email, password=password)
-            if not user:
-                raise forms.ValidationError("User Does Not Exist.")
-            if not user.check_password(password):
-                raise forms.ValidationError("Password Does not Match.")
-            if not user.is_active:
-                raise forms.ValidationError("User is not Active.")
+            try:
+                user = NAPrivilege.objects.get(email=email)
+            except NAPrivilege.DoesNotExist:
+                raise forms.ValidationError({
+                    'email': 'Email does not exist'
+                })
+            else:
+                if not user.check_password(password):
+                    raise forms.ValidationError({
+                        'password': 'Password incorrect'
+                    })
 
         return super(NA_Privilege_Login_Form, self).clean(*args, **kwargs)
+
+    def login(self, request):
+        email = self.cleaned_data.get("email")
+        password = self.cleaned_data.get("password")
+        # authenticates Email & Password
+        user = authenticate(email=email, password=password)
+        login(request, user)
 
 
 def NA_Privilege_register(request):

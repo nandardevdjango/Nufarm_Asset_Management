@@ -1044,7 +1044,6 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
         'email': 'Email',
         'divisi': 'Divisi',
         'role': 'Role',
-        'password': 'Password',
         'picture': 'Picture',
         'date_joined': 'Date Joined',
         'createdby': 'Created By'
@@ -1088,7 +1087,10 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     )
     last_login = models.DateTimeField(db_column='Last_login', null=True)
     last_form = models.CharField(
-        max_length=50, db_column='Last_form', null=True)
+        max_length=50,
+        db_column='Last_form',
+        null=True
+    )
     computer_name = models.CharField(max_length=50, db_column='Computer_Name')
     ip_address = models.CharField(max_length=20, db_column='IP_Address')
 

@@ -123,6 +123,13 @@ class NAErrorHandler(object):
         return Data.Lost, Message.get_lost_info(model=model, pk=pk, **kwargs)
 
     @classmethod
-    def handle_form_error(cls, form_error):
-        result = cls.get_form_error_message(form_error)
+    def handle_form_error(cls, form_error, as_dict=False):
+        if as_dict:
+            result = {}
+            for k, v in form_error.items():
+                result.update({
+                    k: v[0]
+                })
+        else:
+            result = cls.get_form_error_message(form_error)
         return Data.ValidationError, result
