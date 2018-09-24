@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django import forms
 from django.contrib.auth import login, logout, authenticate
+from django.core import signing
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import resolve, Resolver404
@@ -512,6 +513,10 @@ def NA_Privilege_login(request):
         return redirect(request.GET.get('next', '/'))
     else:
         title = "Login"
+        cookie_data = {
+            'is_ever_sign': True
+        }
+        cookie_key = '__na_cookie'
         if request.method == 'POST':
             form = NA_Privilege_Login_Form(request.POST or None)
             if form.is_valid():
@@ -526,17 +531,29 @@ def NA_Privilege_login(request):
                         resolve(next_action)
                     except Resolver404:
                         next_action = '/'
-                return JsonResponse({'redirect': next_action})
+                response = JsonResponse({'redirect': next_action})
+                cookie_data.update({
+                    'role': int(request.user.role)
+                })
+                cookie_value = signing.dumps(cookie_data)  # Cryptographic: for security
+                response.set_cookie(key=cookie_key, value=cookie_value)
+                return response
             else:
                 _, result = NAErrorHandler.handle_form_error(
                     form_error=form.errors,
                     as_dict=True
                 )
                 return JsonResponse(result, status=400)
+
         form = NA_Permission_Form()
+        template_name = "app/login.html"
+        if request.COOKIES.get(cookie_key):
+            cookie_data = signing.loads(request.COOKIES.get(cookie_key))
+            if int(cookie_data.get('role')) in [NAPrivilege.SUPER_USER, NAPrivilege.USER]:
+                template_name = "app/layout.html"
         return render(
             request,
-            "app/login.html",
+            template_name,
             {"form": form, "title": title}
         )
 
