@@ -1123,7 +1123,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         	var widthTable = 0;//NA.common.getElementID('id_descriptions').style.width;
         	var txtdescriptions = NA.common.doc.querySelector('#id_descriptions');
         	widthTable = win.getComputedStyle(txtdescriptions).width;
-        	gridTbl.css({ 'overflow': 'auto' });
+        	gridTbl.css({ 'overflow': 'auto','width':widthTable });
         	var containerDialog = NA.common.doc.querySelector('div.containerDialog');
 
         	var viewportSize = NA.common.dialog.getViewportSize();

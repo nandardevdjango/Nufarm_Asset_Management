@@ -214,7 +214,7 @@ def ShowEntry_Receive(request):
 					data.update(hasRefData=hasRefData)
 					data.update(hasChangedHeader=ChangedHeader)
 					data.update(hasChangedDetail=ChangedDetail)
-
+					
 					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)
 					dataDetail = list(dataForGridDetail)	
 					desc = '('				

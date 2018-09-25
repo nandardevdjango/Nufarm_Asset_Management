@@ -29,6 +29,7 @@ from NA_DataLayer.Transactions.NA_Goods_Outwards_GA_BR import NABRGoodsOutwardsG
 from NA_DataLayer.Transactions.NA_Goods_Receive_BR import (NA_BR_Goods_Receive,
                                                            CustomSupplierManager,
                                                            custEmpManager)
+from NA_DataLayer.Transactions.NA_Goods_Receive_Detail_BR import NA_BR_Goods_Receive_Detail
 from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive_GA
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
@@ -613,22 +614,22 @@ class NAGoodsReceive(NA_GoodsReceiveModel):
 
 
 class NA_GoodsReceive_detail(NA_BaseModel):
-    fk_app = models.ForeignKey(
-        NAGoodsReceive, db_column='FK_App', db_constraint=False)
-    brandname = models.CharField(max_length=100, db_column='BrandName')
-    priceperunit = models.DecimalField(
-        db_column='PricePerUnit', max_digits=30, decimal_places=4)
-    typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    warranty = models.DecimalField(
-        max_digits=6, decimal_places=2, db_column='Warranty')
-    endofwarranty = models.DateTimeField(
-        null=True, blank=True, db_column='EndOfWarranty')
-    serialnumber = models.CharField(db_column='SerialNumber', max_length=100)
+	fk_app = models.ForeignKey(
+		NAGoodsReceive, db_column='FK_App', db_constraint=False)
+	brandname = models.CharField(max_length=100, db_column='BrandName')
+	priceperunit = models.DecimalField(
+		db_column='PricePerUnit', max_digits=30, decimal_places=4)
+	typeapp = models.CharField(db_column='TypeApp', max_length=32)
+	warranty = models.DecimalField(
+		max_digits=6, decimal_places=2, db_column='Warranty')
+	endofwarranty = models.DateTimeField(
+		null=True, blank=True, db_column='EndOfWarranty')
+	serialnumber = models.CharField(db_column='SerialNumber', max_length=100)
 
-    class Meta:
-        db_table = 'n_a_goods_receive_detail'
-
-
+	class Meta:
+		db_table = 'n_a_goods_receive_detail'
+		managed = True
+	objects = NA_BR_Goods_Receive_Detail()
 class NAGoodsReturn(NAGoodsReturnModel):
     fk_employee = None
     objects = NA_BR_Goods_Return()
