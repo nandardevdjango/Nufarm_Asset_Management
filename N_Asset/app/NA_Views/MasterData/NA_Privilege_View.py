@@ -239,7 +239,7 @@ class NAPrivilegeForm(forms.Form):
 
     )
     role = forms.ChoiceField(widget=forms.Select(
-        attrs={'class': 'form-control'}), choices=(NAPrivilege.ROLE_CHOICES))
+        attrs={'class': 'form-control'}), choices=NAPrivilege.ROLE_CHOICES)
     statusForm = forms.CharField(widget=forms.TextInput(
         attrs={'style': 'display:none'}), required=True)
     password = forms.CharField(max_length=30, required=False, widget=forms.PasswordInput(
@@ -607,10 +607,9 @@ def NA_Privilege_register(request):
 
 
 def NA_Privilege_logout(request):
-    if not request.user.is_authenticated():
+    if request.user.role == NAPrivilege.GUEST:
         return redirect('login')
     else:
-        logout(request)
         return redirect('home')
 
 
@@ -650,7 +649,7 @@ class NA_Privilege_Register_Form(forms.Form):
 def NA_Privilege_change_picture(request, email):
     if request.user.email != email:
         return commonFunct.permision_denied('<h1>403 Forbidden</h1>')
-    user = NAPrivilege.objects.get(idapp=request.user.idapp)
+    user = request.user
     picture = request.FILES['picture']
     user.picture = picture
     user.save()

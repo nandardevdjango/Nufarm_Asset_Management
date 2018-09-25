@@ -354,7 +354,7 @@
                     <!--When user has sign in this text must be changed with the name sign out and removed li control-->
                     <!-- ============================ User Login =================================== -->
                     {%if not request.user.is_authenticated%}
-                    <li class="dropdown" style="flex: 0 1 65px;">
+                    <li class="dropdown keep-open open" style="flex: 0 1 65px;">
                         <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             Sign in
                             <b class="caret"></b>
@@ -396,6 +396,52 @@
                             </li>
                         </ul>
                     </li>
+                    <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+                    <script>
+                        $(document).ready(function(){
+                            $('form#login-nav').submit(function(event){
+                                event.preventDefault();
+                                if (this.checkValidity()){
+                                    event.stopPropagation();
+                                    event.stopImmediatePropagation();
+                                    $.ajax({
+                                        url: this.action,
+                                        method: 'POST',
+                                        beforeSend: function(xhr){
+                                            xhr.setRequestHeader(
+                                                'X-CSRFToken', 
+                                                $('input[name="csrfmiddlewaretoken"]').val()
+                                            )
+                                        },
+                                        data: {
+                                            email: $(this).find('input[type="email"]').val(),
+                                            password: $(this).find('input[type="password"]').val()
+                                        },
+                                        success: function(data){
+                                            // TODO: Handle it, in layout.html --> don't use tag session
+                                            setTimeout(function(){
+                                                window.location.href = data.redirect;
+                                            }, 500);
+                                            
+                                        },
+                                        error: function(data){
+                                            data = data.responseJSON
+                                            for (var key in data){
+                                                var input = $('input[name="'+ key +'"]').get(0);
+                                                input.setCustomValidity(data[key]);
+                                                $('form#login-nav').find('button[type="submit"]').click();
+                                            }
+                                        }
+                                    })
+                                return false;
+                                }
+                            });
+                            $('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function(){
+                                this.setCustomValidity('');
+                            });
+                        });
+                    </script>
+
                     {% endif %}
                     <!-- ============================ End User Login =============================== -->
                 </ul>
@@ -561,31 +607,7 @@
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
-            function checkEventExists(element) {
-                var elemEvents = $._data(element, "events");
-                var allDocEvnts = $._data(document, "events");
-                for(var evntType in allDocEvnts) {
-                    if(allDocEvnts.hasOwnProperty(evntType)) {
-                        var evts = allDocEvnts[evntType];
-                        for(var i = 0; i < evts.length; i++) {
-                            if($(element).is(evts[i].selector)) {
-                                if(elemEvents == null) {
-                                    elemEvents = {};
-                                }
-                                if(!elemEvents.hasOwnProperty(evntType)) {
-                                    elemEvents[evntType] = [];
-                                }
-                                elemEvents[evntType].push(evts[i]);
-                            }
-                        }
-                    }
-                }
-                return typeof elemEvents != 'undefined';
-            }
             
-            $('div.AsideLoginArea ul.dropdown-menu.triangle.shadow').click(function(event){ //prevent menu user from close
-                event.preventDefault();
-    		});
     		$('p#change_user_picture').on({
     			'click': function(event){
     				NA.NAEvent.preventDefault(event);
@@ -780,7 +802,7 @@
                 },
                 "hide.bs.dropdown": function(event) {
                   hide = $(this).data('closable');
-                  $(this).data('closable', true);
+                  $(this).data('closable', !$(this).hasClass('keep-open'));
                   return hide;
                 }
             });

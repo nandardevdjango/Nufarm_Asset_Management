@@ -513,7 +513,7 @@ class NAAccFa(NA_BaseModel):
         db_table = 'n_a_acc_fa'
 
     def __str__(self):
-        return self.fk_goods
+        return self.fk_goods.goodsname
 
 
 class NAAppparams(models.Model):

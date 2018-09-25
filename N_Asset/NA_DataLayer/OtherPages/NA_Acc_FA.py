@@ -1,6 +1,8 @@
 ﻿from django.db import models, connection, transaction
+from django.db.models import Exists, OuterRef, Value, CharField, F
+from django.db.models.functions import Concat
+
 from NA_DataLayer.common import CriteriaSearch, DataType, Data, query, ResolveCriteria
-from django.db.models import F
 
 
 class NA_Acc_FA_BR(models.Manager):
@@ -51,6 +53,58 @@ class NA_Acc_FA_BR(models.Manager):
         result = query.dictfetchall(cur)
         connection.close()
         return result
+
+    def data_not_yet_generate(self, q):
+        from NA_DataLayer.common import QuerysetHelper
+        from NA_Models.models import NA_GoodsReceive_detail
+        existed_data = self.get_queryset().filter(
+            serialnumber=OuterRef('serialnumber')
+        )
+        goods_field = 'fk_app__idapp_fk_goods__{}'
+        annotate_kwargs = {
+            'idapp_detail_receive': F('idapp'),
+            'startdate': F('fk_app__datereceived'),
+            'fk_goods': F(goods_field.format('idapp')),
+            'itemcode': F(goods_field.format('itemcode')),
+            'economiclife': F(goods_field.format('economiclife')),
+            'depreciationmethod': F(goods_field.format('depreciationmethod')),
+            'existed_data': ~Exists(existed_data),
+            'goods': Concat(
+                goods_field.format('goodsname'),
+                Value(' '),
+                'brandname',
+                Value(' '),
+                'typeapp'
+            )
+        }
+        fields = [
+            'goods',
+            goods_field.format('itemcode'),
+            'serialnumber',
+            goods_field.format('depreciationmethod')
+        ]
+        filter_kwargs = QuerysetHelper.filter_like(fields=fields, value=q)
+
+        only_fields = [
+            'idapp',
+            goods_field.format('itemcode'),
+            goods_field.format('goodsname'),
+            'brandname',
+            'typeapp',
+            'serialnumber',
+            'fk_app__datereceived',
+            goods_field.format('depreciationmethod'),
+            'priceperunit',
+            goods_field.format('economiclife')
+        ]
+        result = (NA_GoodsReceive_detail.objects
+                                        .select_related('fk_app',
+                                                        'fk_app__idapp_fk_goods')
+                                        .annotate(**annotate_kwargs)
+                                        .filter(filter_kwargs, existed_data=True)
+                                        .only(*only_fields))
+        return result
+
 
     # search By Form
     def searchAcc_ByForm(self, q=None, idapp=None):

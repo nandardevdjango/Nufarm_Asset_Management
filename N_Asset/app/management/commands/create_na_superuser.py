@@ -28,6 +28,7 @@ class Command(BaseCommand):
         divisi = input('Divisi: ').upper()
         while divisi not in ['IT', 'GA']:
             self.stdout.write(self.style.ERROR_OUTPUT('Choose divisi IT or GA'))
+            divisi = input('Divisi: ').upper()
 
         password = getpass.getpass(prompt='Password: ')
         confirm_password = getpass.getpass(prompt='Confirm Password: ')
