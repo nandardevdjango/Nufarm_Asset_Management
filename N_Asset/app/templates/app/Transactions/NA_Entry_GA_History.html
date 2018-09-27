@@ -1,0 +1,8 @@
+<form id="entry_ga_history" onsubmit="return false;">
+    {% csrf_token %}
+    <div class="NA-Entry-inlinve-div">
+        <label style="display:inline-block; width:60px;">Name</label>
+        {{ form.reg_no }}
+    </div>
+    <input id="submit_entry_equipment" type="submit" style="display:none;" />
+</form>

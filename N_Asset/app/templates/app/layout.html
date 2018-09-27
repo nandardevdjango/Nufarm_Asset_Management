@@ -358,7 +358,7 @@
                     <!--When user has sign in this text must be changed with the name sign out and removed li control-->
                     <!-- ============================ User Login =================================== -->
                     {%if not request.user.is_authenticated%}
-                    <li class="dropdown" style="flex: 0 1 65px;">
+                    <li class="dropdown keep-open open" style="flex: 0 1 65px;">
                         <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             Sign in
                             <b class="caret"></b>
@@ -400,6 +400,52 @@
                             </li>
                         </ul>
                     </li>
+                    <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+                    <script>
+                        $(document).ready(function(){
+                            $('form#login-nav').submit(function(event){
+                                event.preventDefault();
+                                if (this.checkValidity()){
+                                    event.stopPropagation();
+                                    event.stopImmediatePropagation();
+                                    $.ajax({
+                                        url: this.action,
+                                        method: 'POST',
+                                        beforeSend: function(xhr){
+                                            xhr.setRequestHeader(
+                                                'X-CSRFToken', 
+                                                $('input[name="csrfmiddlewaretoken"]').val()
+                                            )
+                                        },
+                                        data: {
+                                            email: $(this).find('input[type="email"]').val(),
+                                            password: $(this).find('input[type="password"]').val()
+                                        },
+                                        success: function(data){
+                                            // TODO: Handle it, in layout.html --> don't use tag session
+                                            setTimeout(function(){
+                                                window.location.href = data.redirect;
+                                            }, 500);
+                                            
+                                        },
+                                        error: function(data){
+                                            data = data.responseJSON
+                                            for (var key in data){
+                                                var input = $('input[name="'+ key +'"]').get(0);
+                                                input.setCustomValidity(data[key]);
+                                                $('form#login-nav').find('button[type="submit"]').click();
+                                            }
+                                        }
+                                    })
+                                return false;
+                                }
+                            });
+                            $('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function(){
+                                this.setCustomValidity('');
+                            });
+                        });
+                    </script>
+
                     {% endif %}
                     <!-- ============================ End User Login =============================== -->
                 </ul>
@@ -443,6 +489,7 @@
         <!--====================================================================-->
     </div>
     <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+    <script src="{% static 'app/scripts/material.spinner.min.js' %}"></script>
     {% with request.resolver_match.url_name as url_name %}
     {% if url_name == 'home' or url_name == 'login' %}
     <script>window.NA || document.write('<script src="../../static/app/scripts/NAJS.js"><\/script>')</script>
@@ -564,9 +611,7 @@
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
-    		$('div.AsideLoginArea ul.dropdown-menu.triangle.shadow').click(function(event){ //prevent menu user from close
-    			event.stopPropagation();
-    		});
+            
     		$('p#change_user_picture').on({
     			'click': function(event){
     				NA.NAEvent.preventDefault(event);
@@ -716,7 +761,7 @@
                                             for (var key in data.data){
                                                 var tr = $('<tr></tr>');
                                                 var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td class="col-xs-8">' + data.data[key] + '</td>');
+                                                var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
                                                 tr.append(label);
                                                 tr.append(value);
                                                 tbody.append(tr);
@@ -751,6 +796,21 @@
     <!--====================Jquery untuk menu============================ -->
     <script>
     	$(function () {
+            $('.dropdown').on({
+                "click": function(event) {
+                  if ($(event.target).closest('.dropdown-toggle').length) {
+                    $(this).data('closable', true);
+                  } else {
+                    $(this).data('closable', false);
+                  }
+                },
+                "hide.bs.dropdown": function(event) {
+                  hide = $(this).data('closable');
+                  $(this).data('closable', !$(this).hasClass('keep-open'));
+                  return hide;
+                }
+            });
+
             // ====== common ajax setup if user was logged out
             $.ajaxSetup({
                 error: function(resp){
@@ -909,26 +969,159 @@
                             }
                         },
                         ondblClickRow: function (rowId) {
-                            alert('')
+                            var ok_btn = $('div.maindialogContent').next().find('div.dialogButtonOKCancel')
+                                .children().first();
+                            ok_btn.click();
                         }
                     });
                 }
             }
 
+
+            window.ShowDialogExtend = function(data){
+                BootstrapDialog.show({
+                    draggable: true,
+                    type: BootstrapDialog.TYPE_WARNING,
+                    size: BootstrapDialog.SIZE_SMALL,
+                    cssClass: 'dialog-extend-tax',
+                    title: 'Nufarm - Extend tax number',
+                    closable: false,
+                    animate: true,
+                    closeByBackdrop: false,
+                    closeByKeyboard: false,
+                    message: (function(){
+                        return $(data)
+                    }),
+                    onshown: function(){
+                        $('#id_new_date_reg').datepicker({
+                            dateFormat: 'dd/mm/yy',
+                            changeMonth: true,
+                            changeYear: true,
+                            dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
+                            beforeShowDay: $.datepicker.noWeekends,
+                            maxDate: 1,
+                            showButtonPanel: true,
+                            closeText: "Close",
+                            currentText: 'Now',
+                            onSelect: function (dateText) {
+                                var date = $.datepicker.parseDate('dd/mm/yy', dateText);
+
+                                var expire_date = document.querySelector('#id_new_expired_reg');
+                                expire_date.value = date.getDate() + (date.getMonth() > 9 ? '/' : '/0') 
+                                + (date.getMonth() + 1) + '/' + (date.getFullYear() + 1);
+                            }
+                        });
+                    },
+                    buttons: [{
+                        label: 'OK',
+                        cssClass: 'btn-success',
+                        action: function (dialogRef) {
+                            var idapp = $('form#extend_ga_history').find('#id_idapp').val();
+                            var date_reg = $('form#extend_ga_history').find('#id_new_date_reg').val();
+
+                            $.ajax({
+                                url: '/Transactions/GA_History/Extend/',
+                                method: 'POST',
+                                beforeSend: function(xhr){
+                                    xhr.setRequestHeader(
+                                        'X-CSRFToken', 
+                                        $('form#extend_ga_history').find('input[name="csrfmiddlewaretoken"]').val()
+                                    )
+                                },
+                                data: {
+                                    idapp: idapp,
+                                    new_date_reg: date_reg
+                                },
+                                success: function(){
+                                    dialogRef.close();
+                                }
+                            })
+                        }
+                    },
+                    {
+                        label: 'Cancel',
+                        cssClass: 'btn-default',
+                        action: function (dialogRef) {
+                            dialogRef.close();
+                        }
+                    }]
+                })
+            }
             window.showOtherDialog = function(event){
                 if(event.target == extend_tax_menu){
                     var dialog = $('div.containerDialog')[0];
                     var dialog_content = $('div.maindialogContent');
-                    dialog_content.append($('<table id="extend_tax"></table>'));
-                    dialog_content.append($('<div id="extend_tax_pager"></div>'));
+
+                    var placeHolder = 'Enter goods descriptions to search for .. .';
+                    var container_search_form = NA.common.dialog.createFormContainer('search_acc_fa', placeHolder,
+                    function (e) {//event for blur
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === '') {
+                                this.setAttribute('placeholder', placeHolder);
+                            }
+                        }
+                    },
+                    function (e) {//event for focus
+                        if (this.value === '') {
+                            if (this.getAttribute('placeholder') === placeHolder) {
+                                this.setAttribute('placeholder', '');
+                            }
+                        }
+                    },
+                    function (e) {//even for keydown txtSearch                                                  
+                        if (e.keyCode === 13) {
+                            NA.NAEvent.preventDefault(e);
+                            window.document.body.style.cursor = 'wait';
+                            //cari data ke database
+                            BuildExtendGrid(e.target.value.trim());
+                            window.document.body.style.cursor = 'default';
+                            NA.NAEvent.stopPropagation(e);
+                        }
+                    }, function (e) {
+                        txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+                        NA.common.triggerKeyboardEvent(txtSearch, 13);
+                    });
+                    dialog_content[0].appendChild(container_search_form);
+
+                    var container_grid = $('<div style="margin-top:10px;"></div>');
+
+                    container_grid.append($('<table id="extend_tax"></table>'));
+                    container_grid.append($('<div id="extend_tax_pager"></div>'));
+                    dialog_content.append(container_grid);
                     BuildExtendGrid();
+                    if (typeof $.datepicker == "undefined"){
+                        $('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
+                            .appendTo($('body'));
+                    }
                     var close_btn = $('#extend_tax').parents('div.maindialogContent')
                         .prev().find('button');
                     close_btn.click(function(event){
                         event.preventDefault();
                         NA.common.dialog.closeDialog(dialog);
                     });
+                    var ok_btn = dialog_content.next().find('div.dialogButtonOKCancel')
+                    .children().first();
+                    var cancel_btn = ok_btn.next();
+                    cancel_btn.click(function(event){
+                        event.preventDefault();
+                        NA.common.dialog.closeDialog(dialog);
+                    });
 
+                    ok_btn.click(function(event){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                        var idapp = $('#extend_tax').getGridParam('selrow');
+                        $.ajax({
+                            url: '/Transactions/GA_History/Extend/',
+                            data: {
+                                idapp: idapp
+                            },
+                            success: function(data){
+                                window.ShowDialogExtend(data);
+                            }
+                        })
+                    })
                 }
                 
             }
@@ -1111,33 +1304,93 @@
             $(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
                 $(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
                 var notif_content = $('#notification-content');
+                
                 if(notif_content[0].dataset.pull == "false"){
+                    var container_spinner = $('<div class="container-spinner"></div>');
+                    notif_content.append(container_spinner);
                     $.ajax({
                         url: '/Notifications/',
                         method: 'GET',
                         data: {
                             name: 'ga_reg_notif'
                         },
+
+                        beforeSend: function(){
+                            container_spinner.spinner({
+                                color: 'forestgreen',
+                                strokeWidth: 4,
+                                radius: 20
+                            })
+                        },
+
                         success: function(data){
                             if(data.length){
                                 notif_content.children().remove();
                                 for(var i=0; i < data.length; i++){
                                     var notif_item = $('<li class="notification-item"></li>');
+                                    var container = $('<div></div>');
                                     var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
                                     var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
-        
-                                    notif_item.append(notif_title);
-                                    notif_item.append(notif_message);
+                                    var extend_tax = $('<div id="extend_button" data-regid="'+ data[i].reg_id +'">EXTEND</div>');
+                                    var cancel = $('<div id="cancel_button">CANCEL</div>');
+
+                                    notif_item.append(extend_tax);
+                                    notif_item.append(cancel);
+                                    container.append(notif_title);
+                                    container.append(notif_message);
+                                    notif_item.append(container);
                                     notif_content.append(notif_item);
                                 }
                             }
                             notif_content[0].dataset.pull = true;
+                        },
+                        complete: function(){
+                            container_spinner.remove();
                         }
                     })
                 }
                 
             }).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
                 $(this).find('.profile-circle').css('background', '');
+                $('li.notification-item').css('background', '');
+                $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+                $('li.notification-item').find('p').css('color', '');
+            })
+
+            $(document).on('click', 'li.notification-item', function(event){
+                event.preventDefault();
+                event.stopPropagation();
+                if ($(this).find('#extend_button').css('display') == 'block'){ // if extend button was displayed
+                    $('li.notification-item').css('background', '');
+                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+                    $(this).find('p').css('color', '');
+                } else {
+                    $('li.notification-item').css('background', '');
+                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+                    $('li.notification-item').find('p').css('color', '');
+                    $(this).css('background', 'rgba(117,117,117,.9)');
+                    $(this).find('#extend_button, #cancel_button').css('display', 'block');
+                    $(this).find('p').css('color', '#666');
+                }
+            });
+
+            $(document).on('click', '#extend_button', function(event){
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                if (typeof $.datepicker == "undefined"){
+                    $('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
+                        .appendTo($('body'));
+                }
+                $.ajax({
+                    url: '/Transactions/GA_History/Extend/',
+                    data: {
+                        idapp: this.dataset.regid
+                    },
+                    success: function(data){
+                        window.ShowDialogExtend(data);
+                    }
+                })
             })
         })
     </script>

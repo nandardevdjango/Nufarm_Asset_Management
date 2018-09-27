@@ -116,10 +116,41 @@ div#gbox_NA_Privilege_grid,div#gview_NA_Privilege_grid, div.ui-jqgrid-titlebar,d
 li.notification-item {
     border-bottom: 1px solid #e5e5e5;
     padding: 9px;
+    cursor: pointer;
 }
 
 li.notification-item:hover{
     background: #f1f1f1;
+}
+
+div#extend_button, div#cancel_button{
+    display: none;
+    position:absolute;
+    color: #fff;
+    padding: 7px 10px;
+    font-weight: bold;
+    border-radius: 2px;
+    background: rgba(0,0,0,.30);
+    font-size: 13px;
+    -webkit-transition: all 100ms ease-in-out;
+    -moz-transition: all 100ms ease-in-out;
+    -ms-transition: all 100ms ease-in-out;
+    -o-transition: all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
+}
+
+div#extend_button:hover, div#cancel_button:hover{
+    background: rgba(0,0,0,.45);
+    color: forestgreen;
+}
+
+div#extend_button{
+    left: 20px;
+}
+
+div#cancel_button{
+    right:20px;
+    background: unset;
 }
 
 p.notification-title {
@@ -129,7 +160,7 @@ p.notification-title {
 
 p.notification-message {
     font-size: 12px;
-    color: #999;
+    color: #666;
 }
 
 p.no-notification {
@@ -207,6 +238,13 @@ p.no-notification {
 
 .my-wrap {
     white-space:nowrap
+}
+
+.container-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
 }
 
 /*===========================JqGrid===========================*/
@@ -354,6 +392,10 @@ ul.ui-menu li.ui-menu-item:hover, li.ui-menu-item div.ui-menu-item-wrapper:hover
 
 .ga-popup-notif .modal-dialog.modal-sm{
     width: 800px;
+}
+
+.dialog-extend-tax .modal-dialog.modal-sm{
+    width: 500px;
 }
 
 /*================== Checkbox ======================*/

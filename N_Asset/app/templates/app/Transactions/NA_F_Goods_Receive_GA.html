@@ -878,7 +878,7 @@
 
                                     addYear = (dateText, year) => {
                                         var date = $.datepicker.parseDate('dd/mm/yy', dateText);
-                                        return date.getDate() + '/' + date.getMonth() + '/' + (date.getFullYear() + year)
+                                        return date.getDate() + (date.getMonth() > 9 ? '/' : '/0') + (date.getMonth() + 1) + '/' + (date.getFullYear() + year)
                                     }
 
                                     $('input#id_date_reg').datepicker({

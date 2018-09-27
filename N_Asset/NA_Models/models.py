@@ -514,7 +514,7 @@ class NAAccFa(NA_BaseModel):
         db_table = 'n_a_acc_fa'
 
     def __str__(self):
-        return self.fk_goods
+        return self.fk_goods.goodsname
 
 
 class NAAppparams(models.Model):
@@ -1045,7 +1045,6 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
         'email': 'Email',
         'divisi': 'Divisi',
         'role': 'Role',
-        'password': 'Password',
         'picture': 'Picture',
         'date_joined': 'Date Joined',
         'createdby': 'Created By'
@@ -1089,7 +1088,10 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     )
     last_login = models.DateTimeField(db_column='Last_login', null=True)
     last_form = models.CharField(
-        max_length=50, db_column='Last_form', null=True)
+        max_length=50,
+        db_column='Last_form',
+        null=True
+    )
     computer_name = models.CharField(max_length=50, db_column='Computer_Name')
     ip_address = models.CharField(max_length=20, db_column='IP_Address')
 
@@ -1873,11 +1875,9 @@ class NAGaVnHistory(NA_BaseModel):
             'fk_employee__telphp',
             'fk_employee__inactive'
         ]
-        regs = (NAGaOutwards.objects.filter(
-            Q(**filter_kwargs) |
-            Q(fk_app__expired_reg__gte=now)
-        ).select_related('fk_app', 'fk_employee')
-         .only(*only_fields))
+        regs = (NAGaOutwards.objects.filter(**filter_kwargs)
+                                    .select_related('fk_app', 'fk_employee')
+                                    .only(*only_fields))
 
         if reg_id:
             regs = regs.filter(fk_app=reg_id)

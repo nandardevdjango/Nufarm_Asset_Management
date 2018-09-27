@@ -3,7 +3,6 @@ import json
 from decimal import Decimal
 
 from django import forms
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -18,7 +17,7 @@ from NA_Worker.worker import NATaskWorker
 from NA_Worker.task import NATask
 
 
-@login_required
+@decorators.ensure_authorization
 def NA_Acc_FA(request):
     return render(request, 'app/MasterData/NA_F_Acc_FA.html')
 
@@ -233,18 +232,19 @@ def SearchGoodsbyForm(request):
     goodsFilter = request.GET.get('goods_filter')
     Ilimit = request.GET.get('rows', '')
     try:
-        NAData = NAAccFa.objects.searchAcc_ByForm(q=goodsFilter)
-        if NAData == []:
+        NAData = NAAccFa.objects.data_not_yet_generate(q=goodsFilter).values()
+        if NAData.exists():
+            totalRecord = len(NAData)
+            paginator = Paginator(NAData, int(Ilimit))
+            page = request.GET.get('page', '1')
+            dataRows = paginator.page(page)
+
+        else:
             results = {"page": "1", "total": 0, "records": 0, "rows": []}
             return HttpResponse(
                 json.dumps(results, indent=4, cls=DjangoJSONEncoder),
                 content_type='application/json'
             )
-        else:
-            totalRecord = len(NAData)
-            paginator = Paginator(NAData, int(Ilimit))
-            page = request.GET.get('page', '1')
-            dataRows = paginator.page(page)
     except (EmptyPage, InvalidPage):
         dataRows = paginator.page(paginator.num_pages)
     rows = []

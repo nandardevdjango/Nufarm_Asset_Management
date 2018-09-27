@@ -12,6 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -876,6 +877,7 @@ class commonFunct:
                     message = data[1]
                 else:
                     message = Message.Empty.value
+
             return HttpResponse(
                 json.dumps({'message': message}),
                 status=status,
@@ -1032,3 +1034,21 @@ class commonFunct:
                     k: dict2[k]
                 })
         return result
+
+
+class QuerysetHelper(object):
+
+    @staticmethod
+    def filter_or(fields, value):
+        filter_kwargs = Q(**{fields.pop(0): value})
+        for field in fields:
+            filter_kwargs = filter_kwargs | Q(**{field: value})
+        return filter_kwargs
+
+    @staticmethod
+    def filter_like(fields, value):
+        filter_kwargs = Q(**{'%s__icontains' % fields.pop(0): value})
+        if len(fields):
+            for field in fields:
+                filter_kwargs = filter_kwargs | Q(**{'%s__icontains' % field: value})
+            return filter_kwargs

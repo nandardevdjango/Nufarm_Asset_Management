@@ -954,18 +954,19 @@ div[id*=NA_Acc_grid]{
                     });
                     $('div#gbox_grid_form_acc, div#gview_grid_form_acc, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv, div#pager_form_acc, div#pg_pager_form_acc').css('width', 'inherit')
                 }
+                var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
+                $('div.dialogButtonOKCancel>a.button').on('click', function () {
+                    var innerText = $(this).text()
+                    if (innerText == 'OK'){
+                        AccSubmit()
+                    }
+                });
+                $('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    NA.common.dialog.closeDialog(dialog);
+                });
             }
-            var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
-            $('div.dialogButtonOKCancel>a.button').on('click', function () {
-                var innerText = $(this).text()
-                if (innerText == 'OK'){
-                    AccSubmit()
-                }
-            });
-            $('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
-                NA.NAEvent.preventDefault(event);
-                NA.common.dialog.closeDialog(dialog);
-            });
+            
 
 
         } catch (e) {
