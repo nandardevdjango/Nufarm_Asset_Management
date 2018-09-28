@@ -284,7 +284,7 @@
                     <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
                     {%block ImgUserLogin %}
                     {% if request.user.is_authenticated %}
-                    <li class="dropdown notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
+                    <li class="dropdown prevent-close notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
                             <div class="profile-circle shadow">
                                 <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
@@ -312,7 +312,7 @@
                     </li>
 
 
-                    <li class="dropdown" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
+                    <li class="dropdown prevent-close" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
                         </div>
@@ -354,7 +354,7 @@
                     <!--When user has sign in this text must be changed with the name sign out and removed li control-->
                     <!-- ============================ User Login =================================== -->
                     {%if not request.user.is_authenticated%}
-                    <li class="dropdown keep-open open" style="flex: 0 1 65px;">
+                    <li class="dropdown prevent-close keep-open open" style="flex: 0 1 65px;">
                         <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             Sign in
                             <b class="caret"></b>
@@ -792,7 +792,7 @@
     <!--====================Jquery untuk menu============================ -->
     <script>
     	$(function () {
-            $('.dropdown').on({
+            $('.dropdown.prevent-close').on({
                 "click": function(event) {
                   if ($(event.target).closest('.dropdown-toggle').length) {
                     $(this).data('closable', true);

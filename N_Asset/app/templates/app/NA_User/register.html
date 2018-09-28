@@ -1,0 +1,133 @@
+<html>
+<head>
+    <title>Nufarm - Register Page</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/login.css' %}" />
+    <style>
+        .half-width{
+            width: 46%;
+            display: inline-block;
+        }
+        .right {
+            float: right;
+        }
+    </style>
+</head>
+    <body>
+        <div class="login-box" style="width:550px;height:500px;">
+            <img src="/static/NA_User_Image/img/avatar_user.png" class="avatar">
+            <h1>Register</h1>
+            <form id="register_form" action="/register/" method="POST" style="margin:20px 0 0 0;">
+                {% csrf_token %}
+                <div style="display:inline;">
+                    <div class="half-width">
+                        <p>First Name</p>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="half-width right">
+                        <p>Last Name</p>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div style="display:inline;">
+                    <div class="half-width">
+                        <p>User Name</p>
+                        {{ form.username }}
+                    </div>
+                    <div class="half-width right">
+                        <p>Email</p>
+                        {{ form.email }}
+                    </div>
+                </div>
+
+                <div style="display:inline;">
+                    <div class="half-width">
+                        <p>Password</p>
+                        {{ form.password1 }}
+                    </div>
+                    <div class="half-width right">
+                        <p>Confirm Password</p>
+                        {{ form.password2 }}
+                    </div>
+                </div>
+                <input type="submit" name="submit" value="Register" style="width:74%;margin-left:13%;margin-top:10px;">
+            </form>
+            <div style="line-height:10px">
+                <p style="font-size:13px;">Already Have Account ? <a href="#">Login Here</a></p>
+                
+            </div>
+        </div>
+    <script src="{% static 'app/scripts/jquery-1.11.1.js' %}"></script>
+    <script src="{% static 'app/scripts/material.spinner.min.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            var company_picture = [
+                'nufarm_image.jpg', 
+                'nufarm_image1.jpg', 
+                'nufarm_image2.png',
+                'nufarm_image3.jpg',
+                'nufarm_image4.jpg',
+                'nufarm_image5.jpg'
+            ]
+            var random_pict = company_picture[Math.floor(Math.random() * company_picture.length)];
+            var path_pict = '/static/app/images/company_picture/' + random_pict;
+            $('body').css('backgroundImage', 'url(' + path_pict + ')');
+            $('#register_form').submit(function(event){
+                event.preventDefault();
+                if (this.checkValidity()){
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    $.ajax({
+                        url: this.action,
+                        method: 'POST',
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader(
+                                'X-CSRFToken', 
+                                $('input[name="csrfmiddlewaretoken"]').val()
+                            )
+                            var container_loading = $('<div class="container-spinner"></div>');
+                            $('.login-box').addClass('blur');
+                            container_loading.spinner({
+                                color: 'forestgreen',
+                                strokeWidth: 4,
+                                radius: 20
+                            })
+                            $('div.login-box').append(container_loading);
+                        },
+                        data: {
+                            first_name: $(this).find('input#id_first_name').val(),
+                            last_name: $(this).find('input#id_last_name').val(),
+                            username: $(this).find('input#id_username').val(),
+                            email: $(this).find('input[type="email"]').val(),
+                            password1: $(this).find('input#id_password1').val(),
+                            password2: $(this).find('input#id_password2').val()
+                        },
+                        error: function(data){
+                            data = data.responseJSON
+                            for (var key in data){
+                                var input = $('input[name="'+ key +'"]').get(0);
+                                input.setCustomValidity(data[key]);
+                                $('form#register_form').find('input[type="submit"]').click();
+                            }
+                        },
+                        complete: function(){
+                            
+                            $('div.container-spinner').fadeOut(1000);
+                            $('.login-box').removeClass('blur', 1000);
+                        }
+                    })
+                return false;
+                }
+            });
+
+            $('form#register_form')
+            .find('input[type="password"], input[type="email"], input[type="text"]')
+            .on('change', function(){
+                this.setCustomValidity('');
+            });
+        });
+    </script>
+    </body>
+</html>

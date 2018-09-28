@@ -1,0 +1,131 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: sans-serif;
+    height: 100%;
+}
+.login-box{
+    width: 340px;
+    height: 450px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    box-sizing: border-box;
+    padding: 70px 30px;
+}
+
+.blur::before{
+    content: ' ';
+    width: 320px;
+    height: 420px;
+    background: inherit;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
+    filter: blur(10px);
+}
+
+.avatar{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: absolute;
+    top: -50px;
+    left: calc(50% - 50px);
+}
+h1{
+    margin: 0;
+    padding: 0 0 12px;
+    text-align: center;
+    font-size: 22px;
+}
+.login-box form p{
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+}
+.login-box input{
+    width: 100%;
+    margin-bottom: 20px;
+}
+.login-box input
+{
+    border:none;
+    border-bottom: 1.5px solid #fff;
+    background: transparent;
+    outline: none;
+    height: 40px;
+    color: #fff;
+    font-size: 16px;
+}
+.login-box input[type="submit"]
+{
+    border: none;
+    outline: none;
+    height: 40px;
+    background: #228b22;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+    -webkit-transition: all 100ms ease-in-out;
+    -moz-transition: all 100ms ease-in-out;
+    -ms-transition: all 100ms ease-in-out;
+    -o-transition: all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
+}
+.login-box input[type="submit"]:hover
+{
+    cursor: pointer;
+    background: #1d771d;
+}
+
+.login-box a{
+    font-size: 13px;
+    color: #fff;
+}
+.login-box a:hover
+{
+    color: forestgreen;
+}
+
+input:invalid {
+    box-shadow:0 0 0px red;
+}
+
+input:focus{
+    border-color: forestgreen;
+}
+
+.container-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+}
+a{
+    text-decoration: underline;
+    -webkit-transition: all 100ms ease-in-out;
+    -moz-transition: all 100ms ease-in-out;
+    -ms-transition: all 100ms ease-in-out;
+    -o-transition: all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
+}
+a:hover{
+    text-decoration: none;
+}
+.no-underline{
+    text-decoration: none;
+}
+.container-social-login{
+    text-align:center;
+    margin-top: 28px;
+}
+.container-social-login a{
+    margin: 0 10px;
+}

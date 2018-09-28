@@ -36,7 +36,6 @@ from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_G
 from NA_DataLayer.file_storage import NAFileStorage
 
 
-
 class NA_BaseModel(models.Model):
     idapp = models.AutoField(db_column='IDApp', primary_key=True)
     createddate = models.DateTimeField(
@@ -67,16 +66,6 @@ class NA_MasterDataModel(NA_BaseModel):
         blank=True,
         null=True
     )
-
-    @cached_property
-    def log_display(self):
-        log_parent = super(NA_MasterDataModel, self).log_display
-        log_parent.update({
-            'typeapp': 'Type App',
-            'inactive': 'In Active',
-            'descriptions': 'Descriptions'
-        })
-        return log_parent
 
     class Meta:
         abstract = True
@@ -315,7 +304,8 @@ class LogEvent(NA_BaseModel):
             filter_kwargs.update({
                 'descriptions__%s' % pk_field: pk
             })
-        filter_kwargs['model'] = force_text(model._meta.verbose_name).replace(' ', '')
+        filter_kwargs['model'] = force_text(
+            model._meta.verbose_name).replace(' ', '')
 
         try:
             log = LogEvent.objects.get(**filter_kwargs)
@@ -366,10 +356,10 @@ class Employee(NA_MasterDataModel):
     employee_name = models.CharField(
         db_column='Employee_Name', max_length=150, blank=True, null=True)
     typeapp = models.CharField(db_column='TypeApp', max_length=32, choices=(
-            ('P', 'Permanent'),
-            ('C', 'Casual'),
-            ('K', 'Kontrak')
-        ))
+        ('P', 'Permanent'),
+        ('C', 'Casual'),
+        ('K', 'Kontrak')
+    ))
     jobtype = models.CharField(
         db_column='JobType',
         max_length=150,
@@ -379,7 +369,8 @@ class Employee(NA_MasterDataModel):
     gender = models.CharField(db_column='Gender', max_length=1, choices=(
         ('M', 'Male'),
         ('F', 'Female'),
-        ('O', 'Other')  # this is for crazy human, like a programmer their have other gender
+        # this is for crazy human, like a programmer their have other gender
+        ('O', 'Other')
     ))
     status = models.CharField(db_column='Status', max_length=1, choices=(
         ('S', 'Single'),
@@ -640,6 +631,7 @@ class NAGoodsReturn(NAGoodsReturnModel):
     def __str__(self):
         return self.fk_goods.goodsname
 
+
 class NAGAMaintenance(NA_TransactionModel):
     fk_employee = None
 
@@ -667,8 +659,9 @@ class NAGAMaintenance(NA_TransactionModel):
     )
     enddate = models.DateField(db_column='EndDate', blank=True, null=True)
     typeapp = models.CharField(db_column='TypeApp', max_length=32)
-    issucced = models.IntegerField(db_column='IsSucced', blank=True, null=True,default=True)
-    isfinished = models.BooleanField(db_column='IsFinished',default=True)
+    issucced = models.IntegerField(
+        db_column='IsSucced', blank=True, null=True, default=True)
+    isfinished = models.BooleanField(db_column='IsFinished', default=True)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -681,6 +674,7 @@ class NAGAMaintenance(NA_TransactionModel):
     class Meta:
         managed = True
         db_table = 'n_a_ga_maintenance'
+
 
 class NAMaintenance(NA_TransactionModel):
     fk_employee = None
@@ -726,26 +720,28 @@ class NAMaintenance(NA_TransactionModel):
 
 
 class NAStock(NA_BaseModel):
-	fk_goods = models.ForeignKey(
-		goods, db_column='FK_Goods', db_constraint=False)
-	t_goods_spare = models.PositiveSmallIntegerField(
-		db_column='T_Goods_Spare', null=True)
-	totalqty = models.IntegerField(db_column='TotalQty', null=True)
-	tisused = models.IntegerField(db_column='TIsUsed', null=True)
-	tisnew = models.PositiveSmallIntegerField(db_column='TIsNew', null=True)
-	tisrenew = models.PositiveSmallIntegerField(db_column='TIsRenew', null=True)
-	tisbroken = models.IntegerField(db_column='TIsBroken', null=True)
-	tgoods_return = models.SmallIntegerField(
-		db_column='TGoods_Return', blank=True, null=True)
-	tgoods_received = models.IntegerField(
-		db_column='TGoods_Received', blank=True, null=True)
-	tmaintenance = models.SmallIntegerField(
-		db_column='TMaintenance', blank=True, null=True)
-	tdisposal = models.IntegerField(db_column='TDisposal', null=True)
-	tislost = models.IntegerField(db_column='TIsLost', null=True)
-	class Meta:
-		managed = True
-		db_table = 'n_a_stock'
+    fk_goods = models.ForeignKey(
+        goods, db_column='FK_Goods', db_constraint=False)
+    t_goods_spare = models.PositiveSmallIntegerField(
+        db_column='T_Goods_Spare', null=True)
+    totalqty = models.IntegerField(db_column='TotalQty', null=True)
+    tisused = models.IntegerField(db_column='TIsUsed', null=True)
+    tisnew = models.PositiveSmallIntegerField(db_column='TIsNew', null=True)
+    tisrenew = models.PositiveSmallIntegerField(
+        db_column='TIsRenew', null=True)
+    tisbroken = models.IntegerField(db_column='TIsBroken', null=True)
+    tgoods_return = models.SmallIntegerField(
+        db_column='TGoods_Return', blank=True, null=True)
+    tgoods_received = models.IntegerField(
+        db_column='TGoods_Received', blank=True, null=True)
+    tmaintenance = models.SmallIntegerField(
+        db_column='TMaintenance', blank=True, null=True)
+    tdisposal = models.IntegerField(db_column='TDisposal', null=True)
+    tislost = models.IntegerField(db_column='TIsLost', null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'n_a_stock'
 
 
 class NAGoodsLending(NA_TransactionModel):
@@ -909,8 +905,10 @@ class NADisposal(NA_TransactionModel):
 
     datedisposal = models.DateField(db_column='DateDisposal')
     islost = models.PositiveSmallIntegerField(db_column='IsLost', default=0)
-    fk_lost = models.ForeignKey('NAGoodsLost', db_column='FK_Lost', blank=True,null=True)
-    issold = models.PositiveSmallIntegerField(db_column='IsSold', blank=True, null=True)
+    fk_lost = models.ForeignKey(
+        'NAGoodsLost', db_column='FK_Lost', blank=True, null=True)
+    issold = models.PositiveSmallIntegerField(
+        db_column='IsSold', blank=True, null=True)
     sellingprice = models.DecimalField(
         db_column='SellingPrice',
         max_digits=30,
@@ -918,8 +916,9 @@ class NADisposal(NA_TransactionModel):
         blank=True,
         null=True
     )
-    sold_to = models.CharField(db_column='Sold_To',blank=True,null=True,max_length=1)
-    fk_sold_to_employee= models.ForeignKey(
+    sold_to = models.CharField(
+        db_column='Sold_To', blank=True, null=True, max_length=1)
+    fk_sold_to_employee = models.ForeignKey(
         'Employee',
         db_column='FK_Sold_To_Employee',
         related_name='fk_disposal_emp_Sold',
@@ -931,7 +930,8 @@ class NADisposal(NA_TransactionModel):
         blank=True,
         null=True
     )
-    bookvalue = models.DecimalField(db_column='BookValue', max_digits=10, decimal_places=4)
+    bookvalue = models.DecimalField(
+        db_column='BookValue', max_digits=10, decimal_places=4)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -1007,12 +1007,12 @@ class NADisposal(NA_TransactionModel):
         related_name='fk_disposal_lending'
     )
     fk_return = models.ForeignKey('NAGoodsReturn',
-                                    db_column='FK_Return',
-                                    null=True,
-                                    blank=True,
-                                    db_constraint=False,
-                                    related_name='fk_disposal_return'
-                                    )
+                                  db_column='FK_Return',
+                                  null=True,
+                                  blank=True,
+                                  db_constraint=False,
+                                  related_name='fk_disposal_return'
+                                  )
     fk_usedemployee = models.ForeignKey(
         'Employee',
         db_column='FK_UsedEmployee',
@@ -1432,7 +1432,8 @@ class NAPrivilege_form(models.Model):
 
     @classmethod
     def get_form_guest(cls, must_iterate=False):
-        fk_form = cls.objects.filter(form_name_ori__in=['goods', 'n_a_supplier', 'employee'])
+        fk_form = cls.objects.filter(
+            form_name_ori__in=['goods', 'n_a_supplier', 'employee'])
         if must_iterate:
             fk_form = fk_form.iterator()  # technic for loop queryset, improve performance
         return fk_form
@@ -1841,7 +1842,7 @@ class NAGaVnHistory(NA_BaseModel):
     is_active = models.BooleanField(default=True)
     descriptions = models.CharField(
         db_column='Descriptions', max_length=200, blank=True, null=True)
-    
+
     objects = NAGaVnHistoryBR()
 
     def __str__(self):
