@@ -9,7 +9,7 @@ from django.db.models import F
 from django.db.models import Q
 from decimal import Decimal
 from NA_DataLayer.common import commonFunct
-
+from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive
 class NA_BR_Goods_Receive_Detail(models.Manager):
 	def getHeaderData(self,refNo):
 		"""
@@ -27,8 +27,9 @@ class NA_BR_Goods_Receive_Detail(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
-	def getDetailData(self,refno):
-		NAData = super(NA_BR_Goods_Receive_Detail,self).get_queryset().filter(refno__exact=refno).values('brandname')
-		NDATA = NData.annotate(no=Value(None,output_field=IntegerField()),HasRef=Value(False,output_field=BooleanField()),isnew=Value(False,output_field=BooleanField())).values('idapp','fk_app','itemcode','no',
-											'brandname','typeapp','priceperunit','serialnumber','warranty','endofwarranty',
-											'createdby','createddate','modifiedby','modifieddate','HasRef','isnew')
+	def getDetailData(self,fkApp,idapp_fk_goods):
+		#NAData = super(NA_BR_Goods_Receive_Detail,self).get_queryset().filter(refno__exact=refno).values('brandname')
+		#NDATA = NData.annotate(no=Value(None,output_field=IntegerField()),HasRef=Value(False,output_field=BooleanField()),isnew=Value(False,output_field=BooleanField())).values('idapp','fk_app','itemcode','no',
+		#									'brandname','typeapp','priceperunit','serialnumber','warranty','endofwarranty',
+		#									'createdby','createddate','modifiedby','modifieddate','HasRef','isnew')
+		return NA_BR_Goods_Receive.getDetailData(fkApp,idapp_fk_goods)

@@ -39,8 +39,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		cur.execute(Query)		
 		#CREATE TEMPORARY TABLE IF NOT EXISTS  temp_table ( INDEX(col_2) ) ENGINE=MyISAM AS (SELECT col_1, coll_2, coll_3  FROM mytable)
 		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
-	    ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
-	    INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+		ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
+		INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"
 		cur.execute(Query)	
@@ -70,22 +70,24 @@ class NA_BR_Goods_Receive(models.Manager):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		Query = """SELECT ngr.idapp,ngr.refno,ngr.FK_goods AS idapp_fk_goods,g.itemcode AS fk_goods, goodsname as goods_desc,g.economiclife, \
-	    ngr.datereceived,ngr.fk_supplier,sp.suppliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
-	    INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
+		ngr.datereceived,ngr.fk_supplier,sp.suppliername,ngr.fk_ReceivedBy as idapp_fk_receivedby,emp1.fk_receivedby,emp1.employee_received,ngr.FK_P_R_By AS idapp_fk_p_r_by,Emp2.fk_p_r_by,emp2.employee_pr,ngr.totalpurchase,ngr.totalreceived,ngr.descriptions,ngr.descbysystem FROM n_a_goods_receive AS ngr \
+		INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_receivedby,employee_name AS employee_received FROM employee) AS Emp1 \
 		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,NIK AS fk_p_r_by,employee_name AS employee_pr FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
 		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE ngr.IDApp = %s"""
 		cur.execute(Query,[IDApp])
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
-	def getDetailData(self,fkApp,idapp_fk_goods):
+
+	@classmethod
+	def getDetailData(cls,fkApp,idapp_fk_goods):
 		#GET idapp_fk_goods
-		self.__class__.c = connection.cursor()
-		cur = self.__class__.c
+		cls.__class__.c = connection.cursor()
+		cur = cls.__class__.c
 		Query = """SELECT grd.*, CONVERT((EXISTS(SELECT serialnumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)  \
 												OR EXISTS(SELECT serialnumber FROM n_a_goods_lending WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
 												OR EXISTS(SELECT serialnumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
-											    OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)),INT)  AS HasRef \
+												OR EXISTS(SELECT serialnumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)),INT)  AS HasRef \
 				FROM n_a_goods_receive_detail AS grd WHERE grd.FK_App = %(FKApp)s ORDER By grd.IDApp ASC """
 		cur.execute(Query,{'FKApp':fkApp,'FK_Goods':idapp_fk_goods})
 		data = query.dictfetchall(cur)
@@ -242,12 +244,12 @@ class NA_BR_Goods_Receive(models.Manager):
 					return 'success'
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
-							 VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew)s,0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
+								VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew)s,0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
 					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'CreatedBy':Data['createdby']}
 				cur.execute(Query,Params)
 				cur.close()
 		except Exception as e:
-			cur.close()								
+			cur.close()
 			return repr(e)	
 		return 'success'
 	def deleteDetail(self,Data):
@@ -280,7 +282,7 @@ class NA_BR_Goods_Receive(models.Manager):
 					##update header
 					#get datafor grid detail
 
-					NADetailRows = list(self.getDetailData(FKApp,idapp_fk_goods))
+					NADetailRows = list(NA_BR_Goods_Receive.getDetailData(FKApp,idapp_fk_goods))
 					desc = '('				
 					#dataDetail = object_list
 					detCount = 0			
@@ -306,8 +308,8 @@ class NA_BR_Goods_Receive(models.Manager):
 			except Exception as e :
 				cur.close()
 				return repr(e)
-		cur.close()						
-		return 'success'	
+			cur.close()						
+			return 'success'	
 	def delete(self,Data):
 		try:
 			self.__class__.c = connection.cursor()
@@ -346,8 +348,8 @@ class NA_BR_Goods_Receive(models.Manager):
 			Query =  "SELECT DISTINCT(ngd.BrandName) FROM n_a_goods_receive_detail ngd INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngd.FK_App WHERE ngd.BrandName LIKE %s AND ngr.FK_Goods = %s"
 		else:
 			Query = """SELECT DISTINCT(BrandName) FROM n_a_goods WHERE BrandName LIKE %s \
-				   UNION \
-				   SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE %s """
+					UNION \
+					SELECT DISTINCT(BrandName) FROM n_a_goods_receive_detail WHERE BrandName LIKE %s """
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		if FKGoods is not None:
@@ -372,7 +374,6 @@ class CustomSupplierManager(models.Manager):
 		
 	def getSupplierByForm(self,searchText):
 		return super(CustomSupplierManager,self).get_queryset().filter(Q(suppliername__icontains=searchText) & Q(inactive__exact=0)).values('suppliercode','suppliername')
-
 class custEmpManager(models.Manager):
 	def getEmployee(self,nik):
 		return super(custEmpManager,self).get_queryset().filter(nik__iexact=nik).values('idapp','employee_name')

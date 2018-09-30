@@ -39,16 +39,16 @@ def getData(request):
 	authentication_classes = []
 	status = 'Add'
 	statuscode = 200
-	data = None
-
-	
+	data = None	
 	try:
 		refno = request.get.GET('refno')
 		#get header data
-		NAData = NA_GoodsReceive_detail.objects.getData(refno)
+		NAData = NA_GoodsReceive_detail.objects.getHeaderData(refno)
+		if len(NAData) <= 0:
+			raise Exception('can not find such reference number')
 		NAData = NAData[0]
-		NADataDetail = NA_GoodsReceive_detail.objects.getDetailData(refno)
-		NADataDetail = NADataDetail[0]
-
-	except :
-		pass
+		FKApp = NAData['idapp']
+		idapp_fk_goods = NAData['idapp_fk_goods']
+		NADataDetail = NA_GoodsReceive_detail.objects.getDetailData(FKApp,idapp_fk_goods)
+	except Exception as e :
+		return HttpResponse(json.dumps({'message': repr(e)}),status = 500, content_type='application/json')

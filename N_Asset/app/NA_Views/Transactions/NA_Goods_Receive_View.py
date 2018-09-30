@@ -21,6 +21,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal
+from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive
 import math
 def NA_Goods_Receive(request):
 	assert isinstance(request,HttpRequest)
@@ -254,7 +255,8 @@ def ShowEntry_Receive(request):
 						'totalpurchase':Ndata['totalpurchase'],'totalreceived':Ndata['totalreceived'],'idapp_fk_receivedby':Ndata['idapp_fk_receivedby'],'fk_receivedby':Ndata['fk_receivedby'],'employee_received':Ndata['employee_received'],
 						'idapp_fk_p_r_by':Ndata['idapp_fk_p_r_by'],'fk_p_r_by':Ndata['fk_p_r_by'],'employee_pr':Ndata['employee_pr'],'descriptions':Ndata['descriptions'],'descbysystem':Ndata['descbysystem'],'economiclife':Ndata['economiclife']}
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
-				NADetailRows = NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
+				NADetailRows =  NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
+				#NADetailRows = NA_BR_Goods_Receive.
 				rows = []			
 				i = 0;
 				#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
