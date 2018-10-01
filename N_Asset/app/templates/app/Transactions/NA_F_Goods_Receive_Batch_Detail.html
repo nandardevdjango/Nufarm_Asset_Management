@@ -168,7 +168,6 @@
     td#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_left {
         width: 55%;
     }
-
         td#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager_left td.ui-pg-button ui-corner-all {
             width: auto;
             padding: 2px;
@@ -1379,7 +1378,7 @@
 					elDivDell.setAttribute('class', 'fa');
 					elDivDell.classList.add('fa-window-close');
 					//set button pagerStyle td tengahnya jadi 300px;
-					var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
+					var $midTd = $('#jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager_center');
 					if ($midTd) {
 						$midTd.css('width', '300px');
 					}
@@ -1405,22 +1404,8 @@
 										   	//rubah totalreceived -1;
 										   	if (this.status == 200) {
 										   		var textStatus = JSON.parse(this.responseText);
-										   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-										   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-										   		var initializeForm = NA.common.getElementID('id_initializeForm');
-										   		originalData = JSON.stringify(getValuesForm());
-										   		initializeForm.value = originalData;
-										   		//Update Grid Master
-										   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-										   		var IRowData = grid.jqGrid('getRowData', IrowId);
-										   		IRowData.totalreceived = valTrec;
-										   		grid.jqGrid('setRowData', IrowId, IRowData);
-										   		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-										   		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-										   			if (item.textContent === "Cancel") {
-										   				item.setAttribute('disabled', true);
-										   			}
-										   		});
+										   		originalData = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
+										   		NA.common.getElementID('initializeForm').value = originalData;
 										   	} else {
 										   		XhrError(this);
 										   	}
@@ -1521,43 +1506,45 @@
                 null,
                 function (e) {
                     //get total received
-                    var data = JSON.parse(this.responseText);
-                    if (data) {
-                        if (this.status >= 500) {
+                    try {
+                        var data = JSON.parse(this.responseText);
+                        if (data) {
+                            if (this.status >= 500) {
+                                closeLoading(); setTimeout(function () { XhrError(this); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
+                            }
+                            var totalReceived = parseInt(data[0]['totalreceived']);
+                            var dataRowHeader = [];
+                            //idapp, idpp_fk_goods, goods_desc, datereceived, supliername, employee_received, employee_pr, totalpurchase, totalreceived
+                            dataRowHeader.push({
+                                'idapp': data[0]['idapp'], 'idpp_fk_goods': data[0]['idpp_fk_goods'], 'goods_desc': data[0]['goods_desc'],
+                                'datereceived': data[0]['datereceived'], 'supliername': data[0]['supliername'], 'employee_received': data[0]['employee_received'],
+                                'employee_pr': data[0]['employee_pr'], 'totalpurchase': data[0]['totalpurchase'], 'totalreceived': data[0]['totalreceived']
+                            });
+                            BindGridHeader(dataRowHeader);
+                            //bind grid
+                            var dataDetail = JSON.parse(data[0]['dataForGridDetail']);
+                            BindGrid(1, dataDetail);
+                            var reccount = gridTbl.jqGrid('getGridParam', 'reccount');
+                            var leftRows = totalReceived - reccount;                    //if total received > recourd count
+                            //add new row data
+                            if (leftRows) {
+                                //createDummyRowData(totalReceived - reccount);
+                                for (var i = leftRows - 1; i < totalReceived; i++) {
+                                    var rowData = { 'idapp': '', 'fkapp': '', 'no': i, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1' }
+                                    //dataRows.push(rowData);
+                                    gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
+                                }
+                            }
+                            //set original data
+                            originalData = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
+                            NA.common.getElementID('initializeForm').value = originalData;
+                        }
+                        else {
                             closeLoading(); setTimeout(function () { XhrError(this); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
                         }
-                        var totalReceived = parseInt(data[0]['totalreceived']);
-                        var dataRowHeader = [];
-                        //idapp, idpp_fk_goods, goods_desc, datereceived, supliername, employee_received, employee_pr, totalpurchase, totalreceived
-                        dataRowHeader.push({
-                        	'idapp': data[0]['idapp'], 'idpp_fk_goods': data[0]['idpp_fk_goods'], 'goods_desc': data[0]['goods_desc'],
-                        	'datereceived': data[0]['datereceived'], 'supliername': data[0]['supliername'], 'employee_received': data[0]['employee_received'],
-                        	'employee_pr':data[0]['employee_pr'],'totalpurchase':data[0]['totalpurchase'],'totalreceived':data[0]['totalreceived']
-                        });
-                        BindGridHeader(dataRowHeader);
-                        //bind grid
-                        var dataDetail = JSON.parse(data[0]['dataForGridDetail']);
-                        BindGrid(1, dataDetail);
-                        var reccount = gridTbl.jqGrid('getGridParam', 'reccount');
-                        var leftRows = totalReceived - reccount;
-                        var dataRows = [];
-                        if (leftRows) {
-                        	//createDummyRowData(totalReceived - reccount);
-                        	for (var i = leftRows - 1; i < totalReceived; i++) {
-                        		var rowData = { 'idapp': '', 'fkapp': '', 'no': i, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1' }
-                        		dataRows.push(rowData);
-                        	}                        	
-                        }
-                    	//set original data
-                        originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
-                        NA.common.getElementID('initializeForm').value = JSON.stringify(originalData);
+                    } catch (e) {
+                        ShowAlert(e.message); win.document.body.style.cursor = 'default';
                     }
-                    else {
-                        closeLoading(); setTimeout(function () { XhrError(this); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
-                    }					
-                    //if total received > recourd count
-                    //add new row data
-
 
                 }, function (e) {//function untuk ajax error
                     closeLoading(); throw new Error(this.responseText + '\nStatus code :' + this.statusText);
