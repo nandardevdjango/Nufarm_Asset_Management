@@ -2132,7 +2132,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
                             }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }]
+                            //{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1' }]
                             gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
@@ -2238,7 +2239,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //set button pagerStyle td tengahnya jadi 200px;
             var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
             if ($midTd) {
-                $midTd.css('width', 200);
+            	$midTd.css('width', '200px');
             }
             if (AllowEdit) {
                 var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
