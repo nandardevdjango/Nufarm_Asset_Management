@@ -31,6 +31,7 @@
     <Compile Include="app\admin.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\apps.py" />
     <Compile Include="app\forms.py" />
     <Compile Include="app\management\commands\create_na_superuser.py" />
     <Compile Include="app\management\commands\git_push.py" />
@@ -103,6 +104,8 @@
     <Compile Include="app\NA_Views\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\Transactions\NA_Equipment_View.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_GA_History_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_GoodsLost_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Disposal_View.py">
       <SubType>Code</SubType>
@@ -110,8 +113,9 @@
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Lending_View.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_GA_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_View.py" />
-    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_GA.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Detail.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_GA_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Other_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_View.py" />
@@ -138,14 +142,15 @@
     <Compile Include="app\NA_Views\MasterData\NA_Employee_View.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\templates\app\Transactions\NA_F_Goods_Receive_Batch_Detail.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="app\sessions.py" />
+    <Compile Include="app\signals.py" />
     <Compile Include="app\tests.py" />
     <Compile Include="app\views.py" />
     <Compile Include="app\__init__.py" />
     <Compile Include="manage.py" />
     <Compile Include="NA_DataLayer\admin.py" />
+    <Compile Include="NA_DataLayer\exceptions.py" />
+    <Compile Include="NA_DataLayer\fields.py" />
     <Compile Include="NA_DataLayer\file_storage.py" />
     <Compile Include="NA_DataLayer\MasterData\NA_Sys_Privilege_BR.py">
       <SubType>Code</SubType>
@@ -162,6 +167,7 @@
     <Compile Include="NA_DataLayer\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_DataLayer\Transactions\NA_Ga_History_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_GoodsLost_BR.py" />
     <Compile Include="NA_DataLayer\MasterData\NA_Goods_BR.py">
       <SubType>Code</SubType>
@@ -170,9 +176,11 @@
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Lending_BR.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Maintenance_GA_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Outwards_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Outwards_GA_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_BR.py" />
+    <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_Detail_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_GA_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Receive_Other_BR.py" />
     <Compile Include="NA_DataLayer\Transactions\NA_Goods_Return_BR.py">
@@ -208,6 +216,24 @@
     <Compile Include="NA_Models\apps.py" />
     <Compile Include="NA_Models\models.py" />
     <Compile Include="NA_Models\__init__.py" />
+    <Compile Include="NA_Notifications\admin.py" />
+    <Compile Include="NA_Notifications\apps.py" />
+    <Compile Include="NA_Notifications\email.py" />
+    <Compile Include="NA_Notifications\middleware.py" />
+    <Compile Include="NA_Notifications\migrations\0001_initial.py" />
+    <Compile Include="NA_Notifications\migrations\__init__.py" />
+    <Compile Include="NA_Notifications\models.py" />
+    <Compile Include="NA_Notifications\services\notifications_service.py" />
+    <Compile Include="NA_Notifications\services\__init__.py" />
+    <Compile Include="NA_Notifications\task.py" />
+    <Compile Include="NA_Notifications\tests.py" />
+    <Compile Include="NA_Notifications\urls.py" />
+    <Compile Include="NA_Notifications\views.py" />
+    <Compile Include="NA_Notifications\__init__.py" />
+    <Compile Include="NA_Report\ad_hoc.py" />
+    <Compile Include="NA_Worker\task.py" />
+    <Compile Include="NA_Worker\worker.py" />
+    <Compile Include="NA_Worker\__init__.py" />
     <Compile Include="N_Asset\local_settings.py">
       <SubType>Code</SubType>
     </Compile>
@@ -257,6 +283,16 @@
     <Folder Include="NA_DataLayer\Transactions\" />
     <Folder Include="NA_Domain\" />
     <Folder Include="NA_Models\" />
+    <Folder Include="NA_Notifications\" />
+    <Folder Include="NA_Notifications\migrations\" />
+    <Folder Include="NA_Notifications\migrations\__pycache__\" />
+    <Folder Include="NA_Notifications\services\" />
+    <Folder Include="NA_Notifications\services\__pycache__\" />
+    <Folder Include="NA_Notifications\__pycache__\" />
+    <Folder Include="NA_Report\" />
+    <Folder Include="NA_Report\__pycache__\" />
+    <Folder Include="NA_Worker\" />
+    <Folder Include="NA_Worker\__pycache__\" />
     <Folder Include="N_Asset\" />
   </ItemGroup>
   <ItemGroup>
@@ -270,6 +306,7 @@
     <Content Include="app\static\app\content\Menu.css" />
     <Content Include="app\static\app\content\font-awesome.min.css" />
     <Content Include="app\static\app\content\NA_commonEntry.css" />
+    <Content Include="app\static\app\content\select-multiple-choices.css" />
     <Content Include="app\static\app\content\ui.jqgrid.css" />
     <Content Include="app\static\app\images\br_down.png" />
     <Content Include="app\static\app\images\NufarmLogo.jpg" />
@@ -289,8 +326,11 @@
     <Content Include="app\static\app\scripts\jspdf.min.js" />
     <Content Include="app\static\app\scripts\jspdf.plugin.autotable.js" />
     <Content Include="app\static\app\scripts\jspdf.plugin.autotable.min.js" />
+    <Content Include="app\static\app\scripts\material.spinner.min.js" />
+    <Content Include="app\static\app\scripts\NAJQuery.js" />
     <Content Include="app\static\app\scripts\NAJS.js" />
     <Content Include="app\static\app\scripts\jquery.jqGrid.js" />
+    <Content Include="app\static\app\scripts\NA_Bootstrap.js" />
     <Content Include="app\static\app\scripts\NA_EmailData.js" />
     <Content Include="app\static\app\scripts\split_text_to_size.js" />
     <Content Include="app\static\app\scripts\standard_fonts_metrics.js" />
@@ -319,22 +359,43 @@
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
     <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_Equipment.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_GA_History.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Disposal.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Outwards.html" />
+    <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Outwards_GA.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Receive_GA.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Receive_other.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Goods_Return.html" />
+    <Content Include="app\templates\app\Transactions\NA_Extend_GA_History.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Disposal.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Lending.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Outwards.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Outwards_GA.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive.html" />
+    <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive_Batch_Detail.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive_GA.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Receive_other.html" />
     <Content Include="app\templates\app\Transactions\NA_F_Goods_Return.html" />
     <Content Include="app\templates\app\UserControl\customFilter.html" />
     <Content Include="fixtures\NA_Data.json" />
     <Content Include="NA_DataLayer\common.py" />
+    <Content Include="NA_Notifications\migrations\__pycache__\0001_initial.cpython-36.pyc" />
+    <Content Include="NA_Notifications\migrations\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="NA_Notifications\services\__pycache__\notifications_service.cpython-36.pyc" />
+    <Content Include="NA_Notifications\services\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\admin.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\email.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\middleware.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\models.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\urls.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\views.cpython-36.pyc" />
+    <Content Include="NA_Notifications\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="NA_Report\__pycache__\ad_hoc.cpython-36.pyc" />
+    <Content Include="NA_Worker\__pycache__\task.cpython-36.pyc" />
+    <Content Include="NA_Worker\__pycache__\worker.cpython-36.pyc" />
+    <Content Include="NA_Worker\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />
     <Content Include="app\static\app\content\bootstrap.min.css" />

@@ -34,21 +34,25 @@ def entrybatchdetail(request):
 	populate_combo.append({'label':'End Of Warranty','columnName':'endofwarranty','dataType':'datetime'})
 	populate_combo.append({'label':'Price','columnName':'price','dataType':'decimal'})
 	return render(request,'app/Transactions/NA_F_Goods_Receive_Batch_Detail.html',{'populateColumn':populate_combo})
-@ensure_csrf_cookie
+
 def getData(request):
-	authentication_classes = []
-	status = 'Add'
 	statuscode = 200
-	data = None	
 	try:
-		refno = request.get.GET('refno')
+		refno = request.GET.get('refno')
 		#get header data
 		NAData = NA_GoodsReceive_detail.objects.getHeaderData(refno)
+		#"""
+		#return idapp,idapp_fk_goods,goods_desc,datereceived,supliername,employee_receieved,employee_pr,totalpurchase,totalreceived
+		#"""
 		if len(NAData) <= 0:
 			raise Exception('can not find such reference number')
 		NAData = NAData[0]
+		NAData.update(dataForGridDetail={})
 		FKApp = NAData['idapp']
 		idapp_fk_goods = NAData['idapp_fk_goods']
 		NADataDetail = NA_GoodsReceive_detail.objects.getDetailData(FKApp,idapp_fk_goods)
+		NAData.update(dataForGridDetail=json.dumps(NADataDetail,cls=DjangoJSONEncoder))
+		Result = json.dumps(NAData,cls=DjangoJSONEncoder)
+		return HttpResponse(Result,status = statuscode, content_type='application/json') 
 	except Exception as e :
 		return HttpResponse(json.dumps({'message': repr(e)}),status = 500, content_type='application/json')

@@ -155,7 +155,8 @@
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 <script src="../../../static/app/scripts/material.spinner.min.js"></script>
 {% endblock %}
-{%block content-0 %}
+
+{% block content-0 %}
 <style type="text/css">
     div#content-0 {
         overflow: hidden;
@@ -199,23 +200,14 @@
         margin-top: -20px;
         font-size: 15px;
     }
-    .blur::before {
-        content: ' ';
-        width: 320px;
-        height: 420px;
-        background: inherit;
-        position: absolute;
-        top: 0;
-        left: 0;
-        box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
-        filter: blur(10px);
-    }
     .container-spinner {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) !important;
     }
+
+
 </style>
 <div class="container" id="mainContainer_Detail">
     <div class="row row_RBD">
@@ -233,7 +225,7 @@
                     <div class="NA-Entry-div-row">
                         <div class="input-group" style="display:inline-flex;width:75%;">
                             <input name="refno" class="NA-Form-Control" style="width:400px;display:inline-block;margin-right:5px;" tabindex="0" placeholder="Ref number" data-value="Please enter ref number"
-                                   tittle="Enter Reference number to show data to edit to" maxlength="50" required="" id="id_refno" type="text">
+                                   tittle="Enter Reference number to show data to edit to" data-title="Enter Reference number to show data to edit to" maxlength="50" required="" id="id_refno" type="text">
                             <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                                 <button class="btn btn-success" type="button" id="FE_Ref_No" style="padding:4px 8px;height: 28px;"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
@@ -251,9 +243,11 @@
 	<table id="jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail" style="overflow:auto"></table>
     <div id="jqGrid_NA_F_Goods_Receive_Pager_Batch_Detail_Pager" style="overflow:auto"></div>
 	</div>
-	<input type="hidden" id="initializeForm" value="" />
+	<!--<input type="hidden" id="initializeForm" value="" />-->
 </div>
+{% endblock %}
 
+{%block DialogEntry %}
 <script type="text/javascript">
 	(function () {
 		$('.panel-heading span.clickable').click(function (event) {
@@ -316,7 +310,9 @@
 		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), btnFindRefno = NA.common.getElementID('FE_Ref_No'),
         errorRefNo = NA.common.getElementID('errorRefNo'),NAAjax = NA.common.AJAX;
 		errorRefNo.style.display = 'none';
-
+		NA.common.doc.title = 'Entry Data Goods Receive Detail';
+		//NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
+		NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css", "CommonEntry");//Load Style buat form sebelum di pakai
 		//#endregion====================End Variable Object untuk============================
 		win.onunload = function () {
 
@@ -342,6 +338,46 @@
 				}
 			}
 			return colData;
+		};
+		function XhrError(xhr) {
+			try {
+				var messageErr = xhr.responseText;
+				var contentype = xhr.getResponseHeader('Content-Type')
+				if (contentype === 'application/json') {
+					messageErr = JSON.parse(xhr.responseText);
+				}
+				var message = xhr.responseText;
+				if (messageErr) {
+					message = messageErr.message;
+					if (message.indexOf('!DOCTYPE html') > 0) {
+						//error bawaan dari python django
+						//redirect to error web
+						//untuk sekarang tampilkan saja error codenya saja
+						ShowAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+						document.body.style.cursor = 'default';
+						return false;
+					}
+					else if (xhr.status >= 500) {
+						ShowAlert('Unknown Server error occurred: ' + '\n' + message + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+						document.body.style.cursor = 'default';
+						return false;
+					}
+					else if (message) {
+						ShowAlert('An error occurred: ' + message);
+					}
+					else {
+						ShowAlert('An error occurred: ' + messageErr);
+					}
+				}
+				else if (message) {
+					ShowAlert('An error occurred: ' + message);
+				}
+				document.body.style.cursor = 'default';
+			} catch (e) {
+				ShowAlert('An error occurred: ' + e + '\n' + e.message);
+				document.body.style.cursor = 'default';
+			}
+			return false;
 		};
 		function fetcBrands(elem) {
 			var idAppFKGoods = NA.common.getElementID('id_idapp_fk_goods').value
@@ -1449,68 +1485,57 @@
 		        strokeWidth: 4,
 		        radius: 20
 		    })
-		    $('div#mainContainer_Detail').prepend(container_loading);
+		    $('div#pnlBody').css({'position':'relative'});
+		    $('div#pnlBody').append(container_loading);
+		    container_loading.css({ 'left': '80%','top':'50%','position':'absolute' })
 		};
 		function closeLoading() {
 		    $('div.container-spinner').fadeOut(1000);
 		};
-		function XhrError(xhr) {
-		    try {
-		        var messageErr = xhr.responseText;
-		        var contentype = xhr.getResponseHeader('Content-Type')
-		        if (contentype === 'application/json') {
-		            messageErr = JSON.parse(xhr.responseText);
-		        }
-		        var message = xhr.responseText;
-		        if (messageErr) {
-		            message = messageErr.message;
-		            if (message.indexOf('!DOCTYPE html') > 0) {
-		                //error bawaan dari python django
-		                //redirect to error web
-		                //untuk sekarang tampilkan saja error codenya saja
-		                ShowAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
-		                document.body.style.cursor = 'default';
-		                return false;
-		            }
-		            else if (xhr.status >= 500) {
-		                ShowAlert('Unknown Server error occurred: ' + '\n' + message + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
-		                document.body.style.cursor = 'default';
-		                return false;
-		            }
-		            else if (message) {
-		                ShowAlert('An error occurred: ' + message);
-		            }
-		            else {
-		                ShowAlert('An error occurred: ' + messageErr);
-		            }
-		        }
-		        else if (message) {
-		            ShowAlert('An error occurred: ' + message);
-		        }
-		        document.body.style.cursor = 'default';
-		    } catch (e) {
-		        ShowAlert('An error occurred: ' + e + '\n' + e.message);
-		        document.body.style.cursor = 'default';
-		    }
-		    return false;
-		};
+		
 		NA.NAEvent.addHandler(txtRefno, 'keydown', function (e) {
+			if (e.keyCode == 13) {
 		    btnFindRefno.click();
+			}
 		});
+		//https://codereview.stackexchange.com/questions/26561/showing-jquery-ui-tooltip-on-focus-of-text-box
+		$('#id_refno').tooltip({
+			placement: 'top auto',
+			trigger: 'manual',
+			delay: { "show":300, "hide": 500 },
+			//animation:true
+		});
+
+		//$("#id_refno").tooltip({
+		//	position: {
+		//		my: "center bottom",
+		//		at: "center top-10",
+		//		collision: "none"
+		//	},
+		//		//placement: 'top auto',
+		//		//trigger: 'manual'
+		//});
+		NA.NAEvent.addHandler(txtRefno, 'input', function () { $('#id_refno').tooltip('hide'); });
 		NA.NAEvent.addHandler(btnFindRefno, 'click', function (e) {
-		    //ajax call
-		    var url = 'getData/?' + win.encodeURIComponent(txtRefno.value)
+			//ajax call
+			var hasValue = $('#id_refno').val();
+			if (!hasValue) {
+				$('#id_refno').tooltip('show');
+				return false;
+			}
+			//$(this).tooltip(hasValue ? 'hide' : 'show');
+			var url = 'getData/?refno=' + win.encodeURIComponent(txtRefno.value)
 		    NAAjax.GET(url,
                 'application/json',
-                win.document.body.style.cursor = 'wait',showLoading(),
+				function () { win.document.body.style.cursor = 'wait', showLoading(); },
                 null,
                 function (e) {
                     //get total received
                     try {
-                        var data = JSON.parse(this.responseText);
                         if (data) {
+                        var data = JSON.parse(this.responseText);
                             if (this.status >= 500) {
-                                closeLoading(); setTimeout(function () { XhrError(this); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
+                            	closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
                             }
                             var totalReceived = parseInt(data[0]['totalreceived']);
                             var dataRowHeader = [];
@@ -1536,14 +1561,16 @@
                                 }
                             }
                             //set original data
-                            originalData = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
-                            NA.common.getElementID('initializeForm').value = originalData;
+                            originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
+                            closeLoading(); win.document.body.style.cursor = 'default';
+                            //NA.common.getElementID('initializeForm').value = originalData;
                         }
                         else {
-                            closeLoading(); setTimeout(function () { XhrError(this); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
+                            closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); 
                         }
                     } catch (e) {
-                        ShowAlert(e.message); win.document.body.style.cursor = 'default';
+                    	if (e.message !== '') { ShowAlert(e.message); }
+                    	closeLoading(); win.document.body.style.cursor = 'default';
                     }
 
                 }, function (e) {//function untuk ajax error
@@ -1553,9 +1580,9 @@
                                                             );
 		});
 
+
 		NA.Privilege.read_privilege('n_a_goods_receive');
 	})();
 </script>
-
-
 {% endblock %}
+

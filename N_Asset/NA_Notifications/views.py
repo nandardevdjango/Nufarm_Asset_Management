@@ -37,7 +37,7 @@ class NANotificationView(View):
                     format='day'
                 )
                 notif_type = 'normal'
-                days_left = f'{time} {unit}'
+                days_left = '{time} {unit}'.format(time,unit);
                 if notif['data'].get('is_expire') or (date.today() > date_expire_.date()):
                     # TODO: tell if 0 days is expire
                     notif_type = 'danger'

@@ -82,8 +82,8 @@ class NA_BR_Goods_Receive(models.Manager):
 	@classmethod
 	def getDetailData(cls,fkApp,idapp_fk_goods):
 		#GET idapp_fk_goods
-		cls.__class__.c = connection.cursor()
-		cur = cls.__class__.c
+		#cls.__class__.c = connection.cursor()
+		cur =  connection.cursor()
 		Query = """SELECT grd.*, CONVERT((EXISTS(SELECT serialnumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber)  \
 												OR EXISTS(SELECT serialnumber FROM n_a_goods_lending WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
 												OR EXISTS(SELECT serialnumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s AND SerialNumber = grd.SerialNumber) \
