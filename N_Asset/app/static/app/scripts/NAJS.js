@@ -1207,7 +1207,7 @@ NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
     _canNotDelete: 'Can not delete data\nData has child-referenced',
     _canNotEdit: 'Can not edit data\nData has child-referenced',
-    _clearData: 'Are you sure you want to clear/reset ?!!.\nOperation can not be undone',
+    _clearData: 'Are you sure you want to clear datas/reset ?!!.\nOperation can not be undone',
     _savingSucces: 'Data saved succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',
     _refreshData: 'Data has changed \nIf you continue refreshing page\nAll Changes will be discarded\nContinue refreshing anyway ?.',

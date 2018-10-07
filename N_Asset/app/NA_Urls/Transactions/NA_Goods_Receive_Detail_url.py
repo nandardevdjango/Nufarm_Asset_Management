@@ -6,4 +6,5 @@ urlpatterns = [
 	url(r'^getTypeApps/$',NA_Goods_Receive_View.getTypeApps,name='getTypeApps'),
     url(r'^deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
     url(r'^getData/$',NA_Goods_Receive_Detail.getData),
+	url(r'^HasExistSN/$',NA_Goods_Receive_View.ExistSerialNO),
 	]
