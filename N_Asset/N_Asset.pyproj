@@ -72,6 +72,7 @@
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lost_url.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Urls\Transactions\NA_Goods_Outwards_GA_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Outwards_url.py">
       <SubType>Code</SubType>
     </Compile>
@@ -115,7 +116,7 @@
     </Compile>
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_GA_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Outwards_View.py" />
-    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Detail.py" />
+    <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Detail_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_GA_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_Other_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Goods_Receive_View.py" />
@@ -300,6 +301,7 @@
     <Content Include="app\management\commands\__pycache__\create_na_superuser.cpython-36.pyc" />
     <Content Include="app\management\commands\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="app\management\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="app\static\app\content\bootstrap-dialog.css" />
     <Content Include="app\static\app\content\Dialog.css" />
     <Content Include="app\static\app\content\jquery-ui.min.css" />
     <Content Include="app\static\app\content\MainLayouts.css" />
@@ -321,6 +323,7 @@
     <Content Include="app\static\app\scripts\jquery-ui.js" />
     <Content Include="app\static\app\scripts\jquery-ui.min.js" />
     <Content Include="app\static\app\scripts\jquery.jqGrid.min.js" />
+    <Content Include="app\static\app\scripts\jquery.jqgrid.src.js" />
     <Content Include="app\static\app\scripts\jquery.tree.js" />
     <Content Include="app\static\app\scripts\jspdf.js" />
     <Content Include="app\static\app\scripts\jspdf.min.js" />

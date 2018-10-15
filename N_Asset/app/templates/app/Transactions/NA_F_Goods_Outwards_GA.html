@@ -1,4 +1,5 @@
 {% extends 'app/layout.html' %} {% block SearchData %}
+
 <li><a href="#" data-tipe="varchar" data-column="goodsname">Goods Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="brand">Brand</a></li>
 <li><a href="#" data-tipe="varchar" data-column="typeapp">Type</a></li>
@@ -12,7 +13,7 @@
 <li><a href="#" data-tipe="varchar" data-column="sender">Sender</a></li>
 
 <li><a id="custSearch" href="#">Custom Search</a></li>
-</ul>
+
 <!--<li class="divider"></li>-->
 {% endblock %} {% block javascriptAndUI %} {% load static %}
 
@@ -72,6 +73,9 @@
     div.ui-jqgrid-titlebar {
         border-radius: 0px
     }
+	.dialog-entry-equipment > .modal-dialog.modal-sm {
+    width: 350px;
+}
 </style>
 {% endblock %} {% block content-0 %}
 <table id="NA_Goods_Outwards_GA_grid" style="overflow:auto"></table>

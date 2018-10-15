@@ -33,9 +33,7 @@ li.item-hover{
     background: green;
     color: white;
 }
-.dialog-entry-equipment > .modal-dialog.modal-sm {
-    width: 350px;
-}
+
 .select-multiple{
     max-height: 240px;
     overflow: auto;

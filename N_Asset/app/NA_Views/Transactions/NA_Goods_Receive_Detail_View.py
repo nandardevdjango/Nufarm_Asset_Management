@@ -22,6 +22,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal
 import math
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1","True","Yes")
 def entrybatchdetail(request):
 	assert isinstance(request,HttpRequest)
 	#buat nama-name column, key sama 
@@ -51,7 +53,16 @@ def getData(request):
 		FKApp = NAData['idapp']
 		idapp_fk_goods = NAData['idapp_fk_goods']
 		NADataDetail = NA_GoodsReceive_detail.objects.getDetailData(FKApp,idapp_fk_goods)
-		NAData.update(dataForGridDetail=json.dumps(NADataDetail,cls=DjangoJSONEncoder))
+		rows = []			
+		i = 0;
+		for row in NADataDetail:
+			i = i+1
+			datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
+				'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'], \
+				'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef'])),'isnew':'0'}
+			rows.append(datarow)					
+		dataForGridDetail = rows
+		NAData.update(dataForGridDetail=json.dumps(rows,cls=DjangoJSONEncoder))
 		Result = json.dumps(NAData,cls=DjangoJSONEncoder)
 		return HttpResponse(Result,status = statuscode, content_type='application/json') 
 	except Exception as e :
