@@ -357,7 +357,7 @@
     <Content Include="app\templates\app\MasterData\NA_F_Maintenance.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Privilege.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Supplier.html" />
-    <Content Include="app\templates\app\MasterData\NA_Privilege_register.html" />
+    <Content Include="app\templates\app\MasterData\na_privilege_register.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />

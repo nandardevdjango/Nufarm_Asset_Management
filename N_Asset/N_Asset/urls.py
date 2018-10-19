@@ -10,7 +10,7 @@ import app.views
 # Uncomment the next lines to enable the admin:
 # admin.autodiscover()
 from django.contrib import admin
-
+from social_django.urls import *
 urlpatterns = [
     # Examples:
     url(r'^$', app.views.home, name='home'),
@@ -18,12 +18,12 @@ urlpatterns = [
     url(r'^about', app.views.about, name='about'),
 
     # User's URL
-    url(r'^login/$', NA_Privilege_View.NA_Privilege_login, name='login'),
-    url(r'^register/$', NA_Privilege_View.NA_Privilege_register,
+    url(r'^login/$', NA_Privilege_View.na_privilege_login, name='login'),
+    url(r'^register/$', NA_Privilege_View.na_privilege_register,
         name='NA_User_Register'),
     url(r'^profile/(?P<username>\w+)/edit/$',
         NA_User_View.user_profile, name='user_profile'),
-    url(r'^logout/$', NA_User_View.logout_view, name='logout'),
+    url(r'^logout/$', NA_Privilege_View.NA_Privilege_logout, name='logout'),
 
     # Master Data URL
     url(r'^MasterData/', include('app.NA_Urls.MasterData_url', namespace='MasterData')),

@@ -56,8 +56,10 @@ class NAErrorHandler(object):
         :param err:     -- error message
         :return:        -- column name in database
         """
-
-        err = err.args[1]
+        if err.args:
+            err = err.args[1]
+        else:
+            err = err.message.args[1]
         if re.match(r'Duplicate', err):
             result = err.split(' ')[-1]
             if "'" in result:
