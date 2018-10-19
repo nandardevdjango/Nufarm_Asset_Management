@@ -921,7 +921,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //}
             for (var i = 0; i < intLength; i++) {
                 //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate',isnew
-            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
+            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }
                 DummyData.push(rowData);
             };
             return DummyData;
@@ -1152,7 +1152,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		//cellsubmit: 'clientArray',
         		//editurl: 'clientArray',
         		datatype: "local",//column idapp, fkapp.no,'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew'],
+        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew','isdeleted'],
         		colModel: [
 					{ name: 'idapp', hidden: true },
 					{ name: 'fkapp', hidden: true },
@@ -1623,12 +1623,13 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     {
                         name: 'HasRef', hidden: true
                     },
-					{ name: 'isnew', hidden: true }
+					{ name: 'isnew', hidden: true },
+        			{ name: 'isdeleted', hidden: true }
         		],
                 //cellEdit: (win.status === 'Add'),
                 pgbuttons: false,     // disable page control like next, back button
                 pgtext: null,         // disable pager text like 'Page 0 of 10'
-                viewrecords: true,    // disable current view record text like 'View 1-10 of 100'
+                viewrecords: false,    // disable current view record text like 'View 1-10 of 100'
                 height: '150px',
                 rowNum: (function () {
                     if (win.status === 'Open' || win.status === 'Edit') {
@@ -2081,7 +2082,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
                             }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }]
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }]
                             gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
@@ -2103,11 +2104,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     			valTrec = valTrec - 1;
                     			valTrec = (valTrec < 0) ? 0 : valTrec;
                     			eltreceived.value = valTrec;
-                                //delete di localrow
+                    			//delete di localrow								
                     			gridTbl.delRowData(NRowid);
                     			eltreceived.removeAttribute('readonly');
                     			if (valTrec <= 0) {//cancel detail
-                    			    btnCancel.click();
+                    				var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+                    				btnCancelDetail.click();
                     			}
                     		});
                     	}, position: "last"
@@ -2149,7 +2151,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 return false;
                             }
                             //{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1' }]
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1','isdeleted':'0' }]
                             gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
@@ -2163,51 +2165,61 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                             if (recCount <= 0) { return false; }
                             var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                             if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
-                    		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
-                    			var NAAjax = NA.common.AJAX;
-                    			var NRowid = rowId;
-                    			var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                    			NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
-							   null, function () { }, function () {
-							   	//rubah totalreceived -1;
-							   	var textStatus = JSON.parse(this.responseText);
-							   	if (textStatus.message === 'success') {
-							   		var eltreceived = NA.common.getElementID('id_totalreceived'),
-																	 valTrec = eltreceived.value;
-							   		valTrec = valTrec - 1;
-							   		valTrec = (valTrec < 0) ? 0 : valTrec;
-							   		eltreceived.value = valTrec;
-							   		gridTbl.delRowData(NRowid);
-							   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-							   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-
-							   		var initializeForm = NA.common.getElementID('id_initializeForm');
-							   		originalData = JSON.stringify(getValuesForm());
-							   		initializeForm.value = originalData;
-
-							   		//Update Grid Master
-							   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-							   		var IRowData = grid.jqGrid('getRowData', IrowId);
-							   		IRowData.totalreceived = valTrec;
-							   		grid.jqGrid('setRowData', IrowId, IRowData);
-							   		if (valTrec <= 0) {
-							   		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
-							   		}
-							   		//matikan tombol excel
-							   		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-							   		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-							   			if (item.textContent === "Cancel") {
-							   				item.setAttribute('disabled', true);
-							   			}
-							   		});
-							   	}
-							   	else {
-							   		ShowAlert(textStatus.message, NA.common.message.titleError);
-							   		return false;
-							   	}
-							   }, null, function () {
-							   }, function () { win.document.body.style.cursor = 'default'; })
-                    		});
+                            var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
+                            if (hasRef == 'True' || hasRef == 'true') {
+                            	ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+                            }
+                            showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+                            	var NAAjax = NA.common.AJAX;
+                            	var NRowid = rowId;
+                            	var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+                            	var eltreceived = NA.common.getElementID('id_totalreceived'),
+								 valTrec = eltreceived.value;
+                            	valTrec = valTrec - 1;
+                            	valTrec = (valTrec < 0) ? 0 : valTrec;
+                            	eltreceived.value = valTrec;
+                            	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+                            	$("#" + rowId, gridTbl).hide();
+                            	eltreceived.setAttribute('readonly', 'true');
+                            	// NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+                            	//null, function () { }, function () {
+                            	//	//rubah totalreceived -1;
+                            	//	var textStatus = JSON.parse(this.responseText);
+                            	//	if (textStatus.message === 'success') {
+                            	//		var eltreceived = NA.common.getElementID('id_totalreceived'),
+                            	// 									 valTrec = eltreceived.value;
+                            	//		valTrec = valTrec - 1;
+                            	//		valTrec = (valTrec < 0) ? 0 : valTrec;
+                            	//		eltreceived.value = valTrec;
+                            	//		//gridTbl.delRowData(NRowid);
+                            	//		//var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+                            	//		//NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+                            	//		var initializeForm = NA.common.getElementID('id_initializeForm');
+                            	//		originalData = JSON.stringify(getValuesForm());
+                            	//		initializeForm.value = originalData;
+                            	//		//Update Grid Master
+                            	//		var IrowId = grid.jqGrid('getGridParam', 'selrow');
+                            	//		var IRowData = grid.jqGrid('getRowData', IrowId);
+                            	//		IRowData.totalreceived = valTrec;
+                            	//		grid.jqGrid('setRowData', IrowId, IRowData);
+                            	//		if (valTrec <= 0) {
+                            	//		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+                            	//		}
+                            	//		//matikan tombol excel
+                            	//		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+                            	//		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+                            	//			if (item.textContent === "Cancel") {
+                            	//				item.setAttribute('disabled', true);
+                            	//			}
+                            	//		});
+                            	//	}
+                            	//	else {
+                            	//		ShowAlert(textStatus.message, NA.common.message.titleError);
+                            	//		return false;
+                            	//	}
+                            	//}, null, function () {
+                            	//}, function () { win.document.body.style.cursor = 'default'; })
+                            });
                     	}, position: "last"
                     });
                     var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
@@ -2274,7 +2286,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //var rowId = parseInt($(this).attr("id")); 
                     var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
                     if (e.keyCode == 46) {
-                        if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0") {
+                    	if 	($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0" || ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === undefined))  {
+                    		//check hasref
+                    		var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
+                    		if (hasRef == 'True' || hasRef == 'true') {
+                    			ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+                    		}
                             showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
                                 win.document.body.style.cursor = 'wait';
                                 var eltreceived = NA.common.getElementID('id_totalreceived'),
@@ -2282,48 +2299,61 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 valTrec = valTrec - 1;
                                 valTrec = (valTrec < 0) ? 0 : valTrec;
                                 eltreceived.value = valTrec;
-                                eltreceived.removeAttribute('readonly');
                                 //delete di localrow
-                                var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                                gridTbl.delRowData(rowId);
+                                //var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
                                 if (win.status === 'Edit') {
-                                    var NAAjax = NA.common.AJAX;
-                                    NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
-                                   null, function () { }, function () {
-                                   	//rubah totalreceived -1;
-                                   	if (this.status == 200) {
-                                   		var textStatus = JSON.parse(this.responseText);
-                                   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-                                   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-                                   		var initializeForm = NA.common.getElementID('id_initializeForm');
-                                   		originalData = JSON.stringify(getValuesForm());
-                                   		initializeForm.value = originalData;
-                                   		//Update Grid Master
-                                   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-                                   		var IRowData = grid.jqGrid('getRowData', IrowId);
-                                   		IRowData.totalreceived = valTrec;
-                                   		grid.jqGrid('setRowData', IrowId, IRowData);
-                                   		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-                                   		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-                                   			if (item.textContent === "Cancel") {
-                                   				item.setAttribute('disabled', true);
-                                   			}
-                                   		});
-                                   		
-                                   	} else {
-                                   		XhrError(NAAjax.XHR);
-                                   	}  
-                                   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
+                                	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+                                	$("#" + rowId, gridTbl).hide();
+                                	//if (valTrec <= 0) {
+                                	//	if (win.status === 'Add') {
+                                	//		var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+                                	//		btnCancelDetail.click();//fire event btnCancellDetail;
+                                	//	}
+                                	//	else {
+                                	//		//cek jika ada data yang di hapus data di server
+                                	//		//confirmasi ke user bahwa data sebelumnya akan di hapus tidak bisa kembalikan lagi
+                                	//		//jika ada save
+                                	//		NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+                                	//	}
+                                	//}
+                                	//else {
+                                	//	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+                                	//	$("#" + rowId, gridTbl).hide();
+                                	//}
+                                	eltreceived.setAttribute('readonly', 'true');
                                 }
-                                if (valTrec <= 0) {
-                                    if (win.status === 'Add') {
-                                        var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-                                        btnCancelDetail.click();//fire event btnCancellDetail;
-                                    }
-                                    else {
-                                        NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
-                                    }
+                                else {
+                                	gridTbl.delRowData(rowId);
                                 }
+                               //if (win.status === 'Edit') {
+                                //    var NAAjax = NA.common.AJAX;
+                                //    NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+                                //   null, function () { }, function () {
+                                //   	//rubah totalreceived -1;
+                                //   	if (this.status == 200) {
+                                //   		var textStatus = JSON.parse(this.responseText);
+                                //   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+                                //   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+                                //   		var initializeForm = NA.common.getElementID('id_initializeForm');
+                                //   		originalData = JSON.stringify(getValuesForm());
+                                //   		initializeForm.value = originalData;
+                                //   		//Update Grid Master
+                                //   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
+                                //   		var IRowData = grid.jqGrid('getRowData', IrowId);
+                                //   		IRowData.totalreceived = valTrec;
+                                //   		grid.jqGrid('setRowData', IrowId, IRowData);
+                                //   		//var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+                                //   		//Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+                                //   		//	if (item.textContent === "Cancel") {
+                                //   		//		item.setAttribute('disabled', true);
+                                //   		//	}
+                                //   		//});                                   		
+                                //   	} else {
+                                //   		XhrError(NAAjax.XHR);
+                                //   	}  
+                                //   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
+                                //}
+                              
                                 win.document.body.style.cursor = 'default';
                             });
                         }
@@ -3220,7 +3250,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					            for (var i = 0; i < countAdd; i++) {
                         					            	reccount += 1;
                         					                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                        					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
+                        					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }];
                         					            	gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                         					            };
                         					        }

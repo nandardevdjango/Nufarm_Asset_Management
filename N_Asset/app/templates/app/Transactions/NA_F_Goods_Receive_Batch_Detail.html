@@ -317,11 +317,15 @@
         //TypeApps = [],
         //settings btn sesuai user access
         //anggap saja sekarang admin
+		btnAdd = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(1)'),
+		btnOpen = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(2)'),
+		btnEdit = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(3)'),
         btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
         btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
         btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+		
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
 		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), btnFindRefno = NA.common.getElementID('FE_Ref_No'),
         errorRefNo = NA.common.getElementID('errorRefNo'),NAAjax = NA.common.AJAX;
@@ -635,7 +639,7 @@
                     						for (var i = 0; i < countAdd; i++) {
                     							reccount += 1;
                     							//'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                    							var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }];
+                    							var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }];
                     							gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                     						};
                     					}
@@ -647,6 +651,7 @@
                     						errorfunc: null,
                     						afterrestorefunc: null
                     					});
+                    					originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
                     				}
                     				else if (e.keyCode === 27) {//escape
                     					//cancell
@@ -673,8 +678,26 @@
 						}
 					}
 				},
-				ondblClickRow: function (rowid, iRow, iCol, e) {
-
+				ondblClickRow: function (rowId, iRow, iCol, e) {
+					//check gridtbl
+					if (NA.common.getElementID('gbox_jqGrid_NA_F_Goods_Receive_Batch_Detail')) {
+						//check recourd count
+						var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+						if (recCount > 0) {
+							//check data
+							var detailData = gridTbl.jqGrid('getGridParam', 'data');
+							if (NA.common.detectInputChanges(detailData, originalData['detail'])) {
+								var rows = gridTbl.getDataIDs();
+								for (var i = 0; i < recCount; i++) {
+									var row = gridTbl.jqGrid('getLocalRow', rows[i]);
+									var rowID = rows[i];
+									if (row['isdeleted'] === '1') {
+										gridHeader.jqGrid('restoreRow', rowID); return false;
+									}
+								}
+							}
+						}
+					}
 					//The index of the row (iRow) you can get using rowIndex property of the DOM object which represent ther row <tr>. So you need just get the DOM of the row. If the rowId don't contain any meta-characters you can do just the following
 
 					//var iRow = $('#' + rowId)[0].rowIndex;
@@ -682,9 +705,9 @@
 					//For the more common case you can use jqID function which escapes the meta-characters if needed:
 
 					//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
-					if (($(gridHeader.jqGrid("getInd", rowid, true)).attr("editable") === "0") || ($(gridHeader.jqGrid("getInd", rowid, true)).attr("editable") === undefined)) {
+					if (($(gridHeader.jqGrid("getInd", rowId, true)).attr("editable") === "0") || ($(gridHeader.jqGrid("getInd", rowId, true)).attr("editable") === undefined)) {
 						if (AllowEdit) {
-							gridHeader.jqGrid('editRow', rowid, {
+							gridHeader.jqGrid('editRow', rowId, {
 								keys: true,
 								url: 'clientArray',
 								onerrorfunc: function (rowId) {
@@ -718,6 +741,15 @@
 				'width': 'inherit'
 			})
 		};
+		function HasChangedData() {
+			//originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
+			//check header
+			var headerData = gridHeader.jqGrid('getGridParam', 'data');
+			var detailData = gridTbl.jqGrid('getGridParam', 'data');
+			if (NA.common.detectInputChanges(headerData, originalData['header'])) { return true; }
+			else if (NA.common.detectInputChanges(detailData, originalData['detail'])) { return true; }
+			return false;
+		};
 		function isDataChanged(LastSelectRows) {
 			// Allows tricky logic for dirty data, e.g. one may trim spaces etc.
 			var rows = originalData['detail'];
@@ -744,6 +776,21 @@
 			if (day.length < 2) day = '0' + day;
 
 			return [year, month, day].join('-');
+		};
+		function formatDate(theDate) {
+			var date = new Date(theDate),
+              year = date.getFullYear(),
+              month = (date.getMonth() + 1).toString(),
+              formatedMonth = (month.length === 1) ? ("0" + month) : month,
+              day = date.getDate().toString(),
+              formatedDay = (day.length === 1) ? ("0" + day) : day;
+			//hour = date.getHours().toString(),
+			//formatedHour = (hour.length === 1) ? ("0" + hour) : hour,
+			//minute = date.getMinutes().toString(),
+			//formatedMinute = (minute.length === 1) ? ("0" + minute) : minute,
+			//second = date.getSeconds().toString(),
+			//formatedSecond = (second.length === 1) ? ("0" + second) : second;
+			return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
 		};
 		function ValidateGridDetail(gridTbl) {
 			var rows = gridTbl.getDataIDs();
@@ -909,7 +956,7 @@
 					//cellsubmit: 'clientArray',
 					//editurl: 'clientArray',
 					datatype: "local",//column idapp, fkapp.no,'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-					colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef', 'isnew'],
+					colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef', 'isnew','isdeleted'],
 					colModel: [
 						{ name: 'idapp', hidden: true },
 						{ name: 'fkapp', hidden: true },
@@ -1180,12 +1227,12 @@
 											var modVal = (value % 1).toFixed(2);//modulus value decimal number
 											var intVal = Math.round(value) - Math.round(modVal);
 
-											var dtReceived = gridHeaderData[0]['datereceived'];
+											//var dtReceived = gridHeaderData[0]['datereceived'];
 											if (dtReceived === '') {
 												ShowAlert('Please enter date received first', NA.common.message.titleInfo);
 												return false;
 											}
-											FDate = $.datepicker.parseDate('dd MM yy', dtReceived);
+											FDate = $.datepicker.parseDate("yy-mm-dd", dtReceived.substr(0, 10))
 											//var NmodVal = parseFloat(modVal) * 12;
 											//var NM = dtReceived.getMonth();
 											//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
@@ -1196,13 +1243,10 @@
 											var $tr = $(e.target).closest("tr.jqgrow");
 											rowId = $tr.attr("id");
 											//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-											var $td = $tr.find(">td:nth-child(12)");
-
+											var $td = $tr.find(">td:nth-child(9)");
 											//and to change the value of the cell you can use
-
 											$td.find("input").val(dtStr);
 											//gridTbl.jqGrid("editCell", $('#' + rowId)[0].rowIndex, 7, true);
-
 											//gridTbl.jqGrid('getRowData', rowId, 'endofwarranty', dtStr);
 											//gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
 											// now change the internal local data
@@ -1372,7 +1416,8 @@
 						{
 							name: 'HasRef', hidden: true
 						},
-						{ name: 'isnew', hidden: true }
+						{ name: 'isnew', hidden: true },
+						{ name: 'isdeleted', hidden: true }
 						//#endregion======================================================
 					],
 					//cellEdit: (win.status === 'Add'),
@@ -1493,7 +1538,7 @@
 													var dtReceived = gridHeaderData[0]['datereceived'];
 													var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
 													var intVal = Math.round(warranty) - Math.round(modVal);
-													var FDate = $.datepicker.parseDate('dd MM yy', dtReceived);
+													var FDate = $.datepicker.parseDate("yy-mm-dd", dtReceived.substr(0, 10))
 													var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
 													var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
 													//$('#' + curRowid + '_endofwarranty').val(dtStr);
@@ -1655,7 +1700,7 @@
 							ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
 							return false;
 						}
-						var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false }]
+						var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }]
 						gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
 						var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Batch_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
 						gridTbl.setSelection(last_rowid, false);
@@ -1669,15 +1714,20 @@
 						if (recCount <= 0) { return false; }
 						var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 						if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
+						if (hasRef == 'True' || hasRef == 'true') {
+							ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+						}
 						showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
-
 							var valTrec = gridHeaderData[0]['totalreceived'];
 							valTrec = valTrec - 1;
 							valTrec = (valTrec < 0) ? 0 : valTrec;
 							//delete di localrow
-							var rowHeaderData = gridHeader.jqGrid('getRowData', '0');
+							var rowHeaderData = gridHeader.jqGrid('getLocaRow', '1');
 							rowHeaderData.totalreceived = valTrec
-							gridTbl.delRowData(rowId);
+							gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+							$("#" + rowId, gridTbl).hide();
+
+							//gridTbl.delRowData(rowId);
 							//set gridHeader Data
 						});
 					}, position: "last"
@@ -1716,24 +1766,36 @@
 					gridTbl.on("keyup", "tr", function (e) {
 						//var rowId = parseInt($(this).attr("id")); 
 						var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-						if (e.keyCode == 46) {
-							if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0") {
+						if (e.keyCode == 46) {//tombol delete
+							if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0" || ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === undefined)) {
+								var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
+								if (hasRef == 'True' || hasRef == 'true') {
+									ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+								}
 								showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
 									win.document.body.style.cursor = 'wait';
 									var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-									gridTbl.delRowData(rowId);
-									if (win.status === 'Edit') {
-										NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
-									   null, function () { }, function () {
-									   	//rubah totalreceived -1;
-									   	if (this.status == 200) {
-									   		var textStatus = JSON.parse(this.responseText);
-									   		originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
-									   	} else {
-									   		XhrError(NAAjax.XHR);
-									   	}
-									   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
-									}
+									//gridTbl.delRowData(rowId);
+									//if (win.status === 'Edit') {
+									//	NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+									//   null, function () { }, function () {
+									//   	//rubah totalreceived -1;
+									//   	if (this.status == 200) {
+									//   		var textStatus = JSON.parse(this.responseText);
+									//   		originalData = { 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') };
+									//   	} else {
+									//   		XhrError(NAAjax.XHR);
+									//   	}
+									//   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
+									//}
+									var valTrec = gridHeaderData[0]['totalreceived'];
+									valTrec = valTrec - 1;
+									valTrec = (valTrec < 0) ? 0 : valTrec;
+									//delete di localrow
+									var rowHeaderData = gridHeader.jqGrid('getLocaRow', '1');
+									rowHeaderData.totalreceived = valTrec
+									gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+									$("#" + rowId, gridTbl).hide();
 									win.document.body.style.cursor = 'default';
 								});
 							}
@@ -1775,7 +1837,7 @@
 		    var DummyData = [];
 		    for (var i = 0; i < intLength; i++) {
 		        //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate',isnew
-		        var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1' }
+		        var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1','isdeleted':'0' }
 		        DummyData.push(rowData);
 		    };
 		    return DummyData;
@@ -1896,6 +1958,13 @@
 
 
 		NA.Privilege.read_privilege('n_a_goods_receive');
+		btnAdd.classList.add('disabled');
+		btnOpen.classList.add('disabled');
+		btnEdit.classList.add('disabled');
+		if (NA.Privilege.Permissions.Allow_Add || NA.Privilege.Permissions.Allow_Delete || NA.Privilege.Permissions.Allow_Edit) {
+		} else {
+			btnSave.classList.add('disabled');
+		}
 	})();
 </script>
 {% endblock %}

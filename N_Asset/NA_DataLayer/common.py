@@ -632,9 +632,9 @@ class commonFunct:
         if isinstance(v, int):
             v = str(v)
         v = v.lower()
-        if v in ("yes", "true", "True","t", "1"):
+        if v in ("yes", "true","t", "1"):
             return True
-        elif v in ("no", "false","False","f", "0"):
+        elif v in ("no", "false","f", "0",""):
             return False
         else:
             raise ValueError("Please enter correct value")

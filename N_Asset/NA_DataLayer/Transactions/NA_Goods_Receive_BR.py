@@ -153,10 +153,10 @@ class NA_BR_Goods_Receive(models.Manager):
 		try:
 			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
 			#totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost
-			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
-			if Status == StatusForm.Input:
-				totalNew = totalNew + int(Data['totalreceived'])
-				totalReceived = totalReceived + int(Data['totalreceived'])
+			#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+			#if Status == StatusForm.Input:
+			#	totalNew = totalNew + int(Data['totalreceived'])
+			#	totalReceived = totalReceived + int(Data['totalreceived'])
 			with transaction.atomic():
 				#sum kan total Receive
 				#Query = """SELECT SUM(T
@@ -182,8 +182,9 @@ class NA_BR_Goods_Receive(models.Manager):
 						details = []
 						detail = []
 						for i in range(detCount):
-							dataDetail[i]['fkapp'] = FKApp
-							details.append(tuple(dataDetail[i].values()))
+							if dataDetail['isdeleted'] == '0':
+								dataDetail[i]['fkapp'] = FKApp
+								details.append(tuple(dataDetail[i].values()))
 							#details.append(Data['createdby'])
 						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Supplier Name', 'supplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]
 						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
@@ -205,9 +206,10 @@ class NA_BR_Goods_Receive(models.Manager):
 						Params.update(IDApp=Data['idapp'])
 						cur.execute(Query,Params)
 					if hasChangedDetail:
-						if detCount > 0:
-							for i in range(detCount):
-							#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
+						deletedCount = 0
+						for i in range(detCount):
+							if dataDetail[i]['isdeleted'] == '0' and dataDetail[i]['isnew'] == '0':
+								#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
 								Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_receive_detail WHERE IDApp = %(IDApp)s) "
 								cur.execute(Query,{'IDApp':dataDetail[i]['idapp']})
 								row = cur.fetchone()
@@ -224,30 +226,46 @@ class NA_BR_Goods_Receive(models.Manager):
 													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
 										cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
 														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['warranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
-								else:
-									Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
-											VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
-									cur.execute(Query,[Data['idapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],dataDetail[i]['modifiedby']])	
+							elif dataDetail[i]['isdeleted'] == '0' and dataDetail[i]['isnew'] == '1':
+								Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
+										VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
+								cur.execute(Query,[Data['idapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],dataDetail[i]['modifiedby']])	
+							elif dataDetail[i]['isdeleted'] == '1' and dataDetail[i]['isnew'] == '0':
+								if not commonFunct.str2bool(str(dataDetail[i]['HasRef'])):
+									Query = """DELETE FROM n_a_goods_receive_detail WHERE IDApp = %s"""
+									cur.execute(Query,[dataDetail[i]['idapp']]);
+									deletedCount += 1
+						if deletedCount > 0:
+							detCount = detCount - deletedCount;	
+							if detCount > 0 and detCount <= 10:
+								#build descriptions
+								for i in range(detCount):
+									desc +=dataDetail[i]['brandname'] + ', Type : ' +dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
+									if i <detCount -1:
+										desc += ', '							
+							desc += ')'
+							Query = """UPDATE n_a_goods_receive SET TotalReceived = %s,DescBySystem = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
+							cur.execute(Query,[detCount,desc,Data['createdby'],Data['idapp']])
 				#update NA_stock
 				Query = """SELECT EXISTS (SELECT IDApp FROM n_a_stock WHERE FK_goods = %(idapp_FK_goods)s)"""
 				cur.execute(Query,{'idapp_FK_goods':Data['idapp_fk_goods']})
 				row = cur.fetchone()
 				HasRows = commonFunct.str2bool(str(row[0]))
-				
+				#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost)
+				TStock = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+				TotalNew = TStock[0];totalReceived = TStock[1]
+				TotalSpare = TStock[6]
 				if HasRows:
-					TStock = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
-					TotalNew = TStock[0];totalReceived = TStock[1]
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
 					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
 					cur.execute(Query,Params)
-					cur.close()	
-					return 'success'
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
 								VALUES (%(FK_goods)s,%(T_Goods_Spare)s,0,%(TIsNew)s,0,0,%(TotalReceived)s,0,NOW(),%(CreatedBy)s)"""
-					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':totalNew,'TotalReceived':totalReceived, 'CreatedBy':Data['createdby']}
+					Params = {'FK_goods':Data['idapp_fk_goods'], 'T_Goods_Spare':TotalSpare,'TIsNew':TotalNew,'TotalReceived':totalReceived, 'CreatedBy':Data['createdby']}
 				cur.execute(Query,Params)
-				cur.close()
+			cur.close()
+			return 'success'
 		except Exception as e:
 			cur.close()
 			return repr(e)	

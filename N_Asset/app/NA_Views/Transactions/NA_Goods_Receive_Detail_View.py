@@ -59,7 +59,7 @@ def getData(request):
 			i = i+1
 			datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
 				'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'], \
-				'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef'])),'isnew':'0'}
+				'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef'])),'isnew':'0','isdeleted':'0'}
 			rows.append(datarow)					
 		dataForGridDetail = rows
 		NAData.update(dataForGridDetail=json.dumps(rows,cls=DjangoJSONEncoder))
