@@ -520,7 +520,10 @@ NA.common = {
         for (var x in obj) { if (obj.hasOwnProperty(x)) return false; }
         return true;
     },
-
+    
+    removeQuotes : function(str) {
+        return str.replace(/["]+/g, '')
+    },
     //=================calculate months with date ============================
     addMonths: function (date, months) {
         var result = new Date(date);
@@ -1206,7 +1209,7 @@ NA.common.dialog = {
 NA.common.message = {
     _confirmDelete: 'Are you sure you want to delete data ?!!.\nOperation can not be undone',
     _canNotDelete: 'Can not delete data\nData has child-referenced',
-    _canNotEdit: 'Can not edit data\nData has child-referenced',
+    _canNotEdit: 'Can not edit data\nData may has child-referenced',
     _clearData: 'Are you sure you want to clear datas/reset ?!!.\nOperation can not be undone',
     _savingSucces: 'Data saved succesfuly.',
     _dataHasChanged: 'Data has changed, \nSave data before closing form ?',

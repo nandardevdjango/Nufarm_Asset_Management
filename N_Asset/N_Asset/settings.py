@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'django_extensions'
 ]
 
 
@@ -63,7 +64,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'NA_Notifications.middleware.NotificationMiddleware'
+    #'NA_Notifications.middleware.NotificationMiddleware'
 ]
 
 SESSION_ENGINE = 'app.sessions'

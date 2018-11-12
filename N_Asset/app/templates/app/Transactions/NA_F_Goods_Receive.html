@@ -707,7 +707,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
               day = date.getDate().toString(),
               formatedDay = (day.length === 1) ? ("0" + day) : day;
             //hour = date.getHours().toString(),
-            //formatedHour = (hour.length === 1) ? ("0" + hour) : hour,
+            //formatedHour = (hour.length === 1) ? ("0" + hour) : hour,submit
             //minute = date.getMinutes().toString(),
             //formatedMinute = (minute.length === 1) ? ("0" + minute) : minute,
             //second = date.getSeconds().toString(),
@@ -724,7 +724,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //{"idapp":"","fkapp":"","no":2,"brandname":"DELL","priceperunit":"12000000.00","typeapp":"E5450","serialnumber":"00002","warranty":"1.70","endofwarranty":"2019-11-17T17:00:00.000Z","createddate":"2018-03-09T03:12:36.902Z","modifiedby":"","modifieddate":"","HasRef":false}]"
             //var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
             var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
-            var data = []
+            var data = [];
             var dataDetail = gridDetail.jqGrid('getGridParam', 'data');
             if (dataDetail) {
             	data = dataDetail;
@@ -743,7 +743,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             		for (var i = 0; i < data.length; i++) {
             			delete data[i]['idapp'];
             			delete data[i]['no'];
-            			delete data[i]['createddate']
+            			delete data[i]['createddate'];
             			delete data[i]['modifiedby'];
             			delete data[i]['modifieddate'];
             			delete data[i]['HasRef'];
@@ -921,7 +921,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //}
             for (var i = 0; i < intLength; i++) {
                 //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate',isnew
-            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }
+            	var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0','isdirty':'0' }
                 DummyData.push(rowData);
             };
             return DummyData;
@@ -1004,30 +1004,30 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             	}
             	serialnumber = serialnumber.toString().toUpperCase();
             	if (seriaNumbers.indexOf(serialnumber) > -1) {
-            		ShowAlert('you enter double serial number'); win.document.body.style.cursor = 'default'
+            		ShowAlert('you enter double serial number'); win.document.body.style.cursor = 'default';
             		return false;
             	}
             	seriaNumbers.push(serialnumber);
             	var priceperunit = row['priceperunit'];
             	if (typeof priceperunit == 'undefined') {
-            		priceperunit = 0
+            		priceperunit = 0;
             	}
             	else if (priceperunit.toString() === '') {
-            		priceperunit = 0
+            		priceperunit = 0;
             	}
             	else if (parseFloat(priceperunit) <= 0) {
-            		priceperunit = 0
+            		priceperunit = 0;
             	}
 
             	var warranty = row['warranty'];
             	if (typeof warranty == 'undefined') {
-            		warranty = 0
+            		warranty = 0;
             	}
             	else if (warranty.toString() === '') {
-            		warranty = 0
+            		warranty = 0;
             	}
             	else if (Math.round(warranty) <= 0) {
-            		warranty = 0
+            		warranty = 0;
             	}
 
             	var hasRef = row.HasRef.valueOf() == true || row.HasRef.valueOf() == 1 || row.HasRef.valueOf() === "true" || row.HasRef.valueOf() === "True";
@@ -1152,11 +1152,11 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		//cellsubmit: 'clientArray',
         		//editurl: 'clientArray',
         		datatype: "local",//column idapp, fkapp.no,'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew','isdeleted'],
+        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew','isdeleted','isdirty'],
         		colModel: [
 					{ name: 'idapp', hidden: true },
 					{ name: 'fkapp', hidden: true },
-					{ name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
+					{ name: 'no', key: true, width: 40, align: 'right', sortable: true, sorttype: "number", editable: false, },
 
 					//========================BRAND NAME ================================================================
 					{
@@ -1214,6 +1214,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					        required: false,
 					        integer: false,
 					    },
+					    sorttype: "number",
 					    autoResizing: { minColWidth: 140, },
 					    editoptions: {
 					    	class: (function () {
@@ -1474,8 +1475,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					{
 					    name: 'endofwarranty', width: 100, align: 'left','index':'endofwarranty',
 					    editable: AllowEdit,
+
 					    //datefmt: 'd/m/Y',
-					    //sorttype:'date',
+					    sorttype:'date',
 					    editoptions: {
 					    	class: (function () {
 					    		if (!AllowEdit) { return 'not-editable-cell'; }
@@ -1526,14 +1528,17 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 					    					NA.NAEvent.preventDefault(e); return false;
 					    				}
 					    				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					    				var currentRowId = $('#' + rowId)[0].rowIndex
-					    				var nextRow = parseInt(currentRowId) + 1;
+					    				//var currentRowId = $('#' + rowId)[0].rowIndex
+					    				//var nextRow = parseInt(currentRowId) + 1;
 
 					    				$('#' + currentRowId + '_endofwarranty').blur();
-					    				gridTbl.jqGrid("saveRow", currentRowId, {
+					    				var savedRowInfos = gridTbl.jqGrid("getRowData", rowId);
+					    				if (isDataChanged(savedRowInfos)) {
+					    					savedRowInfos[0].isdirty = '1';
+					    				}
+					    				gridTbl.jqGrid("saveRow", rowId, {
 					    					'url': 'clientArray',
-					    					'restoreAfterError': true,
-					    					'extraparam': { IsDirty: "True" }
+					    					'restoreAfterError': true
 					    				});
 					    				gridTbl.jqGrid('editRow', nextRow, {
 					    					keys: false,
@@ -1624,7 +1629,8 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         name: 'HasRef', hidden: true
                     },
 					{ name: 'isnew', hidden: true },
-        			{ name: 'isdeleted', hidden: true }
+        			{ name: 'isdeleted', hidden: true },
+					{ name : 'isdirty',hidden : true}
         		],
                 //cellEdit: (win.status === 'Add'),
                 pgbuttons: false,     // disable page control like next, back button
@@ -1763,10 +1769,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 //        }
                 //    }); // End keydown binding
                 //},
-                beforeSelectRow: function (id) {
-                	if (!AllowEdit) {
-                		return false;
-                	}
+                //beforeSelectRow: function (id) {
+                //	if (!AllowEdit) {
+                //		return false;
+                //	}
                     //    var rowData = gridTbl.getRowData(id);
                     //    var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
                     //    if (hasRef) {
@@ -1807,22 +1813,22 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                     //    gridTbl.jqGrid("setColProp", "warranty", { editable: true });
                     //    gridTbl.jqGrid("setColProp", "endofwarranty", { editable: true });
                 	//}
-                	var savedRowInfos = gridTbl.jqGrid("getGridParam", "savedRow"),
-					editingRowId = savedRowInfos == null || savedRowInfos.length < 1 ?
-						null : savedRowInfos[0].id;
+                //	var savedRowInfos = gridTbl.jqGrid("getGridParam", "savedRow"),
+				//	editingRowId = savedRowInfos == null || savedRowInfos.length < 1 ?
+				//		null : savedRowInfos[0].id;
 
-                	if (editingRowId != null && editingRowId !== id) {
-                		if (isDataChanged(savedRowInfos)) {
-                			gridTbl.jqGrid("saveRow", editingRowId, {
-                				'url': 'clientArray',
-                				'restoreAfterError': true,
-                				//'extraparam': { IsDirty: "True" }
-                			});
-                		}
-                	}
+                //	if (editingRowId != null && editingRowId !== id) {
+                //		if (isDataChanged(savedRowInfos)) {
+                //			gridTbl.jqGrid("saveRow", editingRowId, {
+                //				'url': 'clientArray',
+                //				'restoreAfterError': true,
+                //				//'extraparam': { IsDirty: "True" }
+                //			});
+                //		}
+                //	}
    
-                	return true; // allow selection
-                },
+                //	return true; // allow selection
+                //},
                 onSelectRow: function (id) {
                     //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
                 	if (AllowEdit) {
@@ -1865,13 +1871,14 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 										////and to change the value of the cell you can use
 
                 										//$td.find("input").val(dtStr);
-
+                										NewRowData.isdirty = '1';
                 										NewRowData.endofwarranty = LastRowData.endofwarranty;
                 										gridTbl.jqGrid('setRowData', id, NewRowData);
                 										gridTbl.jqGrid("saveRow", id, {
-                											'url': 'clientArray',
-                											'restoreAfterError': true
+                											url: 'clientArray',
+                											restoreAfterError: true
                 										});
+                										
                 										//push listtypeapps
                 										if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
                 											listTypeApp.push(NewRowData.typeapp);
@@ -1907,15 +1914,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 						        var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
                 						        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
                						    		//$('#' + curRowid + '_endofwarranty').val(dtStr);
-                						    	LastRowData.endofwarranty = NDate;
+                						        LastRowData.endofwarranty = NDate;
+                						        LastRowData.isdirty = '1';
                 						        gridTbl.jqGrid('setRowData', curRowid, LastRowData)
                 						        gridTbl.jqGrid("saveRow", curRowid, {
-                						            'url': 'clientArray',
-                						            'restoreAfterError': true,
-                						            'extraparam':null, 
-                						            aftersavefunc:null,
-                						            errorfunc:null,
-                						            afterrestorefunc:null
+                						            url: 'clientArray',
+                						            restoreAfterError: true,
                 						        });
                 						        if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
                 						            listTypeApp.push(LastRowData.typeapp);
@@ -2055,15 +2059,20 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         edit: false, add: false, del: false, search: false, refresh: false,
                     }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
                         caption: "  Reset ||  ", buttonicon: 'fa-undo', onClickButton: function () {
-                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            if (recCount > 0) {
+                        	var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+                        	if (totalReceived > 0) {
                                 showConfirmation(NA.common.message.clearData, NA.common.message.confirmInfo, function () {
-                                    gridTbl.jqGrid('clearGridData', false).jqGrid('setGridParam', {
-                                        data: setDetailGridData(),
-                                        //processing: true,
-                                        //loadonce: true,
-                                        datatype: 'local'
-                                    }).trigger("reloadGrid", [{ page: 1 }]).jqGrid('resetSelection');
+                                	gridTbl.jqGrid('clearGridData', false).jqGrid('setGridParam', {
+                                		data: setDetailGridData(),
+                                		//processing: true,
+                                		//loadonce: true,
+                                		datatype: 'local'
+                                	});
+                                	var trs = gridTbl.getDataIDs();
+                                	for (var i = 0; i < trs.length; i++) {
+                                		gridTbl.jqGrid('saveRow', i + 1, trs[i]);
+                                	};
+                                	gridTbl.trigger("reloadGrid", [{ page: 1 }]).jqGrid('resetSelection');
                                 }, null)
                             }
                         },
@@ -2082,8 +2091,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
                                 return false;
                             }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }]
-                            gridTbl.jqGrid('addRowData','no', rowData, 'last');
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' ,'isdirty':'0'}]
+                            gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
+                            //gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
+                            //	url: 'clientArray',
+                            //	restoreAfterError: true,
+                            //});
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
                             gridTbl.jqGrid('editCell',recCount + 1, 3, true);
@@ -2151,7 +2164,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 return false;
                             }
                             //{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1','isdeleted':'0' }]
+                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1','isdeleted':'0','isdirty':'0' }]
                             gridTbl.jqGrid('addRowData','no', rowData, 'last');
                             var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
                             gridTbl.setSelection(last_rowid, false);
@@ -2179,6 +2192,11 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                             	valTrec = (valTrec < 0) ? 0 : valTrec;
                             	eltreceived.value = valTrec;
                             	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+                            	gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
+                            	gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
+                            		url: 'clientArray',
+                            		restoreAfterError: true,
+                            	});
                             	$("#" + rowId, gridTbl).hide();
                             	eltreceived.setAttribute('readonly', 'true');
                             	// NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
@@ -2303,6 +2321,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                 //var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
                                 if (win.status === 'Edit') {
                                 	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+                                	gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
                                 	$("#" + rowId, gridTbl).hide();
                                 	//if (valTrec <= 0) {
                                 	//	if (win.status === 'Add') {
@@ -3250,7 +3269,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					            for (var i = 0; i < countAdd; i++) {
                         					            	reccount += 1;
                         					                //'idapp', 'fk_appp', 'no', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
-                        					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' }];
+                        					            	var rowData = [{ 'idapp': '', 'fkapp': '', 'no': reccount, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0','isdirty':'0' }];
                         					            	gridTbl.jqGrid('addRowData', 'no', rowData, "last");
                         					            };
                         					        }

@@ -318,6 +318,7 @@
     <Content Include="app\static\app\scripts\bootstrap-dialog.js" />
     <Content Include="app\static\app\scripts\easyloader.js" />
     <Content Include="app\static\app\scripts\grid.locale-en.js" />
+    <Content Include="app\static\app\scripts\jqGridversion3_8.js" />
     <Content Include="app\static\app\scripts\jquery-1.11.0.min.js" />
     <Content Include="app\static\app\scripts\jquery-1.11.1.js" />
     <Content Include="app\static\app\scripts\jquery-ui.js" />
@@ -358,6 +359,7 @@
     <Content Include="app\templates\app\MasterData\NA_F_Privilege.html" />
     <Content Include="app\templates\app\MasterData\NA_F_Supplier.html" />
     <Content Include="app\templates\app\MasterData\na_privilege_register.html" />
+    <Content Include="app\templates\app\NA_User\login.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
@@ -415,7 +417,6 @@
     <Content Include="app\templates\app\contact.html" />
     <Content Include="app\templates\app\index.html" />
     <Content Include="app\templates\app\layout.html" />
-    <Content Include="app\templates\app\login.html" />
     <Content Include="app\templates\app\loginpartial.html" />
   </ItemGroup>
   <ItemGroup>

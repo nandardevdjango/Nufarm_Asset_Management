@@ -7,4 +7,6 @@ urlpatterns = [
     url(r'^deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
     url(r'^getData/$',NA_Goods_Receive_Detail_View.getData),
 	url(r'^HasExistSN/$',NA_Goods_Receive_View.ExistSerialNO),
+	url(r'^saveData/$',NA_Goods_Receive_Detail_View.saveData),
+	url(r'^Delete/$',NA_Goods_Receive_View.Delete),
 	]

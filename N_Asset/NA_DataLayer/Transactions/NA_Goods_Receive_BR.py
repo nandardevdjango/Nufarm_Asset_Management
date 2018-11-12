@@ -208,6 +208,13 @@ class NA_BR_Goods_Receive(models.Manager):
 					if hasChangedDetail:
 						deletedCount = 0
 						for i in range(detCount):
+							brandname = dataDetail[i]['brandname']
+							if not brandname or brandname == '':
+								continue
+							if 'isdirty' in dataDetail[i]:
+								isdirty = dataDetail[i]['isdirty']
+								if isdirty == '0' or isdirty == '':
+									continue
 							if dataDetail[i]['isdeleted'] == '0' and dataDetail[i]['isnew'] == '0':
 								#check apakah data sudah ada untuk memastikan, jika memang ada update data,terlebih dulu check reference data
 								Query = "SELECT EXISTS(SELECT IDApp FROM n_a_goods_receive_detail WHERE IDApp = %(IDApp)s) "
@@ -237,13 +244,18 @@ class NA_BR_Goods_Receive(models.Manager):
 									deletedCount += 1
 						if deletedCount > 0:
 							detCount = detCount - deletedCount;	
+							desc = '('
 							if detCount > 0 and detCount <= 10:
 								#build descriptions
 								for i in range(detCount):
 									desc +=dataDetail[i]['brandname'] + ', Type : ' +dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
 									if i <detCount -1:
 										desc += ', '							
-							desc += ')'
+								desc += ')'
+							elif detCount > 10:
+								desc = 'Detail data can be viewed in child grid';
+							else:
+								desc = 'No detail data'
 							Query = """UPDATE n_a_goods_receive SET TotalReceived = %s,DescBySystem = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
 							cur.execute(Query,[detCount,desc,Data['createdby'],Data['idapp']])
 				#update NA_stock
@@ -257,7 +269,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				TotalSpare = TStock[6]
 				if HasRows:
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
-					Params = [totalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
+					Params = [TotalNew,totalReceived,Data['createdby'],Data['idapp_fk_goods']]
 					cur.execute(Query,Params)
 				else:
 					Query = """INSERT INTO n_a_stock (FK_Goods, T_Goods_Spare, TIsUsed, TIsNew, TIsRenew, TGoods_Return, TGoods_Received, TMaintenance, CreatedDate, CreatedBy) \
