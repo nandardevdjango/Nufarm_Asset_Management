@@ -17,15 +17,16 @@
         var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
 	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
         var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
-        if (!NA.common.getElementID('CustomSearch')) {
-            var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
-            lastLi = NA.common.doc.createElement('li'),
-			lastLi_a = NA.common.doc.createElement('a');
-            lastLi_a.setAttribute('id', 'custSearch');
-            lastLi_a.textContent = 'CustomSearch';
-            lastLi.appendChild(lastLi_a);
-            parentC.appendChild(lastLi);
-        }
+        //================local custom search doesn't support custom search ================
+        //if (!NA.common.getElementID('CustomSearch')) {
+        //    var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+        //    lastLi = NA.common.doc.createElement('li'),
+		//	lastLi_a = NA.common.doc.createElement('a');
+        //    lastLi_a.setAttribute('id', 'custSearch');
+        //    lastLi_a.textContent = 'CustomSearch';
+        //    lastLi.appendChild(lastLi_a);
+        //    parentC.appendChild(lastLi);
+        //}
 
         //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
@@ -56,42 +57,46 @@
             var numPlaceHolder = 'enter numeric type';
             Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
                 NA.NAEvent.addHandler(item, 'click', function (event) {
-                    event.preventDefault();
-                    if (item.firstChild.id === 'custSearch') {
-                        //=========='show dialog search'==================
-                        NA.common.dialog.createSearchDialog(event)
-                        txtSearchMaster.setAttribute('disabled', true);
-                        txtSearchMaster.setAttribute('placeholder', '');
-                        btnSearchMaster.setAttribute('disabled', true)
-                    }
-                    else {
-                        txtSearchMaster.removeAttribute('disabled');
-                        btnSearchMaster.removeAttribute('disabled');
-                        var textSearch = NA.common.getElementID('bySearch');
-                        textSearch.firstChild.nodeValue = item.textContent;
-                        var elSearch = item.firstChild;
-                        switch (elSearch.dataset.tipe) {
-                            case "varchar":
-                            case "nchar":
-                            case "char":
-                            case "nvarchar": {
-                                txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
-                                break;
-                            }
-                            case "int":
-                            case "integer":
-                            case "decimal":
-                            case "floatt":
-                            case "bigint": {
-                                txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
-                                break;
-                            }
-                            case "datetime": {
-                                txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
-                                break;
-                            }
+
+                    //==========local data doesn't support custom filter====================
+                    //if (item.firstChild.id === 'custSearch') {
+                    //    //=========='show dialog search'==================
+                    //    //NA.common.dialog.createSearchDialog(event)
+                    //    //txtSearchMaster.setAttribute('disabled', true);
+                    //    //txtSearchMaster.setAttribute('placeholder', '');
+                    //    //btnSearchMaster.setAttribute('disabled', true)
+                     
+                    //}
+                    //else {
+                      
+                    //}
+                    txtSearchMaster.removeAttribute('disabled');
+                    btnSearchMaster.removeAttribute('disabled');
+                    var textSearch = NA.common.getElementID('bySearch');
+                    textSearch.firstChild.nodeValue = item.textContent;
+                    var elSearch = item.firstChild;
+                    switch (elSearch.dataset.tipe) {
+                        case "varchar":
+                        case "nchar":
+                        case "char":
+                        case "nvarchar": {
+                            txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+                            break;
+                        }
+                        case "int":
+                        case "integer":
+                        case "decimal":
+                        case "floatt":
+                        case "bigint": {
+                            txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+                            break;
+                        }
+                        case "datetime": {
+                            txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+                            break;
                         }
                     }
+                    event.preventDefault();
                     //event.stopImmediatePropagation();
                 });
             });
@@ -346,6 +351,7 @@
 
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
 		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), btnFindRefno = NA.common.getElementID('FE_Ref_No'),
+	    filterToolbar = NA.common.qs('div#bs-example-navbar-collapse-1 > div.col-sm-8.col-md-4:nth-child(2)'),
         errorRefNo = NA.common.getElementID('errorRefNo'), NAAjax = NA.common.AJAX;
 		//win.gridSelection = function () {
 		//	var xSelection = 'header';
@@ -1953,6 +1959,9 @@
 										restoreAfterError: true,
 									});
 									$("#" + rowId, gridTbl).hide();
+									if (valTrec <= 0) {
+									    filterToolbar.classList.add('disabled');
+									} else { filterToolbar.classList.remove('disabled'); }
 									win.document.body.style.cursor = 'default';
 								});
 							}
@@ -2054,65 +2063,70 @@
 					try {
 						var data = JSON.parse(this.responseText);
 						if (data) {
-							if (this.status >= 500) {
-								closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
-							}
-							var dataRowHeader = [];
-							//'idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
-							//'Received By', 'idapp_fk_p_r_by','fk_p_r_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'
-							dataRowHeader.push({
-								'idapp': data['idapp'], 'idapp_fk_goods': data['idapp_fk_goods'], 'refno': data['refno'], 'fk_goods': data['fk_goods'], 'goods_desc': data['goods_desc'],
-								'economiclife': data['economiclife'], 'datereceived': data['datereceived'], 'fk_supplier': data['fk_supplier'], 'suppliername': data['suppliername'],
-								'idapp_fk_receivedby': data['idapp_fk_receivedby'], 'fk_receivedby': data['fk_receivedby'], 'employee_received': data['employee_received'],
-								'idapp_fk_p_r_by': data['idapp_fk_p_r_by'], 'fk_p_r_by': data['fk_p_r_by'],
-								'employee_pr': data['employee_pr'], 'totalpurchase': data['totalpurchase'], 'totalreceived': data['totalreceived'], 'descriptions': data['descriptions']
-							});
-							BindGridHeader(dataRowHeader);
-							//bind grid
-							var dataDetail = JSON.parse(data['dataForGridDetail']);
-							var totalReceived = parseInt(data['totalreceived']);
-							BindGrid(1, dataDetail, totalReceived);
+						    if (this.status >= 500) {
+						        closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
+						    }
+						    var dataRowHeader = [];
+						    //'idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
+						    //'Received By', 'idapp_fk_p_r_by','fk_p_r_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'
+						    dataRowHeader.push({
+						        'idapp': data['idapp'], 'idapp_fk_goods': data['idapp_fk_goods'], 'refno': data['refno'], 'fk_goods': data['fk_goods'], 'goods_desc': data['goods_desc'],
+						        'economiclife': data['economiclife'], 'datereceived': data['datereceived'], 'fk_supplier': data['fk_supplier'], 'suppliername': data['suppliername'],
+						        'idapp_fk_receivedby': data['idapp_fk_receivedby'], 'fk_receivedby': data['fk_receivedby'], 'employee_received': data['employee_received'],
+						        'idapp_fk_p_r_by': data['idapp_fk_p_r_by'], 'fk_p_r_by': data['fk_p_r_by'],
+						        'employee_pr': data['employee_pr'], 'totalpurchase': data['totalpurchase'], 'totalreceived': data['totalreceived'], 'descriptions': data['descriptions']
+						    });
+						    BindGridHeader(dataRowHeader);
+						    //bind grid
+						    var dataDetail = JSON.parse(data['dataForGridDetail']);
+						    var totalReceived = parseInt(data['totalreceived']);
+						    BindGrid(1, dataDetail, totalReceived);
 
-							//set original data
-							var initFrm = NA.common.getElementID('initFrm');
-							if (!initFrm) {
-								initFrm = NA.common.doc.createElement('input');
-								initFrm.type = 'hidden';
-								initFrm.id = 'initFrm';
-							}
-							initFrm.value = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
-							originalData = initFrm.value;
-							NA.common.getElementID('mainContainer_Detail').appendChild(initFrm);
-							//closeLoading(); win.document.body.style.cursor = 'default';
-							//NA.common.getElementID('initializeForm').value = originalData;
+						    //set original data
+						    var initFrm = NA.common.getElementID('initFrm');
+						    if (!initFrm) {
+						        initFrm = NA.common.doc.createElement('input');
+						        initFrm.type = 'hidden';
+						        initFrm.id = 'initFrm';
+						    }
+						    initFrm.value = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
+						    originalData = initFrm.value;
+						    NA.common.getElementID('mainContainer_Detail').appendChild(initFrm);
+						    //check filter
 
-							var allowSave = (NA.Privilege.Permissions.Allow_Add || NA.Privilege.Permissions.Allow_Delete === true || NA.Privilege.Permissions.Allow_Edit === true);
-							if (allowSave) {
-								btnSave.classList.remove('disabled');
-							}
-							else {
-								btnSave.classList.add('disabled');
-							}
-							var allowDelete = NA.Privilege.Permissions.Allow_Delete;
-							if (allowDelete) {
-								btnDelete.classList.remove('disabled');
-							}
-							else {
-								btnDelete.classList.add('disabled');
-							}
-							//check adat
-							if (dataDetail.length > 0) {
-								btnExport.classList.add('disabled');
-								btnPrint.classList.add('disabled');
-							}
-							else {
-								btnExport.classList.remove('disabled');
-								btnPrint.classList.remove('disabled');
-							}
-
+						    var allowSave = (NA.Privilege.Permissions.Allow_Add || NA.Privilege.Permissions.Allow_Delete === true || NA.Privilege.Permissions.Allow_Edit === true);
+						    if (allowSave) {
+						        btnSave.classList.remove('disabled');
+						    }
+						    else {
+						        btnSave.classList.add('disabled');
+						    }
+						    var allowDelete = NA.Privilege.Permissions.Allow_Delete;
+						    if (allowDelete) {
+						        btnDelete.classList.remove('disabled');
+						    }
+						    else {
+						        btnDelete.classList.add('disabled');
+						    }
+						    //check data
+						   
+						    if (dataDetail.length <= 0) {
+						        btnExport.classList.add('disabled');
+						        btnPrint.classList.add('disabled');
+						        filterToolbar.classList.add('disabled');
+						    }
+						    else {
+						        btnExport.classList.remove('disabled');
+						        btnPrint.classList.remove('disabled');
+						        var filterValue = txtSearchMaster.value.trim();
+						        if (filterValue.length > 0) {
+						            btnSearchMaster.click();
+						        }
+						        filterToolbar.classList.remove('disablaled');
+						    }
 						}
 						else {
-							closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500);
+						    closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500);
 						}
 					} catch (e) {
 						if (e.message !== '') { ShowAlert(e.message); }
@@ -2135,7 +2149,7 @@
 						});
 						var totalReceived = $('tr#' + trs[0] + '>td[aria-describedby*="totalreceived"]')[0].title;
 						//$elmTReceived. data-title="Enter Reference number to show data to edit to"
-						$elmTReceived.data('title', 'Enter Reference number to show data to edit to');
+						$elmTReceived.data('title', 'double click here to edit and type and press enter key');
 						var totalPurchase = $('tr#' + trs[0] + '>td[aria-describedby*="totalpurchase"]')[0].title;
 						if (parseFloat(totalPurchase) > parseFloat(totalReceived)) {
 							$elmTReceived.tooltip('show');
@@ -2175,246 +2189,228 @@
 		function handlerSearchInput(event) {
 			event = NA.NAEvent.getEvent(event);
 			if (event.keyCode === 13 || event.target == btnSearchMaster) {
-				NA.NAEvent.preventDefault(event);
-				SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
-				var searchFiler = '', elDataType = 'varhar',criteria = 'cn';
-				if (SearchBy.trim() == 'By') {
-					var elSearch = null;
-					var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
-					var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-					if (textToSearch === "CustomSearch") {
-						ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
-					}
-					Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-						if (item.firstChild.textContent === textToSearch) {
-							elSearch = item.firstChild;
-						}
-					});
-					if (!elSearch) { elSearch = listElem[0].firstChild; }
-					var searchFiler = txtSearchMaster.value.trim(), f;
-					if (searchFiler.length === 0) {
-						gridTbl[0].p.search = false;
-						$.extend(gridTbl[0].p.postData, { filters: "" });
-					}
-					else {
-						f = { groupOp: '', rules: [] };
-						//f.rules.push({ field: "name", op: "cn", data: searchFiler });
-						elDataType = elSearch.dataset.tipe;
-						switch (elDataType) {
-							case "bigint":
-							case "integer":
-							case "int":
-							case "money":
-							case "float":
-							case "decimal":
-							case "boolean":
-							case "datetime": {
-								if (valueKey.toString().indexOf(',') > -1) {
-									criteria = 'in'
-								} else {
-									criteria = 'eq';
-								}
-								break;
-							}
-						};
-						f.rules.push({ field: elSearch.textContent.toLowerCase(), op: criteria, data: searchFiler });
-						gridTbl[0].p.search = true;
-						$.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
-					}
-					gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
-				}
-				else {
-					//submit search
-					submitSearch(event);
-				}
-				NA.NAEvent.stopPropagation(event);
+			    NA.NAEvent.preventDefault(event);
+			    SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
+			    var elSearch = null;
+			    var valueKey = txtSearchMaster.value.trim(), f;
+			    if (SearchBy.trim() == 'By') {
+			        elSearch = listElem[0].firstChild;
+			    }
+			    else {
+			        var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
+			        var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+			        Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+			            if (item.firstChild.textContent === textToSearch) {
+			                elSearch = item.firstChild;
+			                return;
+			            }
+			        });
+			    }
+			    if (!elSearch) { elSearch = listElem[0].firstChild; }
+			    if (valueKey.length === 0) {
+			        gridTbl[0].p.search = false;
+			        $.extend(gridTbl[0].p.postData, { filters: "" });
+			    }
+			    else {
+			        f = { groupOp: '', rules: [] };
+			        f.rules.push({ field: elSearch.dataset.column, op: 'cn', data: valueKey });
+			        gridTbl[0].p.search = true;
+			        $.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
+			    }
+			    gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
+			    NA.NAEvent.stopPropagation(event);
 			}
 			window.document.body.style.cursor = '';
 		};
-		function submitSearch(event) {
-			window.document.body.style.cursor = 'wait';
-			if (event)
-				NA.NAEvent.preventDefault(event);
-			var elementOption = null, columnKey = '', valueKey = '',
-            elCriteria = null,f = ''//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
-            valCriteria = 'cn',//elCriteria.nodeValue;
-            elDataType = '';//elementOption.dataset.dataType;
-			//criteria = 'like'
-			//get  ajax with querystring search
-			//valueKey : valueKey,
-			//columnKey :columnKey,
-			//dataType : dataType,
-			//criteria : criteria,
-            if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1' || event.target.parentNode.id === 'fbox_jqGrid_search') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
-				elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
-				columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
-				elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
-				valCriteria = elCriteria.value;
-				elDataType = elementOption.dataset.tipe;
-				switch (valCriteria) {
-					case "eq": { break; }
-					case "ne": { break; }
-					case "bw": { break; }
-					case "ew": { break; }
-					case "cn": { break; }
-					case "in": { break; }
-					case "ni": { break; }
-					case "gt": {
-						var expr = /char/;  // no quotes here
-						if (expr.test(elDataType)) {
-							ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "(expr for only numeric or date data)");
-							win.document.body.style.cursor = 'default';
-							return false;
-						}
-						break;
-					}
-					case "le": {
-						var expr = /char/;  // no quotes here
-						if (expr.test(elDataType)) {
-							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
-							win.document.body.style.cursor = 'default'; return false;
-						}
-						break;
-					}
-					case "leq": {
-						var expr = /char/;  // no quotes here
-						if (expr.test(elDataType)) {
-							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
-							win.document.body.style.cursor = 'default'; return false;
-						}
-						break;
-					}
-					case "gtq": {
-						var expr = /char/;  // no quotes here
-						if (expr.test(elDataType)) {
-							ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
-							win.document.body.style.cursor = 'default'; return false;
-						}
-						break;
-					}
-					case "blg": {
-						var expr = /char/;  // no quotes here
-						if (expr.test(elDataType)) {
-							ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "expr for only numeric or date data");
-							win.document.body.style.cursor = 'default'; return false;
-						}
-						break;
-					}
-				};
-			}
-			else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
-				SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
-				valueKey = txtSearchMaster.value.trim();
-					var elSearch = null;
-					var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
-					var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-					if (textToSearch === "CustomSearch") {
-						ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
-					}
-					Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-						if (item.firstChild.textContent === textToSearch) {
-							elSearch = item.firstChild;
-						}
-					});
+		//function submitSearch(event) {
+		//	window.document.body.style.cursor = 'wait';
+		//	if (event)
+		//		NA.NAEvent.preventDefault(event);
+		//	var elementOption = null, columnKey = '', valueKey = '',
+        //    elCriteria = null,f = ''//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
+        //    valCriteria = 'cn',//elCriteria.nodeValue;
+        //    elDataType = '';//elementOption.dataset.dataType;
+		//	//criteria = 'like'
+		//	//get  ajax with querystring search
+		//	//valueKey : valueKey,
+		//	//columnKey :columnKey,
+		//	//dataType : dataType,
+		//	//criteria : criteria,
+        //    if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1' || event.target.parentNode.id === 'fbox_jqGrid_search') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
+		//		elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
+		//		columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
+		//		elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
+		//		valCriteria = elCriteria.value;
+		//		elDataType = elementOption.dataset.tipe;
+		//		switch (valCriteria) {
+		//			case "eq": { break; }
+		//			case "ne": { break; }
+		//			case "bw": { break; }
+		//			case "ew": { break; }
+		//			case "cn": { break; }
+		//			case "in": { break; }
+		//			case "ni": { break; }
+		//			case "gt": {
+		//				var expr = /char/;  // no quotes here
+		//				if (expr.test(elDataType)) {
+		//					ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "(expr for only numeric or date data)");
+		//					win.document.body.style.cursor = 'default';
+		//					return false;
+		//				}
+		//				break;
+		//			}
+		//			case "le": {
+		//				var expr = /char/;  // no quotes here
+		//				if (expr.test(elDataType)) {
+		//					ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+		//					win.document.body.style.cursor = 'default'; return false;
+		//				}
+		//				break;
+		//			}
+		//			case "leq": {
+		//				var expr = /char/;  // no quotes here
+		//				if (expr.test(elDataType)) {
+		//					ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+		//					win.document.body.style.cursor = 'default'; return false;
+		//				}
+		//				break;
+		//			}
+		//			case "gtq": {
+		//				var expr = /char/;  // no quotes here
+		//				if (expr.test(elDataType)) {
+		//					ShowAlert(NA.common.message.unsupportedCriteria, "expr for only numeric or date data");
+		//					win.document.body.style.cursor = 'default'; return false;
+		//				}
+		//				break;
+		//			}
+		//			case "blg": {
+		//				var expr = /char/;  // no quotes here
+		//				if (expr.test(elDataType)) {
+		//					ShowAlert(NA.common.message.unsupportedCriteria, NA.common.message.titleInfo + "expr for only numeric or date data");
+		//					win.document.body.style.cursor = 'default'; return false;
+		//				}
+		//				break;
+		//			}
+		//		};
+		//	}
+		//	else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
+		//		SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
+		//		valueKey = txtSearchMaster.value.trim();
+		//			var elSearch = null;
+		//			var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
+		//			var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+		//			if (textToSearch === "CustomSearch") {
+		//				ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
+		//			}
+		//			Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+		//			    if (item.firstChild.textContent === textToSearch) {
+		//			        elSearch = item.firstChild;
+		//			        return;
+		//			    }
+		//			});
 
-					if (!elSearch) { elSearch = listElem[0].firstChild; columnKey = elSearch.textContent.toLowerCase(); }
-					else {
-						columnKey = elSearch.dataset.column
-						elDataType = elSearch.dataset.tipe;
-						switch (elDataType) {
-							case "bigint":
-							case "integer":
-							case "int":
-							case "money":
-							case "float":
-							case "decimal":
-							case "boolean":
-							case "datetime": {
-								if (valueKey.toString().indexOf(',') > -1) {
-									valCriteria = 'in'
-								} else {
-									valCriteria = 'eq';
-								}
-								break;
-							}
-						};
-					}
+		//			if (!elSearch) { elSearch = listElem[0].firstChild; columnKey = elSearch.textContent.toLowerCase(); }
+		//			else {
+		//				columnKey = elSearch.dataset.column
+		//				elDataType = elSearch.dataset.tipe;
+        //                //==============jqgrid tidak bisa membedakan datatype semua filter typenya string =============
+		//				//switch (elDataType) {
+		//				//    case "bigint":
+		//				//    case "integer":
+		//				//    case "int":
+		//				//        {   valueKey = parseInt(valueKey);}
+		//				//	case "money":
+		//				//	case "float":
+		//				//    case "decimal":
+		//				//        { valueKey = parseFloat(valueKey);}
+		//				//	case "boolean":
+		//				//	case "datetime": {
+		//				//		if (valueKey.toString().indexOf(',') > -1) {
+		//				//			valCriteria = 'in'
+		//				//		} else {
+		//				//			valCriteria = 'eq';
+		//				//		}
+		//				//		break;
+		//				//	}
+		//				//};
+		//			}
 
-			}
-			if (valueKey.length === 0) {
-				gridTbl[0].p.search = false;
-				$.extend(gridTbl[0].p.postData, { filters: "" });
-			}
-			else {
-				f = { groupOp: '', rules: [] };
-				//f.rules.push({ field: "name", op: "cn", data: valueKey });
-				f.rules.push({ field: columnKey, op: valCriteria, data: valueKey });
-				gridTbl[0].p.search = true;
-				$.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
-			}
-			gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
-			//SearchData.setValue(valueKey);
-			//SearchData.setColumnName(columnKey);
-			//SearchData.setDataType(elDataType)
-			//SearchData.setCriteria(criteria);
-			//win.document.body.style.cursor = 'wait';
-			//LoadData(1);
-			//win.document.body.style.cursor = 'default';
-			//grid.setGridParam.trigger("reloadGrid",[{page:1}]);//karena searching harus di set ke page 1
-		};
+		//	}
+		//	if (valueKey.length === 0) {
+		//		gridTbl[0].p.search = false;
+		//		$.extend(gridTbl[0].p.postData, { filters: "" });
+		//	}
+		//	else {
+		//		f = { groupOp: '', rules: [] };
+		//		//f.rules.push({ field: "name", op: "cn", data: valueKey });
+		//		f.rules.push({ field: columnKey, op: valCriteria, data: valueKey });
+		//		gridTbl[0].p.search = true;
+		//		gridTbl[0].p.searchrules = { integer: true };
+		//		$.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
+		//	}
+		//	gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
+		//	//SearchData.setValue(valueKey);
+		//	//SearchData.setColumnName(columnKey);
+		//	//SearchData.setDataType(elDataType)
+		//	//SearchData.setCriteria(criteria);
+		//	//win.document.body.style.cursor = 'wait';
+		//	//LoadData(1);
+		//	//win.document.body.style.cursor = 'default';
+		//	//grid.setGridParam.trigger("reloadGrid",[{page:1}]);//karena searching harus di set ke page 1
+		//};
 
 		//function untuk Reset
-		function submitReset(event) {
-			window.document.body.style.cursor = 'wait';
+		//function submitReset(event) {
+		//	window.document.body.style.cursor = 'wait';
 
-			gridTbl[0].p.search = false;
-			$.extend(gridTbl[0].p.postData, { filters: "" });
-			//var f;
-			//f = { groupOp: 'OR', rules: [] };
-			//f.rules.push({ field: "name", op: "cn", data: searchFiler });
-			//f.rules.push({ field: elSearch, op: 'cn', data: '' });
-			//gridTbl[0].p.search = true;
-			//$.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
-			gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
-			win.document.body.style.cursor = 'default';
-		};
-		window.showDialogCustomSearch = function (event) {
-			$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
-				if (statusTxt == "success") {
-					$(this).html(responseTxt);
-					var dialog = NA.common.doc.querySelector('div.containerDialog');
-					NA.common.getElementID('searchmodfbox').style.display = 'block';
-					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
-                    txtSearchCustom = NA.common.getElementID('jqg1');
-					NA.NAEvent.addHandler(btnClose, 'click', function (event) {
-						closeDialog();
-					});
-					var btnFind = NA.common.getElementID('fbox_jqGrid_search');
-					NA.NAEvent.addHandler(btnFind, 'click', function (event) {
-						submitSearch(event);
-						if (event) {
-							NA.NAEvent.stopPropagation(event);
-						}
-					});
-					var btnReset = NA.common.getElementID('fbox_jqGrid_reset');
-					NA.NAEvent.addHandler(btnReset, 'click', function (event) {
-						submitReset(event);
-						if (event) {
-							NA.NAEvent.stopPropagation(event);
-						}
-					});
-					NA.NAEvent.addHandler(txtSearchCustom, 'keydown', function (event) {
-						event = NA.NAEvent.getEvent(event);
-						if (event.keyCode === 13) {
-							submitSearch(event);
-						}
-						if (event) {
-							NA.NAEvent.stopPropagation(event);
-						}
-					});
-				}
-			});
-		};
+		//	gridTbl[0].p.search = false;
+		//	$.extend(gridTbl[0].p.postData, { filters: "" });
+		//	//var f;
+		//	//f = { groupOp: 'OR', rules: [] };
+		//	//f.rules.push({ field: "name", op: "cn", data: searchFiler });
+		//	//f.rules.push({ field: elSearch, op: 'cn', data: '' });
+		//	//gridTbl[0].p.search = true;
+		//	//$.extend(gridTbl[0].p.postData, { filters: JSON.stringify(f) });
+		//	gridTbl.trigger("reloadGrid", [{ page: 1, current: true }]);
+		//	win.document.body.style.cursor = 'default';
+		//};
+		//window.showDialogCustomSearch = function (event) {
+		//	$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
+		//		if (statusTxt == "success") {
+		//			$(this).html(responseTxt);
+		//			var dialog = NA.common.doc.querySelector('div.containerDialog');
+		//			NA.common.getElementID('searchmodfbox').style.display = 'block';
+		//			var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
+        //            txtSearchCustom = NA.common.getElementID('jqg1');
+		//			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
+		//				closeDialog();
+		//			});
+		//			var btnFind = NA.common.getElementID('fbox_jqGrid_search');
+		//			NA.NAEvent.addHandler(btnFind, 'click', function (event) {
+		//				submitSearch(event);
+		//				if (event) {
+		//					NA.NAEvent.stopPropagation(event);
+		//				}
+		//			});
+		//			var btnReset = NA.common.getElementID('fbox_jqGrid_reset');
+		//			NA.NAEvent.addHandler(btnReset, 'click', function (event) {
+		//				submitReset(event);
+		//				if (event) {
+		//					NA.NAEvent.stopPropagation(event);
+		//				}
+		//			});
+		//			NA.NAEvent.addHandler(txtSearchCustom, 'keydown', function (event) {
+		//				event = NA.NAEvent.getEvent(event);
+		//				if (event.keyCode === 13) {
+		//					submitSearch(event);
+		//				}
+		//				if (event) {
+		//					NA.NAEvent.stopPropagation(event);
+		//				}
+		//			});
+		//		}
+		//	});
+		//};
 	
 		//=======================handler txt & button Search master keyboard event and click================================        
 		NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
@@ -2435,7 +2431,6 @@
 						hasChangedDetail = true;
 					}
 				};
-
 				var validData = ValidateGridDetail(gridTbl);
 				if (!validData) { return false; }
 				//save data to server
@@ -2539,6 +2534,7 @@
 										btnDelete.classList.add('disabled');
 										btnExport.classList.add('disabled');
 										btnPrint.classList.add('disabled');
+										filterToolbar.classList.add('disabled');
 										var initFrm = NA.common.getElementID('initFrm');
 										initFrm.value = JSON.stringify({});
 										originalData = initFrm.value;
@@ -2575,6 +2571,9 @@
 						url: 'clientArray',
 						restoreAfterError: true,
 					});
+					if (valTrec <= 0) {
+					    filterToolbar.classList.add('disabled');
+					} else { filterToolbar.classList.remove('disabled'); }
 					$("#" + rowDetailID, gridTbl).hide();
 				});
 			}
