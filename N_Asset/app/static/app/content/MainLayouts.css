@@ -362,6 +362,10 @@ div.col-sm-5.col-md-4 > ul > li.dropdown {
     width: 50px;
     display: inline-block;
 }
+div.disabled{
+    pointer-events:none; /*This makes it not clickable*/
+    opacity:0.6;         /*This grays it out to look disabled*/
+}
 /*.nav > li > a.dropdown-toggle,input.form-control,.btn-btn-default{
 
 }*/
