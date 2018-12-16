@@ -260,3 +260,4 @@ N_Asset/N_Asset/local_settings.py
 .editorConfig
 .vscode
 N_Asset/.idea
+/N_Asset/app/static/app/scripts/jqGridversion3_8.js

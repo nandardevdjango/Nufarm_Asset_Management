@@ -626,13 +626,27 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                                         if (recCount > 0) {
                                         	hasChangedDetail = HasChangedDetail();
                                         }
+                                        if (!hasChangedDetail) {
+                                        	var rowId = gridDetail.jqGrid('getGridParam', 'selrow');
+                                        	if (rowId) {
+                                        		gridDetail.jqGrid("saveRow", rowId, {
+                                        			url: 'clientArray',
+                                        			restoreAfterError: true,
+                                        			//'extraparam': { IsDirty: "True" }
+                                        		});
+                                        		var curRow = gridDetail.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
+                                        		if (isDataChanged(curRows)) {       
+                                        			hasChangedDetail = true;
+                                        		}
+                                        	}
+                                        }                                        
                                     }
                                     else if (recCount > 0) {
-                                    	changedDetail = (parseInt(recCount) > 0);
+                                    	hasChangedDetail = (parseInt(recCount) > 0);
                                     }
                                 }
                                 valuesForm['hasChangedDetail'] = hasChangedDetail;
-                                if (hasChangedHeader || changedDetail) {
+                                if (hasChangedHeader || hasChangedDetail) {
                                     submitForm(valuesForm);
                                    }
                                 else {
@@ -662,6 +676,20 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         	if (typeof oriDataDetail !== 'undefined' && oriDataDetail != '') {
                         		if (recCount > 0) {
                         			hasChangedDetail = HasChangedDetail();
+                        		}
+                        		if (!hasChangedDetail) {
+                        			var rowId = gridDetail.jqGrid('getGridParam', 'selrow');
+                        			if (rowId) {
+                        				gridDetail.jqGrid("saveRow", rowId, {
+                        					url: 'clientArray',
+                        					restoreAfterError: true,
+                        					//'extraparam': { IsDirty: "True" }
+                        				});
+                        				var curRow = gridDetail.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
+                        				if (isDataChanged(curRows)) {
+                        					hasChangedDetail = true;
+                        				}
+                        			}
                         		}
                         	}
                         	else if (recCount > 0) {
@@ -1136,27 +1164,27 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         };
 
         function CreateGridDetail() {
-            var AllowEdit = false, AllowDelete = false;
-            
+        	var AllowEdit = false, AllowDelete = false;
+
         	switch (win.status) {
         		case 'Add': {
         			AllowEdit = NA.Privilege.Permissions.Allow_Add;
-        		    AllowDelete = true;
+        			AllowDelete = true;
         			break;
         		}
         		case 'Edit': {
-        		    AllowEdit = NA.Privilege.Permissions.Allow_Edit;
-        		    AllowDelete = NA.Privilege.Permissions.Allow_Delete;
+        			AllowEdit = NA.Privilege.Permissions.Allow_Edit;
+        			AllowDelete = NA.Privilege.Permissions.Allow_Delete;
         		}
         	};
         	//get privilege apakah allow edit/insert
-        	
+
         	var lastsel
         	var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
         	var gridPager = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager');
         	var txtdescriptions = NA.common.doc.querySelector('#id_descriptions');
         	var widthTable = win.getComputedStyle(txtdescriptions).width;
-        	gridTbl.css({ 'overflow': 'auto','width':widthTable });
+        	gridTbl.css({ 'overflow': 'auto', 'width': widthTable });
         	var containerDialog = NA.common.doc.querySelector('div.containerDialog');
 
         	var viewportSize = NA.common.dialog.getViewportSize();
@@ -1172,7 +1200,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         		//cellsubmit: 'clientArray',
         		//editurl: 'clientArray',
         		datatype: "local",//column idapp, fkapp.no,'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-        		colNames:  ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef','isnew','isdeleted','isdirty'],
+        		colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef', 'isnew', 'isdeleted', 'isdirty'],
         		colModel: [
 					{ name: 'idapp', hidden: true },
 					{ name: 'fkapp', hidden: true },
@@ -1193,7 +1221,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 								if ($(this).val() === '') { return 'Choose if exists'; }
 
 							}, title: 'Avoid mised-typing brand name !', class: 'NA-Form-Control',
-							autocomplete:'off',
+							autocomplete: 'off',
 							class: (function () {
 								if (!AllowEdit) { return 'not-editable-cell'; }
 								return 'NA-Form-Control';
@@ -1220,144 +1248,144 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 								}
 							}
 							]
-					    },
+						},
 					},
 					//========================END BRAND NAME ================================================================
 
 					//========================Price Per Unit ================================================================
 					{
-					    name: 'priceperunit', width: 90, sortable: true, align: 'right',
-					    editable: AllowEdit,
-					    edittype: 'text',
-					    template: 'number',
-					    editrules: {
-					        required: false,
-					        integer: false,
-					    },
-					    sorttype: "number",
-					    autoResizing: { minColWidth: 140, },
-					    editoptions: {
-					    	class: (function () {
-					    		if (!AllowEdit) { return 'not-editable-cell'; }
-					    		return 'NA-Form-Control';
-					    	})(),
-					    	autocomplete: 'off',
-					    	patern: '^[0-9]+([\.,][0-9]+)?$',
-					        step: 'any',
-					        tittle: 'Please enter valid value',
-					        placeholder: function () {
-					            if ($(this).val() <= 0 || $(this).val() === '' || $(this).val() <= 0) { return NA.common.FormatNumber(0, 2, '.'); }
-					        },
-					        dataEvents: [{
-					        	type: 'keydown',
-					        	fn: function (e) {
-					        		if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					        		var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					        		var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
-					        		if (hasRef) {
-					        			NA.NAEvent.preventDefault(e); return;
-					        		}
-					        		if (NA.common.numberInput(e)) {
-					        		    if (e.keyCode === 9) {  // tab
-					        		        value = $(e.target).val();
-					        		        if (isNaN(value)) {
-					        		            ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
-					        		                $(this).focus();
-					        		            });
-					        		            return false;
-					        		        }
-					        		        if (!value.match(/^\d+(.|,)?\d+$/)) {
-					        		            ShowAlert('please enter correct number', NA.common.message.titleInfo, function () {
-					        		                $(this).focus();
-					        		            });
-					        		            return false;
-					        		        }
-					        		    }
-					        		}					        					        	
-					        	}
-					        }]
-					    },
-					    defaultValue: '',
-					    formatter: 'number',
-					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
+						name: 'priceperunit', width: 90, sortable: true, align: 'right',
+						editable: AllowEdit,
+						edittype: 'text',
+						template: 'number',
+						editrules: {
+							required: false,
+							integer: false,
+						},
+						sorttype: "number",
+						autoResizing: { minColWidth: 140, },
+						editoptions: {
+							class: (function () {
+								if (!AllowEdit) { return 'not-editable-cell'; }
+								return 'NA-Form-Control';
+							})(),
+							autocomplete: 'off',
+							patern: '^[0-9]+([\.,][0-9]+)?$',
+							step: 'any',
+							tittle: 'Please enter valid value',
+							placeholder: function () {
+								if ($(this).val() <= 0 || $(this).val() === '' || $(this).val() <= 0) { return NA.common.FormatNumber(0, 2, '.'); }
+							},
+							dataEvents: [{
+								type: 'keydown',
+								fn: function (e) {
+									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
+									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
+									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+									if (hasRef) {
+										NA.NAEvent.preventDefault(e); return;
+									}
+									if (NA.common.numberInput(e)) {
+										if (e.keyCode === 9) {  // tab
+											value = $(e.target).val();
+											if (isNaN(value)) {
+												ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
+													$(this).focus();
+												});
+												return false;
+											}
+											if (!value.match(/^\d+(.|,)?\d+$/)) {
+												ShowAlert('please enter correct number', NA.common.message.titleInfo, function () {
+													$(this).focus();
+												});
+												return false;
+											}
+										}
+									}
+								}
+							}]
+						},
+						defaultValue: '',
+						formatter: 'number',
+						formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
 					},
 					//========================END Price Per Unit ================================================================
 
 					//========================typeapp================================================================
 					{
-					    name: 'typeapp', width: 80, align: 'left',
-					    editable: AllowEdit,
-					    edittype: 'text',
-					    editrules: { required:false},
-					    editoptions: {
-					    	dataInit: function (elem) {
-					    		fetchTypeApps.call(this, elem, "typeapp");
-					    	},
-					    	class: (function () {
-					    		if (!AllowEdit) { return 'not-editable-cell'; }
-					    		return 'NA-Form-Control';
-					    	})(),
-					    	autocomplete: 'off',
-					    	placeholder: function () {
-					            if ($(this).val() === '') { return 'type of brand'; }
-					        },
-					        dataEvents: [{
-					        	type: 'keydown',
-					        	fn: function (e) {
-					        		if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					        		var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					        		var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        		var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
-					        		if (hasRef) {
-					        			NA.NAEvent.preventDefault(e); return;
-					        		}
-					        		if (e.keyCode === 9) {  //tab
-					        			var value = $(e.target).val();
-					        			if (value == '') {
-					        				ShowAlert('Please enter type of goods'); return;
-					        			}
-					        			if (listTypeApp.indexOf(value) <= -1) {
-					        				listTypeApp.push(value);
-					        			}
-					        		}									
-					        	}
-					        }]
-					    },
-					    autoResizing: { minColWidth: 80, },
+						name: 'typeapp', width: 80, align: 'left',
+						editable: AllowEdit,
+						edittype: 'text',
+						editrules: { required: false },
+						editoptions: {
+							dataInit: function (elem) {
+								fetchTypeApps.call(this, elem, "typeapp");
+							},
+							class: (function () {
+								if (!AllowEdit) { return 'not-editable-cell'; }
+								return 'NA-Form-Control';
+							})(),
+							autocomplete: 'off',
+							placeholder: function () {
+								if ($(this).val() === '') { return 'type of brand'; }
+							},
+							dataEvents: [{
+								type: 'keydown',
+								fn: function (e) {
+									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
+									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
+									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+									if (hasRef) {
+										NA.NAEvent.preventDefault(e); return;
+									}
+									if (e.keyCode === 9) {  //tab
+										var value = $(e.target).val();
+										if (value == '') {
+											ShowAlert('Please enter type of goods'); return;
+										}
+										if (listTypeApp.indexOf(value) <= -1) {
+											listTypeApp.push(value);
+										}
+									}
+								}
+							}]
+						},
+						autoResizing: { minColWidth: 80, },
 					},
 					//========================END typeapp ================================================================
 
 					//======================== serialnumber ================================================================
 					{
-					    name: 'serialnumber', width: 100, align: 'left',
-						editable:AllowEdit,
-					    edittype: 'text',
-					    editrules: { required: false, },
-					    editoptions: {
-					    	defaultValue: 'N/A',
-					    	class: (function () {
-					    		if (!AllowEdit) { return 'not-editable-cell'; }
-					    		return 'NA-Form-Control';
-					    	})(),
-					    	autocomplete: 'off',
-					    	placeholder: function () {
-					            if ($(this).val() === '') { return 'serial number/Service tag'; }
-					    	},
-					    	dataEvents: [{
-					    		type: 'keydown',
-					    		fn: function (e) {
-					    			if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					    			if (e.keyCode === 9) {  //tab										
-					    				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					    				var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					    				var value = $(e.target).val();
-					    				if (value === '') {
-					    					ShowAlert('Please enter serial number'); return;
-					    				}
-					    				//gridTbl.jqGrid('getLocalRow', rowId).endofwarranty
-					    				var NAAJax = NA.common.AJAX;
-					    				NAAJax.POST('HasExistSN/', JSON.stringify({ 'SN': value }), 'application/x-www-form-urlencoded', 'application/json',
+						name: 'serialnumber', width: 100, align: 'left',
+						editable: AllowEdit,
+						edittype: 'text',
+						editrules: { required: false, },
+						editoptions: {
+							defaultValue: 'N/A',
+							class: (function () {
+								if (!AllowEdit) { return 'not-editable-cell'; }
+								return 'NA-Form-Control';
+							})(),
+							autocomplete: 'off',
+							placeholder: function () {
+								if ($(this).val() === '') { return 'serial number/Service tag'; }
+							},
+							dataEvents: [{
+								type: 'keydown',
+								fn: function (e) {
+									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
+									if (e.keyCode === 9) {  //tab										
+										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
+										var value = $(e.target).val();
+										if (value === '') {
+											ShowAlert('Please enter serial number'); return;
+										}
+										//gridTbl.jqGrid('getLocalRow', rowId).endofwarranty
+										var NAAJax = NA.common.AJAX;
+										NAAJax.POST('HasExistSN/', JSON.stringify({ 'SN': value }), 'application/x-www-form-urlencoded', 'application/json',
 										function () { win.document.body.style.cursor = 'wait' }, null,//Before send
 										function () { //onload
 											if (this.status === 200) {
@@ -1373,996 +1401,1000 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 										function () {//onerror
 											win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
 										}, function () { win.document.body.style.cursor = 'default'; });
-					    				//check doubel data serial number
-					    				var seriaNumbers = [];
-					    				var rows = gridTbl.getDataIDs();
-					    				for (i = 0; i < rows.length; i++) {
-					    					var row = gridTbl.jqGrid('getLocalRow', rows[i]);
-					    					var serialNumber = row['serialnumber'];
-					    					if (serialNumber === '') { continue; }
-					    					serialNumber = serialNumber.toString().toUpperCase();
-					    					if (seriaNumbers.indexOf(serialNumber) > -1) {
-					    						ShowAlert('you have entered double serial number');
-					    						//restoreCell
-					    						gridTbl.jqGrid('restoreCell', i, 9, true);
-					    						win.document.body.style.cursor = 'default'
-					    						return false;
-					    					}
-					    					seriaNumbers.push(serialNumber);
-					    				}
-					    			}
-					    		}
-					    	}
-					    	]
-					    },
-					    autoResizing: { minColWidth: 100, },
+										//check doubel data serial number
+										var seriaNumbers = [];
+										var rows = gridTbl.getDataIDs();
+										for (i = 0; i < rows.length; i++) {
+											var row = gridTbl.jqGrid('getLocalRow', rows[i]);
+											var serialNumber = row['serialnumber'];
+											if (serialNumber === '') { continue; }
+											serialNumber = serialNumber.toString().toUpperCase();
+											if (seriaNumbers.indexOf(serialNumber) > -1) {
+												ShowAlert('you have entered double serial number');
+												//restoreCell
+												gridTbl.jqGrid('restoreCell', i, 9, true);
+												win.document.body.style.cursor = 'default'
+												return false;
+											}
+											seriaNumbers.push(serialNumber);
+										}
+									}
+								}
+							}
+							]
+						},
+						autoResizing: { minColWidth: 100, },
 					},
 					//======================== END serialnumber ================================================================
 
 					//======================== warranty ================================================================
 					{
-					    name: 'warranty', width: 100, align: 'left',
-					    editable: AllowEdit,
-					    edittype: 'text',
-					    template: 'number',
-					    editrules: { required: (function () { return NA.Privilege.IsAdmin; })(), integer: false,required:false },
-					    autoResizing: { minColWidth: 100, },
-					    editoptions: {
-					    	class: (function () {
-					    		if (!AllowEdit) { return 'not-editable-cell'; }
-					    		return 'NA-Form-Control';
-					    	})(),
-					    	patern: '^[0-9]+([\.,][0-9]+)?$',
-					        step: 'any', tittle: 'Year warranty',
-					        placeholder: function () {
-					            if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, 2, '.'); }
-					        },
-					        dataEvents: [{
-					        	type: 'keydown',
-					        	fn: function (e) {
-					        	     if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					        	    if (e.keyCode === 9) {// tab
+						name: 'warranty', width: 100, align: 'left',
+						editable: AllowEdit,
+						edittype: 'text',
+						template: 'number',
+						editrules: { required: (function () { return NA.Privilege.IsAdmin; })(), integer: false, required: false },
+						autoResizing: { minColWidth: 100, },
+						editoptions: {
+							class: (function () {
+								if (!AllowEdit) { return 'not-editable-cell'; }
+								return 'NA-Form-Control';
+							})(),
+							patern: '^[0-9]+([\.,][0-9]+)?$',
+							step: 'any', tittle: 'Year warranty',
+							placeholder: function () {
+								if ($(this).val() <= 0 || $(this).val() === '') { return NA.common.FormatNumber(0, 2, '.'); }
+							},
+							dataEvents: [{
+								type: 'keydown',
+								fn: function (e) {
+									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
+									if (e.keyCode === 9) {// tab
 
-					        	        var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					        	        var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-					        	        var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
-					        	        if (hasRef) {
-					        	            NA.NAEvent.preventDefault(e); return;
-					        	        }
-					        	        if (!NA.common.numberInput(e)) {
-					        	            ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
-					        	                $(this).focus();
-					        	            });
-					        	            return false;
-					        	        }
-					        			value = $(e.target).val();
-					        			if (isNaN(value)) {
-					        				ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
-					        					$(this).focus();
-					        				});
-					        				return false;
-					        			}
-					        			var modVal = (value % 1).toFixed(2);//modulus value decimal number
-					        			var intVal = Math.round(value) - Math.round(modVal);
-					        			var dtReceived = $('#id_datereceived').val();
-					        			if (dtReceived === '') {
-					        				ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
-					        					NA.common.getElementID('id_datereceived').focus();
-					        				});
-					        				return false;
-					        			}
-					        			FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-					        			//var NmodVal = parseFloat(modVal) * 12;
-					        			//var NM = dtReceived.getMonth();
-					        			//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
-					        			NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
-					        			var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-					        			NValEndOfWarranty = NDate;
-					        			var dtStr = formatDate(NDate)
-					        			var $tr = $(e.target).closest("tr.jqgrow");
-					        			rowId = $tr.attr("id");
+										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
+										var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+										if (hasRef) {
+											NA.NAEvent.preventDefault(e); return;
+										}
+										if (!NA.common.numberInput(e)) {
+											ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
+												$(this).focus();
+											});
+											return false;
+										}
+										value = $(e.target).val();
+										if (isNaN(value)) {
+											ShowAlert('Please enter number', NA.common.message.titleInfo, function () {
+												$(this).focus();
+											});
+											return false;
+										}
+										var modVal = (value % 1).toFixed(2);//modulus value decimal number
+										var intVal = Math.round(value) - Math.round(modVal);
+										var dtReceived = $('#id_datereceived').val();
+										if (dtReceived === '') {
+											ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
+												NA.common.getElementID('id_datereceived').focus();
+											});
+											return false;
+										}
+										FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+										//var NmodVal = parseFloat(modVal) * 12;
+										//var NM = dtReceived.getMonth();
+										//NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
+										NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+										var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+										NValEndOfWarranty = NDate;
+										var dtStr = formatDate(NDate)
+										var $tr = $(e.target).closest("tr.jqgrow");
+										rowId = $tr.attr("id");
 
-					        			//The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
+										//The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
 
 										var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-					        			var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
+										var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
 
-					        			//and to change the value of the cell you can use
+										//and to change the value of the cell you can use
 
-					        			$td.find("input").val(dtStr);
-					        			//gridTbl.jqGrid("editCell", $('#' + rowId)[0].rowIndex, 7, true);
+										$td.find("input").val(dtStr);
+										//gridTbl.jqGrid("editCell", $('#' + rowId)[0].rowIndex, 7, true);
 
-					        			//gridTbl.jqGrid('getRowData', rowId, 'endofwarranty', dtStr);
-					        			//gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
-					        			// now change the internal local data
-					        			rowData = gridTbl.jqGrid('getRowData', rowId)
-					        			rowData.endofwarranty = GetServerFormatDate(NDate);
-					        			//gridTbl.jqGrid('setRowData', rowId, rowData);
-					        		    //1_endofwarranty
-					        			//$("#" + $.jgrid.jqID(gridTbl) + '_' + 'endofwarranty').val(dtStr);
-					        			return true;
-					        		}
-					        	}
-					        }]
-					    },
-					    defaultValue: '',
-					    formatter: 'number',
-					    formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
+										//gridTbl.jqGrid('getRowData', rowId, 'endofwarranty', dtStr);
+										//gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
+										// now change the internal local data
+										rowData = gridTbl.jqGrid('getRowData', rowId)
+										rowData.endofwarranty = GetServerFormatDate(NDate);
+										//gridTbl.jqGrid('setRowData', rowId, rowData);
+										//1_endofwarranty
+										//$("#" + $.jgrid.jqID(gridTbl) + '_' + 'endofwarranty').val(dtStr);
+										return true;
+									}
+								}
+							}]
+						},
+						defaultValue: '',
+						formatter: 'number',
+						formatoptions: { decimalSeparator: ",", thousandsSeparator: "." },
 					},
 					//======================== END warranty ================================================================
 
 					//======================== endofwarranty ================================================================
 					{
-					    name: 'endofwarranty', width: 100, align: 'left','index':'endofwarranty',
-					    editable: AllowEdit,
+						name: 'endofwarranty', width: 100, align: 'left', 'index': 'endofwarranty',
+						editable: AllowEdit,
 
-					    //datefmt: 'd/m/Y',
-					    sorttype:'date',
-					    editoptions: {
-					    	class: (function () {
-					    		if (!AllowEdit) { return 'not-editable-cell'; }
-					    		return 'NA-Form-Control';
-					    	})(),
-					    	dataInit: function (elem, options) {
-					    		var dtReceived = $('#id_datereceived').val(), MaxMonth = 60;
-					    		if (dtReceived === '') {
-					    			ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
-					    				NA.common.getElementID('id_datereceived').focus();
-					    				$(elem).val('');
-					    				return false;
-					    			});
-					    		}
-					    		var economiclife = NA.common.getElementID('id_economiclife').value;
-					    		if (economiclife !== '') {
-					    			maxMonth = parseInt(economiclife) * 12;
-					    		}
-					    		$(elem).datepicker({
-					    			dateFormat: 'dd/mm/yy',
-					    			autoSize: true,
-					    			changeYear: true,
-					    			changeMonth: true,
-					    			beforeShowDay: $.datepicker.noWeekends,
-					    			minDate: (function (g, dtrec) {
-					    				if (g.status === 'Edit') {
-					    					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					    					var EndOfWarranty = gridTbl.jqGrid('getLocalRow', rowId).endofwarranty;
-					    					return new Date(EndOfWarranty);
-					    				}
-					    				else {
-					    					return $.datepicker.parseDate('dd/mm/yy', dtrec)
-					    				}
-					    				//get date datereceived
-					    			})(win, dtReceived),
-					    			maxDate: NA.common.addMonths(dtReceived, maxMonth),
-					    		});
-					    	},
-					    	dataEvents: [{
-					    		type: 'keydown',
-					    		fn: function (e) {
-					    			if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-					    			if (e.keyCode === 9) {
-					    				if (!$.datepicker.parseDate('dd/mm/yy', $(e.target).val())) {
-					    					ShowAlert('Please enter date with format dd/mm/yyyy', NA.common.message.titleInfo, function () {
-					    						$(this).focus();
-					    					});
-					    					NA.NAEvent.preventDefault(e); return false;
-					    				}
-					    				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-					    				//var currentRowId = $('#' + rowId)[0].rowIndex
-					    				//var nextRow = parseInt(currentRowId) + 1;
+						//datefmt: 'd/m/Y',
+						sorttype: 'date',
+						editoptions: {
+							class: (function () {
+								if (!AllowEdit) { return 'not-editable-cell'; }
+								return 'NA-Form-Control';
+							})(),
+							dataInit: function (elem, options) {
+								var dtReceived = $('#id_datereceived').val(), MaxMonth = 60;
+								if (dtReceived === '') {
+									ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
+										NA.common.getElementID('id_datereceived').focus();
+										$(elem).val('');
+										return false;
+									});
+								}
+								var economiclife = NA.common.getElementID('id_economiclife').value;
+								if (economiclife !== '') {
+									maxMonth = parseInt(economiclife) * 12;
+								}
+								$(elem).datepicker({
+									dateFormat: 'dd/mm/yy',
+									autoSize: true,
+									changeYear: true,
+									changeMonth: true,
+									beforeShowDay: $.datepicker.noWeekends,
+									minDate: (function (g, dtrec) {
+										if (g.status === 'Edit') {
+											var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+											var EndOfWarranty = gridTbl.jqGrid('getLocalRow', rowId).endofwarranty;
+											return new Date(EndOfWarranty);
+										}
+										else {
+											return $.datepicker.parseDate('dd/mm/yy', dtrec)
+										}
+										//get date datereceived
+									})(win, dtReceived),
+									maxDate: NA.common.addMonths(dtReceived, maxMonth),
+								});
+							},
+							dataEvents: [{
+								type: 'keydown',
+								fn: function (e) {
+									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
+									if (e.keyCode === 9) {
+										if (!$.datepicker.parseDate('dd/mm/yy', $(e.target).val())) {
+											ShowAlert('Please enter date with format dd/mm/yyyy', NA.common.message.titleInfo, function () {
+												$(this).focus();
+											});
+											NA.NAEvent.preventDefault(e); return false;
+										}
+										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+										//var currentRowId = $('#' + rowId)[0].rowIndex
+										//var nextRow = parseInt(currentRowId) + 1;
 
-					    				$('#' + currentRowId + '_endofwarranty').blur();
-					    				var savedRowInfos = gridTbl.jqGrid("getRowData", rowId);
-					    				if (isDataChanged(savedRowInfos)) {
-					    					savedRowInfos[0].isdirty = '1';
-					    				}
-					    				gridTbl.jqGrid("saveRow", rowId, {
-					    					'url': 'clientArray',
-					    					'restoreAfterError': true
-					    				});
-					    				gridTbl.jqGrid('editRow', nextRow, {
-					    					keys: false,
-					    					url: 'clientArray',
-					    					//oneditfunc: function (rowId) {
-					    					//    ShowAlert('edit');
-					    					//},
-					    					onerrorfunc: function (rowId) {
-					    						ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
-					    						return false;
-					    					},
-					    					restoreAfterError: true,
-					    				});
-					    				$('#' + nextRow + '_brandname').select();
-					    			}
-					    		}
-					    	}]
-					    },
-					    editrules: {
-					        date: true,
-					        required: false
-					    },
-					    formatter: "date", formatoptions: {
-					    	srcformat: 'Y-m-d',
-					    	newformat: "d/m/Y",
-					    	//reformatAfterEdit: (win.status === 'Edit'),
-					    	reformatAfterEdit:true
-					    },/*  */
+										$('#' + currentRowId + '_endofwarranty').blur();
+										var savedRowInfo = gridTbl.jqGrid("getRowData", rowId), savedRowInfos = []; savedRowInfos.push(savedRowInfo);
+
+										if (isDataChanged(savedRowInfos)) {
+											savedRowInfos[0].isdirty = '1';
+										}
+										gridTbl.jqGrid("saveRow", rowId, {
+											'url': 'clientArray',
+											'restoreAfterError': true
+										});
+										gridTbl.jqGrid('editRow', nextRow, {
+											keys: false,
+											url: 'clientArray',
+											//oneditfunc: function (rowId) {
+											//    ShowAlert('edit');
+											//},
+											onerrorfunc: function (rowId) {
+												ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
+												return false;
+											},
+											restoreAfterError: true,
+										});
+										$('#' + nextRow + '_brandname').select();
+									}
+								}
+							}]
+						},
+						editrules: {
+							date: true,
+							required: false
+						},
+						formatter: "date", formatoptions: {
+							srcformat: 'Y-m-d',
+							newformat: "d/m/Y",
+							//reformatAfterEdit: (win.status === 'Edit'),
+							reformatAfterEdit: true
+						},/*  */
 					},
 					//======================== END endofwarranty ================================================================
 					{
-					    name: 'createdby', width: 100, align: 'left',
-					    hidden: //(function () {
+						name: 'createdby', width: 100, align: 'left',
+						hidden: //(function () {
 					        //return (win.status === 'Open')
 					    //})()
 						true,
-					    editable: false,
-					    cellEdit: false,
-					    autoResizing: { minColWidth: 100, },
-					    editoptions: {
-					        defaultValue: (function () { return NA.Privilege.UserName; })(),
-					        class: 'NA-Form-Control',
-					    },
+						editable: false,
+						cellEdit: false,
+						autoResizing: { minColWidth: 100, },
+						editoptions: {
+							defaultValue: (function () { return NA.Privilege.UserName; })(),
+							class: 'NA-Form-Control',
+						},
 					},
 					{
-					    name: 'createddate', width: 100, align: 'left',
-					    hidden: //(function () {
+						name: 'createddate', width: 100, align: 'left',
+						hidden: //(function () {
 					        //return (win.status === 'Open')
 					    //})()
 						true,
-					    editable: false,
-					    cellEdit: false,
-					    autoResizing: { minColWidth: 100, },
-					    editoptions: {
-					        class: 'NA-Form-Control',
-					    },
-					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
+						editable: false,
+						cellEdit: false,
+						autoResizing: { minColWidth: 100, },
+						editoptions: {
+							class: 'NA-Form-Control',
+						},
+						formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
 					},
 					{
-					    name: 'modifiedby',
-					    hidden: //(function () {
+						name: 'modifiedby',
+						hidden: //(function () {
 					        //return ((win.status === 'Open' || win.status === 'Edit') && (NA.Privilege.IsAdmin === true))
 			//		    })()
 						true,
-					    editable: false,
-					    cellEdit: false,
-					    autoResizing: { minColWidth: 100, },
-					    editoptions: {
-					        defaultValue: (function () { return NA.Privilege.UserName; })(),
-					        class: 'NA-Form-Control',
-					    },
+						editable: false,
+						cellEdit: false,
+						autoResizing: { minColWidth: 100, },
+						editoptions: {
+							defaultValue: (function () { return NA.Privilege.UserName; })(),
+							class: 'NA-Form-Control',
+						},
 					},
 					{
-					    name: 'modifieddate', width: 100, align: 'left',
-					    hidden: //(function () {
+						name: 'modifieddate', width: 100, align: 'left',
+						hidden: //(function () {
 					       // return ((win.status === 'Open' || win.status === 'Edit') && (NA.Privilege.IsAdmin === true))
 					    //})(),
 						true,
-					    editable: false,
-					    cellEdit: false,
-					    autoResizing: { minColWidth: 100, },
-					    editoptions: {
-					        class: 'NA-Form-Control',
-					    },
-					    formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
+						editable: false,
+						cellEdit: false,
+						autoResizing: { minColWidth: 100, },
+						editoptions: {
+							class: 'NA-Form-Control',
+						},
+						formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' }
 					},
                     {
-                        name: 'HasRef', hidden: true
+                    	name: 'HasRef', hidden: true
                     },
 					{ name: 'isnew', hidden: true },
         			{ name: 'isdeleted', hidden: true },
-					{ name : 'isdirty',hidden : true}
+					{ name: 'isdirty', hidden: true }
         		],
-                //cellEdit: (win.status === 'Add'),
-                pgbuttons: false,     // disable page control like next, back button
-                pgtext: null,         // disable pager text like 'Page 0 of 10'
-                viewrecords: false,    // disable current view record text like 'View 1-10 of 100'
-                height: '150px',
-                rowNum: (function () {
-                    if (win.status === 'Open' || win.status === 'Edit') {
-                        var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
-                        var dataForGridDetail = eldataForGridDetail.value;
-                        var c = JSON.parse(dataForGridDetail);
-                        return c.length;
-                    }
-                    else {
-                        var elTotalReceived = NA.common.getElementID('id_totalreceived');
-                        return parseInt(elTotalReceived.value);
-                    }
-                })(),
-                resizeStop: function () {
-                	var newWidth = this.grid.newWidth, maxIterations = 3, i;
-                	for (i = 0; i < maxIterations; i++) {
-                		// resize without shrinking
-                		$(this).jqGrid("setGridWidth", newWidth + i, false);
-                		if (this.grid.bDiv.offsetHeight <= this.grid.bDiv.clientHeight) {
-                			break;
-                		}
-                	}
-                },
-                //afterSaveCell: function (rowId, cellname, value, iRow, iCol) {
-                //	//https://stackoverflow.com/questions/13285021/use-of-aftersavecell-in-jqgrid
-                //    // first change the cell in the visible part of grid
-                //    //(2.3 % 1).toFixed(4).substring(2) = "3000" if you need it without the 0
-                //    //check modulus value
-                //    if (cellname === 'warranty') {
-                //        var modVal = (value % 1).toFixed(2);//modulus value decimal number
-                //        var intVal = Math.round(value) - Math.round(modVal);
-                //        var dtReceived = $('#id_datereceived').val();
-                //        if (dtReceived === '') {
-                //            ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
-                //                NA.common.getElementID('id_datereceived').focus();
-                //            });
-                //            return false;
-                //        }
-                //        FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+        		//cellEdit: (win.status === 'Add'),
+        		pgbuttons: false,     // disable page control like next, back button
+        		pgtext: null,         // disable pager text like 'Page 0 of 10'
+        		viewrecords: false,    // disable current view record text like 'View 1-10 of 100'
+        		height: '150px',
+        		rowNum: (function () {
+        			if (win.status === 'Open' || win.status === 'Edit') {
+        				var eldataForGridDetail = NA.common.getElementID('id_dataForGridDetail');
+        				var dataForGridDetail = eldataForGridDetail.value;
+        				var c = JSON.parse(dataForGridDetail);
+        				return c.length;
+        			}
+        			else {
+        				var elTotalReceived = NA.common.getElementID('id_totalreceived');
+        				return parseInt(elTotalReceived.value);
+        			}
+        		})(),
+        		resizeStop: function () {
+        			var newWidth = this.grid.newWidth, maxIterations = 3, i;
+        			for (i = 0; i < maxIterations; i++) {
+        				// resize without shrinking
+        				$(this).jqGrid("setGridWidth", newWidth + i, false);
+        				if (this.grid.bDiv.offsetHeight <= this.grid.bDiv.clientHeight) {
+        					break;
+        				}
+        			}
+        		},
+        		//afterSaveCell: function (rowId, cellname, value, iRow, iCol) {
+        		//	//https://stackoverflow.com/questions/13285021/use-of-aftersavecell-in-jqgrid
+        		//    // first change the cell in the visible part of grid
+        		//    //(2.3 % 1).toFixed(4).substring(2) = "3000" if you need it without the 0
+        		//    //check modulus value
+        		//    if (cellname === 'warranty') {
+        		//        var modVal = (value % 1).toFixed(2);//modulus value decimal number
+        		//        var intVal = Math.round(value) - Math.round(modVal);
+        		//        var dtReceived = $('#id_datereceived').val();
+        		//        if (dtReceived === '') {
+        		//            ShowAlert('Please enter date received first', NA.common.message.titleInfo, function () {
+        		//                NA.common.getElementID('id_datereceived').focus();
+        		//            });
+        		//            return false;
+        		//        }
+        		//        FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
 
-                //        //var NmodVal = parseFloat(modVal) * 12;
-                //        //var NM = dtReceived.getMonth();
-                //        //NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
-                //        NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+        		//        //var NmodVal = parseFloat(modVal) * 12;
+        		//        //var NM = dtReceived.getMonth();
+        		//        //NM = parseInt(NM) + parseInt(NmodVal) + (intVal * 12);
+        		//        NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
 
-                //        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-                //        NValEndOfWarranty = NDate;
-                //        //var NVal = FDate.getDate(
-                //    	//set grid cell
-                //        var dtStr = formatDate(NDate)
-                //        gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
-                //        // now change the internal local data
-                //        gridTbl.jqGrid('getLocalRow', rowId).endofwarranty = GetServerFormatDate(NDate);
-                //        return true;
-                //    }
-                //    //else if (cellname === 'typeapp') {
-                //    //    if (TypeApps.indexOf(value) <= -1) {
-                //    //        TypeApps.push(value);
-                //    //    }
-                //    //}
-                //    else if (cellname === 'serialnumber') {
-                //        //check ke database
-                //        //HasExistSN
-                //        var NAAJax = NA.common.AJAX;
-                //        NAAJax.POST('HasExistSN/', JSON.stringify({ 'SN': value }), 'application/x-www-form-urlencoded', 'application/json',
-                //        function () { win.document.body.style.cursor = 'wait' }, null,//Before send
-                //        function () { //onload
-                //            if (this.status === 200) {
-                //                var result = JSON.parse(this.responseText);
-                //                if (result.message) {
-                //                    return ShowAlert('Serial Number has existed', NA.common.message.existsData, function () {
-                //                        gridTbl.setSelection(rowId, false);
-                //                        win.document.body.style.cursor = 'default';
-                //                    });
-                //                }
-                //            }
-                //        }, null,
-                //        function () {//onerror
-                //            win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
-                //        }, function () { win.document.body.style.cursor = 'default'; });
-                //        //check doubel data serial number
-                //        var seriaNumbers = [];
-                //        var rows = gridTbl.getDataIDs();
-                //        for (i = 0; i < rows.length; i++) {
-                //        	var row = gridTbl.jqGrid('getLocalRow', rows[i]);
-                //            var serialNumber = row['serialnumber'];
-                //            if (serialNumber === '') { continue; }
-                //            serialNumber = serialNumber.toString().toUpperCase();
-                //            if (seriaNumbers.indexOf(serialNumber) > -1) {
-                //                ShowAlert('you enter double serial number');
-                //                //restoreCell
-                //                gridTbl.jqGrid('restoreCell', iRow, iCol, true);
-                //                win.document.body.style.cursor = 'default'
-                //                return false;
-                //            }
-                //            seriaNumbers.push(serialNumber);
-                //        }
-                //    }             
-                //},
-                //inlineEditing: {
-                //    keys: (win.status === 'Edit')
-                //},
-                //afterEditCell: function (rowId, cellname, value, iRow, iCol) {
-                //    // Get a handle to the actual input field
-                //    var inputControl = jQuery('#' + (iRow) + '_' + cellname);
-                //    // Listen for enter (and shift-enter)
-                //    inputControl.bind("keydown", function (e) {
-                //        if (e.keyCode === 13) {  // Enter key:
-                //            var increment = e.shiftKey ? -1 : 1;
-                //            var rowData = gridTbl.getRowData(rowId);
-                //            var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
-                //            var lastRowInd = gridTbl.jqGrid("getGridParam", "reccount")
-                //            if (iRow + increment == 0) {
-                //                if (cellname === 'endofwarranty') {
-                //                    if (!hasRef) {
-                //                        gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
-                //                    }
-                //                }
-                //            }
-                //            else if (iRow + increment == lastRowInd + 1) {
-                //                if (cellname === 'endofwarranty') {
-                //                    return;
-                //                }
-                //            }
-                //            else if (cellname === 'endofwarranty') {
-                //                if (!hasRef) {
-                //                    gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
-                //                }
-                //            }// we could re-edit current cell or wrap
-                //            gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
-                //        }
-                //    }); // End keydown binding
-                //},
-                beforeSelectRow: function (id) {
-                	if (!AllowEdit) {
-                		return false;
-                	}
-                	var savedRowInfos = gridTbl.jqGrid("getGridParam", "savedRow"),
+        		//        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+        		//        NValEndOfWarranty = NDate;
+        		//        //var NVal = FDate.getDate(
+        		//    	//set grid cell
+        		//        var dtStr = formatDate(NDate)
+        		//        gridTbl.jqGrid('setCell', rowId, 'endofwarranty', dtStr);
+        		//        // now change the internal local data
+        		//        gridTbl.jqGrid('getLocalRow', rowId).endofwarranty = GetServerFormatDate(NDate);
+        		//        return true;
+        		//    }
+        		//    //else if (cellname === 'typeapp') {
+        		//    //    if (TypeApps.indexOf(value) <= -1) {
+        		//    //        TypeApps.push(value);
+        		//    //    }
+        		//    //}
+        		//    else if (cellname === 'serialnumber') {
+        		//        //check ke database
+        		//        //HasExistSN
+        		//        var NAAJax = NA.common.AJAX;
+        		//        NAAJax.POST('HasExistSN/', JSON.stringify({ 'SN': value }), 'application/x-www-form-urlencoded', 'application/json',
+        		//        function () { win.document.body.style.cursor = 'wait' }, null,//Before send
+        		//        function () { //onload
+        		//            if (this.status === 200) {
+        		//                var result = JSON.parse(this.responseText);
+        		//                if (result.message) {
+        		//                    return ShowAlert('Serial Number has existed', NA.common.message.existsData, function () {
+        		//                        gridTbl.setSelection(rowId, false);
+        		//                        win.document.body.style.cursor = 'default';
+        		//                    });
+        		//                }
+        		//            }
+        		//        }, null,
+        		//        function () {//onerror
+        		//            win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
+        		//        }, function () { win.document.body.style.cursor = 'default'; });
+        		//        //check doubel data serial number
+        		//        var seriaNumbers = [];
+        		//        var rows = gridTbl.getDataIDs();
+        		//        for (i = 0; i < rows.length; i++) {
+        		//        	var row = gridTbl.jqGrid('getLocalRow', rows[i]);
+        		//            var serialNumber = row['serialnumber'];
+        		//            if (serialNumber === '') { continue; }
+        		//            serialNumber = serialNumber.toString().toUpperCase();
+        		//            if (seriaNumbers.indexOf(serialNumber) > -1) {
+        		//                ShowAlert('you enter double serial number');
+        		//                //restoreCell
+        		//                gridTbl.jqGrid('restoreCell', iRow, iCol, true);
+        		//                win.document.body.style.cursor = 'default'
+        		//                return false;
+        		//            }
+        		//            seriaNumbers.push(serialNumber);
+        		//        }
+        		//    }             
+        		//},
+        		//inlineEditing: {
+        		//    keys: (win.status === 'Edit')
+        		//},
+        		//afterEditCell: function (rowId, cellname, value, iRow, iCol) {
+        		//    // Get a handle to the actual input field
+        		//    var inputControl = jQuery('#' + (iRow) + '_' + cellname);
+        		//    // Listen for enter (and shift-enter)
+        		//    inputControl.bind("keydown", function (e) {
+        		//        if (e.keyCode === 13) {  // Enter key:
+        		//            var increment = e.shiftKey ? -1 : 1;
+        		//            var rowData = gridTbl.getRowData(rowId);
+        		//            var hasRef = rowData.hasref.valueOf == true || rowData.hasref.valueOf == 1;
+        		//            var lastRowInd = gridTbl.jqGrid("getGridParam", "reccount")
+        		//            if (iRow + increment == 0) {
+        		//                if (cellname === 'endofwarranty') {
+        		//                    if (!hasRef) {
+        		//                        gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
+        		//                    }
+        		//                }
+        		//            }
+        		//            else if (iRow + increment == lastRowInd + 1) {
+        		//                if (cellname === 'endofwarranty') {
+        		//                    return;
+        		//                }
+        		//            }
+        		//            else if (cellname === 'endofwarranty') {
+        		//                if (!hasRef) {
+        		//                    gridTbl.jqGrid("editCell", iRow + increment, 3, true); return;
+        		//                }
+        		//            }// we could re-edit current cell or wrap
+        		//            gridTbl.jqGrid("editCell", iRow, iCol + 1, true);
+        		//        }
+        		//    }); // End keydown binding
+        		//},
+        		beforeSelectRow: function (id) {
+        			if (!AllowEdit) {
+        				return false;
+        			}
+        			var savedRowInfos = gridTbl.jqGrid("getGridParam", "savedRow"),
 					editingRowId = savedRowInfos == null || savedRowInfos.length < 1 ?
 						null : savedRowInfos[0].id;
 
-                	if (editingRowId != null && editingRowId !== id) {
-                		if (isDataChanged(savedRowInfos)) {
-                			gridTbl.jqGrid("getLocalRow", editingRowId).isdirty = '1';
-                			gridTbl.jqGrid("saveRow", editingRowId, {
-                				url: 'clientArray',
-                				restoreAfterError: true,
-                				//'extraparam': { IsDirty: "True" }
-                			});
-                		}
-                	}
-                	return true; // allow selection
-                },
-                onSelectRow: function (id) {
-                    //http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
-                	if (AllowEdit) {
-                		if (id && id !== lastsel) {
-                			if (typeof lastsel != 'undefined') {
-                				gridTbl.jqGrid('restoreRow', lastsel);
-                				//check data original
-                				
-                				var detailData = gridTbl.jqGrid('getGridParam', 'data');
-                				var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
-                				if (win.status == "Add") {
-                					detailData = oriDetailData;
-                				}
-                				if (parseInt(lastsel) <= parseInt(id)) {
-                					for (var i = 0; i < detailData.length; i++) {
-                						if (detailData[i].no == NewRowData.no) {
-                							//test
-                							if (NewRowData.brandname == detailData[i].brandname && (NewRowData.warranty == detailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == detailData[i].typeapp) {
-                								//data di anggap kosong isi defaultvalue
-                								//            //isi default newRow
-                								//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-                								//NewRowData = gridTbl.jqGrid('getLocalRow', id);
-                								if (typeof LastRowData != 'undefined' && LastRowData) {
-                									if ((LastRowData.brandname != detailData[i].brandname) && (LastRowData.warranty != detailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != detailData[i].typeapp)) {
-                										NewRowData.brandname = LastRowData.brandname;
-                										NewRowData.typeapp = LastRowData.typeapp;
-                										NewRowData.warranty = LastRowData.warranty;
-                										NewRowData.priceperunit = LastRowData.priceperunit;
-                										var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
-                										var dtStr = formatDate(FDate)
+        			if (editingRowId != null && editingRowId !== id) {
+        				if (isDataChanged(savedRowInfos)) {
+        					gridTbl.jqGrid("getLocalRow", editingRowId).isdirty = '1';
+        					gridTbl.jqGrid("saveRow", editingRowId, {
+        						url: 'clientArray',
+        						restoreAfterError: true,
+        						//'extraparam': { IsDirty: "True" }
+        					});
+        				}
+        			}
+        			return true; // allow selection
+        		},
+        		onSelectRow: function (id) {
+        			//http://www.ok-soft-gmbh.com/jqGrid/NonEditableCellsDynamic.htm
+        			if (AllowEdit) {
+        				if (id && id !== lastsel) {
+        					if (typeof lastsel != 'undefined') {
+        						gridTbl.jqGrid('restoreRow', lastsel);
+        						//check data original
 
-                										//var $tr = $(e.target).closest("tr.jqgrow");
-                										//rowId = $tr.attr("id");
+        						var detailData = gridTbl.jqGrid('getGridParam', 'data');
+        						var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
+        						if (win.status == "Add") {
+        							detailData = oriDetailData;
+        						}
+        						if (parseInt(lastsel) <= parseInt(id)) {
+        							for (var i = 0; i < detailData.length; i++) {
+        								if (detailData[i].no == NewRowData.no) {
+        									//test
+        									if (NewRowData.brandname == detailData[i].brandname && (NewRowData.warranty == detailData[i].warranty || parseFloat(NewRowData.warranty) <= 0) && NewRowData.typeapp == detailData[i].typeapp) {
+        										//data di anggap kosong isi defaultvalue
+        										//            //isi default newRow
+        										//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
+        										//NewRowData = gridTbl.jqGrid('getLocalRow', id);
+        										if (typeof LastRowData != 'undefined' && LastRowData) {
+        											if ((LastRowData.brandname != detailData[i].brandname) && (LastRowData.warranty != detailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != detailData[i].typeapp)) {
+        												NewRowData.brandname = LastRowData.brandname;
+        												NewRowData.typeapp = LastRowData.typeapp;
+        												NewRowData.warranty = LastRowData.warranty;
+        												NewRowData.priceperunit = LastRowData.priceperunit;
+        												var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
+        												var dtStr = formatDate(FDate)
 
-                										////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
+        												//var $tr = $(e.target).closest("tr.jqgrow");
+        												//rowId = $tr.attr("id");
 
-                										//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-                										//var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
+        												////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
 
-                										////and to change the value of the cell you can use
+        												//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+        												//var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
 
-                										//$td.find("input").val(dtStr);
-                										NewRowData.isdirty = '1';
-                										NewRowData.endofwarranty = LastRowData.endofwarranty;
-                										gridTbl.jqGrid('setRowData', id, NewRowData);
-                										gridTbl.jqGrid("saveRow", id, {
-                											url: 'clientArray',
-                											restoreAfterError: true
-                										});
-                										
-                										//push listtypeapps
-                										if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
-                											listTypeApp.push(NewRowData.typeapp);
-                										}
-                										if (listBrands.indexOf(NewRowData.brandname) < 0) {
-                											listBrands.push(NewRowData.brandname);
-                										}
-                									}
-                								}
-                								break;
-                							}
-                						}
-                					}
-                				}                				
-                			}
-                			gridTbl.jqGrid('editRow', id, {
-                				keys: true,
-                				url: 'clientArray',
-                				aftersavefunc: function (curRowid, response) {
-                					//var $tr = $('tr#' + curRowid);
-                					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-                					//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
-                					var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
-                					var warranty = LastRowData.warranty;
-                					if (warranty) {
-                						if (!isNaN(warranty)) {
-                						    if (parseFloat(warranty) > 0) {
-                						        //isi column endofwarranty
-                						        var dtReceived = $('#id_datereceived').val();
-                						        var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
-                						        var intVal = Math.round(warranty) - Math.round(modVal);
-                						        var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-                						        var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
-                						        var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-               						    		//$('#' + curRowid + '_endofwarranty').val(dtStr);
-                						        LastRowData.endofwarranty = NDate;
-                						        LastRowData.isdirty = '1';
-                						        gridTbl.jqGrid('setRowData', curRowid, LastRowData)
-                						        gridTbl.jqGrid("saveRow", curRowid, {
-                						            url: 'clientArray',
-                						            restoreAfterError: true,
-                						        });
-                						        if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
-                						            listTypeApp.push(LastRowData.typeapp);
-                						        }
-                						        if (listBrands.indexOf(LastRowData.brandname) < 0) {
-                						            listBrands.push(LastRowData.brandname);
-                						        }
-                						        return true;
-                						    }
-                						}
-                					}
-                				},
-                				onerrorfunc: function (rowId) {
-                					ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
-                					return false;
-                				},
-                				restoreAfterError: true,
-                			});
-                			lastsel = id;
-                		}
-                		else {
-                			if (typeof lastsel != 'undefined') {
-                				gridTbl.jqGrid('restoreRow', lastsel);
-                			}
-                		}
-                	}
-                },
-                ondblClickRow: function (rowid, iRow, iCol, e) {
+        												////and to change the value of the cell you can use
 
-                	//The index of the row (iRow) you can get using rowIndex property of the DOM object which represent ther row <tr>. So you need just get the DOM of the row. If the rowId don't contain any meta-characters you can do just the following
+        												//$td.find("input").val(dtStr);
+        												NewRowData.isdirty = '1';
+        												NewRowData.endofwarranty = LastRowData.endofwarranty;
+        												gridTbl.jqGrid('setRowData', id, NewRowData);
+        												gridTbl.jqGrid("saveRow", id, {
+        													url: 'clientArray',
+        													restoreAfterError: true
+        												});
 
-                	//var iRow = $('#' + rowId)[0].rowIndex;
+        												//push listtypeapps
+        												if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
+        													listTypeApp.push(NewRowData.typeapp);
+        												}
+        												if (listBrands.indexOf(NewRowData.brandname) < 0) {
+        													listBrands.push(NewRowData.brandname);
+        												}
+        											}
+        										}
+        										break;
+        									}
+        								}
+        							}
+        						}
+        					}
+        					gridTbl.jqGrid('editRow', id, {
+        						keys: true,
+        						url: 'clientArray',
+        						aftersavefunc: function (curRowid, response) {
+        							//var $tr = $('tr#' + curRowid);
+        							//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+        							//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
+        							var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
+        							var warranty = LastRowData.warranty;
+        							if (warranty) {
+        								if (!isNaN(warranty)) {
+        									if (parseFloat(warranty) > 0) {
+        										//isi column endofwarranty
+        										var dtReceived = $('#id_datereceived').val();
+        										var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
+        										var intVal = Math.round(warranty) - Math.round(modVal);
+        										var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+        										var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+        										var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+        										//$('#' + curRowid + '_endofwarranty').val(dtStr);
+        										LastRowData.endofwarranty = NDate;
+        										LastRowData.isdirty = '1';
+        										gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+        										gridTbl.jqGrid("saveRow", curRowid, {
+        											url: 'clientArray',
+        											restoreAfterError: true,
+        										});
+        										if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
+        											listTypeApp.push(LastRowData.typeapp);
+        										}
+        										if (listBrands.indexOf(LastRowData.brandname) < 0) {
+        											listBrands.push(LastRowData.brandname);
+        										}
+        										return true;
+        									}
+        								}
+        							}
+        						},
+        						onerrorfunc: function (rowId) {
+        							ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
+        							return false;
+        						},
+        						restoreAfterError: true,
+        					});
+        					lastsel = id;
+        				}
+        				else {
+        					if (typeof lastsel != 'undefined') {
+        						gridTbl.jqGrid('restoreRow', lastsel);
+        					}
+        				}
+        			}
+        		},
+        		ondblClickRow: function (rowid, iRow, iCol, e) {
 
-                	//For the more common case you can use jqID function which escapes the meta-characters if needed:
+        			//The index of the row (iRow) you can get using rowIndex property of the DOM object which represent ther row <tr>. So you need just get the DOM of the row. If the rowId don't contain any meta-characters you can do just the following
 
-                	//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
-                    if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0" || $(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === undefined){
-                		if (AllowEdit) {
-                			gridTbl.jqGrid('editRow', rowid, {
-                				keys: true,
-                				url: 'clientArray',
-                				aftersavefunc: function (curRowid, response) {
-                					//var $tr = $('tr#' + curRowid);
-                					//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-                					//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
-                					var dtReceived = $('#id_datereceived').val();
-                					var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
-                					var warranty = LastRowData.warranty;
-                					if (warranty) {
-                						if (!isNaN(warranty)) {
-                							if (parseFloat(warranty) > 0) {
-                								//isi column endofwarranty
-                								var dtReceived = $('#id_datereceived').val();
-                								var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
-                								var intVal = Math.round(warranty) - Math.round(modVal);
-                								var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
-                								var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
-                								var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
-                								LastRowData.endofwarranty = NDate;
-                								LastRowData.isdirty = '1';
-                								gridTbl.jqGrid('setRowData', curRowid, LastRowData)
-                								gridTbl.jqGrid("saveRow", curRowid, {
-                									'url': 'clientArray',
-                									'restoreAfterError': true,
-                									'extraparam': null,
-                									aftersavefunc: null,
-                									errorfunc: null,
-                									afterrestorefunc: null
-                								});
-                								if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
-                								    listTypeApp.push(LastRowData.typeapp);
-                								}
-                								if (listBrands.indexOf(LastRowData.brandname) < 0) {
-                								    listBrands.push(LastRowData.brandname);
-                								}
-                								return true;
-                							}
-                						}
-                					}
-                				},
-                				onerrorfunc: function (rowId) {
-                					ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
-                					return false;
-                				},
-                				restoreAfterError: true,
-                			});
-                		}
-                	}
-					//$(e.target).focus();
-                },
-                //inlineNavOptions: {
-                //	save: true,
-                //	savetext: "Save",
-                //	cancel: false,
-                //	restoreAfterSelect: false
-            	//},
-                //gridview: true,
-                //singleSelectClickMode: "",
-                //cmTemplate: { autoResizable: true, editable: true },
-                autoResizing: { compact: true, resetWidthOrg: true },
-            	autoResizable:true,
-                sortname: "brandname",
-                sortorder: "asc",
-                multiSort: true,
-                iconSet: "fontAwesome",
-                scrollrows: true,
-                caption: "Detail goods Receive",
-                width: parseInt(widthTable.replace('px', '')),
-                shrinkToFit: false,
-                restoreAfterSelect: true,
-                //viewPagerButtons: false,
-                pager: (function () {
-                    if (win.status !== 'Open') {
-                        return "#jqGrid_NA_F_Goods_Receive_Detail_Pager";
-                    } else {
-                        return null;
-                    }
-                })()
-            });        
+        			//var iRow = $('#' + rowId)[0].rowIndex;
 
-            var bdiv = NA.common.doc.querySelector('#gview_jqGrid_NA_F_Goods_Receive_Detail div.ui-jqgrid-bdiv');
-            var hbdiv = parseFloat((win.getComputedStyle(bdiv).height).replace('px', ''));
-            hbdiv = hbdiv * 0.75;
-            bdiv.style.maxHeight = hbdiv.toString() + 'px';
-            var listElem = NA.common.doc.querySelectorAll('div.NA-Entry-div-row');//return list Element
-            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
-                item.style.marginRight = '10px';
-            });
-            var bottomDialog = NA.common.doc.querySelector('div.bottomDialogContent');
-            bottomDialog.style.marginRight = '10px';
-            var hr = NA.common.doc.querySelector('#frm-NA-Entry-Goods_Receive hr');
-            hr.style.marginRight = '10px';
-            var bottomDialogRigth = NA.common.doc.querySelector('div.bottomDialogContent > .dialogButtonRightOther');
-            bottomDialogRigth.style.marginRight = '20px';
-            switch (win.status) {
-                case 'Add': {
-                    gridTbl.navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        edit: false, add: false, del: false, search: false, refresh: false,
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Reset ||  ", buttonicon: 'fa-undo', onClickButton: function () {
-                        	var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
-                        	if (totalReceived > 0) {
-                                showConfirmation(NA.common.message.clearData, NA.common.message.confirmInfo, function () {
-                                	gridTbl.jqGrid('clearGridData', false).jqGrid('setGridParam', {
-                                		data: setDetailGridData(),
-                                		//processing: true,
-                                		//loadonce: true,
-                                		datatype: 'local'
-                                	});
-                                	var trs = gridTbl.getDataIDs();
-                                	for (var i = 0; i < trs.length; i++) {
-                                		gridTbl.jqGrid('saveRow', i + 1, trs[i]);
-                                	};
-                                	gridTbl.trigger("reloadGrid", [{ page: 1 }]).jqGrid('resetSelection');
-                                }, null)
-                            }
-                        },
-                        position: "last"
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (e) {
-                            return ValidateGridDetail(gridTbl);
-                        }, position: "last"
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
-                            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
-                            //add row data position in last row
-                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            if (totalReceived <= 0) { return false; }
-                            if (recCount >= parseInt(totalReceived)) {
-                                ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
-                                return false;
-                            }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1','isdeleted':'0' ,'isdirty':'0'}]
-                            gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
-                            //gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
-                            //	url: 'clientArray',
-                            //	restoreAfterError: true,
-                            //});
-                            var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
-                            gridTbl.setSelection(last_rowid, false);
-                            gridTbl.jqGrid('editCell',recCount + 1, 3, true);
-                            return true;
+        			//For the more common case you can use jqID function which escapes the meta-characters if needed:
 
-                        }, position: "last"
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
-                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            if (recCount <= 0) { return false; }
-                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                            if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
-                    		showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
-                    			var eltreceived = NA.common.getElementID('id_totalreceived'),
-																 valTrec = eltreceived.value;                    			
-                                //var IDApp = (win.status === 'Edit')?
-                    			var NRowid = rowId;
-                    			valTrec = valTrec - 1;
-                    			valTrec = (valTrec < 0) ? 0 : valTrec;
-                    			eltreceived.value = valTrec;
-                    			//delete di localrow								
-                    			gridTbl.delRowData(NRowid);
-                    			eltreceived.removeAttribute('readonly');
-                    			if (valTrec <= 0) {//cancel detail
-                    				var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-                    				btnCancelDetail.click();
-                    			}
-                    		});
-                    	}, position: "last"
-                    });
-                    var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
-                    elDivF.removeAttribute('class');
-                    elDivF.setAttribute('class', 'fa');
-                    elDivF.classList.add('fa-undo');
+        			//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
+        			if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0" || $(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === undefined) {
+        				if (AllowEdit) {
+        					gridTbl.jqGrid('editRow', rowid, {
+        						keys: true,
+        						url: 'clientArray',
+        						aftersavefunc: function (curRowid, response) {
+        							//var $tr = $('tr#' + curRowid);
+        							//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
+        							//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
+        							var dtReceived = $('#id_datereceived').val();
+        							var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
+        							var warranty = LastRowData.warranty;
+        							if (warranty) {
+        								if (!isNaN(warranty)) {
+        									if (parseFloat(warranty) > 0) {
+        										//isi column endofwarranty
+        										var dtReceived = $('#id_datereceived').val();
+        										var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
+        										var intVal = Math.round(warranty) - Math.round(modVal);
+        										var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+        										var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
+        										var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
+        										LastRowData.endofwarranty = NDate;
+        										LastRowData.isdirty = '1';
+        										gridTbl.jqGrid('setRowData', curRowid, LastRowData)
+        										gridTbl.jqGrid("saveRow", curRowid, {
+        											'url': 'clientArray',
+        											'restoreAfterError': true,
+        											'extraparam': null,
+        											aftersavefunc: null,
+        											errorfunc: null,
+        											afterrestorefunc: null
+        										});
+        										if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
+        											listTypeApp.push(LastRowData.typeapp);
+        										}
+        										if (listBrands.indexOf(LastRowData.brandname) < 0) {
+        											listBrands.push(LastRowData.brandname);
+        										}
+        										return true;
+        									}
+        								}
+        							}
+        						},
+        						onerrorfunc: function (rowId) {
+        							ShowAlert('Please enter required data'); win.document.body.style.cursor = 'default';
+        							return false;
+        						},
+        						restoreAfterError: true,
+        					});
+        				}
+        			}
+        			//$(e.target).focus();
+        		},
+        		//inlineNavOptions: {
+        		//	save: true,
+        		//	savetext: "Save",
+        		//	cancel: false,
+        		//	restoreAfterSelect: false
+        		//},
+        		//gridview: true,
+        		//singleSelectClickMode: "",
+        		//cmTemplate: { autoResizable: true, editable: true },
+        		autoResizing: { compact: true, resetWidthOrg: true },
+        		autoResizable: true,
+        		sortname: "brandname",
+        		sortorder: "asc",
+        		multiSort: true,
+        		iconSet: "fontAwesome",
+        		scrollrows: true,
+        		caption: "Detail goods Receive",
+        		width: parseInt(widthTable.replace('px', '')),
+        		shrinkToFit: false,
+        		restoreAfterSelect: true,
+        		//viewPagerButtons: false,
+        		pager: (function () {
+        			if (win.status !== 'Open') {
+        				return "#jqGrid_NA_F_Goods_Receive_Detail_Pager";
+        			} else {
+        				return null;
+        			}
+        		})()
+        	});
 
-                    var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
-                    elDivS.removeAttribute('class');
-                    elDivS.setAttribute('class', 'fa');
-                    elDivS.classList.add('fa-retweet');
+        	var bdiv = NA.common.doc.querySelector('#gview_jqGrid_NA_F_Goods_Receive_Detail div.ui-jqgrid-bdiv');
+        	var hbdiv = parseFloat((win.getComputedStyle(bdiv).height).replace('px', ''));
+        	hbdiv = hbdiv * 0.75;
+        	bdiv.style.maxHeight = hbdiv.toString() + 'px';
+        	var listElem = NA.common.doc.querySelectorAll('div.NA-Entry-div-row');//return list Element
+        	Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+        		item.style.marginRight = '10px';
+        	});
+        	var bottomDialog = NA.common.doc.querySelector('div.bottomDialogContent');
+        	bottomDialog.style.marginRight = '10px';
+        	var hr = NA.common.doc.querySelector('#frm-NA-Entry-Goods_Receive hr');
+        	hr.style.marginRight = '10px';
+        	var bottomDialogRigth = NA.common.doc.querySelector('div.bottomDialogContent > .dialogButtonRightOther');
+        	bottomDialogRigth.style.marginRight = '20px';
+        	switch (win.status) {
+        		case 'Add': {
+        			gridTbl.navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				edit: false, add: false, del: false, search: false, refresh: false,
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Reset ||  ", buttonicon: 'fa-undo', onClickButton: function () {
+        					var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+        					if (totalReceived > 0) {
+        						showConfirmation(NA.common.message.clearData, NA.common.message.confirmInfo, function () {
+        							gridTbl.jqGrid('clearGridData', false).jqGrid('setGridParam', {
+        								data: setDetailGridData(),
+        								//processing: true,
+        								//loadonce: true,
+        								datatype: 'local'
+        							});
+        							var trs = gridTbl.getDataIDs();
+        							for (var i = 0; i < trs.length; i++) {
+        								gridTbl.jqGrid('saveRow', i + 1, trs[i]);
+        							};
+        							gridTbl.trigger("reloadGrid", [{ page: 1 }]).jqGrid('resetSelection');
+        						}, null)
+        					}
+        				},
+        				position: "last"
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (e) {
+        					return ValidateGridDetail(gridTbl);
+        				}, position: "last"
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
+        					var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+        					//add row data position in last row
+        					var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+        					if (totalReceived <= 0) { return false; }
+        					if (recCount >= parseInt(totalReceived)) {
+        						ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
+        						return false;
+        					}
+        					var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1', 'isdeleted': '0', 'isdirty': '0' }]
+        					gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
+        					//gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
+        					//	url: 'clientArray',
+        					//	restoreAfterError: true,
+        					//});
+        					var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
+        					gridTbl.setSelection(last_rowid, false);
+        					gridTbl.jqGrid('editCell', recCount + 1, 3, true);
+        					return true;
 
-                    var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(3) div.ui-pg-div>span');
-                    elDivAdd.removeAttribute('class');
-                    elDivAdd.setAttribute('class', 'fa');
-                    elDivAdd.classList.add('fa-plus');
-
-                    var elDivDell = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(4) div.ui-pg-div>span');
-                    elDivDell.removeAttribute('class');
-                    elDivDell.setAttribute('class', 'fa');
-                    elDivDell.classList.add('fa-window-close');
-                    break;
-                }
-            	case 'Edit': {
-                    gridTbl.navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        edit: false, add: false, del: false, search: false, refresh: false
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
-                            //add row data position in last row
-                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
-                            if (totalReceived <= 0) { return false; }
-                            if (recCount >= parseInt(totalReceived)) {
-                                ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
-                                return false;
-                            }
-                            //{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
-                            var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1','isdeleted':'0','isdirty':'0' }]
-                            gridTbl.jqGrid('addRowData','no', rowData, 'last');
-                            var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
-                            gridTbl.setSelection(last_rowid, false);
-                            gridTbl.jqGrid('editCell',recCount + 1, 3, true);
-                            return true;
-                        }, position: "last"
-                    }).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
-                        caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
-                            if (!AllowDelete) { NA.NAEvent.preventDefault(e); return false; }
-                            var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
-                            if (recCount <= 0) { return false; }
-                            var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                            if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
-                            var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
-                            if (hasRef == 'True' || hasRef == 'true') {
-                            	ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
-                            }
-                            showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
-                            	var NAAjax = NA.common.AJAX;
-                            	var NRowid = rowId;
-                            	var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                            	var eltreceived = NA.common.getElementID('id_totalreceived'),
-								 valTrec = eltreceived.value;
-                            	valTrec = valTrec - 1;
-                            	valTrec = (valTrec < 0) ? 0 : valTrec;
-                            	eltreceived.value = valTrec;
-                            	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
-                            	gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
-                            	gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
-                            		url: 'clientArray',
-                            		restoreAfterError: true,
-                            	});
-                            	$("#" + rowId, gridTbl).hide();
-                            	eltreceived.setAttribute('readonly', 'true');
-                            	// NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
-                            	//null, function () { }, function () {
-                            	//	//rubah totalreceived -1;
-                            	//	var textStatus = JSON.parse(this.responseText);
-                            	//	if (textStatus.message === 'success') {
-                            	//		var eltreceived = NA.common.getElementID('id_totalreceived'),
-                            	// 									 valTrec = eltreceived.value;
-                            	//		valTrec = valTrec - 1;
-                            	//		valTrec = (valTrec < 0) ? 0 : valTrec;
-                            	//		eltreceived.value = valTrec;
-                            	//		//gridTbl.delRowData(NRowid);
-                            	//		//var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-                            	//		//NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-                            	//		var initializeForm = NA.common.getElementID('id_initializeForm');
-                            	//		originalData = JSON.stringify(getValuesForm());
-                            	//		initializeForm.value = originalData;
-                            	//		//Update Grid Master
-                            	//		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-                            	//		var IRowData = grid.jqGrid('getRowData', IrowId);
-                            	//		IRowData.totalreceived = valTrec;
-                            	//		grid.jqGrid('setRowData', IrowId, IRowData);
-                            	//		if (valTrec <= 0) {
-                            	//		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
-                            	//		}
-                            	//		//matikan tombol excel
-                            	//		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-                            	//		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-                            	//			if (item.textContent === "Cancel") {
-                            	//				item.setAttribute('disabled', true);
-                            	//			}
-                            	//		});
-                            	//	}
-                            	//	else {
-                            	//		ShowAlert(textStatus.message, NA.common.message.titleError);
-                            	//		return false;
-                            	//	}
-                            	//}, null, function () {
-                            	//}, function () { win.document.body.style.cursor = 'default'; })
-                            });
-                    	}, position: "last"
-                    });
-                    var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
-                    elDivS.removeAttribute('class');
-                    elDivS.setAttribute('class', 'fa');
-                    elDivS.classList.add('fa-retweet');
-
-                    var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
-                    elDivAdd.removeAttribute('class');
-                    elDivAdd.setAttribute('class', 'fa');
-                    elDivAdd.classList.add('fa-plus');
-                    var elDivDell = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(3) div.ui-pg-div>span');
-                    elDivDell.removeAttribute('class');
-                    elDivDell.setAttribute('class', 'fa');
-                    elDivDell.classList.add('fa-window-close');
-                    break;
-                }
-                case 'Open': {
-                    //jangan di tambah pager
-                    break;
-                }
-            }
-            //var orgRowActions = $.fn.fmatter.rowactions;
-            //$.fn.fmatter.rowactions = function (rid, gid, act, pos) {
-            //	var $grid = $("#" + $.jgrid.jqID(gid)),
-            //        rowData = $grid.jqGrid("getLocalRow", rid),
-            //        isNonEditable = false,
-            //        result;
-            //	// we can test any condition and change
-            //	// editable property of any column
-            //	var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
-            //	var AllowEdit = (!hasRef) && (window.status !== 'Open')
-            //	if (act === "save" && AllowEdit) {
-            //		//'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
-            //		$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: false } });
-            //		isNonEditable = true;
-            //	}
-            //	result = orgRowActions.call(this, rid, gid, act, pos);
-            //	if (isNonEditable && AllowEdit) {
-            //		// reset the setting to original state
-        	//		$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit') } });
-            //	}
-            //	return true;
-            //}
-            //set button pagerStyle td tengahnya jadi 200px;
-            var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
-            if ($midTd) {
-            	$midTd.css('width', '200px');
-            }
-            if (AllowEdit) {
-                var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
-                gridTbl.setSelection(top_rowid, false);
-                gridTbl.jqGrid('editCell', 1, 3, true);
-                //hidupkan btnCancel;;
-                var btnCancel = NA.common.getElementID('btnCancelDetail');
-                btnCancel.style.cssText = 'display: block;left: 81%;right: 0;position: relative;';
-                //matikan btnAddDetail
-                var btnAddDetail = NA.common.getElementID('btnAddDetail');
-                btnAddDetail.style.display = 'none';
-            }
-            if (AllowDelete) {
-                //assign delete key event
-                gridTbl.on("keyup", "tr", function (e) {
-                    //var rowId = parseInt($(this).attr("id")); 
-                    var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-                    if (e.keyCode == 46) {
-                    	if 	($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0" || ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === undefined))  {
-                    		//check hasref
-                    		var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
-                    		if (hasRef == 'True' || hasRef == 'true') {
-                    			ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
-                    		}
-                            showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
-                                win.document.body.style.cursor = 'wait';
-                                var eltreceived = NA.common.getElementID('id_totalreceived'),
+        				}, position: "last"
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+        					var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+        					if (recCount <= 0) { return false; }
+        					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+        					if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
+        					showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+        						var eltreceived = NA.common.getElementID('id_totalreceived'),
 																 valTrec = eltreceived.value;
-                                valTrec = valTrec - 1;
-                                valTrec = (valTrec < 0) ? 0 : valTrec;
-                                eltreceived.value = valTrec;
-                                //delete di localrow
-                                //var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
-                                if (win.status === 'Edit') {
-                                	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
-                                	gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
-                                	$("#" + rowId, gridTbl).hide();
-                                	//if (valTrec <= 0) {
-                                	//	if (win.status === 'Add') {
-                                	//		var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-                                	//		btnCancelDetail.click();//fire event btnCancellDetail;
-                                	//	}
-                                	//	else {
-                                	//		//cek jika ada data yang di hapus data di server
-                                	//		//confirmasi ke user bahwa data sebelumnya akan di hapus tidak bisa kembalikan lagi
-                                	//		//jika ada save
-                                	//		NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
-                                	//	}
-                                	//}
-                                	//else {
-                                	//	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
-                                	//	$("#" + rowId, gridTbl).hide();
-                                	//}
-                                	eltreceived.setAttribute('readonly', 'true');
-                                }
-                                else {
-                                	gridTbl.delRowData(rowId);
-                                }
-                               //if (win.status === 'Edit') {
-                                //    var NAAjax = NA.common.AJAX;
-                                //    NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
-                                //   null, function () { }, function () {
-                                //   	//rubah totalreceived -1;
-                                //   	if (this.status == 200) {
-                                //   		var textStatus = JSON.parse(this.responseText);
-                                //   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
-                                //   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
-                                //   		var initializeForm = NA.common.getElementID('id_initializeForm');
-                                //   		originalData = JSON.stringify(getValuesForm());
-                                //   		initializeForm.value = originalData;
-                                //   		//Update Grid Master
-                                //   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
-                                //   		var IRowData = grid.jqGrid('getRowData', IrowId);
-                                //   		IRowData.totalreceived = valTrec;
-                                //   		grid.jqGrid('setRowData', IrowId, IRowData);
-                                //   		//var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
-                                //   		//Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
-                                //   		//	if (item.textContent === "Cancel") {
-                                //   		//		item.setAttribute('disabled', true);
-                                //   		//	}
-                                //   		//});                                   		
-                                //   	} else {
-                                //   		XhrError(NAAjax.XHR);
-                                //   	}  
-                                //   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
-                                //}
-                              
-                                win.document.body.style.cursor = 'default';
-                            });
-                        }
-                        win.document.body.style.cursor = 'default';
-                        return false;
-                    }
-                });
-            }
-            hasGridDetail = true;
+        						//var IDApp = (win.status === 'Edit')?
+        						var NRowid = rowId;
+        						valTrec = valTrec - 1;
+        						valTrec = (valTrec < 0) ? 0 : valTrec;
+        						eltreceived.value = valTrec;
+        						//delete di localrow								
+        						gridTbl.delRowData(NRowid);
+        						eltreceived.removeAttribute('readonly');
+        						if (valTrec <= 0) {//cancel detail
+        							var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+        							btnCancelDetail.click();
+        						}
+        					});
+        				}, position: "last"
+        			});
+        			var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
+        			elDivF.removeAttribute('class');
+        			elDivF.setAttribute('class', 'fa');
+        			elDivF.classList.add('fa-undo');
+
+        			var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
+        			elDivS.removeAttribute('class');
+        			elDivS.setAttribute('class', 'fa');
+        			elDivS.classList.add('fa-retweet');
+
+        			var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(3) div.ui-pg-div>span');
+        			elDivAdd.removeAttribute('class');
+        			elDivAdd.setAttribute('class', 'fa');
+        			elDivAdd.classList.add('fa-plus');
+
+        			var elDivDell = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(4) div.ui-pg-div>span');
+        			elDivDell.removeAttribute('class');
+        			elDivDell.setAttribute('class', 'fa');
+        			elDivDell.classList.add('fa-window-close');
+        			break;
+        		}
+        		case 'Edit': {
+        			gridTbl.navGrid('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				edit: false, add: false, del: false, search: false, refresh: false
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Validate", buttonicon: "fa-retweet", onClickButton: function (e) { return ValidateGridDetail(gridTbl); },
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Add", buttonicon: "fa-plus", onClickButton: function (e) {
+        					//add row data position in last row
+        					var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+        					var totalReceived = NA.common.getElementID('id_totalreceived').value || 0;
+        					if (totalReceived <= 0) { return false; }
+        					if (recCount >= parseInt(totalReceived)) {
+        						ShowAlert('Can not enter extra data over than total received', NA.common.message.titleInfo);
+        						return false;
+        					}
+        					//{ 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew':'1' }
+        					var rowData = [{ 'idapp': '', 'fkapp': '', 'no': recCount + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false, 'isnew': '1', 'isdeleted': '0', 'isdirty': '0' }]
+        					gridTbl.jqGrid('addRowData', 'no', rowData, 'last');
+        					var last_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqglastrow').getAttribute('id');
+        					gridTbl.setSelection(last_rowid, false);
+        					gridTbl.jqGrid('editCell', recCount + 1, 3, true);
+        					return true;
+        				}, position: "last"
+        			}).navButtonAdd('#jqGrid_NA_F_Goods_Receive_Detail_Pager', {
+        				caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
+        					if (!AllowDelete) { NA.NAEvent.preventDefault(e); return false; }
+        					var recCount = gridTbl.jqGrid('getGridParam', 'reccount');
+        					if (recCount <= 0) { return false; }
+        					var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+        					if (!rowId) { showConfirmation('please select row to delete', NA.common.message.titleInfo); return false; }
+        					var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
+        					if (hasRef == 'True' || hasRef == 'true') {
+        						ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+        					}
+        					showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+        						var NAAjax = NA.common.AJAX;
+        						var NRowid = rowId;
+        						var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+        						var eltreceived = NA.common.getElementID('id_totalreceived'),
+								 valTrec = eltreceived.value;
+        						valTrec = valTrec - 1;
+        						valTrec = (valTrec < 0) ? 0 : valTrec;
+        						eltreceived.value = valTrec;
+        						gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+        						gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
+        						gridTbl.jqGrid('saveRow', (recCount + 1).toString(), {
+        							url: 'clientArray',
+        							restoreAfterError: true,
+        						});
+        						$("#" + rowId, gridTbl).hide();
+        						eltreceived.setAttribute('readonly', 'true');
+        						// NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+        						//null, function () { }, function () {
+        						//	//rubah totalreceived -1;
+        						//	var textStatus = JSON.parse(this.responseText);
+        						//	if (textStatus.message === 'success') {
+        						//		var eltreceived = NA.common.getElementID('id_totalreceived'),
+        						// 									 valTrec = eltreceived.value;
+        						//		valTrec = valTrec - 1;
+        						//		valTrec = (valTrec < 0) ? 0 : valTrec;
+        						//		eltreceived.value = valTrec;
+        						//		//gridTbl.delRowData(NRowid);
+        						//		//var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+        						//		//NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+        						//		var initializeForm = NA.common.getElementID('id_initializeForm');
+        						//		originalData = JSON.stringify(getValuesForm());
+        						//		initializeForm.value = originalData;
+        						//		//Update Grid Master
+        						//		var IrowId = grid.jqGrid('getGridParam', 'selrow');
+        						//		var IRowData = grid.jqGrid('getRowData', IrowId);
+        						//		IRowData.totalreceived = valTrec;
+        						//		grid.jqGrid('setRowData', IrowId, IRowData);
+        						//		if (valTrec <= 0) {
+        						//		    NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+        						//		}
+        						//		//matikan tombol excel
+        						//		var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+        						//		Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+        						//			if (item.textContent === "Cancel") {
+        						//				item.setAttribute('disabled', true);
+        						//			}
+        						//		});
+        						//	}
+        						//	else {
+        						//		ShowAlert(textStatus.message, NA.common.message.titleError);
+        						//		return false;
+        						//	}
+        						//}, null, function () {
+        						//}, function () { win.document.body.style.cursor = 'default'; })
+        					});
+        				}, position: "last"
+        			});
+        			var elDivS = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
+        			elDivS.removeAttribute('class');
+        			elDivS.setAttribute('class', 'fa');
+        			elDivS.classList.add('fa-retweet');
+
+        			var elDivAdd = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(2) div.ui-pg-div>span');
+        			elDivAdd.removeAttribute('class');
+        			elDivAdd.setAttribute('class', 'fa');
+        			elDivAdd.classList.add('fa-plus');
+        			var elDivDell = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(3) div.ui-pg-div>span');
+        			elDivDell.removeAttribute('class');
+        			elDivDell.setAttribute('class', 'fa');
+        			elDivDell.classList.add('fa-window-close');
+        			break;
+        		}
+        		case 'Open': {
+        			//jangan di tambah pager
+        			break;
+        		}
+        	}
+        	//var orgRowActions = $.fn.fmatter.rowactions;
+        	//$.fn.fmatter.rowactions = function (rid, gid, act, pos) {
+        	//	var $grid = $("#" + $.jgrid.jqID(gid)),
+        	//        rowData = $grid.jqGrid("getLocalRow", rid),
+        	//        isNonEditable = false,
+        	//        result;
+        	//	// we can test any condition and change
+        	//	// editable property of any column
+        	//	var hasRef = rowData.HasRef.valueOf == true || rowData.HasRef.valueOf == 1
+        	//	var AllowEdit = (!hasRef) && (window.status !== 'Open')
+        	//	if (act === "save" && AllowEdit) {
+        	//		//'/'brandname', 'priceperunit', 'typeapp', 'serialnumber', 'warranty', 'endofwarranty
+        	//		$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: false } });
+        	//		isNonEditable = true;
+        	//	}
+        	//	result = orgRowActions.call(this, rid, gid, act, pos);
+        	//	if (isNonEditable && AllowEdit) {
+        	//		// reset the setting to original state
+        	//		$grid.jqGrid("setColProp", "endofwarranty", { editable: false, formatter: "date", formatoptions: { newformat: "d/m/Y", reformatAfterEdit: (win.status === 'Edit') } });
+        	//	}
+        	//	return true;
+        	//}
+        	//set button pagerStyle td tengahnya jadi 200px;
+        	var $midTd = $('#jqGrid_NA_F_Goods_Receive_Detail_Pager_center');
+        	if ($midTd) {
+        		$midTd.css('width', '200px');
+        	}
+        	if (AllowEdit) {
+        		var top_rowid = NA.common.doc.querySelector('#jqGrid_NA_F_Goods_Receive_Detail tbody:first-child tr.jqgfirstrow').getAttribute('id');
+        		gridTbl.setSelection(top_rowid, false);
+        		gridTbl.jqGrid('editCell', 1, 3, true);
+        		//hidupkan btnCancel;;
+        		var btnCancel = NA.common.getElementID('btnCancelDetail');
+        		btnCancel.style.cssText = 'display: block;left: 81%;right: 0;position: relative;';
+        		//matikan btnAddDetail
+        		var btnAddDetail = NA.common.getElementID('btnAddDetail');
+        		btnAddDetail.style.display = 'none';
+        	}
+        	if (AllowDelete) {
+        		//assign delete key event
+        		gridTbl.on("keyup", "tr", function (e) {
+        			//var rowId = parseInt($(this).attr("id")); 
+        			var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+        			if (e.keyCode == 46) {
+        				if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0" || ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === undefined)) {
+        					//check hasref
+        					var hasRef = gridTbl.jqGrid('getLocalRow', rowId).HasRef;
+        					if (hasRef == 'True' || hasRef == 'true') {
+        						ShowAlert(NA.common.message.canNotDelete, NA.common.message.titleInfo); return false;
+        					}
+        					showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
+        						win.document.body.style.cursor = 'wait';
+        						var eltreceived = NA.common.getElementID('id_totalreceived'),
+																 valTrec = eltreceived.value;
+        						valTrec = valTrec - 1;
+        						valTrec = (valTrec < 0) ? 0 : valTrec;
+        						eltreceived.value = valTrec;
+        						//delete di localrow
+        						//var idapp = getGridCellValue(gridTbl, 'idapp');  //deleteDetail
+        						if (win.status === 'Edit') {
+        							gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+        							gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
+        							$("#" + rowId, gridTbl).hide();
+        							//if (valTrec <= 0) {
+        							//	if (win.status === 'Add') {
+        							//		var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+        							//		btnCancelDetail.click();//fire event btnCancellDetail;
+        							//	}
+        							//	else {
+        							//		//cek jika ada data yang di hapus data di server
+        							//		//confirmasi ke user bahwa data sebelumnya akan di hapus tidak bisa kembalikan lagi
+        							//		//jika ada save
+        							//		NA.common.triggerKeyboardEvent(NA.common.getElementID('id_totalreceived'), 13);
+        							//	}
+        							//}
+        							//else {
+        							//	gridTbl.jqGrid('getLocalRow', rowId).isdeleted = '1';
+        							//	$("#" + rowId, gridTbl).hide();
+        							//}
+        							eltreceived.setAttribute('readonly', 'true');
+        						}
+        						else {
+        							gridTbl.delRowData(rowId);
+        						}
+        						//if (win.status === 'Edit') {
+        						//    var NAAjax = NA.common.AJAX;
+        						//    NAAjax.POST('deleteDetail/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded', 'application/json',
+        						//   null, function () { }, function () {
+        						//   	//rubah totalreceived -1;
+        						//   	if (this.status == 200) {
+        						//   		var textStatus = JSON.parse(this.responseText);
+        						//   		var dataDetail = gridTbl.jqGrid('getGridParam', 'data');
+        						//   		NA.common.getElementID('id_dataForGridDetail').value = JSON.stringify(dataDetail);//data sudah dalam bentuk json
+        						//   		var initializeForm = NA.common.getElementID('id_initializeForm');
+        						//   		originalData = JSON.stringify(getValuesForm());
+        						//   		initializeForm.value = originalData;
+        						//   		//Update Grid Master
+        						//   		var IrowId = grid.jqGrid('getGridParam', 'selrow');
+        						//   		var IRowData = grid.jqGrid('getRowData', IrowId);
+        						//   		IRowData.totalreceived = valTrec;
+        						//   		grid.jqGrid('setRowData', IrowId, IRowData);
+        						//   		//var btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button');
+        						//   		//Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
+        						//   		//	if (item.textContent === "Cancel") {
+        						//   		//		item.setAttribute('disabled', true);
+        						//   		//	}
+        						//   		//});                                   		
+        						//   	} else {
+        						//   		XhrError(NAAjax.XHR);
+        						//   	}  
+        						//   }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); });
+        						//}
+
+        						win.document.body.style.cursor = 'default';
+        					});
+        				}
+        				win.document.body.style.cursor = 'default';
+        				return false;
+        			}
+        		});
+        	}
+
+        	var recCount = gridTbl.jqGrid('getGridParam', 'reccount')
+
+        	hasGridDetail = parseInt(recCount) > 1;
         };
         function showConfirmation(message, title, callbackYess, calBackNO) {
             BootstrapDialog.confirm({
@@ -4080,10 +4112,20 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         						if (recCount > 0) {
                         							hasChangedDetail = hasChangedDetail();
                         							if (!hasChangedDetail) {
-                        								//check selected rows
-                        								//if selected saved currentRows
-                        								//check if Datachanged
+                        								var gridTbl = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                        								var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+                        								if (rowId) {
+                        									gridTbl.jqGrid("saveRow", rowId, {
+                        										url: 'clientArray',
+                        										restoreAfterError: true,
+                        										//'extraparam': { IsDirty: "True" }
+                        									});
+                        									var curRow = gridTbl.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
+                        									if (isDataChanged(curRows)) {
 
+                        										return NA.common.message.dataHasChanged;
+                        									}
+                        								}
                         							}
                         						}
                         					}

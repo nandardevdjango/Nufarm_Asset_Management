@@ -1461,8 +1461,11 @@
 												url: 'clientArray',
 												restoreAfterError: true,
 											});
+											//var jqGrid('getGridParam', 'selarrrow');
+
 											var curRow = gridTbl.jqGrid('getLocalRow', rowId);
-											if (isDataChanged(curRow)) {
+											var curRows = []; curRows.push(curRow);
+											if (isDataChanged(curRows)) {
 												gridTbl.jqGrid('getLocalRow', rowId).isdirty = '1';
 											}
 											gridTbl.jqGrid('editRow', nextRow, {
@@ -1705,9 +1708,7 @@
 														url: 'clientArray',
 														restoreAfterError: true,
 													});
-													if (isDataChanged(LastRowData)) {
-														LastRowData.isdirty = '1';
-													}
+													LastRowData.isdirty = '1';
 													if (listTypeApp.indexOf(LastRowData.typeapp) < 0) {
 														listTypeApp.push(LastRowData.typeapp);
 													}
@@ -2591,6 +2592,19 @@
 				return NA.common.message.dataHasChanged;
 			}
 			else {
+				var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+				if (rowId) {
+					gridTbl.jqGrid("saveRow", rowId, {
+						url: 'clientArray',
+						restoreAfterError: true,
+						//'extraparam': { IsDirty: "True" }
+					});
+					var curRow = gridTbl.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
+					if (isDataChanged(curRows)) {
+
+						return NA.common.message.dataHasChanged;
+					}
+				}
 				//check selected rows
 				//if selected saved currentRows
 				//check if Datachanged
