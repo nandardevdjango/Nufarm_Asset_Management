@@ -5,7 +5,10 @@ from celery.schedules import crontab
 from celery.task import task, periodic_task
 from django.db import transaction
 
-from NA_Models.models import NAGaVnHistory, NAPrivilege
+from NA_Models.models import (
+    NAGaVnHistory,
+    NAPrivilege
+)
 from NA_Notifications.email import EmailNotification, EmailSubject
 from NA_Notifications.services.notifications_service import (
     NAPushNotificationService,

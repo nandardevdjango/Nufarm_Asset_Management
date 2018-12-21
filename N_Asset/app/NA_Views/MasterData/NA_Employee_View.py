@@ -141,15 +141,16 @@ class NA_Employee_form(forms.Form):
     def save(self, user):
         mode = self.cleaned_data.get('mode')
         employee = Employee()
+        initial_data = {}
         if mode == 'Edit':
             idapp = self.cleaned_data.get('idapp')
             try:
                 employee = Employee.objects.get(idapp=idapp)
-                initial_data = {
+                initial_data.update({
                     'employee_name': employee.employee_name,
                     'employee_phone': employee.telphp,
                     'employee_inactive': employee.inactive
-                }
+                })
             except Employee.DoesNotExist:
                 raise NAError(
                     error_code=NAErrorConstant.DATA_LOST,

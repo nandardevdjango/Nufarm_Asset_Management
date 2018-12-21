@@ -8,7 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import resolve, Resolver404
 from django.db import transaction, IntegrityError
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
@@ -685,3 +685,88 @@ def NA_Privilege_change_picture(request, email):
     user.picture = picture
     user.save()
     return commonFunct.response_default((Data.Success, user.get_picture_name()))
+
+
+
+class EditProfileForm(forms.Form):
+    idapp = forms.IntegerField(widget=forms.HiddenInput())
+    first_name = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ), required=False)
+    last_name = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ), required=False)
+    username = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ), disabled=True, required=False)
+    email = forms.CharField(widget=forms.EmailInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ), disabled=True, required=False)
+    divisi = forms.ChoiceField(choices=(
+        ('IT', 'IT'),
+        ('GA', 'GA')
+    ),
+    widget=forms.Select(attrs={
+        'class': 'form-control'
+    }), required=False
+    )
+    role = forms.ChoiceField(widget=forms.Select(
+        attrs={'class': 'form-control'}),
+        choices=NAPrivilege.ROLE_CHOICES,
+        disabled=True,
+        required=False
+    )
+    picture = forms.ImageField(required=False)
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ), required=False)
+    
+    def save(self):
+        fields = [
+            'first_name', 'last_name', 'divisi', 'picture',
+            'password'
+        ]
+        idapp = self.cleaned_data.get('idapp')
+        user = NAPrivilege.objects.get(idapp=idapp)
+        change = False
+        for field in fields:
+            value = self.cleaned_data.get(field)
+            if value and value != getattr(user, field):
+                change = True
+                setattr(user, field, value)
+        if change:
+            user.save()
+        return user
+
+@decorators.ensure_authorization
+@decorators.ajax_required
+def edit_profile(request: HttpRequest):
+    if request.method == "GET":
+        init_data = forms.model_to_dict(instance=request.user)
+        form = EditProfileForm(initial=init_data)
+        return render(
+            request,
+            'app/NA_User/NA_User_Profile.html',
+            {
+                'form': form
+            }
+        )
+    else:
+        data = request.POST.copy()
+        data.update({
+            'idapp': request.user.idapp
+        })
+        form = EditProfileForm(data, request.FILES or None)
+        if form.is_valid():
+            form.save()
+            return commonFunct.response_default((Data.Success,))

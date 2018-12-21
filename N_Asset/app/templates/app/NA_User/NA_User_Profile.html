@@ -1,37 +1,144 @@
-﻿            <form class="form-horizontal" role="form" method="post" action="{% url 'user_profile' user.username %}" enctype='multipart/form-data'>
-                {% csrf_token %}
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="textinput">First name</label>
-                    <div class="col-sm-8">
-                        <input class="form-control white" name="first_name" id="id_first_name" maxlength="256" value="{{ request.user.first_name }}" required="" type="text" placeholder="First Name">
-                    </div>
+﻿{% load static %}
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        margin-bottom: 15px;
+    }
+
+    input,
+    input::-webkit-input-placeholder {
+        font-size: 11px;
+        padding-top: 3px;
+    }
+
+    span.input-group-addon {
+        color: #afafaf;
+    }
+
+    .left-label {
+        text-align: left;
+        font-weight: bold
+    }
+
+    .hover-span {
+        background: white;
+        border-color: #4CAF50;
+        color: #4CAF50;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    }
+
+    form#edit_profile_form input, select {
+        box-shadow: none;
+        width: 90% !important;
+        height: 34px;
+    }
+
+    form#edit_profile_form input.form-control:focus,
+    select.form-control:focus {
+        border-color: #4CAF50;
+        box-shadow: none
+    }
+    form#edit_profile_form .col-md-12 {
+        margin-bottom: 11px;
+    }
+</style>
+<div class="row">
+    <div class="col-md-3" style="margin-top: 15px;margin-left: 10px;">
+        <div class="profile-circle medium" style="border:none;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
+        </div>
+    </div>
+    <div class="col-md-8">
+        
+        <form class="form-horizontal" method="post" id="edit_profile_form">
+            {% csrf_token %}
+            <div class="col-md-12">
+                <label for="name" class="control-label" style="text-align: left;font-weight:bold">First Name :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                    {{form.first_name}}
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="textinput">Last name</label>
-                    <div class="col-sm-8">
-                        <input class="form-control white" name="last_name" id="id_last_name" maxlength="256" value="{{ request.user.last_name }}" required="" type="text" placeholder="Last Name">
-                    </div>
+            </div>
+            <div class="col-md-12">
+                <label for="name" class="control-label" style="text-align: left;font-weight:bold">Last Name :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                    {{form.last_name}}
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="textinput">Email</label>
-                    <div class="col-sm-8">
-                        <input class="form-control white" name="email" id="id_email" maxlength="254" value="{{ request.user.email }}" autofocus="" type="email" placeholder="Email">
-                    </div>
+            </div>
+            <div class="col-md-12">
+                <label for="username" class="control-label" style="text-align: left;font-weight:bold">Username :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-users fa" aria-hidden="true"></i></span>
+                    {{form.username}}
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="textinput">Picture</label>
-                    <div class="col-sm-4">
-                    <input name="picture" id="id_picture" type="file">
-                    </div>
+            </div>
+            <div class="col-md-12">
+                <label for="id_role" class="control-label" style="text-align: left;font-weight:bold">Role :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-id-card" aria-hidden="true"></i></span>
+                    {{form.role}}
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label" for="textinput">Confirm Password</label>
-                    <div class="col-sm-8">
-                        <input class="form-control white" name="confirm_password" id="id_confirm_password" type="password" placeholder="Password">
-                    </div>
+            </div>
+            <div class="col-md-12">
+                <label for="email" class="control-label" style="text-align: left;font-weight:bold">Email :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                    {{form.email}}
                 </div>
-              <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn gradient-green">Save</button>
-			  </div>
-            </form>
+            </div>
+            <div class="col-md-12">
+                <label for="id_divisi" class="control-label" style="text-align: left;font-weight:bold">Divisi :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-id-card" aria-hidden="true"></i></span>
+                    {{form.divisi}}
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="password" class="control-label" style="text-align: left;font-weight:bold">Password :</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                    {{form.password}}
+                </div>
+            </div>
+            <input type="submit" style="display:none" />
+            <button data-dismiss="modal" style="display: none"></button>
+        </form>
+    </div>
+</div>
+<script>
+    $('form#edit_profile_form input,form#edit_profile_form select').on({
+        'focus': function () {
+            $(this).prev().addClass('hover-span').css('color', '#4CAF50');
+        },
+        'blur': function () {
+            if ($(this).prev().hasClass('hover-span')) {
+                $(this).prev().removeClass('hover-span').css('color', '#afafaf');
+            }
+        }
+    });
+    $('form#edit_profile_form').submit(function(event){
+        event.preventDefault();
+        $.ajax({
+            url: '/MasterData/Privilege/edit_profile/',
+            method: 'POST',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(
+                    'X-CSRFToken',
+                    $('form#edit_profile_form').find('input[name="csrfmiddlewaretoken"]').val()
+                )
+            },
+            data: {
+                first_name: $('form#edit_profile_form').find('input#id_first_name').val(),
+                last_name: $('form#edit_profile_form').find('input#id_last_name').val(),
+                divisi: $('form#edit_profile_form').find('#id_divisi').val(),
+                password: $('form#edit_profile_form').find('input#id_password').val()
+            },
+            success: function (data) {
+                $('form#edit_profile_form').find('button').click();
+            }
+        })
+    })
+</script>

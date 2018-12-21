@@ -104,7 +104,7 @@ def logout_view(request): # logs out the logged in users
 
 
 def user_profile(request, username=None): # updates User profile
-    instance = get_object_or_404(User, username=username)
+    instance = get_object_or_404(NAPrivilege, username=username)
     if request.user.username != instance.username:
         from django.http import Http404
         raise Http404

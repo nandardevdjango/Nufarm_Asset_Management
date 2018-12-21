@@ -32,6 +32,7 @@ urlpatterns = [
         r'^permission/' + patterns_email + '/get_permission/$',
         NA_Privilege_View.na_privilege_get_permission
     ),
-    url(r'^change_picture/' + patterns_email + '/',
-        NA_Privilege_View.NA_Privilege_change_picture)
+    url(r'^change_picture/' + patterns_email + '/$',
+        NA_Privilege_View.NA_Privilege_change_picture),
+    url(r'^edit_profile/$', NA_Privilege_View.edit_profile)
 ]

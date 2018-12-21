@@ -98,11 +98,10 @@ class NA_Acc_FA_BR(models.Manager):
             goods_field.format('economiclife')
         ]
         result = (NA_GoodsReceive_detail.objects
-                                        .select_related('fk_app',
-                                                        'fk_app__idapp_fk_goods')
-                                        .annotate(**annotate_kwargs)
-                                        .filter(filter_kwargs, existed_data=True)
-                                        .only(*only_fields))
+                  .select_related('fk_app', 'fk_app__idapp_fk_goods')
+                  .annotate(**annotate_kwargs)
+                  .filter(filter_kwargs, existed_data=True)
+                  .only(*only_fields))
         return result
 
 

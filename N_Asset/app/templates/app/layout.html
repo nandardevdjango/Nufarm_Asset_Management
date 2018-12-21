@@ -336,9 +336,8 @@
                                     <div class="col-md-7" style="font-size:13px;padding:5px;">
                                         <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
                                         <div class="email">{{ request.user.email }}</div>
-                                        <!--<button id="profile" class="btn btn-primary" style="margin-top:10px;">Profile</button>-->
 										<div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
-										<div><p class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
+										<div><p id="edit_profile" class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
                                     </div>
                                 </div>
                             </li>
@@ -1125,7 +1124,46 @@
                 }
                 
             }
-    	});
+            $('p#edit_profile').click(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                $.ajax({
+                    url: '/MasterData/Privilege/edit_profile/',
+                    success: function (response) {
+                        BootstrapDialog.show({
+                            draggable: true,
+                            type: BootstrapDialog.TYPE_SUCCESS,
+                            size: BootstrapDialog.SIZE_NORMAL,
+                            title: 'Profile',
+                            message: (function(){
+                                return $(response);
+                            })(),
+                            closable: false,
+                            animate: true,
+                            closeByBackdrop: false,
+                            closeByKeyboard: false,
+                            buttons: [
+                                {
+                                    label: 'OK',
+                                    cssClass: 'btn-default',
+                                    action: function (dialogRef) {
+                                        $(dialogRef.$modalBody).find('input[type="submit"]').click();
+                                    }
+                                },
+                                {
+                                    label: 'Cancel',
+                                    cssClass: 'btn-default',
+                                    action: function (dialogRef) {
+                                        dialogRef.close();
+                                    }
+                                }
+                            ]
+                        })
+                    }
+                })
+                
+            });
+        });
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
@@ -1391,7 +1429,7 @@
                         window.ShowDialogExtend(data);
                     }
                 })
-            })
+            });
         })
     </script>
     {% endif %}
