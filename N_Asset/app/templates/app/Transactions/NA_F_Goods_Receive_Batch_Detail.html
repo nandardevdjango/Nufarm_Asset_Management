@@ -222,7 +222,7 @@
     }
 
     .row_RBD {
-        margin-top: 5px;
+        margin-top: 0;
         padding: 0 5px;
     }
 
@@ -246,6 +246,9 @@
 	.panel-body{
 		padding:5px;
 	}
+	/*ui-jqgrid .ui-jqgrid-bdiv{
+		overflow-y:scroll;
+	}*/
 </style>
 <div class="container" id="mainContainer_Detail">
     <div class="row row_RBD">
@@ -600,7 +603,7 @@
 			}
 			gridHeader = $("#jqGrid_NA_F_Goods_Receive");
 			var widthTable = win.getComputedStyle(NA.common.getElementID('pnlBody')).width;
-			gridTbl.css({ 'overflow': 'auto', 'width': widthTable });
+			//gridTbl.css({ 'overflow': 'auto', 'width': widthTable });
 			gridHeader.jqGrid({
 				data: gridData,
 				loadonce: true,
@@ -795,10 +798,14 @@
 				caption: "Header goods Receive",
 				shrinkToFit: false,
 				viewPagerButtons: false,
-			});			
+			});
+
+			//set width jangan inherit
+			var elContent = NA.common.qs('div.content'), widthContent = elContent.clientWidth;
 			$("div#gbox_jqGrid_NA_F_Goods_Receive, div#gview_jqGrid_NA_F_Goods_Receive, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
-				'width': 'inherit'
-			})
+				'width': widthContent + 'px'
+			});
+			$('div.row').css({'margin-right': '-40px','margin-left': '-19px'});
 		};
 		Array.prototype.sortBy = function (p) {
 			return this.slice(0).sort(function (a, b) {
@@ -1569,7 +1576,7 @@
 					viewrecords: true,    // disable current view record text like 'View 1-10 of 100'
 					height: (function () {
 						var eLogHeight = win.getComputedStyle(NA.common.getElementID('EventLogs')).height, mcontainerDetHeight = win.getComputedStyle(NA.common.qs('div.row.row_RBD')).height;
-						return (parseFloat(eLogHeight.replace('px', '')) - parseFloat(mcontainerDetHeight.replace('px', '')) - 125).toString() + 'px';
+						return (parseFloat(eLogHeight.replace('px', '')) - parseFloat(mcontainerDetHeight.replace('px', '')) - 115).toString() + 'px';
 					})(),
 					rowNum: (function () {
 						var elTotalReceived = gridHeaderData[0]['totalreceived'];
@@ -1627,7 +1634,7 @@
 									 NewRowData = gridTbl.jqGrid('getLocalRow', id);
 									var hasRef = NewRowData.HasRef;
 									if (hasRef == true ||  hasRef == 'True' || hasRef == 'true' || hasRef == "1") { return false; }
-									if (lastsel <= id) {
+									if (parseInt(lastsel) <= parseInt(id)) {
 										for (var i = 0; i < detailData.length; i++) {
 											if (detailData[i].no == NewRowData.no) {
 												//test
@@ -1998,9 +2005,11 @@
 				}
 				document.body.style.cursor = 'default';
 			};
+			var elContent = NA.common.qs('div.content'), widthContent = elContent.clientWidth;
 			$("div#jqGrid_NA_F_Goods_Receive_Batch_Detail_Pager,div#gbox_jqGrid_NA_F_Goods_Receive_Batch_Detail, div#gview_jqGrid_NA_F_Goods_Receive_Batch_Detail, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
-				'width': 'inherit'
+				'width': widthContent + 'px'
 			})
+			$('div#gview_jqGrid_NA_F_Goods_Receive_Batch_Detail>div.ui-jqgrid-bdiv').css({ 'overflow-y': 'auto' });
 		};
 		
 		function createDummyRowData(intLength) {
@@ -2124,6 +2133,7 @@
 						            btnSearchMaster.click();
 						        }
 						        filterToolbar.classList.remove('disablaled');
+
 						    }
 						}
 						else {

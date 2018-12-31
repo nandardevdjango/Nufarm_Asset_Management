@@ -1543,9 +1543,9 @@
 										draggable: true,
 										title: 'Find goods',
 										type: BootstrapDialog.TYPE_INFO,
-										size: BootstrapDialog.SIZE_SMALL,
+										size: BootstrapDialog.SIZE_WIDE,
 										message: function (dialogRef) {
-											var placeHolder = 'Enter goods name or brandname or (exact serialnumber) to search for';
+											var placeHolder = 'Enter goods name or brandname or Type of goods or (exact serialnumber) to search for';
 											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
 											function (e) {//event for blur
 												if (this.value === '') {
@@ -1610,11 +1610,11 @@
 														{ name: 'fk_goods', index: 'fk_goods', hidden: true, },
 														{ name: 'goodsname', index: 'goodsname', width: 120, sortable: true, editable: false, align: 'left', },
 														{ name: 'brandname', index: 'brandname', width: 120, sortable: true, editable: false, align: 'left', },
-														{ name: 'type', index: 'type', width: 90, sortable: true, editable: false, align: 'left', },
-														{ name: 'serialnumber', index: 'serialnumber', width: 100, sortable: true, editable: false, align: 'left', },
+														{ name: 'type', index: 'type', width: 130, sortable: true, editable: false, align: 'left', },
+														{ name: 'serialnumber', index: 'serialnumber', width: 195, sortable: true, editable: false, align: 'left', },
 														{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true },
 														{ name: 'usedemployee', index: 'usedemployee', hidden: true },
-														{ name: 'lastinfo', index: 'lastinfo', width: 200, sortable: false, editable: false, align: 'left', },
+														{ name: 'lastinfo', index: 'lastinfo', width: 240, sortable: false, editable: false, align: 'left', },
 														{ name: 'fk_receive', index: 'fk_receive', hidden: true, },
 														{ name: 'fk_outwards', index: 'fk_outwards', hidden: true, },
 														{ name: 'fk_lending', index: 'fk_lending', hidden: true, },
@@ -1694,6 +1694,9 @@
 											}
 										}]
 									});
+									$("div#gbox_jqGrid_NA_F_Goods_Outwards_FK_Goods, div#gview_jqGrid_NA_F_Goods_Outwards_FK_Goods, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+										'width': 'inherit'
+									})
 								});
 								var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_employee"],[id="FE_fk_sender"],[id="FE_fk_responsibleperson"]');
 								Array.prototype.forEach.call(listFK, function (item) {
@@ -1706,7 +1709,7 @@
 												draggable: true,
 												title: 'Find Employee',
 												type: BootstrapDialog.TYPE_INFO,
-												size: BootstrapDialog.SIZE_SMALL,
+												size: BootstrapDialog.SIZE_NORMAL,
 												message: function (dialogRef) {
 													var placeHolder = 'Enter Employee name to search for';
 													//var gridTbl = null, gridPager = null;
@@ -1770,7 +1773,7 @@
 														colModel: [
                                                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                                                             { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-                                                            { name: 'nik', width: 90, align: 'left', sortable: true, editable: false, },
+                                                            { name: 'nik', width: 130, align: 'left', sortable: true, editable: false, },
                                                             { name: 'employee_name', index: 'employee_name', width: 290, sortable: true, editable: false, align: 'left', },
 														],
 														ondblClickRow: function (rowId) {
@@ -1802,6 +1805,10 @@
 														del: false,
 														refresh: false
 													});
+													$("div#gbox_jqGrid_NA_F_Goods_Out_fk_employee, div#gview_jqGrid_NA_F_Goods_Out_fk_employee, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+														'width': 'inherit'
+													})
+													$("div.modal-content").css({ 'width': '511px' });
 												},
 												animate: false,
 												closable: false,

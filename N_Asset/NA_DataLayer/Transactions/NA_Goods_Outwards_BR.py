@@ -139,8 +139,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 				(SELECT * FROM Temp_T_Receive_Outwards_""" + userName + """ \
 					UNION \
 				 SELECT * FROM Temp_T_History_Outwards_""" + userName + """\
-				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s) OR (serialnumber = %s))"""
-		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%',searchText])
+				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s)  OR (`Type` LIKE %s) OR (serialnumber = %s))"""
+		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%','%'+searchText+'%',searchText])
 		if orderFields == '':
 			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
 		else:
@@ -382,8 +382,15 @@ class NA_BR_Goods_Outwards(models.Manager):
 							'FK_Sender':Data['idapp_fk_sender'],'ModifiedBy':Data['modifiedby'],'Descriptions':Data['descriptions']}
 				cur.execute(Query,param)
 				who = Data['createdby'] if Status == StatusForm.Input else Data['modifiedby']
-				(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
-
+				#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
+				TStock =  commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
+				TotalSpare = TStock[6]
+				totalUsed = TStock[2]
+				totalNew = TStock[0]
+				totalRenew = TStock[4]
+				totalReturn = TStock[3]
+				totalReceived = TStock[1]
+				totalMaintenance = TStock[5]
 				#Update n_a_stock
 				Query = """UPDATE n_a_stock SET T_Goods_Spare=%(T_Goods_Spare)s,TIsUsed=%(TIsUsed)s,TIsNew=%(TIsNew)s,TIsRenew=%(TIsRenew)s,TGoods_Return=%(TGoods_Return)s,
 						TGoods_Received=%(TGoods_Received)s,TMaintenance=%(TMaintenance)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s WHERE IDApp = %(fk_stock)s"""
@@ -432,7 +439,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 			cur.execute(Query,[idapp])
 			Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_outwards = %s"""
 			cur.execute(Query,[fk_goods,serialnumber,idapp])
-			(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(fk_goods,cur,username)
+			TStock =  commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
+			TotalSpare = TStock[6],totalUsed = TStock[2],totalNew = TStock[0],totalRenew = TStock[4],totalReturn = TStock[3],totalReceived = TStock[1],totalMaintenance = TStock[5]
 
 			#Update n_a_stock
 			Query = """UPDATE n_a_stock SET T_Goods_Spare=%(T_Goods_Spare)s,TIsUsed=%(TIsUsed)s,TIsNew=%(TIsNew)s,TIsRenew=%(TIsRenew)s,TGoods_Return=%(TGoods_Return)s,
