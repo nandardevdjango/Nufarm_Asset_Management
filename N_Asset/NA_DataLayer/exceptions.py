@@ -100,7 +100,7 @@ class NAErrorHandler(object):
             column=error_column,
             model=instance._meta.model
         )
-        field_display = instance.log_display.get(error_field)
+        field_display = instance.HUMAN_DISPLAY.get(error_field)
         data = (Data.Exists, Message.get_specific_exists(
             table=instance._meta.model.FORM_NAME,
             column=field_display,

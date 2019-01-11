@@ -527,134 +527,168 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
                 var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods_Receive');
                 switch (TextElement) {
-                    case 'OK': {
-                        if (!frmEntry.checkValidity()) {
+                	case 'OK': {
+
+                		var valid = false;
+                		var elTotalReceived = NA.common.getElementID('id_totalreceived');
+                		var elTotalPurchased = NA.common.getElementID('id_totalpurchase');
+                		var valuePurchase = elTotalPurchased.value, valueReceived = elTotalReceived.value;
+                		if (valueReceived === '' || valueReceived === 'undefined') {
+                			elTotalReceived.setCustomValidity('can not set null or zero value');
+                		}
+                		else if (parseInt(valueReceived) > parseInt(valuePurchase)) {
+                			elTotalReceived.setCustomValidity('total received is more than total purchased');
+                		}
+                		else if (elTotalReceived.validity.valid !== '') {
+                			elTotalReceived.setCustomValidity('');
+                			elTotalReceived.validity.valid = true;
+                			valid = true;
+                		}
+                		if (valid) {
+                			var elDatereceived = NA.common.getElementID('id_datereceived'), valuePatRec = elDatereceived.value;
+                			var elpat = elDatereceived.getAttribute('patern');
+                			var patern = new RegExp(elpat, 'i');
+                			if (valuePatRec === null || valuePatReq === '') {
+                				valuePatRec = elDatereceived.textContent;
+                			}
+                			if (patern.test(valuePatRec)) {
+                				elDatereceived.setCustomValidity('');
+                				elDatereceived.validity.valid = true;
+                				valid = true;
+                			}
+                		}
+                		if (!valid) {
+                			var inputbtn = NA.common.getElementID('inputButton');
+                			inputbtn.click();
+                		}
+                        else if (!frmEntry.checkValidity()) {
                             //NA.NAEvent.preventDefault(event);                                          
                             var inputbtn = NA.common.getElementID('inputButton');
                             inputbtn.click();
                         }
                         else {
-                            //check existing
-                            var elfk_goods = NA.common.getElementID('id_idapp_fk_goods'),
+                        	//check existing
+                        	var elfk_goods = NA.common.getElementID('id_idapp_fk_goods'),
 								idapp_fk_goods = elfk_goods.value;
-                            var eldatereceived = NA.common.getElementID('id_datereceived'),
+                        	var eldatereceived = NA.common.getElementID('id_datereceived'),
 								datereceived = eldatereceived.value.toString().trim();
-                            var eltotalpurchase = NA.common.getElementID('id_totalpurchase'),
-								totalPurchase = eltotalpurchase.value;
-                            var token = (function () {
-                                var el = document.getElementsByName("csrfmiddlewaretoken");
-                                return el[0].getAttribute("value");
-                            })();
-                            var NAAjax = NA.common.AJAX;
-                            if (win.status === 'Add') {
-                                NAAjax.POST('HasExists/',
-									JSON.stringify({ 'idapp_fk_goods': idapp_fk_goods, 'datereceived': GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', datereceived)), 'totalpurchase': totalPurchase }),
+                        	//var eltotalpurchase = NA.common.getElementID('id_totalpurchase'),
+                        	//	totalPurchase = eltotalpurchase.value;
+                        	var elRefNO = NA.common.getElementID('id_refno');
+                        	var token = (function () {
+                        		var el = document.getElementsByName("csrfmiddlewaretoken");
+                        		return el[0].getAttribute("value");
+                        	})();
+                        	var NAAjax = NA.common.AJAX;
+                        	if (win.status === 'Add') {
+                        		NAAjax.POST('HasExists/',
+									JSON.stringify({ 'refno': elRefNO.value, 'idapp_fk_goods': idapp_fk_goods, 'datereceived': GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', datereceived)), 'totalpurchase': valuePurchase }),
 									'application/x-www-form-urlencoded', 'application/json',
 									function () {
-									    window.document.body.style.cursor = 'wait';
+										window.document.body.style.cursor = 'wait';
 									}, null,
 									function () {
-									    if (this.status === 200) {
-									        var confirmText = JSON.parse(this.responseText);
-									        if (confirmText) {
-									            confirmText = confirmText.message;
-									            if (!confirmText) {
-									                ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
-									            }
-									        }
-									        else {
-									        	win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
-									        }
-									        if (confirmText === 'OK') {
-									            win.document.body.style.cursor = 'wait';
-									            valuesForm = getValuesForm();
-									            submitForm(valuesForm);
-									            //if (submitForm(valuesForm)) {
-									            //    //clear kan semua data
-									            //    //reloadGridMaster
-									            //    grid.trigger("reloadGrid", [{ page: 1 }]);
-									            //    clearEntry();
-									            //    //focus langsung ke REFNO
-									            //    var elRefNO = NA.common.getElementID('id_refno');
-									            //    elRefNO.focus();
-									            //    var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-									            //    btnCancelDetail.click();//fire event btnCancellDetail;
-									            win.document.body.style.cursor = 'default';
-									            //}
-									        }
-									        else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
-									            return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
-									                win.document.body.style.cursor = 'wait';
-									                valuesForm = getValuesForm();
-									                submitForm(valuesForm);
-									                //if (submitForm(valuesForm)) {
-									                //    //clear kan semua data
-									                //    //reloadGridMaster
-									                //    grid.trigger("reloadGrid", [{ page: 1 }]);
-									                //    clearEntry();
-									                //    //focus langsung ke REFNO
-									                //    var elRefNO = NA.common.getElementID('id_refno');
-									                //    elRefNO.focus();
-									                //    var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
-									                //    btnCancelDetail.click();//fire event btnCancellDetail;
-									                win.document.body.style.cursor = 'default';
-									                //}
-									            });
-									        }
-									    }
-									    else {
-									    	XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
-									    }
+										if (this.status === 200) {
+											var confirmText = JSON.parse(this.responseText);
+											if (confirmText) {
+												confirmText = confirmText.message;
+												if (!confirmText) {
+													ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
+												}
+											}
+											else {
+												win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
+											}
+											if (confirmText === 'OK') {
+												win.document.body.style.cursor = 'wait';
+												valuesForm = getValuesForm();
+												submitForm(valuesForm);
+												//if (submitForm(valuesForm)) {
+												//    //clear kan semua data
+												//    //reloadGridMaster
+												//    grid.trigger("reloadGrid", [{ page: 1 }]);
+												//    clearEntry();
+												//    //focus langsung ke REFNO
+												//    var elRefNO = NA.common.getElementID('id_refno');
+												//    elRefNO.focus();
+												//    var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+												//    btnCancelDetail.click();//fire event btnCancellDetail;
+												win.document.body.style.cursor = 'default';
+												//}
+											}
+											else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
+												return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
+													win.document.body.style.cursor = 'wait';
+													valuesForm = getValuesForm();
+													submitForm(valuesForm);
+													//if (submitForm(valuesForm)) {
+													//    //clear kan semua data
+													//    //reloadGridMaster
+													//    grid.trigger("reloadGrid", [{ page: 1 }]);
+													//    clearEntry();
+													//    //focus langsung ke REFNO
+													//    var elRefNO = NA.common.getElementID('id_refno');
+													//    elRefNO.focus();
+													//    var btnCancelDetail = NA.common.getElementID('btnCancelDetail');
+													//    btnCancelDetail.click();//fire event btnCancellDetail;
+													win.document.body.style.cursor = 'default';
+													//}
+												});
+											}
+										}
+										else {
+											XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
+										}
 									}, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); },
 									function () { win.document.body.style.cursor = 'default'; }
 								);
-                            }
-                            else if (win.status === 'Edit') {
-                                //todo this		
-                                win.document.body.style.cursor = 'wait';
-                                var valuesForm = getValuesForm();
-                                var hasChangedHeader = false, hasChangedDetail = false;
-                                hasChangedHeader = NA.common.detectInputChanges(valuesForm, JSON.parse(originalData));
-                                valuesForm['hasChangedHeader'] = hasChangedHeader;
-                                if (hasGridDetail) {
-                                    var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
-                                    //dataDetail = gridDetail.jqGrid('getGridParam', 'data');
-                                    var recCount = gridDetail.jqGrid("getGridParam", "reccount");
-                                    var elOriDetail = NA.common.getElementID('id_dataForGridDetail'),//data sudah dalam bentuk json
+                        	}
+                        	else if (win.status === 'Edit') {
+                        		//todo this		
+                        		win.document.body.style.cursor = 'wait';
+                        		var valuesForm = getValuesForm();
+                        		var hasChangedHeader = false, hasChangedDetail = false;
+                        		hasChangedHeader = NA.common.detectInputChanges(valuesForm, JSON.parse(originalData));
+                        		valuesForm['hasChangedHeader'] = hasChangedHeader;
+                        		if (hasGridDetail) {
+                        			var gridDetail = $('#jqGrid_NA_F_Goods_Receive_Detail');
+                        			//dataDetail = gridDetail.jqGrid('getGridParam', 'data');
+                        			var recCount = gridDetail.jqGrid("getGridParam", "reccount");
+                        			var elOriDetail = NA.common.getElementID('id_dataForGridDetail'),//data sudah dalam bentuk json
 										oriDataDetail = elOriDetail.value;
-                                    if (typeof oriDataDetail !== 'undefined' && oriDataDetail != '') {
-                                        if (recCount > 0) {
-                                        	hasChangedDetail = HasChangedDetail();
-                                        }
-                                        if (!hasChangedDetail) {
-                                        	var rowId = gridDetail.jqGrid('getGridParam', 'selrow');
-                                        	if (rowId) {
-                                        		gridDetail.jqGrid("saveRow", rowId, {
-                                        			url: 'clientArray',
-                                        			restoreAfterError: true,
-                                        			//'extraparam': { IsDirty: "True" }
-                                        		});
-                                        		var curRow = gridDetail.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
-                                        		if (isDataChanged(curRows)) {       
-                                        			hasChangedDetail = true;
-                                        		}
-                                        	}
-                                        }                                        
-                                    }
-                                    else if (recCount > 0) {
-                                    	hasChangedDetail = (parseInt(recCount) > 0);
-                                    }
-                                }
-                                valuesForm['hasChangedDetail'] = hasChangedDetail;
-                                if (hasChangedHeader || hasChangedDetail) {
-                                    submitForm(valuesForm);
-                                   }
-                                else {
-                                    closeDialog();
-                                }
-                            }
-                            //POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
-                            win.document.body.style.cursor = 'default';
+                        			if (typeof oriDataDetail !== 'undefined' && oriDataDetail != '') {
+                        				if (recCount > 0) {
+                        					hasChangedDetail = HasChangedDetail();
+                        				}
+                        				if (!hasChangedDetail) {
+                        					var rowId = gridDetail.jqGrid('getGridParam', 'selrow');
+                        					if (rowId) {
+                        						gridDetail.jqGrid("saveRow", rowId, {
+                        							url: 'clientArray',
+                        							restoreAfterError: true,
+                        							//'extraparam': { IsDirty: "True" }
+                        						});
+                        						var curRow = gridDetail.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
+                        						if (isDataChanged(curRows)) {
+                        							hasChangedDetail = true;
+                        						}
+                        					}
+                        				}
+                        			}
+                        			else if (recCount > 0) {
+                        				hasChangedDetail = (parseInt(recCount) > 0);
+                        			}
+                        		}
+                        		valuesForm['hasChangedDetail'] = hasChangedDetail;
+                        		if (hasChangedHeader || hasChangedDetail) {
+                        			submitForm(valuesForm);
+                        		}
+                        		else {
+                        			closeDialog();
+                        		}
+                        	}
+                        	//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+                        	win.document.body.style.cursor = 'default';
                         }
                         break;
                     }
@@ -3318,10 +3352,10 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							valid = true;
                         						}
                         					}
-                        					if (parseFloat(item.value) > 10) {
-                        						this.setCustomValidity('total receive is over than total purchase');
-                        						this.validity.valid = false;
-                        					}
+                        					//if (parseFloat(item.value) > 10) {
+                        					//	this.setCustomValidity('total receive is over than total purchase');
+                        					//	this.validity.valid = false;
+                        					//}
                         					else {
                         						if (valid) {
                         							this.setCustomValidity('');
@@ -3435,7 +3469,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         							rowList: [20, 50, 100, 200, 300, 500],
                         							sortname: "itemcode",
                         							sortorder: "asc",
-                        							multiSort: false,
+                        							multiSort: true,
                         							//shrinkToFit: false,
                         							iconSet: "fontAwesome",
                         							loadui:'disabled',

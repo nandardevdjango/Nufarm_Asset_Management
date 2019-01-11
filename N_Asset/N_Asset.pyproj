@@ -153,6 +153,7 @@
     <Compile Include="NA_DataLayer\exceptions.py" />
     <Compile Include="NA_DataLayer\fields.py" />
     <Compile Include="NA_DataLayer\file_storage.py" />
+    <Compile Include="NA_DataLayer\logging.py" />
     <Compile Include="NA_DataLayer\MasterData\NA_Sys_Privilege_BR.py">
       <SubType>Code</SubType>
     </Compile>

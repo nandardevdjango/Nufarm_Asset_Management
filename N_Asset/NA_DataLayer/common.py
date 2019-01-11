@@ -892,8 +892,7 @@ class commonFunct:
         Isord: asc/desc
         """
 
-        if (Isord is not None and Isord != '') \
-                and (Isidx is not None and Isidx != ''):
+        if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
             if ',' in Isidx:
                 multi_sort = []
                 Isidx = Isidx.split(',')

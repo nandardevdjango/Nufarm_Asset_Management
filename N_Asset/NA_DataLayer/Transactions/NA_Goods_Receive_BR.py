@@ -105,6 +105,9 @@ class NA_BR_Goods_Receive(models.Manager):
 	def hasExists(self,idapp_fk_goods,datereceived,totalPurchase):
 		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods=idapp_fk_goods) & Q(datereceived=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
+	def hasExistsRefNo(self,refno):
+		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
+		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__iexact=refno).exists()#Q(member=p1) | Q(member=p2)
 	def hasReference(self,Data,Ccur):
 		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new
 		cur = None	

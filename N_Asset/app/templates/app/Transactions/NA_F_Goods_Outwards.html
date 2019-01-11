@@ -486,26 +486,66 @@
 		function ExecuteHandler(textElement) {
 			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
 			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Outwards');
+			//cek validity.valid id_daterequest
+			//cek validity.valid id_datereleased
+			var elDateReq = NA.common.getElementID('id_daterequest');
+			var elDateRel = NA.common.getElementID('id_datereleased');
+			var validDate = true;
+			if (!elDateReq.validity.valid) {
+				validDate = false;
+			}
+			else if (!elDateRel.validity.valid) {
+				validDate = false;
+			}
+			if (!validDate) {
+				var valid = false;
+				var elpat = elDateReq.getAttribute('patern');
+				var patern = new RegExp(elpat, 'i');
+				var valuePatReq = elDateReq.value;
+				if (valuePatReq === null || valuePatReq === '') {
+					valuePatReq = elDateReq.textContent;
+				}
+				if (patern.test(valuePatReq)) {
+					elDateReq.setCustomValidity('');
+					elDateReq.validity.valid = true;
+					valid = true;
+				}
+				if (valid) {
+					elpat = elDateRel.getAttribute('patern');
+					var valuePatRel = elDateRel.value;
+					if (valuePatRel === null || valuePatRel === '') {
+						valuePatRel = elDateRel.textContent;
+					}
+					if (patern.test(valuePatRel)) {
+						elDateRel.setCustomValidity('');
+						elDateRel.validity.valid = true;
+						valid = true;
+					}
+				}
+				validDate = valid;
+			}
+
 			switch (textElement) {
 				case 'OK': {
 					if (!frmEntry.checkValidity()) {
-						//NA.NAEvent.preventDefault(event);                                          
-						var inputbtn = NA.common.getElementID('inputButton');
-						inputbtn.click();
+						//NA.NAEvent.preventDefault(event); 
+						if (validDate) {
+							var inputbtn = NA.common.getElementID('inputButton');
+							inputbtn.click();
+						}
 					}
 					else {
 						//check exists
 						//barang dan serial number dan lenddate
 						var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 						var elserialnumber = NA.common.getElementID('id_serialnumber');
-						var elDateReq = NA.common.getElementID('id_daterequest').value;
-						var elDateRel = NA.common.getElementID('id_datereleased').value;
-						dateRequest = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateReq));
-						dateReleased = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateRel));
+
+						dateRequest = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateReq.value));
+						dateReleased = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateRel.value));
 						var NAAjax = NA.common.AJAX;
 						if (win.status === 'Add') {
 							NAAjax.POST('HasExists/',
-                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest,'datereleased':dateReleased, 'serialnumber': elserialnumber.value }),
+                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest, 'datereleased': dateReleased, 'serialnumber': elserialnumber.value }),
                                 'application/x-www-form-urlencoded', 'application/json',
                                 function () {
                                 	window.document.body.style.cursor = 'wait';
@@ -800,18 +840,18 @@
 				NA.common.dialog.closeDialog(dialog);
 			}
 		};
-		function restyleBoostrapDialog() {
-			var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
-			BSDialogContent.style.cssText = 'width: 425px; height: 330px;';
-			var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
-			ContentBody.style.cssText = 'padding:0px;';
-			var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
-			contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
-			var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
-			mHeader.style.cssText = 'height:30px;padding:0px;';
-			var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
-			footerButton.style.cssText = 'padding-top:8px;';
-		};
+		//function restyleBoostrapDialog() {
+		//	var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
+		//	BSDialogContent.style.cssText = 'width: 425px; height: 330px;';
+		//	var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
+		//	ContentBody.style.cssText = 'padding:0px;';
+		//	var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
+		//	contentFooter.style.cssText = 'padding-bottom:0px;padding-top:0px;';
+		//	var mHeader = NA.common.doc.querySelector('div.bootstrap-dialog .modal-header.bootstrap-dialog-draggable');
+		//	mHeader.style.cssText = 'height:30px;padding:0px;';
+		//	var footerButton = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons');
+		//	footerButton.style.cssText = 'padding-top:8px;';
+		//};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
 		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
 
@@ -1402,7 +1442,7 @@
 										}
 										if (evt.keyCode === 13) {//kalau menekan tombol enter
 											var NAAjax = NA.common.AJAX;
-											switch (this.id) {
+											switch (item.id) {
 												case 'id_serialnumber': {
 													//ambil data terakhir transaksi
 													//jika tidak ada ambil di n_a_goods_receive_detail
@@ -1419,7 +1459,7 @@
                                                         	}
                                                         	else {
                                                         		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                        		fillGoodsInfo(data, this.id,true);
+                                                        		fillGoodsInfo(data, item.id, true);
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(this);
@@ -1432,7 +1472,7 @@
 												case 'id_fk_sender':
 												case 'id_fk_responsibleperson': {
 													NA.NAEvent.preventDefault(evt);//prevent from submit
-													fillEmployeeName(evt, this.id);
+													fillEmployeeName(evt, item.id);
 													break;
 												}
 											};//end switch
@@ -1447,10 +1487,12 @@
 									var eloriginalData = JSON.parse(originalData);
 									var valDaterequest = new Date(eloriginalData.daterequest);
 									$("#id_daterequest").datepicker("setDate", valDaterequest);
-
-									var eloriginalData = JSON.parse(originalData);
+									//format value jadi dd//mm/yyy
+									$("#id_daterequest").val(formatDate(valDaterequest));
+									//$("id_daterequest").val(valDaterequest.getDate())
 									var valDatereleased = new Date(eloriginalData.datereleased);
 									$("#id_datereleased").datepicker("setDate", valDatereleased);
+									$("#id_datereleased").val(formatDate(valDatereleased));
 								}
 								$('#id_daterequest').datepicker({
 									dateFormat: 'dd/mm/yy',
@@ -1847,7 +1889,7 @@
 													}
 												}]
 											});
-											restyleBoostrapDialog();
+											//restyleBoostrapDialog();
 											//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
 											//gbox.style.width = '432px';
 											//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');

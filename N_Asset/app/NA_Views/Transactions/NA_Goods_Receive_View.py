@@ -9,6 +9,7 @@ from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
 from NA_DataLayer.common import Data
+from NA_DataLayer.common import commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -136,10 +137,13 @@ def HasExists(request):
 		idapp_fk_goods = data['idapp_fk_goods']
 		totalpurchase = data['totalpurchase']
 		datereceived = data['datereceived']
+		refno = data['refno']
 		statuscode = 200;
 		if NAGoodsReceive.objects.hasExists(idapp_fk_goods,datereceived,totalpurchase):
 			statuscode = 200
 			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
+		elif NAGoodsReceive.objects.hasExistsRefNo('refno'):
+			return HttpResponse(json.dumps({'message':'ref no exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
 		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
@@ -390,15 +394,15 @@ def SearchGoodsbyForm(request):
 	searchText = request.GET.get('goods_desc')
 	Ilimit = request.GET.get('rows', '')
 	NAData = None;
-	if(Isord is not None and str(Isord) != ''):
+	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
 		NAData = goods.customs.searchGoodsByForm(searchText)
 		if NAData != Data.Empty:
-			NAData.order_by('-' + str(Isidx))
+			NAData = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)
 	else:
 		NAData = goods.customs.searchGoodsByForm(searchText)
 
-	if NAData == Data.Empty:
-		NAData = goods.objects.none()
+	#if NAData == Data.Empty:
+	#	NAData = goods.objects.none()
 	totalRecord = NAData.count()#if (NAData != Data.Empty) else 0
 	paginator = Paginator(NAData, int(Ilimit)) 
 	try:
@@ -417,7 +421,7 @@ def SearchGoodsbyForm(request):
 		datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods']]}
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder),content_type='application/json')
 def SearchSupplierbyForm(request):
 	"""get supplier data for grid return supplier code,suppliername, criteria = icontains"""
 	searchText = request.GET.get('suppliername')
@@ -425,10 +429,11 @@ def SearchSupplierbyForm(request):
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
 	NAData = None;
-	if(Isord is not None and str(Isord) != ''):
+	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
 		NAData = NASupplier.customManager.getSupplierByForm(searchText)# NASuplier.customManager.getSuplierByForm(searchText)
 		if len(NAData):
 			NAData.order_by('-' + str(Isidx))
+			NAData = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)
 	else:
 		NAData = NASupplier.customManager.getSupplierByForm(searchText)
 	totalRecord = NAData.count()
@@ -449,17 +454,17 @@ def SearchSupplierbyForm(request):
 		datarow = {"id" :row['suppliercode'], "cell" :[i,row['suppliercode'],row['suppliername']]}
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder),content_type='application/json')
 def SearchEmployeebyform(request):
 	"""get employee data for grid return idapp,nik, employee_name criteria = icontains"""
 	searchText = request.GET.get('employee_name')
 	Ilimit = request.GET.get('rows', '')
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
-	if(Isord is not None and str(Isord) != ''):
+	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
 		NAData = Employee.customManager.getEmloyeebyForm(searchText)
 		if len(NAData):
-			NAData.order_by('-' + str(Isidx))
+			NAData = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)				
 	else:
 		NAData = Employee.customManager.getEmloyeebyForm(searchText)
 	totalRecord = NAData.count()
@@ -480,7 +485,7 @@ def SearchEmployeebyform(request):
 		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['nik'],row['employee_name']]}
 		rows.append(datarow)
 	results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-	return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	return HttpResponse(json.dumps(results, cls=DjangoJSONEncoder),content_type='application/json')
 #def getBrandForDetailEntry(request):
 #	IvalueKey =  request.GET.get('term')
 #	NAGoodsReceive.objects.getBrandsForDetail(IvalueKey)
@@ -550,8 +555,8 @@ class NA_Goods_Receive_Form(forms.Form):
 	suppliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'supplier name','data-value':'supplier name','tittle':'supplier name is required'}))
 
-	totalpurchase = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
-	totalreceived = forms.IntegerField(max_value=10,required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1, 'max':10,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalpurchase = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalreceived = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
 	fk_p_r_by = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':7,
                                    'placeholder': 'P R By','data-value':'P R By','tittle':'Employee code(NIK) who PRs'}),required=True)

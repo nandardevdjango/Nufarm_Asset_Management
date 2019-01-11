@@ -223,7 +223,7 @@ def EntryEmployee(request):
             try:
                 result = form.save(user=request.user.username)
             except NAError as e:
-                result = NAErrorHandler.handle(err=e)
+                result = NAErrorHandler.handle(err=e)#error kalau user salah input, ada form yang tidak di isi
         else:
             result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)

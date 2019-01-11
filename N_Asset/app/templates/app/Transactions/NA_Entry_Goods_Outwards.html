@@ -3,10 +3,10 @@
 		  {% csrf_token %}
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
-            <div class="NA-Entry-div-row">
-                <label for="serialnumber" class="NA-Entry-label;" style="display:inline-block; width:112px;margin-right:5px;">Serial Number</label><!---->
+            <div class="NA-Entry-div-row" style="display:flex;">
+                <label for="serialnumber" class="NA-Entry-label;" style="display:inline-flex; width:112px;margin-right:5px;">Serial Number</label><!---->
                 {{ form.serialnumber }}
-                <div class="input-group" style="display: inline-flex; width: 48%;">
+                <div class="input-group" style="display: inline-flex; width: 46%;">
                     {{ form.goods }}
                     <span class="input-group-btn" style="display:inline-flex;height: 28px;padding-bottom:0;justify-content:flex-end">
                         <button class="btn btn-success" type="button" id="FE_fk_goods" style="padding:4px 8px;height: 28px"><span class="glyphicon glyphicon-search"></span></button>
@@ -48,8 +48,8 @@
 		<div class="NA-Entry-div-row" style="border-top:1px solid rgb(11, 153, 16);">
             <fieldset style="margin-bottom:5px;margin-top:5px;">
                 <legend>Employe Info</legend>
-                <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="fk_employee" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">For Employee</label>
+                <div style="margin-bottom:5px;margin-right:auto;display:flex;">
+                    <label for="fk_employee" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">For Employee</label>
                     {{ form.fk_employee }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_employee_employee }}
@@ -58,8 +58,8 @@
                         </span>
                     </div>
                 </div>
-                <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="fk_sender" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Sent By</label>
+                <div style="margin-bottom:5px;margin-right:auto;display:flex">
+                    <label for="fk_sender" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Sent By</label>
                     {{ form.fk_sender }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_sender_employee }}
@@ -68,8 +68,8 @@
                         </span>
                     </div>
                 </div>
-                <div style="margin-bottom:5px;margin-right:auto">
-                    <label for="fk_responsibleperson" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;width:112px;">Responsible By</label>
+                <div style="margin-bottom:5px;margin-right:auto;display:flex">
+                    <label for="fk_responsibleperson" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Responsible By</label>
                     {{ form.fk_responsibleperson }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_responsibleperson_employee }}
@@ -80,15 +80,15 @@
                 </div>
             </fieldset>
         </div>
-		<div class="NA-Entry-div-row">
-			<label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date requested</label>
+		<div class="NA-Entry-div-row" style="display:flex;">
+			<label for="datelending" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date requested</label>
 			{{ form.daterequest }}
         </div>
-		<div class="NA-Entry-div-row">
-			<label for="datelending" class="NA-Entry-label;" style="display:inline-block;margin-right:5px;margin-left:5px; width:112px;">Date released</label>
+		<div class="NA-Entry-div-row" style="display:flex;">
+			<label for="datelending" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date released</label>
 			{{ form.datereleased }}
 		</div>
-	    <div class="NA-Entry-div-row">
+	    <div class="NA-Entry-div-row" style="display:flex;">
             <label for="descriptions" class="NA-Entry-label;" style="margin-right:5px;width:112px;">remark</label>
             {{ form.descriptions }}
         </div>
