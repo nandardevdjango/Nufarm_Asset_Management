@@ -548,7 +548,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 			var elDatereceived = NA.common.getElementID('id_datereceived'), valuePatRec = elDatereceived.value;
                 			var elpat = elDatereceived.getAttribute('patern');
                 			var patern = new RegExp(elpat, 'i');
-                			if (valuePatRec === null || valuePatReq === '') {
+                			if (valuePatRec === null || valuePatRec === '') {
                 				valuePatRec = elDatereceived.textContent;
                 			}
                 			if (patern.test(valuePatRec)) {

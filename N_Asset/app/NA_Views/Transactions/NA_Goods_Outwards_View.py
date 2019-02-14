@@ -76,7 +76,7 @@ def NA_Goods_Outwards_Search(request):
 			i = i+1
 			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['daterequest'],row['datereleased'],
 						row['isnew'],row['fk_employee'],row['for_employee'],row['fk_usedemployee'],row['eks_employee'],row['fk_responsibleperson'],
-				row['responsible_by'],row['fk_sender'],row['senderby'],row['fk_stock'],row['refgoodsfrom'],row['descriptions'],row['createddate'],row['createdby']]}
+				row['responsible_by'],row['fk_sender'],row['senderby'],row['fk_stock'],row['refgoodsfrom'],row['equipment_desc'],row['descriptions'],row['createddate'],row['createdby']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 			rows.append(datarow)
@@ -152,12 +152,22 @@ def hasExists(request):
 		serialnumber = data['serialnumber']
 		datereq = data['daterequest']
 		daterel = data['datereleased']
+		fk_employee = data['fk_employee']
 		statuscode = 200;
-		if NAGoodsOutwards.objects.HasExists(idapp_fk_goods,serialnumber,datereq,daterel):
+		if NAGoodsOutwards.objects.HasExists(idapp_fk_goods,serialnumber,datereq,daterel,fk_employee):
 			statuscode = 200
 			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
 		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
 	except Exception as e :
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def getLastDateTrans(request):
+	fromtrans = request.GET.get('fromtrans')
+	pkkey = request.GET.get('pkkey')
+	try:
+		result = NAGoodsOutwards.objects.getLastDateTrans(pkkey,pkfrom)
+		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getLastTransGoods(request):
@@ -245,8 +255,10 @@ class NA_Goods_Outwards_Form(forms.Form):
 	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																				'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
-	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about lending goods',
-  																		'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
+	equipment_desc =  forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'please fill with equipment',
+  																		'data-value':'please fill with equipment','title':'this is filled with what goods to be equiped','tabindex':8}),required=False)
+	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods outwards',
+  																		'data-value':'descriptions about goods outwards','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
 	#info

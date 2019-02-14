@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app.NA_Views.Transactions import NA_Goods_Return_View
+from app.NA_Views.Transactions import NA_Goods_Return_View,NA_Goods_Receive_View
 
 urlpatterns = [
 	url(r'^$',NA_Goods_Return_View.NA_Goods_Return,name='GoodsReturn'),
@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^getGoods/$',NA_Goods_Return_View.get_GoodsData),
     url(r'^delete/$',NA_Goods_Return_View.Delete_data),
     url(r'^customFilter/$',NA_Goods_Return_View.ShowCustomFilter),
+	url(r'^getLastTrans/$',NA_Goods_Return_View.getLastTrans),
+    url(r'^getEmployee/$',NA_Goods_Receive_View.getEmployee)#ambil funtion yang sudah ada di receive view
 ]

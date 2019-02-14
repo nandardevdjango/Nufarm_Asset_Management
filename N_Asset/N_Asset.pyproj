@@ -65,6 +65,7 @@
     <Compile Include="app\NA_Urls\OtherPages\NA_Acc_FA_url.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Urls\Transactions\NA_GA_History_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Disposal_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lending_url.py">
       <SubType>Code</SubType>
@@ -236,6 +237,7 @@
     <Compile Include="NA_Worker\task.py" />
     <Compile Include="NA_Worker\worker.py" />
     <Compile Include="NA_Worker\__init__.py" />
+    <Compile Include="N_Asset\celery.py" />
     <Compile Include="N_Asset\local_settings.py">
       <SubType>Code</SubType>
     </Compile>
@@ -363,6 +365,7 @@
     <Content Include="app\templates\app\NA_User\login.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Profile.html" />
     <Content Include="app\templates\app\NA_User\NA_User_Register.html" />
+    <Content Include="app\templates\app\NA_User\register.html" />
     <Content Include="app\templates\app\Search\BySearch.html" />
     <Content Include="app\templates\app\Transactions\Goods_Receive.html" />
     <Content Include="app\templates\app\Transactions\NA_Entry_Equipment.html" />
@@ -402,6 +405,7 @@
     <Content Include="NA_Worker\__pycache__\task.cpython-36.pyc" />
     <Content Include="NA_Worker\__pycache__\worker.cpython-36.pyc" />
     <Content Include="NA_Worker\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="N_Asset\dump.rdb" />
     <Content Include="requirements.txt" />
     <Content Include="app\static\app\content\bootstrap.css" />
     <Content Include="app\static\app\content\bootstrap.min.css" />

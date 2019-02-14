@@ -1219,6 +1219,7 @@ NA.common.message = {
     _confirmInfo: 'Confirmation',
     _titleError: 'Unhandled system exception due to the following error',
     _dataHasLost: 'Data has Lost',
+    _canNotFindData: 'Can not find such data',
     _unsupportedCriteria: 'Operator is not supported for this kind of data\nPlease change criteria or column name',
 
     _canNotAddOtherPermsForGuest: 'This user is Guest, cannot add other permission except Allow View \n \n Hint : Change user\'s role if you want to add other permission',
@@ -1239,6 +1240,11 @@ Object.defineProperties(NA.common.message, {
     canNotEdit: {
         get: function () {
             return this._canNotEdit;
+        }
+    },
+    canNotFindData:{
+        get: function () {
+            return this._canNotFindData;
         }
     },
     clearData: {

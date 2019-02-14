@@ -90,7 +90,46 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         qs = NA.common.qs,
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
-        var NA_Ajax = NA.common.AJAX;
+    	var NA_Ajax = NA.common.AJAX;
+    	function XhrError(xhr) {
+    		try {
+    			var messageErr = xhr.responseText;
+    			var contentype = xhr.getResponseHeader('Content-Type')
+    			if (contentype === 'application/json') {
+    				messageErr = JSON.parse(xhr.responseText);
+    			}
+    			var message = xhr.responseText;
+    			if (messageErr) {
+    				if (message.indexOf('\!DOCTYPE html') > 0) {
+    					//error bawaan dari python django
+    					//redirect to error web
+    					//untuk sekarang tampilkan saja error codenya saja
+    					dialogAlert('Unknown Server error occurred: ' + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+    					document.body.style.cursor = 'default';
+    					return false;
+    				}
+    				else if (xhr.status >= 400) {
+    					dialogAlert('Unknown Server error occurred: ' + '\n' + message + '\nstatus = ' + xhr.status.toString() + '\nPlease tell system administrator');
+    					document.body.style.cursor = 'default';
+    					return false;
+    				}
+    				else if (messageErr.message) {
+    					dialogAlert('An error occurred: ' + messageErr.message);
+    				}
+    				else {
+    					dialogAlert('An error occurred: ' + messageErr);
+    				}
+    			}
+    			else if (message) {
+    				dialogAlert('An error occurred: ' + message);
+    			}
+    			document.body.style.cursor = 'default';
+    		} catch (e) {
+    			dialogAlert('An error occurred: ' + e + '\n' + e.message);
+    			document.body.style.cursor = 'default';
+    		}
+    		return false;
+    	};
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
@@ -651,6 +690,10 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             onshown: function (dialogRef) {
                 var divHeader = NA.common.doc.querySelector('div.modal-header:nth-child(1)');
                 divHeader.style.backgroundColor = 'green';
+                var btnOK = NA.common.doc.querySelector('div.bootstrap-dialog-footer-buttons button.btn.btn-success');
+                if (btnOK) {
+                	btnOK.focus();
+                }
             }
         });
     };
@@ -681,6 +724,44 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                 divHeader.style.backgroundColor = 'green';
             }
         });
+    };
+    function fillEmployeeName(nik) {
+    	//var url = win.encodeURIComponent('getEmployee/?nik=' + nik);
+    	var url = 'getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(nik);
+    	//AAjax.GET('getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(nik)
+    	NA_Ajax.GET(url,
+					'application/json',//overrideMimeType returned by the server
+					function () { window.document.body.style.cursor = 'wait'; },
+					null,//nggak usah di isi bila tidak perlu
+					function () {//function executed after data has been returned by server(XHR.onload)
+						try {
+							if (this.status === 200) {
+								var data = JSON.parse(this.responseText);
+									//set employee_name
+									var elFKEmp = NA.common.getElementID('id_nik_fromemployee');
+									var elempname = NA.common.getElementID('id_fromemployee');
+									var elidapp = NA.common.getElementID('id_idapp_fromemployee');
+									if (data) {
+										//elFKEmp.value = data['nik'] || '';
+										elempname.value = data['employee_name'] || '';
+										elidapp.value = data['idapp'] || '';
+									}
+									else {
+										dialogAlert(NA.common.message.canNotFindData, NA.common.message.titleInfo);
+										return false;
+									}
+							}
+							else {
+								window.document.body.style.cursor = 'default'; XhrError(this); return false;
+							}
+						} catch (e) {
+							window.document.body.style.cursor = 'default'; XhrError(this); return false;
+						}
+					}, null, function () {//function untuk ajax error
+						window.document.body.style.cursor = 'default'; XhrError(this);
+					}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+					null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+					);
     };
     window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
     	//add handler to btnOK untuk mengantisipasi form load gagal
@@ -812,7 +893,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                     BootstrapDialog.show({
                                         draggable: true,
                                         type: BootstrapDialog.TYPE_SUCCESS,
-                                        size: BootstrapDialog.SIZE_SMALL,
+                                        size: BootstrapDialog.SIZE_NORMAL,
                                         title: 'Search Goods .. .',
                                         message: function (dialogRef) {
                                             var placeHolder = 'Enter goods descriptions to search for .. .';
@@ -876,20 +957,21 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                                 url: urlFKGoods,
                                                 mtype: "GET",
                                                 datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
-                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'From Goods','FK goods','Type App'],
+                                                colNames: ['idapp', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'Ref Goods From','FK goods','Last Used','Type App'],
                                                 colModel: [
                                                     { name: 'idapp', hidden: true, align: 'left' },
-                                                    { name: 'no', key: true, width: 40, align: 'right', sortable: false, editable: false, },
+                                                    { name: 'no', key: true, width: 35, align: 'right', sortable: false, editable: false, },
                                                     { name: 'itemcode', width: 80, align: 'left', sortable: true, editable: false, },
-                                                    { name: 'goods', index: 'goods', width: 180, sortable: true, editable: false, align: 'left' },
-                                                    { name: 'serialnumber', index: 'serialnumber', width: 130, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'goods', index: 'goods', width: 210, sortable: true, editable: false, align: 'left' },
+                                                    { name: 'serialnumber', index: 'serialnumber', width: 170, sortable: true, editable: false, align: 'left' },
                                                     {
-                                                    	name: 'fromgoods', index: 'fromgoods', width: 150, sortable: true, editable: false, align: 'left', formatter: 'select',
+                                                    	name: 'fromgoods', index: 'fromgoods', width: 130, sortable: true, editable: false, align: 'left', formatter: 'select',
                                                     	editoptions: {
                                                     		value: 'GO:Goods Outwards;GL:Goods Lending'
                                                     	}
                                                     },
 													{ name: 'fk_goods', index: 'fk_goods', hidden: true },
+													{ name: 'employee_name',index:'employee_name',width:150,sortable: true, editable: false, align: 'left',},
 													{ name: 'typeApp', index: 'typeApp', hidden: true }
                                                 ],
                                                 ondblClickRow: function (rowId) {
@@ -933,7 +1015,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                                 del: false,
                                                 refresh: false
                                             });
-                                            restyleBoostrapDialog();
+                                            //restyleBoostrapDialog();
                                             var elGrid = qsAll('div#gbox_NA_Goods_Return_FK_Goods,div#gview_NA_Goods_Return_FK_Goods,div#gview_NA_Goods_Return_FK_Goods > div.ui-jqgrid-hdiv.ui-state-default.ui-corner-top,div#gview_NA_Goods_Return_FK_Goods > div.ui-jqgrid-bdiv, div#NA_Goods_Return_FK_Goods_Pager')
                                             Array.prototype.forEach.call(elGrid, function (el) {
                                                 el.style.width = 'inherit';
@@ -977,6 +1059,9 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                                                     usedemployee.value = data['used_by'];
                                                                     nik_usedemployee.value = data['nik_used_by'];
                                                                     idapp_usedemployee.value = data['idapp_used_by'];
+                                                                    nik_fromemployee.value = data['nik_used_by'];
+                                                                    fromemployee.value = data['used_by'];
+                                                                    idapp_fromemployee.value = data['idapp_used_by'];
                                                                     if (grid_fromgoods == 'GO') {
                                                                     	idapp_fk_goods_outwards.value = grid_idapp;
                                                                     	idapp_fk_goods_lend.value = '';
@@ -1137,10 +1222,79 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 	});
                                 }
 
-                                NA.NAEvent.addHandler(itemcode, 'keydown', function (event) {
-                                    if (event.keyCode == 13) {
-                                        searchGoods(event);
-                                    }
+                                NA.NAEvent.addHandler(serialNumber, 'keydown', function (event) {
+
+                                	if (event.keyCode == 13) {
+                                		if (!event.target.value) { dialogAlert('Please enter serial number', NA.common.message.titleInfo);  NA.NAEvent.preventDefault(event);return false; }
+                                		//searchGoods(event);
+                                		var serialNumber = event.target.value;
+                                		var url = 'getLastTrans/?' + win.encodeURIComponent('serialnumber') + '=' + serialNumber;
+                                		NA_Ajax.GET(url, 'application/json',//overrideMimeType returned by the server
+										function () { window.document.body.style.cursor = 'wait'; },
+										null,//nggak usah di isi bila tidak perlu
+										function () {//function executed after data has been returned by server(XHR.onload)				
+
+											if (this.status === 200) {
+												var data = JSON.parse(this.responseText);
+												if (data) {
+													//{'idapp_fk_goods':idapp_fk_goods,'itemcode':itemcode,'goodsname':goodsname,'fk_usedemployee':fk_usedemployee,
+													//'usedemployee':usedemployee,'idapp_usedemployee':idapp_usedemployee,'fkoutwards':fkoutwards,'fklending':fklending}
+													var message = data.message;
+													if (message) {
+														fk_goods.value = message.idapp_fk_goods;
+														itemcode.value = message.itemcode;
+														goods.value = message.goodsname;
+														usedemployee.value = message.usedemployee;
+														nik_usedemployee.value = message.fk_usedemployee;
+														idapp_usedemployee.value = message.idapp_usedemployee;
+														nik_fromemployee.value = message.fk_usedemployee;
+														fromemployee.value = message.usedemployee;
+														idapp_fromemployee.value = message.idapp_usedemployee;
+														idapp_fk_goods_outwards.value = (message.fkoutwards == null || message.fkoutwards == '') ? '' : message.fkoutwards;
+														idapp_fk_goods_lend.value = (message.fklending == null || message.fklending == '') ? '' : message.fklending;
+													}
+												}
+											}
+											else {
+												try {
+													var data = JSON.parse(this.responseText);
+												} catch (e) {
+													window.document.body.style.cursor = 'default'; XhrError(this); return false;
+												}												
+												if (data) {
+													if (data.message !== '__empty') {
+														window.document.body.style.cursor = 'default'; XhrError(this)
+													}
+													else {
+														window.document.body.style.cursor = 'default'; dialogAlert(NA.common.message.canNotFindData, NA.common.message.titleInfo);
+													}
+												}
+											}
+										}, null, function () {//function untuk ajax error
+											window.document.body.style.cursor = 'default'; XhrError(this);
+										}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+										null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+										)
+                                		//usedemployee = qs('input#id_usedemployee'),
+                                		//nik_usedemployee = qs('input#id_nik_usedemployee'),
+                                		//idapp_usedemployee = qs('input#id_idapp_usedemployee'),
+                                		//idapp_fk_goods_outwards = qs('input#id_idapp_fk_goods_outwards'),
+                                		//idapp_fk_goods_lend = qs('input#id_idapp_fk_goods_lend');
+                                		NA.NAEvent.preventDefault(event);//prevent from submit
+                                	}
+                                });
+                                NA.NAEvent.addHandler(nik_fromemployee, 'keydown', function (event) {
+
+                                	if (event.keyCode === 13) {
+                                		if (!event.target.value) { dialogAlert('Please enter serial number', NA.common.message.titleInfo); NA.NAEvent.preventDefault(event); return false; }
+                                		try {
+                                			fillEmployeeName(event.target.value);
+                                		} catch (e) {
+                                			if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; } { window.document.body.style.cursor = 'default'; }
+                                		}
+                                		NA.NAEvent.preventDefault(event);//prevent from submit
+                                	}
+                                	return false;
                                 });
                                 NA.NAEvent.addHandler(btn_fkGoods, 'click', function (event) {
                                     searchGoods(event);
@@ -1150,17 +1304,25 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 	searchEmployee(event);
                                 });
 
-                                NA.NAEvent.addHandler(nik_fromemployee, 'keydown', function (event) {
-                                	if (event.keyCode == 13) {
-                                		searchEmployee(event);
-                                	}
-                                });
+                                //NA.NAEvent.addHandler(nik_fromemployee, 'keydown', function (event) {
+                                //	if (event.keyCode == 13) {
+                                //		searchEmployee(event);
+                                //	}
+                                //});
 
                                 initializeForm = NA.common.getElementID('id_initializeForm');
                                 initializeForm.Value = originalData;
                                 //setting Custom Validity
                             }
 
+                        	//================warn user if he/she closed / refresh windows===============
+
+                            win.onbeforeunload = function (e) {
+                            	var valuesForm = getValues_Form();
+                            	if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+                            		return NA.common.message.dataHasChanged;
+                            	}
+                            }
                         };
                         NA.NAEvent.preventDefault(event);
                         if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
@@ -1184,6 +1346,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     NA.NAEvent.stopPropagation(event);
                 };
             });
+
         } catch (e) {
             if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
             alert(e);

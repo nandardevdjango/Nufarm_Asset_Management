@@ -43,7 +43,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		        CASE 
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
 			        END AS eks_employee,nga.fk_responsibleperson,emp1.responsible_by,nga.fk_sender,emp2.senderby,nga.fk_stock,
-		        ref.refgoodsfrom,nga.createdby,nga.createddate,nga.descriptions
+		        ref.refgoodsfrom,nga.createdby,nga.createddate,nga.equipment_desc,nga.descriptions
 		        FROM n_a_goods_outwards nga INNER JOIN n_a_goods g ON g.IDApp = nga.FK_Goods 
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = nga.FK_Goods
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
@@ -152,10 +152,24 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.execute(Query)
 		row = cur.fetchone()
 		totalRecords = row[0]
+
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_Outwards_" + userName
+		cur = connection.cursor()
+		cur.execute(Query)
+
 		cur.close()
 		return (result,totalRecords)
-
-
+	def getLastDateTrans(self,pkkey,pkfrom):
+		if pkfrom == 'fk_lending':
+			Query = "SELECT DateReturn FROM n_a_goods_lending WHERE IDApp = %s"
+		elif pkfrom == 'fk_return':
+			Query = "SELECT DateReturn FROM n_a_goods_return WHERE IDApp = %s"
+		elif pkfrom == 'fk_maintenance':
+			Query = "SELECT EndDate FROM n_a_goods_maintenance WHERE IDApp = %s"
+		cur = connection.cursor()
+		cur.execute(Query,[pkkey])
+		row = cur.fetchone()
+		return row[0]
 	def getLastTrans(self,SerialNO):
 		"""function untuk mengambil terakhir transaksi data, sebagai umpan balik ke user, barang ini terakhir di pake oleh siapa / belum di pakai sama sekali
 		param : SerialNO
@@ -337,8 +351,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.close()
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
 		return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
-	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel):
-		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber)).exists()#Q(member=p1) | Q(member=p2)
+	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel,fk_employee):
+		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(fk_employee=fk_employee)).exists()#Q(member=p1) | Q(member=p2)
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
 		#get FK_stock
@@ -358,13 +372,13 @@ class NA_BR_Goods_Outwards(models.Manager):
 					#fk_sender:  idapp_fk_sender: descriptions:  typeapp: serialnumber: 
 					#fk_frommaintenance:  fk_return: fk_lending:  fk_receive:lastinfo: lastinfo,status:
 					Query = """INSERT INTO `n_a_goods_outwards`(`FK_Goods`, `IsNew`, `DateRequest`, `DateReleased`, `FK_Employee`, `FK_UsedEmployee`, `FK_FromMaintenance`, `FK_ResponsiblePerson`, `FK_Sender`, `FK_Stock`, `SerialNumber`, `TypeApp`,
-								`FK_Lending`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `lastinfo`) 
+								`FK_Lending`,`equipment_desc`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `lastinfo`) 
 								VALUES (%(FK_Goods)s,%(IsNew)s,%(DateRequest)s,%(DateReleased)s,%(FK_Employee)s,%(FK_UsedEmployee)s,%(FK_FromMaintenance)s,%(FK_ResponsiblePerson)s,%(FK_Sender)s,%(FK_Stock)s,%(SerialNumber)s,%(TypeApp)s,
-								%(FK_Lending)s, %(Descriptions)s, %(FK_Return)s, %(FK_Receive)s, NOW(), %(CreatedBy)s, %(lastinfo)s)"""
+								%(FK_Lending)s,%(Equipment_Desc)s, %(Descriptions)s, %(FK_Return)s, %(FK_Receive)s, NOW(), %(CreatedBy)s, %(lastinfo)s)"""
 					param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'DateRequest':Data['daterequest'],'DateReleased':Data['datereleased'],
 							'FK_Employee':Data['idapp_fk_employee'],'FK_UsedEmployee':Data['idapp_fk_usedemployee'],'FK_FromMaintenance':Data['fk_frommaintenance'],
 							'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],'FK_Sender':Data['idapp_fk_sender'],'FK_Stock':fk_stock,'SerialNumber':Data['serialnumber'],
-							'TypeApp':Data['typeapp'],'FK_Lending':Data['fk_lending'], 'Descriptions':Data['descriptions'], 'FK_Return':Data['fk_return'],
+							'TypeApp':Data['typeapp'],'FK_Lending':Data['fk_lending'],'Equipment_Desc':Data['equipment_desc'], 'Descriptions':Data['descriptions'], 'FK_Return':Data['fk_return'],
 						    'FK_Receive':Data['fk_receive'], 'CreatedBy':Data['createdby'], 'lastinfo':Data['lastinfo']}
 					cur.execute(Query,param)
 					cur.execute('SELECT last_insert_id()')
@@ -376,10 +390,10 @@ class NA_BR_Goods_Outwards(models.Manager):
 					param = {'FK_Goods':Data['idapp_fk_goods'],'TypeApp':Data['typeapp'],'SerialNumber':Data['serialnumber'],'FK_Outwards':FKApp,'CreatedBy':Data['createdby']}
 				else:
 					Query = """ UPDATE n_a_goods_outwards SET FK_Employee=%(FK_Employee)s,DateRequest=%(DateRequest)s,DateReleased=%(DateReleased)s,FK_ResponsiblePerson=%(FK_ResponsiblePerson)s, \
-								FK_Sender=%(FK_Sender)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s,Descriptions=%(Descriptions)s \
+								FK_Sender=%(FK_Sender)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s,Equipment_Desc=%(Equipment_Desc)s,Descriptions=%(Descriptions)s \
 								WHERE idapp = %(idapp)s """
 					param = {'idapp':Data['idapp'],'FK_Goods':Data['idapp_fk_goods'],'FK_Employee':Data['idapp_fk_employee'],'DateRequest':Data['daterequest'],'DateReleased':Data['datereleased'],'FK_ResponsiblePerson':Data['idapp_fk_responsibleperson'],
-							'FK_Sender':Data['idapp_fk_sender'],'ModifiedBy':Data['modifiedby'],'Descriptions':Data['descriptions']}
+							'FK_Sender':Data['idapp_fk_sender'],'ModifiedBy':Data['modifiedby'],'Equipment_Desc':Data['equipment_desc'],'Descriptions':Data['descriptions']}
 				cur.execute(Query,param)
 				who = Data['createdby'] if Status == StatusForm.Input else Data['modifiedby']
 				#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare) = commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
@@ -458,7 +472,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = """SELECT g.itemcode AS fk_goods,ngo.isnew,g.goodsname AS goods,ngo.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
 					ngo.fk_employee AS idapp_fk_employee,emp.employee_name AS fk_employee_employee,ngo.daterequest,ngo.datereleased,ngo.fk_stock,\
 					emp2.NIK AS fk_responsibleperson, ngo.FK_ResponsiblePerson AS idapp_fk_responsibleperson,IFNULL(ngo.lastinfo,'not yet used') AS lastinfo, \
-					emp1.NIK AS fk_sender,ngo.fk_sender AS idapp_fk_sender,emp1.employee_name AS fk_sender_employee, \
+					emp1.NIK AS fk_sender,ngo.fk_sender AS idapp_fk_sender,emp1.employee_name AS fk_sender_employee,ngo.equipment_desc, \
 					ngo.descriptions,emp3.NIK AS fk_usedemployee,ngo.fk_usedemployee AS idapp_fk_usedemployee,emp3.employee_name AS fk_usedemployee_employee,ngo.typeapp,ngo.serialnumber, emp2.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
 					IFNULL(ngo.fk_frommaintenance,0)AS fk_frommaintenance,IFNULL(ngo.fk_return,0) AS fk_return, \
 					IFNULL(ngo.fk_lending,0) AS fk_lending,IFNULL(fk_receive,0) AS fk_receive, \

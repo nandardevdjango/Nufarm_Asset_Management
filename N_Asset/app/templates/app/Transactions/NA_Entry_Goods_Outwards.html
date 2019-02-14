@@ -4,7 +4,7 @@
         <fieldset style="margin-bottom:5px;">
             <legend>Goods Info</legend>
             <div class="NA-Entry-div-row" style="display:flex;">
-                <label for="serialnumber" class="NA-Entry-label;" style="display:inline-flex; width:112px;margin-right:5px;">Serial Number</label><!---->
+                <label for="id_serialnumber" class="NA-Entry-label;" style="display:inline-flex; width:112px;margin-right:5px;">Serial Number</label><!---->
                 {{ form.serialnumber }}
                 <div class="input-group" style="display: inline-flex; width: 46%;">
                     {{ form.goods }}
@@ -49,7 +49,7 @@
             <fieldset style="margin-bottom:5px;margin-top:5px;">
                 <legend>Employe Info</legend>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex;">
-                    <label for="fk_employee" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">For Employee</label>
+                    <label for="id_fk_employee" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">For Employee</label>
                     {{ form.fk_employee }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_employee_employee }}
@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex">
-                    <label for="fk_sender" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Sent By</label>
+                    <label for="id_fk_sender" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Sent By</label>
                     {{ form.fk_sender }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_sender_employee }}
@@ -69,7 +69,7 @@
                     </div>
                 </div>
                 <div style="margin-bottom:5px;margin-right:auto;display:flex">
-                    <label for="fk_responsibleperson" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Responsible By</label>
+                    <label for="id_fk_responsibleperson" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;width:112px;">Responsible By</label>
                     {{ form.fk_responsibleperson }}
                     <div class="input-group" style="display:inline-flex;width:50%;">
                         {{ form.fk_responsibleperson_employee }}
@@ -81,15 +81,19 @@
             </fieldset>
         </div>
 		<div class="NA-Entry-div-row" style="display:flex;">
-			<label for="datelending" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date requested</label>
+			<label for="id_daterequest" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date requested</label>
 			{{ form.daterequest }}
         </div>
 		<div class="NA-Entry-div-row" style="display:flex;">
-			<label for="datelending" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date released</label>
+			<label for="id_datereleased" class="NA-Entry-label;" style="display:inline-flex;margin-right:5px;margin-left:5px; width:112px;">Date released</label>
 			{{ form.datereleased }}
 		</div>
+		 <div class="NA-Entry-div-row" style="display:flex;">
+			 <label for="id_equipment_desc" class="NA-Entry-label;" style="margin-right:5px;margin-left:5px;width:112px;">Equipment desc</label>
+			 {{ form.equipment_desc }}
+		 </div>
 	    <div class="NA-Entry-div-row" style="display:flex;">
-            <label for="descriptions" class="NA-Entry-label;" style="margin-right:5px;width:112px;">remark</label>
+            <label for="id_descriptions" class="NA-Entry-label;" style="margin-right:5px;margin-left:5px;width:112px;">remark</label>
             {{ form.descriptions }}
         </div>
 		<input type="submit" style="display:none" id="inputButton">

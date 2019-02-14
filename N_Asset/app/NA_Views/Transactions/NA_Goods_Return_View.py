@@ -47,6 +47,7 @@ def NA_Goods_ReturnGetData(request):
         rows.append(datarow)
     results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecords,"rows": rows }
     return HttpResponse(json.dumps(results,cls=DjangoJSONEncoder),content_type='application/json')
+#def getLastTransGoods(request):
 
 def getFormData(request,form):
     clData = form.cleaned_data
@@ -67,43 +68,45 @@ def getFormData(request,form):
     return data
 
 class NA_Goods_Return_Form(forms.Form):
-    fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
-    typeApp = forms.CharField(widget=forms.HiddenInput(),required=True)
-    itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:110px;'}))
-    goods = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
-    serialNumber = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'serial number','style':'width:325px;'}))
-    fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
-    nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','placeholder':'nik','style':'width:110px;'}))
-    usedemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:210px;'}))
-    nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:110px;'}))
-    datereturn = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:110px;'}))
-    conditions = forms.ChoiceField(widget=forms.Select(
-        attrs={'class': 'NA-Form-Control select inline-field','style':'width:110px;margin-left:auto;'}),
-                                  choices=(
-                                      ('1', 'Condition 1'),
-                                      ('2', 'Condition 2'),
-                                      ('3', 'Condition 3')
-                                      )
-                                  )
-    minus = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','placeholder':'minus','style':'width:325px;'}))
-    iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
-        attrs={'style':'margin-left:15px;position:absolute'}))
-    descriptions = forms.CharField(required=True,widget=forms.Textarea(
-        attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:426px;height:45px;max-width:426px;max-height:90px;'}))
-    idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
-    idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
-    idapp_fk_goods_outwards = forms.CharField(widget=forms.HiddenInput(),required=False)
-    idapp_fk_goods_lend = forms.CharField(widget=forms.HiddenInput(),required=False)
-    initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
+	fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
+	typeApp = forms.CharField(widget=forms.HiddenInput(),required=True)
+	#itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
+	#    attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:180px;'})
+	itemcode = forms.CharField(required=False,widget=forms.HiddenInput())
+	goods = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
+	serialNumber = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control inline-field','placeholder':'serial number','style':'width:180px;'}))
+	fromemployee = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
+	nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control inline-field','placeholder':'nik','style':'width:180px;'}))
+	usedemployee = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:100%;margin-right:auto'}))
+	nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:180px;'}))
+	datereturn = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:180px;'}))
+	conditions = forms.ChoiceField(widget=forms.Select(
+		attrs={'class': 'NA-Form-Control select inline-field','style':'width:180px;margin-left:auto;'}),
+									choices=(
+										('1', 'Good'),
+										('2', 'Less Good'),
+										('3', 'Broken'),
+										('4','Other/Undetermined'),
+										)
+									)
+	minus = forms.CharField(required=True,widget=forms.TextInput(
+		attrs={'class':'NA-Form-Control inline-field','placeholder':'minus','style':'width:479px;max-width:500px;'}))
+	iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
+		attrs={'style':'margin-left:15px;position:absolute'}))
+	descriptions = forms.CharField(required=True,widget=forms.Textarea(
+		attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:479px;height:45px;max-width:480px;max-height:90px;'}))
+	idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
+	idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
+	idapp_fk_goods_outwards = forms.CharField(widget=forms.HiddenInput(),required=False)
+	idapp_fk_goods_lend = forms.CharField(widget=forms.HiddenInput(),required=False)
+	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def Entry_GoodsReturn(request):
     getUser = str(request.user.username)
@@ -144,45 +147,50 @@ def Entry_GoodsReturn(request):
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def Delete_data(request):
-    if request.user.is_authenticated():
-        idapp = request.POST['idapp']
-        result = NAGoodsReturn.objects.DeleteData(idapp)
-        return HttpResponse('success')
+	if request.user.is_authenticated():
+		idapp = request.POST['idapp']
+		result = NAGoodsReturn.objects.DeleteData(idapp,request.user.username)
+		return HttpResponse('success')
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
 def SearchGoodsbyForm(request):
-    Isidx = request.GET.get('sidx', '')
-    Isord = request.GET.get('sord', '')
-    goodsFilter = request.GET.get('goods_filter')
-    Ilimit = request.GET.get('rows', '')
-    NAData = NAGoodsReturn.objects.SearchGoods_byForm(goodsFilter)
-    if NAData == []:
-        results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
-    else:
-        totalRecord = len(NAData)
-        paginator = Paginator(NAData, int(Ilimit)) 
-        try:
-            page = request.GET.get('page', '1')
-        except ValueError:
-            page = 1
-        try:
-            dataRows = paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            dataRows = paginator.page(paginator.num_pages)
-        
-        rows = []
-        i = 0
-        for row in dataRows.object_list:
-            i+=1
-            datarow = {
-                "id" :str(row['idapp']) +'_fk_goods', "cell" :[
-                    row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['fromgoods'],row['fk_goods'],row['typeapp']
-                    ]
-                }
-            rows.append(datarow)
-        results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
-    return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
+	Isidx = request.GET.get('sidx', 'goods')
+	Isord = request.GET.get('sord', 'asc')
+	goodsFilter = request.GET.get('goods_filter')
+	PageIndex = request.GET.get('page', '1')
+	Ilimit = request.GET.get('rows', '0')
+	NAData = NAGoodsReturn.objects.SearchGoods_byForm(goodsFilter,str(Isidx),Isord,Ilimit,PageIndex, request.user.username)
+	if NAData == []:
+		results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
+	else:
+		totalRecord = NAData[1]
+		dataRows = NAData[0]
+		#rows = []
+		#totalRecord = len(NAData)
+		#paginator = Paginator(NAData, int(Ilimit)) 
+		#try:
+		#	page = request.GET.get('page', '1')
+		#except ValueError:
+		#	page = 1
+		#try:
+		#	dataRows = paginator.page(page)
+		#except (EmptyPage, InvalidPage):
+		#	dataRows = paginator.page(paginator.num_pages)
+		rows = []
+		i = 0
+		for row in dataRows:
+			i+=1
+			datarow = {
+				"id" :str(row['idapp']) +'_fk_goods', "cell" :[
+					row['idapp'],i,row['itemcode'],row['goods'],row['serialnumber'],row['fromgoods'],row['fk_goods'],row['employee_name'],row['typeapp']
+					]
+				}
+			rows.append(datarow)
+		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		#results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
@@ -191,6 +199,19 @@ def get_GoodsData(request):
     fromgoods = request.GET['fromgoods']
     result = NAGoodsReturn.objects.getGoods_data(idapp,fromgoods)
     return commonFunct.response_default(result)
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def getLastTrans(request):
+	serialnumber = request.GET['serialnumber']
+	result = ''
+	try:
+		result = NAGoodsReturn.objects.getLastTrans(serialnumber)
+		if len(result) > 0:
+			return commonFunct.response_default(result)		
+		else:
+			return commonFunct.response_default((Data.Empty,))
+	except Exception as e:
+		return commonFunct.response_default((Data.Empty,e))
 
 @decorators.ajax_required
 def ShowCustomFilter(request):

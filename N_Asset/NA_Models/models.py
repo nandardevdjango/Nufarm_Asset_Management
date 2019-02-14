@@ -579,30 +579,29 @@ class goods(NA_MasterDataModel):
 
 
 class NAGoodsReceive(NA_GoodsReceiveModel):
-    idapp_fk_goods = models.ForeignKey(
-        goods, db_column='fk_goods', db_constraint=False)
-    idapp_fk_receivedby = models.ForeignKey(
-        Employee,
-        db_column='FK_ReceivedBy',
-        max_length=50,
-        related_name='fk_receivedBy',
-        db_constraint=False
-    )
-    idapp_fk_p_r_by = models.ForeignKey(
-        Employee,
-        db_column='FK_P_R_By',
-        max_length=50,
-        blank=True,
-        null=True,
-        related_name='fk_p_r_by',
-        db_constraint=False
-    )
-
-    class Meta:
-        managed = True
-        db_table = 'n_a_goods_receive'
-    objects = NA_BR_Goods_Receive()
-
+	idapp_fk_goods = models.ForeignKey(
+		goods, db_column='fk_goods', db_constraint=False)
+	idapp_fk_receivedby = models.ForeignKey(
+		Employee,
+		db_column='FK_ReceivedBy',
+		max_length=50,
+		related_name='fk_receivedBy',
+		db_constraint=False
+	)
+	idapp_fk_p_r_by = models.ForeignKey(
+		Employee,
+		db_column='FK_P_R_By',
+		max_length=50,
+		blank=True,
+		null=True,
+		related_name='fk_p_r_by',
+		db_constraint=False
+	)
+	#equipment_desc = models.CharField(db_column='Equipment_Desc',max_length=400,blank=True,null=True)
+	class Meta:
+		managed = True
+		db_table = 'n_a_goods_receive'
+	objects = NA_BR_Goods_Receive()
 
 class NA_GoodsReceive_detail(NA_BaseModel):
 	fk_app = models.ForeignKey(
@@ -824,11 +823,16 @@ class NAGoodsLending(NA_TransactionModel):
 
 
 class NAGoodsOutwards(NAGoodsOutwardsModel):
-    class Meta:
-        managed = True
-        db_table = 'n_a_goods_outwards'
-    objects = NA_BR_Goods_Outwards()
-
+	equipment_desc = models.CharField(
+		db_column='Equipment_Desc',
+		max_length=400,
+		blank=True,
+		null=True
+	)
+	class Meta:
+		managed = True
+		db_table = 'n_a_goods_outwards'
+	objects = NA_BR_Goods_Outwards()
 
 class NAGoodsLost(NA_TransactionModel):
     fk_employee = None

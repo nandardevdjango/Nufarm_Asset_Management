@@ -257,7 +257,7 @@
 						mtype: "GET",
 						datatype: "json",
 						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee',
-							'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Descriptions', 'Created Date', 'Created By'],
+							'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From','Equipment', 'Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
@@ -277,6 +277,7 @@
 							{ name: 'senderby', index: 'senderby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_stock', index: 'fk_stock', hidden: true, },
 							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'left', },
+							{name: 'equipment_desc',index:'equipment_desc',width:150,sortable:true,editable:false,align:'left'},
 							{ name: 'descriptions', index: 'descriptions', width: 140, sortable: true, editable: false, align: 'left', },
                             { name: 'createddate', index: 'createddate', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
@@ -447,7 +448,7 @@
 				var message = xhr.responseText;
 				if (messageErr) {
 					message = messageErr.message;
-					if (message.indexOf('!DOCTYPE html') > 0) {
+					if (message.indexOf('\!DOCTYPE html') > 0) {
 						//error bawaan dari python django
 						//redirect to error web
 						//untuk sekarang tampilkan saja error codenya saja
@@ -539,13 +540,13 @@
 						//barang dan serial number dan lenddate
 						var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 						var elserialnumber = NA.common.getElementID('id_serialnumber');
-
+						var fk_employee = NA.common.getElementID('id_idapp_fk_employee').value;
 						dateRequest = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateReq.value));
 						dateReleased = GetServerFormatDate($.datepicker.parseDate('dd/mm/yy', elDateRel.value));
 						var NAAjax = NA.common.AJAX;
 						if (win.status === 'Add') {
 							NAAjax.POST('HasExists/',
-                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest, 'datereleased': dateReleased, 'serialnumber': elserialnumber.value }),
+                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest, 'datereleased': dateReleased, 'serialnumber': elserialnumber.value, 'fk_employee': fk_employee }),
                                 'application/x-www-form-urlencoded', 'application/json',
                                 function () {
                                 	window.document.body.style.cursor = 'wait';
@@ -687,7 +688,7 @@
 		};
 		function clearEntry() {
 			//idapp,fk_goods,isnew,goods,idapp_fk_goods,fk_employee,idapp_fk_employee,fk_employee_employee,daterequest,datereleased,
-			//fk_responsibleperson,idapp_fk_responsibleperson,fk_responsibleperson_employee,fk_sender,idapp_fk_sender,fk_sender_employee,descriptions,
+			//fk_responsibleperson,idapp_fk_responsibleperson,fk_responsibleperson_employee,fk_sender,idapp_fk_sender,fk_sender_employee,equipment_desc,descriptions,
 			//lastinfo,serialnumber,fk_frommaintenance,fk_return,fk_lending,
 			//fk_receive
 			var elidapp = NA.common.getElementID('id_idapp');
@@ -734,6 +735,9 @@
 			//brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
 			//fk_sender_employee nggak usah
 
+			//equipment desc
+			var equipDesc = NA.common.getElementID('id_equipment_desc');
+			equipDesc.value = originalData.equipment_desc||'';
 			var eldescriptions = NA.common.getElementID('id_descriptions');
 			eldescriptions.value = originalData.descriptions || '';
 			var eltypeapp = NA.common.getElementID('TypeValue');
@@ -792,7 +796,8 @@
 				fk_sender = elfk_sender.value;
 			var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender'),
 				idapp_fk_sender = elidapp_fk_sender.value;
-
+			var elEquipDesc = NA.common.getElementID('id_equipment_desc'),
+				equipDesc = elEquipDesc.value;
 			var eldescriptions = NA.common.getElementID('id_descriptions'),
 				descriptions = eldescriptions.value;
 			var eltypeapp = NA.common.getElementID('TypeValue'),
@@ -828,7 +833,7 @@
 				idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
 				idapp_fk_usedemployee: idapp_fk_usedemployee,
 				daterequest: daterequest, datereleased : datereleased,fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
-				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender,descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
+				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender,equipment_desc:equipDesc,descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_frommaintenance: fk_frommaintenance, fk_return: fk_return, fk_lending: fk_lending, fk_receive: fk_receive, lastinfo: lastinfo,
 				status: win.status
 			}
@@ -854,7 +859,8 @@
 		//};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
 		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
-
+		    var pkfrom = 'fk_return';
+		    var pkkey = '';
 		    var viewportSize = NA.common.dialog.getViewportSize();
 		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
 		    containerDialog.style.overflowY = 'auto';
@@ -875,15 +881,26 @@
 			//    form.fk_frommaintenance 
 			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
 			elfk_maintenance.value = rowData['fk_maintenance'] || null;
-
+	
 			//      form.fk_return 
 			var elfk_return = NA.common.getElementID('id_fk_return');
 			elfk_return.value = rowData['fk_return'] || null;
 
 			//    form.fk_currentapp
-			var elfk_receive = NA.common.getElementID('id_fk_lending');
-			elfk_receive.value = rowData['fk_lending'] || null;
-
+			var elfk_lending = NA.common.getElementID('id_fk_lending');
+			elfk_lending.value = rowData['fk_lending'] || null;
+			if (elfk_maintenance.value) {
+				pkfrom = 'fk_maintenance';
+				pkkey = elfk_maintenance.value;
+			}
+			else if (elfk_return.value) {
+				pkfrom = 'fk_return';
+				pkkey = elfk_return.value;
+			}
+			else if (elfk_lending.value) {
+				pkfrom = 'fk_lending';
+				pkkey = elfk_return.value;
+			}
 			//     form.fk_receive 
 			var elfk_receive = NA.common.getElementID('id_fk_receive');
 			elfk_receive.value = rowData['fk_receive'] || null;
@@ -932,9 +949,46 @@
 				NA.common.getElementID('lastUsedInfo').style.display = 'block';
 			}
 			else {
-				NA.common.getElementID('lastUsedInfo').style.display = 'none';
+				if (rowData['fk_usedemployee']) {
+					NA.common.getElementID('lastUsedInfo').style.display = 'block';
+				}
+				else {
+					NA.common.getElementID('lastUsedInfo').style.display = 'none';
+				}
 			}
 			NA.common.getElementID('difInfo').style.display = 'block';
+			if (pkkey) {
+				var NAAjax = NA.common.AJAX;
+				var url = 'getLastDateTrans/?' + win.encodeURIComponent('pkkey') + '=' + win.encodeURIComponent(pkkey) + '&' + win.encodeURIComponent('pkfrom') + '=' + win.encodeURIComponent(pkfrom);
+				NAAjax.GET(url,
+                        'application/json',//overrideMimeType returned by the server
+                        function () { window.document.body.style.cursor = 'wait'; },
+                        null,//nggak usah di isi bila tidak perlu
+                        function () {//function executed after data has been returned by server(XHR.onload)
+                        	var data = JSON.parse(this.responseText);
+                        	if (data) {
+                        		$('#id_datereleased').datepicker({
+                        			dateFormat: 'dd/mm/yy',
+                        			changeMonth: true,
+                        			changeYear: true,
+                        			beforeShowDay: $.datepicker.noWeekends,
+                        			minDate: (function (g) {
+                        				return new Date(data);
+                        			})(win),
+                        			//maxDate: 0,
+                        			//showOn: "button",
+                        			//showButtonPanel: true,
+                        			closeText: "Close",
+                        			currentText: 'Now',
+                        		});
+                        	}
+                        }, null, function () {//function untuk ajax error
+                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                        );
+
+			}
 		};
 		function fillEmployeeName(event, elmID) {
 			var NAAjax = NA.common.AJAX;
@@ -1406,6 +1460,7 @@
 									NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
 									NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
 									NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
+									NA.common.getElementID('id_equipment_desc').setAttribute('disabled', true);
 									NA.common.getElementID('lastUsedInfo').style.display = 'block';
 									break;
 								}
