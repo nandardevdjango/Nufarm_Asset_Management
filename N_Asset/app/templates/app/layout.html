@@ -606,7 +606,7 @@
     <!--======================================== Script Log Event =============================================== -->
 
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/backupss/icon.css' %}">
-    <script type="text/javascript" src="{% static 'app/scripts/easyloader.js' %}"></script>
+    <script type="text/javascript" src="{% static 'app/scripts/JsTree/jstree.min.js' %}"></script>
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
@@ -687,108 +687,196 @@
     		});
     		NA.NAEvent.addHandler(btn_search_log,'click',function(event){
     			searchLog(event);
-    		});
-    		using('tree', function () {
-    			$("#EventLogs").tree({
-    				url: url_logEvent(),
-    				method: 'get',
-    				animate: false,
-    				loadFilter: function (data, parent) {
-    					function forNodes(data, callback) {
-    						var nodes = [];
-    						for (var i = 0; i < data.length; i++) {
-    							nodes.push(data[i]);
-    						}
-    						while (nodes.length) {
-    							var node = nodes.shift();
-    							if (callback(node) == false) { return; }
-    							if (node.children) {
-    								for (var i = node.children.length - 1; i >= 0; i--) {
-    									nodes.unshift(node.children[i]);
-    								}
-    							}
-    						}
-    					};
-    					forNodes(data, function (node) {
-    						if (node.children) {
-    							if (node.text.match(/\d+ \w+ \d+/)) {
-    								node.state = 'closed'
-    								node.iconCls = 'fa fa-calendar'
-    							} else if (node.text.match(/^Log/)) {
-    								node.iconCls = 'fa fa-indent'
-    							} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-    								node.iconCls = 'fa fa-calendar-o'
-    							}
-    						} else {
-    							if (node.text.match(/Created/)) {
-    								node.iconCls = 'fa fa-plus';
-    							};
-    							if (node.text.match(/Updated/)) {
-    								node.iconCls = 'fa fa-pencil';
-    							};
-    							if (node.text.match(/Deleted/)) {
-    								node.iconCls = 'fa fa-trash';
-    							};
-    							if(node.text.match(/^Send/)){
-    								node.iconCls = 'fa fa-envelope'
-    							}
-    						};
+            });
+            
+            //Removes jstree cached state from localStorage
+            localStorage.removeItem('jstree');
+            $('#EventLogs').on('changed.jstree', function (e, data) {
+                if (data.action == "select_node"){
+                    if (data.node.original.type == "event") {
+                        $.ajax({
+                            type: 'GET',
+                            url: url_logDesc() + '?idapp=' + data.node.original.id,
+                            dataType: 'json',
+                            success: function (data) {
+                                BootstrapDialog.show({
+                                    draggable: true,
+                                    type: BootstrapDialog.TYPE_SUCCESS,
+                                    size: BootstrapDialog.SIZE_SMALL,
+                                    title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
+                                    message: (function(){
+                                        var container = $('<div class="container" style="padding:0;"></div>');
+                                        var table = $('<table class="table table-hover logevent"></table>');
+                                        var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+                                        var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+                                        table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+                                        var tbody = $('<tbody></tbody>');
+                                        for (var key in data.data){
+                                            var tr = $('<tr></tr>');
+                                            var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+                                            var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
+                                            tr.append(label);
+                                            tr.append(value);
+                                            tbody.append(tr);
+                                        }
+                                        table.append(tbody);
+                                        container.append(table);
+                                        return container;
+                                    })(),
+                                    closable: false,
+                                    animate: true,
+                                    closeByBackdrop: false,
+                                    closeByKeyboard: false,
+                                    buttons: [{
+                                        label: 'OK',
+                                        cssClass: 'btn-default',
+                                        action: function (dialogRef) {
+                                            dialogRef.close();
+                                        }
+                                    }]
+                                })
+                            }
+                        })
+                    }
+                }
+            }).jstree({
+                'core': {
+                    'data': {
+                        'url': function (node) {
+                            return url_logEvent();
+                        },
+                        'data': function (node) {
+                            return {
+                                'id': node.id,
+                                'data_type': node.original ? node.original.type : node.type
+                            };
+                        }
+                    }
+                },
+                "types": {
+                    "#": {
+                        "valid_children": ["root"]
+                    },
+                    "root": {
+                        "icon": "https://www.jstree.com/static/3.3.7/assets/images/tree_icon.png",
+                        "valid_children": ["year"]
+                    },
+                    "year": {
+                        "valid_children": ["month", "date"]
+                    },
+                    "month": {
+                        "icon": "glyphicon glyphicon-file",
+                        "valid_children": ["date", "event"]
+                    },
+                    "event": {
+                        "valid_children": []
+                    }
+                },
+                "plugins": [
+                    "search", "state", "types", "wholerow"
+                ]
+            });
+    		// using('tree', function () {
+    		// 	$("#EventLogs").tree({
+    		// 		url: url_logEvent(),
+    		// 		method: 'get',
+    		// 		animate: false,
+    		// 		loadFilter: function (data, parent) {
+    		// 			function forNodes(data, callback) {
+    		// 				var nodes = [];
+    		// 				for (var i = 0; i < data.length; i++) {
+    		// 					nodes.push(data[i]);
+    		// 				}
+    		// 				while (nodes.length) {
+    		// 					var node = nodes.shift();
+    		// 					if (callback(node) == false) { return; }
+    		// 					if (node.children) {
+    		// 						for (var i = node.children.length - 1; i >= 0; i--) {
+    		// 							nodes.unshift(node.children[i]);
+    		// 						}
+    		// 					}
+    		// 				}
+    		// 			};
+    		// 			forNodes(data, function (node) {
+    		// 				if (node.children) {
+    		// 					if (node.text.match(/\d+ \w+ \d+/)) {
+    		// 						node.state = 'closed'
+    		// 						node.iconCls = 'fa fa-calendar'
+    		// 					} else if (node.text.match(/^Log/)) {
+    		// 						node.iconCls = 'fa fa-indent'
+    		// 					} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
+    		// 						node.iconCls = 'fa fa-calendar-o'
+    		// 					}
+    		// 				} else {
+    		// 					if (node.text.match(/Created/)) {
+    		// 						node.iconCls = 'fa fa-plus';
+    		// 					};
+    		// 					if (node.text.match(/Updated/)) {
+    		// 						node.iconCls = 'fa fa-pencil';
+    		// 					};
+    		// 					if (node.text.match(/Deleted/)) {
+    		// 						node.iconCls = 'fa fa-trash';
+    		// 					};
+    		// 					if(node.text.match(/^Send/)){
+    		// 						node.iconCls = 'fa fa-envelope'
+    		// 					}
+    		// 				};
 
-    					});
+    		// 			});
 
-    					return data;
-    				},
-    				onClick: function (node) {
-    					if (!node.children) {
-    						$.ajax({
-    							type: 'GET',
-    							url: url_logDesc() + '?idapp=' + node.idapp,
-    							dataType: 'json',
-    							success: function (data) {
-    								BootstrapDialog.show({
-                                        draggable: true,
-                                        type: BootstrapDialog.TYPE_SUCCESS,
-                                        size: BootstrapDialog.SIZE_SMALL,
-                                        title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
-                                        message: (function(){
-                                            var container = $('<div class="container" style="padding:0;"></div>');
-                                            var table = $('<table class="table table-hover logevent"></table>');
-                                            var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
-                                            var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
-                                            table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
-                                            var tbody = $('<tbody></tbody>');
-                                            for (var key in data.data){
-                                                var tr = $('<tr></tr>');
-                                                var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
-                                                tr.append(label);
-                                                tr.append(value);
-                                                tbody.append(tr);
-                                            }
-                                            table.append(tbody);
-                                            container.append(table);
-                                            return container;
-                                        })(),
-                                        closable: false,
-                                        animate: true,
-                                        closeByBackdrop: false,
-                                        closeByKeyboard: false,
-                                        buttons: [{
-                                            label: 'OK',
-                                            cssClass: 'btn-default',
-                                            action: function (dialogRef) {
-                                                dialogRef.close();
-                                            }
-                                        }]
-                                    })
-    							}
-    						})
-    					}
+    		// 			return data;
+    		// 		},
+    		// 		onClick: function (node) {
+    		// 			if (!node.children) {
+    		// 				$.ajax({
+    		// 					type: 'GET',
+    		// 					url: url_logDesc() + '?idapp=' + node.idapp,
+    		// 					dataType: 'json',
+    		// 					success: function (data) {
+    		// 						BootstrapDialog.show({
+            //                             draggable: true,
+            //                             type: BootstrapDialog.TYPE_SUCCESS,
+            //                             size: BootstrapDialog.SIZE_SMALL,
+            //                             title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
+            //                             message: (function(){
+            //                                 var container = $('<div class="container" style="padding:0;"></div>');
+            //                                 var table = $('<table class="table table-hover logevent"></table>');
+            //                                 var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+            //                                 var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+            //                                 table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+            //                                 var tbody = $('<tbody></tbody>');
+            //                                 for (var key in data.data){
+            //                                     var tr = $('<tr></tr>');
+            //                                     var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+            //                                     var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
+            //                                     tr.append(label);
+            //                                     tr.append(value);
+            //                                     tbody.append(tr);
+            //                                 }
+            //                                 table.append(tbody);
+            //                                 container.append(table);
+            //                                 return container;
+            //                             })(),
+            //                             closable: false,
+            //                             animate: true,
+            //                             closeByBackdrop: false,
+            //                             closeByKeyboard: false,
+            //                             buttons: [{
+            //                                 label: 'OK',
+            //                                 cssClass: 'btn-default',
+            //                                 action: function (dialogRef) {
+            //                                     dialogRef.close();
+            //                                 }
+            //                             }]
+            //                         })
+    		// 					}
+    		// 				})
+    		// 			}
 
-    				}
+    		// 		}
 
-    			});
-    		});
+    		// 	});
+    		// });
     	});
     </script>
     <!--================================================= End Script Log Event =============================================== -->
@@ -1167,6 +1255,7 @@
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/scripts/JsTree/themes/default/style.min.css' %}" />
     {% if request.session.ga_reg_notif %}
     <script>
         $(document).ready(function(){

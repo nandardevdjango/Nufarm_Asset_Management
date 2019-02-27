@@ -1,10 +1,11 @@
-﻿import datetime
+﻿import calendar
+import datetime
 import json
 import re
 from collections import OrderedDict
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from NA_DataLayer.common import decorators
 from NA_Models.models import LogEvent
@@ -102,7 +103,84 @@ def NA_LogEvent_data(request):
                 o.strftime('%B'),
                 o.strftime('%Y')
             )
-    return HttpResponse(json.dumps(LogEvent_data, indent=4, default=convert))
+        return o
+    #return HttpResponse(json.dumps(LogEvent_data, indent=4, default=convert))
+    result = []
+    param_id = request.GET.get('id')
+    param_type = request.GET.get('data_type')
+    if param_id is None or param_id == "#":
+        result.append(
+            {
+                "id": "root",
+                "text": "Log Event",
+                "children": True,
+                "type": "root"
+            }
+        )
+    elif param_id == "root":
+        for date in ev.dates('createddate', 'year', order='DESC').iterator():
+            result.append({
+                "id": date.year,
+                "text": date.year,
+                "children": True,
+                "type": "year",
+                "state": {
+                    "opened": False,
+                    "disabled": False,
+                    "selected": False
+                }
+            })
+    elif param_type == "year":
+        months = (ev.filter(createddate__year=param_id).dates(
+            'createddate', 'month', order='DESC').iterator()
+        )
+        for date in months:
+            result.append({
+                "id": date,
+                "text": date.strftime("%B"),
+                "children": True,
+                "type": "month",
+                "state": {
+                    "opened": False,
+                    "disabled": False,
+                    "selected": False
+                }
+            })
+    elif param_type == "month":
+        year, month, day = param_id.split('-')
+        _, end_date = calendar.monthrange(int(year), int(month))
+        dates = ev.filter(createddate__range=[
+            param_id, f"{year}-{month}-{end_date}"
+        ]).dates('createddate', 'day', order='DESC').iterator()
+
+        for date in dates:
+            result.append({
+                "id": date,
+                "text": date.strftime("%d %B %Y"),
+                "children": True,
+                "type": "date",
+                "state": {
+                    "opened": False,
+                    "disabled": False,
+                    "selected": False
+                }
+            })
+    elif param_type == "date":
+        for e in ev.iterator():
+            time_stamp = e['createddate'].strftime("%H:%M")
+            result.append({
+                "id": e['idapp'],
+                "text": f"{e['nameapp']} {time_stamp}",
+                "children": False,
+                "type": "event",
+                "state": {
+                    "opened": False,
+                    "disabled": False,
+                    "selected": False
+                }
+            })
+    
+    return JsonResponse(result, safe=False)
 
 
 @decorators.ensure_authorization
