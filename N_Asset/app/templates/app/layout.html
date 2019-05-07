@@ -603,190 +603,276 @@
     <!--======================================== Script Log Event =============================================== -->
 
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/backupss/icon.css' %}">
-    <script type="text/javascript" src="{% static 'app/scripts/easyloader.js' %}"></script>
+    <script type="text/javascript" src="{% static 'app/scripts/JsTree/jstree.min.js' %}"></script>
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
-    	$(document).ready(function () {
-
-    		$('p#change_user_picture').on({
-    			'click': function(event){
-    				NA.NAEvent.preventDefault(event);
-    				NA.NAEvent.stopPropagation(event);
-    				$('input#user_picture').click();
-    			}
-    		});
-    		$('input#user_picture').on('change',function(event){
-    			var value = this.value
-    			if (value.match(/jpe?g|png/) != null) {
-    				if (value.match(/fakepath/) != null) {
-    					value = value.replace(/C\:\\fakepath\\/, '')
-    					this.is_correct = true;
-    				};
-    				if ($('p#not_correct_file').length > 0) {
-    					$('p#not_correct_file').remove();
-    				};
-    			} else {
-    				if ($('p#not_correct_file').length == 0) {
-    					this.is_correct = false;
-    					$(this).parents('li').next().next().append('<p id="not_correct_file" style="width:100%;color:red;">Please Insert Correct File!!</p>');
-    				};
-    				return false;
-    			}
-
-    			if (this.is_correct) {
-    				var formData = new FormData();
-    				var file = this.files[0];
-    				formData.append("picture", file);
-
-    				$.ajax({
-    					url: '/MasterData/Privilege/change_picture/'
+        $(document).ready(function () {
+            
+            $('p#change_user_picture').on({
+                'click': function(event){
+                    NA.NAEvent.preventDefault(event);
+                    NA.NAEvent.stopPropagation(event);
+                    $('input#user_picture').click();
+                }
+            });
+            $('input#user_picture').on('change',function(event){
+                var value = this.value
+                if (value.match(/jpe?g|png/) != null) {
+                    if (value.match(/fakepath/) != null) {
+                        value = value.replace(/C\:\\fakepath\\/, '')
+                        this.is_correct = true;
+                    };
+                    if ($('p#not_correct_file').length > 0) {
+                        $('p#not_correct_file').remove();
+                    };
+                } else {
+                    if ($('p#not_correct_file').length == 0) {
+                        this.is_correct = false;
+                        $(this).parents('li').next().next().append('<p id="not_correct_file" style="width:100%;color:red;">Please Insert Correct File!!</p>');
+                    };
+                    return false;
+                }
+            
+                if (this.is_correct) {
+                    var formData = new FormData();
+                    var file = this.files[0];
+                    formData.append("picture", file);
+    		    
+                    $.ajax({
+                        url: '/MasterData/Privilege/change_picture/'
                             + window.encodeURIComponent(NA.Privilege.Email) + '/',
-    					method: 'POST',
-    					data: formData,
-    					cache: false,
-    					contentType: false,
-    					processData: false,
-    					beforeSend: function(xhr){
-    						xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
-    					},
-    					success: function (data) {
-    						$('div.profile-circle.medium, div.profile-circle.shadow')
+                        method: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+                        },
+                        success: function (data) {
+                            $('div.profile-circle.medium, div.profile-circle.shadow')
                                 .css('background-image', 'url(/static/NA_User_Image/UploadImg/' + data['message']);
-    					}
-    				})
-    			}
-    		});
-    		$('button#btn_sign_out').click(function(event){
-    			window.location.href = '/logout/'
-    		});
-
-    		var inputLogEvent = NA.common.getElementID('searchLogEvent'),
+                        }
+                    })
+                }
+            });
+            $('button#btn_sign_out').click(function(event){
+                window.location.href = '/logout/'
+            });
+            var inputLogEvent = NA.common.getElementID('searchLogEvent'),
 				btn_search_log = NA.common.getElementID('btnSearchLogEvent');
-    		function searchLog(event){
-    			NA.NAEvent.preventDefault(event);
-    			var targetValue = inputLogEvent.value;
-    			NA.common.AJAX.GET(url_logEvent() + '?' + win.encodeURIComponent('_Search') + '=' + true + '&' + win.encodeURIComponent('search') + '=' + targetValue, 'application/json', function (e) { window.document.body.style.cursor = 'wait'; },
+            function searchLog(event){
+                NA.NAEvent.preventDefault(event);
+                var targetValue = inputLogEvent.value;
+                NA.common.AJAX.GET(url_logEvent() + '?' + win.encodeURIComponent('_Search') + '=' + true + '&' + win.encodeURIComponent('search') + '=' + targetValue, 'application/json', function (e) { window.document.body.style.cursor = 'wait'; },
 					  null,
 					  function (e) {//function executed after data has been returned by server(XHR.onload)
-					  	var data = JSON.parse(this.responseText);
-					  	if (data) {
-					  		$('#EventLogs').tree('loadData',data);
-					  	}
+					      var data = JSON.parse(this.responseText);
+					      if (data) {
+					          $('#EventLogs').tree('loadData',data);
+					      }
 					  }, null, function (e) {
-					  	throw new Error(this.responseText + '\nStatus code :' + this.statusText);
+					      throw new Error(this.responseText + '\nStatus code :' + this.statusText);
 					  }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
 					  null);
-    		};
-    		NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
-    			if(event.keyCode == 13){
-    				searchLog(event);
-    			}
-    		});
-    		NA.NAEvent.addHandler(btn_search_log,'click',function(event){
-    			searchLog(event);
-    		});
-    		using('tree', function () {
-    			$("#EventLogs").tree({
-    				url: url_logEvent(),
-    				method: 'get',
-    				animate: false,
-    				loadFilter: function (data, parent) {
-    					function forNodes(data, callback) {
-    						var nodes = [];
-    						for (var i = 0; i < data.length; i++) {
-    							nodes.push(data[i]);
-    						}
-    						while (nodes.length) {
-    							var node = nodes.shift();
-    							if (callback(node) == false) { return; }
-    							if (node.children) {
-    								for (var i = node.children.length - 1; i >= 0; i--) {
-    									nodes.unshift(node.children[i]);
-    								}
-    							}
-    						}
-    					};
-    					forNodes(data, function (node) {
-    						if (node.children) {
-    							if (node.text.match(/\d+ \w+ \d+/)) {
-    								node.state = 'closed'
-    								node.iconCls = 'fa fa-calendar'
-    							} else if (node.text.match(/^Log/)) {
-    								node.iconCls = 'fa fa-indent'
-    							} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-    								node.iconCls = 'fa fa-calendar-o'
-    							}
-    						} else {
-    							if (node.text.match(/Created/)) {
-    								node.iconCls = 'fa fa-plus';
-    							};
-    							if (node.text.match(/Updated/)) {
-    								node.iconCls = 'fa fa-pencil';
-    							};
-    							if (node.text.match(/Deleted/)) {
-    								node.iconCls = 'fa fa-trash';
-    							};
-    							if(node.text.match(/^Send/)){
-    								node.iconCls = 'fa fa-envelope'
-    							}
-    						};
+            };
+            NA.NAEvent.addHandler(inputLogEvent,'keydown',function(event){
+                if(event.keyCode == 13){
+                    searchLog(event);
+                }
+            });
+            NA.NAEvent.addHandler(btn_search_log,'click',function(event){
+                searchLog(event);
+    		
+            });
+            
+            //Removes jstree cached state from localStorage
+            localStorage.removeItem('jstree');
+            $('#EventLogs').on('changed.jstree', function (e, data) {
+                if (data.action == "select_node"){
+                    if (data.node.original.type == "event") {
+                        $.ajax({
+                            type: 'GET',
+                            url: url_logDesc() + '?idapp=' + data.node.original.id,
+                            dataType: 'json',
+                            success: function (data) {
+                                BootstrapDialog.show({
+                                    draggable: true,
+                                    type: BootstrapDialog.TYPE_SUCCESS,
+                                    size: BootstrapDialog.SIZE_SMALL,
+                                    title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
+                                    message: (function(){
+                                        var container = $('<div class="container" style="padding:0;"></div>');
+                                        var table = $('<table class="table table-hover logevent"></table>');
+                                        var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+                                        var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+                                        table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+                                        var tbody = $('<tbody></tbody>');
+                                        for (var key in data.data){
+                                            var tr = $('<tr></tr>');
+                                            var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+                                            var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
+                                            tr.append(label);
+                                            tr.append(value);
+                                            tbody.append(tr);
+                                        }
+                                        table.append(tbody);
+                                        container.append(table);
+                                        return container;
+                                    })(),
+                                    closable: false,
+                                    animate: true,
+                                    closeByBackdrop: false,
+                                    closeByKeyboard: false,
+                                    buttons: [{
+                                        label: 'OK',
+                                        cssClass: 'btn-default',
+                                        action: function (dialogRef) {
+                                            dialogRef.close();
+                                        }
+                                    }]
+                                })
+                            }
+                        })
+                    }
+                }
+            }).jstree({
+                'core': {
+                    'data': {
+                        'url': function (node) {
+                            return url_logEvent();
+                        },
+                        'data': function (node) {
+                            return {
+                                'id': node.id,
+                                'data_type': node.original ? node.original.type : node.type
+                            };
+                        }
+                    }
+                },
+                "types": {
+                    "#": {
+                        "valid_children": ["root"]
+                    },
+                    "root": {
+                        "icon": "https://www.jstree.com/static/3.3.7/assets/images/tree_icon.png",
+                        "valid_children": ["year"]
+                    },
+                    "year": {
+                        "valid_children": ["month", "date"]
+                    },
+                    "month": {
+                        "icon": "glyphicon glyphicon-file",
+                        "valid_children": ["date", "event"]
+                    },
+                    "event": {
+                        "valid_children": []
+                    }
+                },
+                "plugins": [
+                    "search", "state", "types", "wholerow"
+                ]
+            });
+            // using('tree', function () {
+            // 	$("#EventLogs").tree({
+            // 		url: url_logEvent(),
+            // 		method: 'get',
+            // 		animate: false,
+            // 		loadFilter: function (data, parent) {
+            // 			function forNodes(data, callback) {
+            // 				var nodes = [];
+            // 				for (var i = 0; i < data.length; i++) {
+            // 					nodes.push(data[i]);
+            // 				}
+            // 				while (nodes.length) {
+            // 					var node = nodes.shift();
+            // 					if (callback(node) == false) { return; }
+            // 					if (node.children) {
+            // 						for (var i = node.children.length - 1; i >= 0; i--) {
+            // 							nodes.unshift(node.children[i]);
+            // 						}
+            // 					}
+            // 				}
+            // 			};
+            // 			forNodes(data, function (node) {
+            // 				if (node.children) {
+            // 					if (node.text.match(/\d+ \w+ \d+/)) {
+            // 						node.state = 'closed'
+            // 						node.iconCls = 'fa fa-calendar'
+            // 					} else if (node.text.match(/^Log/)) {
+            // 						node.iconCls = 'fa fa-indent'
+            // 					} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
+            // 						node.iconCls = 'fa fa-calendar-o'
+            // 					}
+            // 				} else {
+            // 					if (node.text.match(/Created/)) {
+            // 						node.iconCls = 'fa fa-plus';
+            // 					};
+            // 					if (node.text.match(/Updated/)) {
+            // 						node.iconCls = 'fa fa-pencil';
+            // 					};
+            // 					if (node.text.match(/Deleted/)) {
+            // 						node.iconCls = 'fa fa-trash';
+            // 					};
+            // 					if(node.text.match(/^Send/)){
+            // 						node.iconCls = 'fa fa-envelope'
+            // 					}
+            // 				};
+            // 			});
+ 
+            // 			return data;
+            // 		},
+            // 		onClick: function (node) {
+            // 			if (!node.children) {
+            // 				$.ajax({
+            // 					type: 'GET',
+            // 					url: url_logDesc() + '?idapp=' + node.idapp,
+            // 					dataType: 'json',
+            // 					success: function (data) {
+            // 						BootstrapDialog.show({
+            //                             draggable: true,
+            //                             type: BootstrapDialog.TYPE_SUCCESS,
+            //                             size: BootstrapDialog.SIZE_SMALL,
+            //                             title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
+            //                             message: (function(){
+            //                                 var container = $('<div class="container" style="padding:0;"></div>');
+            //                                 var table = $('<table class="table table-hover logevent"></table>');
+            //                                 var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+            //                                 var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+            //                                 table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+            //                                 var tbody = $('<tbody></tbody>');
+            //                                 for (var key in data.data){
+            //                                     var tr = $('<tr></tr>');
+            //                                     var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+            //                                     var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
+            //                                     tr.append(label);
+            //                                     tr.append(value);
+            //                                     tbody.append(tr);
+            //                                 }
+            //                                 table.append(tbody);
+            //                                 container.append(table);
+            //                                 return container;
+            //                             })(),
+            //                             closable: false,
+            //                             animate: true,
+            //                             closeByBackdrop: false,
+            //                             closeByKeyboard: false,
+            //                             buttons: [{
+            //                                 label: 'OK',
+            //                                 cssClass: 'btn-default',
+            //                                 action: function (dialogRef) {
+            //                                     dialogRef.close();
+            //                                 }
+            //                             }]
+            //                         })
+            // 					}
+            // 				})
+            // 			}
+            // 		}
 
-    					});
-
-    					return data;
-    				},
-    				onClick: function (node) {
-    					if (!node.children) {
-    						$.ajax({
-    							type: 'GET',
-    							url: url_logDesc() + '?idapp=' + node.idapp,
-    							dataType: 'json',
-    							success: function (data) {
-    								BootstrapDialog.show({
-    									draggable: true,
-    									type: BootstrapDialog.TYPE_SUCCESS,
-    									size: BootstrapDialog.SIZE_SMALL,
-    									title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
-    									message: (function(){
-    										var container = $('<div class="container" style="padding:0;"></div>');
-    										var table = $('<table class="table table-hover logevent"></table>');
-    										var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
-    										var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
-    										table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
-    										var tbody = $('<tbody></tbody>');
-    										for (var key in data.data){
-    											var tr = $('<tr></tr>');
-    											var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-    											var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
-    											tr.append(label);
-    											tr.append(value);
-    											tbody.append(tr);
-    										}
-    										table.append(tbody);
-    										container.append(table);
-    										return container;
-    									})(),
-    									closable: false,
-    									animate: true,
-    									closeByBackdrop: false,
-    									closeByKeyboard: false,
-    									buttons: [{
-    										label: 'OK',
-    										cssClass: 'btn-default',
-    										action: function (dialogRef) {
-    											dialogRef.close();
-    										}
-    									}]
-    								})
-    							}
-    						})
-    					}
-
-    				}
-
-    			});
-    		});
-    	});
+            // 	});
+            // });
+        });
     </script>
     <!--================================================= End Script Log Event =============================================== -->
     <!--====================Jquery untuk menu============================ -->
@@ -1164,6 +1250,7 @@
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/scripts/JsTree/themes/default/style.min.css' %}" />
     {% if request.session.ga_reg_notif %}
     <script>
     	$(document).ready(function(){
