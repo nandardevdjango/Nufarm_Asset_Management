@@ -64,11 +64,11 @@
             <div class="sidebar">
                 <ul class="list-sidebar bg-defoult">
                     <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
-            <li><a href="#">Regular link</a></li>
-            <li class="disabled"><a href="#">Disabled link</a></li>
-            <li><a href="#">Another link</a></li>
-        </ul> -->
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
+                        <li><a href="#">Regular link</a></li>
+                        <li class="disabled"><a href="#">Disabled link</a></li>
+                        <li><a href="#">Another link</a></li>
+                    </ul> -->
                     <li>
                         <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
                     </li>
@@ -116,9 +116,9 @@
                                 <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
                                     <li class="active">
                                         <a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a>
-										<ul class="sub-menu" id="GRDetails" aria-expanded="false">
-											 <li><a href="{% url 'Transactions:NA_Goods_Receive_Detail:entrybatchdetail' %}" style="padding-left:18px;font-size:0.9em;">Entry Batch Detail</a></li>
-										</ul>
+                                        <ul class="sub-menu" id="GRDetails" aria-expanded="false">
+                                            <li><a href="{% url 'Transactions:NA_Goods_Receive_Detail:entrybatchdetail' %}" style="padding-left:18px;font-size:0.9em;">Entry Batch Detail</a></li>
+                                        </ul>
                                     </li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
@@ -128,13 +128,13 @@
                                     <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
                                 </ul>
                             </li>
-							<li>
+                            <li>
                                 <a href="#" data-toggle="collapse" data-target="#ga" class="active collapsed" aria-expanded="false">
                                     <i class="fa fa-archive"></i><span class="nav-label">GA</span>
                                     <span class="fa fa-angle-down pull-right"></span>
                                 </a>
                             </li>
-							<li>
+                            <li>
                                 <ul class="sub-menu collapse" id="ga" aria-expanded="false">
                                     <li><a id="extend_tax_menu" href="#">Extend taxes</a></li>
                                     <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
@@ -296,10 +296,8 @@
                                 </i>
                             </div>
                         </div>
-                        <ul
-                        class="dropdown-menu triangle triangle-bell-notif pull-right shadow" 
-                        style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px"
-                        >
+                        <ul class="dropdown-menu triangle triangle-bell-notif pull-right shadow"
+                            style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px">
                             <li style="background: #f5f5f5;padding:10px;color:forestgreen;font-weight:bold;">
                                 Notifications <span id="notification-count" class="badge badge-success pull-right"></span>
                             </li>
@@ -331,20 +329,20 @@
                                             <input id="user_picture" type="file" style="display:none;" accept="image/*" />
                                             <input type="submit" style="display:none" />
                                         </form>
-										<p class="profile-text-green" id="change_user_picture" style="text-align:center;width:105px">Change Picture</p>
+                                        <p class="profile-text-green" id="change_user_picture" style="text-align:center;width:105px">Change Picture</p>
                                     </div>
                                     <div class="col-md-7" style="font-size:13px;padding:5px;">
                                         <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
                                         <div class="email">{{ request.user.email }}</div>
-										<div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
-										<div><p id="edit_profile" class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
+                                        <div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
+                                        <div><p id="edit_profile" class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
                                     </div>
                                 </div>
                             </li>
                             <li class="divider" style="margin-bottom:0px;"></li>
                             <li style="height:47px;background:#f5f5f5;">
                                 <!--<a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>-->
-								<button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign out</button>
+                                <button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign out</button>
                             </li>
                         </ul>
                     </li>
@@ -399,56 +397,55 @@
                             </li>
                         </ul>
                     </li>
-                    <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
-                    <script>
-                        $(document).ready(function(){
-                            $('form#login-nav').submit(function(event){
-                                event.preventDefault();
-                                if (this.checkValidity()){
-                                    event.stopPropagation();
-                                    event.stopImmediatePropagation();
-                                    $.ajax({
-                                        url: this.action,
-                                        method: 'POST',
-                                        beforeSend: function(xhr){
-                                            xhr.setRequestHeader(
-                                                'X-CSRFToken', 
-                                                $('input[name="csrfmiddlewaretoken"]').val()
-                                            )
-                                        },
-                                        data: {
-                                            email: $(this).find('input[type="email"]').val(),
-                                            password: $(this).find('input[type="password"]').val()
-                                        },
-                                        success: function(data){
-                                            // TODO: Handle it, in layout.html --> don't use tag session
-                                            setTimeout(function(){
-                                                window.location.href = data.redirect;
-                                            }, 500);
-                                            
-                                        },
-                                        error: function(data){
-                                            data = data.responseJSON
-                                            for (var key in data){
-                                                var input = $('input[name="'+ key +'"]').get(0);
-                                                input.setCustomValidity(data[key]);
-                                                $('form#login-nav').find('button[type="submit"]').click();
-                                            }
-                                        }
-                                    })
-                                return false;
-                                }
-                            });
-                            $('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function(){
-                                this.setCustomValidity('');
-                            });
-                        });
-                    </script>
-
                     {% endif %}
                     <!-- ============================ End User Login =============================== -->
                 </ul>
             </div>
+            <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+            <script>
+            	$(document).ready(function(){
+            		$('form#login-nav').submit(function(event){
+            			event.preventDefault();
+            			if (this.checkValidity()){
+            				event.stopPropagation();
+            				event.stopImmediatePropagation();
+            				$.ajax({
+            					url: this.action,
+            					method: 'POST',
+            					beforeSend: function(xhr){
+            						xhr.setRequestHeader(
+										'X-CSRFToken',
+										$('input[name="csrfmiddlewaretoken"]').val()
+									)
+            					},
+            					data: {
+            						email: $(this).find('input[type="email"]').val(),
+            						password: $(this).find('input[type="password"]').val()
+            					},
+            					success: function(data){
+            						// TODO: Handle it, in layout.html --> don't use tag session
+            						setTimeout(function(){
+            							window.location.href = data.redirect;
+            						}, 500);
+
+            					},
+            					error: function(data){
+            						data = data.responseJSON
+            						for (var key in data){
+            							var input = $('input[name="'+ key +'"]').get(0);
+            							input.setCustomValidity(data[key]);
+            							$('form#login-nav').find('button[type="submit"]').click();
+            						}
+            					}
+            				})
+            				return false;
+            			}
+            		});
+            		$('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function(){
+            			this.setCustomValidity('');
+            		});
+            	});
+            </script>
             <div class="AsideMainArea">
 
                 <div id="EventLogs" class="LogEvent"></div>
@@ -463,8 +460,8 @@
         <div class="clearfloat"></div>
 
         <!--=========DIALOG ENTRY FOR INPUT OPEN AND UPDATE DATA===============-->
-		{% if request.resolver_match.url_name != 'home' %}
-		<script>
+        {% if request.resolver_match.url_name != 'home' %}
+        <script>
 			NA.Privilege.Email = '{{ request.user.email }}';
 			var roleCode = '{{ request.user.role }}';
 			if (roleCode == 1) {
@@ -479,8 +476,8 @@
 				NA.Privilege.IsAdmin = false;
 			}
 			NA.Privilege.password = '{{ request.user.password }}'
-		</script>
-		{% endif %}
+        </script>
+        {% endif %}
         {% block DialogEntry %}
 
         {% endblock %}
@@ -501,9 +498,9 @@
     	var btnRegister = NA.common.doc.querySelector('button#register')
     	NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
     	window.showDialogEntry = function(event){
-    	    $('div.maindialogContent').load(url_register(), function (response, status, xhr) {
-    	        var dialog = document.querySelector("div.containerDialog");
-    	        dialog.style.top = '20px';
+    		$('div.maindialogContent').load(url_register(), function (response, status, xhr) {
+    			var dialog = document.querySelector("div.containerDialog");
+    			dialog.style.top = '20px';
     			function getData_User() {
     				data = {
     					first_name: $('input#id_first_name').val(),
@@ -519,83 +516,83 @@
     			var initializeForm_user = NA.common.getElementID('id_initializeForm_user');
     			initializeForm_user.Value = JSON.stringify(getData_User());
     			function NA_UserSubmit() {
-    			    var send_data = getData_User();
-    			    if(send_data['picture'] != ""){
-    			        send_data['picture'] = $('input#id_picture')[0].files[0];
-    			    };
-    			    
-    			    send_data['csrfmiddlewaretoken'] = $('form#form_user input[name="csrfmiddlewaretoken"]').val();
-    			    user_form_data = new FormData()
-    			    for ( var key in send_data ) {
-    			        user_form_data.append(key, send_data[key]);
-    			    }
-    			    $.ajax({
-    			        url: $('form#form_user').attr('action'),
-    			        method: 'POST',
-    			        data: user_form_data,
-    			        cache: false,
-    			        contentType: false,
-    			        processData: false,
-    			        success: function (data) {
-    			            window.location.href = '/'
-    			        }
-    			    });
+    				var send_data = getData_User();
+    				if(send_data['picture'] != ""){
+    					send_data['picture'] = $('input#id_picture')[0].files[0];
+    				};
+
+    				send_data['csrfmiddlewaretoken'] = $('form#form_user input[name="csrfmiddlewaretoken"]').val();
+    				user_form_data = new FormData()
+    				for ( var key in send_data ) {
+    					user_form_data.append(key, send_data[key]);
+    				}
+    				$.ajax({
+    					url: $('form#form_user').attr('action'),
+    					method: 'POST',
+    					data: user_form_data,
+    					cache: false,
+    					contentType: false,
+    					processData: false,
+    					success: function (data) {
+    						window.location.href = '/'
+    					}
+    				});
     			};
     			var form_user = NA.common.getElementID('form_user');
     			var dialog_user = NA.common.dialog.doc.querySelector("div.containerDialog");
     			var btn_input = NA.common.getElementID('user_submit');
     			$('div.dialogButtonOKCancel>a.button').click(function (event) {
-    			    var target = NA.NAEvent.getTarget(event);
-    			    UserHandler(target.innerText);
+    				var target = NA.NAEvent.getTarget(event);
+    				UserHandler(target.innerText);
     			});
     			$('button.ui-button.ui-dialog-titlebar-close').on('click', function (event) {
     				UserHandler('Close');
     			});
     			function UserHandler(TextElement){
-    			    var dialog = document.querySelector("div.containerDialog"),
+    				var dialog = document.querySelector("div.containerDialog"),
                     originalData = JSON.parse(initializeForm_user.Value);
-                    valuesForm = getData_User();
-    			    switch (TextElement) {
-    			        case 'OK': {
-    			            var password = document.querySelector('input#id_password1');
-    			            var confirm_password = document.querySelector('input#id_password2');
-    			            if (password.value != confirm_password.value) {
-    			                confirm_password.setCustomValidity('confirm password didn\'t match with password');
-    			            } else {
-    			                confirm_password.setCustomValidity('');
-    			            }
-    			            if (!form_user.checkValidity()) {
-    			                btn_input.click();
-    			            }else {
-    			                if (NA.common.detectInputChanges(originalData, valuesForm)) {
-    			                    NA_UserSubmit();
-    			                } else {
-    			                    NA.common.dialog.closeDialog(dialog);
-    			                }
-    			            }
-    			            break;
-    			        }
-    			        case 'Cancel':
-    			        case 'Close': {
-    			            if (NA.common.detectInputChanges(originalData, valuesForm)) {
-    			                return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
+    				valuesForm = getData_User();
+    				switch (TextElement) {
+    					case 'OK': {
+    						var password = document.querySelector('input#id_password1');
+    						var confirm_password = document.querySelector('input#id_password2');
+    						if (password.value != confirm_password.value) {
+    							confirm_password.setCustomValidity('confirm password didn\'t match with password');
+    						} else {
+    							confirm_password.setCustomValidity('');
+    						}
+    						if (!form_user.checkValidity()) {
+    							btn_input.click();
+    						}else {
+    							if (NA.common.detectInputChanges(originalData, valuesForm)) {
+    								NA_UserSubmit();
+    							} else {
+    								NA.common.dialog.closeDialog(dialog);
+    							}
+    						}
+    						break;
+    					}
+    					case 'Cancel':
+    					case 'Close': {
+    						if (NA.common.detectInputChanges(originalData, valuesForm)) {
+    							return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo,
                                     function () {
-                                        if (!form_user.checkValidity()) {
-                                            //NA.NAEvent.preventDefault(event);
-                                            btn_input.click();
-                                        }
-                                        else {
-                                            NA_UserSubmit();
-                                        }
+                                    	if (!form_user.checkValidity()) {
+                                    		//NA.NAEvent.preventDefault(event);
+                                    		btn_input.click();
+                                    	}
+                                    	else {
+                                    		NA_UserSubmit();
+                                    	}
                                     },
                                     function () {
-                                        NA.common.dialog.closeDialog(dialog);
+                                    	NA.common.dialog.closeDialog(dialog);
                                     });
-    			            } else {
-    			                NA.common.dialog.closeDialog(dialog);
-    			            }
-    			        }
-    			    }
+    						} else {
+    							NA.common.dialog.closeDialog(dialog);
+    						}
+    					}
+    				}
     			}
     		});
 
@@ -610,7 +607,7 @@
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
     	$(document).ready(function () {
-            
+
     		$('p#change_user_picture').on({
     			'click': function(event){
     				NA.NAEvent.preventDefault(event);
@@ -619,48 +616,48 @@
     			}
     		});
     		$('input#user_picture').on('change',function(event){
-    		    var value = this.value
-    		    if (value.match(/jpe?g|png/) != null) {
-    		        if (value.match(/fakepath/) != null) {
-    		            value = value.replace(/C\:\\fakepath\\/, '')
-    		            this.is_correct = true;
-    		        };
-    		        if ($('p#not_correct_file').length > 0) {
-    		            $('p#not_correct_file').remove();
-    		        };
-    		    } else {
-    		        if ($('p#not_correct_file').length == 0) {
-    		            this.is_correct = false;
-    		            $(this).parents('li').next().next().append('<p id="not_correct_file" style="width:100%;color:red;">Please Insert Correct File!!</p>');
-    		        };
-    		        return false;
-    		    }
-            
-    		    if (this.is_correct) {
-    		        var formData = new FormData();
-    		        var file = this.files[0];
-    		        formData.append("picture", file);
-    		    
-    		        $.ajax({
-    		            url: '/MasterData/Privilege/change_picture/'
+    			var value = this.value
+    			if (value.match(/jpe?g|png/) != null) {
+    				if (value.match(/fakepath/) != null) {
+    					value = value.replace(/C\:\\fakepath\\/, '')
+    					this.is_correct = true;
+    				};
+    				if ($('p#not_correct_file').length > 0) {
+    					$('p#not_correct_file').remove();
+    				};
+    			} else {
+    				if ($('p#not_correct_file').length == 0) {
+    					this.is_correct = false;
+    					$(this).parents('li').next().next().append('<p id="not_correct_file" style="width:100%;color:red;">Please Insert Correct File!!</p>');
+    				};
+    				return false;
+    			}
+
+    			if (this.is_correct) {
+    				var formData = new FormData();
+    				var file = this.files[0];
+    				formData.append("picture", file);
+
+    				$.ajax({
+    					url: '/MasterData/Privilege/change_picture/'
                             + window.encodeURIComponent(NA.Privilege.Email) + '/',
-    		            method: 'POST',
-    		            data: formData,
-    		            cache: false,
-    		            contentType: false,
-    		            processData: false,
-    		            beforeSend: function(xhr){
-    		                xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
-    		            },
-    		            success: function (data) {
-    		                $('div.profile-circle.medium, div.profile-circle.shadow')
+    					method: 'POST',
+    					data: formData,
+    					cache: false,
+    					contentType: false,
+    					processData: false,
+    					beforeSend: function(xhr){
+    						xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+    					},
+    					success: function (data) {
+    						$('div.profile-circle.medium, div.profile-circle.shadow')
                                 .css('background-image', 'url(/static/NA_User_Image/UploadImg/' + data['message']);
-    		            }
-    		        })
-    		    }
+    					}
+    				})
+    			}
     		});
     		$('button#btn_sign_out').click(function(event){
-                window.location.href = '/logout/'
+    			window.location.href = '/logout/'
     		});
 
     		var inputLogEvent = NA.common.getElementID('searchLogEvent'),
@@ -746,41 +743,41 @@
     							dataType: 'json',
     							success: function (data) {
     								BootstrapDialog.show({
-                                        draggable: true,
-                                        type: BootstrapDialog.TYPE_SUCCESS,
-                                        size: BootstrapDialog.SIZE_SMALL,
-                                        title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
-                                        message: (function(){
-                                            var container = $('<div class="container" style="padding:0;"></div>');
-                                            var table = $('<table class="table table-hover logevent"></table>');
-                                            var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
-                                            var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
-                                            table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
-                                            var tbody = $('<tbody></tbody>');
-                                            for (var key in data.data){
-                                                var tr = $('<tr></tr>');
-                                                var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-                                                var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
-                                                tr.append(label);
-                                                tr.append(value);
-                                                tbody.append(tr);
-                                            }
-                                            table.append(tbody);
-                                            container.append(table);
-                                            return container;
-                                        })(),
-                                        closable: false,
-                                        animate: true,
-                                        closeByBackdrop: false,
-                                        closeByKeyboard: false,
-                                        buttons: [{
-                                            label: 'OK',
-                                            cssClass: 'btn-default',
-                                            action: function (dialogRef) {
-                                                dialogRef.close();
-                                            }
-                                        }]
-                                    })
+    									draggable: true,
+    									type: BootstrapDialog.TYPE_SUCCESS,
+    									size: BootstrapDialog.SIZE_SMALL,
+    									title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
+    									message: (function(){
+    										var container = $('<div class="container" style="padding:0;"></div>');
+    										var table = $('<table class="table table-hover logevent"></table>');
+    										var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
+    										var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
+    										table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
+    										var tbody = $('<tbody></tbody>');
+    										for (var key in data.data){
+    											var tr = $('<tr></tr>');
+    											var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
+    											var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
+    											tr.append(label);
+    											tr.append(value);
+    											tbody.append(tr);
+    										}
+    										table.append(tbody);
+    										container.append(table);
+    										return container;
+    									})(),
+    									closable: false,
+    									animate: true,
+    									closeByBackdrop: false,
+    									closeByKeyboard: false,
+    									buttons: [{
+    										label: 'OK',
+    										cssClass: 'btn-default',
+    										action: function (dialogRef) {
+    											dialogRef.close();
+    										}
+    									}]
+    								})
     							}
     						})
     					}
@@ -795,61 +792,61 @@
     <!--====================Jquery untuk menu============================ -->
     <script>
     	$(function () {
-            $('.dropdown.prevent-close').on({
-                "click": function(event) {
-                  if ($(event.target).closest('.dropdown-toggle').length) {
-                    $(this).data('closable', true);
-                  } else {
-                    $(this).data('closable', false);
-                  }
-                },
-                "hide.bs.dropdown": function(event) {
-                  hide = $(this).data('closable');
-                  $(this).data('closable', !$(this).hasClass('keep-open'));
-                  return hide;
-                }
-            });
+    		$('.dropdown.prevent-close').on({
+    			"click": function(event) {
+    				if ($(event.target).closest('.dropdown-toggle').length) {
+    					$(this).data('closable', true);
+    				} else {
+    					$(this).data('closable', false);
+    				}
+    			},
+    			"hide.bs.dropdown": function(event) {
+    				hide = $(this).data('closable');
+    				$(this).data('closable', !$(this).hasClass('keep-open'));
+    				return hide;
+    			}
+    		});
 
-            // ====== common ajax setup if user was logged out
-            $.ajaxSetup({
-                error: function(resp){
-                    if (resp.status == 401){
-                        NA_Bootstrap.dialog.dialogAlert(
+    		// ====== common ajax setup if user was logged out
+    		$.ajaxSetup({
+    			error: function(resp){
+    				if (resp.status == 401){
+    					NA_Bootstrap.dialog.dialogAlert(
                             NA.common.message.unAuthorized,
                             NA.common.message.titleInfo,
                             function(){
-                                window.location.href = NA.client.url.login_next
+                            	window.location.href = NA.client.url.login_next
                             }
                         )
-                    } else {
-                        var message;
-                        try {
-                            response = JSON.parse(resp.responseText);
-                            if (typeof response.message != "undefined") {
-                                message = response.message
-                            } else {
-                                message = response
-                            }
-                        } catch (e) {
-                            if (e instanceof SyntaxError) {
-                                message = resp.responseText;
-                            } else {
-                                console.log(e);
-                            }
-                        }
-                        if (typeof resp.responseJSON != 'undefined'){
-                            if (typeof resp['message'] != 'undefined'){
-                                message = resp['message']
-                            }
-                        }
-                        NA_Bootstrap.dialog.dialogAlert(
+    				} else {
+    					var message;
+    					try {
+    						response = JSON.parse(resp.responseText);
+    						if (typeof response.message != "undefined") {
+    							message = response.message
+    						} else {
+    							message = response
+    						}
+    					} catch (e) {
+    						if (e instanceof SyntaxError) {
+    							message = resp.responseText;
+    						} else {
+    							console.log(e);
+    						}
+    					}
+    					if (typeof resp.responseJSON != 'undefined'){
+    						if (typeof resp['message'] != 'undefined'){
+    							message = resp['message']
+    						}
+    					}
+    					NA_Bootstrap.dialog.dialogAlert(
                             NA.common.message.server(message),
                             NA.common.message.titleInfo
                         )
-                    }
-                }
-            });
-            
+    				}
+    			}
+    		});
+
 
     		$("div.sidebar ul li a").click(function (event) {
     			if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
@@ -872,566 +869,567 @@
     				$('.sidebar').css('flex', '0 0 173px');
     				$('.sidebar').toggleClass('fliph');
     			}
-            });
-            
-            $.expr[':'].icontains = function(a, i, m) {
-                return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-              };
-            
-            var extend_tax_menu = document.getElementById('extend_tax_menu');
-            NA.common.dialog.initDialog(null, 'Nufarm extend taxes - Transaction', [extend_tax_menu]);
-            
-            function BuildExtendGrid(q) {
-                var url = '/Transactions/GA_History/?q='
-                if (arguments.length > 0) {
-                    $('table#extend_tax').setGridParam({ url: url + q }).trigger("reloadGrid");
-                } else {
-                    $('table#extend_tax').jqGrid({
-                        url: url,
-                        datatype: 'json',
-                        mtype: 'GET',
-                        colNames: ['idapp', 'No', 'Goods Name', 'Brand', 'Type', 'Colour', 
-                                   'Invoice No', 'Reg Number', 'Is Expire', 'Expire Date', 'Employee Name', 
+    		});
+
+    		$.expr[':'].icontains = function(a, i, m) {
+    			return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+    		};
+
+    		var extend_tax_menu = document.getElementById('extend_tax_menu');
+    		NA.common.dialog.initDialog(null, 'Nufarm extend taxes - Transaction', [extend_tax_menu]);
+
+    		function BuildExtendGrid(q) {
+    			var url = '/Transactions/GA_History/?q='
+    			if (arguments.length > 0) {
+    				$('table#extend_tax').setGridParam({ url: url + q }).trigger("reloadGrid");
+    			} else {
+    				$('table#extend_tax').jqGrid({
+    					url: url,
+    					datatype: 'json',
+    					mtype: 'GET',
+    					colNames: ['idapp', 'No', 'Goods Name', 'Brand', 'Type', 'Colour',
+                                   'Invoice No', 'Reg Number', 'Is Expire', 'Expire Date', 'Employee Name',
                                    'Mobile Phone', 'In active'],
-                        colModel: [
-                            { 
-                                name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true 
-                            },
-                            { 
-                                name: 'no', index: 'no', width: 45 ,align:'center'
-                            },
-                            { 
-                                name: 'goods_name', index: 'goods_name', width: 130, editable: false, search: false, sortable: true 
-                            },
-                            { 
-                                name: 'brand', index: 'brand', width: 150, editable: false, editrules: { required: true }, sortable: true 
+    					colModel: [
+                            {
+                            	name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true
                             },
                             {
-                                name: 'type', index: 'type', width: 100, align: 'left', editable: false, search: false
-                            },
-                            { 
-                                name: 'colour', index: 'colour', width: 130, align: 'left', editable: true
+                            	name: 'no', index: 'no', width: 45 ,align:'center'
                             },
                             {
-                                name: 'invoice_no', index: 'gender', width: 100, align: 'left', editable: true, search: false
+                            	name: 'goods_name', index: 'goods_name', width: 130, editable: false, search: false, sortable: true
+                            },
+                            {
+                            	name: 'brand', index: 'brand', width: 150, editable: false, editrules: { required: true }, sortable: true
+                            },
+                            {
+                            	name: 'type', index: 'type', width: 100, align: 'left', editable: false, search: false
+                            },
+                            {
+                            	name: 'colour', index: 'colour', width: 130, align: 'left', editable: true
+                            },
+                            {
+                            	name: 'invoice_no', index: 'gender', width: 100, align: 'left', editable: true, search: false
                             },
                             { name: 'reg_number', index: 'reg_number', width: 150, editable: true, search: false },
-                            { 
-                                name: 'is_expire', index: 'is_expire', width: 80, align: 'center', search: false, formatter: 'checkbox', 
-                                edittype: 'checkbox', editoptions: { value: 'true:false' } 
+                            {
+                            	name: 'is_expire', index: 'is_expire', width: 80, align: 'center', search: false, formatter: 'checkbox',
+                            	edittype: 'checkbox', editoptions: { value: 'true:false' }
                             },
-                            { 
-                                name: 'expire_date', index: 'expire_date', width: 150, editable: false, search: false, formatter: 'date',
-                                formatoptions: {
-                                    srcformat: 'Y-m-d', newformat: 'd F Y'
-                                }
+                            {
+                            	name: 'expire_date', index: 'expire_date', width: 150, editable: false, search: false, formatter: 'date',
+                            	formatoptions: {
+                            		srcformat: 'Y-m-d', newformat: 'd F Y'
+                            	}
                             },
                             { name: 'employee_name', index: 'employee_name', width: 120, editable: true, editrules: { required: true } },
                             { name: 'mobile_phone', index: 'mobile_phone', width: 120, editable: false, search: false },
-                            { 
-                                name: 'inactive', index: 'inactive', width: 80, align: 'center', search: false, formatter: 'checkbox',
-                                edittype: 'checkbox', editoptions: { value: 'true:false' } 
+                            {
+                            	name: 'inactive', index: 'inactive', width: 80, align: 'center', search: false, formatter: 'checkbox',
+                            	edittype: 'checkbox', editoptions: { value: 'true:false' }
                             },
-                        ],
-                        jsonreader: {
-                            repeatitems: false,
-                            id: 'idapp',
-                            root: 'rows'
-                        },
-                        pager: $('div#extend_tax_pager'),
-                        rowList: [20, 50, 100, 200, 300, 500],
-                        rowNum: 20,
-                        loadui: 'disable', // Disable Loading Text
-                        cellEdit: false,
-                        sortname: 'idapp',
-                        sortorder: "desc",
-                        viewrecords: true,
-                        iconSet: "fontAwesome",
-                        hidegrid: true,
-                        shrinkToFit: false,
-                        shrinkToFit: false,
-                        height: 350,
-                        width: 650,
-                        prmNames: {
-                            oper: 'oper', addoper: 'add', editoper: 'edit', deloper: 'del', id: 'idapp'
-                        },
-    
-                        loadError: function(jqXHR, textStatus, errorThrown){
-                            if (jqXHR.status == 401 || errorThrown == 'Unauthorized'){
-                                NA_Bootstrap.dialog.dialogAlert(
+    					],
+    					jsonreader: {
+    						repeatitems: false,
+    						id: 'idapp',
+    						root: 'rows'
+    					},
+    					pager: $('div#extend_tax_pager'),
+    					rowList: [20, 50, 100, 200, 300, 500],
+    					rowNum: 20,
+    					loadui: 'disable', // Disable Loading Text
+    					cellEdit: false,
+    					sortname: 'idapp',
+    					sortorder: "desc",
+    					viewrecords: true,
+    					iconSet: "fontAwesome",
+    					hidegrid: true,
+    					shrinkToFit: false,
+    					shrinkToFit: false,
+    					height: 350,
+    					width: 650,
+    					prmNames: {
+    						oper: 'oper', addoper: 'add', editoper: 'edit', deloper: 'del', id: 'idapp'
+    					},
+
+    					loadError: function(jqXHR, textStatus, errorThrown){
+    						if (jqXHR.status == 401 || errorThrown == 'Unauthorized'){
+    							NA_Bootstrap.dialog.dialogAlert(
                                     NA.common.message.unAuthorized,
                                     NA.common.message.titleInfo,
                                     function(){
-                                        window.location.href = NA.client.url.login_next
+                                    	window.location.href = NA.client.url.login_next
                                     }
                                 )
-                            }
-                        },
-                        ondblClickRow: function (rowId) {
-                            var ok_btn = $('div.maindialogContent').next().find('div.dialogButtonOKCancel')
+    						}
+    					},
+    					ondblClickRow: function (rowId) {
+    						var ok_btn = $('div.maindialogContent').next().find('div.dialogButtonOKCancel')
                                 .children().first();
-                            ok_btn.click();
-                        }
-                    });
-                }
-            }
+    						ok_btn.click();
+    					}
+    				});
+    			}
+    		}
 
 
-            window.ShowDialogExtend = function(data){
-                BootstrapDialog.show({
-                    draggable: true,
-                    type: BootstrapDialog.TYPE_WARNING,
-                    size: BootstrapDialog.SIZE_SMALL,
-                    cssClass: 'dialog-extend-tax',
-                    title: 'Nufarm - Extend tax number',
-                    closable: false,
-                    animate: true,
-                    closeByBackdrop: false,
-                    closeByKeyboard: false,
-                    message: (function(){
-                        return $(data)
-                    }),
-                    onshown: function(){
-                        $('#id_new_date_reg').datepicker({
-                            dateFormat: 'dd/mm/yy',
-                            changeMonth: true,
-                            changeYear: true,
-                            dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
-                            beforeShowDay: $.datepicker.noWeekends,
-                            maxDate: 1,
-                            showButtonPanel: true,
-                            closeText: "Close",
-                            currentText: 'Now',
-                            onSelect: function (dateText) {
-                                var date = $.datepicker.parseDate('dd/mm/yy', dateText);
+    		window.ShowDialogExtend = function(data){
+    			BootstrapDialog.show({
+    				draggable: true,
+    				type: BootstrapDialog.TYPE_WARNING,
+    				size: BootstrapDialog.SIZE_SMALL,
+    				cssClass: 'dialog-extend-tax',
+    				title: 'Nufarm - Extend tax number',
+    				closable: false,
+    				animate: true,
+    				closeByBackdrop: false,
+    				closeByKeyboard: false,
+    				message: (function(){
+    					return $(data)
+    				}),
+    				onshown: function(){
+    					$('#id_new_date_reg').datepicker({
+    						dateFormat: 'dd/mm/yy',
+    						changeMonth: true,
+    						changeYear: true,
+    						dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
+    						beforeShowDay: $.datepicker.noWeekends,
+    						maxDate: 1,
+    						showButtonPanel: true,
+    						closeText: "Close",
+    						currentText: 'Now',
+    						onSelect: function (dateText) {
+    							var date = $.datepicker.parseDate('dd/mm/yy', dateText);
 
-                                var expire_date = document.querySelector('#id_new_expired_reg');
-                                expire_date.value = date.getDate() + (date.getMonth() > 9 ? '/' : '/0') 
+    							var expire_date = document.querySelector('#id_new_expired_reg');
+    							expire_date.value = date.getDate() + (date.getMonth() > 9 ? '/' : '/0')
                                 + (date.getMonth() + 1) + '/' + (date.getFullYear() + 1);
-                            }
-                        });
-                    },
-                    buttons: [{
-                        label: 'OK',
-                        cssClass: 'btn-success',
-                        action: function (dialogRef) {
-                            var idapp = $('form#extend_ga_history').find('#id_idapp').val();
-                            var date_reg = $('form#extend_ga_history').find('#id_new_date_reg').val();
+    						}
+    					});
+    				},
+    				buttons: [{
+    					label: 'OK',
+    					cssClass: 'btn-success',
+    					action: function (dialogRef) {
+    						var idapp = $('form#extend_ga_history').find('#id_idapp').val();
+    						var date_reg = $('form#extend_ga_history').find('#id_new_date_reg').val();
 
-                            $.ajax({
-                                url: '/Transactions/GA_History/Extend/',
-                                method: 'POST',
-                                beforeSend: function(xhr){
-                                    xhr.setRequestHeader(
-                                        'X-CSRFToken', 
+    						$.ajax({
+    							url: '/Transactions/GA_History/Extend/',
+    							method: 'POST',
+    							beforeSend: function(xhr){
+    								xhr.setRequestHeader(
+                                        'X-CSRFToken',
                                         $('form#extend_ga_history').find('input[name="csrfmiddlewaretoken"]').val()
                                     )
-                                },
-                                data: {
-                                    idapp: idapp,
-                                    new_date_reg: date_reg
-                                },
-                                success: function(){
-                                    dialogRef.close();
-                                }
-                            })
-                        }
-                    },
+    							},
+    							data: {
+    								idapp: idapp,
+    								new_date_reg: date_reg
+    							},
+    							success: function(){
+    								dialogRef.close();
+    							}
+    						})
+    					}
+    				},
                     {
-                        label: 'Cancel',
-                        cssClass: 'btn-default',
-                        action: function (dialogRef) {
-                            dialogRef.close();
-                        }
+                    	label: 'Cancel',
+                    	cssClass: 'btn-default',
+                    	action: function (dialogRef) {
+                    		dialogRef.close();
+                    	}
                     }]
-                })
-            }
-            window.showOtherDialog = function(event){
-                if(event.target == extend_tax_menu){
-                    var dialog = $('div.containerDialog')[0];
-                    var dialog_content = $('div.maindialogContent');
+    			})
+    		}
+    		window.showOtherDialog = function(event){
+    			if(event.target == extend_tax_menu){
+    				var dialog = $('div.containerDialog')[0];
+    				var dialog_content = $('div.maindialogContent');
 
-                    var placeHolder = 'Enter goods descriptions to search for .. .';
-                    var container_search_form = NA.common.dialog.createFormContainer('search_acc_fa', placeHolder,
+    				var placeHolder = 'Enter goods descriptions to search for .. .';
+    				var container_search_form = NA.common.dialog.createFormContainer('search_acc_fa', placeHolder,
                     function (e) {//event for blur
-                        if (this.value === '') {
-                            if (this.getAttribute('placeholder') === '') {
-                                this.setAttribute('placeholder', placeHolder);
-                            }
-                        }
+                    	if (this.value === '') {
+                    		if (this.getAttribute('placeholder') === '') {
+                    			this.setAttribute('placeholder', placeHolder);
+                    		}
+                    	}
                     },
                     function (e) {//event for focus
-                        if (this.value === '') {
-                            if (this.getAttribute('placeholder') === placeHolder) {
-                                this.setAttribute('placeholder', '');
-                            }
-                        }
+                    	if (this.value === '') {
+                    		if (this.getAttribute('placeholder') === placeHolder) {
+                    			this.setAttribute('placeholder', '');
+                    		}
+                    	}
                     },
-                    function (e) {//even for keydown txtSearch                                                  
-                        if (e.keyCode === 13) {
-                            NA.NAEvent.preventDefault(e);
-                            window.document.body.style.cursor = 'wait';
-                            //cari data ke database
-                            BuildExtendGrid(e.target.value.trim());
-                            window.document.body.style.cursor = 'default';
-                            NA.NAEvent.stopPropagation(e);
-                        }
+                    function (e) {//even for keydown txtSearch
+                    	if (e.keyCode === 13) {
+                    		NA.NAEvent.preventDefault(e);
+                    		window.document.body.style.cursor = 'wait';
+                    		//cari data ke database
+                    		BuildExtendGrid(e.target.value.trim());
+                    		window.document.body.style.cursor = 'default';
+                    		NA.NAEvent.stopPropagation(e);
+                    	}
                     }, function (e) {
-                        txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-                        NA.common.triggerKeyboardEvent(txtSearch, 13);
+                    	txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
                     });
-                    dialog_content[0].appendChild(container_search_form);
+    				dialog_content[0].appendChild(container_search_form);
 
-                    var container_grid = $('<div style="margin-top:10px;"></div>');
+    				var container_grid = $('<div style="margin-top:10px;"></div>');
 
-                    container_grid.append($('<table id="extend_tax"></table>'));
-                    container_grid.append($('<div id="extend_tax_pager"></div>'));
-                    dialog_content.append(container_grid);
-                    BuildExtendGrid();
-                    if (typeof $.datepicker == "undefined"){
-                        $('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
+    				container_grid.append($('<table id="extend_tax"></table>'));
+    				container_grid.append($('<div id="extend_tax_pager"></div>'));
+    				dialog_content.append(container_grid);
+    				BuildExtendGrid();
+    				if (typeof $.datepicker == "undefined"){
+    					$('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
                             .appendTo($('body'));
-                    }
-                    var close_btn = $('#extend_tax').parents('div.maindialogContent')
+    				}
+    				var close_btn = $('#extend_tax').parents('div.maindialogContent')
                         .prev().find('button');
-                    close_btn.click(function(event){
-                        event.preventDefault();
-                        NA.common.dialog.closeDialog(dialog);
-                    });
-                    var ok_btn = dialog_content.next().find('div.dialogButtonOKCancel')
+    				close_btn.click(function(event){
+    					event.preventDefault();
+    					NA.common.dialog.closeDialog(dialog);
+    				});
+    				var ok_btn = dialog_content.next().find('div.dialogButtonOKCancel')
                     .children().first();
-                    var cancel_btn = ok_btn.next();
-                    cancel_btn.click(function(event){
-                        event.preventDefault();
-                        NA.common.dialog.closeDialog(dialog);
-                    });
+    				var cancel_btn = ok_btn.next();
+    				cancel_btn.click(function(event){
+    					event.preventDefault();
+    					NA.common.dialog.closeDialog(dialog);
+    				});
 
-                    ok_btn.click(function(event){
-                        event.preventDefault();
-                        event.stopPropagation();
-                        event.stopImmediatePropagation();
-                        var idapp = $('#extend_tax').getGridParam('selrow');
-                        $.ajax({
-                            url: '/Transactions/GA_History/Extend/',
-                            data: {
-                                idapp: idapp
-                            },
-                            success: function(data){
-                                window.ShowDialogExtend(data);
-                            }
-                        })
-                    })
-                }
-                
-            }
-            $('p#edit_profile').click(function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                $.ajax({
-                    url: '/MasterData/Privilege/edit_profile/',
-                    success: function (response) {
-                        BootstrapDialog.show({
-                            draggable: true,
-                            type: BootstrapDialog.TYPE_SUCCESS,
-                            size: BootstrapDialog.SIZE_NORMAL,
-                            title: 'Profile',
-                            message: (function(){
-                                return $(response);
-                            })(),
-                            closable: false,
-                            animate: true,
-                            closeByBackdrop: false,
-                            closeByKeyboard: false,
-                            buttons: [
+    				ok_btn.click(function(event){
+    					event.preventDefault();
+    					event.stopPropagation();
+    					event.stopImmediatePropagation();
+    					var idapp = $('#extend_tax').getGridParam('selrow');
+    					$.ajax({
+    						url: '/Transactions/GA_History/Extend/',
+    						data: {
+    							idapp: idapp
+    						},
+    						success: function(data){
+    							window.ShowDialogExtend(data);
+    						}
+    					})
+    				})
+    			}
+
+    		}
+    		$('p#edit_profile').click(function (event) {
+    			event.preventDefault();
+    			event.stopPropagation();
+    			$.ajax({
+    				url: '/MasterData/Privilege/edit_profile/',
+    				success: function (response) {
+    					BootstrapDialog.show({
+    						draggable: true,
+    						type: BootstrapDialog.TYPE_SUCCESS,
+    						size: BootstrapDialog.SIZE_NORMAL,
+    						title: 'Profile',
+    						message: (function(){
+    							return $(response);
+    						})(),
+    						closable: false,
+    						animate: true,
+    						closeByBackdrop: false,
+    						closeByKeyboard: false,
+    						buttons: [
                                 {
-                                    label: 'OK',
-                                    cssClass: 'btn-default',
-                                    action: function (dialogRef) {
-                                        $(dialogRef.$modalBody).find('input[type="submit"]').click();
-                                    }
+                                	label: 'OK',
+                                	cssClass: 'btn-default',
+                                	action: function (dialogRef) {
+                                		$(dialogRef.$modalBody).find('input[type="submit"]').click();
+                                	}
                                 },
                                 {
-                                    label: 'Cancel',
-                                    cssClass: 'btn-default',
-                                    action: function (dialogRef) {
-                                        dialogRef.close();
-                                    }
+                                	label: 'Cancel',
+                                	cssClass: 'btn-default',
+                                	action: function (dialogRef) {
+                                		dialogRef.close();
+                                	}
                                 }
-                            ]
-                        })
-                    }
-                })
-                
-            });
-        });
+    						]
+    					})
+    				}
+    			})
+
+    		});
+    	});
     </script>
     <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
     {% if request.session.ga_reg_notif %}
     <script>
-        $(document).ready(function(){
-            $.ajax({
-                url: '/Notifications/',
-                method: 'GET',
-                data: {
-                    name: 'ga_reg_notif',
-                    type: 'popup'
-                },
-                success: function(data){
-                    if (data.length){
-                        BootstrapDialog.show({
-                            draggable: true,
-                            type: BootstrapDialog.TYPE_WARNING,
-                            size: BootstrapDialog.SIZE_SMALL,
-                            cssClass: 'ga-popup-notif',
-                            title: 'Notifications - Please extend taxes below !',
-                            message: (function(){
-                                var row = $('<div></div>');
-                                var container = $('<div class="container" style="padding:0;"></div>');
-                                var is_expire = false;
-                                data.forEach(function(obj, index){
-                                    if (obj.is_expire && !is_expire){
-                                        is_expire = true;
-                                    }
-                                })
-                                if (is_expire){
-                                    var text_title = 'Below are taxes that will be or has been expired :';
-                                } else {
-                                    var text_title = 'Below are taxes that will be expired :';
-                                }
-                                
-                                var table_title = '<div id="notif_popup_title" style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
-                                row.append(table_title);
+    	$(document).ready(function(){
+    		$.ajax({
+    			url: '/Notifications/',
+    			method: 'GET',
+    			data: {
+    				name: 'ga_reg_notif',
+    				type: 'popup'
+    			},
+    			success: function(data){
+    				if (data.length){
+    					BootstrapDialog.show({
+    						draggable: true,
+    						type: BootstrapDialog.TYPE_WARNING,
+    						size: BootstrapDialog.SIZE_SMALL,
+    						cssClass: 'ga-popup-notif',
+    						title: 'Notifications - Please extend taxes below !',
+    						message: (function(){
+    							var row = $('<div></div>');
+    							var container = $('<div class="container" style="padding:0;"></div>');
+    							var is_expire = false;
+    							data.forEach(function(obj, index){
+    								if (obj.is_expire && !is_expire){
+    									is_expire = true;
+    								}
+    							})
+    							if (is_expire){
+    								var text_title = 'Below are taxes that will be or has been expired :';
+    							} else {
+    								var text_title = 'Below are taxes that will be expired :';
+    							}
 
-                                var table = $('<table id="table-notif-popup" class="table table-hover"></table>');
+    							var table_title = '<div id="notif_popup_title" style="font-size: 16px;font-weight: bold;margin-bottom: 10px;">' + text_title + '</div>';
+    							row.append(table_title);
 
-                                var thead = $('<thead></thead>');
-                                var tr_thead = $('<tr class="active"></tr>');
-                                tr_thead.append($('<th><input type="checkbox" id="check_all" /></th>'));
-                                ['No', 'Reg Number', 'Expire Date', 'Days Left', 'Employee', 'Phone Number'].forEach(function(obj, index){
-                                    tr_thead.append(
+    							var table = $('<table id="table-notif-popup" class="table table-hover"></table>');
+
+    							var thead = $('<thead></thead>');
+    							var tr_thead = $('<tr class="active"></tr>');
+    							tr_thead.append($('<th><input type="checkbox" id="check_all" /></th>'));
+    							['No', 'Reg Number', 'Expire Date', 'Days Left', 'Employee', 'Phone Number'].forEach(function(obj, index){
+    								tr_thead.append(
                                     $('<th>'+ obj +'</th>')
                                 )
-                                })
-                                thead.append(tr_thead);
-                                table.append(thead);
-                                var tbody = $('<tbody></tbody>');
+    							})
+    							thead.append(tr_thead);
+    							table.append(thead);
+    							var tbody = $('<tbody></tbody>');
 
-                                data.forEach(function(obj, index){
-                                    
-                                    var tr = $('<tr id="'+ obj.notif_id +'"></tr>');
-                                    if (obj.notif_type == 'warning'){
-                                        tr = $('<tr id="'+ obj.notif_id +'" class="warning"></tr>');
-                                    } else if (obj.notif_type == 'danger'){
-                                        tr = $('<tr id="'+ obj.notif_id +'" class="danger"></tr>');
-                                    }
-                                    tr.append($('<td><input type="checkbox" /></td>'));
-                                    tr.append($('<td>' + obj.no + '</td>'));
-                                    tr.append($('<td>' + obj.reg_number + '</td>'));
-                                    tr.append($('<td>' + obj.date_expire + '</td>'));
-                                    tr.append($('<td>' + obj.day_left + '</td>'));
-                                    tr.append($('<td>' + obj.employee_name + '</td>'));
-                                    tr.append($('<td>' + obj.employee_phone + '</td>'))
-                                    tbody.append(tr);
-                                })
-                                table.append(tbody);
-                                container.append(table);
-                                row.append(container)
-                                return row
-                            }),
-                            closable: false,
-                            animate: true,
-                            closeByBackdrop: false,
-                            closeByKeyboard: false,
-                            buttons: [{
-                                'id': 'dismiss_popup',
-                                label: 'Dismiss',
-                                cssClass: 'btn-default',
-                                action: function (dialogRef) {
-                                    var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
-                                        return this.checked;
-                                    });
-                                    var data = [];
-                                    checkbox_checked.each(function(index, elem){
-                                        data.push(
+    							data.forEach(function(obj, index){
+
+    								var tr = $('<tr id="'+ obj.notif_id +'"></tr>');
+    								if (obj.notif_type == 'warning'){
+    									tr = $('<tr id="'+ obj.notif_id +'" class="warning"></tr>');
+    								} else if (obj.notif_type == 'danger'){
+    									tr = $('<tr id="'+ obj.notif_id +'" class="danger"></tr>');
+    								}
+    								tr.append($('<td><input type="checkbox" /></td>'));
+    								tr.append($('<td>' + obj.no + '</td>'));
+    								tr.append($('<td>' + obj.reg_number + '</td>'));
+    								tr.append($('<td>' + obj.date_expire + '</td>'));
+    								tr.append($('<td>' + obj.day_left + '</td>'));
+    								tr.append($('<td>' + obj.employee_name + '</td>'));
+    								tr.append($('<td>' + obj.employee_phone + '</td>'))
+    								tbody.append(tr);
+    							})
+    							table.append(tbody);
+    							container.append(table);
+    							row.append(container)
+    							return row
+    						}),
+    						closable: false,
+    						animate: true,
+    						closeByBackdrop: false,
+    						closeByKeyboard: false,
+    						buttons: [{
+    							'id': 'dismiss_popup',
+    							label: 'Dismiss',
+    							cssClass: 'btn-default',
+    							action: function (dialogRef) {
+    								var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
+    									return this.checked;
+    								});
+    								var data = [];
+    								checkbox_checked.each(function(index, elem){
+    									data.push(
                                             $(elem).parents('tr').attr('id')
                                         )
-                                    });
-                                    $.ajax({
-                                        url: '/Notifications/dismiss/',
-                                        method: 'POST',
-                                        data: {
-                                            notif_id: String(data)
-                                        },
-                                        beforeSend: function(xhr){
-                                            xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
-                                        },
-                                        success: function(){
-                                            dialogRef.close();
-                                        }
-                                    })
-                                }
-                            },
+    								});
+    								$.ajax({
+    									url: '/Notifications/dismiss/',
+    									method: 'POST',
+    									data: {
+    										notif_id: String(data)
+    									},
+    									beforeSend: function(xhr){
+    										xhr.setRequestHeader('X-CSRFToken', NA.CookieUtil.get('csrftoken'))
+    									},
+    									success: function(){
+    										dialogRef.close();
+    									}
+    								})
+    							}
+    						},
                             {
-                                label: 'Snooze',
-                                cssClass: 'btn-default',
-                                action: function(dialogRef){
-                                    dialogRef.close();
-                                }
+                            	label: 'Snooze',
+                            	cssClass: 'btn-default',
+                            	action: function(dialogRef){
+                            		dialogRef.close();
+                            	}
                             }],
-                            onshow: function(dialog){
-                                dialog.getButton('dismiss_popup').disable();
-                            },
-                            onshown: function(dialog){
-                                $(document).on('click', '#table-notif-popup input#check_all', function(event){
-                                    if(this.checked){
-                                        $('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
-                                            elem.checked = true;
-                                            dialog.getButton('dismiss_popup').enable();
-                                        })
-                                    } else {
-                                        $('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
-                                            elem.checked = false;
-                                            dialog.getButton('dismiss_popup').disable();
-                                        })
-                                    }
-                                });
+    						onshow: function(dialog){
+    							dialog.getButton('dismiss_popup').disable();
+    						},
+    						onshown: function(dialog){
+    							$(document).on('click', '#table-notif-popup input#check_all', function(event){
+    								if(this.checked){
+    									$('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
+    										elem.checked = true;
+    										dialog.getButton('dismiss_popup').enable();
+    									})
+    								} else {
+    									$('#table-notif-popup input[type="checkbox"]').each(function(index, elem){
+    										elem.checked = false;
+    										dialog.getButton('dismiss_popup').disable();
+    									})
+    								}
+    							});
 
-                                var total_checkbox = $('#table-notif-popup tbody input[type="checkbox"]').length;
+    							var total_checkbox = $('#table-notif-popup tbody input[type="checkbox"]').length;
 
-                                $(document).on('click', '#table-notif-popup tbody input[type="checkbox"]', function(event){
-                                    var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
-                                        return this.checked;
-                                    });
-                                    if (this.checked){
-                                        dialog.getButton('dismiss_popup').enable();
-                                        if (checkbox_checked.length == total_checkbox){
-                                            document.querySelector('#table-notif-popup input#check_all').checked = true;
-                                        }
-                                    } else {
-                                        dialog.getButton('dismiss_popup').disable();
-                                        document.querySelector('#table-notif-popup input#check_all').checked = false;
-                                    }
-                                });
+    							$(document).on('click', '#table-notif-popup tbody input[type="checkbox"]', function(event){
+    								var checkbox_checked = $('#table-notif-popup tbody input[type="checkbox"]').filter(function(index){
+    									return this.checked;
+    								});
+    								if (this.checked){
+    									dialog.getButton('dismiss_popup').enable();
+    									if (checkbox_checked.length == total_checkbox){
+    										document.querySelector('#table-notif-popup input#check_all').checked = true;
+    									}
+    								} else {
+    									dialog.getButton('dismiss_popup').disable();
+    									document.querySelector('#table-notif-popup input#check_all').checked = false;
+    								}
+    							});
 
-                                $(document).on('click', 'table#table-notif-popup tbody tr', function(event){
-                                    var checkbox = $(this).children().first().children();
-                                    checkbox.click();
-                                })
-                            }
-                        })
-                    }
-                }
-            })
-            
-            $.ajax({
-                url: '/Notifications/',
-                method: 'GET',
-                data: {
-                    name: 'ga_reg_notif',
-                    type: 'count'
-                },
-                success: function(data){
-                    if(data.count > 0){
-                        $('span#notification-count').text(data.count);
-                        $('#notification-content').children().remove();
-                    }
-                }
-            })
+    							$(document).on('click', 'table#table-notif-popup tbody tr', function(event){
+    								var checkbox = $(this).children().first().children();
+    								checkbox.click();
+    							})
+    						}
+    					})
+    				}
+    			}
+    		})
 
-            $(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
-                $(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
-                var notif_content = $('#notification-content');
-                
-                if(notif_content[0].dataset.pull == "false"){
-                    var container_spinner = $('<div class="container-spinner"></div>');
-                    notif_content.append(container_spinner);
-                    $.ajax({
-                        url: '/Notifications/',
-                        method: 'GET',
-                        data: {
-                            name: 'ga_reg_notif'
-                        },
+    		$.ajax({
+    			url: '/Notifications/',
+    			method: 'GET',
+    			data: {
+    				name: 'ga_reg_notif',
+    				type: 'count'
+    			},
+    			success: function(data){
+    				if(data.count > 0){
+    					$('span#notification-count').text(data.count);
+    					$('#notification-content').children().remove();
+    				}
+    			}
+    		})
 
-                        beforeSend: function(){
-                            container_spinner.spinner({
-                                color: 'forestgreen',
-                                strokeWidth: 4,
-                                radius: 20
-                            })
-                        },
+    		$(document).on("shown.bs.dropdown", ".dropdown.notifications", function () {
+    			$(this).find('.profile-circle').css('background', 'rgba(0,0,0,.85)');
+    			var notif_content = $('#notification-content');
 
-                        success: function(data){
-                            if(data.length){
-                                notif_content.children().remove();
-                                for(var i=0; i < data.length; i++){
-                                    var notif_item = $('<li class="notification-item"></li>');
-                                    var container = $('<div></div>');
-                                    var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
-                                    var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
-                                    var extend_tax = $('<div id="extend_button" data-regid="'+ data[i].reg_id +'">EXTEND</div>');
-                                    var cancel = $('<div id="cancel_button">CANCEL</div>');
+    			if(notif_content[0].dataset.pull == "false"){
+    				var container_spinner = $('<div class="container-spinner"></div>');
+    				notif_content.append(container_spinner);
+    				$.ajax({
+    					url: '/Notifications/',
+    					method: 'GET',
+    					data: {
+    						name: 'ga_reg_notif'
+    					},
 
-                                    notif_item.append(extend_tax);
-                                    notif_item.append(cancel);
-                                    container.append(notif_title);
-                                    container.append(notif_message);
-                                    notif_item.append(container);
-                                    notif_content.append(notif_item);
-                                }
-                            }
-                            notif_content[0].dataset.pull = true;
-                        },
-                        complete: function(){
-                            container_spinner.remove();
-                        }
-                    })
-                }
-                
-            }).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
-                $(this).find('.profile-circle').css('background', '');
-                $('li.notification-item').css('background', '');
-                $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
-                $('li.notification-item').find('p').css('color', '');
-            })
+    					beforeSend: function(){
+    						container_spinner.spinner({
+    							color: 'forestgreen',
+    							strokeWidth: 4,
+    							radius: 20
+    						})
+    					},
 
-            $(document).on('click', 'li.notification-item', function(event){
-                event.preventDefault();
-                event.stopPropagation();
-                if ($(this).find('#extend_button').css('display') == 'block'){ // if extend button was displayed
-                    $('li.notification-item').css('background', '');
-                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
-                    $(this).find('p').css('color', '');
-                } else {
-                    $('li.notification-item').css('background', '');
-                    $('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
-                    $('li.notification-item').find('p').css('color', '');
-                    $(this).css('background', 'rgba(117,117,117,.9)');
-                    $(this).find('#extend_button, #cancel_button').css('display', 'block');
-                    $(this).find('p').css('color', '#666');
-                }
-            });
+    					success: function(data){
+    						if(data.length){
+    							notif_content.children().remove();
+    							for(var i=0; i < data.length; i++){
+    								var notif_item = $('<li class="notification-item"></li>');
+    								var container = $('<div></div>');
+    								var notif_title = $('<p class="notification-title">' + data[i].title + '</p>');
+    								var notif_message = $('<p class="notification-message">' + data[i].message + '</p>');
+    								var extend_tax = $('<div id="extend_button" data-regid="'+ data[i].reg_id +'">EXTEND</div>');
+    								var cancel = $('<div id="cancel_button">CANCEL</div>');
 
-            $(document).on('click', '#extend_button', function(event){
-                event.preventDefault();
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                if (typeof $.datepicker == "undefined"){
-                    $('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
+    								notif_item.append(extend_tax);
+    								notif_item.append(cancel);
+    								container.append(notif_title);
+    								container.append(notif_message);
+    								notif_item.append(container);
+    								notif_content.append(notif_item);
+    							}
+    						}
+    						notif_content[0].dataset.pull = true;
+    					},
+    					complete: function(){
+    						container_spinner.remove();
+    					}
+    				})
+    			}
+
+    		}).on("hidden.bs.dropdown", ".dropdown.notifications", function(){
+    			$(this).find('.profile-circle').css('background', '');
+    			$('li.notification-item').css('background', '');
+    			$('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+    			$('li.notification-item').find('p').css('color', '');
+    		})
+
+    		$(document).on('click', 'li.notification-item', function(event){
+    			event.preventDefault();
+    			event.stopPropagation();
+    			if ($(this).find('#extend_button').css('display') == 'block'){ // if extend button was displayed
+    				$('li.notification-item').css('background', '');
+    				$('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+    				$(this).find('p').css('color', '');
+    			} else {
+    				$('li.notification-item').css('background', '');
+    				$('li.notification-item').find('#extend_button, #cancel_button').css('display', '');
+    				$('li.notification-item').find('p').css('color', '');
+    				$(this).css('background', 'rgba(117,117,117,.9)');
+    				$(this).find('#extend_button, #cancel_button').css('display', 'block');
+    				$(this).find('p').css('color', '#666');
+    			}
+    		});
+
+    		$(document).on('click', '#extend_button', function(event){
+    			event.preventDefault();
+    			event.stopPropagation();
+    			event.stopImmediatePropagation();
+    			if (typeof $.datepicker == "undefined"){
+    				$('<script src="/static/app/scripts/jquery-ui.js"><\/script>')
                         .appendTo($('body'));
-                }
-                $.ajax({
-                    url: '/Transactions/GA_History/Extend/',
-                    data: {
-                        idapp: this.dataset.regid
-                    },
-                    success: function(data){
-                        window.ShowDialogExtend(data);
-                    }
-                })
-            });
-        })
+    			}
+    			$.ajax({
+    				url: '/Transactions/GA_History/Extend/',
+    				data: {
+    					idapp: this.dataset.regid
+    				},
+    				success: function(data){
+    					window.ShowDialogExtend(data);
+    				}
+    			})
+    		});
+    	})
     </script>
     {% endif %}
 </body>
+
 </html>

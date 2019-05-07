@@ -296,16 +296,16 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         gridComplete: function () {
                             document.body.style.cursor = 'default';
                         },
-                        resizeStop: function () {
-                        	var newWidth = this.grid.newWidth, maxIterations = 3, i;
-                        	for (i = 0; i < maxIterations; i++) {
-                        		// resize without shrinking
-                        		$(this).jqGrid("setGridWidth", newWidth + i, false);
-                        		if (this.grid.bDiv.offsetHeight <= this.grid.bDiv.clientHeight) {
-                        			break;
-                        		}
-                        	}
-                        },
+                        //resizeStop: function () {
+                        //	var newWidth = this.grid.newWidth, maxIterations = 3, i;
+                        //	for (i = 0; i < maxIterations; i++) {
+                        //		// resize without shrinking
+                        //		$(this).jqGrid("setGridWidth", newWidth + i, false);
+                        //		if (this.grid.bDiv.offsetHeight <= this.grid.bDiv.clientHeight) {
+                        //			break;
+                        //		}
+                        //	}
+                        //},
                         loadError: function (xhr, st, err) {
                         	win.document.body.style.cursor = 'default';	XhrError(xhr);
                         },

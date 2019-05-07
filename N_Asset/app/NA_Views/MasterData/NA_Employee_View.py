@@ -88,120 +88,121 @@ def NA_EmployeeGetData(request):
 
 
 class NA_Employee_form(forms.Form):
-    idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
-        attrs={
-            'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'
-        }
-    ))
-    employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(
-        attrs={
-            'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
-        }
-    ))
-    typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(
-        attrs={
-            'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
-        }
-    ))
-    jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
-    gender = forms.CharField(required=True, widget=forms.RadioSelect(
-        choices=[('M', 'Male'), ('F', 'Female')]))
-    status = forms.CharField(required=True, widget=forms.RadioSelect(
-        choices=[('S', 'Single'), ('M', 'Married')]))
-    telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control', 'placeholder': 'Phone Number'}))
-    territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(
-        attrs={
-            'class': 'NA-Form-Control', 'placeholder': 'Territory'
-        }
-    ))
-    descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(
-        attrs={
-            'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee',
-            'cols': '100', 'rows': '2',
-            'style': 'height: 50px;clear:left;width:500px;max-width:600px'
-        }
-    ))
-    inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    mode = forms.CharField(widget=forms.HiddenInput(), required=False)
-    initializeForm = forms.CharField(
-        widget=forms.HiddenInput(), required=False)
+	idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
+	nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
+		attrs={
+			'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'
+		}
+	))
+	employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(
+		attrs={
+			'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
+		}
+	))
+	typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(
+		attrs={
+			'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
+		}
+	))
+	jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
+		'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
+	gender = forms.CharField(required=True, widget=forms.RadioSelect(
+		choices=[('M', 'Male'), ('F', 'Female')]))
+	status = forms.CharField(required=True, widget=forms.RadioSelect(
+		choices=[('S', 'Single'), ('M', 'Married')]))
+	telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
+		'class': 'NA-Form-Control', 'placeholder': 'Phone Number'}))
+	territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(
+		attrs={
+			'class': 'NA-Form-Control', 'placeholder': 'Territory'
+		}
+	))
+	descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(
+		attrs={
+			'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee',
+			'cols': '100', 'rows': '2',
+			'style': 'height: 50px;clear:left;width:500px;max-width:600px'
+		}
+	))
+	inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+	mode = forms.CharField(widget=forms.HiddenInput(), required=False)
+	initializeForm = forms.CharField(
+		widget=forms.HiddenInput(), required=False)
 
-    def clean(self):
-        mode = self.cleaned_data.get('mode')
-        if mode == 'Edit':
-            idapp = self.cleaned_data.get('idapp')
-            if not idapp:
-                raise forms.ValidationError({'idapp': 'This Field is required'})
-        return super(NA_Employee_form, self).clean()
+	def clean(self):
+		mode = self.cleaned_data.get('mode')
+		if mode == 'Edit':
+			idapp = self.cleaned_data.get('idapp')
+			if not idapp:
+				raise forms.ValidationError({'idapp': 'This Field is required'})
+		return super(NA_Employee_form, self).clean()
+	
+	@transaction.atomic
+	def save(self, user):
+		mode = self.cleaned_data.get('mode')
+		employee = Employee()
+		initial_data = {}
+		if mode == 'Edit':
+			idapp = self.cleaned_data.get('idapp')
+			try:
+				employee = Employee.objects.get(idapp=idapp)
+				initial_data.update({
+					'employee_name': employee.employee_name,
+					'employee_phone': employee.telphp,
+					'employee_inactive': employee.inactive
+				})
+			except Employee.DoesNotExist:
+				raise NAError(
+					error_code=NAErrorConstant.DATA_LOST,
+					model=Employee,
+					pk=idapp
+				)
+			else:
+				if Employee.objects.hasRef(idapp=idapp):
+					message = Message.HasRef_edit.value
+					return Data.HasRef, message
+		form_data = self.cleaned_data
+		del(form_data['mode'], form_data['initializeForm'])
 
-    @transaction.atomic
-    def save(self, user):
-        mode = self.cleaned_data.get('mode')
-        employee = Employee()
-        initial_data = {}
-        if mode == 'Edit':
-            idapp = self.cleaned_data.get('idapp')
-            try:
-                employee = Employee.objects.get(idapp=idapp)
-                initial_data.update({
-                    'employee_name': employee.employee_name,
-                    'employee_phone': employee.telphp,
-                    'employee_inactive': employee.inactive
-                })
-            except Employee.DoesNotExist:
-                raise NAError(
-                    error_code=NAErrorConstant.DATA_LOST,
-                    model=Employee,
-                    pk=idapp
-                )
-            else:
-                if Employee.objects.hasRef(idapp=idapp):
-                    return Data.HasRef, Message.HasRef_edit
-        form_data = self.cleaned_data
-        del(form_data['mode'], form_data['initializeForm'])
+		for key, value in form_data.items():
+			setattr(employee, key, value)
 
-        for key, value in form_data.items():
-            setattr(employee, key, value)
-
-        activity = LogActivity.CREATED
-        if mode == 'Add':
-            employee.createddate = datetime.datetime.now()
-            employee.createdby = user
-        elif mode == 'Edit':
-            activity = LogActivity.UPDATED
-            employee.modifieddate = datetime.datetime.now()
-            employee.modifiedby = user
-        try:
-            employee.save()
-        except IntegrityError as e:
-            raise NAError(
-                error_code=NAErrorConstant.DATA_EXISTS,
-                message=e,
-                instance=employee
-            )
-        changed_data = {
-            'employee_name': employee.employee_name,
-            'employee_phone': employee.telphp,
-            'employee_inactive': employee.inactive
-        }
-        diff = commonFunct.get_difference_dict_values(initial_data, changed_data)
-        if diff:
-            worker = NATaskWorker(
-                func=NATask.task_update_notifications,
-                args=[initial_data, diff]
-            )
-            worker.run()
-        log = LogActivity(
-            models=Employee,
-            activity=activity,
-            user=user,
-            data=employee
-        )
-        log.record_activity()
-        return Data.Success,
+		activity = LogActivity.CREATED
+		if mode == 'Add':
+			employee.createddate = datetime.datetime.now()
+			employee.createdby = user
+		elif mode == 'Edit':
+			activity = LogActivity.UPDATED
+			employee.modifieddate = datetime.datetime.now()
+			employee.modifiedby = user
+		try:
+			employee.save()
+		except IntegrityError as e:
+			raise NAError(
+				error_code=NAErrorConstant.DATA_EXISTS,
+				message=e,
+				instance=employee
+			)
+		changed_data = {
+			'employee_name': employee.employee_name,
+			'employee_phone': employee.telphp,
+			'employee_inactive': employee.inactive
+		}
+		diff = commonFunct.get_difference_dict_values(initial_data, changed_data)
+		if diff:
+			worker = NATaskWorker(
+				func=NATask.task_update_notifications,
+				args=[initial_data, diff]
+			)
+			worker.run()
+		log = LogActivity(
+			models=Employee,
+			activity=activity,
+			user=user,
+			data=employee
+		)
+		log.record_activity()
+		return Data.Success,
 
 
 @decorators.ajax_required

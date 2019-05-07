@@ -69,7 +69,7 @@ def getFormData(request,form):
 
 class NA_Goods_Return_Form(forms.Form):
 	fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
-	typeApp = forms.CharField(widget=forms.HiddenInput(),required=True)
+	typeApp = forms.CharField(widget=forms.HiddenInput(),required=False)
 	#itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
 	#    attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:180px;'})
 	itemcode = forms.CharField(required=False,widget=forms.HiddenInput())
