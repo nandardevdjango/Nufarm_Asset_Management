@@ -219,7 +219,7 @@ def Delete(request):
 	
 		#check reference data
 		if NAGoodsOutwards.objects.HasReference(IDApp):
-			return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+			return HttpResponse(json.dumps({'message':'Can not delete data\Data has child-referenced'},cls=DjangoJSONEncoder),status = 203, content_type='application/json') 
 		result = NAGoodsOutwards.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:

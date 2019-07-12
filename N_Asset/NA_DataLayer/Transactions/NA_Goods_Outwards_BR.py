@@ -4,7 +4,10 @@ from django.db import transaction;
 from django.db import connection
 from decimal import Decimal
 from django.db.models import Q
-from NA_DataLayer.common import commonFunct
+from NA_DataLayer.common import (
+    Data, ResolveCriteria,
+    commonFunct, decorators, Message
+)
 from distutils.util import strtobool
 import math
 class NA_BR_Goods_Outwards(models.Manager):
@@ -418,11 +421,12 @@ class NA_BR_Goods_Outwards(models.Manager):
 			return repr(e)
 	def HasReference(self,IDApp):
 		cur = connection.cursor()
-		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Outwards = %s)"""
-		cur.execute(Query,[IDApp])
+		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Outwards = %s) 
+					OR EXISTS(SELECT IDApp FROM n_a_goods_return WHERE FK_Goods_Outwards = %s) """
+		cur.execute(Query,[IDApp,IDApp])
 		row = cur.fetchone()
-		if cur.rowcount > 1:
-			return int(row[0]) > 1
+		if cur.rowcount > 0:
+			return int(row[0]) > 0
 		else:
 			return False
 	def Delete(self,idapp,username):
@@ -433,7 +437,6 @@ class NA_BR_Goods_Outwards(models.Manager):
 		fk_goods = None
 		serialnumber = None
 		fk_outwards = None
-
 		with transaction.atomic():
 			if cur.rowcount > 0:
 				row = cur.fetchone()

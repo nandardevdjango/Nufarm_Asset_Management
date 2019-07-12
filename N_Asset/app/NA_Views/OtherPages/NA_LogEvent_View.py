@@ -150,7 +150,7 @@ def NA_LogEvent_data(request):
         year, month, day = param_id.split('-')
         _, end_date = calendar.monthrange(int(year), int(month))
         dates = ev.filter(createddate__range=[
-            param_id, f"{year}-{month}-{end_date}"
+            param_id, "{}-{}-{}".format(year,month,day)
         ]).dates('createddate', 'day', order='DESC').iterator()
 
         for date in dates:
@@ -170,7 +170,7 @@ def NA_LogEvent_data(request):
             time_stamp = e['createddate'].strftime("%H:%M")
             result.append({
                 "id": e['idapp'],
-                "text": f"{e['nameapp']} {time_stamp}",
+                "text": "{} {}".format(e['nameapp'],time_stamp),
                 "children": False,
                 "type": "event",
                 "state": {

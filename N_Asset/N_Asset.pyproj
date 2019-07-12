@@ -65,6 +65,7 @@
     <Compile Include="app\NA_Urls\OtherPages\NA_Acc_FA_url.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\NA_Urls\Reports_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_GA_History_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Disposal_url.py" />
     <Compile Include="app\NA_Urls\Transactions\NA_Goods_Lending_url.py">
@@ -106,6 +107,13 @@
     <Compile Include="app\NA_Views\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NA_Report\NA_R_Goods_Receive.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NA_Report\PDFBaseHelper.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\NA_Views\Reports\__init__.py" />
     <Compile Include="app\NA_Views\Transactions\NA_Equipment_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_GA_History_View.py" />
     <Compile Include="app\NA_Views\Transactions\NA_GoodsLost_View.py" />
@@ -132,7 +140,7 @@
     </Compile>
     <Compile Include="app\NA_Views\OtherPages\NA_Maintenance_View.py" />
     <Compile Include="app\NA_Views\MasterData\NA_Privilege_View.py" />
-    <Compile Include="app\NA_Views\NA_Report_View.py" />
+    <Compile Include="app\NA_Views\Reports\NA_Report_View.py" />
     <Compile Include="app\NA_Views\MasterData\NA_Supplier_View.py" />
     <Compile Include="app\NA_Views\NA_User_View.py">
       <SubType>Code</SubType>
@@ -259,6 +267,7 @@
     <Folder Include="app\NA_Urls\" />
     <Folder Include="app\NA_Views\MasterData\" />
     <Folder Include="app\NA_Views\OtherPages\" />
+    <Folder Include="app\NA_Views\Reports\" />
     <Folder Include="app\NA_Views\Transactions\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />

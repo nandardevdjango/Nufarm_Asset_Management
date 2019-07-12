@@ -27,6 +27,8 @@
 	//=================add Dynamic Styles=============================
 	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
 	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
+
+
 	var doc = doc || window.document;
 	var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
 	(function (elm) {
@@ -152,14 +154,23 @@
 <!-- The jQuery library is a prerequisite for all jqSuite products -->
 <script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
 
-<!-- This is the Javascript file of jqGrid -->
-<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
-
 <!-- This is the localization file of the grid controlling messages, labels, etc. -->
 <!-- We support more than 40 localizations -->
 <script src="../../../static/app/scripts/grid.locale-en.js"></script>
+
+<!-- This is the Javascript file of jqGrid -->
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
+
+<!--var head = NA.common.doc.getElementsByTagName("header")[0];
+NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/pdfmake.min.js',head,'pdfMakeID');
+NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.js',head,'pdfMakeFontID');
+-->
+
 <!----------------------------Load Jquery UI. JS file-------------------------------->
 <script src="../../../static/app/scripts/jquery-ui.js"></script>
+<!----------------------------Script for Exporting to PDF-------------------------------------------------------->
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/pdfmake.min.js"></script>
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.js"></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
@@ -239,12 +250,15 @@
 				}
 			}
 		});
+		
+		var SearchData = NA.common.SearchData;
+		SearchData.setDefaultSearchData('goods', 'varchar', 'like');
+		var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+        '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+        '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+        '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 		//Load Data grid
 		function LoadData(page) {
-			var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
-                   '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
-                   '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
-                   '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 			if (arguments.length > 0) {
 				grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
 			}
@@ -294,6 +308,7 @@
 						loadError: function (xhr, st, err) {
 							win.document.body.style.cursor = 'default'; XhrError(xhr);
 						},
+
 						//cellEdit: false,
 						height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
 						rowNum: 300,
@@ -329,8 +344,6 @@
 			}		
 		};
 
-		var SearchData = NA.common.SearchData;
-		SearchData.setDefaultSearchData('goods', 'varchar', 'like');
 		LoadData();
 
 		NA.common.doc.title = 'Entry Data Goods Outwards';
@@ -1042,26 +1055,29 @@
 			window.document.body.style.cursor = '';
 		};
 		function printToPDF(event) {
-			if (event) {
-				NA.NAEvent.preventDefault(event);
-				var target = NA.NAEvent.getTarget(event);
-				grid.jqGrid("exportToPdf", {
-					title: 'Transactions -- goods Outwards',
-					orientation: 'portrait',
-					pageSize: 'A4',
-					description: 'description of the exported document',
-					customSettings: null,
-					download: 'download',
-					includeLabels: true,
-					includeGroupHeader: true,
-					includeFooter: true,
-					fileName: "goods_Outwards.pdf"
-					//langsung print by pdf file
-				});
-			}
-		};
+		    if (event) {
+		        NA.NAEvent.preventDefault(event);
 
-		//sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
+		        //$.jgrid.gridUnload('#jqGrid_NA_F_Goods_Outwards');
+		        //grid.setGridParam({ url: url, loadonce: true }).trigger("reloadGrid", [{ page: 1, }]);
+		        var target = NA.NAEvent.getTarget(event);
+		        //grid.jqGrid("exportToPdf", {
+		        //    title: 'Transactions -- goods Outwards',
+		        //    orientation: 'landscape',
+		        //    pageSize: 'A4',
+		        //    customSettings: null
+		        //    description: 'description of the exported document',
+		        //    download: 'open',
+		        //    includeLabels: true,
+		        //    includeGroupHeader: true,
+		        //    includeFooter: true,
+		        //    fileName: "goods_Outwards.pdf",
+		        //    mimetype: "application/pdf"
+		        //});
+		        //grid.setGridParam({ url: url, datatype: 'xml' }).trigger("reloadGrid", [{ page: 1, }]);
+		    }
+		};
+			//sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
 		function ExporttoExcel(event) {
 			if (event) {
 				NA.NAEvent.preventDefault(event);
@@ -1286,7 +1302,7 @@
 											curPage--;
 										}
 										else {
-											mustReload = true;
+											mustReload = false;
 											grid.delRowData(rowId);
 										}
 									}

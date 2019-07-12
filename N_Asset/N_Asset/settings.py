@@ -170,7 +170,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/NA_User_Image/UploadImg/')
 
 # this for custom login url e.g: localhost:8000/login?=next/ and the default url is localhost:8000/account?=next .. . :D
 LOGIN_URL = reverse_lazy('login')
-
+LOGO_IMAGE = os.path.join(BASE_DIR, 'app/static/NA_User_Image/Logo/')
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = ''
 EMAIL_HOST = ''

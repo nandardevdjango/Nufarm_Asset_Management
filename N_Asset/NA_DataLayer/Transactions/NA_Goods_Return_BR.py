@@ -1,6 +1,7 @@
 from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch, DataType, ResolveCriteria, query,
                                  StatusForm, Data,commonFunct)
+from django.db.models import Q
 
 from NA_DataLayer.exceptions import NAError, NAErrorConstant
 class NA_BR_Goods_Return(models.Manager):
@@ -96,22 +97,35 @@ class NA_BR_Goods_Return(models.Manager):
 		except Exception as e:
 			return commonFunct.response_default((Data.Empty,e))
 	def DeleteData(self, idapp,who):
+
+		#cek reference
+		hasRef = super(NA_BR_Goods_Return,self).get_queryset().filter(idapp__gt=idapp,).exists()
+		#ambil data FK_Goods and serialnumber
+
+		data = super(NA_BR_Goods_Return,self).get_queryset().filter(idapp__exact=idapp).values('fk_goods','serialnumber')[:1]
+		data = data[0]
+		fk_goods,serialnumber = data['fkgoods'],data['serialnumber']
+		#Query = """SELECT FK_Goods,serialnumber FROM n_a_goods_return WHERE idapp=%(IDApp)s LIMIT 1"""
+		#cur.execute(Query, {'IDApp': idapp})
+		#fk_goods = None
+		#serialnumber = None
+		#if cur.rowcount > 0:
+		#	row = cur.fetchone()
+		#	fk_goods = row[0]
+		#	serialnumber = row[1]
+	
+		#get idapp from n_a_stock
+		#Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
+		#cur.execute(Query,{'FK_Goods':fk_goods})
+		#row = []
+		#fk_stock = None
+		#if cur.rowcount > 0:
+		#	row = cur.fetchone()
+		#	fk_stock = row[0]
+		#fk_stock = super(NA_BR_Goods_Return,self).get_queryset().filter(fk_goods__exact=fk_goods)
+		data= super(NA_BR_Goods_Return,self).get_queryset().filter(fk_goods=fk_goods)[:1].values('idapp')
+		fk_stock = data[0]['idapp']
 		cur = connection.cursor()
-		Query = """SELECT FK_Goods,serialnumber FROM n_a_goods_return WHERE idapp=%(IDApp)s LIMIT 1"""
-		cur.execute(Query, {'IDApp': idapp})
-		fk_goods = None
-		serialnumber = None
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			fk_goods = row[0]
-			serialnumber = row[1]
-		Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
-		cur.execute(Query,{'FK_Goods':fk_goods})
-		row = []
-		fk_stock = None
-		if cur.rowcount > 0:
-			row = cur.fetchone()
-			fk_stock = row[0]
 		with transaction.atomic():
 			Query = """DELETE FROM n_a_goods_return WHERE idapp=%(IDApp)s"""
 			cur.execute(Query, {'IDApp': idapp})
@@ -222,7 +236,7 @@ class NA_BR_Goods_Return(models.Manager):
 					usedemployee = row[4]
 					idapp_usedemployee = row[5]
 					fkoutwards = row[6]
-		return (Data.Success,{'idapp_fk_goods':idapp_fk_goods,'itemcode':itemcode,'goodsname':goodsname,'fk_usedemployee':fk_usedemployee,
+		return (Data.Success,{'idapp_fk_goods':idapp_fk_goods,'itemcode':itemcode,'goodsname':goodsname,'typeapp':typeapp,'fk_usedemployee':fk_usedemployee,
 								 'usedemployee':usedemployee,'idapp_usedemployee':idapp_usedemployee,'fkoutwards':fkoutwards,'fklending':fklending})
 	def SearchGoods_byForm(self, searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 

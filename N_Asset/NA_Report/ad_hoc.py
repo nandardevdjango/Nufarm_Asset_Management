@@ -71,7 +71,6 @@ class ReportAdHoc(object):
                 fontSize=12
             )
         )
-
         self.style.add(
             ParagraphStyle(
                 name='grow',

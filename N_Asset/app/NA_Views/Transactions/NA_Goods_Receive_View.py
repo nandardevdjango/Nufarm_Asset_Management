@@ -292,10 +292,10 @@ def HasRefDetail(request):
 	data = json.loads(data)	
 	result = False
 	try:
-		result = NAGoodsReceive.objects.hasRefDetail({idapp:data['idapp_fk_goods'],
-												datereceived:data['datereceived'], 
-												typeapp:data['typeapp'],
-												serialnumber:data['serialnumber']},False)				
+		result = NAGoodsReceive.objects.hasRefDetail({'idapp':data['idapp_fk_goods'],
+												'datereceived':data['datereceived'], 
+												'typeapp':data['typeapp'],
+												'serialnumber':data['serialnumber']},False)				
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
