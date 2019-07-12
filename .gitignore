@@ -19,7 +19,7 @@ N_Asset/web.debug.config
 *.user
 *.userosscache
 *.sln.docstates
-
+*.debug.config
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
