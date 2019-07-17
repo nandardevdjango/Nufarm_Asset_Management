@@ -32,7 +32,7 @@ def NA_Goods_Outwards(request):
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
-	return render(request,'app/Transactions/NA_F_Goods_Outwards.html',{'populateColumn':populate_combo})
+	return render(request, 'app/Transactions/NA_F_Goods_Outwards.html', {'populateColumn': populate_combo, 'CompanyName': 'Nufarm', 'title': 'Goods Outwards'})
 def ShowCustomFilter(request):
 	#goods,goodstype,serialnumber,daterequest,datereleased,isnew,for_employee,eks_employee,
 	#fk_responsibleperson,responsible_by,fk_sender,senderby,fk_stock,refgoodsfrom,descriptions,createdby,createddate
@@ -50,10 +50,10 @@ def ShowCustomFilter(request):
 	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
 	cols.append({'name':'createdby','value':'createdby','selected':'','dataType':'varchar','text':'Created By'})
 	cols.append({'name':'createddate','value':'createddate','selected':'','dataType':'datetime','text':'Created Date'})
-	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
+	return render(request, 'app/UserControl/customFilter.html', {'cols': cols, 'CompanyName': 'Nufarm', 'title': 'Goods Outwards'})
 def NA_Goods_Outwards_Search(request):
 	try:
-		IcolumnName = request.GET.get('columnName');
+		IcolumnName = request.GET.get('columnName')
 		IvalueKey =  request.GET.get('valueKey')
 		IdataType =  request.GET.get('dataType')
 		Icriteria =  request.GET.get('criteria')
@@ -165,7 +165,7 @@ def getLastDateTrans(request):
 	fromtrans = request.GET.get('fromtrans')
 	pkkey = request.GET.get('pkkey')
 	try:
-		result = NAGoodsOutwards.objects.getLastDateTrans(pkkey,pkfrom)
+		result = NAGoodsOutwards.objects.getLastDateTrans(pkkey,fromtrans)
 		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json')
 	except Exception as e:
 		result = repr(e)

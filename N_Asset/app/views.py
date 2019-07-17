@@ -18,7 +18,8 @@ def home(request):
         'app/index.html',
         {
             'title':'Home Page',
-            'year':datetime.now().year,
+            'year': datetime.now().year,
+            'CompanyName':'Nufarm' #Untuk sementara Nufarm Saja karena harus ngakses company profile
         }
     )
 

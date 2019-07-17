@@ -10,11 +10,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Cache-control" content="no-cache">
-    <meta name="description" content="{{CompanyName}} Asset Management, {{CompanyName}} Asset internal for management only" />
+    <meta name="description" content="{{CompanyName|default_if_none:"Nufarm"}} Asset Management, {{CompanyName|default_if_none:"Nufarm"}} Asset internal for management only" />
     <!--[if lt IE 9]>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
     <![endif]-->
-    <title>{{ title }} - {{CompanyName}} </title>
+    <title>{{ title|default_if_none:"N Asset" }} - {{CompanyName|default_if_none:"Nufarm"}} </title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/bootstrap.min.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/menu.css' %}" />

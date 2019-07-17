@@ -17,6 +17,22 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "N_Asset.settings")
 
+
+#This should do the trick, put it somewhere in the initialization code, for eg. in wsgi.py
+
+# Patch template Variable to output empty string for None values
+from django.template.base import Variable
+_resolve_lookup = Variable._resolve_lookup
+
+
+def new_resolve_lookup(self, *args, **kwargs):
+    o = _resolve_lookup(self, *args, **kwargs)
+    return o or u""
+
+
+Variable._resolve_lookup = new_resolve_lookup
+
+
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.

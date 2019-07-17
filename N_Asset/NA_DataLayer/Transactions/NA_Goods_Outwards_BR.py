@@ -1,6 +1,6 @@
 from django.db import models
 from NA_DataLayer.common import *
-from django.db import transaction;
+from django.db import transaction
 from django.db import connection
 from decimal import Decimal
 from django.db.models import Q
@@ -269,9 +269,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 						endDate =  parse(str(row[2])).strftime('%d %B %Y')
 					if isFinished and isSucced:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
-					elif isFinished == True and isSucced == false:
+					elif isFinished == True and isSucced == False:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
-					elif not isFInished:
+					elif not isFinished:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + starDate + ', ' +  ' (goods is still in maintenance)'
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
@@ -330,9 +330,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 									endDate =  parse(str(row[2])).strftime('%d %B %Y')
 							if isFinished and isSucced:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
-							elif isFinished == True and isSucced == false:
+							elif isFinished == True and isSucced == False:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
-							elif not isFInished:
+							elif not isFinished:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + starDate + ', ' +  ' (goods is still in maintenance)'
 						#elif fk_lost_outwards
 						else:
@@ -456,8 +456,14 @@ class NA_BR_Goods_Outwards(models.Manager):
 			cur.execute(Query,[idapp])
 			Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_outwards = %s"""
 			cur.execute(Query,[fk_goods,serialnumber,idapp])
-			TStock =  commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,who)
-			TotalSpare = TStock[6],totalUsed = TStock[2],totalNew = TStock[0],totalRenew = TStock[4],totalReturn = TStock[3],totalReceived = TStock[1],totalMaintenance = TStock[5]
+			TStock =  commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,username)
+			TotalSpare = TStock[6]
+			totalUsed = TStock[2]
+			totalNew = TStock[0]
+			totalRenew = TStock[4]
+			totalReturn = TStock[3]
+			totalReceived = TStock[1]
+			totalMaintenance = TStock[5]
 
 			#Update n_a_stock
 			Query = """UPDATE n_a_stock SET T_Goods_Spare=%(T_Goods_Spare)s,TIsUsed=%(TIsUsed)s,TIsNew=%(TIsNew)s,TIsRenew=%(TIsRenew)s,TGoods_Return=%(TGoods_Return)s,
