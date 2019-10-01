@@ -429,3 +429,26 @@ NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (eve
     // always reset after close
     NA$(this).removeClass("dropup");
 });
+
+//==================PRINT JQGrid==================
+// setup grid print capability.  Add print button to navigation bar and bind to click.
+
+function PrintGrid(gid, pgTitle) {
+    // attach print container style and div to DOM.
+    $('head').append('<style type="text/css">.prt-hide {display:none;}</style>');
+    $('body').append('<div id="prt-container" class="prt-hide"></div>');
+
+
+    // copy and append grid view to print div container.
+    $('#gview_' + gid).clone().appendTo('#prt-container').css({ 'page-break-after': 'auto' });
+
+    // remove navigation divs.
+    $('#prt-container div').remove('.ui-jqgrid-toppager,.ui-jqgrid-titlebar,.ui-jqgrid-pager');
+
+    // print the contents of the print container.    
+    $('#prt-container').printThis();
+
+    // remove print container style and div from DOM after printing is done.
+    $('head style').remove();
+    $('body #prt-container').remove();
+};

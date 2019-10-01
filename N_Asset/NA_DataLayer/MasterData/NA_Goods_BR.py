@@ -58,7 +58,7 @@ class NA_BR_Goods(models.Manager):
 			NAData = super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})	
 		if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
 			rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)			
-			NAData = super(NA_BR_Goods,self).get_queryset().filter(S**rs.DefaultModel())
+			NAData = super(NA_BR_Goods,self).get_queryset().filter(**rs.DefaultModel())
 		NAData = NAData.annotate(
 				typeofdepreciation=Case(When(depreciationmethod__iexact='SL', then=Value('Stright Line')),
 											When(depreciationmethod__iexact='DDB',then=Value('Double Declining Balance')),
@@ -104,7 +104,7 @@ class NA_BR_Goods(models.Manager):
 		return super(NA_BR_Goods,self).get_queryset().filter(pk=idapp).update(inactive=Inactive)
 	#Model.save(force_insert=False, force_update=False, using=DEFAULT_DB_ALIAS, update_fields=None)
 	def SaveData(self,Status=StatusForm.Input,**kwargs):
-		obj = self.model(**kwargs);
+		obj = self.model(**kwargs)
 		itemCode = obj.itemcode
 		self._for_write = True
 		try:

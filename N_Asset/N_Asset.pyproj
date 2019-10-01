@@ -107,9 +107,6 @@
     <Compile Include="app\NA_Views\OtherPages\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NA_Report\NA_R_Goods_Receive.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="NA_Report\PDFBaseHelper.py">
       <SubType>Code</SubType>
     </Compile>

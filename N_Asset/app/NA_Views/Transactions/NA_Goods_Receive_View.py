@@ -55,7 +55,7 @@ def ShowCustomFilter(request):
 
 def NA_Goods_Receive_Search(request):
 	try:
-		IcolumnName = request.GET.get('columnName');
+		IcolumnName = request.GET.get('columnName')
 		IvalueKey =  request.GET.get('valueKey')
 		IdataType =  request.GET.get('dataType')
 		Icriteria =  request.GET.get('criteria')
@@ -78,7 +78,7 @@ def NA_Goods_Receive_Search(request):
 		
 		rows = []
 		#column IDapp 	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
-		i = 0;
+		i = 0
 		for row in dataRows:
 			i = i+1
 			datarow = {"id" :row['IDApp'], "cell" :[row['IDApp'],i,row['refno'],row['goods'],row['datereceived'],row['suppliername'],row['FK_ReceivedBy'],row['receivedby'],row['FK_P_R_By'], \
@@ -214,7 +214,7 @@ def ShowEntry_Receive(request):
 				if form.is_valid():
 					form.clean()
 					#save data
-					data = getCurrentDataModel(request,form);
+					data = getCurrentDataModel(request,form)
 					data.update(idapp=data['idapp'])
 					data.update(hasRefData=hasRefData)
 					data.update(hasChangedHeader=ChangedHeader)
@@ -428,7 +428,7 @@ def SearchSupplierbyForm(request):
 	Ilimit = request.GET.get('rows', '')
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
-	NAData = None;
+	NAData = None
 	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
 		NAData = NASupplier.customManager.getSupplierByForm(searchText)# NASuplier.customManager.getSuplierByForm(searchText)
 		if len(NAData):
@@ -537,6 +537,10 @@ def getTypeApps(request):
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')
+
+#def ExportPDF(request):
+
+
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,
@@ -603,3 +607,4 @@ class NA_Goods_Receive_Form(forms.Form):
 		hasRefData = self.cleaned_data.get('hasRefData')
 		descbysystem = self.cleaned_data.get('descbysystem')
 		dataForGridDetail = self.cleaned_data.get('dataForGridDetail')
+

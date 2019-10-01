@@ -168,9 +168,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 <!----------------------------Load Jquery UI. JS file-------------------------------->
 <script src="../../../static/app/scripts/jquery-ui.js"></script>
-<!----------------------------Script for Exporting to PDF-------------------------------------------------------->
-<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/pdfmake.min.js"></script>
-<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.js"></script>
+<!----------------------------Script for /Printing/Exporting to PDF-------------------------------------------------------->
+<script src="../../../static/app/scripts/printThis.js"></script>
+<!----------------------------Script for /Printing/Exporting to Excel -------------------------------------------------------->
+<script src="../../../static/app/scripts/jszip.min.js "></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
@@ -182,7 +183,31 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
     }
     div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div#jqGrid_NA_F_Goods_Outwards_Pager, div.ui-jqgrid-titlebar {
         border-radius: 0px;
-    }
+	}
+		div.modal-dialog modal-lg>div.modal-content{
+			height: 620px;
+		}
+	/** iframe.fullScreen { 
+    /*width: 100%;
+	/*height: 100%;
+	/*	position:absolute;
+	/*top:0;left:0;z-index:100;
+	}
+	*/ 
+    /**.overlay {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, .3);
+      display: none;
+      cursor: pointer;
+	}
+	*/
 </style>
 <table id="jqGrid_NA_F_Goods_Outwards" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Outwards_Pager" class="scroll" style="text-align:center;"></div>
@@ -204,8 +229,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
         btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
         btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
         btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
-        btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+        btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
         originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
@@ -574,7 +599,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                 			}
                                 		}
                                 		else {
-                                			win.document.body.style.cursor = 'default'; XhrError(this); throw Error('');
+                                			win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
                                 		}
                                 		if (confirmText === 'OK') {
                                 			win.document.body.style.cursor = 'wait';
@@ -592,9 +617,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                 		}
                                 	}
                                 	else {
-                                		XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+                                		XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
                                 	}
-                                }, null, function () { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+                                }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); },
                                 function () { win.document.body.style.cursor = 'default'; }
                             );
 						}
@@ -689,11 +714,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
 					}
 					else {//error berarti
-						XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
+						XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
 					}
 					win.document.body.style.cursor = 'default';
 				}, null,
-				function (e) { XhrError(this); win.document.body.style.cursor = 'default'; throw new Error(''); },
+				function (e) { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); },
 				function (e) {
 					win.document.body.style.cursor = 'default';
 				});
@@ -996,7 +1021,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                         		});
                         	}
                         }, null, function () {//function untuk ajax error
-                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
                         }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                         );
@@ -1023,7 +1048,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                         		elidapp.value = data['idapp'] || '';
                         	}
                         }, null, function () {//function untuk ajax error
-                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
                         }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                         );
@@ -1054,41 +1079,199 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			}
 			window.document.body.style.cursor = '';
 		};
+		function PrintGrid() {
+			// attach print container style and div to DOM.
+			var gridID = $(".ui-jqgrid").attr("id")
+			$('head').append('<style type="text/css">.prt-hide {display:none;}</style>');
+			$('body').append('<div id="prt-container" class="prt-hide"></div>');
+
+
+			// copy and append grid view to print div container.
+			$('#gview_jqGrid_NA_F_Goods_Outwards').clone().appendTo('#prt-container').css({ 'page-break-after': 'auto' });
+
+			// remove navigation divs.
+			$('#prt-container div').remove('.ui-jqgrid-toppager,.ui-jqgrid-titlebar,.ui-jqgrid-pager');
+
+			// print the contents of the print container.    
+			$('#prt-container').printThis({
+				removeScripts:true,
+				header:'\<img src="..\/..\/..\/static\/app\/images\/NufarmLogo.jpg" width="112.5" height="54.75"\/\>',
+				afterPrint:function(){
+					$('head style').remove();
+					$('body #prt-container').remove();	
+				}
+			});
+
+			// remove print container style and div from DOM after printing is done.
+
+		};
 		function printToPDF(event) {
 		    if (event) {
+	
 		        NA.NAEvent.preventDefault(event);
+		        var elidapp = NA.common.getElementID('id_idapp'), idapp = elidapp.value;
+		        urlReport = 'getReportAdHoc/';
+		        var NAAjax = NA.common.AJAX;
 
-		        //$.jgrid.gridUnload('#jqGrid_NA_F_Goods_Outwards');
-		        //grid.setGridParam({ url: url, loadonce: true }).trigger("reloadGrid", [{ page: 1, }]);
-		        var target = NA.NAEvent.getTarget(event);
-		        //grid.jqGrid("exportToPdf", {
-		        //    title: 'Transactions -- goods Outwards',
-		        //    orientation: 'landscape',
-		        //    pageSize: 'A4',
-		        //    customSettings: null
-		        //    description: 'description of the exported document',
-		        //    download: 'open',
-		        //    includeLabels: true,
-		        //    includeGroupHeader: true,
-		        //    includeFooter: true,
-		        //    fileName: "goods_Outwards.pdf",
-		        //    mimetype: "application/pdf"
-		        //});
-		        //grid.setGridParam({ url: url, datatype: 'xml' }).trigger("reloadGrid", [{ page: 1, }]);
+		        NAAjax.POST(urlReport, JSON.stringify({ 'idapp': idapp }), 'application/json','application/pdf',//'arraybuffer',
+                    function () { window.document.body.style.cursor = 'wait'; },
+                        null,//nggak usah di isi bila tidak perlu
+                        function () {
+                            var contentDisposition = NAAjax.XHR.getResponseHeader('Content-Disposition');
+                            var startIndex = contentDisposition.indexOf("filename=") + 10; // Adjust '+ 10' if filename is not the right one.
+                            var endIndex = contentDisposition.length ; //Check if '- 1' is necessary
+                            var filename = contentDisposition.substring(startIndex, endIndex);            
+							var response = NAAjax.XHR.response;
+							//var downloadLink = document.createElement('a');
+							//downloadLink.target = '_blank';
+							//downloadLink.title = filename;
+
+							// convert downloaded data to a Blob
+							var blob = new Blob([response], { type: 'application/pdf' });
+
+							// create an object URL from the Blob
+							var URL = window.URL || window.webkitURL;
+							var downloadUrl = URL.createObjectURL(blob);
+							BootstrapDialog.show({
+								draggable: true,
+								title: "Goods Outwards",
+								type: BootstrapDialog.TYPE_INFO,
+								size: BootstrapDialog.SIZE_WIDE,
+								message: function (dialogRef) {
+									var cFrame = NA.common.doc.createElement("iframe");
+									cFrame.setAttribute('id','CFrame');
+									cFrame.setAttribute('scrolling','auto');
+									cFrame.setAttribute('title',filename);
+									cFrame.setAttribute('height','520px');
+									cFrame.setAttribute('width','855px');
+									cFrame.setAttribute('src',downloadUrl);
+									return cFrame;
+									//return "<iframe id="fred" style="border: 1px solid #666CCC" title="PDF in an i - Frame" src="PDFData.pdf" frameborder="1" scrolling="auto" height="1100" width="850" ></iframe>";
+								},
+								closable: true,
+								animate: false,
+								closeByBackdrop: false,
+								closeByKeyboard: false								
+							});
+						},null,
+						function () {//function untuk ajax error
+                            window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                        );
 		    }
 		};
-			//sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
+		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel, columnsHidden) {
+			//If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+			var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+
+			var CSV = '';
+			//Set Report title in first row or line
+
+			CSV += ReportTitle + '\r\n';
+
+			//This condition will generate the Label/Header
+			if (ShowLabel) {
+				var row = "";
+
+				//This loop will extract the label from 1st index of on array
+				for (var index in arrData[0]) {
+
+					//Now convert each value to string and comma-seprated
+					if (columnsHidden.indexOf(index) <= -1) {
+						row += index + ',';
+					}
+				}
+
+				row = row.slice(0, -1);
+
+				//append Label row with line break
+				CSV += row + '\r\n';
+			}
+
+			//1st loop is to extract each row
+			for (var i = 0; i < arrData.length; i++) {
+				var row = "";
+
+				//2nd loop will extract each column and convert it in string comma-seprated
+				for (var index in arrData[i]) {
+					if (index == "descriptions") {
+						insertChars = "'";
+						row += insertChars;
+						row += '"' + arrData[i][index] + '",';
+						continue;
+					}
+					if (columnsHidden.indexOf(index) <= -1) {
+						row += '"' + arrData[i][index] + '",';
+					}
+				}
+
+				row.slice(0, row.length - 1);
+
+				//add a line break after each row
+				CSV += row + '\r\n';
+			}
+
+			if (CSV == '') {
+				alert("Invalid data");
+				return;
+			}
+
+			//Generate a file name
+			var fileName = "MyReport_";
+			//this will remove the blank-spaces from the title and replace it with an underscore
+			fileName += ReportTitle.replace(/ /g, "_");
+
+			//Initialize file format you want csv or xls
+			var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+			// Now the little tricky part.
+			// you can use either>> window.open(uri);
+			// but this will not work in some browsers
+			// or you will not get the correct file extension    
+
+			//this trick will generate a temp <a /> tag
+			var link = document.createElement("a");
+			link.href = uri;
+
+			//set the visibility hidden so it will not effect on your web-layout
+			link.style = "visibility:hidden";
+			link.download = fileName + ".csv";
+
+			//this part will append the anchor tag and remove it after automatic click
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		};
+		//sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
 		function ExporttoExcel(event) {
 			if (event) {
 				NA.NAEvent.preventDefault(event);
-				grid.jqGrid("exportToExcel", {
-					includeLabels: true,
-					includeGroupHeader: true,
-					includeFooter: true,
-					fileName: "goods_Outwards.xlsx",
-					maxlength: 40 // maxlength for visible string data 
+				//grid.jqGrid("exportToExcel", {
+				//	includeLabels: true,
+				//	includeGroupHeader: true,
+				//	includeFooter: true,
+				//	fileName: "goods_Outwards.xlsx",
+				//	maxlength: 40 // maxlength for visible string data 
+				//});
+				//grid.jqGrid.exportToExcel({
+				//	includeLabels: true,
+				//	includeGroupHeader: true,
+				//	includeFooter: true,
+				//	fileName: "goods_Outwards.xlsx",
+				//	maxlength: 40 // maxlength for visible string data
+				//	});
+				//get hidden column
+				var columnsHiddend = [];
+				$("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'colModel').forEach(function (objCol) {
+					if (objCol.hasOwnProperty('hidden')) {
+						if (objCol['hidden']) {
+							columnsHiddend.push(objCol['name']);
+						}
+					}
 				});
-				NA.NAEvent.stopPropagation(event);
+
+				JSONToCSVConvertor(JSON.stringify(grid.jqGrid('getRowData')), 'Goods_Outwards', true, columnsHiddend);
 			}
 		};
 		//function untuk Reset
@@ -1256,8 +1439,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			win.document.body.style.cursor = 'default';
 			//grid.setGridParam.trigger("reloadGrid",[{page:1}]);//karena searching harus di set ke page 1
 		};
-
 		//======================= END GROUP FUNCTION EVENT=============================================
+
 
 		//=======================GROUP ASSINGED HANDLER ========================================= 
 		//assign delete key event
@@ -1323,7 +1506,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 									ShowAlert(textStatus.message, NA.common.message.titleInfo);
 								}
 							}, null,
-							function () { XhrError(this); },
+							function () { XhrError(NAAjax.XHR); },
 							function () { window.document.body.style.cursor = 'default'; });
 						//$.post(url, {}, function (data, textStatus, jqXHR) {
 						NA.NAEvent.stopPropagation(event);
@@ -1348,7 +1531,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			return false;
 		});
 		NA.NAEvent.addHandler(btnExport, 'click', ExporttoExcel);
-		NA.NAEvent.addHandler(btnPrint, 'click', printToPDF);
+		NA.NAEvent.addHandler(btnPrint, 'click', PrintGrid);
 
 		//=======================END GROUP ASSINGED HANDLER ========================================= 
 
@@ -1389,6 +1572,27 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 					win.document.body.style.cursor = 'default';
 					return false;
 				});
+			});
+			var btnPrintAddHoc = NA.common.doc.querySelector('div.dialogButtonRightOther>a:first-child');
+			if(btnPrintAddHoc){
+				NA.NAEvent.addHandler(btnPrintAddHoc,'click',printToPDF)
+			}
+			var FrameDoc = NA.common.doc.createElement('iframe')
+			FrameDoc.setAttribute('id', 'IDFrameDoc');
+
+			//<div id='withIframe'>	
+			//	<iframe id='if' src=''></iframe>
+			//</div>
+			dialog.appendChild(FrameDoc);
+			$("#IDFrameDoc").dialog({
+				autoOpen: false,
+				open: function (ev, ui) {
+					$('#IDFrameDoc').attr('src', downloadUrl);
+					$(this).dialog("moveToTop");
+				}
+			});
+			$(".link_iframe").click(function () {
+				$("#withIframe").dialog("open");
 			});
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
@@ -1526,14 +1730,14 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                                         function (e) {//function executed after data has been returned by server(XHR.onload)
                                                         	var data = JSON.parse(this.responseText);
                                                         	if (data.message) {
-                                                        		window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        		window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
                                                         	}
                                                         	else {
                                                         		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
                                                         		fillGoodsInfo(data, item.id, true);
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
-                                                        	window.document.body.style.cursor = 'default'; XhrError(this);
+                                                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
                                                         }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
                                                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                                         );
@@ -1975,7 +2179,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 								});
 								hasLoadDialog = true;
-								win.onbeforeunload = function (e) {
+								win.onbeforeunload = function (e) {							
 									var valuesForm = getValuesForm(); var retval = false;
 									if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
 										return NA.common.message.dataHasChanged;

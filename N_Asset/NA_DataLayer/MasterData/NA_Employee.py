@@ -2,7 +2,7 @@
 from django.db.models import Q
 from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch, DataType, StatusForm,
-                                 Data, Message, commonFunct)
+                                 Data, Message, commonFunct,ResolveCriteria)
 from ..logging import LogActivity
 
 

@@ -1007,21 +1007,29 @@ NA.common.dialog = {
             dialogButtonSet2.classList.add("dialogButtonRightOther");
             //create tombol Print dan Export
             var btnPrint = this.doc.createElement("a");
-            btnPrint.className = "btn-link";
+            //btnPrint.className = "btn-link";
             btnPrint.nodeValue = "Print Preview";
             btnPrint.textContent = "Print Preview";
             btnPrint.style.width = "120px";
             var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
-            btnPrint.disabled = isDisabledPrint.valueOf();
+            if (!isDisabledPrint.valueOf()) { 
+                btnPrint.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
+                btnPrint.style.removeProperty('pointerEvents')
+            }
             btnPrint.style.marginRight = "0";
             btnPrint.style.paddingRight = "0";
             var btnExport = this.doc.createElement("a");
+
             btnExport.className = "btn-link";
             btnExport.nodeValue = "Export";
             btnExport.textContent = "Export"
             btnExport.style.width = "100px";
 
-            var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnPrintPreview"];
+            var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnExport"];
+            if (!isDisabledExport.valueOf()) {
+                btnExport.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
+                btnExport.style.removeProperty('pointerEvents')
+            }
             btnExport.style.marginRight = "0";
             btnExport.style.paddingRight = "0";
 
@@ -1063,7 +1071,8 @@ NA.common.dialog = {
             dialog.style.setProperty('-webkit-transform', 'translate(-50%, -50%)', 'important');
             dialog.style.setProperty('-moz-transform', 'translate(-50%, -50%)', 'important');
             dialog.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-
+            dialog.style.maxHeight = '614px';
+            dialog.style.overflowX = "auto";
             //===============Enabled kan Dragdrop=================================
             NA.common.dialog.DragDrop.enable();
         }
@@ -1100,9 +1109,9 @@ NA.common.dialog = {
 
         // init dialog untuk Open,  Edit,  Save,  Delete,  Export,  Print,  Help        
         (function (elem, currentObj, titleHead, elements, otherHandler) {
-            var settingsEditAdd = { btnOK: true, btnCancel: true, btnPrintPreview: true, btnExport: false, dialogTitle: titleHead },
+            var settingsEditAdd = { btnOK: true, btnCancel: true, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead },
                 settingsOpen = { btnOK: false, btnCancel: false, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead };
-            settingsOther = { btnOK: true, btnCancel: true, btnPrintPreview: true, btnExport: true, dialogTitle: titleHead };
+            settingsOther = { btnOK: true, btnCancel: true, btnPrintPreview: false, btnExport: true, dialogTitle: titleHead };
             //menu atas
             var ClickHandlerElem = function (event) {
                 NA.NAEvent.preventDefault(event);

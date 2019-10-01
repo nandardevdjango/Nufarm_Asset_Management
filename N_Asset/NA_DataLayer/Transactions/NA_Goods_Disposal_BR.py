@@ -261,7 +261,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 		cur.execute(Query,[SerialNO])
 		recCount =  cur.rowcount
 		##idapp_fk_goods,itemcode,islost,fidapp_fk_usedemployee,fk_acc_fa,fk_maintenance,fk_return,fk_lending,fk_outwards,goods,brandname,typeapp,bookvalue,lastinfo
-
+		category = 'IT'
 		row = []
 		if recCount > 0:
 			row = cur.fetchone()
@@ -286,6 +286,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 			else:
 				cur.close()
 				raise Exception('no such data')
+			category = 'GA'
 		#ambil nilai buku,default ambil tanggal akhir = sekarang
 		bkData = self.getBookValue(cur,idapp=idapp_fk_goods,SerialNo=SerialNO,DateDisposal=datetime.date.today())
 		if bkData is not None:
@@ -329,7 +330,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 					fk_usedemployee = str(row[0])
 					usedemployee = str(row[1])
 			elif int(fkoutwards) > 0:
-				if Category == 'IT':
+				if category == 'IT':
 					Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngo.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
 							WHERE ngo.IDApp = %s"""
 				else :
@@ -342,7 +343,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 					fk_usedemployee = str(row[0])
 					usedemployee = str(row[1])
 			elif int(fkreturn) > 0:
-				if Category == 'IT':
+				if category == 'IT':
 					Query = """SELECT e.NIK,e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				else:
@@ -370,9 +371,9 @@ class NA_BR_Goods_Disposal(models.Manager):
 						endDate =  parse(str(row[2])).strftime('%d %B %Y')
 					if isFinished and isSucced:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
-					elif isFinished == True and isSucced == false:
+					elif isFinished == True and isSucced == False:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
-					elif not isFInished:
+					elif not isFinished:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + starDate + ', ' +  ' (goods is still in maintenance)'
 			elif int(fklost) > 0:
 				Query = """SELECT fk_goods_lending,fk_goods_outwards,fk_maintenance,Reason,status FROM n_a_goods_lost WHERE idapp = %s"""
@@ -401,7 +402,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 								fk_usedemployee = str(row[0])
 								usedemployee = str(row[1])
 						elif int(fk_lost_outwards) > 0:
-							if Category == 'IT':
+							if category == 'IT':
 								Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngo.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
 									WHERE ngo.IDApp = %s"""
 							else :
@@ -429,15 +430,15 @@ class NA_BR_Goods_Disposal(models.Manager):
 									endDate =  parse(str(row[2])).strftime('%d %B %Y')
 							if isFinished and isSucced:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' +endDate + ', ' +  ' (goods is able to use)'
-							elif isFinished == True and isSucced == false:
+							elif isFinished == True and isSucced == False:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use)'
-							elif not isFInished:
+							elif not isFinished:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' +starDate + ', ' +  ' (goods is still in maintenance)'
 						#elif fk_lost_outwards
 						else:
 							lastInfo = "goods has lost, but has been found "
 		else:
-			if Category == 'IT':
+			if category == 'IT':
 				Query = """SELECT ngl.idapp as fk_receive,ngl.brandname,ngl.typeapp,ngr.datereceived FROM n_a_goods_receive_detail ngl INNER JOIN n_a_goods_receive ngr ON ngr.IDApp = ngl.FK_App WHERE ngl.serialnumber = %s"""
 			else:
 				Query = """SELECT nggr.idapp as fk_receive,nggr.brand,nggr.typeapp,nggr.datereceived FROM n_a_ga_receive nggr WHERE nggr.serialnumber = %s AND nggr.fk_goods = %"""

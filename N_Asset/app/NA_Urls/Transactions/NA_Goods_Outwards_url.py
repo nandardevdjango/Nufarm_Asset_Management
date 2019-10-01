@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^HasExists/$',NA_Goods_Outwards_View.hasExists),
 	url(r'^getLastDateTrans/$',NA_Goods_Outwards_View.getLastDateTrans),
 	url(r'^Delete/$',NA_Goods_Outwards_View.Delete),
-	url(r'^customFilter/$',NA_Goods_Outwards_View.ShowCustomFilter)
+    url(r'^customFilter/$', NA_Goods_Outwards_View.ShowCustomFilter),
+    url(r'^getReportAdHoc/$',NA_Goods_Outwards_View.getReportAdHoc)
 ]

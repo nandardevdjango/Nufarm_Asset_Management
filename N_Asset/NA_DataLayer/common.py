@@ -765,7 +765,7 @@ class commonFunct:
                     AND NOT EXISTS(SELECT IDApp FROM n_a_ga_outwards_outwards WHERE FK_FromMaintenance = mt.IDApp)
                     AND NOT EXISTS(SELECT IDApp FROM n_a_disposal WHERE FK_Maintenance = mt.IDApp)
                     AND mt.FK_Goods = %(FK_Goods)s)C """
-        elif Goodcat == "O":
+        elif GoodCat == "O":
             raise Exception('Can di gawean')
         cur.execute(Query, {'FK_Goods': FKGoods})
 
@@ -817,7 +817,6 @@ class commonFunct:
         if closeCursor:
             cur.close()
         return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost)
-
 
     def retriveColumn(**kwargs):
         table = kwargs['table']

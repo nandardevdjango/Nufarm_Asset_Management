@@ -7,7 +7,7 @@ from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, St
 from NA_Models.models import NAGoodsReturn,goods
 from django import forms
 from datetime import datetime
-
+import math
 def NA_Goods_Return(request):
     return render(request,'app/Transactions/NA_F_Goods_Return.html')
 def NA_Goods_ReturnGetData(request):

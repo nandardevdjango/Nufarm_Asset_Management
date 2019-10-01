@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from django.http import HttpRequest
+from django.shortcuts import render,render_to_response
 from datetime import datetime
+from django.template import RequestContext
 from django.utils.dateformat import DateFormat
 from NA_Models.models import NAGoodsOutwards
 from NA_DataLayer.common import CriteriaSearch
@@ -17,6 +17,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal
 import math
+from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
+from NA_Report.NA_R_Goods_Outwards import NA_GO_PDF
+from django.conf import settings
 def NA_Goods_Outwards(request):
 	populate_combo = []
 	#jieun heula query
@@ -71,7 +74,7 @@ def NA_Goods_Outwards_Search(request):
 		rows = []
 		#column idapp,goods,goodstype,serialnumber,daterequest,datereleased,isnew,fk_employee,for_employee,fk_usedemployee,eks_employee,
 		#fk_responsibleperson,responsible_by,fk_sender,senderby,fk_stock,refgoodsfrom,descriptions,createdby,createddate
-		i = 0;
+		i = 0
 		for row in dataRows:
 			i = i+1
 			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['daterequest'],row['datereleased'],
@@ -225,6 +228,27 @@ def Delete(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def getReportAdHoc(request):
+	"""main_display_add_hoc = ['GoodsName', 'BrandName', 'SerialNumber', 'Type',
+                             'DateReleased', 'ToEmployee', 'Equipment', 'Descriptions', 'Conditions', 'Eks_Employee', 'Sender']"""
+	try:
+		data = request.body
+		data = json.loads(data)
+		idapp = data['idapp']
+		data = NAGoodsOutwards.objects.getReportAdHoc(idapp)[0]
+		goods_name = data['GoodsName']
+
+		response = HttpResponse(content_type='application/pdf')
+		response['Content-Disposition'] = """inline; filename="Goods_Outwards_{goodsName}.pdf""".format(goodsName=goods_name)
+		pdfReport = NA_GO_PDF("Goods_Outwards_{goodsName}".format(goodsName=goods_name))
+		outputPDF = pdfReport.buildAddHocPDF(data)
+		response.write(outputPDF)
+		#return render_to_response('app/Transactions/NA_R_Goods_Outwards.html', {
+        #            'result': outputPDF}, context_instance=RequestContext(request))
+		return response
+	except NAError as e:
+		result = NAErrorHandler.handle(err=e)
+		return HttpResponse(json.dumps({'message': result}), status=500, content_type='application/json')
 class NA_Goods_Outwards_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)

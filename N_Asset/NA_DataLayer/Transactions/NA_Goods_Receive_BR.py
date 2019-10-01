@@ -13,7 +13,7 @@ class NA_BR_Goods_Receive(models.Manager):
 	c = None
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		#IDapp,goods,datereceived,supplier,receivedby,pr_by,totalPurchase,totalreceived
-		colKey = '';
+		colKey = ''
 		if columnKey == "goods":
 			colKey = "g.goodsname"
 		elif columnKey == 'datereceived':
@@ -66,6 +66,8 @@ class NA_BR_Goods_Receive(models.Manager):
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
 	def getRefNO(self,searchRefNO):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('refno').distinct()
+	
+	
 	def getData(self,IDApp):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c

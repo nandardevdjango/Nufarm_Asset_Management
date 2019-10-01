@@ -1,13 +1,17 @@
 from django.db import models
-from NA_DataLayer.common import *
+from dateutil.parser import parse
 from django.db import transaction
 from django.db import connection
 from decimal import Decimal
+from datetime import datetime
 from django.db.models import Q
 from NA_DataLayer.common import (
     Data, ResolveCriteria,
-    commonFunct, decorators, Message
+    commonFunct, decorators, Message,query,CriteriaSearch,DataType,StatusForm
 )
+#from django.db.models import OuterRef, Subquery
+import NA_Models.models
+#from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from distutils.util import strtobool
 import math
 class NA_BR_Goods_Outwards(models.Manager):
@@ -81,7 +85,14 @@ class NA_BR_Goods_Outwards(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
-
+	def isGoodsNew(self, serialnumber):
+		Used =NAGoodsHistory.objects(
+		).filter(serialnumber=serialnumber).select_related('fk_outwards').first()
+		if Used:
+			return True
+		Used =NAGoodsHistory.objects(
+		).filter(serialnumber=serialnumber).select_related('fk_lending').first()
+		return Used
 	def getBrandForOutwards(self,searchText,orderFields,sortIndice,pageSize,PageIndex,userName):
 		#get item from goods received
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_Outwards_" + userName
@@ -286,7 +297,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 				lastInfo = "goods has lost "
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					fk_lost_lending = 0;fk_lost_outwards = 0;fk_lost_maintenance = 0;
+					fk_lost_lending = 0;fk_lost_outwards = 0;fk_lost_maintenance = 0
 					if row[0] is not None:
 						fk_lost_lending = row[0]
 					if  row[1] is not None:
@@ -498,3 +509,29 @@ class NA_BR_Goods_Outwards(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
+	def getReportAdHoc(self, idapp):
+	#	"""main_display_add_hoc = ['GoodsName', 'BrandName', 'SerialNumber', 'Type',
+    #    'DateReleased', 'ToEmployee', 'Equipment', 'Descriptions', 'Conditions', 'Eks_Employee', 'Sender']"""
+	#	#buat dulu subquery
+	#	to_employee = super(NA_BR_Goods_Outwards, self).get_queryset().filter(fk_employee=OuterRef('pk')).values('fk_employee')[:1]
+	#	qs = super(NA_BR_Goods_Outwards, self).get_queryset() \
+	#		.filter(refno__iexact=RefNo) \
+	#		.select_related('n_a_goods','employee')
+		cur = connection.cursor()
+		Query = """SELECT g.GoodsName,IFNULL(ngd.brandName,g.brandName) AS BrandName,ngo.SerialNumber,ngd.TypeApp AS `Type`,
+				ngo.DateReleased,Emp1.employee_name as ToEmployee,ngo.Descriptions,ngo.Equipment_Desc AS Equipment,
+				CASE ngo.IsNew WHEN 0 THEN 'Bekas' WHEN 1 THEN 'Baru' ELSE 'Unknown' END AS Conditions,
+				emp2.employee_name AS Eks_Employee,emp3.employee_name AS Sender
+				FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.IDApp
+				INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = ngo.FK_Goods
+				INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
+				AND ngo.SerialNumber = ngd.SerialNumber
+				LEFT OUTER JOIN(SELECT IDApp, employee_name FROM employee)emp1 ON emp1.IDApp = ngo.fk_employee
+				LEFT OUTER JOIN(SELECT IDApp,employee_name FROM employee)emp2 ON emp2.IDApp = ngo.FK_UsedEmployee
+				LEFT OUTER JOIN(SELECT IDApp,employee_name FROM employee)emp3 ON emp3.IDApp = ngo.fk_sender
+				WHERE ngo.IDApp = %s"""
+		cur.execute(Query,[idapp])
+		data = query.dictfetchall(cur)
+		cur.close()
+		return data
+			
