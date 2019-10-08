@@ -74,7 +74,7 @@ class NA_GO_PDF:
         self.flowables.append(Spacer(0, 25))
         
         self.flowables.append(Paragraph("""<b>Merek&emsp;&emsp;: {BrandName}<br/>Type&emsp;&emsp;: {Type}<br/>
-        ServiceTag/FA_Number&emsp;&emsp;: {SerialNumber}<br/>
+        ServiceTag/FA_Number&emsp;&emsp;: {SerialNumber}<br/><br/><br/>
         Kelengkapan:</b>""" .format(BrandName=BrandName, Type=Type, SerialNumber=SerialNumber), self.helper.LABEL_STYLE))
         self.flowables.append(Spacer(0, 20))
         self.flowables.append(Paragraph("{}".format(Equipment), self.helper.LABEL_STYLE))#kelengkapan

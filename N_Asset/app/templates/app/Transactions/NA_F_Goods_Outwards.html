@@ -94,51 +94,52 @@
 					return;
 				}
 			});
-			switch (elSearch.dataset.tipe) {
-				case "varchar":
-				case "nchar":
-				case "char":
-				case "nvarchar": {
-					if (this.value === '') {
-						if (this.getAttribute('placeholder') !== defPlaceHolder) {
-							this.setAttribute('placeholder', defPlaceHolder);
-						}
+			if (!elSearch) {
+				if (this.value === '') {
+					if (this.getAttribute('placeholder') !== defPlaceHolder) {
+						this.setAttribute('placeholder', defPlaceHolder);
 					}
-					e.stopImmediatePropagation();
-					break;
 				}
-				case "boolean": {
-					if (this.value === '') {
-						if (this.getAttribute('placeholder') !== boolPlaceHolder) {
-							this.setAttribute('placeholder', boolPlaceHolder);
-						}
-					}
-					e.stopImmediatePropagation();
-					break;
-				}
-				case "int":
-				case "integer":
-				case "decimal":
-				case "floatt":
-				case "bigint": {
-					if (this.value === '') {
-						if (this.getAttribute('placeholder') !== numPlaceHolder) {
-							this.setAttribute('placeholder', numPlaceHolder);
-						}
-					}
-					e.stopImmediatePropagation();
-					break;
-				}
-				case "datetime": {
-					if (this.value === '') {
-						if (this.getAttribute('placeholder') !== datePlaceHolder) {
-							this.setAttribute('placeholder', datePlaceHolder);
-						}
-					}
-					e.stopImmediatePropagation();
-					break;
-				}
+				e.stopImmediatePropagation();
 			}
+			else {
+				switch (elSearch.dataset.tipe) {
+					case "varchar":
+					case "nchar":
+					case "char":
+					case "nvarchar": {
+						if (this.value === '') {
+							if (this.getAttribute('placeholder') !== defPlaceHolder) {
+								this.setAttribute('placeholder', defPlaceHolder);
+							}
+						}
+						e.stopImmediatePropagation();
+						break;
+					}
+					case "int":
+					case "integer":
+					case "decimal":
+					case "floatt":
+					case "bigint": {
+						if (this.value === '') {
+							if (this.getAttribute('placeholder') !== numPlaceHolder) {
+								this.setAttribute('placeholder', numPlaceHolder);
+							}
+						}
+						e.stopImmediatePropagation();
+						break;
+					}
+					case "datetime": {
+						if (this.value === '') {
+							if (this.getAttribute('placeholder') !== datePlaceHolder) {
+								this.setAttribute('placeholder', datePlaceHolder);
+							}
+						}
+						e.stopImmediatePropagation();
+						break;
+					}
+				}
+			}  
 		});
 		NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
 			if (this.value === '') {
@@ -284,6 +285,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
         '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 		//Load Data grid
 		function LoadData(page) {
+			var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+						'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+						'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+						'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 			if (arguments.length > 0) {
 				grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
 			}
@@ -525,6 +530,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		function ExecuteHandler(textElement) {
 			if (win.document.body.style.cursor != 'wait') { win.document.body.style.cursor = 'wait'; }
 			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Outwards');
+			var retval = false;
 			//cek validity.valid id_daterequest
 			//cek validity.valid id_datereleased
 			var elDateReq = NA.common.getElementID('id_daterequest');
@@ -594,7 +600,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                 		var confirmText = JSON.parse(this.responseText);
                                 		if (confirmText) {
                                 			confirmText = confirmText.message;
-                                			if (!confirmText) {
+											if (!confirmText) {
                                 				ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
                                 			}
                                 		}
@@ -627,7 +633,6 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							win.document.body.style.cursor = 'wait';
 							valuesForm = getValuesForm();
 							submitForm(valuesForm);
-							closeDialog();
 							win.document.body.style.cursor = 'default';
 						}
 					}
@@ -662,6 +667,22 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				}
 			};
 		};
+		function disabledAllEntry(){
+			var elements = NA.common.doc.querySelectorAll("#frm-NA-Entry-Goods-Outwards input[type='text'],textarea,button.btn.btn-success");
+			for (var i = 0, element; element = elements[i++];) {
+				if (!element.getAttribute('disabled')){
+					element.setAttribute('disabled',true);
+				}					
+			}
+		};
+		function EnabledAllEntry() {
+			var elements = NA.common.doc.querySelectorAll("#frm-NA-Entry-Goods-Outwards input[type='text'],textarea,button.btn.btn-success");
+			for (var i = 0, element; element = elements[i++];) {
+				if (element.getAttribute('disabled')) {
+					element.removeAttribute('disabled');
+				}
+			}
+		};
 		function submitForm(valuesForm) {
 			valuesForm['csrfmiddlewaretoken'] = (function () {
 				var el = document.getElementsByName("csrfmiddlewaretoken");
@@ -674,8 +695,6 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			FDate = $('#id_datereleased').val(); FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
 			CDate = GetServerFormatDate(FDate);
 			valuesForm['datereleased'] = CDate;
-			var SuccesTrans = false;
-
 			var NAAjax = NA.common.AJAX;
 			//POST: function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
 			NAAjax.POST('ShowEntry_Outwards', JSON.stringify(valuesForm), 'application/x-www-form-urlencoded', 'application/json',
@@ -685,30 +704,43 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				null,
 				function (e) {
 					var Data = JSON.parse(this.responseText);
-					if (Data.message === "success") {
+					if (Data.message === "success" || parseInt(Data.message) > 0) {
 						SuccesTrans = true;
 						switch (win.status) {
 							case 'Add': {
-								//    //clear kan semua data
-								//    //reloadGridMaster
+								//update IDApp Value
+								var elidapp = NA.common.getElementID('id_idapp');
+								elidapp.value = Data.message;
 								win.document.body.style.cursor = 'wait';
 								grid.trigger("reloadGrid", [{ page: 1 }]);
-								clearEntry();
+								//disabled kan form entry
+								disabledAllEntry();
+								//Save state to window
+								NA.common.dialog.hasSavedAction = true;
 								originalData = JSON.stringify(getValuesForm());
-								var initializeForm = NA.common.getElementID('id_initializeForm');
-								initializeForm.value = originalData;
-								//    //focus langsung ke 				    		
-								var elserialnumber = NA.common.getElementID('id_serialnumber');
-								elserialnumber.focus();
+								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')){
+									if(NA.common.dialog.IsPrintingPDF){
+										printToPDF();
+									}
+								}
 								win.document.body.style.cursor = 'default';
 								break;
 							}
 							case 'Edit': {
 								win.document.body.style.cursor = 'wait';
-								closeDialog();
+								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
+									if (NA.common.dialog.IsPrintingPDF) {
+										printToPDF();
+									}
+								}
+								if (NA.common.dialog.hasOwnProperty('mustCloseDialog')) {
+									if (NA.common.dialog.mustCloseDialog ) {
+										closeDialog();
+									}
+								}
 								grid.trigger("reloadGrid", [{ page: 1 }]);
 								win.document.body.style.cursor = 'default';
-								break;
+								break;					
 							}
 						}
 						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
@@ -722,7 +754,6 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				function (e) {
 					win.document.body.style.cursor = 'default';
 				});
-			return SuccesTrans;
 		};
 		function clearEntry() {
 			//idapp,fk_goods,isnew,goods,idapp_fk_goods,fk_employee,idapp_fk_employee,fk_employee_employee,daterequest,datereleased,
@@ -1004,7 +1035,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                         null,//nggak usah di isi bila tidak perlu
                         function () {//function executed after data has been returned by server(XHR.onload)
                         	var data = JSON.parse(this.responseText);
-                        	if (data) {
+                        	if (data && data.message) {
                         		$('#id_datereleased').datepicker({
                         			dateFormat: 'dd/mm/yy',
                         			changeMonth: true,
@@ -1056,6 +1087,24 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		//==========================End GROUP Function Declaration================================
 
 		//=======================GROUP FUNCTION EVENT=============================================
+		function AddNew(event){
+			EnabledAllEntry();
+			//disablekan text button
+			var listDisabled = NA.common.doc.querySelectorAll('input[id="id_goods"],[id="id_fk_employee_employee"],[id="id_fk_sender_employee"],[id="id_fk_responsibleperson_employee"]');			
+			Array.prototype.forEach.call(listDisabled, function (item) {
+				item.setAttribute('disabled',true)
+			});
+			clearEntry();
+			originalData = JSON.stringify(getValuesForm());
+			var initializeForm = NA.common.getElementID('id_initializeForm');
+			initializeForm.value = originalData;
+			//    //focus langsung ke 				    		
+			var elserialnumber = NA.common.getElementID('id_serialnumber');
+			elserialnumber.focus();
+			NA.common.dialog.hasSavedAction = false;
+			NA.common.dialog.mustCloseDialog = false;
+			NA.common.dialog.IsPrintingPDF = false;
+		}
 		function handlerSearchInput(event) {
 			event = NA.NAEvent.getEvent(event);
 			if (event.keyCode === 13 || event.target == btnSearchMaster) {
@@ -1105,12 +1154,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			// remove print container style and div from DOM after printing is done.
 
 		};
-		function printToPDF(event) {
-		    if (event) {
-	
-		        NA.NAEvent.preventDefault(event);
-		        var elidapp = NA.common.getElementID('id_idapp'), idapp = elidapp.value;
-		        urlReport = 'getReportAdHoc/';
+		function printToPDF() {
+			urlReport = 'getReportAdHoc/';
+			var elidapp = NA.common.getElementID('id_idapp'), idapp = elidapp.value;
 		        var NAAjax = NA.common.AJAX;
 
 		        NAAjax.POST(urlReport, JSON.stringify({ 'idapp': idapp }), 'application/json','application/pdf',//'arraybuffer',
@@ -1134,7 +1180,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							var downloadUrl = URL.createObjectURL(blob);
 							BootstrapDialog.show({
 								draggable: true,
-								title: "Goods Outwards",
+								title: "Printing Goods Outwards",
 								type: BootstrapDialog.TYPE_INFO,
 								size: BootstrapDialog.SIZE_WIDE,
 								message: function (dialogRef) {
@@ -1159,7 +1205,6 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                         }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                         );
-		    }
 		};
 		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel, columnsHidden) {
 			//If JSONData is not an object then JSON.parse will parse the JSON string in an Object
@@ -1558,6 +1603,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						if (win.status !== 'Open') {
 							var textElem = evt.target.innerText;
 							if (textElem === 'OK') {
+								NA.common.dialog.mustCloseDialog = true;
+								NA.common.dialog.IsPrintingPDF = false;
 								ExecuteHandler('OK');
 							} else {
 								ExecuteHandler('Close');
@@ -1574,26 +1621,57 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				});
 			});
 			var btnPrintAddHoc = NA.common.doc.querySelector('div.dialogButtonRightOther>a:first-child');
-			if(btnPrintAddHoc){
-				NA.NAEvent.addHandler(btnPrintAddHoc,'click',printToPDF)
-			}
-			var FrameDoc = NA.common.doc.createElement('iframe')
-			FrameDoc.setAttribute('id', 'IDFrameDoc');
-
-			//<div id='withIframe'>	
-			//	<iframe id='if' src=''></iframe>
-			//</div>
-			dialog.appendChild(FrameDoc);
-			$("#IDFrameDoc").dialog({
-				autoOpen: false,
-				open: function (ev, ui) {
-					$('#IDFrameDoc').attr('src', downloadUrl);
-					$(this).dialog("moveToTop");
-				}
+			NA.NAEvent.addHandler(btnPrintAddHoc, 'click', function(event){				
+				NA.NAEvent.preventDefault(event);
+				if (win.status != 'Open'){
+					var valuesForm = getValuesForm();
+					if(NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))){//jika ada perubahan
+						if (win.status == "Edit") {
+							NA.common.dialog.mustCloseDialog = false;
+						}
+						showConfirmation(NA.common.message.dataHasChanged, NA.common.message.titleInfo, function () {
+							NA.common.dialog.IsPrintingPDF = true;
+							ExecuteHandler('OK');
+							return;
+						});
+					}else{//jika tidak ada perubahan 
+						//status Edit
+						if(win.status == "Edit"){ printToPDF();return;}
+						//status Add
+						else{
+							if(NA.common.dialog.hasOwnProperty('hasSavedAction')){
+								if(NA.common.dialog.hasSavedAction){
+									printToPDF(); 
+								}								
+							}
+							return;							
+						}
+					}
+				}else{printToPDF();}								
 			});
-			$(".link_iframe").click(function () {
-				$("#withIframe").dialog("open");
-			});
+			var btnNew = NA.common.doc.querySelector('div.dialogButtonRightOther>a:nth-child(2)');
+			btnNew.classList.remove('btn-link');
+			btnNew.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
+			btnNew.style.removeProperty('pointerEvents')
+			btnNew.textContent = "Add New";
+			NA.NAEvent.addHandler(btnNew,'click',AddNew);
+			//var FrameDoc = NA.common.doc.createElement('iframe')
+			//FrameDoc.setAttribute('id', 'IDFrameDoc');
+//
+			////<div id='withIframe'>	
+			////	<iframe id='if' src=''></iframe>
+			////</div>
+			//dialog.appendChild(FrameDoc);
+			//$("#IDFrameDoc").dialog({
+			//	autoOpen: false,
+			//	open: function (ev, ui) {
+			//		$('#IDFrameDoc').attr('src', downloadUrl);
+			//		$(this).dialog("moveToTop");
+			//	}
+			//});
+			//$(".link_iframe").click(function () {
+			//	$("#withIframe").dialog("open");
+			//});
 			NA.NAEvent.addHandler(btnClose, 'click', function (evt) {
 				NA.NAEvent.preventDefault(evt);
 				//==============uncommment this after debugging=============
@@ -2184,6 +2262,17 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 									if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
 										return NA.common.message.dataHasChanged;
 									}
+									//NA.common.dialog.mustCloseDialog = true;
+									if(NA.common.dialog.hasOwnProperty('mustCloseDialog')){
+									delete NA.common.dialog.mustCloseDialog;
+									}
+									//NA.common.dialog.hasSavedAction = true;
+									if(NA.common.dialog.hasOwnProperty('hasSavedAction')){
+										delete NA.common.dialog.hasSavedAction;
+									}
+									if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
+										delete NA.common.dialog.IsPrintingPDF;
+									}									
 								}
 								//====================== End event handler BUTTONS Search================================================ 
 

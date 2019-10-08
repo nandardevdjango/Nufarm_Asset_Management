@@ -180,6 +180,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 			Query = "SELECT DateReturn FROM n_a_goods_return WHERE IDApp = %s"
 		elif pkfrom == 'fk_maintenance':
 			Query = "SELECT EndDate FROM n_a_goods_maintenance WHERE IDApp = %s"
+		else:
+			return ''
 		cur = connection.cursor()
 		cur.execute(Query,[pkkey])
 		row = cur.fetchone()
@@ -373,6 +375,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
 		cur.execute(Query,{'FK_Goods':Data['idapp_fk_goods']})
 		row = []
+		FKApp = 0
 		if cur.rowcount > 0:
 			row = cur.fetchone()
 			fk_stock = row[0]
@@ -426,6 +429,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 						'TGoods_Received':totalReceived,'TMaintenance':totalMaintenance,'ModifiedBy':who}
 				cur.execute(Query,param)
 
+			if Status == StatusForm.Input:
+				return FKApp
+			else:
 				return 'success'
 		except Exception as e :
 			cur.close()
@@ -467,7 +473,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 			cur.execute(Query,[idapp])
 			Query = """DELETE FROM n_a_goods_history WHERE fk_goods = %s AND serialnumber = %s AND fk_outwards = %s"""
 			cur.execute(Query,[fk_goods,serialnumber,idapp])
-			TStock =  commonFunct.getTotalGoods(Data['idapp_fk_goods'],cur,username)
+			TStock = commonFunct.getTotalGoods(fk_goods, cur, username)
 			TotalSpare = TStock[6]
 			totalUsed = TStock[2]
 			totalNew = TStock[0]

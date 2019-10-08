@@ -40,7 +40,8 @@ class NA_BR_GoodsLost(models.Manager):
         cur.execute(Query)
         cur.execute("""SELECT EXISTS(SELECT idapp FROM T_GoodsLost_Manager)""")
         if cur.fetchone()[0] == 0:
-            return Data.Empty
+            cur.close()
+            return []
         Query = """SELECT * FROM T_GoodsLost_Manager"""
         cur.execute(Query)
         result = query.dictfetchall(cur)
@@ -106,7 +107,8 @@ SELECT * FROM T_GoodsLost_Manager;"""
             LEFT OUTER JOIN (SELECT idapp, nik AS nik_employee,employee_name AS fk_employee FROM employee) 
             AS empl1 ON ngo.fk_employee = empl1.idapp LEFT OUTER JOIN (SELECT idapp, nik AS nik_resp,employee_name AS fk_resp FROM employee) AS empl2 ON ngo.fk_responsibleperson = empl2.idapp
             WHERE NOT EXISTS(SELECT m.serialnumber FROM n_a_maintenance m WHERE m.serialnumber=ngo.serialnumber AND m.isfinished=0) AND 
-            CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) LIKE \'{0}\'"""
+            NOT EXISTS(SELECT gls.idapp FROM n_a_goods_lost gls WHERE gls.serialnumber=ngo.serialnumber)
+            AND ((CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) LIKE \'{0}\') OR(ngo.serialnumber = \'{1}\'))"""
             result = 'g_outwards'
         elif data['tab_section'] == 'g_lending':
             Query = """SELECT ngl.idapp,ngl.fk_goods, g.itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) as goods,ngl.serialnumber,@table_name := 'GL' AS tbl_name,
@@ -114,15 +116,17 @@ SELECT * FROM T_GoodsLost_Manager;"""
             n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON ngr.idapp = grd.fk_app AND 
             ngl.serialnumber = grd.serialnumber LEFT OUTER JOIN (SELECT idapp, nik AS nik_employee,employee_name AS fk_employee FROM employee) 
             AS empl1 ON ngl.fk_employee = empl1.idapp LEFT OUTER JOIN (SELECT idapp, nik AS nik_resp,employee_name AS fk_resp FROM employee) AS empl2 ON ngl.fk_responsibleperson = empl2.idapp
-            WHERE NOT EXISTS(SELECT gls.idapp FROM n_a_goods_lost gls WHERE gls.serialnumber=ngl.serialnumber) AND CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) LIKE \'{0}\'"""
+            WHERE NOT EXISTS(SELECT gls.idapp FROM n_a_goods_lost gls WHERE gls.serialnumber=ngl.serialnumber) AND ((CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) LIKE \'{0}\') OR(ngl.serialnumber =\'{1}\'))
+            """
             result = 'g_lending'
         elif data['tab_section'] == 'g_maintenance':
             Query = """SELECT m.idapp, m.fk_goods, g.itemcode, m.fk_goods, m.typeapp, m.serialnumber, @table_name := 'GM' AS tbl_name,
             CONCAT(g.goodsname, ' ', g.brandname, ' ', m.typeapp) AS goods FROM n_a_maintenance m INNER JOIN n_a_goods g ON
             m.fk_goods = g.idapp WHERE NOT EXISTS (SELECT gls.idapp FROM n_a_goods_lost gls WHERE gls.serialnumber=m.serialnumber) AND
-            m.isfinished=0 AND CONCAT(g.goodsname, ' ',g.brandname, ' ',m.typeapp) LIKE \'{0}\'"""
+            ((m.isfinished=0 AND CONCAT(g.goodsname, ' ',g.brandname, ' ',m.typeapp) LIKE \'{0}\') OR(m.serialnumber = \'{1}\'))"""
             result = 'g_maintenance'
-        cur.execute(Query.format('%'+data['goods_filter']+'%'))
+        cur.execute(Query.format(
+            '%'+data['goods_filter']+'%', data['goods_filter']))
         result = (result,query.dictfetchall(cur))
         connection.close()
         return result

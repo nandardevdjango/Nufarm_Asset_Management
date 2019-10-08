@@ -60,34 +60,34 @@ class NA_GoodsLost_Form(forms.Form):
     fk_goods = forms.IntegerField(required=True,widget=forms.HiddenInput())
     fk_fromgoods = forms.CharField(required=False,widget=forms.HiddenInput())
     goods = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','style':'width:155px','placeholder':'goods'}))
+        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'goods'}))
     itemcode = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Item code','style':'width:130px'}))
+        'class': 'NA-Form-Control cust-horizontal', 'disabled': 'disabled','placeholder': 'Item code', 'style': 'width:345px'}))
     typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Type of goods','style':'width:130px'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Serial Number','style':'width:195px'}))
+        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Serial Number','style':'width:99%'}))
     nik_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Nik','style':'width:130px'}))
     empl_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who wear','style':'width:195px','disabled':'disabled'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who keeps','style':'width:345px','disabled':'disabled'}))
     fk_lostby = forms.IntegerField(required=False,widget=forms.HiddenInput())
     nik_lostby = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Nik','style':'width:130px','disabled':'disabled'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px'}))
     empl_lostby = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who lost goods','style':'width:155px','disabled':'disabled'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who lost goods','disabled':'disabled'}))
     nik_resp = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px','disabled':'disabled'}))
     empl_resp = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Responsible person','style':'width:195px','disabled':'disabled'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Responsible person','style':'width:345px','disabled':'disabled'}))
     datelost = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Date Lost','style':'width:130px'}))
     status_goods = forms.ChoiceField(required=False,widget=forms.Select(attrs={
                     'class':'NA-Form-Control', 'style':'width:130px;display:inline-block;'}),choices=(('L','Lost'),('F','Find')))
     reason = forms.CharField(required=False, widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'reason .. .', 'style':'width:195px;height:50px;max-width:195px;max-height:125px;'}))
+        'class':'NA-Form-Control','placeholder':'reason .. .', 'style':'width:358px;height:50px;max-width:358px;max-height:125px;'}))
     descriptions = forms.CharField(required=False, widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'descriptions .. .', 'style':'width:243px;height:50px;max-width:243px;max-height:125px;'}))
+        'class':'NA-Form-Control','placeholder':'descriptions .. .', 'style':'width:233px;height:50px;max-width:233px;max-height:125px;'}))
     fk_goods_outwards = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_goods_lending = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_maintenance = forms.IntegerField(required=False,widget=forms.HiddenInput())

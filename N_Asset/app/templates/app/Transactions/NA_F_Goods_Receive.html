@@ -88,43 +88,53 @@
                         elSearch = item.firstChild;
                         return;
                     }                        
-                });
-                switch (elSearch.dataset.tipe) {
-                    case "varchar":
-                    case "nchar":
-                    case "char":
-                    case "nvarchar": {
-                        if (this.value === '') {
-                            if (this.getAttribute('placeholder') !== defPlaceHolder) {
-                                this.setAttribute('placeholder', defPlaceHolder);
-                            }
-                        }
-                        e.stopImmediatePropagation();
-                        break;
-                    }
-                    case "int":
-                    case "integer":
-                    case "decimal":
-                    case "floatt":
-                    case "bigint": {
-                        if (this.value === '') {
-                            if (this.getAttribute('placeholder') !== numPlaceHolder) {
-                                this.setAttribute('placeholder', numPlaceHolder);
-                            }
-                        }
-                        e.stopImmediatePropagation();
-                        break;
-                    }
-                    case "datetime": {
-                        if (this.value === '') {
-                            if (this.getAttribute('placeholder') !== datePlaceHolder) {
-                                this.setAttribute('placeholder', datePlaceHolder);
-                            }
-                        }
-                        e.stopImmediatePropagation();
-                        break;
-                    }
-                }
+				});
+				if(!elSearch){
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== defPlaceHolder) {
+							this.setAttribute('placeholder', defPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+				}
+				else{
+					switch (elSearch.dataset.tipe) {
+                    	case "varchar":
+                    	case "nchar":
+                    	case "char":
+                    	case "nvarchar": {
+                    	    if (this.value === '') {
+                    	        if (this.getAttribute('placeholder') !== defPlaceHolder) {
+                    	            this.setAttribute('placeholder', defPlaceHolder);
+                    	        }
+                    	    }
+                    	    e.stopImmediatePropagation();
+                    	    break;
+                    	}
+                    	case "int":
+                    	case "integer":
+                    	case "decimal":
+                    	case "floatt":
+                    	case "bigint": {
+                    	    if (this.value === '') {
+                    	        if (this.getAttribute('placeholder') !== numPlaceHolder) {
+                    	            this.setAttribute('placeholder', numPlaceHolder);
+                    	        }
+                    	    }
+                    	    e.stopImmediatePropagation();
+                    	    break;
+                    	}
+                    	case "datetime": {
+                    	    if (this.value === '') {
+                    	        if (this.getAttribute('placeholder') !== datePlaceHolder) {
+                    	            this.setAttribute('placeholder', datePlaceHolder);
+                    	        }
+                    	    }
+                    	    e.stopImmediatePropagation();
+                    	    break;
+                    	}
+               	 	}	
+				}         
             });
             NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
                 if (this.value === '') {
@@ -1893,27 +1903,12 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         										//data di anggap kosong isi defaultvalue
         										//            //isi default newRow
         										//            //' 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '', 'HasRef': false,'isnew'
-        										//NewRowData = gridTbl.jqGrid('getLocalRow', id);
         										if (typeof LastRowData != 'undefined' && LastRowData) {
         											if ((LastRowData.brandname != detailData[i].brandname) && (LastRowData.warranty != detailData[i].warranty || parseFloat(LastRowData.warranty) > 0) && (LastRowData.typeapp != detailData[i].typeapp)) {
         												NewRowData.brandname = LastRowData.brandname;
         												NewRowData.typeapp = LastRowData.typeapp;
         												NewRowData.warranty = LastRowData.warranty;
         												NewRowData.priceperunit = LastRowData.priceperunit;
-        												var FDate = $.datepicker.parseDate('dd/mm/yy', LastRowData.endofwarranty);
-        												var dtStr = formatDate(FDate)
-
-        												//var $tr = $(e.target).closest("tr.jqgrow");
-        												//rowId = $tr.attr("id");
-
-        												////The $tr represents the jQuery wrapper of the DOM of <tr>. So to get the <td> cell for 'paidHour' you can use
-
-        												//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-        												//var $td = $tr.find(">td:nth-child(" + (iCol + 2) + ")");
-
-        												////and to change the value of the cell you can use
-
-        												//$td.find("input").val(dtStr);
         												NewRowData.isdirty = '1';
         												NewRowData.endofwarranty = LastRowData.endofwarranty;
         												gridTbl.jqGrid('setRowData', id, NewRowData);
@@ -1921,7 +1916,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         													url: 'clientArray',
         													restoreAfterError: true
         												});
-
         												//push listtypeapps
         												if (listTypeApp.indexOf(NewRowData.typeapp) < 0) {
         													listTypeApp.push(NewRowData.typeapp);
@@ -1941,9 +1935,6 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         						keys: true,
         						url: 'clientArray',
         						aftersavefunc: function (curRowid, response) {
-        							//var $tr = $('tr#' + curRowid);
-        							//var iCol = getColumnSrcIndexByName(gridTbl, 'warranty');
-        							//var $tdWar = $tr.find(">td:nth-child(" + (iCol + 1) + ")");
         							var LastRowData = gridTbl.jqGrid('getLocalRow', curRowid);
         							var warranty = LastRowData.warranty;
         							if (warranty) {
@@ -3096,7 +3087,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         			//Auto Complete RefNO
                         			$("#id_refno").autocomplete({ source: "getRefNO/", minLength: 1, });
                         			NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
-                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_supplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
+                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[id="id_fk_goods"],[id="id_fk_supplier"],[id="id_fk_receivedby"],[id="id_fk_p_r_by"]'), function (item) {
                         				NA.NAEvent.addHandler(item, 'keydown', function (event) {
                         					if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
                         						NA.NAEvent.preventDefault(event);//prevent from submit
@@ -3106,7 +3097,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         					if (event.keyCode === 13) {//kalau menekan tombol enter
                         						var NAAjax = NA.common.AJAX;
                         						switch (this.id) {
-                        							case 'id_serialnumber': {
+                        							case 'id_fk_goods': {
                         								//prevent default
                         								NA.NAEvent.preventDefault(event);//prevent from submit
                         								//get data ke database by itemCode

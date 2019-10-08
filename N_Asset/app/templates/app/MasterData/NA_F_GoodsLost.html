@@ -642,7 +642,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
         //add handler to btnOK untuk mengantisipasi form load gagal
         var win = window
         var target = NA.NAEvent.getTarget(event);
-
+        var hasLoadDialog = false;
         try {
             
             if (target.innerText === 'Email Data') {
@@ -767,17 +767,25 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                 function loadData_byForm(tab,valSearch) {
                                     var gridTbl, gridTbl_pager_id,elGrid,Caption,
                                     urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;
+                                        //check jqgrid apakah sudah di buat di dom
+                                    var hasGridOutwards = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_outwards'),
+                                        hasGridLending = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_lending'),
+                                        hasGridMaintenance = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_maintenance'),
+                                        hasGridCreated = false;
                                     if (tab === 'g_outwards') {
+                                        if(hasGridOutwards){ hasGridCreated = true;}
                                         Caption = 'Transaction -- Find goods outwards';
                                         gridTbl = $('#NA_GoodsLost_FK_Goods_outwards');
                                         gridTbl_pager_id = '#NA_GoodsLost_FK_Goods_outwards_Pager';
                                         urlFKGoods += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_outwards');
                                     } else if (tab === 'g_lending') {
+                                        if(hasGridLending){ hasGridCreated = true;}
                                         Caption = 'Transaction -- Find goods lending';
                                         gridTbl = $('#NA_GoodsLost_FK_Goods_lending');
                                         gridTbl_pager_id = '#NA_GoodsLost_FK_Goods_lending_Pager';
                                         urlFKGoods += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_lending');
                                     } else if (tab === 'g_maintenance') {
+                                        if(hasGridMaintenance){hasGridCreated= true;}
                                         Caption = 'Transaction -- Find goods maintenance';
                                         gridTbl = $('#NA_GoodsLost_FK_Goods_maintenance');
                                         gridTbl_pager_id = '#NA_GoodsLost_FK_Goods_maintenance_Pager';
@@ -799,55 +807,64 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                             { name: 'nik_resp', hidden: true, align: 'left' }
                                     ];
                                     var col_names = ['idapp', 'fk goods', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'from goods', 'fk employee', 'fk resp', 'nik employee', 'nik resp'];
-                                    gridTbl.jqGrid({
-                                        url: urlFKGoods,
-                                        mtype: "GET",
-                                        datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
-                                        colNames: col_names,
-                                        colModel: col_model,
-                                        ondblClickRow: function (rowId) {
-                                            //fire button OK
-                                            var btnOK = qs('button#btnOKFindGoods');
-                                            btnOK.click();
-                                        },
-                                        gridComplete: function () {
-                                            document.body.style.cursor = 'default';
-                                        },
-                                        cellEdit: false,
-                                        viewrecords: true,
-                                        height: '170px',
-                                        rowNum: 500,
-                                        rowList: [20, 50, 100, 200, 300, 500],
-                                        sortname: "itemcode",
-                                        sortorder: "asc",
-                                        multiSort: true,
-                                        shrinkToFit: false,
-                                        iconSet: "fontAwesome",
-                                        //forceFit: true,
-                                        //toolbar: true,
-                                        scrollrows: true,
-                                        //hidegrid: true,
-                                        caption: Caption,
-                                        pager: gridTbl_pager_id
-                                    });
-                                    gridTbl.navGrid(gridTbl_pager_id, {
-                                        search: false, // show search button on the toolbar
-                                        add: false,
-                                        edit: false,
-                                        del: false,
-                                        refresh: true
-                                    });
-                                    elGrid_lending = qsAll('div#gbox_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_lending_Pager')
-                                    if ($('div#gbox_NA_GoodsLost_FK_Goods_lending').attr('style') !== "width: inherit;") {
-                                        Array.prototype.forEach.call(elGrid_lending, function (el) {
-                                            el.style.width = 'inherit';
+                                    if(hasGridCreated){
+                                        jQuery(gridTbl).setGridParam({ url: urlFKGoods }).trigger("reloadGrid", [{ page: 1, }]);
+                                    }
+                                    else{
+                                        gridTbl.jqGrid({
+                                            url: urlFKGoods,
+                                            mtype: "GET",
+                                            datatype: "json",//column IDapp, NO,    goods   datereceived suppliername FK_ReceivedBy  receivedby FK_P_R_By pr_by totalpurchase totalreceived
+                                            colNames: col_names,
+                                            colModel: col_model,
+                                            ondblClickRow: function (rowId) {
+                                                //fire button OK
+                                                var btnOK = qs('button#btnOKFindGoods');
+                                                btnOK.click();
+                                            },
+                                            gridComplete: function () {
+                                                document.body.style.cursor = 'default';
+                                            },
+                                            cellEdit: false,
+                                            viewrecords: true,
+                                            height: '170px',
+                                            rowNum: 500,
+                                            rowList: [20, 50, 100, 200, 300, 500],
+                                            sortname: "itemcode",
+                                            sortorder: "asc",
+                                            multiSort: true,
+                                            shrinkToFit: false,
+                                            iconSet: "fontAwesome",
+                                            //forceFit: true,
+                                            //toolbar: true,
+                                            scrollrows: true,
+                                            //hidegrid: true,
+                                            caption: Caption,
+                                            pager: gridTbl_pager_id
                                         });
-                                    };
-                                    elGrid_maintenance = qsAll('div#gbox_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_maintenance_Pager')
-                                    if ($('div#gbox_NA_GoodsLost_FK_Goods_maintenance').attr('style') !== "width: inherit;") {
-                                        Array.prototype.forEach.call(elGrid_maintenance, function (el) {
-                                            el.style.width = 'inherit';
+                                        gridTbl.navGrid(gridTbl_pager_id, {
+                                            search: false, // show search button on the toolbar
+                                            add: false,
+                                            edit: false,
+                                            del: false,
+                                            refresh: true
                                         });
+                                    }
+                                    var elGrid_lending = qsAll('div#gbox_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_lending_Pager')
+                                    if(elGrid_lending){
+                                        if ($('div#gbox_NA_GoodsLost_FK_Goods_lending').attr('style') !== "width: inherit;") {
+                                            Array.prototype.forEach.call(elGrid_lending, function (el) {
+                                                el.style.width = 'inherit';
+                                            });
+                                        };
+                                    }
+                                    var elGrid_maintenance = qsAll('div#gbox_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_maintenance_Pager')
+                                    if(elGrid_maintenance){
+                                            if ($('div#gbox_NA_GoodsLost_FK_Goods_maintenance').attr('style') !== "width: inherit;") {
+                                            Array.prototype.forEach.call(elGrid_maintenance, function (el) {
+                                                el.style.width = 'inherit';
+                                            });
+                                        }
                                     }
                                 };
                                 function searchGoods(event) {
@@ -1081,7 +1098,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                         size: BootstrapDialog.SIZE_SMALL,
                                         title: 'Search Employee .. .',
                                         message: function (dialogRef) {
-                                            var placeHolder = 'Enter employee descriptions to search for .. .';
+                                            var placeHolder = 'Enter employee descriptions or exact NIK to search for.. .';
                                             containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
                                             function (e) {//event for blur
                                                 if (this.value === '') {
@@ -1215,19 +1232,42 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                         }]
                                     });
                                 }
-                                NA.NAEvent.addHandler(itemcode, 'keydown', function (event) {
-                                    var target = NA.NAEvent.getTarget(event);
-                                    if (event.keyCode == 13) {
-                                        searchGoods(event);
-                                    }
+                                //NA.NAEvent.addHandler(itemcode, 'keydown', function (event) {
+                                //    var target = NA.NAEvent.getTarget(event);
+                                //    if (event.keyCode == 13) {
+                                //        //get goods
+                                //        searchGoods(event);
+                                //    }
+                                //});
+                                NA.NAEvent.addHandler(serialnumber,'keydown',function(event){
+                                    //get goods
                                 });
                                 NA.NAEvent.addHandler(btn_fkGoods, 'click', function (event) {
                                     searchGoods(event);
                                 });
                                 NA.NAEvent.addHandler(btn_fkLostby, 'click', function (event) {
-                                    searchEmployee(event);
+                                    searchEmployee(event);                                    
                                 });
-
+                                NA.NAEvent.addHandler(id_nik_lostby,'keydown',function(event){
+                                    //get employee with exact nik
+                                    NA.NAEvent.preventDefault(event);//prevent from submit
+                                    //jika ada tampilkan data di form employee_Received	NA.NAEvent.preventDefault(event);//prevent from submit
+                                    var NAAjax = NA.common.AJAX;
+                                    NAAjax.GET('GetEmployeeByNIK/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value),
+                                        'application/json',//overrideMimeType returned by the server
+                                        function () { window.document.body.style.cursor = 'wait'; },
+                                        null,//nggak usah di isi bila tidak perlu
+                                        function () {//function executed after data has been returned by server(XHR.onload)
+                                            var data = JSON.parse(this.responseText);
+                                            if (data) {
+                                                empl_lostby.value = data['employee_name'] || '';
+                                            }
+                                        }, null, function () {//function untuk ajax error
+                                            throw new Error(NAAjax.XHR.responseText + '\nStatus code :' + NAAjax.XHR.statusText);
+                                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                    );
+                                });
                                 initializeForm = NA.common.getElementID('id_initializeForm');
                                 initializeForm.Value = originalData;
                                 //setting Custom Validity
@@ -1243,6 +1283,10 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
             btnClose = qs('button.ui-button.ui-dialog-titlebar-close');
             Array.prototype.forEach.call(btnOkCancel, function (elem) {
                 NA.NAEvent.addHandler(elem, 'click', function (event) {
+                    NA.NAEvent.preventDefault(event);
+                    if (!hasLoadDialog) {
+                        closeDialog(); win.document.body.style.cursor = 'default'; return false;
+                    }
                     var target = NA.NAEvent.getTarget(event);
                     ExecuteHandler(target.innerText.trim());
                     if (event) {
@@ -1251,11 +1295,34 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                 });
             });
             NA.NAEvent.addHandler(btnClose,'click', function (event) {
-                ExecuteHandler('Close');
-                if (event) {
-                    NA.NAEvent.stopPropagation(event);
-                };
+    			if (hasLoadDialog) {
+                    try {
+                        ExecuteHandler('Close');
+                    } catch (e) {
+                        ShowAlert(e.message);
+                    }
+                }
+                if (evt) {
+                    NA.NAEvent.stopPropagation(evt);
+                }
+                win.document.body.style.cursor = 'default';
+                if (!hasLoadDialog) {
+                    closeDialog(); return false;
+                }
             });
+            hasLoadDialog = true;
+            win.onbeforeunload = function (e) {
+                if (!hasLoadDialog) {
+                    return ""
+                }
+                var initializeForm = NA.common.getElementID('id_initializeForm');
+                var originalData = JSON.parse(initializeForm.Value);
+                var valuesForm = getValues_Form();
+                var retval = false;
+                if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+                    return NA.common.message.dataHasChanged;
+                }
+            }
         } catch (e) {
             if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
             alert(e);

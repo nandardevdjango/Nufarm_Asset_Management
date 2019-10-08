@@ -353,9 +353,11 @@
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
 
         containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
-		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), btnFindRefno = NA.common.getElementID('FE_Ref_No'),
+		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), 
 	    filterToolbar = NA.common.qs('div#bs-example-navbar-collapse-1 > div.col-sm-8.col-md-4:nth-child(2)'),
-        errorRefNo = NA.common.getElementID('errorRefNo'), NAAjax = NA.common.AJAX;
+		errorRefNo = NA.common.getElementID('errorRefNo'), NAAjax = NA.common.AJAX;
+		var btnFindRefno = NA.common.getElementID('FE_Ref_No');
+		btnFindRefno.dataset.directEventTarget = "FromClick";
 		//win.gridSelection = function () {
 		//	var xSelection = 'header';
 		//	return {
@@ -1687,7 +1689,7 @@
 										}
 									}
 								}
-								var hasRef = gridTbl.jqGrid('getLocalRow', id).hasRef;
+								var hasRef = gridTbl.jqGrid('getLocalRow', id).HasRef;
 								if (hasRef == true || hasRef == 'True' || hasRef == 'true' || hasRef == "1") { return false; }
 								gridTbl.jqGrid('editRow', id, {
 									keys: true,
@@ -1751,7 +1753,7 @@
 						//For the more common case you can use jqID function which escapes the meta-characters if needed:
 
 						//	var iRow = $('#' + $.jgrid.jqID(rowId))[0].rowIndex;
-						var hasRef = gridTbl.jqGrid('getLocalRow', rowid).hasRef; if (hasRef == true || hasRef == 'True' || hasRef == 'true' || hasRef == "1") { return false; }
+						var hasRef = gridTbl.jqGrid('getLocalRow', rowid).HasRef; if (hasRef == true || hasRef == 'True' || hasRef == 'true' || hasRef == "1") { return false; }
 						if ($(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === "0" || $(gridTbl.jqGrid("getInd", rowid, true)).attr("editable") === undefined) {
 							if (AllowEdit) {
 
@@ -1771,7 +1773,7 @@
 													//isi column endofwarranty														
 													var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
 													var intVal = Math.round(warranty) - Math.round(modVal);
-													var FDate = $.datepicker.parseDate('dd/mm/yy', dtReceived);
+													var FDate = $.datepicker.parseDate('yy-mm-dd', dtReceived.substr(0, 10));
 													var NewVal = (intVal * 365) + (parseFloat(modVal) * 365);
 													var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
 													LastRowData.endofwarranty = NDate;
@@ -2196,11 +2198,19 @@
 					}
 				}
 			}
+
 			if (changedData) {
-				showConfirmation(NA.common.message.refreshData, NA.common.message.titleInfo,
-					function () { ShowData();});
+				if (e.target.dataset.directEventTarget == 'FromCallBack') {//detect if event directly from mousclick/enter keyboard
+					ShowData();
+				}
+				else {
+					showConfirmation(NA.common.message.refreshData, NA.common.message.titleInfo,
+						function () { ShowData(); });
+				}
+
 			}
 			else { ShowData(); }
+			e.target.dataset.directEventTarget = 'FromClick';//kembalikan ke posisi default
 		});
 
 		function handlerSearchInput(event) {
@@ -2488,6 +2498,7 @@
 								//initFrm.value = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
 								//originalData = initFrm.value;
 								//ShowAlert(NA.common.message.savingSucces, NA.common.message.titleInfo);
+								btnFindRefno.dataset.directEventTarget = "FromCallBack";
 								btnFindRefno.click();
 							} else {
 								XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default';

@@ -335,11 +335,35 @@ NA.client = function () {
     //gaming systems
     system.wii = ua.indexOf("Wii") > -1;
     system.ps = /playstation/i.test(ua);
-
     //return it
     return {
         engine: engine,
         browser: browser,
+        browserName: (function () {
+
+            if (navigator.userAgent.indexOf("Edge") > -1 && navigator.appVersion.indexOf('Edge') > -1) {
+                return 'Edge';
+            }
+            else if (navigator.userAgent.indexOf("Opera") != -1 || navigator.userAgent.indexOf('OPR') != -1) {
+                return 'Opera';
+            }
+            else if (navigator.userAgent.indexOf("Chrome") != -1) {
+                return 'Chrome';
+            }
+            else if (navigator.userAgent.indexOf("Safari") != -1) {
+                return 'Safari';
+            }
+            else if (navigator.userAgent.indexOf("Firefox") != -1) {
+                return 'Firefox';
+            }
+            else if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)) //IF IE > 10
+            {
+                return 'IE';
+            }
+            else {
+                return 'unknown';
+            }
+        })(),
         system: system,
         url: url
     };
@@ -392,21 +416,29 @@ NA.common = {
     },
     //============CROSS BROWSER Keyboard event====================
     triggerKeyboardEvent: function (el, keyCode) {
-        var keyboardEvent = document.createEvent("KeyboardEvent");
-        var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
-        keyboardEvent[initMethod](
-            "keydown",
-            false,      // bubbles oOooOOo0
-            true,      // cancelable   
-            window,    // view
-            false,     // ctrlKeyArg
-            false,     // altKeyArg
-            false,     // shiftKeyArg
-            false,     // metaKeyArg
-            keyCode,
-            0          // charCode   
-        );
-        el.dispatchEvent(keyboardEvent);
+        if (NA.client.browserName == "Chrome") {
+            var event = document.createEvent('Event'); event.initEvent('keydown', true, true); event.keyCode = keyCode;
+            el.dispatchEvent(event);
+        }
+        else {
+            var keyboardEvent = document.createEvent("KeyboardEvent");
+            var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+            keyboardEvent[initMethod](
+                "keydown",
+                false,      // bubbles oOooOOo0
+                true,      // cancelable   
+                window,    // view
+                false,     // ctrlKeyArg
+                false,     // altKeyArg
+                false,     // shiftKeyArg
+                false,     // metaKeyArg
+                keyCode,
+                0          // charCode   
+            );
+
+            el.dispatchEvent(keyboardEvent);
+        }
+
     },
     //===========cross browser get Element ByID =====================
     //===========cross browser get Element ByID =====================
@@ -984,9 +1016,9 @@ NA.common.dialog = {
             btnOK.className = "button";
             btnOK.nodeValue = "OK";
             btnOK.textContent = "OK";
-            var isDisableOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
+            var inDisabledOK = args["btnOK"] === 'undefined' ? true : args["btnOK"];
             btnOK.style.width = "80px";
-            btnOK.disabled = isDisableOK.valueOf();
+            btnOK.disabled = inDisabledOK.valueOf();
 
             //btnOK.disabled = true;
 
@@ -995,8 +1027,8 @@ NA.common.dialog = {
             btnCancel.nodeValue = "Cancel";
             btnCancel.textContent = "Cancel";
             btnCancel.style.width = "80px";
-            var isDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
-            btnCancel.disabled = isDisabledCancel.valueOf();
+            var inDisabledCancel = args["btnCancel"] === 'undefined' ? true : args["btnCancel"];
+            btnCancel.disabled = inDisabledCancel.valueOf();
 
             dialogButtonSet1.appendChild(btnOK);
             dialogButtonSet1.appendChild(btnCancel);
@@ -1011,8 +1043,8 @@ NA.common.dialog = {
             btnPrint.nodeValue = "Print Preview";
             btnPrint.textContent = "Print Preview";
             btnPrint.style.width = "120px";
-            var isDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
-            if (!isDisabledPrint.valueOf()) { 
+            var inDisabledPrint = args["btnPrintPreview"] === 'undefined' ? true : args["btnPrintPreview"];
+            if (inDisabledPrint.valueOf()) { 
                 btnPrint.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
                 btnPrint.style.removeProperty('pointerEvents')
             }
@@ -1025,15 +1057,13 @@ NA.common.dialog = {
             btnExport.textContent = "Export"
             btnExport.style.width = "100px";
 
-            var isDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnExport"];
-            if (!isDisabledExport.valueOf()) {
+            var inDisabledExport = args["btnExport"] === 'undefined' ? true : args["btnExport"];
+            if (inDisabledExport.valueOf()) {
                 btnExport.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
                 btnExport.style.removeProperty('pointerEvents')
             }
             btnExport.style.marginRight = "0";
             btnExport.style.paddingRight = "0";
-
-            btnExport.disabled = isDisabledExport.valueOf()
             dialogButtonSet2.appendChild(btnPrint);
             dialogButtonSet2.appendChild(btnExport);
 
@@ -1109,7 +1139,7 @@ NA.common.dialog = {
 
         // init dialog untuk Open,  Edit,  Save,  Delete,  Export,  Print,  Help        
         (function (elem, currentObj, titleHead, elements, otherHandler) {
-            var settingsEditAdd = { btnOK: true, btnCancel: true, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead },
+            var settingsEditAdd = { btnOK: true, btnCancel: true, btnPrintPreview: true, btnExport: false, dialogTitle: titleHead },
                 settingsOpen = { btnOK: false, btnCancel: false, btnPrintPreview: false, btnExport: false, dialogTitle: titleHead };
             settingsOther = { btnOK: true, btnCancel: true, btnPrintPreview: false, btnExport: true, dialogTitle: titleHead };
             //menu atas

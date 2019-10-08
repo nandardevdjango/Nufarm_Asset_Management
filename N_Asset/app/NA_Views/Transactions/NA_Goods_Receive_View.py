@@ -368,7 +368,7 @@ def getSupplier(request):
 def getEmployee(request):
 	"""get employee name by nik return employee name criteria = iexact"""
 	nik =  request.GET.get('nik')
-	result={};
+	result={}
 	result = Employee.customManager.getEmployee(nik)
 	if len(list(result)):
 		result = result[0]

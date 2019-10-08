@@ -191,7 +191,7 @@ def generate_acc_value(acc, values_insert):
             if depr_accumulation > price:
                 depr_accumulation = price
             bookvalue = price - depr_accumulation
-        date_depr = date_depr(residue_eccLife)
+        date_depr = date_depr(economiclife - residue_eccLife)
         str_values = [
             '("' + str(acc['fk_goods']),
             str(serialNumber), str(typeApp),
@@ -206,9 +206,8 @@ def generate_acc_value(acc, values_insert):
             acc['createdby'] + '")'
         ]
     str_values = '","'.join(str_values)
-    return values_insert.insert(0, str_values)
-
-
+    #return values_insert.insert(0, str_values)
+    return values_insert.append(str_values)
 def getGoods_data(request):
     if request.is_ajax() and request.method == 'GET':
         idapp = request.GET['idapp']
