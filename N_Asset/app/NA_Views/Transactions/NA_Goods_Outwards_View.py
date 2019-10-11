@@ -227,7 +227,7 @@ def Delete(request):
 		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
 	except Exception as e:
 		result = repr(e)
-		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+		return HttpResponse(json.dumps({'message': result}), status=500, content_type='application/json')
 def getReportAdHoc(request):
 	"""main_display_add_hoc = ['GoodsName', 'BrandName', 'SerialNumber', 'Type',
                              'DateReleased', 'ToEmployee', 'Equipment', 'Descriptions', 'Conditions', 'Eks_Employee', 'Sender']"""

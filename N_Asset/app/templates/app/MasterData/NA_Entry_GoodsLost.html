@@ -11,9 +11,7 @@
             <legend>Goods that is lost info</legend>
             <div class="NA-Entry-div-row" style="display:flex;">
                 <div class="NA-Entry-inlinve-div" style="width: 40%">
-                    <label for="id_itemcode" class="cust-horizontal" style="margin-right: 33px;display:inline-flex;">Item code</label>
-                   {{ form.serialNumber }}
-                    
+                   {{ form.serialNumber }}                    
                 </div>
                 <div class="NA-Entry-inlinve-div" style="width: 59%">
                     <div class="input-group" style="display:inline-flex;width:100%">
@@ -25,12 +23,12 @@
                     </div>
                 </div>
             </div>
-            <div class="NA-Entry-div-row">
-                <div class="NA-Entry-inlinve-div">
-                    <label for="id_typeApp" class="cust-horizontal" style="margin-right: 5px;">Type/<br />Item Code</label>
+            <div class="NA-Entry-div-row" style="display:flex;flex-flow:row nowrap">
+                <div class="NA-Entry-inlinve-div" style="flex:0 1 auto;margin-right:4px">
+                    <label for="id_typeApp" class="cust-horizontal" style="margin-right: 30px;">Type/<br />Item Code</label>
                     {{ form.typeApp }}
                 </div>
-                <div class="NA-Entry-inlinve-div">
+                <div class="NA-Entry-inlinve-div" style="align-self: flex-end">
                     {{ form.itemcode }}                    
                 </div>
             </div>

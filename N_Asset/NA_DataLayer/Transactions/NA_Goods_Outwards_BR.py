@@ -540,4 +540,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
+	def getDatabySN(self, sn):
+		return super(NA_BR_Goods_Outwards, self).get_queryset() \
+			.filter(serialnumber__iexact=sn).order_by('-datereleased')[:1].get()
 			

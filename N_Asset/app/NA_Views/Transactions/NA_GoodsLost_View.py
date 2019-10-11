@@ -1,4 +1,6 @@
-﻿from NA_Models.models import NAGoodsLost, goods, Employee
+﻿from NA_Models.models import NAGoodsLost, goods, Employee, NAGoodsHistory,\
+NAGoodsOutwards, NAGoodsLending, NAMaintenance
+from NA_Models.NASerialize import NAGoodsLostSerializer,NAGoodsOutWordsSerializer,NAGoodLendingSerializer
 from django.http import HttpResponse
 import json
 from NA_DataLayer.common import ResolveCriteria, commonFunct, StatusForm
@@ -7,7 +9,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from datetime import datetime
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.db.models import F, Q
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 def NA_Goods_Lost(request):
     return render(request,'app/MasterData/NA_F_GoodsLost.html')
 
@@ -66,7 +71,7 @@ class NA_GoodsLost_Form(forms.Form):
     typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Type of goods','style':'width:130px'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Serial Number','style':'width:99%'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Serial Number','style':'width:98.9%'}))
     nik_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Nik','style':'width:130px'}))
     empl_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
@@ -104,7 +109,7 @@ def getFormData(request, forms, **kwargs):
         if kwargs['status_form'] == 'Edit' or kwargs['status_form'] == 'Open':
             data['status_goods'] = request.POST['status_goods']
     return data
-
+@ensure_csrf_cookie
 def EntryGoods_Lost(request):
     if request.method == 'POST':
         form = NA_GoodsLost_Form(request.POST)
@@ -148,10 +153,42 @@ def EntryGoods_Lost(request):
         else:
             form = NA_GoodsLost_Form()
         form.statusForm = statusForm
-        return render(request, 'app/MasterData/NA_Entry_GoodsLost.html', {'form':form})
+        return render(request, 'app/MasterData/NA_Entry_GoodsLost.html', {'form': form})
+
+#@api_view(['GET'])
+def GetGoodsBySN(request,SN=''):
+    sn = SN
+    if not sn:
+        sn = request.GET.get('sn')
+    HasTrans = NAGoodsHistory.objects.filter(serialnumber__iexact=sn).exists()
+    resp = {}  
+    if HasTrans:
+        data = NAGoodsHistory.objects.filter(Q(serialnumber__iexact=sn) \
+                & Q(fk_return__isnull=True) & Q(fk_disposal__isnull=True) \
+                & Q(fk_lost__isnull=True)) \
+                .filter(Q(fk_maintenance__isnull=False) \
+                    | Q(fk_lending__isnull=False) \
+                    | Q(fk_outwards__isnull=False)) \
+                .values('fk_outwards', 'fk_lending', 'fk_maintenance')
+        if data:
+            #idapp,fk_goods,itemcode,goods,tbl_name,fk_employee,nik_employee,fk_resp, nik_resp
+            if data[0]['fk_outwards']:
+                #get data from goods outwards
+               resp = NAGoodsOutwards.objects.getDatabySN(sn)
+               #serializer = NAGoodsOutWordsSerializer(instance=resp,many=True)
+            elif data[0]['fk_lending']:
+                resp = NAGoodsLending.objects.getDatabySN(sn)
+                #serializer =NAGoodLendingSerializer(instance=resp)
+            elif data[0]['fk_maintenance']:
+                resp = NAMaintenance.objects.getDatabySN(sn)
+                #serializer = 
+            #serializer = NAGoodsLostSerializer(instance=resp,many=True)
+            #return Response(serializer.data)
+        else:
+            return Response(json.dumps(resp))
 
 def SearchGoodsbyForm(request):
-    Isidx = request.GET.get('sidx', '')
+    Isidx = request.GET.get('sidx', '') 
     Isord = request.GET.get('sord', '')
     goodsFilter = request.GET.get('goods_filter')
     tabs_section = request.GET.get('tab_section')

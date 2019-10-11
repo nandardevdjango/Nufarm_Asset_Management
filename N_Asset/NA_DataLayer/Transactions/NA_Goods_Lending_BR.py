@@ -468,6 +468,10 @@ class NA_BR_Goods_Lending(models.Manager):
 
 		return data
 
+	def getDatabySN(self, sn):
+		return super(NA_BR_Goods_Lending, self).get_queryset() \
+			.filter(serialnumber__iexact=sn).order_by('-datereturn')[:1].get()
+
 
 
 

@@ -7,7 +7,6 @@ from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, St
 from NA_Models.models import NAMaintenance,goods
 from django import forms
 from datetime import datetime
-
 def NA_Maintenance(request):
     return render(request,'app/MasterData/NA_F_Maintenance.html')
 def NA_MaintenanceGetData(request):

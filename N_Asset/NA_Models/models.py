@@ -697,7 +697,7 @@ class NAMaintenance(NA_TransactionModel):
     )
     personalname = models.CharField(
         db_column='PersonalName',
-        max_length=100,
+        max_length=100, 
         blank=True,
         null=True
     )
@@ -1721,8 +1721,8 @@ class NAGoodsHistory(NA_TransactionModel):
     )
 
     class Meta:
-        managed = True
         db_table = 'n_a_goods_history'
+        managed = True
 
 
 class NAGaReceive(NA_BaseModel):

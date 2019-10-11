@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^SearchGoodsByForm/',NA_GoodsLost_View.SearchGoodsbyForm),
 	url(r'^customFilter/$', NA_GoodsLost_View.ShowCustomFilter),
     url(r'^SearchEmployeeByForm/$', NA_Employee_View.SearchEmployeebyform),
-    url(r'^GetEmployeeByNIK',NA_Goods_Receive_View.getEmployee)
+    url(r'^GetEmployeeByNIK', NA_Goods_Receive_View.getEmployee),
+    #url(r'^GetGoodsBySN/', NA_GoodsLost_View.GetGoodsBySN),
+    url(r'^api/Test/Get/(?P<SN>\w+)$',NA_GoodsLost_View.GetGoodsBySN)#only accept alphanumeric (?P<pk>[0-9]+)$
 ]

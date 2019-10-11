@@ -99,3 +99,6 @@ class NA_BR_Maintenance(models.Manager):
     def get_createddate(self,serial_num):
         data = super(NA_BR_Maintenance,self).get_queryset().values('createddate').filter(serialnumber=serial_num)
         return data[0]
+    def getDatabySN(self, sn):
+        return super(NA_BR_Maintenance, self).get_queryset() \
+            .filter(serialnumber__iexact=sn).order_by('-startdate')[:1].get()

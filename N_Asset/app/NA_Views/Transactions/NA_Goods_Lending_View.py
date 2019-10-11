@@ -96,8 +96,8 @@ def NA_Goods_Lending_Search(request):
 def UpdateStatus(request):
 	try:
 		statuscode = 200
-		idapp = request.GET.get('idapp');
-		newVal = request.GET.get('newVal');
+		idapp = request.GET.get('idapp')
+		newVal = request.GET.get('newVal')
 		updatedby = request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'
 		result = NAGoodsLending.objects.UpdateStatus(idapp,newVal,updatedby)
 		if result != 'success':
@@ -204,7 +204,7 @@ def	HasExists(request):
 		idapp_fk_goods = data['idapp_fk_goods']
 		serialnumber = data['serialnumber']
 		datelent = data['datelent']
-		statuscode = 200;
+		statuscode = 200
 
 		if NAGoodsLending.objects.hasExists(idapp_fk_goods,serialnumber,datelent):
 			statuscode = 200
@@ -212,7 +212,8 @@ def	HasExists(request):
 		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
-		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+		return HttpResponse(json.dumps({'message': result}), status=500, content_type='application/json')
+
 def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:

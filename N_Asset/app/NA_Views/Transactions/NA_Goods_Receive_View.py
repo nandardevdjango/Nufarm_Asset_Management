@@ -337,7 +337,7 @@ def getGoods(request):
 	"""get goods by itemcode return 'goodsname' + 'brandname' + 'itemcode' as goods criteria = iexact
 	"""
 
-	result={};
+	result={}
 	try:
 		itemcode = request.GET.get('itemcode')
 		result = goods.customs.getGoods(itemcode)
@@ -519,6 +519,7 @@ def getBrandForDetailEntry(request):
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')
+	
 def getTypeApps(request):
 	IvalueKey =  request.GET.get('term')
 	idappFKGoods = request.GET.get('fk_goods')

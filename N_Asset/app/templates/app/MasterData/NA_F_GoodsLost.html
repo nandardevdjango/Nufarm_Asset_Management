@@ -1241,6 +1241,25 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_GoodsLost_pager,div.
                                 //});
                                 NA.NAEvent.addHandler(serialnumber,'keydown',function(event){
                                     //get goods
+                                    var NAAjax = NA.common.AJAX;
+                                   	NA.NAEvent.preventDefault(evt);//prevent from submit
+                                    NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
+                                        'application/json',//overrideMimeType returned by the server
+                                        function (e) { window.document.body.style.cursor = 'wait'; },
+                                        null,//nggak usah di isi bila tidak perlu
+                                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                                            var data = JSON.parse(this.responseText);
+                                            if (data.message) {
+                                                window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+                                            }
+                                            else {                                               
+                                             
+                                            }
+                                        }, null, function (e) {//function untuk ajax error
+                                            window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+                                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+                                    );
                                 });
                                 NA.NAEvent.addHandler(btn_fkGoods, 'click', function (event) {
                                     searchGoods(event);
