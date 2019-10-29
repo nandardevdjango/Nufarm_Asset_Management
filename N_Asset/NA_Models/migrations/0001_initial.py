@@ -506,7 +506,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='NAPrivilege_form',
+            name='NAPrivilege_Form',
             fields=[
                 ('idapp', models.AutoField(db_column='IDApp', primary_key=True, serialize=False)),
                 ('form_id', models.CharField(db_column='Form_id', max_length=20)),
@@ -573,7 +573,7 @@ class Migration(migrations.Migration):
                 ('modifiedby', models.CharField(blank=True, db_column='ModifiedBy', max_length=100, null=True)),
                 ('permission', models.CharField(choices=[('Allow View', 'Allow View'), ('Allow Add', 'Allow Add'), ('Allow Edit', 'Allow Edit'), ('Allow Delete', 'Allow Delete')], db_column='Permission', max_length=50)),
                 ('inactive', models.IntegerField(blank=True, db_column='InActive', default=0, null=True)),
-                ('fk_p_form', models.ForeignKey(db_column='FK_PForm', db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAPrivilege_form')),
+                ('fk_p_form', models.ForeignKey(db_column='FK_PForm', db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='NA_Models.NAPrivilege_Form')),
             ],
             options={
                 'db_table': 'N_A_Sys_Privilege',

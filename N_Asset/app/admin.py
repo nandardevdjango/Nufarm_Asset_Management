@@ -6,7 +6,7 @@ admin.site.register(NASupplier)
 admin.site.register(NAAccFa)
 admin.site.register(goods)
 admin.site.register(NAPrivilege)
-admin.site.register(NAPrivilege_form)
+admin.site.register(NAPrivilege_Form)
 admin.site.register(NASysPrivilege)
 class LogAdmin(admin.ModelAdmin):
 

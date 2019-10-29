@@ -121,10 +121,13 @@ def ShowEntry_Outwards(request):
 					if NAGoodsOutwards.objects.HasReference(data['idapp']):					
 						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
 					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Edit)
-				if result != 'success':
+				if result == 'success':
+					return HttpResponse(json.dumps({'message': result}), status=statuscode, content_type='application/json')
+				elif int(result) > 0:
+					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
+				else:
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
-				return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 		if status == 'Add':
 			form = NA_Goods_Outwards_Form(initial=initializationForm)
 			form.fields['hasRefData'].widget.attrs = {'value': False}
@@ -156,7 +159,7 @@ def hasExists(request):
 		datereq = data['daterequest']
 		daterel = data['datereleased']
 		fk_employee = data['fk_employee']
-		statuscode = 200;
+		statuscode = 200
 		if NAGoodsOutwards.objects.HasExists(idapp_fk_goods,serialnumber,datereq,daterel,fk_employee):
 			statuscode = 200
 			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
@@ -177,10 +180,10 @@ def getLastTransGoods(request):
 	serialNO = request.GET.get('serialno')
 	try:
 		result = NAGoodsOutwards.objects.getLastTrans(serialNO)
-		#return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
+		#return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
-								  'fk_usedemployee':result[5],'usedemployee':result[6],'lastinfo':result[7],'fk_receive':result[8],'fk_return':result[9],
-                                  'fk_lending':result[10],'fk_outwards':[11],'fk_maintenance':result[12],
+								  'fk_usedemployee':result[5],'nik_usedemployee':result[6],'usedemployee':result[7],'lastinfo':result[8],'fk_receive':result[9],'fk_return':result[10],
+                                  'fk_lending':result[11],'fk_outwards':[12],'fk_maintenance':result[13],
 								  }),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
@@ -201,7 +204,7 @@ def getGoodsWithHistory(request):
 			i+=1
 			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
 			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['fk_goods'],row['goodsname'],row['brandname'],row['type'],
-							row['serialnumber'],row['fk_usedemployee'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
+							row['serialnumber'],row['fk_usedemployee'],row['nik_usedemployee'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
 		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }

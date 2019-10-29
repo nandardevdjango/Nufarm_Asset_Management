@@ -20,7 +20,7 @@ INSERT INTO `n_a_privilege` (`IDApp`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`,
 -- Dumping data for table na_m_s_old.n_a_priviledge_form: ~6 rows (approximately)
 /*!40000 ALTER TABLE `n_a_priviledge_form` DISABLE KEYS */;
 INSERT INTO `n_a_privilege_form` (`IDApp`, `Form_id`, `Form_name`, `Form_name_ori`) VALUES
-	(1, '0001M', 'Suplier Form', 'n_a_suplier'),
+	(1, '0001M', 'Supplier Form', 'n_a_supplier'),
 	(2, '0002M', 'Employee Form', 'employee'),
 	(3, '0003M', 'Goods Form', 'goods'),
 	(6, '0001T', 'Goods Receive', 'n_a_goods_receive'),

@@ -4,11 +4,12 @@ from django.db import transaction
 from django.db import connection
 from decimal import Decimal
 from datetime import datetime
-from django.db.models import Q
+from django.db.models import Q,F,Value, CharField
 from NA_DataLayer.common import (
     Data, ResolveCriteria,
     commonFunct, decorators, Message,query,CriteriaSearch,DataType,StatusForm
 )
+from django.db.models.functions import Concat
 #from django.db.models import OuterRef, Subquery
 import NA_Models.models
 #from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
@@ -110,9 +111,13 @@ class NA_BR_Goods_Outwards(models.Manager):
 	    # Query get last trans in history 		
 		Query = "CREATE TEMPORARY TABLE Temp_T_History_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
                     CASE 
+                        WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.idapp FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
+                        WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.idapp FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
+						END AS fk_usedemployee,
+					CASE 
                         WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
                         WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
-						END AS fk_usedemployee,
+						END AS nik_usedemployee,
                     CASE 
                     WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.employee_name FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
                     END AS usedemployee,
@@ -153,8 +158,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 				(SELECT * FROM Temp_T_Receive_Outwards_""" + userName + """ \
 					UNION \
 				 SELECT * FROM Temp_T_History_Outwards_""" + userName + """\
-				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s)  OR (`Type` LIKE %s) OR (serialnumber = %s))"""
-		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%','%'+searchText+'%',searchText])
+				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s)  OR (`Type` LIKE %s) OR (serialnumber LIKE %s))"""
+		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%','%'+searchText+'%','%'+searchText+'%'])
 		if orderFields == '':
 			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
 		else:
@@ -203,7 +208,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		brandname = ''
 		serialnumber = ''
 		lastInfo = 'unknown'
-		fkreceive = 0;fkreturn = 0;fklending = 0;fkoutwards = 0;fkmaintenance = 0;fkdisposal=0;fklost=0;fk_usedemployee = 'NIK';usedemployee = 'unknown';	
+		fkreceive = 0; fkreturn = 0; fklending = 0; fkoutwards = 0; fkmaintenance = 0; fkdisposal = 0; fklost = 0; nik_usedemployee = 'NIK'; fk_usedemployee = 0; usedemployee = 'unknown';
 		row = []
 		if cur.rowcount > 0:
 			row = cur.fetchone()
@@ -240,32 +245,42 @@ class NA_BR_Goods_Outwards(models.Manager):
 				if row[5] is not None:
 					fklost = row[5]
 			if int(fklending)>0:
-				Query = """SELECT e.nik,e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.idapp = ngl.FK_Employee
+				Query = """SELECT e.idapp,e.nik,e.employee_name,ngl.datelending,ngl.interests,ngl.status FROM n_a_goods_lending ngl INNER JOIN employee e ON e.idapp = ngl.FK_Employee
 							WHERE ngl.IDApp = %s"""
 				cur.execute(Query,[fklending])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + '|' +  str(row[1]) + ', date lent ' + parse(str(row[2])).strftime('%d %B %Y') + ', interests ' + str(row[3])
+					status_lent = str[row[5]]
+					if status_lent == 'L':
+						lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date lent ' + parse(
+							str(row[3])).strftime('%d %B %Y') + ', interests ' + str(row[4]) + ' (goods is still lent)'
+					else:
+						lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date lent ' + parse(
+							str(row[3])).strftime('%d %B %Y') + ', interests ' + str(row[4]) + ' (goods is able to use)'
 					fk_usedemployee = str(row[0])
-					usedemployee = str(row[1])
+					nik_usedemployee = str(row[1])
+					usedemployee = str(row[2])
 			elif int(fkoutwards) > 0:
-				Query = """SELECT e.nik,e.employee_name,ngo.datereleased,ngo.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
+				Query = """SELECT e.idapp,e.nik,e.employee_name,ngo.datereleased,ngo.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
 							WHERE ngo.IDApp = %s"""
 				cur.execute(Query,[fkoutwards])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + '|' + str(row[1]) + ', date released ' + parse(str(row[2])).strftime('%d %B %Y') + ', ' + str(row[3]) + ' (goods is still in use)'
+					lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date released ' + parse(str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is still in use)'
 					fk_usedemployee = str(row[0])
-					usedemployee = str(row[1])
+					nik_usedemployee = str(row[1])
+					usedemployee = str(row[2])
 			elif int(fkreturn) > 0:
-				Query = """SELECT e.nik,e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
+				Query = """SELECT e.idapp,e.nik,e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				cur.execute(Query,[fkreturn])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[0]) + ', date returned ' + parse(str(row[2])).strftime('%d %B %Y') + ', ' + str(row[3]) + ' (goods is already returned)'
+					lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date returned ' + parse(
+						str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is able to use)'
 					fk_usedemployee = str(row[0])
-					usedemployee = str(row[1])
+					nik_usedemployee = str(row[1])
+					usedemployee = str(row[2])
 			elif int(fkmaintenance) > 0:
 				Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
 				cur.execute(Query,[fkmaintenance])
@@ -289,10 +304,10 @@ class NA_BR_Goods_Outwards(models.Manager):
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
 				cur.execute(Query,[fkdisposal])
-				lastInfo = "goods is not able to use again " 
+				lastInfo = "goods is unable to use again " 
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = "goods is not able to use again " +  row[0]
+					lastInfo = "goods is unable to use again " +  row[0]
 			elif int(fklost) > 0:
 				Query = """SELECT fk_goods_lending,fk_goods_outwards,fk_maintenance,Reason,status FROM n_a_goods_lost WHERE idapp = %s"""
 				cur.execute(Query,[fklost])
@@ -310,23 +325,27 @@ class NA_BR_Goods_Outwards(models.Manager):
 					lost_status = row[4]
 					if lost_status == "F":
 						if int(fk_lost_lending) > 0:
-							Query = """SELECT e.NIK,e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.idapp = ngl.FK_Employee
+							Query = """SELECT e.idapp,e.NIK,e.employee_name,ngl.datelending,ngl.interests FROM n_a_goods_lending ngl INNER JOIN employee e ON e.idapp = ngl.FK_Employee
 									WHERE ngl.IDApp = %s"""
 							cur.execute(Query,[fk_lost_lending])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
-								lastInfo = 'Last used by ' + str(row[0]) + ', date lent ' + parse(str(row[2])).strftime('%d %B %Y') + ', interests ' + str(row[3])
+								lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date lent ' + parse(
+									str(row[3])).strftime('%d %B %Y') + ', interests ' + str(row[4])
 								fk_usedemployee = str(row[0])
-								usedemployee = str(row[1])
+								nik_usedemployee = str(row[1])
+								usedemployee = str(row[2])
 						elif int(fk_lost_outwards) > 0:
-							Query = """SELECT e.NIK,e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
+							Query = """SELECT e.idapp,e.NIK,e.employee_name,ngo.datereleased,ngl.descriptions FROM n_a_goods_outwards ngo INNER JOIN employee e ON e.idapp = ngo.FK_Employee
 									WHERE ngo.IDApp = %s"""
 							cur.execute(Query,[fk_lost_outwards])
 							if cur.rowcount > 0:
 								row = cur.fetchone()
-								lastInfo = 'Last used by ' + str(row[0]) + ', date released ' + parse(str(row[2])).strftime('%d %B %Y') + ', ' + str(row[3]) + ' (goods is still in use)'
+								lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date released ' + parse(
+									str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is still in use)'
 								fk_usedemployee = str(row[0])
-								usedemployee = str(row[1])
+								nik_usedemployee = str(row[1])
+								usedemployee = str(row[2])
 						elif int(fk_lost_maintenance) > 0:
 							Query = """SELECT CONCAT(IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,'')) as maintenanceby,StartDate,EndDate, IsFinished,IsSucced FROM n_a_maintenance WHERE IDApp  = %s"""
 							cur.execute(Query,[fk_lost_maintenance])
@@ -359,14 +378,13 @@ class NA_BR_Goods_Outwards(models.Manager):
 				fkreceive = row[0]
 				typeapp = row[2]
 				brandname = row[1]
-
 			else:
 				raise Exception('no such data')
 			dt = datetime.date(row[3])
-			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
+			lastInfo = 'goods is new and able to use, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
-		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
-		return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
+		#idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance
+		return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel,fk_employee):
 		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(fk_employee=fk_employee)).exists()#Q(member=p1) | Q(member=p2)
 	def SaveData(self,Data,Status=StatusForm.Input):
@@ -540,7 +558,21 @@ class NA_BR_Goods_Outwards(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
+
 	def getDatabySN(self, sn):
-		return super(NA_BR_Goods_Outwards, self).get_queryset() \
-			.filter(serialnumber__iexact=sn).order_by('-datereleased')[:1].get()
-			
+		#TblGoodsOutwrds join tbl Goods join tbl GoodsOutwardsDetail join ambil data 
+      	#idapp,fk_goods,itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) as goods=
+            # tbl_name = GO,fk_employee=empl_used,nik_employee
+		qs = super(NA_BR_Goods_Outwards, self).get_queryset() \
+			.filter(serialnumber__iexact=sn)
+		qs = qs.select_related('fk_receive').order_by('-datereleased')
+		qs = qs.select_related('fk_employee')
+		qs = qs.select_related('fk_goods')[:1]
+		qs = qs.annotate(icode=F('fk_goods__itemcode'),
+		goods=Concat(F('fk_goods__goodsname'), Value(' '), F('fk_receive__brandname'), Value(' '),
+                    F('fk_receive__typeapp')), tbl_name=Value('GO', output_field=CharField()),nik_employee=F('fk_employee__nik'),used_employee=F('fk_employee__employee_name')) \
+                    .values('idapp', 'icode', 'fk_goods', 'goods', 'tbl_name', 'fk_employee', 'nik_employee', 'used_employee')
+		#qs = qs.values('idapp','fk_goods',)
+		#qs = qs.prefetch_related('NA_GoodsReceive_detail_set')[:1]
+		#qs = qs.NA_GoodsReceive_detail_set.all()
+		return qs

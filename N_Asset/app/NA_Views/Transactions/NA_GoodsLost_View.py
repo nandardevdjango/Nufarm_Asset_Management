@@ -1,5 +1,5 @@
 ﻿from NA_Models.models import NAGoodsLost, goods, Employee, NAGoodsHistory,\
-NAGoodsOutwards, NAGoodsLending, NAMaintenance
+NAGoodsOutwards, NAGoodsLending, NAMaintenance,NAGoodsReceive
 from NA_Models.NASerialize import NAGoodsLostSerializer,NAGoodsOutWordsSerializer,NAGoodLendingSerializer
 from django.http import HttpResponse
 import json
@@ -71,28 +71,31 @@ class NA_GoodsLost_Form(forms.Form):
     typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Type of goods','style':'width:130px'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Serial Number','style':'width:98.9%'}))
+        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Serial Number', 'style': 'width:98.9%'}))
+
     nik_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Nik','style':'width:130px'}))
+        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Nik', 'style': 'width:130px', 'disabled': 'disabled'}))
     empl_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who keeps','style':'width:345px','disabled':'disabled'}))
-    fk_lostby = forms.IntegerField(required=False,widget=forms.HiddenInput())
-    nik_lostby = forms.CharField(required=False,widget=forms.TextInput(attrs={
+        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Employee who keeps', 'style': 'width:345px', 'disabled':'disabled'}))
+    fk_lostby = forms.IntegerField(required=True,widget=forms.HiddenInput())
+    nik_lostby = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px'}))
     empl_lostby = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who lost goods','disabled':'disabled'}))
-    nik_resp = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px','disabled':'disabled'}))
+    nik_resp = forms.CharField(required=True,widget=forms.TextInput(attrs={
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px'}))
     empl_resp = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Responsible person','style':'width:345px','disabled':'disabled'}))
-    datelost = forms.CharField(required=False,widget=forms.TextInput(attrs={
+    datelost = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Date Lost','style':'width:130px'}))
     status_goods = forms.ChoiceField(required=False,widget=forms.Select(attrs={
                     'class':'NA-Form-Control', 'style':'width:130px;display:inline-block;'}),choices=(('L','Lost'),('F','Find')))
-    reason = forms.CharField(required=False, widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'reason .. .', 'style':'width:358px;height:50px;max-width:358px;max-height:125px;'}))
-    descriptions = forms.CharField(required=False, widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'descriptions .. .', 'style':'width:233px;height:50px;max-width:233px;max-height:125px;'}))
+    reason = forms.CharField(required=True, widget=forms.Textarea(attrs={
+        'class':'NA-Form-Control','placeholder':'reason .. .', 'style':'width:585px;height:50px;max-width:590px;max-height:125px;'}))
+    descriptions = forms.CharField(required=True, widget=forms.Textarea(attrs={
+        'class':'NA-Form-Control','placeholder':'descriptions .. .', 'style':'width:585px;height:50px;max-width:590px;max-height:125px;'}))
+    fk_responsibleperson = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    fk_usedby = forms.IntegerField(required=False, widget=forms.HiddenInput())
     fk_goods_outwards = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_goods_lending = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_maintenance = forms.IntegerField(required=False,widget=forms.HiddenInput())
@@ -101,8 +104,10 @@ def getFormData(request, forms, **kwargs):
     clData = forms.cleaned_data
     data = {
         'fk_goods': clData['fk_goods'],'goods': clData['goods'],'typeApp':clData['typeApp'],
-        'serialNumber':clData['serialNumber'],'fk_fromgoods':clData['fk_fromgoods'],'fk_goods_outwards': clData['fk_goods_outwards'],
-        'fk_goods_lending': clData['fk_goods_lending'],'fk_maintenance': clData['fk_maintenance'],'fk_lostby':clData['fk_lostby'],
+        'serialnumber':clData['serialNumber'],'fk_fromgoods':clData['fk_fromgoods'],'fk_goods_outwards': clData['fk_goods_outwards'],
+        'fk_goods_lending': clData['fk_goods_lending'], 'fk_maintenance': clData['fk_maintenance'], 'fk_lostby': clData['fk_lostby'],
+        'fk_responsibleperson': clData['fk_responsibleperson'], 'fk_usedby': clData['fk_usedby'], 'nik_used': clData['nik_used'], 'nik_resp': clData['nik_resp'],
+        'nik_lostby':clData['nik_lostby'],
         'datelost':clData['datelost'],'reason':clData['reason'],'descriptions': clData['descriptions']
         }
     if 'status_form' in kwargs:
@@ -115,12 +120,41 @@ def EntryGoods_Lost(request):
         form = NA_GoodsLost_Form(request.POST)
         if form.is_valid():
             statusForm = request.POST['statusForm']
+            #fk_responsibleperson: qs('input#id_fk_reponsibleperson').value | |0,
+            #fk_lostby: qs('input#id_fk_lostby').value | |0,
+            #fk_goods_outwards: qs('input#id_fk_goods_outwards').value | |0,
+            #fk_goods_lending: qs('input#id_fk_goods_lending').value | |0,
+            #fk_maintenance: qs('input#id_fk_maintenance').value | |0,
             if statusForm == 'Add':
                 data = getFormData(request, form)
                 createddate = datetime.now()
                 createdby = request.user.username
+                data.update(fk_responsibleperson=(None if int(
+                data['fk_responsibleperson']) == 0 else data['fk_responsibleperson']))
+                data.update(fk_lostby=(None if int(
+                    data['fk_lostby']) == 0 else data['fk_lostby']))
+                data.update(fk_goods_outwards=(None if int(
+                            data['fk_goods_outwards']) == 0 else data['fk_goods_outwards']))
+                data.update(fk_goods_lending=(None if int(
+                            data['fk_goods_lending']) == 0 else data['fk_goods_lending']))
+                data.update(fk_maintenance=(None if int(
+                                data['fk_maintenance']) == 0 else data['fk_maintenance']))
                 data['createddate'] = createddate
                 data['createdby'] = createdby
+                #chek NIK
+                ValidNIK = Employee.objects.existByNIK(data['nik_used'])
+                if not ValidNIK:
+                    return HttpResponse(json.dumps({'message': 'NIK Used by is not valid '}), status=403, content_type='application/json')
+                
+                ValidNIK = Employee.objects.existByNIK(data['nik_resp'])
+                if not ValidNIK:
+                    return HttpResponse(json.dumps({'message': 'NIK responsible person is not valid '}), status=403, content_type='application/json')                
+                ValidNIK = Employee.objects.existByNIK(data['nik_lostby'])
+                if not ValidNIK:
+                    return HttpResponse(json.dumps({'message': 'NIK lost by person is not valid '}), status=403, content_type='application/json')
+                ValidSN = NAGoodsReceive.objects.hasExistedSN(data['serialnumber'])
+                if not ValidSN:
+                    return HttpResponse(json.dumps({'message': 'invalid serial number'}), status=403, content_type='application/json')
                 result = NAGoodsLost.objects.SaveData(StatusForm.Input, **data)
                 #statusResp = 200
                 #if result[0] != 'success':
@@ -128,6 +162,16 @@ def EntryGoods_Lost(request):
                 #return HttpResponse(json.dumps(result), status=statusResp, content_type='application/json')
             elif statusForm == 'Edit':
                 data = getFormData(request, form, status_form='Edit')
+                data.update(fk_lostby=(None if int(
+                            data['fk_responsibleperson']) == 0 else data['fk_responsibleperson']))
+                data.update(fk_lostby=(None if int(
+                            data['fk_lostby']) == 0 else data['fk_lostby']))
+                data.update(fk_goods_outwards=(None if int(
+                            data['fk_goods_outwards']) == 0 else data['fk_goods_outwards']))
+                data.update(fk_goods_lending=(None if int(
+                            data['fk_goods_lending']) == 0 else data['fk_goods_lending']))
+                data.update(fk_maintenance=(None if int(
+                            data['fk_maintenance']) == 0 else data['fk_maintenance']))
                 idapp = request.POST['idapp']
                 data['idapp'] = idapp
                 data['modifieddate'] = datetime.now()
@@ -159,7 +203,7 @@ def EntryGoods_Lost(request):
 def GetGoodsBySN(request,SN=''):
     sn = SN
     if not sn:
-        sn = request.GET.get('sn')
+        sn = request.GET.get('serialno')
     HasTrans = NAGoodsHistory.objects.filter(serialnumber__iexact=sn).exists()
     resp = {}  
     if HasTrans:
@@ -171,10 +215,13 @@ def GetGoodsBySN(request,SN=''):
                     | Q(fk_outwards__isnull=False)) \
                 .values('fk_outwards', 'fk_lending', 'fk_maintenance')
         if data:
-            #idapp,fk_goods,itemcode,goods,tbl_name,fk_employee,nik_employee,fk_resp, nik_resp
+            #idapp,fk_goods,itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) as goods=
+            # tbl_name = GO/GL/GM,fk_employee=empl_used,nik_employee,fk_resp, nik_resp
             if data[0]['fk_outwards']:
                 #get data from goods outwards
                resp = NAGoodsOutwards.objects.getDatabySN(sn)
+               #ambil data
+               #idapp = resp["idapp"]
                #serializer = NAGoodsOutWordsSerializer(instance=resp,many=True)
             elif data[0]['fk_lending']:
                 resp = NAGoodsLending.objects.getDatabySN(sn)
@@ -184,8 +231,9 @@ def GetGoodsBySN(request,SN=''):
                 #serializer = 
             #serializer = NAGoodsLostSerializer(instance=resp,many=True)
             #return Response(serializer.data)
+            return HttpResponse(json.dumps(resp[0],cls=DjangoJSONEncoder),content_type='application/json')
         else:
-            return Response(json.dumps(resp))
+            return HttpResponse(json.dumps(resp[0],cls=DjangoJSONEncoder),content_type='application/json')
 
 def SearchGoodsbyForm(request):
     Isidx = request.GET.get('sidx', '') 
@@ -220,7 +268,7 @@ def SearchGoodsbyForm(request):
             for row in dataRows.object_list:
                 i+=1
                 datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],row['fk_goods'],i,row['itemcode'],row['goods'],\
-                    row['serialnumber'],row['tbl_name'],row['fk_employee'],row['fk_resp'],row['nik_employee'],row['nik_resp']]}
+                    row['serialnumber'],row['tbl_name'],row['fk_employee'],row['nik_employee'],row['used_employee'],row['fk_resp'],row['nik_resp'],row['employee_responsible']]}
                 rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')

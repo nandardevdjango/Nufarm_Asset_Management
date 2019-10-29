@@ -14,7 +14,7 @@ from django.shortcuts import render, redirect
 from NA_DataLayer.common import ResolveCriteria, Data, commonFunct, decorators
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
-from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_form
+from NA_Models.models import NAPrivilege, NASysPrivilege, NAPrivilege_Form
 from NA_Worker.task import NATask
 from NA_Worker.worker import NATaskWorker
 
@@ -443,7 +443,7 @@ def na_privilege_set_default_permission(request, email):
 
 class NA_Permission_Form(forms.Form):
     fk_form = forms.ModelChoiceField(
-        queryset=NAPrivilege_form.objects.all(),
+        queryset=NAPrivilege_Form.objects.all(),
         widget=forms.Select(
             attrs={'class': 'form-control', 'style': 'display:inline-block'})
     )

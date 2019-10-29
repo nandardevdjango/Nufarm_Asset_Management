@@ -167,7 +167,8 @@ class NA_BR_Employee(models.Manager):
                 return (Data.Lost, Message.get_lost_info(pk=get_idapp, table='employee'))
         else:
             return (Data.Success, get_data()[0])
-
+    def existByNIK(self, NIK):
+        return super(NA_BR_Employee, self).get_queryset().filter(nik=NIK).exists()
     def dataExist(self, **kwargs):
         idapp = kwargs.get('idapp')
         status_form = kwargs.get('status_form')

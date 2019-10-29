@@ -1,7 +1,8 @@
 ﻿from django.db import models, connection
-from NA_DataLayer.common import  query, ResolveCriteria, StatusForm, CriteriaSearch, DataType, Data
+from NA_DataLayer.common import  query, ResolveCriteria, StatusForm, CriteriaSearch, DataType, Data,commonFunct
 from django.db.models import F, Value, Case, When, CharField
 from django.db.models.functions import Concat
+from django.db import transaction
 class NA_BR_GoodsLost(models.Manager):
     def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,sidx='idapp',sord='desc'):
         filterfield = columnKey
@@ -50,34 +51,55 @@ class NA_BR_GoodsLost(models.Manager):
 
     def SaveData(self, statusForm=StatusForm.Input, **data):
         cur = connection.cursor()
-        Params = {'FK_Goods':data['fk_goods'],'FK_FromGoods':data['fk_fromgoods'],'SerialNumber':data['serialNumber'],'TypeApp':data['typeApp'],
-                  'FK_Goods_Outwards':data['fk_goods_outwards'],'FK_LostBy':data['fk_lostby'],'FK_Goods_Lending':data['fk_goods_lending'],
-                  'FK_Maintenance':data['fk_maintenance'],'Reason':data['reason'],'Descriptions':data['descriptions']}
-        if statusForm == StatusForm.Input:
-            if self.dataExist(serialnumber=data['serialNumber'],status='L'):
-                return ('HasExist',)
-            else:
-                Params['CreatedDate'] = data['createddate']
-                Params['CreatedBy'] = data['createdby']
-                Query = """INSERT INTO n_a_goods_lost(fk_goods, fromgoods, serialnumber, typeapp, fk_goods_outwards,fk_goods_lending,fk_maintenance,fk_lostby,reason,descriptions,
-                createddate, createdby) VALUES(%(FK_Goods)s, %(FK_FromGoods)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Goods_Outwards)s, %(FK_Goods_Lending)s, %(FK_Maintenance)s, %(FK_LostBy)s,
-                %(Reason)s,%(Descriptions)s, %(CreatedDate)s, %(CreatedBy)s)"""
-        elif statusForm == StatusForm.Edit:
-            Params['IDApp'] = data['idapp']
-            Params['ModifiedDate'] = data['modifieddate']
-            Params['ModifiedBy'] = data['modifiedby']
-            Params['Status'] = data['status_goods']
-            Query = """UPDATE n_a_goods_lost SET fk_goods=%(FK_Goods)s, fromgoods=%(FK_FromGoods)s, serialnumber=%(SerialNumber)s,typeapp=%(TypeApp)s,
-            fk_goods_outwards=%(FK_Goods_Outwards)s, fk_goods_lending=%(FK_Goods_Lending)s, fk_maintenance=%(FK_Maintenance)s,fk_lostby=%(FK_LostBy)s,
-            status=%(Status)s,descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,modifiedby=%(ModifiedBy)s
-            WHERE idapp = %(IDApp)s"""
-        cur.execute(Query,Params)
-        row = cur.lastrowid
-        connection.close()
-        return ('success',row)
-
+        Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
+        cur.execute(Query, {'FK_Goods': Data['idapp_fk_goods']})
+        row = []
+        FKApp = 0
+        if cur.rowcount > 0:
+            row = cur.fetchone()
+            fk_stock = row[0]
+        who = ''
+        Params = {'FK_Goods': data['fk_goods'], 'FK_FromGoods': data['fk_fromgoods'], 'SerialNumber': data['serialnumber'], 'TypeApp': data['typeApp'],
+                    'FK_Goods_Outwards':data['fk_goods_outwards'],'FK_LostBy':data['fk_lostby'],'FK_Goods_Lending':data['fk_goods_lending'],
+                    'FK_Maintenance': data['fk_maintenance'], 'FK_UsedBy': data['fk_usedby'], 'FK_ResponsiblePerson': data['fk_reponsibleperson'], 'Reason': data['reason'], 'Descriptions': data['descriptions']}
+        try:
+            with transaction.atomic():
+                if statusForm == StatusForm.Input:
+                    if self.dataExist(serialnumber=data['serialNumber'],status='L'):
+                        return ('HasExist',)
+                    else:
+                        who = data['createdby']
+                        Params['CreatedDate'] = data['createddate']
+                        Params['CreatedBy'] = data['createdby']
+                        Query = """INSERT INTO n_a_goods_lost(fk_goods, fromgoods, serialnumber, typeapp, fk_goods_outwards,fk_goods_lending,fk_maintenance,fk_lostby,fk_usedby,fk_responsibleperson,reason,descriptions,
+                        createddate, createdby) VALUES(%(FK_Goods)s, %(FK_FromGoods)s, %(SerialNumber)s, %(TypeApp)s, %(FK_Goods_Outwards)s, %(FK_Goods_Lending)s, %(FK_Maintenance)s, %(FK_LostBy)s,%(FK_UsedBy)s,%(FK_ResponsiblePerson)s,
+                        %(Reason)s,%(Descriptions)s, %(CreatedDate)s, %(CreatedBy)s)"""
+                elif statusForm == StatusForm.Edit:
+                    Params['IDApp'] = data['idapp']
+                    Params['ModifiedDate'] = data['modifieddate']
+                    Params['ModifiedBy'] = data['modifiedby']
+                    Params['Status'] = data['status_goods']
+                    who = data['modifiedby']
+                    Query = """UPDATE n_a_goods_lost SET fk_goods=%(FK_Goods)s, fromgoods=%(FK_FromGoods)s, serialnumber=%(SerialNumber)s,typeapp=%(TypeApp)s,
+                    fk_goods_outwards=%(FK_Goods_Outwards)s, fk_goods_lending=%(FK_Goods_Lending)s, fk_maintenance=%(FK_Maintenance)s,fk_lostby=%(FK_LostBy)s,fk_usedby = %(FK_UsedBy)s,fk_responsiblepersoon=%(FK_ResponsiblePerson)s,
+                    status=%(Status)s,descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,modifiedby=%(ModifiedBy)s
+                    WHERE idapp = %(IDApp)s"""
+                cur.execute(Query,Params)
+                row = cur.lastrowid
+                #update stock
+                #return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost)
+                TStock = commonFunct.getTotalGoods(Data['fk_goods'], cur, who)
+                totalLost = TStock[9]
+                #Update n_a_stock
+                Query = """UPDATE n_a_stock SET TIslost=%(T_Lost)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s WHERE IDApp = %(fk_stock)s"""
+                param = {'T_Lost': totalLost,  'ModifiedBy': who}
+                cur.execute(Query, param)
+                cur.close()
+                return ('success', row)
+        except Exception as e:
+            cur.close()
+            return repr(e)
     #Rimba pinjam laptop dell KN7841, sudah dikembalikan
-
 
     """DROP TEMPORARY TABLE IF EXISTS T_GoodsLost_Manager;
 CREATE TEMPORARY TABLE T_GoodsLost_Manager ENGINE=InnoDB AS (SELECT gls.idapp, gls.fk_goods, gls.fk_fromgoods, gls.serialnumber,gls.fk_goods_outwards,gls.fk_goods_lending,empl1.fk_employee,
@@ -102,10 +124,10 @@ SELECT * FROM T_GoodsLost_Manager;"""
         cur = connection.cursor()
         if data['tab_section'] == 'g_outwards':
             Query = """SELECT ngo.idapp,ngo.fk_goods, g.itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) as goods,@table_name := 'GO' AS tbl_name, ngo.serialnumber,
-            empl1.fk_employee,empl1.nik_employee,empl2.fk_resp,empl2.nik_resp FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp INNER JOIN n_a_goods_receive ngr 
+            empl1.fk_employee,empl1.nik_employee,empl1.employee_name as used_employee,empl2.fk_resp,empl2.nik_resp,empl2.employee_name AS employee_responsible FROM n_a_goods_outwards ngo INNER JOIN n_a_goods g ON ngo.fk_goods = g.idapp INNER JOIN n_a_goods_receive ngr 
             ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail grd ON ngr.idapp = grd.fk_app AND ngo.serialnumber = grd.serialnumber
-            LEFT OUTER JOIN (SELECT idapp, nik AS nik_employee,employee_name AS fk_employee FROM employee) 
-            AS empl1 ON ngo.fk_employee = empl1.idapp LEFT OUTER JOIN (SELECT idapp, nik AS nik_resp,employee_name AS fk_resp FROM employee) AS empl2 ON ngo.fk_responsibleperson = empl2.idapp
+            LEFT OUTER JOIN (SELECT idapp AS fk_employee, nik AS nik_employee,employee_name FROM employee) 
+            AS empl1 ON ngo.fk_employee = empl1.fk_employee LEFT OUTER JOIN (SELECT idapp AS fk_resp, nik AS nik_resp,employee_name  FROM employee) AS empl2 ON ngo.fk_responsibleperson = empl2.fk_resp
             WHERE NOT EXISTS(SELECT m.serialnumber FROM n_a_maintenance m WHERE m.serialnumber=ngo.serialnumber AND m.isfinished=0) AND 
             NOT EXISTS(SELECT gls.idapp FROM n_a_goods_lost gls WHERE gls.serialnumber=ngo.serialnumber)
             AND ((CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) LIKE \'{0}\') OR(ngo.serialnumber = \'{1}\'))"""
@@ -134,12 +156,12 @@ SELECT * FROM T_GoodsLost_Manager;"""
     def retriveData(self,idapp):
         cur = connection.cursor()
         if self.dataExist(idapp=idapp):
-            Query = """SELECT gls.fk_goods,g.itemcode, CONCAT(g.goodsname, ' ',g.brandname) AS goods, gls.typeApp, gls.serialNumber, empl1.nik_used, empl1.empl_used,empl1.fk_usedemployee,empl2.nik_resp,
-            empl2.empl_resp,empl3.fk_lostby,empl3.nik_lostby, empl3.empl_lostby, gls.descriptions FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON 
-            gls.fk_goods = g.idapp LEFT OUTER JOIN (SELECT idapp AS fk_usedemployee,nik AS nik_used,employee_name as empl_used FROM employee) AS empl1 ON gls.fk_usedemployee = empl1.fk_usedemployee
-            LEFT OUTER JOIN (SELECT idapp, nik AS nik_resp, employee_name AS empl_resp FROM employee) AS empl2 ON gls.fk_responsibleperson = empl2.idapp 
-            LEFT OUTER JOIN (SELECT idapp AS fk_lostby, nik AS nik_lostby, employee_name AS empl_lostby FROM employee) AS empl3 ON gls.fk_lostby = empl3.fk_lostby
-            WHERE gls.idapp = %s"""
+            Query = """SELECT gls.idapp, gls.fk_goods,g.itemcode, CONCAT(g.goodsname, ' ',grd.brandname) AS goods, gls.typeApp, gls.serialNumber,empl1.fk_usedby, empl1.nik_used, empl1.empl_used,empl2.fk_responsibleperson,empl2.nik_resp,
+                    empl2.empl_resp,empl3.fk_lostby,empl3.nik_lostby, empl3.empl_lostby,gls.fromgoods AS fk_fromgoods,gls.status,gls.reason,gls.fk_goods_lending,gls.fk_goods_outwards,gls.fk_maintenance, gls.descriptions FROM n_a_goods_lost gls INNER JOIN n_a_goods g ON 
+                    gls.fk_goods = g.idapp INNER JOIN n_a_goods_receive_detail grd ON gls.serialnumber=grd.serialnumber AND gls.typeapp = grd.typeapp LEFT OUTER JOIN (SELECT idapp AS fk_usedby,nik AS nik_used,employee_name as empl_used FROM employee) AS empl1 ON gls.fk_usedby = empl1.fk_usedby
+                    LEFT OUTER JOIN (SELECT idapp AS fk_responsibleperson, nik AS nik_resp, employee_name AS empl_resp FROM employee) AS empl2 ON gls.fk_responsibleperson = empl2.fk_responsibleperson 
+                    LEFT OUTER JOIN (SELECT idapp AS fk_lostby, nik AS nik_lostby, employee_name AS empl_lostby FROM employee) AS empl3 ON gls.fk_lostby = empl3.fk_lostby
+                    WHERE gls.idapp = %s"""
             cur.execute(Query,[idapp])
             result = query.dictfetchall(cur)[0]
             return ('success',result)

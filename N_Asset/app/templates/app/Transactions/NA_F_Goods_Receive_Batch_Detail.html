@@ -611,7 +611,7 @@
 				loadonce: true,
 				datatype: "local",
 				//idapp, idpp_fk_goods, goods_desc,economiclife, datereceived, supliername, employee_received, employee_pr, totalpurchase, totalreceived
-				colNames: ['idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
+				colNames: ['idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Supplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
 						'Received By', 'idapp_fk_p_r_by','fk_p_r_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'],
 				colModel: [
 					{ 'name': 'idapp', hidden: true,key:true },
@@ -2078,7 +2078,8 @@
 						    if (this.status >= 500) {
 						        closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
 						    }
-						    var dataRowHeader = [];
+							var dataRowHeader = [];
+							
 						    //'idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
 						    //'Received By', 'idapp_fk_p_r_by','fk_p_r_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'
 						    dataRowHeader.push({

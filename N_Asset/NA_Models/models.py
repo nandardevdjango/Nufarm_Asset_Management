@@ -183,7 +183,7 @@ class NAGoodsOutwardsModel(NA_TransactionModel):
         db_constraint=False
     )
     fk_receive = models.ForeignKey(
-        'NAGoodsReceive',
+        'NA_GoodsReceive_detail',
         db_column='FK_Receive',
         related_name='rel_receive_%(class)s',
         null=True,
@@ -1147,18 +1147,18 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
         this function for check if user has permission
         param
         :action: ==> e.g (Allow View,Allow Edit .. etc) use attribute NASysPrivilege.Allow_View .. etc
-        :form_name_ori: this is form name ori e.g (n_a_supplier) use attribute NAPrivilege_form.Supplier_form .. etc
+        :form_name_ori: this is form name ori e.g (n_a_supplier) use attribute NAPrivilege_Form.Supplier_form .. etc
 
         usage : must be instance of model
         rimba = NAPrivilege.objects.get(username='rimba47prayoga') or from request : request.user.has_permission
-        rimba.has_permission(NASysPrivilege.Allow_Add,NAPrivilege_form.Supplier_form)
+        rimba.has_permission(NASysPrivilege.Allow_Add,NAPrivilege_Form.Supplier_form)
 
         return boolean
         """
         if action not in NASysPrivilege.ALL_PERMISSION:
             raise ValueError('uncategorize, cannot resolve action %s' % action)
 
-        if form_name_ori not in NAPrivilege_form.ALL_FORM:
+        if form_name_ori not in NAPrivilege_Form.ALL_FORM:
             raise ValueError(
                 'uncategorize, cannot resolve form %s' % form_name_ori)
 
@@ -1195,7 +1195,7 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
         return data
 
     def get_permission(self, form):
-        if form not in NAPrivilege_form.ALL_FORM:
+        if form not in NAPrivilege_Form.ALL_FORM:
             raise ValueError('cannot find %s form' % form)
         return self.get_all_permission(form)
 
@@ -1204,28 +1204,28 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def allow_view_employee(self):
         return self.has_permission(
             NASysPrivilege.Allow_View,
-            NAPrivilege_form.Employee_form
+            NAPrivilege_Form.Employee_Form
         )
 
     @property
     def allow_add_employee(self):
         return self.has_permission(
             NASysPrivilege.Allow_Add,
-            NAPrivilege_form.Employee_form
+            NAPrivilege_Form.Employee_Form
         )
 
     @property
     def allow_edit_employee(self):
         return self.has_permission(
             NASysPrivilege.Allow_Edit,
-            NAPrivilege_form.Employee_form
+            NAPrivilege_Form.Employee_Form
         )
 
     @property
     def allow_delete_employee(self):
         return self.has_permission(
             NASysPrivilege.Allow_Delete,
-            NAPrivilege_form.Employee_form
+            NAPrivilege_Form.Employee_Form
         )
 
     # ============ Permission for Supplier form =============
@@ -1233,28 +1233,28 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def allow_view_supplier(self):
         return self.has_permission(
             NASysPrivilege.Allow_View,
-            NAPrivilege_form.Supplier_form
+            NAPrivilege_Form.Supplier_Form
         )
 
     @property
     def allow_add_supplier(self):
         return self.has_permission(
             NASysPrivilege.Allow_Add,
-            NAPrivilege_form.Supplier_form
+            NAPrivilege_Form.Supplier_Form
         )
 
     @property
     def allow_edit_supplier(self):
         return self.has_permission(
             NASysPrivilege.Allow_Edit,
-            NAPrivilege_form.Supplier_form
+            NAPrivilege_Form.Supplier_Form
         )
 
     @property
     def allow_delete_supplier(self):
         return self.has_permission(
             NASysPrivilege.Allow_Delete,
-            NAPrivilege_form.Supplier_form
+            NAPrivilege_Form.Supplier_Form
         )
 
     # ============ Permission for Goods form =============
@@ -1262,28 +1262,28 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def allow_view_goods(self):
         return self.has_permission(
             NASysPrivilege.Allow_View,
-            NAPrivilege_form.Goods_form
+            NAPrivilege_Form.Goods_Form
         )
 
     @property
     def allow_add_goods(self):
         return self.has_permission(
             NASysPrivilege.Allow_Add,
-            NAPrivilege_form.Goods_form
+            NAPrivilege_Form.Goods_Form
         )
 
     @property
     def allow_edit_goods(self):
         return self.has_permission(
             NASysPrivilege.Allow_Edit,
-            NAPrivilege_form.Goods_form
+            NAPrivilege_Form.Goods_Form
         )
 
     @property
     def allow_delete_goods(self):
         return self.has_permission(
             NASysPrivilege.Allow_Delete,
-            NAPrivilege_form.Goods_form
+            NAPrivilege_Form.Goods_Form
         )
 
     # ============ Permission for Goods form =============
@@ -1291,28 +1291,28 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def allow_view_goods_receive(self):
         return self.has_permission(
             NASysPrivilege.Allow_View,
-            NAPrivilege_form.Goods_Receive_form
+            NAPrivilege_Form.Goods_Receive_Form
         )
 
     @property
     def allow_add_goods_receive(self):
         return self.has_permission(
             NASysPrivilege.Allow_Add,
-            NAPrivilege_form.Goods_Receive_form
+            NAPrivilege_Form.Goods_Receive_Form
         )
 
     @property
     def allow_edit_goods_receive(self):
         return self.has_permission(
             NASysPrivilege.Allow_Edit,
-            NAPrivilege_form.Goods_Receive_form
+            NAPrivilege_Form.Goods_Receive_Form
         )
 
     @property
     def allow_delete_goods_receive(self):
         return self.has_permission(
             NASysPrivilege.Allow_Delete,
-            NAPrivilege_form.Goods_Receive_form
+            NAPrivilege_Form.Goods_Receive_Form
         )
 
     # ============ Permission for Goods form =============
@@ -1320,28 +1320,28 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
     def allow_view_privilege(self):
         return self.has_permission(
             NASysPrivilege.Allow_View,
-            NAPrivilege_form.Privilege_form
+            NAPrivilege_Form.Privilege_Form
         )
 
     @property
     def allow_add_privilege(self):
         return self.has_permission(
             NASysPrivilege.Allow_Add,
-            NAPrivilege_form.Privilege_form
+            NAPrivilege_Form.Privilege_Form
         )
 
     @property
     def allow_edit_privilege(self):
         return self.has_permission(
             NASysPrivilege.Allow_Edit,
-            NAPrivilege_form.Privilege_form
+            NAPrivilege_Form.Privilege_Form
         )
 
     @property
     def allow_delete_privilege(self):
         return self.has_permission(
             NASysPrivilege.Allow_Delete,
-            NAPrivilege_form.Privilege_form
+            NAPrivilege_Form.Privilege_Form
         )
 
     class Meta:
@@ -1349,61 +1349,99 @@ class NAPrivilege(AbstractUser, NA_BaseModel):
         db_table = 'N_A_Privilege'
 
 
-class NAPrivilege_form(models.Model):
+class NAPrivilege_Form(models.Model):
 
-    Employee_form = 'employee'
-    Supplier_form = 'n_a_supplier'
-    Goods_form = 'goods'
-    Privilege_form = 'n_a_privilege'
-    Fix_asset_form = 'n_a_acc_fa'
+    Employee_Form = 'employee'
+    Supplier_Form = 'n_a_supplier'
+    Goods_Form = 'goods'
 
-    Goods_Receive_form = 'n_a_goods_receive'
-    Goods_Outwards_form = 'n_a_goods_outwards'
+    Privilege_Form = 'n_a_privilege'   
+    
+    Goods_Lending_Form = 'n_a_goods_lending'
+    Goods_Return_Form = 'n_a_goods_return'
+    Goods_Receive_Form = 'n_a_goods_receive'
+    Goods_Outwards_Form = 'n_a_goods_outwards'
+    Maintenance_Form = 'n_a_maintenance'
+    Goods_History_Form = 'n_a_goods_history'
+
+    Disposal_Form = 'n_a_disposal'
+    Goods_Lost_Form = 'n_a_goods_lost'
+    Fix_asset_Form = 'n_a_acc_fa'
+    
+    GA_Maintenance_Form = 'n_a_ga_maintenance'
     GA_Receive_form = 'n_a_ga_receive'
     GA_Outwards_form = 'n_a_ga_outwards'
+    GA_Return_Form = 'n_a_ga_return'
 
     MASTER_DATA_FORM = [
-        Employee_form,
-        Supplier_form,
-        Goods_form,
-        Privilege_form
+        Employee_Form,
+        Supplier_Form,
+        Goods_Form,
+        Privilege_Form
     ]
 
     TRANSACTION_FORM = [
-        Goods_Receive_form,
-        Goods_Outwards_form,
+        Goods_Receive_Form,
+        Goods_Outwards_Form,
+        Goods_Lending_Form,
+        Maintenance_Form,
+        Goods_Return_Form,
+        Disposal_Form,
+        Goods_Lost_Form,
+        GA_Maintenance_Form,
         GA_Receive_form,
         GA_Outwards_form
     ]
 
     OTHER_FORM = [
-        Fix_asset_form
+        Fix_asset_Form,
+        Goods_History_Form
     ]
 
     ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM + OTHER_FORM
 
     IT_FORM = [
-        Goods_Receive_form,
-        Goods_Outwards_form,
-        Fix_asset_form
+        Goods_Receive_Form,
+        Goods_Outwards_Form,
+        Fix_asset_Form,
+        Goods_History_Form,
+        Goods_Lending_Form,
+        Maintenance_Form,
+        Goods_Return_Form,
+        Disposal_Form,
+        Goods_Lost_Form,
     ] + MASTER_DATA_FORM
 
     GA_FORM = [
         GA_Receive_form,
         GA_Outwards_form,
-        Fix_asset_form
+        Fix_asset_Form,
+        #satu lagi GA_History
+        GA_Maintenance_Form,
+        Disposal_Form,
+        Goods_Lost_Form,
     ] + MASTER_DATA_FORM
 
     FORM_NAME_ORI_CHOICES = (
-        (Employee_form, 'employee'),
-        (Supplier_form, 'n_a_supplier'),
-        (Goods_form, 'goods'),
-        (Privilege_form, 'n_a_privilege'),
-        (Fix_asset_form, 'n_a_acc_fa'),
-        (Goods_Receive_form, 'n_a_goods_receive'),
-        (Goods_Outwards_form, 'n_a_goods_outwards'),
+        (Employee_Form, 'employee'),
+        (Supplier_Form, 'n_a_supplier'),
+        (Goods_Form, 'goods'),
+
+        (Goods_Receive_Form, 'n_a_goods_receive'),
+        (Goods_Outwards_Form, 'n_a_goods_outwards'),
+        (Goods_Lending_Form, 'n_a_goods_lending'),
+        (Goods_Return_Form, 'n_a_goods_return'),
+        (Maintenance_Form, 'n_a_maintenance'),
+        (Disposal_Form, 'n_a_disposal'),
+        (Goods_Lost_Form, 'n_a_disposal'),
+        #satu lagi asset deletion
         (GA_Receive_form, 'n_a_ga_receive_form'),
-        (GA_Outwards_form, 'n_a_ga_outwards')
+        (GA_Outwards_form, 'n_a_ga_outwards'),
+        (GA_Maintenance_Form, 'n_a_ga_maintenance'),
+        
+        (Goods_History_Form, 'n_a_goods_history'),        
+        (Fix_asset_Form, 'n_a_acc_fa'),
+        (Privilege_Form, 'n_a_privilege'),
     )
 
     idapp = models.AutoField(primary_key=True, db_column='IDApp')
@@ -1416,7 +1454,7 @@ class NAPrivilege_form(models.Model):
     )
 
     class Meta:
-        db_table = 'N_A_Privilege_form'
+        db_table = 'N_A_Privilege_Form'
 
     def __str__(self):
         return self.form_name
@@ -1479,7 +1517,7 @@ class NASysPrivilege(NA_BaseModel):
     )
 
     fk_p_form = models.ForeignKey(
-        NAPrivilege_form,
+        NAPrivilege_Form,
         db_column='FK_PForm',
         db_constraint=False
     )
@@ -1517,7 +1555,7 @@ class NASysPrivilege(NA_BaseModel):
         """
 
         permissions = []
-        if form_name_ori in NAPrivilege_form.IT_FORM:
+        if form_name_ori in NAPrivilege_Form.IT_FORM:
             permissions.append(NASysPrivilege.Allow_View)
             permissions.append(NASysPrivilege.Allow_Add)
             permissions.append(NASysPrivilege.Allow_Edit)
@@ -1529,7 +1567,7 @@ class NASysPrivilege(NA_BaseModel):
     @staticmethod
     def default_permission_ga(form_name_ori):
         permissions = []
-        if form_name_ori in NAPrivilege_form.GA_FORM:
+        if form_name_ori in NAPrivilege_Form.GA_FORM:
             permissions.append(NASysPrivilege.Allow_View)
             permissions.append(NASysPrivilege.Allow_Add)
             permissions.append(NASysPrivilege.Allow_Edit)
@@ -1557,7 +1595,7 @@ class NASysPrivilege(NA_BaseModel):
             elif user.divisi == NAPrivilege.GA:
                 permissions = cls.default_permission_ga
 
-        fk_forms = NAPrivilege_form.get_user_form(
+        fk_forms = NAPrivilege_Form.get_user_form(
             user.role,
             user.divisi,
             must_iterate=True
@@ -1569,7 +1607,7 @@ class NASysPrivilege(NA_BaseModel):
                 form_name_ori = fk_form.form_name_ori
                 for permission in permissions(form_name_ori):
                     if int(user.role) != NAPrivilege.SUPER_USER:
-                        if form_name_ori == NAPrivilege_form.Privilege_form:
+                        if form_name_ori == NAPrivilege_Form.Privilege_Form:
                             if permission != NASysPrivilege.Allow_View:
                                 continue
                     if is_have_permission:
@@ -1610,7 +1648,7 @@ class NASysPrivilege(NA_BaseModel):
         permissions = kwargs['permissions']
         createdby = kwargs['createdby']
         user = NAPrivilege.objects.get(idapp=user_id)
-        fk_p_form = NAPrivilege_form.objects.get(idapp=fk_form)
+        fk_p_form = NAPrivilege_Form.objects.get(idapp=fk_form)
         len_permissions = len(permissions)
         if len_permissions > 1:
             data = []

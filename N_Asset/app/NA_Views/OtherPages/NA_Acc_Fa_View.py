@@ -12,7 +12,7 @@ from NA_DataLayer.common import (
     ResolveCriteria, commonFunct,
     Data, decorators
 )
-from NA_Models.models import NAAccFa, goods, NAPrivilege_form
+from NA_Models.models import NAAccFa, goods, NAPrivilege_Form
 from NA_Worker.worker import NATaskWorker
 from NA_Worker.task import NATask
 
@@ -99,7 +99,7 @@ class NA_Acc_Form(forms.Form):
 @decorators.ensure_authorization
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
-@decorators.read_permission(form_name=NAPrivilege_form.Fix_asset_form)
+@decorators.read_permission(form_name=NAPrivilege_Form.Fix_asset_Form)
 def EntryAcc(request):
     form = NA_Acc_Form(request.POST)
     if form.is_valid():
@@ -273,7 +273,7 @@ def SearchGoodsbyForm(request):
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 @decorators.read_permission(
-    form_name=NAPrivilege_form.Fix_asset_form,
+    form_name=NAPrivilege_Form.Fix_asset_Form,
     action='Delete'
 )
 def delete_acc_fa(request):

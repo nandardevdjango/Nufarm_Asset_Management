@@ -68,19 +68,41 @@ class NA_GO_PDF:
         Equipment = Data[self.main_display_add_hoc[6]]
         DateReleased = Data[self.main_display_add_hoc[4]]
         Sender = Data[self.main_display_add_hoc[10]]
-        self.flowables.append(Paragraph("""Telah diserahkan 1 unit barang inventaris kepada {ToEmployee}, {Descriptions} Berupa {GoodsName}
-        """ .format(ToEmployee=ToEmployee, Descriptions=Descriptions, GoodsName=GoodsName),self.helper.LABEL_STYLE))
+        self.flowables.append(Paragraph("""Telah diserahkan 1 unit barang inventaris kepada Saudara/(Saudari){ToEmployee}, <br/> <br/>
+        """ .format(ToEmployee=ToEmployee, GoodsName=GoodsName),self.helper.LABEL_STYLE))
 
         self.flowables.append(Spacer(0, 25))
+
+        #self.flowables.ap(Indenter(-90))
+        colWidthBarang = [120, 220]
         
-        self.flowables.append(Paragraph("""<b>Merek&emsp;&emsp;: {BrandName}<br/>Type&emsp;&emsp;: {Type}<br/>
-        ServiceTag/FA_Number&emsp;&emsp;: {SerialNumber}<br/><br/><br/>
-        Kelengkapan:</b>""" .format(BrandName=BrandName, Type=Type, SerialNumber=SerialNumber), self.helper.LABEL_STYLE))
+        berupa = Paragraph("<b>Berupa</b>", self.helper.LABEL_STYLE)
+        barang = Paragraph(": {GoodsName}".format(GoodsName=GoodsName), self.helper.LABEL_STYLE)
+
+        merk = Paragraph("<b>Merek</b>",self.helper.LABEL_STYLE)
+        merkBarang = Paragraph(": {BrandName}".format(BrandName=BrandName), self.helper.LABEL_STYLE)
+
+        LabelType = Paragraph("<b>Type</b>", self.helper.LABEL_STYLE)
+        TypeBarang = Paragraph(": {Type}".format(Type=Type),self.helper.LABEL_STYLE)
+
+        LabelSN = Paragraph("<b>SerialNumber/FA NO</b>", self.helper.LABEL_STYLE)
+        DataSN = Paragraph(": {SerialNumber}".format(SerialNumber=SerialNumber), self.helper.LABEL_STYLE)
+        
+        DataBarang = [[berupa, barang], [merk, merkBarang], [LabelType, TypeBarang], [LabelSN, DataSN]]
+        tblBarang = Table(DataBarang, colWidthBarang, None, style=TableStyle([('ALIGN', (0, 0), (-1, -1), 'LEFT')]), hAlign='LEFT')
+        self.flowables.append(tblBarang)
+
         self.flowables.append(Spacer(0, 20))
-        self.flowables.append(Paragraph("{}".format(Equipment), self.helper.LABEL_STYLE))#kelengkapan
+        self.flowables.append(Paragraph("{Descriptions}".format(Descriptions=Descriptions),self.helper.LABEL_STYLE))
+
+        #self.flowables.append(Paragraph("""<b>Berupa&nbsp;&nbsp;: {GoodsName}<br/>Merek&nbsp;&nbsp;: {BrandName}<br/>Type&nbsp;&nbsp;: {Type}<br/>
+        #ServiceTag/FA_Number&nbsp;&nbsp;: {SerialNumber}<br/><br/><br/>
+        #Kelengkapan:</b>""" .format(GoodsName=GoodsName,BrandName=BrandName, Type=Type, SerialNumber=SerialNumber), self.helper.LABEL_STYLE))
+        self.flowables.append(Spacer(0, 20))
+        self.flowables.append(Paragraph("Kelengkapan : {}".format(Equipment), self.helper.LABEL_STYLE))#kelengkapan
         self.flowables.append(Spacer(0, 20))
         if Kondisi == "Bekas":
-            EksEmployee = self.main_display_add_hoc[9]
+            EksEmployee = Data[self.main_display_add_hoc[9]]
             self.flowables.append(Paragraph("{GoodsName} ({Conditions} {EksEmployee})".format(
                 GoodsName=GoodsName, Conditions=Kondisi, EksEmployee=EksEmployee), self.helper.LABEL_STYLE))
         elif Kondisi == "Baru":

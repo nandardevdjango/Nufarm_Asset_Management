@@ -199,7 +199,7 @@ def ShowEntry(request):
 		else:
 			return render(request, 'app/MasterData/NA_Entry.html', {'form' : form})
 def setInActive(request):
-	result = '';
+	result = ''
 	try:
 		idapp = request.GET.get('idapp');
 		inactive = request.GET.get('inactive');

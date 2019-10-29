@@ -95,7 +95,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
-	def hasEsitsSN(self,SN):
+	def hasExistedSN(self,SN):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		Query = """SELECT EXISTS(SELECT SerialNumber FROM n_a_goods_receive_detail WHERE serialnumber = %s)"""
@@ -103,7 +103,6 @@ class NA_BR_Goods_Receive(models.Manager):
 		row = cur.fetchone()
 		cur.close()
 		return int(row[0]) > 0
-
 	def hasExists(self,idapp_fk_goods,datereceived,totalPurchase):
 		#An error occurred: FieldError('Related Field got invalid lookup: iexact',)
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(Q(idapp_fk_goods=idapp_fk_goods) & Q(datereceived=datereceived) & Q(totalpurchase=totalPurchase)).exists()#Q(member=p1) | Q(member=p2)
@@ -413,4 +412,5 @@ class custEmpManager(models.Manager):
 	def getEmployee(self,nik):
 		return super(custEmpManager,self).get_queryset().filter(nik__iexact=nik).values('idapp','employee_name')
 	def getEmloyeebyForm(self,employeeName):
-		return super(custEmpManager,self).get_queryset().filter(Q(employee_name__icontains=employeeName) & Q(inactive__exact=0)).values('idapp','nik','employee_name')
+		return super(custEmpManager, self).get_queryset().filter(Q(employee_name__icontains=employeeName) & Q(inactive__exact=0)).values('idapp', 'nik', 'employee_name')
+		

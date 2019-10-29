@@ -101,7 +101,7 @@ def ExistSerialNO(request):
 	SN = data['SN']
 	result = ''
 	try:
-		result = NAGoodsReceive.objects.hasEsitsSN(SN)
+		result = NAGoodsReceive.objects.hasExistedSN(SN)
 		result = str2bool(str(result))
 	except Exception as e:
 		result = repr(e)

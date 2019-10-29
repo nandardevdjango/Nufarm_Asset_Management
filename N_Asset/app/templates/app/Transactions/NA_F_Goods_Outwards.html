@@ -718,6 +718,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 								//Save state to window
 								NA.common.dialog.hasSavedAction = true;
 								originalData = JSON.stringify(getValuesForm());
+								var initializeForm = NA.common.getElementID('id_initializeForm');
+								initializeForm.value = originalData;
 								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')){
 									if(NA.common.dialog.IsPrintingPDF){
 										printToPDF();
@@ -728,6 +730,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							}
 							case 'Edit': {
 								win.document.body.style.cursor = 'wait';
+								originalData = JSON.stringify(getValuesForm());
+								var initializeForm = NA.common.getElementID('id_initializeForm');
+								initializeForm.value = originalData;
 								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
 									if (NA.common.dialog.IsPrintingPDF) {
 										printToPDF();
@@ -998,8 +1003,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 			//fk_usedemployee & fk_usedemployee_employee
 			var elfk_usedemployeeValue = NA.common.getElementID('fk_usedemployeeValue');
-			elfk_usedemployeeValue.textContent = rowData['fk_usedemployee'] + '|' + rowData['usedemployee'];
+			elfk_usedemployeeValue.textContent = rowData['nik_usedemployee'] + '|' + rowData['usedemployee'];
 
+			var elidfk_usedemployee = NA.common.getElementID('id_idapp_fk_usedemployee');
+			elidfk_usedemployee.value =   rowData['fk_usedemployee'];
 			////form.serialnumber
 			//var elserialnumber = NA.common.getElementID('id_serialnumber');
 			//elserialnumber.value = rowData['serialnumber'];
@@ -1812,7 +1819,18 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                                         	}
                                                         	else {
                                                         		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                        		fillGoodsInfo(data, item.id, true);
+																var lastinfo = data['lastinfo'] // goods is able to use
+																var validInfo = ['is able to use', 'goods is new and able to use'];
+																if (lastinfo.indexOf(validInfo[0]) || lastinfo.indexOf(validInfo[1]) >= 0) {
+																	fillGoodsInfo(data,evt.target.value,true);
+																}
+																else {																	
+																	ShowAlert(lastinfo, 'Please choose other one',calbackOnHide=function(){
+																		var target = evt.getTarget();
+																		target.value = '';
+																	} ); win.document.body.style.cursor = 'default';
+																	return false;
+																}
                                                         	}
                                                         }, null, function (e) {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
@@ -1940,7 +1958,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 										type: BootstrapDialog.TYPE_INFO,
 										size: BootstrapDialog.SIZE_WIDE,
 										message: function (dialogRef) {
-											var placeHolder = 'Enter goods name or brandname or Type of goods or (exact serialnumber) to search for';
+											var placeHolder = 'Enter goods name or brandname or Type of goods or serialnumber to search for';
 											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
 											function (e) {//event for blur
 												if (this.value === '') {
@@ -1998,7 +2016,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 												url: urlGoods,
 												mtype: "GET",
 												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_lending,fk_return,fk_maintenance,
-												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
+												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'nik_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
 												colModel: [
 														{ name: 'idapp', index: 'idapp', hidden: true, },
 														{ name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },
@@ -2008,6 +2026,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 														{ name: 'type', index: 'type', width: 130, sortable: true, editable: false, align: 'left', },
 														{ name: 'serialnumber', index: 'serialnumber', width: 195, sortable: true, editable: false, align: 'left', },
 														{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true },
+														{ name: 'nik_usedemployee', index: 'nik_usedemployee', hidden: true },
 														{ name: 'usedemployee', index: 'usedemployee', hidden: true },
 														{ name: 'lastinfo', index: 'lastinfo', width: 240, sortable: false, editable: false, align: 'left', },
 														{ name: 'fk_receive', index: 'fk_receive', hidden: true, },

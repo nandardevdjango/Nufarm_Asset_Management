@@ -566,6 +566,15 @@ NA.common = {
         }
         return result;
     },
+    GetServerFormatDate : function(parsedDate) {//dd/mm/yy value -->yyyy-mm-dd
+        var d = new Date(parsedDate),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+    },
     //addDate: function (date, dates) {
     //    var result = new Date(date);
     //    var expectedDate = ((result.getDate() + dates) % 12 + 12) % 12;
