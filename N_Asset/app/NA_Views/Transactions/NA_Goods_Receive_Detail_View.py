@@ -61,7 +61,7 @@ def getData(request):
 		idapp_fk_goods = NAData['idapp_fk_goods']
 		NADataDetail = NA_GoodsReceive_detail.objects.getDetailData(FKApp,idapp_fk_goods)
 		rows = []			
-		i = 0;
+		i = 0
 		for row in NADataDetail:
 			i = i+1
 			datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \

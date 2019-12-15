@@ -223,6 +223,7 @@ class NAGoodsReturnModel(NA_TransactionModel):
         related_name='fk_ngr_usedemployee_%(class)s',
         db_constraint=False
     )
+    isaccepted = models.PositiveSmallIntegerField(db_column='IsAccepted',default=0)
     iscompleted = models.PositiveSmallIntegerField(db_column='IsCompleted')
     minusDesc = models.CharField(
         db_column='MinusDesc',
@@ -774,7 +775,7 @@ class NAGoodsLending(NA_TransactionModel):
         db_constraint=False
     )
     statuslent = models.CharField(
-        db_column='Status', max_length=10, blank=True, null=True)
+        db_column='Status', max_length=10, default = 'L')
     fk_maintenance = models.ForeignKey(
         NAMaintenance,
         db_column="FK_Maintenance",
@@ -882,6 +883,14 @@ class NAGoodsLost(NA_TransactionModel):
         blank=True,
         null=True,
         related_name='resp_person_goods_lost',
+        db_constraint=False
+    )
+    fk_goods_return = models.ForeignKey(
+        NAGoodsReturn,
+        db_column='FK_Goods_Return',
+        blank=True,
+        null=True,
+        related_name='return_goods_lost',
         db_constraint=False
     )
     status = models.CharField(db_column='Status', max_length=5)

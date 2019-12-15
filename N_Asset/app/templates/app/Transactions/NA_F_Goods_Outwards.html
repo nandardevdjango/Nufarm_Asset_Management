@@ -172,12 +172,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 <!----------------------------Script for /Printing/Exporting to PDF-------------------------------------------------------->
 <script src="../../../static/app/scripts/printThis.js"></script>
 <!----------------------------Script for /Printing/Exporting to Excel -------------------------------------------------------->
-<script src="../../../static/app/scripts/jszip.min.js "></script>
+<!--<script src="../../../static/app/scripts/jszip.min.js "></script>-->
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
 
-{%block content-0 %}
+{% block content-0 %}
 <style>
     div#content-0 {
         overflow: hidden;
@@ -212,7 +212,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 </style>
 <table id="jqGrid_NA_F_Goods_Outwards" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Outwards_Pager" class="scroll" style="text-align:center;"></div>
-
+<a style="visibility: hidden;" id="Export_Goods_Outwards_xls" href="{% url 'Transactions:NA_Goods_Outwards:export_goods_xls' %}">Export all</a>
 {% endblock %}
 
 {% block DialogEntry %}
@@ -300,7 +300,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee',
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee', 'Emp_Mobile',
 							'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From','Equipment', 'Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -313,6 +313,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							{ name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'fk_employee', index: 'fk_employee', hidden: true, },
 							{ name: 'for_employee', index: 'for_employee', width: 110, sortable: true, editable: false, align: 'left', },
+							{ name: 'mobile',index:'mobile', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true, },
 							{ name: 'eks_employee', index: 'eks_employee', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_responsibleperson', index: 'fk_responsibleperson', hidden: true, },
@@ -345,11 +346,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						rowList: [20, 50, 100, 200, 300, 500],
 						sortname: "idapp",
 						sortorder: "desc",
-						multiSort: true,
+						multiSort: false,
 						shrinkToFit: false,
 						iconSet: "fontAwesome",
 						forceFit: true,
 						toolbar: true,
+						gridview: true,
 						scrollrows: true,
 						hidegrid: true,
 						caption: "Transactions ---Goods Outwards",
@@ -362,7 +364,6 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						del: false,
 						refresh: true
 					});
-
 				} catch (e) {
 					ShowAlert(e.message);
 					console.log(e);
@@ -371,7 +372,19 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				$("div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
 					'width': 'inherit'
 				})
-			}		
+			}
+			//set href link excel
+			var linkExcel = NA.common.getElementID('Export_Goods_Outwards_xls');
+			linkExcel.setAttribute('target', '_self')
+			lnkUrl = linkExcel.getAttribute('href');
+			var myUrl = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'url');
+			//myUrl += "?myextraparam=something";
+			var postData = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'postData');
+			$.each(postData, function (key, value) {
+				myUrl += "&" + key + "=" + encodeURIComponent(value);
+			});
+			lnkUrl = myUrl.replace('NA_Goods_Outwards_Search', 'ExportToExcel')
+			linkExcel.setAttribute('href', lnkUrl);		
 		};
 
 		LoadData();
@@ -1114,7 +1127,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		}
 		function handlerSearchInput(event) {
 			event = NA.NAEvent.getEvent(event);
-			if (event.keyCode === 13 || event.target == btnSearchMaster) {
+			if (event.keyCode === 13 || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster ) {
 				NA.NAEvent.preventDefault(event);
 				var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
                 SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
@@ -1157,9 +1170,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 					$('body #prt-container').remove();	
 				}
 			});
-
 			// remove print container style and div from DOM after printing is done.
-
 		};
 		function printToPDF() {
 			urlReport = 'getReportAdHoc/';
@@ -1314,17 +1325,62 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				//	maxlength: 40 // maxlength for visible string data
 				//	});
 				//get hidden column
-				var columnsHiddend = [];
-				$("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'colModel').forEach(function (objCol) {
-					if (objCol.hasOwnProperty('hidden')) {
-						if (objCol['hidden']) {
-							columnsHiddend.push(objCol['name']);
-						}
-					}
-				});
+				//	var columnsHiddend = [];
+				//	$("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'colModel').forEach(function (objCol) {
+				//		if (objCol.hasOwnProperty('hidden')) {
+				//			if (objCol['hidden']) {
+				//				columnsHiddend.push(objCol['name']);
+				//			}
+				//		}
+				//	});
 
-				JSONToCSVConvertor(JSON.stringify(grid.jqGrid('getRowData')), 'Goods_Outwards', true, columnsHiddend);
-			}
+				//	JSONToCSVConvertor(JSON.stringify(grid.jqGrid('getRowData')), 'Goods_Outwards', true, columnsHiddend);
+				//var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+				//	'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+				//	'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+				//	'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+				//var myUrl = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'url');
+				////myUrl += "?myextraparam=something";
+				//var postData = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'postData');
+				//$.each(postData, function (key, value) {
+				//	myUrl += "&" + key + "=" + encodeURIComponent(value);
+				//});
+				//myUrl = myUrl.replace('NA_Goods_Outwards_Search','ExportToExcel')
+				//var NAAjax = NA.common.AJAX;
+				//NAAjax.GET(myUrl,
+				//	'blob',//overrideMimeType returned by the server
+				//	function () { window.document.body.style.cursor = 'wait'; },
+				//	null,//nggak usah di isi bila tidak perlu
+				//	function () {//function executed after data has been returned by server(XHR.onload)
+				//		let filename = "";
+				//		let disposition = NAAjax.XHR.getResponseHeader('Content-Disposition');
+				//		// check if filename is given
+				//		if (disposition && disposition.indexOf('attachment') !== -1) {
+				//			let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+				//			let matches = filenameRegex.exec(disposition);
+				//			if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+				//		}
+				//		let blob = this.response;
+				//		if (window.navigator.msSaveOrOpenBlob) {
+				//			window.navigator.msSaveBlob(blob, filename);
+				//		}
+				//		else {
+				//			let downloadLink = window.document.createElement('a');
+				//			let contentTypeHeader = NAAjax.XHR.getResponseHeader("Content-Type");
+				//			downloadLink.href = window.URL.createObjectURL(new Blob([blob], { type: contentTypeHeader }));
+				//			downloadLink.download = filename;
+				//			document.body.appendChild(downloadLink);
+				//			downloadLink.click();
+				//			document.body.removeChild(downloadLink);
+				//		}
+				//	}, null, function () {//function untuk ajax error
+				//		window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+				//	}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+				//	null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+				//);
+				var linkExcel = NA.common.getElementID('Export_Goods_Outwards_xls');
+				linkExcel.click();
+			}//
 		};
 		//function untuk Reset
 		function submitReset(event) {
@@ -1810,9 +1866,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 													NA.NAEvent.preventDefault(evt);//prevent from submit
 													NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
                                                         'application/json',//overrideMimeType returned by the server
-                                                        function (e) { window.document.body.style.cursor = 'wait'; },
+                                                        function () { window.document.body.style.cursor = 'wait'; },
                                                         null,//nggak usah di isi bila tidak perlu
-                                                        function (e) {//function executed after data has been returned by server(XHR.onload)
+                                                        function () {//function executed after data has been returned by server(XHR.onload)
                                                         	var data = JSON.parse(this.responseText);
                                                         	if (data.message) {
                                                         		window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
@@ -1821,20 +1877,26 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
                                                         		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
 																var lastinfo = data['lastinfo'] // goods is able to use
 																var validInfo = ['is able to use', 'goods is new and able to use'];
-																if (lastinfo.indexOf(validInfo[0]) || lastinfo.indexOf(validInfo[1]) >= 0) {
+																if (lastinfo.indexOf(validInfo[0]) >= 0|| lastinfo.indexOf(validInfo[1]) >= 0) {
 																	fillGoodsInfo(data,evt.target.value,true);
+																	EnabledAllEntry();
 																}
 																else {																	
 																	ShowAlert(lastinfo, 'Please choose other one',calbackOnHide=function(){
-																		var target = evt.getTarget();
+																		var target = evt.target;
 																		target.value = '';
+																		clearEntry();
+																		disabledAllEntry();
+																		target.removeAttribute('disabled');
+																		btnFindGoods.removeAttribute('disabled');
+
 																	} ); win.document.body.style.cursor = 'default';
 																	return false;
 																}
                                                         	}
-                                                        }, null, function (e) {//function untuk ajax error
+                                                        }, null, function () {//function untuk ajax error
                                                         	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                                                        }, function (e) { window.document.body.style.cursor = 'default'; },//function ajax complete
+                                                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
                                                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                                         );
 													break;
@@ -1853,8 +1915,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 								});//end Array.prototype.forEach.call(listFK, function (item)
 								originalData = JSON.stringify(getValuesForm());
 
-								//==============date request=============
 								if (win.status !== 'Add') {
+									//==============date request=============
 									var eloriginalData = JSON.parse(originalData);
 									var valDaterequest = new Date(eloriginalData.daterequest);
 									$("#id_daterequest").datepicker("setDate", valDaterequest);

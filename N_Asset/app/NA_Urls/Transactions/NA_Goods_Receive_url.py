@@ -18,6 +18,7 @@ urlpatterns = [
 	url(r'^getRefNO/$',NA_Goods_Receive_View.getRefNO,name='getRefNO'),
 	url(r'^deleteDetail/$',NA_Goods_Receive_View.deleteDetail,name='deleteDetail'),
 	url(r'^customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter_Receiving'),
-	url(r'^HasExistSN/$',NA_Goods_Receive_View.ExistSerialNO)
-
+	url(r'^HasExistSN/$', NA_Goods_Receive_View.ExistSerialNO),
+	url(r'^getReceiveDetail/$', NA_Goods_Receive_View.getReceiveDetail),
+	url(r'^ExportToExcel/$',NA_Goods_Receive_View.export_to_excels,name='export_goods_xls')
 ]

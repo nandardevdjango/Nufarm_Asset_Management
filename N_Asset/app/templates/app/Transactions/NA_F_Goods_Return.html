@@ -143,7 +143,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     datatype: 'json',
                     mtype: 'GET',
 					//idapp,goods,serialnumber,fromemployee,usedemployee,datereturn,conditions,minus,iscompleted,fk_goods_lend,descriptions,createddate,createdby
-                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'Returned By', 'Used By', 'Date Return', 'conditions', 'Minus', 'Is Completed', 'Descriptions', 'Createddate', 'Createdby'],
+                    colNames: ['idapp', 'No', 'Goods','Serial Number', 'Returned By', 'Used By', 'Date Return', 'conditions', 'Minus', 'Completed', 'Accepted','Descriptions', 'Createddate', 'Createdby'],
                     colModel: [
                         {
                         	name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true, editoptions: {
@@ -172,9 +172,15 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                             },
                             align: 'center'
                         },
-                        { name: 'descriptions', index: 'descriptions', width: 200, editable: true, search: false },
+                        {name : 'isaccepted',index:'isaccepted', width: 110, editable: true, search: false,
+                            formatter: 'checkbox', edittype: 'checkbox', editoptions: {
+                                value: '1:0'
+                            },
+                            align: 'center'
+                        },
+                        { name: 'descriptions', index: 'descriptions', width: 250, editable: true, search: false },
                         {
-                            name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false,
+                            name: 'createddate', index: 'createddate', width: 175, align: 'left', editable: false, search: false,
                             formatter: 'date', formatoptions: { srcformat: 'Y-m-dTH:i:s', newformat: 'd F Y H:i:s' }
                         },
                         {
@@ -192,7 +198,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     },
                     pager: $('#NA_Goods_Return_pager'),
                     rowList: [20, 50, 100, 200, 300, 500],
-                    rowNum: 5,
+                    rowNum: 100,
                     //loadui: 'disable', // Disable Loading Text
                     cellEdit: false,
                     sortname: 'idapp',
@@ -436,7 +442,8 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
 			fromemployee:qs('input#id_fromemployee').value.trim(),
             datereturn: qs('input#id_datereturn').value.trim(),
             conditions: qs('select#id_conditions').value.trim(),
-			iscompleted:qs('input#id_iscompleted').checked,
+            iscompleted:qs('input#id_iscompleted').checked,
+            isaccepted:qs('input#id_isaccepted').checked,
             minus: qs('input#id_minus').value.trim(),
             descriptions: qs('textarea#id_descriptions').value.trim()
         };

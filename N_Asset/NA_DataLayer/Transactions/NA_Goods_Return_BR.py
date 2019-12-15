@@ -8,7 +8,7 @@ class NA_BR_Goods_Return(models.Manager):
 	def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
 		cur = connection.cursor()
 		rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
-		Query = """SELECT ngr.idapp,ngr.datereturn,CASE ngr.conditions WHEN 1 THEN 'Good' WHEN 2 THEN 'Less Good' WHEN 4 THEN 'Broken' ELSE 'Undetermined' END AS conditions, ngr.iscompleted,ngr.minusDesc,ngr.typeapp,ngr.serialnumber,
+		Query = """SELECT ngr.idapp,ngr.datereturn,CASE ngr.conditions WHEN 1 THEN 'Good' WHEN 2 THEN 'Less Good' WHEN 3 THEN 'Broken' ELSE 'Undetermined' END AS conditions, ngr.iscompleted,ngr.isaccepted,ngr.minusDesc,ngr.typeapp,ngr.serialnumber,
 		ngr.descriptions, ngr.createddate, ngr.createdby, CONCAT(g.goodsname,' ',IFNULL(ngd.BrandName,g.BrandName),IFNULL(ngd.typeapp,'')) AS goods,emp1.fromemployee,
 		emp2.usedemployee FROM n_a_goods_return ngr INNER JOIN n_a_goods g ON ngr.fk_goods = g.idapp
 		INNER JOIN n_a_goods_receive_detail ngd ON ngd.serialnumber = ngr.serialnumber LEFT OUTER JOIN 
@@ -27,7 +27,7 @@ class NA_BR_Goods_Return(models.Manager):
 				'FK_Goods': data['fk_goods'], 'TypeApp': data['typeApp'], 'SerialNumber': data['serialNumber'],
 				'DateReturn': data['datereturn'], 'Conditions': data['conditions'],
 				'FK_fromemployee': data['idapp_fromemployee'], 'FK_usedemployee': data['idapp_usedemployee'],
-				'IsCompleted': data['iscompleted'], 'MinusDesc': data['minus'],
+				'IsCompleted': data['iscompleted'], 'MinusDesc': data['minus'], 'IsAccepted': data['isaccepted'],
 				'Descriptions': data['descriptions']
 			}
 			fk_stock = None
@@ -46,7 +46,7 @@ class NA_BR_Goods_Return(models.Manager):
 					Params[fromgoods] = value_fromgoods				
 					Query = """INSERT INTO n_a_goods_return 
 					(fk_goods,typeapp,serialnumber,datereturn,conditions,fk_fromemployee,fk_usedemployee,iscompleted,minusDesc,
-					descriptions,createddate,createdby,""" + fromgoods + ")"
+					isaccepted,descriptions,createddate,createdby,""" + fromgoods + ")"
 					Query += """VALUES({})""".format(','.join('%(' +
 																i+')s' for i in Params))
 					cur.execute(Query, Params)
@@ -68,7 +68,7 @@ class NA_BR_Goods_Return(models.Manager):
 					Params['IDApp'] = data['idapp']
 					Query = """UPDATE n_a_goods_return SET fk_goods=%(FK_Goods)s, typeapp=%(TypeApp)s, serialnumber=%(SerialNumber)s,
 					datereturn=%(DateReturn)s, conditions=%(Conditions)s, fk_fromemployee=%(FK_fromemployee)s, fk_usedemployee=%(FK_usedemployee)s,
-					iscompleted=%(IsCompleted)s, minusDesc=%(MinusDesc)s, descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,
+					iscompleted=%(IsCompleted)s,isaccepted=%(IsAccepted)s, minusDesc=%(MinusDesc)s, descriptions=%(Descriptions)s, modifieddate=%(ModifiedDate)s,
 					modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
 					cur.execute(Query, Params)
 				Query = """SELECT IDApp FROM n_a_stock WHERE FK_Goods = %(FK_Goods)s LIMIT 1"""
@@ -153,7 +153,7 @@ class NA_BR_Goods_Return(models.Manager):
 	def retrieveData(self, idapp):
 		cur = connection.cursor()
 		Query = """SELECT ngr.typeApp,ngr.serialNumber,ngr.fk_goods,ngr.datereturn,ngr.conditions,
-		ngr.minusDesc AS minus, ngr.iscompleted,ngr.fk_goods_outwards AS idapp_fk_goods_outwards,
+		ngr.minusDesc AS minus, ngr.iscompleted,ngr.isaccepted,ngr.fk_goods_outwards AS idapp_fk_goods_outwards,
 		ngr.fk_goods_lend AS idapp_fk_goods_outwards, ngr.descriptions,
 		CONCAT(g.goodsname,' ',IFNULL(ngd.BrandName,g.BrandName),IFNULL(ngd.typeapp,'')) AS goods,g.itemcode,emp1.fromemployee,
 		emp1.nik_fromemployee,emp1.idapp_fromemployee,emp2.usedemployee,emp2.nik_usedemployee,

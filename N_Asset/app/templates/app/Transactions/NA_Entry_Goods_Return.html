@@ -78,8 +78,14 @@
 
         <div class="NA-Entry-div-row" style="display:flex;flex-flow:row nowrap">
             <div class="NA-Entry-inlinve-div" style="display:inline-flex">
-                <label for="id_datereturn" class="inline-field" style="width:112px;margin-right: 5px;text-align:left;">Date Return</label>
+                <label for="id_datereturn" class="inline-field" style="width:112px;margin-right: 5px;text-align:left;">Date
+                    Return</label>
                 {{ form.datereturn }}
+            </div>
+            <div class="NA-Entry-inlinve-div" style="display:inline-flex">
+                <label for="id_isaccepted" style="margin-left: 20px;">
+                   Is Accepted {{ form.isaccepted }}
+                </label>            
             </div>
         </div>
         <div class="NA-Entry-div-row" style="display:flex;flex-flow:row nowrap">

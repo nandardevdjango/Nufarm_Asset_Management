@@ -13,6 +13,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import F, Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import operator
 def NA_Goods_Lost(request):
     return render(request,'app/MasterData/NA_F_GoodsLost.html')
 
@@ -28,7 +29,8 @@ def NA_GoodsLost_GetData(request):
     getColumn = commonFunct.retriveColumn(
 		table=[NAGoodsLost,goods],resolve=IcolumnName,
 		initial_name=['gls','g','empl1','empl2','empl3'],
-		custom_fields=[['used_by'],['lost_by'],['resp_person']])
+		custom_fields=[['used_by'], ['lost_by'], ['resp_person']]
+    )        
     criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
     dataType = ResolveCriteria.getDataType(str(IdataType))
     accData = NAGoodsLost.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType,Isidx,Isord)
@@ -43,7 +45,7 @@ def NA_GoodsLost_GetData(request):
     for row in dataRows.object_list:
         i +=1
         datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['fromgoods'],row['used_by'],\
-            row['lost_by'],row['resp_person'],row['descriptions'],row['createddate'],row['createdby']]}
+            row['lost_by'],row['resp_person'],row['reason'],row['descriptions'],row['createddate'],row['createdby']]}
         rows.append(datarow)
     results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
@@ -71,15 +73,15 @@ class NA_GoodsLost_Form(forms.Form):
     typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','disabled':'disabled','placeholder':'Type of goods','style':'width:130px'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Serial Number', 'style': 'width:98.9%'}))
+        'class': 'NA-Form-Control cust-horizontal','autocomplete':'off', 'placeholder': 'Serial Number', 'style': 'width:98.9%'}))
 
     nik_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
-        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Nik', 'style': 'width:130px', 'disabled': 'disabled'}))
+        'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Nik', 'autocomplete': 'off', 'style': 'width:130px', 'disabled': 'disabled'}))
     empl_used = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class': 'NA-Form-Control cust-horizontal', 'placeholder': 'Employee who keeps', 'style': 'width:345px', 'disabled':'disabled'}))
     fk_lostby = forms.IntegerField(required=True,widget=forms.HiddenInput())
     nik_lostby = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','style':'width:130px'}))
+        'class':'NA-Form-Control cust-horizontal','placeholder':'Nik','autocomplete':'off','style':'width:130px'}))
     empl_lostby = forms.CharField(required=False,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control cust-horizontal','placeholder':'Employee who lost goods','disabled':'disabled'}))
     nik_resp = forms.CharField(required=True,widget=forms.TextInput(attrs={
@@ -98,21 +100,23 @@ class NA_GoodsLost_Form(forms.Form):
     fk_usedby = forms.IntegerField(required=False, widget=forms.HiddenInput())
     fk_goods_outwards = forms.IntegerField(required=False,widget=forms.HiddenInput())
     fk_goods_lending = forms.IntegerField(required=False,widget=forms.HiddenInput())
-    fk_maintenance = forms.IntegerField(required=False,widget=forms.HiddenInput())
+    fk_maintenance = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    fk_goods_return = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    hasRefData = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
-def getFormData(request, forms, **kwargs):
+def getFormData(request, forms):
     clData = forms.cleaned_data
     data = {
         'fk_goods': clData['fk_goods'],'goods': clData['goods'],'typeApp':clData['typeApp'],
         'serialnumber':clData['serialNumber'],'fk_fromgoods':clData['fk_fromgoods'],'fk_goods_outwards': clData['fk_goods_outwards'],
-        'fk_goods_lending': clData['fk_goods_lending'], 'fk_maintenance': clData['fk_maintenance'], 'fk_lostby': clData['fk_lostby'],
+        'fk_goods_lending': clData['fk_goods_lending'], 'fk_maintenance': clData['fk_maintenance'], 'fk_goods_return': clData['fk_goods_return'], 'fk_lostby': clData['fk_lostby'],
         'fk_responsibleperson': clData['fk_responsibleperson'], 'fk_usedby': clData['fk_usedby'], 'nik_used': clData['nik_used'], 'nik_resp': clData['nik_resp'],
-        'nik_lostby':clData['nik_lostby'],
+        'nik_lostby':clData['nik_lostby'],'status':clData['status_goods'],
         'datelost':clData['datelost'],'reason':clData['reason'],'descriptions': clData['descriptions']
         }
-    if 'status_form' in kwargs:
-        if kwargs['status_form'] == 'Edit' or kwargs['status_form'] == 'Open':
-            data['status_goods'] = request.POST['status_goods']
+    #if 'status_form' in kwargs:
+    #    if kwargs['status_form'] == 'Edit' or kwargs['status_form'] == 'Open':
+    #        data['status_goods'] = request.POST['status_goods']
     return data
 @ensure_csrf_cookie
 def EntryGoods_Lost(request):
@@ -137,8 +141,10 @@ def EntryGoods_Lost(request):
                             data['fk_goods_outwards']) == 0 else data['fk_goods_outwards']))
                 data.update(fk_goods_lending=(None if int(
                             data['fk_goods_lending']) == 0 else data['fk_goods_lending']))
+                data.update(fk_goods_return=(None if int(
+                            data['fk_goods_return']) == 0 else data['fk_goods_return']))
                 data.update(fk_maintenance=(None if int(
-                                data['fk_maintenance']) == 0 else data['fk_maintenance']))
+                            data['fk_maintenance']) == 0 else data['fk_maintenance']))
                 data['createddate'] = createddate
                 data['createdby'] = createdby
                 #chek NIK
@@ -161,8 +167,8 @@ def EntryGoods_Lost(request):
                 #    statusResp = 500
                 #return HttpResponse(json.dumps(result), status=statusResp, content_type='application/json')
             elif statusForm == 'Edit':
-                data = getFormData(request, form, status_form='Edit')
-                data.update(fk_lostby=(None if int(
+                data = getFormData(request, form)
+                data.update(fk_responsibleperson=(None if int(
                             data['fk_responsibleperson']) == 0 else data['fk_responsibleperson']))
                 data.update(fk_lostby=(None if int(
                             data['fk_lostby']) == 0 else data['fk_lostby']))
@@ -172,6 +178,8 @@ def EntryGoods_Lost(request):
                             data['fk_goods_lending']) == 0 else data['fk_goods_lending']))
                 data.update(fk_maintenance=(None if int(
                             data['fk_maintenance']) == 0 else data['fk_maintenance']))
+                data.update(fk_goods_return=(None if int(
+                            data['fk_goods_return']) == 0 else data['fk_goods_return']))
                 idapp = request.POST['idapp']
                 data['idapp'] = idapp
                 data['modifieddate'] = datetime.now()
@@ -188,6 +196,8 @@ def EntryGoods_Lost(request):
         statusForm = request.GET['statusForm']
         if statusForm == 'Edit' or statusForm == 'Open':
             result = NAGoodsLost.objects.retriveData(idapp)
+            result[1].update(hasRefData=False)#set false saja karena table asset deletion belum di
+            result[1].update(initializeForm=json.dumps(result[1], cls=DjangoJSONEncoder))
             if result[0] == 'success':
                 form = NA_GoodsLost_Form(initial=result[1])
                 #form.fields['status_goods'] = forms.ChoiceField(required=False,widget=forms.Select(attrs={
@@ -241,12 +251,16 @@ def SearchGoodsbyForm(request):
     goodsFilter = request.GET.get('goods_filter')
     tabs_section = request.GET.get('tab_section')
     Ilimit = request.GET.get('rows', '')
+    
     NAData = NAGoodsLost.objects.searchGoods_byForm({'goods_filter':goodsFilter,'tab_section':tabs_section})
     if NAData[1] == []:
         results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
     else:
-        totalRecord = len(NAData[1])
-        paginator = Paginator(NAData[1], int(Ilimit)) 
+        newList = sorted(NAData[1], key=lambda k: k[Isidx],
+                         reverse=True if Isord == 'desc' else False)
+        #NAData[1].sort(key=operator.itemgetter(tuple(Isord.split(','))))
+        totalRecord = len(newList)
+        paginator = Paginator(newList, int(Ilimit)) 
         try:
             page = request.GET.get('page', '1')
         except ValueError:
@@ -263,6 +277,15 @@ def SearchGoodsbyForm(request):
                 i+=1
                 datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],row['fk_goods'],i,row['itemcode'],row['goods'],\
                     row['serialnumber'],row['tbl_name']]}
+                rows.append(datarow)
+        elif NAData[0] == 'g_return':
+            #idapp	fk_goods	itemcode	goods	serialnumber	tbl_name	fk_employee	nik_employee from_employee	fk_usedemployee,nik_used	used_employee	datereturn	iscompleted	minusdesc
+
+            for row in dataRows.object_list:
+                i+=1
+                datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],row['fk_goods'],i,row['itemcode'],row['goods'],\
+                            row['serialnumber'], row['tbl_name'], row['fk_usedemployee'],
+                    row['nik_used'], row['used_employee'], 0, '', '', row['fk_employee'], row['nik_employee'], row['from_employee'], row['datereturn'], row['iscompleted'], row['minusdesc']]}
                 rows.append(datarow)
         else:
             for row in dataRows.object_list:

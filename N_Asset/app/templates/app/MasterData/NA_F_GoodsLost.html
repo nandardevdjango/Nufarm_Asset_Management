@@ -92,7 +92,7 @@
     var gLost_grid = $("#NA_GoodsLost_grid");
     var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
-        qs = NA.common.qs,
+        qs = NA.common.qs, originalData = null;
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
         var NA_Ajax = NA.common.AJAX;
@@ -108,18 +108,19 @@
                     url: url,
                     datatype: 'json',
                     mtype: 'GET',
-                    colNames: ['idapp', 'No', 'Goods', 'Item code', 'Serial Number', 'From goods', 'Used by', 'Lost by', 'Responsible Person', 'Descriptions', 'Createddate', 'Createdby'],
+                    colNames: ['idapp', 'No', 'Goods', 'Item code', 'Serial Number', 'Last Goods Possition', 'Used by', 'Lost by', 'Responsible Person', 'by reason', 'Descriptions', 'Createddate', 'Createdby'],
                     colModel: [
                         { name: 'idapp', index: 'idapp', width: 65, search: false, editable: false, hidden: true, key: true, editoptions: { dataInit: function (element) { jq(element).attr("readonly", "readonly"); } } },
                         { name: 'no', index: 'no', width: 45, align: 'center' },
                         { name: 'goods', index: 'goodsname', width: 150, editable: true, search: false, sortable: true },
                         //{ name: 'brandname', index: 'brandname', width: 150, editable: true, sortable: true },
                         { name: 'itemcode', index: 'typeapp', width: 80, align: 'left', editable: false, search: false },
-                        { name: 'serialnumber', index: 'serialnumber', width: 150, align: 'left', editable: false, search: false },
-                        { name: 'fk_fromgoods', index: 'fk_fromgoods', width: 120, align: 'left', editable: false, search: false },
+                        { name: 'serialnumber', index: 'serialnumber', width: 180, align: 'left', editable: false, search: false },
+                        { name: 'fk_fromgoods', index: 'fromgoods', width: 120, align: 'left', editable: false, search: false },
                         { name: 'usedby', index: 'usedby', width: 120, editable: false },
                         { name: 'lostby', index: 'lostby', width: 120, editable: false },
                         { name: 'resp_person', index: 'resp_person', width: 120, editable: false },
+                        { name: 'reason', index: 'reason', width: 200, editable: false },
                         { name: 'descriptions', index: 'descriptions', width: 200, editable: true, search: false },
                         {
                             name: 'createddate', index: 'createddate', width: 175, align: 'center', editable: false, search: false,
@@ -375,12 +376,13 @@
                 fk_lostby: qs('input#id_fk_lostby').value || 0,
                 fk_goods_outwards: qs('input#id_fk_goods_outwards').value || 0,
                 fk_goods_lending: qs('input#id_fk_goods_lending').value || 0,
+                fk_goods_return: qs('input#id_fk_goods_return').value || 0,
                 fk_maintenance: qs('input#id_fk_maintenance').value || 0,
                 fk_fromgoods: qs('input#id_fk_fromgoods').value,
-                nik_used : qs('input#id_nik_used').value,
-                nik_resp : qs('input#id_nik_resp').value,
-                nik_lostby : qs('input#id_nik_lostby').value,            
-                datelost: (function(){
+                nik_used: qs('input#id_nik_used').value,
+                nik_resp: qs('input#id_nik_resp').value,
+                nik_lostby: qs('input#id_nik_lostby').value,
+                datelost: (function () {
                     var FDate = $('input#id_datelost').val();
                     FDate = $.datepicker.parseDate('dd/mm/yy', FDate);
                     return NA.common.GetServerFormatDate(FDate);
@@ -515,9 +517,8 @@
                         //check if data has changed with javascrispt
                         initializeForm = NA.common.getElementID('id_initializeForm');
                         if (status === 'Open' || initializeForm.value == '') { NA.common.dialog.closeDialog(dialog); return false; }
-                        var originalData = JSON.parse(initializeForm.value);
                         var valuesForm = getValues_Form();
-                        if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                        if (NA.common.detectInputChanges(JSON.parse(originalData), valuesForm)) {
                             return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.confirmInfo,
                                 function () {
                                     if (!frmEntry.checkValidity()) {
@@ -543,11 +544,9 @@
                 switch (TextElement) {
                     case 'Cancel':
                     case 'Close': {
-                        var initializeEmail = NA.common.getElementID('initializeEmail');
-                        var originalData = initializeEmail.value;
+                        //var initializeEmail = NA.common.getElementID('initializeEmail');
                         var valuesForm = getValues_emailForm();
-
-                        if (NA.common.detectInputChanges(originalData, valuesForm)) {
+                        if (NA.common.detectInputChanges(JSON.parse(originalData), valuesForm)) {
                             if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
                                 if (!emailForm.checkValidity()) {
                                     //NA.NAEvent.preventDefault(event);   
@@ -567,9 +566,18 @@
                 }
             }
         };
+        function formatDate(theDate) {//date/month/year
+            var date = new Date(theDate),
+                year = date.getFullYear(),
+                month = (date.getMonth() + 1).toString(),
+                formatedMonth = (month.length === 1) ? ("0" + month) : month,
+                day = date.getDate().toString(),
+                formatedDay = (day.length === 1) ? ("0" + day) : day;
+            return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
+        };
         function restyleBoostrapDialog() {
             var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
-            BSDialogContent.style.cssText = 'width: 500px; height: 330px;';
+            BSDialogContent.style.cssText = 'width: 520px; height: 430px;';
             var ContentBody = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-body');
             ContentBody.style.cssText = 'padding:0px;';
             var contentFooter = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content>.modal-footer');
@@ -688,7 +696,7 @@
                                 NA.common.loadScript(jspdf_autoTable, content_0, 'jspdf_autoTable');
                                 NA.common.loadScript(emailDataJS, content_0, 'emailData_scripts');
                             };
-                            var originalData = getValues_emailForm();
+                            originalData = getValues_emailForm();
                             var initializeEmail = NA.common.getElementID('initializeEmail');
                             initializeEmail.value = originalData;
 
@@ -733,7 +741,7 @@
                                             setTimeout(function () {
                                                 $('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
                                                 var fromgoods = qs('input#id_fk_fromgoods')
-                                                fromgoods.value = getGridCellValue(gLost_grid, 'fk_fromgoods');
+                                                //fromgoods.value = getGridCellValue(gLost_grid, 'fk_fromgoods');
                                             }, 100)
                                         }
                                     case 'Open': {
@@ -741,44 +749,60 @@
                                         break;
                                     }
                                 };
+
+                                var fk_goods = qs('input#id_fk_goods'),
+                                    itemcode = qs('input#id_itemcode'),
+                                    goods = qs('input#id_goods'),
+                                    btn_fkGoods = qs('button#fk_goods'),
+                                    btnfindResp = qs('button#btnfindResp'),
+                                    typeApp = qs('input#id_typeApp'),
+                                    serialnumber = qs('input#id_serialNumber'),
+                                    fk_goods_outwards = qs('input#id_fk_goods_outwards'),
+                                    fk_goods_lending = qs('input#id_fk_goods_lending'),
+                                    fk_maintenance = qs('input#id_fk_maintenance'),
+                                    fk_goods_return = qs('input#id_fk_goods_return'),
+                                    fk_usedby = qs('input#id_fk_usedby'),
+                                    nik_used = qs('input#id_nik_used'),
+                                    empl_used = qs('input#id_empl_used'),
+
+                                    fk_responsibleperson = qs('input#id_fk_responsibleperson'),
+                                    nik_resp = qs('input#id_nik_resp'),
+                                    empl_resp = qs('input#id_empl_resp'),
+
+                                    fk_lostby = qs('input#id_fk_lostby'),
+                                    nik_lostby = qs('input#id_nik_lostby'),
+                                    empl_lostby = qs('input#id_empl_lostby'),
+
+                                    btn_fkLostby = qs('button#fk_lostby'),
+                                    fk_fromGoods = qs('input[type="hidden"]#id_fk_fromgoods');
+                                //simpan original data di initializeForm
+                                originalData = JSON.stringify(JSON.parse(NA.common.getElementID('id_initializeForm').value));
+                                $('input#id_datelost').datepicker({
+                                    dateFormat: 'dd/mm/yy',
+                                    changeMonth: true,
+                                    changeYear: true,
+                                    dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
+                                    showButtonPanel: true,
+                                    closeText: "Close",
+                                    currentText: 'Now',
+                                    minDate: (function (g) {
+                                        if (g.status === 'Edit') {
+                                            var eloriginalData = JSON.parse(originalData),
+                                                hasRef = eloriginalData['hasRefData'];
+                                            if (hasRef) { return 1; }
+                                            var valDateReq = new Date(eloriginalData.datelost);
+                                            return valDateReq;
+                                        }
+                                    })(win),
+                                }); 
+                                if (win.status !== 'Add') {
+                                    var valDatelost = new Date(NA.common.getElementID('id_datelost').value);
+                                    $("#id_datelost").datepicker("setDate", valDatelost);
+                                    //format value jadi dd//mm/yyy
+                                    $("#id_datelost").val(formatDate(valDatelost));
+                                }
+                                 originalData = JSON.stringify(getValues_Form());
                                 if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit       
-                                    //simpan original data di initializeForm
-                                    var originalData = JSON.stringify(getValues_Form());
-                                    var fk_goods = qs('input#id_fk_goods'),
-                                        itemcode = qs('input#id_itemcode'),
-                                        goods = qs('input#id_goods'),
-                                        btn_fkGoods = qs('button#fk_goods'),
-                                        btnfindResp = qs('button#btnfindResp'),
-                                        typeApp = qs('input#id_typeApp'),
-                                        serialnumber = qs('input#id_serialNumber'),
-                                        fk_goods_outwards = qs('input#id_fk_goods_outwards'),
-                                        fk_goods_lending = qs('input#id_fk_goods_lending'),
-                                        fk_maintenance = qs('input#id_fk_maintenance'),
-
-                                        fk_usedby = qs('input#id_fk_usedby'),
-                                        nik_used = qs('input#id_nik_used'),
-                                        empl_used = qs('input#id_empl_used'),
-
-                                        fk_responsibleperson = qs('input#id_fk_responsibleperson'),
-                                        nik_resp = qs('input#id_nik_resp'),
-                                        empl_resp = qs('input#id_empl_resp'),
-
-                                        fk_lostby = qs('input#id_fk_lostby'),
-                                        nik_lostby = qs('input#id_nik_lostby'),
-                                        empl_lostby = qs('input#id_empl_lostby'),
-
-                                        btn_fkLostby = qs('button#fk_lostby'),                                       
-                                        fk_fromGoods = qs('input[type="hidden"]#id_fk_fromgoods');
-                                    //============= Search Goods By Form ==============
-                                    $('input#id_datelost').datepicker({
-                                        dateFormat: 'dd/mm/yy',
-                                        changeMonth: true,
-                                        changeYear: true,
-                                        dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri ', 'Sat'],
-                                        showButtonPanel: true,
-                                        closeText: "Close",
-                                        currentText: 'Now'
-                                    });
                                     function loadData_byForm(tab, valSearch) {
                                         var gridTbl, gridTbl_pager_id, elGrid, Caption,
                                             urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;
@@ -786,6 +810,7 @@
                                         var hasGridOutwards = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_outwards'),
                                             hasGridLending = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_lending'),
                                             hasGridMaintenance = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_maintenance'),
+                                            hasGridreturn = NA.common.getElementID('gbox_NA_GoodsLost_FK_Goods_return'),
                                             hasGridCreated = false;
                                         if (tab === 'g_outwards') {
                                             if (hasGridOutwards) { hasGridCreated = true; }
@@ -799,7 +824,15 @@
                                             gridTbl = $('#NA_GoodsLost_FK_Goods_lending');
                                             gridTbl_pager_id = '#NA_GoodsLost_FK_Goods_lending_Pager';
                                             urlFKGoods += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_lending');
-                                        } else if (tab === 'g_maintenance') {
+                                        }
+                                        else if (tab === 'g_return') {
+                                            if (hasGridreturn) { hasGridCreated = true; }
+                                            Caption = 'Transaction -- Find goods return';
+                                            gridTbl = $('#NA_GoodsLost_FK_Goods_return');
+                                            gridTbl_pager_id = '#NA_GoodsLost_FK_Goods_return_Pager';
+                                            urlFKGoods += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_return');
+                                        }
+                                        else if (tab === 'g_maintenance') {
                                             if (hasGridMaintenance) { hasGridCreated = true; }
                                             Caption = 'Transaction -- Find goods maintenance';
                                             gridTbl = $('#NA_GoodsLost_FK_Goods_maintenance');
@@ -807,7 +840,8 @@
                                             urlFKGoods += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_maintenance');
                                         }
                                         var gridTbl_pager = $(gridTbl_pager_id);
-
+                                        //jQuery("#list").jqGrid('hideCol',["ColumnName","ColumnName2"]); hide column dynamically
+                                        //jQuery("#list").jqGrid('showCol',["colModel1_name","colModel2_name"]); show column dynamically
                                         var col_model = [
                                             { name: 'idapp', hidden: true, align: 'left' },
                                             { name: 'fk_goods', hidden: true, align: 'left' },
@@ -816,14 +850,28 @@
                                             { name: 'goods', index: 'goods', width: 220, sortable: true, editable: false, align: 'left' },
                                             { name: 'serialnumber', index: 'serialnumber', width: 150, sortable: true, editable: false, align: 'left' },
                                             { name: 'fromgoods', hidden: true, align: 'left' },
-                                            { name: 'fk_employee', hidden: true, align: 'left' },
-                                            { name: 'nik_empl', hidden: true, align: 'left' },
-                                            { name :'used_employee',hidden:true},
-                                            { name: 'fk_resp', hidden: true, align: 'left' },                                            
+                                            { name: 'fk_usedemployee', hidden: true, align: 'left' },
+                                            { name: 'nik_usedemployee', hidden: true, align: 'left' },
+                                            { name: 'used_employee', hidden: true, index: 'used_employee', width: 120, sortable: true, editable: false, align: 'left', },
+                                            { name: 'fk_resp', hidden: true, align: 'left' },
                                             { name: 'nik_resp', hidden: true, align: 'left' },
-                                            {name : 'emplyee_responsible',hidden:true}
+                                            { name: 'emplyee_responsible', hidden: true, align: 'left' },
+                                            { name: 'fk_employee', hidden: true, align: 'left' },
+                                            { name: 'nik_employee', hidden: true },
+                                            { name: 'from_employee', hidden: true, index: 'from_employee', width: 120, sortable: true, editable: false, align: 'left', },
+                                            {
+                                                 name: 'datereturn', hidden: true, index: 'datereturn', width: 110, sortable: true, editable: false, align: 'left', formatter: 'date',
+                                                formatoptions: {
+                                                    align: 'left',
+                                                    srcformat: 'Y-m-d', newformat: 'd F Y'
+                                                }
+                                            },
+                                            { name: 'iscompleted', hidden: true, index: 'iscompleted', width: 110, sortable: false, editable: false, formatter: 'checkbox', align: 'center' },
+                                            { name: 'minusdesc', hidden: true, index: 'minusdesc', sortable: true, editable: false, align: 'left',}
                                         ];
-                                        var col_names = ['idapp', 'fk goods', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'from goods', 'fk employee','nik employee', 'esed employee','fk resp',  'nik resp','employee responsible'];
+                                        var col_names = ['idapp', 'fk goods', 'NO', 'itemcode', 'goods Description', 'Serial Number', 'from goods',
+                                            'fk usedemployee', 'nik esedemployee', 'Last Used By', 'fk resp', 'nik resp', 'employee responsible', 'fk_employee',
+                                            'nik_employee', 'Returned By ', 'Date Return', 'Completed', 'Minus desc'];
                                         if (hasGridCreated) {
                                             jQuery(gridTbl).setGridParam({ url: urlFKGoods }).trigger("reloadGrid", [{ page: 1, }]);
                                         }
@@ -849,7 +897,7 @@
                                                 rowList: [20, 50, 100, 200, 300, 500],
                                                 sortname: "itemcode",
                                                 sortorder: "asc",
-                                                multiSort: true,
+                                                multiSort: false,
                                                 shrinkToFit: false,
                                                 iconSet: "fontAwesome",
                                                 //forceFit: true,
@@ -869,32 +917,63 @@
                                         }
                                         var elGrid_lending = qsAll('div#gbox_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_lending > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_lending_Pager')
                                         if (elGrid_lending) {
-                                            if ($('div#gbox_NA_GoodsLost_FK_Goods_lending').attr('style') !== "width: inherit;") {
-                                                Array.prototype.forEach.call(elGrid_lending, function (el) {
-                                                    el.style.width = 'inherit';
-                                                });
-                                            };
+                                            Array.prototype.forEach.call(elGrid_lending, function (el) {
+                                                el.style.width = 'inherit';
+                                            });
                                         }
                                         var elGrid_maintenance = qsAll('div#gbox_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_maintenance > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_maintenance_Pager')
                                         if (elGrid_maintenance) {
-                                            if ($('div#gbox_NA_GoodsLost_FK_Goods_maintenance').attr('style') !== "width: inherit;") {
-                                                Array.prototype.forEach.call(elGrid_maintenance, function (el) {
-                                                    el.style.width = 'inherit';
-                                                });
-                                            }
+                                            Array.prototype.forEach.call(elGrid_maintenance, function (el) {
+                                                el.style.width = 'inherit';
+                                            });
                                         }
-                                    };
+                                        var elGrid_return = qsAll('div#gbox_NA_GoodsLost_FK_Goods_return,div#gview_NA_GoodsLost_FK_Goods_return,div#gview_NA_GoodsLost_FK_Goods_return > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_return > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_return_Pager')
+                                        if (elGrid_return) {
+                                            Array.prototype.forEach.call(elGrid_return, function (el) {
+                                                el.style.width = 'inherit';
+                                            });
+                                        }
+                                        var allDiv = qsAll('.ui-jqgrid-view,.ui-jqgrid-hdiv ui-state-default,.ui-jqgrid-bdiv');
+                                        Array.prototype.forEach.call(allDiv, function (el) {
+                                            el.style.width = 'inherit';
+                                        });
+                                        if (tab === 'g_outwards') {
+                                            //show columns
+                                            gridTbl.jqGrid('showCol', ["used_employee"]);
+                                            //  //hide columns
+                                            gridTbl.jqGrid('hideCol', ["from_employee", "datereturn", "iscompleted", "minusdesc"]);
+                                        } else if (tab === 'g_lending') {
+                                            // //show columns
+                                            gridTbl.jqGrid('showCol', ["used_employee"]);
+                                            //hide columns
+                                            gridTbl.jqGrid('hideCol', ["from_employee", "datereturn", "iscompleted", "minusdesc"]);
+                                        }
+                                        else if (tab === 'g_return') {
+                                            if (hasGridreturn) { hasGridCreated = true; }
+                                            //show columns
+                                            gridTbl.jqGrid('showCol', ["used_employee", "from_employee", "datereturn", "iscompleted", "minusdesc"]);
+                                        }
+                                        else if (tab === 'g_maintenance') {
+                                            if (hasGridMaintenance) { hasGridCreated = true; }
+                                            //hide columns
+                                            gridTbl.jqGrid('hideCol', ["used_employee", "from_employee", "datereturn", "iscompleted", "minusdesc"]);
+                                        }
+                                        restyleBoostrapDialog();
+                                    };//end loadData_byForm
+                            //============= Search Goods By Form ==============
                                     function searchGoods(event) {
                                         var gridTbl_outwards = $('#NA_GoodsLost_FK_Goods_outwards'),
                                             gridTbl_lending = $('#NA_GoodsLost_FK_Goods_lending'),
-                                            gridTbl_maintenance = $('#NA_GoodsLost_FK_Goods_maintenance');
+                                            gridTbl_maintenance = $('#NA_GoodsLost_FK_Goods_maintenance'),
+                                            gridTbl_return = $('#NA_GoodsLost_FK_Goods_return');
+
                                         BootstrapDialog.show({
                                             draggable: true,
                                             type: BootstrapDialog.TYPE_SUCCESS,
                                             size: BootstrapDialog.SIZE_SMALL,
                                             title: 'Search Goods .. .',
                                             message: function (dialogRef) {
-                                                var placeHolder = 'Enter goods descriptions to search for .. .';
+                                                var placeHolder = 'Enter goods or serial number to search for .. .';
                                                 containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
                                                     function (e) {//event for blur
                                                         if (this.value === '') {
@@ -919,14 +998,18 @@
                                                             if (qs('div#tab_g_outwards').getAttribute('aria-hidden') == 'false') {
                                                                 url += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_outwards');
                                                                 $(gridTbl_outwards).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
-                                                            };
-                                                            if (qs('div#tab_g_lending').getAttribute('aria-hidden') == 'false') {
+                                                            }
+                                                            else if (qs('div#tab_g_lending').getAttribute('aria-hidden') == 'false') {
                                                                 url += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_lending');
                                                                 $(gridTbl_lending).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
-                                                            };
-                                                            if (qs('div#tab_g_maintenance').getAttribute('aria-hidden') == 'false') {
+                                                            }
+                                                            else if (qs('div#tab_g_maintenance').getAttribute('aria-hidden') == 'false') {
                                                                 url += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_maintenance');
                                                                 $(gridTbl_maintenance).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
+                                                            }
+                                                            else if (qs('div#tab_g_return').getAttribute('aria-hidden') == 'false') {
+                                                                url += '&' + win.encodeURIComponent('tab_section') + '=' + win.encodeURIComponent('g_return');
+                                                                $(gridTbl_return).setGridParam({ url: url, search: true }).trigger("reloadGrid", [{ page: 1, }]);
                                                             };
                                                             win.document.body.style.cursor = 'default';
                                                             NA.NAEvent.stopPropagation(e);
@@ -945,48 +1028,75 @@
 
                                                 //loads Data into JqueryGrid
                                                 var cont_tab = NA.common.doc.createElement('div'),
+
                                                     ul_tab = NA.common.doc.createElement('ul'),
                                                     li_tab_g_outwards = NA.common.doc.createElement('li'),
                                                     a_tab_g_outwards = NA.common.doc.createElement('a'),
                                                     tab_g_outwards = NA.common.doc.createElement('div'),
+
                                                     li_tab_g_lending = NA.common.doc.createElement('li'),
                                                     a_tab_g_lending = NA.common.doc.createElement('a'),
                                                     tab_g_lending = NA.common.doc.createElement('div'),
+
                                                     li_tab_g_maintenance = NA.common.doc.createElement('li'),
                                                     a_tab_g_maintenance = NA.common.doc.createElement('a'),
                                                     tab_g_maintenance = NA.common.doc.createElement('div');
+
+                                                li_tab_g_return = NA.common.doc.createElement('li'),
+                                                    a_tab_g_return = NA.common.doc.createElement('a'),
+                                                    tab_g_return = NA.common.doc.createElement('div');
+
                                                 cont_tab.id = 'cont_tab_goods_lost',
+
                                                     a_tab_g_outwards.href = '#tab_g_outwards',
                                                     a_tab_g_lending.href = '#tab_g_lending',
                                                     a_tab_g_maintenance.href = '#tab_g_maintenance',
+                                                    a_tab_g_return.href = '#tab_g_return',
+
                                                     tab_g_outwards.id = 'tab_g_outwards',
                                                     tab_g_outwards.style.padding = '4px',
+
                                                     tab_g_lending.id = 'tab_g_lending',
                                                     tab_g_lending.style.padding = '4px',
+
                                                     tab_g_maintenance.id = 'tab_g_maintenance',
-                                                    tab_g_maintenance.style.padding = '4px';
+                                                    tab_g_maintenance.style.padding = '4px',
+
+                                                    tab_g_return.id = 'tab_g_return',
+                                                    tab_g_return.style.padding = '4px';
+
                                                 a_tab_g_outwards.textContent = 'Goods Outwards',
                                                     NA.common.NA_setAttr(a_tab_g_outwards, {
                                                         'style': 'padding: 4px;font-size: 13px;'
                                                     });
+
                                                 a_tab_g_lending.textContent = 'Goods Lending',
                                                     NA.common.NA_setAttr(a_tab_g_lending, {
                                                         'style': 'padding: 4px;font-size: 13px;'
                                                     });
+
                                                 a_tab_g_maintenance.textContent = 'Goods Maintenance';
                                                 NA.common.NA_setAttr(a_tab_g_maintenance, {
                                                     'style': 'padding: 4px;font-size: 13px;'
                                                 });
-                                                cont_tab.appendChild(ul_tab);
-                                                ul_tab.appendChild(li_tab_g_outwards);
-                                                ul_tab.appendChild(li_tab_g_lending);
-                                                ul_tab.appendChild(li_tab_g_maintenance);
+
+                                                a_tab_g_return.textContent = 'Goods Return';
+                                                NA.common.NA_setAttr(a_tab_g_return, {
+                                                    'style': 'padding: 4px;font-size: 13px;'
+                                                });
+
+
                                                 li_tab_g_outwards.appendChild(a_tab_g_outwards);
                                                 li_tab_g_lending.appendChild(a_tab_g_lending);
                                                 li_tab_g_maintenance.appendChild(a_tab_g_maintenance);
-                                                cont_tab.appendChild(tab_g_outwards);
-                                                cont_tab.appendChild(tab_g_lending);
-                                                cont_tab.appendChild(tab_g_maintenance);
+                                                li_tab_g_return.appendChild(a_tab_g_return);
+
+                                                ul_tab.appendChild(li_tab_g_outwards);
+                                                ul_tab.appendChild(li_tab_g_lending);
+                                                ul_tab.appendChild(li_tab_g_maintenance);
+                                                ul_tab.appendChild(li_tab_g_return);
+
+                                                cont_tab.appendChild(ul_tab);
 
                                                 var gridTbl_outwards = NA.common.doc.createElement('table');
                                                 gridTbl_outwards.id = 'NA_GoodsLost_FK_Goods_outwards';
@@ -1008,6 +1118,19 @@
                                                 gridPager_maintenance.id = 'NA_GoodsLost_FK_Goods_maintenance_Pager';
                                                 tab_g_maintenance.appendChild(gridTbl_maintenance);
                                                 tab_g_maintenance.appendChild(gridPager_maintenance);
+
+                                                var gridTbl_return = NA.common.doc.createElement('table');
+                                                gridTbl_return.id = 'NA_GoodsLost_FK_Goods_return';
+                                                var gridPager_return = NA.common.doc.createElement('div');
+                                                gridPager_return.id = 'NA_GoodsLost_FK_Goods_return_Pager';
+                                                tab_g_return.appendChild(gridTbl_return);
+                                                tab_g_return.appendChild(gridPager_return);
+
+                                                cont_tab.appendChild(tab_g_outwards);
+                                                cont_tab.appendChild(tab_g_lending);
+                                                cont_tab.appendChild(tab_g_maintenance);
+                                                cont_tab.appendChild(tab_g_return);
+
                                                 mainContainer.appendChild(cont_tab);
                                                 return containerMessage;
                                             },
@@ -1028,13 +1151,19 @@
                                                         } else if (targetCurrent.text == 'Goods Maintenance') {
                                                             loadData_byForm('g_maintenance', valSearch);
                                                         }
+                                                        else if (targetCurrent.text == 'Goods Return') {
+                                                            loadData_byForm('g_return', valSearch);
+                                                        }
                                                     }
                                                 }); // tabs
                                                 elGrid_outwards = qsAll('div#gbox_NA_GoodsLost_FK_Goods_outwards,div#gview_NA_GoodsLost_FK_Goods_outwards,div#gview_NA_GoodsLost_FK_Goods_outwards > div.ui-jqgrid-hdiv,div#gview_NA_GoodsLost_FK_Goods_outwards > div.ui-jqgrid-bdiv, div#NA_GoodsLost_FK_Goods_outwards_Pager')
                                                 Array.prototype.forEach.call(elGrid_outwards, function (el) {
                                                     el.style.width = 'inherit';
                                                 });
-                                                restyleBoostrapDialog();
+                                                //show columns
+                                                gridTbl_outwards.jqGrid('showCol', ["used_employee"]);
+                                                gridTbl_outwards.jqGrid('hideCol', ["from_employee", "datereturn", "iscompleted", "minusdesc"]);
+                                                //restyleBoostrapDialog();
                                             },
                                             closable: false,
                                             animate: false,
@@ -1056,12 +1185,15 @@
                                                     var gridTbl;
                                                     if (qs('div#tab_g_lending').getAttribute('aria-hidden') == 'false') {
                                                         gridTbl = $('#NA_GoodsLost_FK_Goods_lending');
-                                                    };
-                                                    if (qs('div#tab_g_outwards').getAttribute('aria-hidden') == 'false') {
+                                                    }
+                                                    else if (qs('div#tab_g_outwards').getAttribute('aria-hidden') == 'false') {
                                                         gridTbl = $('#NA_GoodsLost_FK_Goods_outwards');
-                                                    };
-                                                    if (qs('div#tab_g_maintenance').getAttribute('aria-hidden') == 'false') {
+                                                    }
+                                                    else if (qs('div#tab_g_maintenance').getAttribute('aria-hidden') == 'false') {
                                                         gridTbl = $('#NA_GoodsLost_FK_Goods_maintenance');
+                                                    }
+                                                    else if (qs('div#tab_g_return').getAttribute('aria-hidden') == 'false') {
+                                                        gridTbl = $('#NA_GoodsLost_FK_Goods_return');
                                                     };
                                                     var rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
                                                         rowData = gridTbl.getRowData(rowId),
@@ -1073,35 +1205,45 @@
                                                     goods.value = rowData['goods'].match(/^\w+\ \w+/);
                                                     typeApp.value = rowData['goods'].match(/\w+$/);
                                                     serialnumber.value = rowData['serialnumber'];
-                                                    fk_usedby.value=rowData['fk_employee'];
-                                                    nik_used.value = rowData['nik_empl'];
+                                                    fk_usedby.value = rowData['fk_usedemployee'];
+                                                    nik_used.value = rowData['nik_usedemployee'];
                                                     empl_used.value = rowData['used_employee'];
 
-                                                    fk_responsibleperson.value = rowData['fk_employee'];
-                                                    nik_resp.value = rowData['nik_empl'];
+                                                    fk_responsibleperson.value = rowData['fk_usedemployee'];
+                                                    nik_resp.value = rowData['nik_usedemployee'];
                                                     empl_resp.value = rowData['used_employee'];
-                                                    
-                                                    fk_lostby.value= rowData['fk_employee'];
-                                                    nik_lostby.value = rowData['nik_empl'];
+
+                                                    fk_lostby.value = rowData['fk_usedemployee'];
+                                                    nik_lostby.value = rowData['nik_usedemployee'];
                                                     empl_lostby.value = rowData['used_employee'];
 
                                                     if (from_goods == 'GO') {
-                                                        fk_goods_outwards.value = data['idapp']
+                                                        fk_goods_outwards.value = rowData['idapp']
                                                         // ==== clear other value if data is change by user ====
                                                         fk_goods_lending.value = null;
                                                         fk_maintenance.value = null;
-                                                            //if (fk_goods_lending.value == ro
+                                                        fk_goods_return.value = null;
+                                                        //if (fk_goods_lending.value == ro
                                                     } else if (from_goods == 'GL') {
-                                                        fk_goods_lending.value = data['idapp'];
+                                                        fk_goods_lending.value = rowData['idapp'];
                                                         // ==== clear other value if data is change by user ====
                                                         fk_goods_outwards.value = null;
                                                         fk_maintenance.value = null;
-                                                            //if (fk_goods_outwards.value == ro
+                                                        fk_goods_return.value = null;
+                                                        //if (fk_goods_outwards.value == ro
                                                     } else if (from_goods == 'GM') {
-                                                        fk_maintenance.value = data['idapp'];
+                                                        fk_maintenance.value = rowData['idapp'];
                                                         // ==== clear other value if data is change by user ====
                                                         fk_goods_outwards.value = null;
                                                         fk_goods_lending.value = null;
+                                                        fk_goods_return.value = null;
+                                                    }
+                                                    else if (from_goods == 'GR') {
+                                                        fk_goods_return.value = rowData['idapp'];
+                                                        // ==== clear other value if data is change by user ====
+                                                        fk_goods_outwards.value = null;
+                                                        fk_goods_lending.value = null;
+                                                        fk_maintenance.value = null;
                                                     }
                                                     dialogRef.close();
                                                 }
@@ -1241,7 +1383,7 @@
                                                     var rowId = gridTbl.jqGrid('getGridParam', 'selrow'),
                                                         rowData = gridTbl.getRowData(rowId),
                                                         target = NA.NAEvent.getTarget(event);
-                                                        switch (target) {
+                                                    switch (target) {
                                                         case btnfindResp: {
                                                             fk_responsibleperson.value = rowData['idapp'];
                                                             nik_resp.value = rowData['nik'];
@@ -1322,27 +1464,26 @@
                                                             // ==== clear other value if data is change by user ====
                                                             fk_goods_lending.value = null;
                                                             fk_maintenance.value = null;
-                                                            //if (fk_goods_lending.value == rowData['idapp']) {                                                       
-                                                            //} else if (fk_maintenance.value == rowData['idapp']) {                                                       
-                                                            //};
+                                                            fk_goods_return.value = null;
                                                         } else if (from_goods == 'GL') {
                                                             fk_goods_lending.value = data['idapp'];
                                                             // ==== clear other value if data is change by user ====
                                                             fk_goods_outwards.value = null;
                                                             fk_maintenance.value = null;
-                                                            //if (fk_goods_outwards.value == rowData['idapp']) {
-
-                                                            //} else if (fk_maintenance.value == rowData['idapp']) {
-
-                                                            //};
+                                                            fk_goods_return.value = null;
                                                         } else if (from_goods == 'GM') {
                                                             fk_maintenance.value = data['idapp'];
                                                             // ==== clear other value if data is change by user ====
                                                             fk_goods_outwards.value = null;
                                                             fk_goods_lending.value = null;
-                                                            // if (fk_goods_outwards.value == rowData['idapp']) {                                                       
-                                                            //} else if (fk_goods_lending.value == rowData['idapp']) {                                                        
-                                                            //};
+                                                            fk_goods_return.value = null;
+                                                        }
+                                                        else if (from_goods == 'GM') {
+                                                            fk_goods_return.value = data['idapp'];
+                                                            // ==== clear other value if data is change by user ====
+                                                            fk_goods_outwards.value = null;
+                                                            fk_goods_lending.value = null;
+                                                            fk_maintenance.value = null;
                                                         }
                                                         window.document.body.style.cursor = 'default';
                                                     }
@@ -1382,13 +1523,14 @@
                                             null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                                         );
                                     });
-                                    var initializeForm = NA.common.getElementID('id_initializeForm');
-                                    initializeForm.value = originalData;
                                     //setting Custom Validity
-
                                     //var initializeForm = NA.common.getElementID('id_initializeForm');// NA.common.getElementID('id_initializeForm');
                                 }
-
+                                //simpan original data di initializeForm
+                                originalData = JSON.stringify(getValues_Form());
+                                var initializeForm = NA.common.getElementID('id_initializeForm');
+                                initializeForm.value = originalData;
+                                hasLoadDialog = true;
                             }
                             NA.NAEvent.preventDefault(event);
                             if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }
@@ -1401,7 +1543,8 @@
                     NA.NAEvent.addHandler(elem, 'click', function (event) {
                         NA.NAEvent.preventDefault(event);
                         if (!hasLoadDialog) {
-                            closeDialog(); win.document.body.style.cursor = 'default'; return false;
+                            NA.common.dialog.closeDialog(dialog);
+                            win.document.body.style.cursor = 'default'; return false;
                         }
                         var target = NA.NAEvent.getTarget(event);
                         ExecuteHandler(target.innerText.trim());
@@ -1418,26 +1561,30 @@
                             dialogAlert(e.message);
                         }
                     }
-                    if (evt) {
-                        NA.NAEvent.stopPropagation(evt);
+                    if (event) {
+                        NA.NAEvent.stopPropagation(event);
                     }
                     win.document.body.style.cursor = 'default';
                     if (!hasLoadDialog) {
-                        closeDialog(); return false;
+                        NA.common.dialog.closeDialog(dialog);
+                        return false;
                     }
                 });
-                hasLoadDialog = true;
+
                 win.onbeforeunload = function (e) {
+                    var dialog = qs("div.containerDialog");
+                    if (!dialog) { return null; }
                     if (!hasLoadDialog) {
-                        return ""
+                        return null;
                     }
-                    var initializeForm = NA.common.getElementID('id_initializeForm');// NA.common.getElementID('id_initializeForm');
-                    var originalData = initializeForm.value
+                    //var initializeForm = NA.common.getElementID('id_initializeForm');// NA.common.getElementID('id_initializeForm');
+                    //originalData = initializeForm.value
                     var valuesForm = getValues_Form();
                     var retval = false;
                     if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
                         return NA.common.message.dataHasChanged;
                     }
+                    return null;
                 };
             } catch (e) {
                 if (window.document.body.style.cursor != 'default') { window.document.body.style.cursor = 'default'; }

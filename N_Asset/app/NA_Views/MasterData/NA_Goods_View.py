@@ -209,7 +209,7 @@ def setInActive(request):
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def deleteItem(request):
-	result='';
+	result=''
 	try:
 		itemcode = request.GET.get('itemCode')
 		log_goods = goods.objects.filter(itemcode=itemcode).values('itemcode','goodsname','brandname','typeapp','priceperunit',\

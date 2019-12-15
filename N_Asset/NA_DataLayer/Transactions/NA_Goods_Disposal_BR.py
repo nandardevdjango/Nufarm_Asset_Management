@@ -40,7 +40,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 		elif columnKey == 'createdby':
 			colKey = 'ngds.createdby'
 		elif columnKey == 'createddate':
-			colKey = 'ngds.ceateddate'
+			colKey = 'ngds.createddate'
 		elif columnKey == 'descriptions':
 			colKey = 'ngds.descriptions'
 		elif columnKey == 'soldto':

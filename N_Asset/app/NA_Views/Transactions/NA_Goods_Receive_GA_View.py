@@ -401,3 +401,4 @@ def get_history_receive(request, idapp):
         json.dumps(data_row, cls=DjangoJSONEncoder),
         content_type='application/json'
     )
+

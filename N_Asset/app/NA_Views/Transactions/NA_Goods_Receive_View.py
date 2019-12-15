@@ -10,6 +10,7 @@ from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
 from NA_DataLayer.common import Data
 from NA_DataLayer.common import commonFunct
+import app.NA_Views.Transactions.NA_Goods_Receive_Detail_View
 #from NA_DataLayer.jqgrid import JqGrid
 from django.conf import settings 
 from NA_DataLayer.common import decorators
@@ -333,6 +334,31 @@ def deleteDetail(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def getReceiveDetail(request):
+	statuscode = 200
+	try:
+		fkapp = request.GET.get('fkapp')
+		#"""
+		#return 'idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
+						#'Received By', 'idapp_fk_pr_by','fk_pr_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'
+		#"""
+		fkgoods = NAGoodsReceive.objects.getFKGoods(fkapp)[0]['idapp_fk_goods']
+		NADataDetail = NAGoodsReceive.objects.getDetailData(fkapp,fkgoods)
+		#NADataDetail = NA_Goods_Receive_Detail_View.objects.getDetailData(FKApp,idapp_fk_goods)
+		rows = []			
+		i = 0
+		for row in NADataDetail:
+			i = i+1
+			datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
+				'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'],}
+			rows.append(datarow)					
+		#dataForGridDetail = rows
+		#NAData.update(dataForGridDetail=json.dumps(rows,cls=DjangoJSONEncoder))
+		Result = json.dumps(rows,cls=DjangoJSONEncoder)
+		return HttpResponse(Result,status = statuscode, content_type='application/json') 
+	except Exception as e :
+		return HttpResponse(json.dumps({'message': repr(e)}),status = 500, content_type='application/json')
+
 def getGoods(request):
 	"""get goods by itemcode return 'goodsname' + 'brandname' + 'itemcode' as goods criteria = iexact
 	"""
@@ -538,6 +564,11 @@ def getTypeApps(request):
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')
+
+
+def export_to_excels(request):
+    response = HttpResponse
+    return response
 
 #def ExportPDF(request):
 

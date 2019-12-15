@@ -160,6 +160,8 @@
 <script src="../../../static/app/scripts/grid.locale-en.js"></script>
 <!----------------------------Load Jquery UI. JS file-------------------------------->
 <script src="../../../static/app/scripts/jquery-ui.js"></script>
+<!----------------------------Script for /Printing/Exporting to PDF-------------------------------------------------------->
+<script src="../../../static/app/scripts/printThis.js"></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
@@ -175,26 +177,55 @@
 		float:unset;
 		display:inline-block;
 	}
-div#content-0 {
-    overflow:hidden;}
-div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGrid_NA_F_Goods_Receive_Pager,div.ui-jqgrid-titlebar{
-    border-radius: 0px
-}
+	div#content-0 {
+		overflow:hidden;
+	}
+	div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGrid_NA_F_Goods_Receive_Pager,div.ui-jqgrid-titlebar{
+    	border-radius: 0px
+	}
     td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left {
-    width:55%;
+    	width:55%;
     }
-     td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all{
-         width:auto;padding:2px;
-     }
+    td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all{
+        width:auto;padding:2px;
+    }
     .not-editable-cell {
-            cursor: not-allowed;
+        cursor: not-allowed;
         background-color: #eeeeee;
 	}
-</style>
+	.ui-corner-all, .ui-corner-top,.ui-corner-tr, .ui-corner-right, .ui-corner-bottom, .ui-corner-left, .ui-corner-tl,.ui-corner-br{
+		border-top-left-radius: 0px;
+		border-bottom-right-radius: 0px;
+	}
 
+	/**div#radioset>label.ui-button{
+		padding 0.1em 0.1em
+	}
+	div#radioset>span.ui-checkboxradio-icon.ui-corner-all.ui-icon.ui-icon-background{
+		widt:11px;
+		height: 10px;
+	}
+	div#radioset>label.ui-widget{
+		font-size: 0.9em;
+	}**/
+</style>
+<!-- <div id="radioset" role="toolbar" class="ui-controlgroup ui-controlgroup-horizontal ui-helper-clearfix">
+	<input type="radio" id="radio1" name="radio" class="ui-checkboxradio ui-helper-hidden-accessible"><label
+		for="radio1"
+		class="ui-button ui-widget ui-checkboxradio-radio-label ui-controlgroup-item ui-checkboxradio-label ui-corner-left ui-checkboxradio-checked ui-state-active"><span
+			class="ui-checkboxradio-icon ui-corner-all ui-icon ui-icon-background ui-icon-blank"></span><span
+			class="ui-checkboxradio-icon-space"> </span>Hierarchi(header with child) Data</label>
+	<input type="radio" id="radio2" name="radio" checked="checked"
+		class="ui-checkboxradio ui-helper-hidden-accessible"><label for="radio2"
+		class="ui-button ui-widget ui-checkboxradio-radio-label ui-checkboxradio-label ui-controlgroup-item"><span
+			class="ui-checkboxradio-icon ui-corner-all ui-icon ui-icon-background ui-icon-blank ui-state-hover"></span><span
+			class="ui-checkboxradio-icon-space"> </span>View Header Only)</label>
+	
+</div>-->
 <table id="jqGrid_NA_F_Goods_Receive" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Receive_Pager"  class="scroll" style="text-align:center;"></div>
-
+<a style="visibility: hidden;" id="Export_Goods_Receive_xls"
+	href="{% url 'Transactions:NA_Goods_Receive:export_goods_xls' %}">Export all</a>
 {%endblock%}
 
 {% block DialogEntry %}
@@ -320,19 +351,26 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         	win.document.body.style.cursor = 'default';	XhrError(xhr);
                         },
                         cellEdit: false,
-                        height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
+                        height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.193),
                         rowNum: 300,
                         rowList: [20, 50, 100, 200, 300, 500],
                         sortname: "idapp",
                         sortorder: "desc",
                         multiSort: true,
                         shrinkToFit: false,
-                        iconSet: "fontAwesome",
+                       // iconSet: "fontAwesome",
                         forceFit: true,
                         width: 'inherit',
                         toolbar: true,
                         scrollrows: true,
-                        hidegrid: true,
+						hidegrid: true,
+						subGrid: true,
+						subGridRowExpanded: showChildGrid,
+						subGridOptions: {
+							"plusicon": "ui-icon-triangle-1-e",
+							"minusicon": "ui-icon-triangle-1-s",
+							"openicon": "ui-icon-arrowreturnthick-1-e"
+						},
                         caption: "Transactions ---Goods Received",
                         pager: "#jqGrid_NA_F_Goods_Receive_Pager"
                     });
@@ -343,7 +381,18 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                         del: false,
                         refresh: true
                     });
-
+				//set href link excel
+					var linkExcel = NA.common.getElementID('Export_Goods_Receive_xls');
+					linkExcel.setAttribute('target', '_self')
+					lnkUrl = linkExcel.getAttribute('href');
+					var myUrl = jQuery("#jqGrid_NA_F_Goods_Receive").jqGrid('getGridParam', 'url');
+					//myUrl += "?myextraparam=something";
+					var postData = jQuery("#jqGrid_NA_F_Goods_Receive").jqGrid('getGridParam', 'postData');
+					$.each(postData, function (key, value) {
+						myUrl += "&" + key + "=" + encodeURIComponent(value);
+					});
+					lnkUrl = myUrl.replace('NA_Goods_Receive_Search', 'ExportToExcel')
+					linkExcel.setAttribute('href', lnkUrl);
                 } catch (e) {
                     ShowAlert(e.message);
                     console.log(e);
@@ -354,7 +403,49 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 })
             };
         };
+		function showChildGrid(parentRowID, parentRowKey) {
+			var childGridID = parentRowID + "_table";
+			var childGridPagerID = parentRowID + "_pager";
+			$('#' + parentRowID).append('<table id=' + childGridID + '></table><div id=' + childGridPagerID + ' class=scroll></div>');
 
+			$("#" + childGridID).jqGrid({
+				url: 'getReceiveDetail/?'+ win.encodeURIComponent('fkapp') + '=' + parentRowKey,
+				mtype: "GET",
+				datatype: "json",
+				page: 1,
+				//colNames: ['idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate', 'HasRef', 'isnew', 'isdeleted', 'isdirty'],
+				colModel: [
+					{ label: 'IDApp', name: 'idapp', key: true, hidden: true },
+					{ label: 'Brand Name', name: 'brandname', align: 'left', width: 120},
+					{ label: 'Price/Unit', name: 'priceperunit', width: 120, sortable: true, align: 'right',},
+					{
+						label: 'Type', 	name: 'typeapp', width: 120, align: 'left',
+						//formatoptions: { disabled: false }
+					},
+					{
+						Label: 'Serial Number',name: 'serialnumber', width: 200, align: 'left',
+					},
+					{
+						label: 'Warranty', name: 'warranty', width: 100, align: 'left',
+					},
+					{ label :'End Of Warranty',name: 'endofwarranty', width: 120, align: 'left', 'index': 'endofwarranty', sortable: true,
+						formatter: "date", formatoptions: {
+							srcformat: 'Y-m-d',
+							newformat: "d/m/Y",
+						},/*  */
+					}
+				],
+				viewrecords: true,
+				rowNum: 150,
+				width: 550,
+				height: '100%',
+				pager: "#" + childGridPagerID,
+				ondblClickRow: function (rowId, iRow, iCol, event) {
+					NA.NAEvent.preventDefault(event);
+					NA.NAEvent.stopPropagation(event);
+				},
+			});
+		};
         var SearchData = NA.common.SearchData;
         SearchData.setDefaultSearchData('goods', 'varchar', 'like');
         LoadData();
@@ -1892,7 +1983,9 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
 
         						var detailData = gridTbl.jqGrid('getGridParam', 'data');
         						var oriDetailData = getOriGridData(), NewRowData = gridTbl.jqGrid('getLocalRow', id), LastRowData = gridTbl.jqGrid('getRowData', lastsel)
-        						if (win.status == "Add") {
+								var hasRef = NewRowData.HasRef;
+								if (hasRef == true || hasRef == 'True' || hasRef == 'true' || hasRef == "1") { return false; }
+								if (win.status == "Add") {
         							detailData = oriDetailData;
         						}
         						if (parseInt(lastsel) <= parseInt(id)) {
@@ -2595,10 +2688,35 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
                 NA.common.dialog.closeDialog(dialog);
             }
             //NA.NAEvent.removeHandler(win, 'beforeunload', ConfirmPageLeave);
-        };
+		};
+		function PrintGrid() {
+			// attach print container style and div to DOM.
+			var gridID = $(".ui-jqgrid").attr("id")
+			$('head').append('<style type="text/css">.prt-hide {display:none;}</style>');
+			$('body').append('<div id="prt-container" class="prt-hide"></div>');
+
+
+			// copy and append grid view to print div container.
+			$('#gview_jqGrid_NA_F_Goods_Receive').clone().appendTo('#prt-container').css({ 'page-break-after': 'auto' });
+
+			// remove navigation divs.
+			$('#prt-container div').remove('.ui-jqgrid-toppager,.ui-jqgrid-titlebar,.ui-jqgrid-pager');
+
+			// print the contents of the print container.    
+			$('#prt-container').printThis({
+				removeScripts: true,
+				header: '\<img src="..\/..\/..\/static\/app\/images\/NufarmLogo.jpg" width="112.5" height="54.75"\/\>',
+				afterPrint: function () {
+					$('head style').remove();
+					$('body #prt-container').remove();
+				}
+			});
+			// remove print container style and div from DOM after printing is done.
+		};
         //========================END GROUP FUNCTION DECLARATION===================================
 
-    	//=======================GROUP FUNCTION EVENT=============================================
+		//=======================GROUP FUNCTION EVENT=============================================
+		
         function printToPDF(event) {
         	if (event) {
         		NA.NAEvent.preventDefault(event);
@@ -2623,20 +2741,21 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
         function ExporttoExcel(event) {
             if (event) {
                 NA.NAEvent.preventDefault(event);
-                grid.jqGrid("exportToExcel", {
-                    includeLabels: true,
-                    includeGroupHeader: true,
-                    includeFooter: true,
-                    fileName: "goods_Received.xlsx",
-                    maxlength: 40 // maxlength for visible string data 
-                });
+                //grid.jqGrid("exportToExcel", {
+                //    includeLabels: true,
+                //    includeGroupHeader: true,
+                //    includeFooter: true,
+                //    fileName: "goods_Received.xlsx",
+                //    maxlength: 40 // maxlength for visible string data 
+				//});
+				
                 NA.NAEvent.stopPropagation(event);
             }
         };
         //set eventKeyboard di search textbox
         function handlerSearchInput(event) {
             event = NA.NAEvent.getEvent(event);
-            if (event.keyCode === 13 || event.target == btnSearchMaster) {
+            if (event.keyCode === 13 || event.target == btnSearchMaster || event.parentNode == btnSearchMaster ) {
                 NA.NAEvent.preventDefault(event);
                 var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
                 SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
@@ -2672,7 +2791,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             //columnKey :columnKey,
             //dataType : dataType,
             //criteria : criteria,
-            if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1' || event.parentNode.id === 'fbox_jqGrid_search') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
+            if (event.target.getAttribute('id') === 'fbox_jqGrid_search' || event.target.getAttribute('id') === 'jqg1' || event.target.parentNode.id === 'fbox_jqGrid_search' || event.target.id === 'fbox_jqGrid_search') {//fbox_jqGrid_search == button search,jqg1 = txtSearch nya
                 elementOption = NA.common.doc.querySelector('td.columns select.NA-Form-Control option:checked');
                 columnKey = elementOption.getAttribute('name'), valueKey = NA.common.getElementID('jqg1').value;
                 elCriteria = NA.common.doc.querySelector('td.operators select.selectopts.NA-Form-Control option:checked');
@@ -2917,7 +3036,7 @@ div#gbox_jqGrid_NA_F_Goods_Receive,div#gview_jqGrid_NA_F_Goods_Receive,div#jqGri
             return false;
         });
         NA.NAEvent.addHandler(btnExport, 'click', ExporttoExcel);
-        NA.NAEvent.addHandler(btnPrint, 'click', printToPDF);
+        NA.NAEvent.addHandler(btnPrint, 'click', PrintGrid);
 
         //======================END GROUP ASSINGED HANDLER =========================================
 

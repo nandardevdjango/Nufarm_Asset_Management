@@ -402,6 +402,8 @@ class NA_BR_Goods_Receive(models.Manager):
 		data = query.dictfetchall(cur)
 		cur.close()
 		return data
+	def getFKGoods(self, fkapp):
+		return super(NA_BR_Goods_Receive, self).get_queryset().filter(idapp__iexact=fkapp).values('idapp_fk_goods')
 class CustomSupplierManager(models.Manager):
 	def getSupplier(self,suppliercode):
 		return super(CustomSupplierManager,self).get_queryset().filter(suppliercode__iexact=suppliercode).values('suppliername')

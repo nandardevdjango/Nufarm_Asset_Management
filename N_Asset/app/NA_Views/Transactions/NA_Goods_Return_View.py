@@ -41,7 +41,7 @@ def NA_Goods_ReturnGetData(request):
         datarow = {
             "id" :row['idapp'], "cell" :[
                 row['idapp'],i,row['goods'],row['serialnumber'],row['fromemployee'],row['usedemployee'],row['datereturn'],
-                row['conditions'],row['minusDesc'],row['iscompleted'],row['descriptions'],row['createddate'],row['createdby']
+                row['conditions'],row['minusDesc'],row['iscompleted'],row['isaccepted'],row['descriptions'],row['createddate'],row['createdby']
                 ]
             }
         rows.append(datarow)
@@ -54,7 +54,8 @@ def getFormData(request,form):
     data = {
         'fk_goods':clData['fk_goods'],'serialNumber':clData['serialNumber'],'conditions':clData['conditions'],
         'minus':clData['minus'],'datereturn':clData['datereturn'],'iscompleted':clData['iscompleted'],
-        'idapp_fromemployee':clData['idapp_fromemployee'],'idapp_usedemployee':clData['idapp_usedemployee'],
+        'idapp_fromemployee': clData['idapp_fromemployee'], 'idapp_usedemployee': clData['idapp_usedemployee'],
+        'isaccepted':clData['isaccepted'],
         'typeApp':clData['typeApp'],'descriptions':clData['descriptions']
         }
     fk_goods_outwards = clData.get('idapp_fk_goods_outwards')
@@ -68,45 +69,46 @@ def getFormData(request,form):
     return data
 
 class NA_Goods_Return_Form(forms.Form):
-	fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
-	typeApp = forms.CharField(widget=forms.HiddenInput(),required=False)
-	#itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
-	#    attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:180px;'})
-	itemcode = forms.CharField(required=False,widget=forms.HiddenInput())
-	goods = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
-	serialNumber = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control inline-field','placeholder':'serial number','style':'width:180px;'}))
-	fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
-	nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control inline-field','placeholder':'nik','style':'width:180px;'}))
-	usedemployee = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:100%;margin-right:auto'}))
-	nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:180px;'}))
-	datereturn = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:180px;'}))
-	conditions = forms.ChoiceField(widget=forms.Select(
-		attrs={'class': 'NA-Form-Control select inline-field','style':'width:180px;margin-left:auto;'}),
-									choices=(
-										('1', 'Good'),
-										('2', 'Less Good'),
-										('3', 'Broken'),
-										('4','Other/Undetermined'),
-										)
-									)
-	minus = forms.CharField(required=True,widget=forms.TextInput(
-		attrs={'class':'NA-Form-Control inline-field','placeholder':'minus','style':'width:479px;max-width:500px;'}))
-	iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
-		attrs={'style':'margin-left:15px;position:absolute'}))
-	descriptions = forms.CharField(required=True,widget=forms.Textarea(
-		attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:479px;height:45px;max-width:480px;max-height:90px;'}))
-	idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
-	idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
-	idapp_fk_goods_outwards = forms.CharField(widget=forms.HiddenInput(),required=False)
-	idapp_fk_goods_lend = forms.CharField(widget=forms.HiddenInput(),required=False)
-	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
+    fk_goods = forms.CharField(required=True,widget=forms.HiddenInput())
+    typeApp = forms.CharField(widget=forms.HiddenInput(),required=False)
+    #itemcode = forms.CharField(required=True,label='Search goods',widget=forms.TextInput(
+    #    attrs={'class':'NA-Form-Control inline-field','placeholder':'Item code','style':'width:180px;'})
+    itemcode = forms.CharField(required=False,widget=forms.HiddenInput())
+    goods = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
+    serialNumber = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'serial number','style':'width:180px;'}))
+    fromemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
+    nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'nik','style':'width:180px;'}))
+    usedemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'used employee','style':'width:100%;margin-right:auto'}))
+    nik_usedemployee = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control inline-field','disabled':'disabled','placeholder':'nik','style':'width:180px;'}))
+    datereturn = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'Date Return','style':'width:180px;'}))
+    conditions = forms.ChoiceField(widget=forms.Select(
+        attrs={'class': 'NA-Form-Control select inline-field','style':'width:180px;margin-left:auto;'}),
+                                    choices=(
+                                        ('1', 'Good'),
+                                        ('2', 'Less Good'),
+                                        ('3', 'Broken'),
+                                        ('4','Other/Undetermined'),
+                                        )
+                                    )
+    minus = forms.CharField(required=True,widget=forms.TextInput(
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'minus','style':'width:479px;max-width:500px;'}))
+    iscompleted = forms.BooleanField(required=False,widget=forms.CheckboxInput(
+        attrs={'style':'margin-left:15px;position:absolute','checked':False}))
+    descriptions = forms.CharField(required=True,widget=forms.Textarea(
+        attrs={'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:479px;height:45px;max-width:480px;max-height:90px;'}))
+    idapp_fromemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
+    idapp_usedemployee = forms.CharField(widget=forms.HiddenInput(),required=True)
+    idapp_fk_goods_outwards = forms.CharField(widget=forms.HiddenInput(),required=False)
+    idapp_fk_goods_lend = forms.CharField(widget=forms.HiddenInput(), required=False)
+    isaccepted = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'style': 'margin-left:15px;position:absolute','checked':False}))
+    initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def Entry_GoodsReturn(request):
     getUser = str(request.user.username)
@@ -137,6 +139,11 @@ def Entry_GoodsReturn(request):
                 data['iscompleted'] = True
             else:
                 data['iscompleted'] = False
+            isaccepted = data['isaccepted']
+            if isaccepted == 1:
+                data['isaccepted'] = True
+            else:
+                data['isaccepted'] = False
             data['datereturn'] = data['datereturn'].strftime('%d/%m/%Y')
             form = NA_Goods_Return_Form(initial=data)
             return render(request,'app/Transactions/NA_Entry_Goods_Return.html',{'form':form})
@@ -151,7 +158,6 @@ def Delete_data(request):
 		idapp = request.POST['idapp']
 		result = NAGoodsReturn.objects.DeleteData(idapp,request.user.username)
 		return HttpResponse('success')
-
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
 def SearchGoodsbyForm(request):

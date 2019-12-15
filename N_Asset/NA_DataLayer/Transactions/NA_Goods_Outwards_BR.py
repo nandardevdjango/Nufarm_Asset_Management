@@ -21,7 +21,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		if columnKey == 'goods':
 			colKey = 'g.goodsname'
-		elif columnKey == 'goodstype':
+		elif columnKey == 'typeapp':
 			colKey = 'ngd.TypeApp'
 		elif columnKey == 'serialnumber':
 			colKey = 'ngd.serialnumber'
@@ -42,12 +42,12 @@ class NA_BR_Goods_Outwards(models.Manager):
 		elif columnKey == 'createdby':
 			colKey = 'nga.createdby'
 		elif columnKey == 'createddate':
-			colKey = 'nga.ceateddate'
+			colKey = 'nga.createddate'
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Outwards_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
 		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
-		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,nga.fk_usedemployee,
+		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,e.TelpHP AS mobile,nga.fk_usedemployee,
 		        CASE 
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
 			        END AS eks_employee,nga.fk_responsibleperson,emp1.responsible_by,nga.fk_sender,emp2.senderby,nga.fk_stock,
@@ -104,7 +104,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_F_Outwards_" + userName
 		cur.execute(Query)
 		#Query new items
-		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, '' AS fk_usedemployee,'' AS usedemployee, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
+		Query = "CREATE TEMPORARY TABLE Temp_T_Receive_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT g.idapp,g.itemcode as fk_goods,g.goodsname,IFNULL(ngd.BrandName,g.BrandName) AS brandname,ngd.typeapp AS type,ngd.serialnumber, 0 AS fk_usedemployee,'' AS usedemployee,'' AS nik_usedemployee, 'not yet used' as lastinfo,ngd.idapp as fk_receive, \
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 		cur.execute(Query)

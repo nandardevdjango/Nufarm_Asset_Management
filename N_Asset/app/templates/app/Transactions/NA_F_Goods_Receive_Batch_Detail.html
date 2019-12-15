@@ -10,7 +10,8 @@
 <!--================================Load Script Modules NA ===========================================-->
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <!--=======================================================================================================-->
-
+<!--================================Script for /Printing/Exporting to Excel ==========================-->
+<script src="../../../static/app/scripts/jszip.min.js "></script>
 <script type="text/javascript">
 
     (function () {
@@ -2475,30 +2476,6 @@
 							var data = JSON.parse(this.responseText);
 							var message = data.message;
 							if (message === '__success') {
-								//reset status deleted dan isnew
-								//var rows = gridTbl.getDataIDs();
-								//for (i = 0; i < rows.length; i++) {
-								//	var row = gridTbl.jqGrid('getLocalRow', rows[i]);
-								//	var brandname = row['brandname'], typeapp = row['typeapp'], serialnumber = row['serialnumber'],
-								//		priceperunit = row['priceperunit'], warranty = row['warranty'], endofwarranty = row['endofwarranty'];
-								//	var hasData = (brandname != '') || (typeapp != '') || (serialnumber.length > 3) || (parseFloat(priceperunit) > 0) || (parseFloat(warranty) > 0) || (endofwarranty != '')
-
-								//	if (!hasData) { row.isnew = '1'; }
-								//	else { row.isnew = '0'; }
-								//	row.isdeleted = '0';
-								//	row.isdirty = '0';
-								//	gridTbl.jqGrid('saveRow', rows[i], {
-								//		url: 'clientArray',
-								//		restoreAfterError: true,
-								//	});
-								//}
-								//gridHeader.jqGrid('resetSelection');
-								//gridTbl.jqGrid('resetSelection');
-								////set original data			
-								//var initFrm = NA.common.getElementID('initFrm');
-								//initFrm.value = JSON.stringify({ 'header': gridHeader.jqGrid('getGridParam', 'data'), 'detail': gridTbl.jqGrid('getGridParam', 'data') });
-								//originalData = initFrm.value;
-								//ShowAlert(NA.common.message.savingSucces, NA.common.message.titleInfo);
 								btnFindRefno.dataset.directEventTarget = "FromCallBack";
 								btnFindRefno.click();
 							} else {
@@ -2513,7 +2490,18 @@
 					function () { win.document.body.style.cursor = 'default'; });
 			}
 		});
-
+		NA.NAEvent.addHandler(btnExport,'click',function(){
+			NA.NAEvent.preventDefault(event);
+			var columnsHiddend = [];
+			gridTbl.jqGrid('getGridParam', 'colModel').forEach(function (objCol) {
+				if (objCol.hasOwnProperty('hidden')) {
+					if (objCol['hidden']) {
+						columnsHiddend.push(objCol['name']);
+					}
+				}
+			});
+			JSONToCSVConvertor(JSON.stringify(grid.jqGrid('getRowData')), 'Goods_Receive_Detail', true, columnsHiddend);
+		});
 		NA.NAEvent.addHandler(btnDelete, 'click', function () {
 			if (!NA.Privilege.Permissions.Allow_Delete) {
 				NA.NAEvent.preventDefault(e); return;

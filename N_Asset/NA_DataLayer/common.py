@@ -16,7 +16,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
-
+import xlwt
 
 class CriteriaSearch(Enum):
     Equal = 1
@@ -607,7 +607,8 @@ class decorators:
 
 
 class query:
-    def dictfetchall(cursor):
+    @classmethod
+    def dictfetchall(cls,cursor):
         "Return all rows from a cursor as a dict"
         fetchall = cursor.fetchall()
         if fetchall == ():
@@ -616,19 +617,19 @@ class query:
         return [
             dict(zip(columns, row))
             for row in fetchall
-        ]
-    
-    def like(query_param, fields):
-        query_string = ' LIKE {query_param} OR '.join(fields)
-        query_string += ' LIKE {query_param}'
-        query_string = query_string.format(
-            query_param=('%(' + query_param + ')s')
-        )
-        return query_string
+        ]    
+    #def like(query_param, fields):
+    #    query_string = ' LIKE {query_param} OR '.join(fields)
+    #    query_string += ' LIKE {query_param}'
+    #    query_string = query_string.format(
+    #        query_param=('%(' + query_param + ')s')
+    #    )
+    #    return query_string
 
 
 class commonFunct:
-    def str2bool(v):
+    @classmethod
+    def str2bool(cls,v):
         if isinstance(v, int):
             v = str(v)
         v = v.lower()
@@ -645,7 +646,8 @@ class commonFunct:
 
     # TIsNew diperoleh Total goods receive detail - Count (group by fk_goods(union goods_Outwards,goods_return,goods_lending, goods_disposal,goods_lost)
     # buat query union untuk mendapatkan barang mana saja yang sudah di pakai
-    def getTotalGoods(FKGoods, cur, username, closeCursor=False):
+    @classmethod
+    def getTotalGoods(cls,FKGoods, cur, username, closeCursor=False):
         """FUNCTION untuk mengambil total-total data berdasarkan FK_goods yang di parameter, function ini akan mereturn value
         :param int FKGoods: idapp_fk_goods
         :param object cur: cursor active
@@ -817,8 +819,8 @@ class commonFunct:
         if closeCursor:
             cur.close()
         return(totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost)
-
-    def retriveColumn(**kwargs):
+    @classmethod
+    def retriveColumn(cls,**kwargs):
         table = kwargs['table']
         resolve = kwargs['resolve'].lower()
         initialname = kwargs['initial_name']
@@ -848,8 +850,9 @@ class commonFunct:
         if result:
             return result
         raise ValueError('cannot resolve \'%s\' column' % resolve)
-
-    def response_default(data):
+    
+    @classmethod
+    def response_default(cls,data):
         """
         this is default HttpResponse, use it to correct and neat response
         param
@@ -1033,7 +1036,43 @@ class commonFunct:
                 })
         return result
 
+    @classmethod
+    def create_excel(cls, columns,columns_hidden, rows_dict,filename,sheetname):
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="' + filename + '.xls"'
 
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet(sheetname)
+
+        # Sheet header, first row
+        row_num = 0
+
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        #columns = ['Username', 'First name', 'Last name', 'Email address', ]
+        col_num = 0
+        for i in range(len(columns)):
+            if columns[i] in columns_hidden:
+                continue      
+            ws.write(row_num, col_num, columns[i], font_style)
+            col_num += 1
+        # Sheet body, remaining rows
+        font_style = xlwt.XFStyle()
+
+        #rows = User.objects.all().values_list(
+        #    'username', 'first_name', 'last_name', 'email')
+        
+        for row in rows_dict:
+            row_num += 1
+            col_num = 0
+            for k, v in row.items():
+                if k in columns_hidden:                  
+                  continue                
+                ws.write(row_num, col_num, v, font_style)
+                col_num += 1
+        wb.save(response)
+        return response
 class QuerysetHelper(object):
 
     @staticmethod
