@@ -87,6 +87,7 @@
     }
 </script>
 <script type="text/javascript">
+    (function () {
     var win = win || window;
     var status = win.status || window.status;
     var gLost_grid = $("#NA_GoodsLost_grid");
@@ -94,7 +95,6 @@
         btnSearchMaster = btnSearchMaster || NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
         qs = NA.common.qs, originalData = null;
         qsAll = NA.common.qsAll;
-    $(document).ready(function () {
         var NA_Ajax = NA.common.AJAX;
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
@@ -163,7 +163,7 @@
 
         function handlerSearchInput(event) {
             event = NA.NAEvent.getEvent(event);
-            if (event.target == btnSearchMaster) {
+            if (event.target == txtSearchMaster || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster ) {
                 NA.NAEvent.preventDefault(event);
                 var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
                     SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
@@ -245,9 +245,9 @@
                 };
                 elDataType = elementOption.dataset.tipe;
             }
-            else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
-                var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-                    elSearch = null;
+            else if (event.target == txtSearchMaster || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster ) {
+                //var txtSearchMaster = txtSearchMaster || NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+                var elSearch = null;
                 valueKey = txtSearchMaster.value.trim();
                 var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
                 var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
@@ -1591,7 +1591,7 @@
                 alert(e);
             }
         };
-    });
+    })();
 </script>
 
 {% endblock %}

@@ -74,7 +74,7 @@ class NA_GO_PDF:
         self.flowables.append(Spacer(0, 25))
 
         #self.flowables.ap(Indenter(-90))
-        colWidthBarang = [120, 220]
+        colWidthBarang = [120, 250]
         
         berupa = Paragraph("<b>Berupa</b>", self.helper.LABEL_STYLE)
         barang = Paragraph(": {GoodsName}".format(GoodsName=GoodsName), self.helper.LABEL_STYLE)

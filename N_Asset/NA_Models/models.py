@@ -543,7 +543,57 @@ class NAAppparams(models.Model):
         db_table = 'n_a_appparams'
         unique_together = (('idapp', 'codeapp'),)
 
-
+class NAGoodsDeletion(NA_BaseModel):
+    fk_goods = models.ForeignKey(
+        'goods',
+        db_column='FK_Goods',
+        max_length=30,
+        db_constraint=False,
+    )
+    x_employee = models.ForeignKey(
+        'Employee',
+        db_column='FK_Employee',
+        db_constraint=False
+    )
+    serialnumber = models.CharField(
+        db_column='SerialNumber',
+        max_length=100,
+        default='N/A'
+    )
+    bookvalue = models.DecimalField(
+    db_column='bookvalue', max_digits=30, decimal_places=4
+    )
+    submission_value = models.DecimalField (db_column='submission_value', max_digits=30, decimal_places=4)
+    is_value_to_all = models.BooleanField(db_column='is_value_to_all')
+    approval_value = models.DecimalField(
+        db_column='approval_value', max_digits=30, decimal_places=4)
+    submission_by = models.ForeignKey(
+        Employee,
+        db_column='fk_submission_by',
+        max_length=100,
+        related_name='submission_by_employee',
+        db_constraint=False)
+    approved_by =  models.ForeignKey(
+		Employee,
+		db_column='fk_approvedby',
+		max_length=100,
+		related_name='approved_by_employee',
+		db_constraint=False)
+    acknowledged_by1 =models.ForeignKey(
+        Employee,
+        db_column='acknowledged_by1',
+        max_length=100,
+        related_name='acknowledged_by_employee1',
+        db_constraint=False)
+    acknowledged_by2 =models.ForeignKey(
+        Employee,
+        db_column='acknowledged_by2',
+        max_length=100,
+        related_name='acknowledged_by_employee2',
+        db_constraint=False)
+    
+    class Meta:
+        abstract = True
 class goods(NA_MasterDataModel):
     itemcode = models.CharField(db_column='ItemCode', max_length=30)
     goodsname = models.CharField(db_column='GoodsName', max_length=150)

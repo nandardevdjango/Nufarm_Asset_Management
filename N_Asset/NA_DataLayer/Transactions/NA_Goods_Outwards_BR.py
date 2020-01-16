@@ -115,7 +115,7 @@ class NA_BR_Goods_Outwards(models.Manager):
                         WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.idapp FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
 						END AS fk_usedemployee,
 					CASE 
-                        WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
+                        WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return AND Conditions <= 2) \
                         WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
 						END AS nik_usedemployee,
                     CASE 
@@ -271,13 +271,18 @@ class NA_BR_Goods_Outwards(models.Manager):
 					nik_usedemployee = str(row[1])
 					usedemployee = str(row[2])
 			elif int(fkreturn) > 0:
-				Query = """SELECT e.idapp,e.nik,e.employee_name,ngt.datereturn,ngt.descriptions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
+				Query = """SELECT e.idapp,e.nik,e.employee_name,ngt.datereturn,ngt.descriptions,conditions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				cur.execute(Query,[fkreturn])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date returned ' + parse(
-						str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is able to use)'
+					conditions = row[5]
+					if int(conditions) <= 2:
+						lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date returned ' + parse(
+							str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is able to use)'
+					else:
+						lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date returned ' + parse(
+									str(row[3])).strftime('%d %B %Y') + ', ' + str(row[4]) + ' (goods is unable to use)'
 					fk_usedemployee = str(row[0])
 					nik_usedemployee = str(row[1])
 					usedemployee = str(row[2])

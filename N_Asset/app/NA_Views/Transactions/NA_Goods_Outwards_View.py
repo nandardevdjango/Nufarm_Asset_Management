@@ -193,7 +193,7 @@ def export_to_excels(request):
 	#get qryset
 	NAData = []
 	#tentukan column
-	colNames= ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee',
+	colNames= ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee','mobile',
                 'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By']
 	try:
 		IcolumnName = request.GET.get('columnName')
