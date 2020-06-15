@@ -201,9 +201,9 @@ class NA_BR_Goods_Lending(models.Manager):
 						endDate =  parse(str(row[2])).strftime('%d %B %Y')
 					if isFinished and isSucced:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
-					elif isFinished == True and isSucced == false:
+					elif isFinished == True and isSucced == False:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
-					elif not isFInished:
+					elif not isFinished:
 						lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' +starDate + ', ' +  ' (goods is still in maintenance)'
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
@@ -258,9 +258,9 @@ class NA_BR_Goods_Lending(models.Manager):
 									endDate =  parse(str(row[2])).strftime('%d %B %Y')
 							if isFinished and isSucced:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is able to use)'
-							elif isFinished == True and isSucced == false:
+							elif isFinished == True and isSucced == False:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', date returned ' + endDate + ', ' +  ' (goods is unable to use )'
-							elif not isFInished:
+							elif not isFinished:
 								lastInfo = 'Last maintenance by ' + str(row[0]) + ', start date maintenance ' + starDate + ', ' +  ' (goods is still in maintenance)'
 						#elif fk_lost_outwards
 						else:
@@ -277,7 +277,7 @@ class NA_BR_Goods_Lending(models.Manager):
 
 			else:
 				raise Exception('no such data')
-			dt = datetime.date(row[2])
+			dt = datetime.date(row[3])
 			lastInfo = 'goods is new, date received ' + dt.strftime('%d %B %Y')
 		cur.close()
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost

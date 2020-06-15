@@ -8,5 +8,7 @@ urlpatterns = [
     url(r'^customFilter/$', NA_Employee_View.ShowCustomFilter),
     url(r'^getData/$', NA_Employee_View.NA_EmployeeGetData, name='NA_Employee_data'),
     url(r'^setInActive/$',NA_Employee_View.Set_InActive),
-    url(r'^SearchEmployeeByForm/$',NA_Employee_View.SearchEmployeebyform),
+    url(r'^SearchEmployeeByForm/$', NA_Employee_View.SearchEmployeebyform),
+    url(r'^searchJobType/$', NA_Employee_View.getJobType),
+    url(r'^searchTerritories',NA_Employee_View.getTerritories)
 ]

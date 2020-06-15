@@ -188,7 +188,13 @@
     }
     td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all{
         width:auto;padding:2px;
-    }
+	}
+	.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr, .ui-corner-br{
+		border-top-right-radius:0px;
+	}
+	.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl{
+		border-bottom-left-radius:0px;
+	}
     .not-editable-cell {
         cursor: not-allowed;
         background-color: #eeeeee;
@@ -1367,7 +1373,7 @@
 									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return; }
 									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === 'true' || rowData.HasRef.valueOf === "True";
+									var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === 'true' || rowData.HasRef.valueOf() === "True";
 									if (hasRef) {
 										NA.NAEvent.preventDefault(e); return false;
 									}
@@ -1417,7 +1423,7 @@
 									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+									var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 									if (hasRef) {
 										NA.NAEvent.preventDefault(e); return;
 									}
@@ -1471,7 +1477,7 @@
 									if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 									var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 									var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-									var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+									var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 									if (hasRef) {
 										NA.NAEvent.preventDefault(e); return;
 									}
@@ -1588,7 +1594,7 @@
 
 										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-										var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+										var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 										if (hasRef) {
 											NA.NAEvent.preventDefault(e); return;
 										}

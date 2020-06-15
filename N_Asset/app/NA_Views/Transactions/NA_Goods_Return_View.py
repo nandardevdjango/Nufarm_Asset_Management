@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 import json
-from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm, Data, decorators
+from NA_DataLayer.common import ResolveCriteria, CriteriaSearch, commonFunct, StatusForm, Data,Message, decorators
 from NA_Models.models import NAGoodsReturn,goods
 from django import forms
 from datetime import datetime

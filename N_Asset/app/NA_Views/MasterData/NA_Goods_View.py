@@ -36,7 +36,7 @@ def NA_Goods(request):
 	
 #@decorators.ajax_required
 def NA_Goods_Search(request):	
-	IcolumnName = request.GET.get('columnName');
+	IcolumnName = request.GET.get('columnName')
 	IvalueKey =  request.GET.get('valueKey')
 	IdataType =  request.GET.get('dataType')
 	Icriteria =  request.GET.get('criteria')
@@ -72,7 +72,7 @@ def NA_Goods_Search(request):
 	rows = []
 	i = 0 if page == '1' else int(Ilimit);#idapp,itemcode,goods
 	for row in dataRows.object_list:
-		i+=1;
+		i+=1
 		datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['itemcode'],row['goodsname'],row['unit'],row['typeapp'],row['priceperunit'], \
 			row['placement'],row['typeofdepreciation'],row['economiclife'],row['inactive'],datetime.date(row['createddate']),row['createdby']]}
 		#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \

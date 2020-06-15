@@ -227,3 +227,7 @@ class NA_BR_Employee(models.Manager):
             return data
         else:
             return Data.Empty
+    def getJobType(self, search):
+        return super(NA_BR_Employee, self).get_queryset().filter(jobtype__icontains=search).values('jobtype').distinct()
+    def getTerritories(self, search):
+        return super(NA_BR_Employee,self).get_queryset().filter(territory__icontains=search).values('territory').distinct()

@@ -17,7 +17,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from distutils.util import strtobool
 from decimal import Decimal
 import math
-import datetime
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_Report.NA_R_Goods_Outwards import NA_GO_PDF
 from django.conf import settings
@@ -78,7 +77,7 @@ def NA_Goods_Outwards_Search(request):
 		i = 0
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['daterequest'],row['datereleased'],
+			datarow = {"id" :row['idapp'], 'cell' :[row['idapp'],i,row['territory'],row['goods'],row['goodstype'],row['serialnumber'],row['daterequest'],row['datereleased'],
 						row['isnew'],row['fk_employee'],row['for_employee'],row['mobile'],row['fk_usedemployee'],row['eks_employee'],row['fk_responsibleperson'],
 				row['responsible_by'],row['fk_sender'],row['senderby'],row['fk_stock'],row['refgoodsfrom'],row['equipment_desc'],row['descriptions'],row['createddate'],row['createdby']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
@@ -193,7 +192,7 @@ def export_to_excels(request):
 	#get qryset
 	NAData = []
 	#tentukan column
-	colNames= ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee','mobile',
+	colNames= ['idapp', 'NO','Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee','mobile',
                 'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By']
 	try:
 		IcolumnName = request.GET.get('columnName')
@@ -215,10 +214,10 @@ def export_to_excels(request):
 		#column IDapp 	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
 		i = 0
 		for row in dataRows:
-			i = i+1
-			datarow = tuple([row['idapp'], i, row['goods'], row['goodstype'], row['serialnumber'], datetime.date.strftime(row['daterequest'], "%m/%d/%Y"), datetime.date.strftime(row['datereleased'], "%m/%d/%Y"),
+			i = i + 1
+			datarow = tuple([row['idapp'], i,row['territory'], row['goods'], row['goodstype'], row['serialnumber'], datetime.strftime(row['daterequest'], "%m/%d/%Y"), datetime.strftime(row['datereleased'], "%m/%d/%Y"),
 						row['isnew'],row['fk_employee'],row['for_employee'],row['mobile'],row['fk_usedemployee'],row['eks_employee'],row['fk_responsibleperson'],
-				row['responsible_by'], row['fk_sender'], row['senderby'], row['fk_stock'], row['refgoodsfrom'], row['equipment_desc'], row['descriptions'], datetime.date.strftime(row['createddate'],"%m/%d/%Y"), row['createdby']])
+				row['responsible_by'], row['fk_sender'], row['senderby'], row['fk_stock'], row['refgoodsfrom'], row['equipment_desc'], row['descriptions'], datetime.strftime(row['createddate'],"%m/%d/%Y"), row['createdby']])
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 			rows.append(datarow)
@@ -226,7 +225,7 @@ def export_to_excels(request):
 		column_hidden = ['idapp', 'fk_employee', 'fk_usedemployee',
                    'fk_responsibleperson', 'fk_sender', 'fk_stock']
 		response = commonFunct.create_excel(
-			colNames, column_hidden, dataRows, 'Goods_Outwards_' + datetime.date.strftime(datetime.datetime.now(),"%Y_%m_%d"),'Goods_Outwards')
+			colNames, column_hidden, dataRows, 'Goods_Outwards_' + datetime.strftime(datetime.now(),"%Y_%m_%d"),'Goods_Outwards')
 		return response
 	except Exception as e:
 		result = repr(e)

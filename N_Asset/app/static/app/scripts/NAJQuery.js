@@ -430,6 +430,24 @@ NA$(document).on("shown.bs.dropdown", "#dropdown_select_multiple", function (eve
     NA$(this).removeClass("dropup");
 });
 
+//============load script inside Load HTML after ajax load================
+//cara 1 memakai eval untuk script inside HTML 
+//jQuery.ajax({
+//        success: function(data, textStatus, jqXHR) {
+//            jQuery(selecteur).html(jqXHR.responseText);
+//            var reponse = jQuery(jqXHR.responseText);
+//            var reponseScript = reponse.filter("script");
+//            jQuery.each(reponseScript, function (idx, val) { eval(val.text); });
+//        }
+//});
+//cara 2 dengan load external javascript after success function
+//$.getScript('ajax/test.js', function() {
+//alert('Load was performed.');
+//});
+//======================================================================
+
+
+
 //==================PRINT JQGrid==================
 // setup grid print capability.  Add print button to navigation bar and bind to click.
 

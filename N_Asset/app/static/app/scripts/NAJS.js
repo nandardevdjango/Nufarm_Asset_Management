@@ -440,7 +440,7 @@ NA.common = {
         }
 
     },
-    //===========cross browser get Element ByID =====================
+   
     //===========cross browser get Element ByID =====================
     getElementID: function (id) {
         if (this.doc.getElementById) {
@@ -548,7 +548,8 @@ NA.common = {
         }
         return _arr;
     },
-    isObjectEmpty: function (obj) {//function ini untuk mengecek apakah object bernilai {}, jika object ada key/method/isinya maka return false
+    //function ini untuk mengecek apakah object bernilai {}, jika object ada key/method/isinya maka return false
+    isObjectEmpty: function (obj) {
         for (var x in obj) { if (obj.hasOwnProperty(x)) return false; }
         return true;
     },
@@ -1188,13 +1189,13 @@ NA.common.dialog = {
             };
             if (elements) {
                 Array.prototype.forEach.call(elements, function (item) {//buat jadi foreach mesti convert dulu ke array
-                    if (SideMenuContainerClick) {
+                    if (SideMenuContainerClick && item) {
                         if (!item.getAttribute('disabled')) {
                             NA.NAEvent.addHandler(item, 'click', SideMenuContainerClick);
                         }
                     }
                     else {
-                        if (!item.getAttribute('disabled')) {
+                        if (item && (!item.getAttribute('disabled'))) {
                             NA.NAEvent.addHandler(item, 'click', ClickHandlerElementMenu);
                         }
                     }

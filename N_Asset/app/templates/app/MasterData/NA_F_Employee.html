@@ -53,10 +53,11 @@
         })(DivSearch);
     })();   
 </script>
-<script src="{% static 'app/scripts/jquery-1.11.0.min.js' %}" id="jq_uery"></script>
-<script type="text/javascript" src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
-
+<script src="{% static 'app/scripts/jquery-1.11.1.min.js' %}" id="jq_uery"></script>
 <script src="{% static 'app/scripts/jquery.jqGrid.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
+<script type="text/javascript" src = "../../../static/app/scripts/jquery-ui.min.js"></script>
+<script src="../../../static/app/scripts/autocomplete.js"></script>
 <script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 <style>
@@ -113,7 +114,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                         {
                         	name: 'typeapp', index: 'typeapp', width: 100, align: 'left', editable: false, search: false, formatter: 'select',
                         	editoptions: {
-                        		value: 'C:Casual;K:Kontrak;P:Permanent'
+                        		value: 'C:Casual;K:Contract;P:Permanent'
                         	}
                         },
                         { name: 'jobtype', index: 'jobtype', width: 130, align: 'left', editable: true, editrules: { required: true } },
@@ -422,7 +423,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         var data = {
             nik: qs('input#id_nik').value.trim(),
             employee_name: qs('input#id_employee_name').value.trim(),
-            typeapp: qs('input#id_typeapp').value.trim(),
+            typeapp: qs('select#id_typeapp').value.trim(),
             jobtype: qs('input#id_jobtype').value.trim(),
             gender: qs('input[value="M"]').checked ? 'M':'F',
             status: qs('input[value="S"]').checked ?'S':'M',
@@ -523,8 +524,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                             setTimeout(function () {
                                 employee_grid.setSelection(data['message'], true)
                             }, 1000);
-                            reload_LogEvent();
-                            
+                            reload_LogEvent();                            
                         }
                     }
                 });
@@ -760,6 +760,9 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                                 initializeForm = NA.common.getElementID('id_initializeForm');
                                 initializeForm.Value = originalData;
                                 //setting Custom Validity
+                                 $("#id_jobtype").autocomplete({source: "searchJobType/",minLength: 1,});
+                                 $("#id_territory").autocomplete({source: "searchTerritories/",minLength: 1,});
+                                NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';   
                             }
 
                         } else {

@@ -563,10 +563,12 @@ class NAGoodsDeletion(NA_BaseModel):
     bookvalue = models.DecimalField(
     db_column='bookvalue', max_digits=30, decimal_places=4
     )
+    submission_date = models.DateField(db_column='submission_date')
     submission_value = models.DecimalField (db_column='submission_value', max_digits=30, decimal_places=4)
     is_value_to_all = models.BooleanField(db_column='is_value_to_all')
     approval_value = models.DecimalField(
         db_column='approval_value', max_digits=30, decimal_places=4)
+    #approved_date
     submission_by = models.ForeignKey(
         Employee,
         db_column='fk_submission_by',
@@ -593,7 +595,8 @@ class NAGoodsDeletion(NA_BaseModel):
         db_constraint=False)
     
     class Meta:
-        abstract = True
+        db_table = 'n_a_goods_deletion'
+        managed = True
 class goods(NA_MasterDataModel):
     itemcode = models.CharField(db_column='ItemCode', max_length=30)
     goodsname = models.CharField(db_column='GoodsName', max_length=150)
@@ -624,7 +627,7 @@ class goods(NA_MasterDataModel):
         managed = True
     objects = NA_BR_Goods()
     customs = CustomManager()
-
+    #objectT = objects()
     def __str__(self):
         return self.goodsname
 

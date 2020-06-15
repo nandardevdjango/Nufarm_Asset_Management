@@ -99,11 +99,10 @@ class NA_Employee_form(forms.Form):
 			'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
 		}
 	))
-	typeapp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(
+	typeapp = forms.ChoiceField(required=True, widget=forms.Select(
 		attrs={
 			'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
-		}
-	))
+		}),choices=(('','--choose--'),('K','Contract'),('P','Permanent'),('C','Casual')) )
 	jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
 		'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
 	gender = forms.CharField(required=True, widget=forms.RadioSelect(
@@ -157,10 +156,6 @@ class NA_Employee_form(forms.Form):
 					model=Employee,
 					pk=idapp
 				)
-			else:
-				if Employee.objects.hasRef(idapp=idapp):
-					message = Message.HasRef_edit.value
-					return Data.HasRef, message
 		form_data = self.cleaned_data
 		del(form_data['mode'], form_data['initializeForm'])
 
@@ -214,7 +209,32 @@ def Set_InActive(request):
         idapp, commonFunct.str2bool(inactive))
     return commonFunct.response_default(result)
 
-
+@decorators.ajax_required
+@decorators.detail_request_method('GET')
+def getJobType(request):
+    IvalueKey = request.GET.get('term')
+    TypesRows = Employee.objects.getJobType(IvalueKey)
+    results = []
+    for JobTyperow in TypesRows:
+        JsonResult = {}
+        JsonResult['id'] = JobTyperow['jobtype']
+        JsonResult['label'] = JobTyperow['jobtype']
+        JsonResult['value'] = JobTyperow['jobtype']
+        results.append(JsonResult)
+    data = json.dumps(results, cls=DjangoJSONEncoder)
+    return HttpResponse(data, content_type='application/json')
+def getTerritories(request):
+    IvalueKey = request.GET.get('term')
+    TypesRows = Employee.objects.getTerritories(IvalueKey)
+    results = []
+    for JobTyperow in TypesRows:
+        JsonResult = {}
+        JsonResult['id'] = JobTyperow['territory']
+        JsonResult['label'] = JobTyperow['territory']
+        JsonResult['value'] = JobTyperow['territory']
+        results.append(JsonResult)
+    data = json.dumps(results, cls=DjangoJSONEncoder)
+    return HttpResponse(data, content_type='application/json')
 @decorators.ensure_authorization
 @decorators.read_permission(form_name=Employee.FORM_NAME_ORI)
 def EntryEmployee(request):
@@ -287,6 +307,9 @@ def NA_Employee_delete(request):
             model=Employee
         )
     else:
+        if Employee.objects.hasRef(idapp=idapp):
+            message = Message.HasRef_del.value
+            return commonFunct.response_default((Data.HasRef,message))
         with transaction.atomic():
             log = LogActivity(
                 models=Employee,

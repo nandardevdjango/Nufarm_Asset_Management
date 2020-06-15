@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'django_extensions',
-    'rest_framework'
+    #'debug_toolbar'
+    'rest_framework',
+    
 ]
 
 
@@ -66,6 +68,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     #'NA_Notifications.middleware.NotificationMiddleware'
 ]
 
@@ -195,7 +198,39 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Jakarta'
 
-
+#if DEBUG :
+#   MIDDLEWARE_CLASSES += (
+#       'debug_toolbar.middleware.DebugToolbarMiddleware',
+#   )
+#
+#   INSTALLED_APPS += (
+#       'debug_toolbar',
+#   )
+#   def custom_show_toolbar(request):
+#        return True
+#   DEBUG_TOOLBAR_PANELS = [
+#       'ddt_request_history.panels.request_history.RequestHistoryPanel',
+#       'debug_toolbar.panels.versions.VersionsPanel',
+#       'debug_toolbar.panels.timer.TimerPanel',
+#       'debug_toolbar.panels.settings.SettingsPanel',
+#       'debug_toolbar.panels.headers.HeadersPanel',
+#       'debug_toolbar.panels.request.RequestPanel',
+#       'debug_toolbar.panels.sql.SQLPanel',
+#       'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+#       'debug_toolbar.panels.templates.TemplatesPanel',
+#       'debug_toolbar.panels.cache.CachePanel',
+#       'debug_toolbar.panels.signals.SignalsPanel',
+#       'debug_toolbar.panels.logging.LoggingPanel',
+#       'debug_toolbar.panels.redirects.RedirectsPanel',
+#       'debug_toolbar.panels.profiling.ProfilingPanel',
+#   ]
+#   DEBUG_TOOLBAR_CONFIG = {
+#       'INTERCEPT_REDIRECTS': False,
+#       'RESULTS_STORE_SIZE': 100,
+#       #'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
+#       'HIDE_DJANGO_SQL': False,
+#       #'TAG': 'div',
+#   }
 try:
     from .local_settings import *
 except (NameError, ImportError):

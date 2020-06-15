@@ -43,10 +43,12 @@ class NA_BR_Goods_Outwards(models.Manager):
 			colKey = 'nga.createdby'
 		elif columnKey == 'createddate':
 			colKey = 'nga.createddate'
+		elif columnKey == 'descriptions':
+			colKey = 'nga.descriptions'
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Outwards_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
+		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT e.territory,nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
 		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,e.TelpHP AS mobile,nga.fk_usedemployee,
 		        CASE 
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
@@ -390,8 +392,22 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.close()
 		#idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance
 		return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
-	def HasExists(self,idapp_fk_goods,serialnumber,datereq,daterel,fk_employee):
-		return super(NA_BR_Goods_Outwards,self).get_queryset().filter(Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(fk_employee=fk_employee)).exists()#Q(member=p1) | Q(member=p2)
+	def HasExists(self, idapp_fk_goods, serialnumber, datereq, daterel, fk_employee):
+		startDateReq = parse(datereq).strftime('%Y-%m-%d')
+		endateReq = parse(datereq).strftime('%Y-%m-%d %H:%M:%S')
+
+		startDateRel = parse(daterel).strftime('%Y-%m-%d')
+		endateRel = parse(daterel).strftime('%Y-%m-%d %H:%M:%S')
+		filterdate = {'daterequest__range': [parse(startDateReq), parse(endateReq)],'datereleased__range': [parse(startDateRel), parse(endateRel)]}
+		
+		xdata = super(NA_BR_Goods_Outwards, self).get_queryset().filter(
+			Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(fk_employee=fk_employee))
+		exists_data = xdata.exists()
+		if exists_data:
+			doubleInput = xdata.filter(**filterdate)
+			if doubleInput:
+				raise Exception('can not proceed transactions\nDouble input data')
+		return exists_data
 	def SaveData(self,Data,Status=StatusForm.Input):
 		cur = connection.cursor()
 		#get FK_stock
@@ -526,7 +542,8 @@ class NA_BR_Goods_Outwards(models.Manager):
 					IFNULL(ngo.fk_frommaintenance,0)AS fk_frommaintenance,IFNULL(ngo.fk_return,0) AS fk_return, \
 					IFNULL(ngo.fk_lending,0) AS fk_lending,IFNULL(fk_receive,0) AS fk_receive, \
 						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngo.fk_goods AND serialnumber = ngo.serialnumber) THEN 1 
-							WHEN EXISTS(SELECT fk_goods FROM n_a_goods_lost WHERE fk_goods_outwards = ngo.idapp) THEN 1 
+							 WHEN EXISTS(SELECT fk_goods_outwards FROM n_a_goods_lost WHERE fk_goods_outwards = ngo.idapp) THEN 1 
+							 WHEN EXISTS(SELECT fk_goods_outwards FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp) THEN 1
 							 ELSE 0 
 					END AS hasRefData  
 					FROM n_a_goods g INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = g.IDApp \

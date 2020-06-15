@@ -731,13 +731,15 @@
                             }
                             if (statusTxt == "success") {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                                 //remove attribute disable untuk button OK dan cancel bila statusnya Add
-                                switch (status) {
+                               status = status||win.status
+                                switch (win.status) {
                                     case 'Add':
                                         {
                                             break;
                                         }
                                     case 'Edit':
                                         {
+                                            originalData = JSON.stringify(JSON.parse(NA.common.getElementID('id_initializeForm').value));
                                             setTimeout(function () {
                                                 $('div.dialogButtonOKCancel>a.button').removeAttr("disabled");
                                                 var fromgoods = qs('input#id_fk_fromgoods')
@@ -776,7 +778,8 @@
                                     btn_fkLostby = qs('button#fk_lostby'),
                                     fk_fromGoods = qs('input[type="hidden"]#id_fk_fromgoods');
                                 //simpan original data di initializeForm
-                                originalData = JSON.stringify(JSON.parse(NA.common.getElementID('id_initializeForm').value));
+                                //NA.common.getElementID('id_initializeForm').value = 'initializeForm'                           
+                              
                                 $('input#id_datelost').datepicker({
                                     dateFormat: 'dd/mm/yy',
                                     changeMonth: true,
@@ -802,7 +805,7 @@
                                     $("#id_datelost").val(formatDate(valDatelost));
                                 }
                                  originalData = JSON.stringify(getValues_Form());
-                                if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit       
+                                if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit       
                                     function loadData_byForm(tab, valSearch) {
                                         var gridTbl, gridTbl_pager_id, elGrid, Caption,
                                             urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;

@@ -23,6 +23,8 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'app/images/fave.png %" />
     <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
     <script src="{% static 'app/scripts/NA_Bootstrap.js' %}"></script>
+    <script src="{% static 'app/scripts/renderjson.js' %}"></script>
+    <script src="{% static 'app/scripts/domJSON.js' %}"></script>
     <style>
         div.tree-node span.fa-plus, div.tree-node span.fa-pencil {
             position: relative;
@@ -61,108 +63,135 @@
     </header>
     <div style="height: 85.5%;position: relative;">
         <div class="fltlft">
-            {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->
-            <div class="sidebar">
-                <ul class="list-sidebar bg-defoult">
-                    <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
-                        <li><a href="#">Regular link</a></li>
-                        <li class="disabled"><a href="#">Disabled link</a></li>
-                        <li><a href="#">Another link</a></li>
-                    </ul> -->
-                    <li>
-                        <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed" aria-expanded="false" style="position:relative;display:block;height:25px;">  <span class="fa fa-angle-left pull-right"></span> </a>
-                    </li>
-                    <li>
-                        <a href="#" data-toggle="collapse" data-target="#dashboard" class="active{% if not request.user.role == 3 %} collapsed{% endif %}" aria-expanded="false">
-                            <i class="fa fa-address-card" aria-hidden="true"></i>
-                            <span class="nav-label"> Master Data </span> <span class="fa{% if not request.user.role == 3 %} fa-angle-down{% else %} fa-angle-up{% endif %} pull-right"></span>
-                        </a>
-                        <ul class="sub-menu{% if not request.user.role == 3 %} collapse{% else %} in{% endif %}" id="dashboard" aria-expanded="false" style="">
-                            {% if request.user.allow_view_supplier %}
-                            <li><a href="{% url 'MasterData:NA_Supplier:NA_Supplier' %}" {% if url_name == 'NA_Supplier' %} class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Supplier</a></li>
-                            {% endif %}
+            {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->            
+            <div class="sidebar" id="NASideBar">
+                <div id="sidebarresult">
+                    <ul class="list-sidebar bg-defoult" id="ulsidebar">
+                        <!--<li class="nav-header "> <span> <img alt="image" class="img-circle" src="http://placehold.it/150x150"> </span>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
+                                        <li><a href="#">Regular link</a></li>
+                                        <li class="disabled"><a href="#">Disabled link</a></li>
+                                        <li><a href="#">Another link</a></li>
+                                    </ul> -->
+                        <li>
+                            <a href="#" data-toggle="collapse" data-target="#autoHideMenu" class="active collapsed"
+                                aria-expanded="false" style="position:relative;display:block;height:25px;"> <span
+                                    class="fa fa-angle-left pull-right"></span> </a>
+                        </li>
+                        <li>
+                            <a href="#" data-toggle="collapse" data-target="#dashboard"
+                                class="active{% if not request.user.role == 3 %} collapsed{% endif %}" aria-expanded="false">
+                                <i class="fa fa-address-card" aria-hidden="true"></i>
+                                <span class="nav-label"> Master Data </span> <span
+                                    class="fa{% if not request.user.role == 3 %} fa-angle-down{% else %} fa-angle-up{% endif %} pull-right"></span>
+                            </a>
+                            <ul class="sub-menu{% if not request.user.role == 3 %} collapse{% else %} in{% endif %}" id="dashboard"
+                                aria-expanded="false" style="">
+                                {% if request.user.allow_view_supplier %}
+                                <li><a href="{% url 'MasterData:NA_Supplier:NA_Supplier' %}" {% if url_name == 'NA_Supplier' %}
+                                        class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Supplier</a>
+                                </li>
+                                {% endif %}
+                
+                                {% if request.user.allow_view_employee %}
+                                <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %}
+                                        class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a>
+                                </li>
+                                {% endif %}
+                
+                                {% if request.user.allow_view_goods %}
+                                <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox"
+                                            aria-hidden="true"></i>Goods</a></li>
+                                {% endif %}
+                                <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
+                                {% if request.user.allow_view_privilege %}
+                                <li><a href="{% url 'MasterData:NA_Privilege:NA_Privilege' %}" {% if url_name == 'NA_Privilege' %}
+                                        class="active" {% endif %}><i class="fa fa-user"></i> User Privilege</a></li>
+                                {% endif %}
+                                <li><a href="#">Others Menu</a></li>
+                                <li><a href="#">Others Menu</a></li>
+                                <li><a href="#">Others Menu</a></li>
+                                <li><a href="#">Others Menu</a></li>
+                            </ul>
+                        </li>
+                
+                        {% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
+                        <li>
+                            <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false">
+                                <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span
+                                    class="fa fa-angle-down pull-right"></span>
+                            </a>
+                            <ul class="sub-menu collapse" id="products" aria-expanded="false">
+                                <li>
+                                    <a href="#" data-toggle="collapse" data-target="#it" class="active collapsed" aria-expanded="false">
+                                        <i class="fa fa-laptop"></i><span class="nav-label">IT</span>
+                                        <span class="fa fa-angle-down pull-right"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
+                                        <li class="active">
+                                            <a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a>
+                                            <ul class="sub-menu" id="GRDetails" aria-expanded="false">
+                                                <li><a href="{% url 'Transactions:NA_Goods_Receive_Detail:entrybatchdetail' %}"
+                                                        style="padding-left:18px;font-size:0.9em;">Entry Batch Detail</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}"
+                                                {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}"
+                                                {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}"
+                                                {% if url_name == 'GoodsDisposal' %} class="active" {% endif %}>Asset Deletion</a></li>
+                                        <li class="active"><a
+                                                href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#" data-toggle="collapse" data-target="#ga" class="active collapsed" aria-expanded="false">
+                                        <i class="fa fa-archive"></i><span class="nav-label">GA</span>
+                                        <span class="fa fa-angle-down pull-right"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <ul class="sub-menu collapse" id="ga" aria-expanded="false">
+                                        <li><a id="extend_tax_menu" href="#">Extend taxes</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a>
+                                        </li>
+                                        <li><a href="#">Goods Returned</a></li>
+                                        <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}"
+                                                {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                
+                        <li>
+                            <a href="#" data-toggle="collapse" data-target="#reports" class="active collapsed" aria-expanded="false">
+                                <i class="fa  fa-bar-chart" aria-hidden="true"></i>
+                                <span class="nav-label"> Reports </span> <span class="fa fa-angle-down pull-right"></span>
+                            </a>
+                            <ul class="sub-menu collapse" id="reports" aria-expanded="false">
+                                <li><a href="#">Report Ad Hoc</a></li>
+                            </ul>
+                        </li>
+                
+                        <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                                <span class="nav-label">Asset Depreciation</span></a> </li>
+                        <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench"
+                                    aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
+                        <li> <a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'NA_GoodsLost' %}
+                                class="active" {% endif %}><i class="fa fa-trash" aria-hidden="true"></i> <span
+                                    class="nav-label">Disposal</span></a> </li>
+                        <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
+                        {% endif %}
+                    </ul>
+                </div>
 
-                            {% if request.user.allow_view_employee %}
-                            <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %} class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a></li>
-                            {% endif %}
-
-                            {% if request.user.allow_view_goods %}
-                            <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox" aria-hidden="true"></i>Goods</a></li>
-                            {% endif %}
-                            <li id="emailData"><a href="#"><i class="fa fa-envelope"></i>Email Data</a></li>
-                            {% if request.user.allow_view_privilege %}
-                            <li><a href="{% url 'MasterData:NA_Privilege:NA_Privilege' %}" {% if url_name == 'NA_Privilege' %} class="active" {% endif %}><i class="fa fa-user"></i> User Privilege</a></li>
-                            {% endif %}
-                            <li><a href="#">Others Menu</a></li>
-                            <li><a href="#">Others Menu</a></li>
-                            <li><a href="#">Others Menu</a></li>
-                            <li><a href="#">Others Menu</a></li>
-                        </ul>
-                    </li>
-
-                    {% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
-                    <li>
-                        <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false">
-                            <i class="fa fa-exchange"></i> <span class="nav-label">Transactions</span> <span class="fa fa-angle-down pull-right"></span>
-                        </a>
-                        <ul class="sub-menu collapse" id="products" aria-expanded="false">
-                            <li>
-                                <a href="#" data-toggle="collapse" data-target="#it" class="active collapsed" aria-expanded="false">
-                                    <i class="fa fa-laptop"></i><span class="nav-label">IT</span>
-                                    <span class="fa fa-angle-down pull-right"></span>
-                                </a>
-                            </li>
-                            <li>
-                                <ul class="sub-menu collapse" id="it" aria-expanded="false" style="">
-                                    <li class="active">
-                                        <a href="{% url 'Transactions:NA_Goods_Receive:GoodsReceive' %}">Goods Receive</a>
-                                        <ul class="sub-menu" id="GRDetails" aria-expanded="false">
-                                            <li><a href="{% url 'Transactions:NA_Goods_Receive_Detail:entrybatchdetail' %}" style="padding-left:18px;font-size:0.9em;">Entry Batch Detail</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Outwards:GoodsOutwards' %}">Goods Outwords</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Lending:GoodsLending' %}" {% if url_name == 'GoodsLending' %} class="active" {% endif %}>Goods Lending</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Return:GoodsReturn' %}">Goods Returned</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'GoodsDisposal' %} class="active" {% endif %}>Asset Deletion</a></li>
-                                    <li class="active"><a href="{% url 'Transactions:NA_Goods_Receive_other:NA_Goods_Receive_other' %}">Accessories</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#" data-toggle="collapse" data-target="#ga" class="active collapsed" aria-expanded="false">
-                                    <i class="fa fa-archive"></i><span class="nav-label">GA</span>
-                                    <span class="fa fa-angle-down pull-right"></span>
-                                </a>
-                            </li>
-                            <li>
-                                <ul class="sub-menu collapse" id="ga" aria-expanded="false">
-                                    <li><a id="extend_tax_menu" href="#">Extend taxes</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Receive_GA:GoodsReceive' %}">Goods Receive</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Outwards_GA:GoodsOutwards' %}">Goods Outwords</a></li>
-                                    <li><a href="#">Goods Returned</a></li>
-                                    <li><a href="{% url 'Transactions:NA_Goods_Lost:NA_GoodsLost' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}>Goods Lost</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="#" data-toggle="collapse" data-target="#reports" class="active collapsed" aria-expanded="false">
-                            <i class="fa  fa-bar-chart" aria-hidden="true"></i>
-                            <span class="nav-label"> Reports </span> <span class="fa fa-angle-down pull-right"></span>
-                        </a>
-                        <ul class="sub-menu collapse" id="reports" aria-expanded="false">
-                            <li><a href="#">Report Ad Hoc</a></li>
-                        </ul>
-                    </li>
-
-                    <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> <span class="nav-label">Asset Depreciation</span></a> </li>
-                    <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench" aria-hidden="true"></i><span class="nav-label">Maintenance</span></a> </li>
-                    <li> <a href="{% url 'Transactions:NA_Goods_Disposal:GoodsDisposal' %}" {% if url_name == 'NA_GoodsLost' %} class="active" {% endif %}><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Disposal</span></a> </li>
-                    <li> <a href="#"><i class="fa fa-files-o"></i> <span class="nav-label">Other Pages</span></a> </li>
-                    {% endif %}
-                </ul>
             </div>
             {% endwith %}
             <div class="content">
@@ -172,7 +201,7 @@
                             <nav class="navbar navbar-default" role="navigation">
                                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="display:flex;flex-flow:nowrap;position:relative">
                                     <ul class="nav navbar-nav" style="flex:0 1 auto ;display: flex;flex-flow: row nowrap">
-                                        {%block ActionMenu %}
+                                        {% block ActionMenu %}
                                         <li class="active"><button class="btn-sm" id="addData"><i class="fa fa-plus">  Add</i></button></li>
                                         <li><button class="btn-sm"><i class="fa fa-envelope-open">  Open</i></button></li>
                                         <li><button class="btn-sm" id="editData"><i class="fa fa-pencil-square">  Edit</i></button></li>
@@ -313,8 +342,6 @@
                             <li class="see-all-notification">See all notifications</li>
                         </ul>
                     </li>
-
-
                     <li class="dropdown prevent-close" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
                         <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
                             <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
@@ -491,14 +518,16 @@
     {% if url_name == 'home' or url_name == 'login' %}
     <script>window.NA || document.write('<script src="../../static/app/scripts/NAJS.js"><\/script>')</script>
     <!-- ========================== This is Load only in Home, =============================== -->
-    <script>
+    <script type="text/javascript">
     	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
     	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
     	NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
     	//NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");//Load Style buat form sebelum di pakai
-    	var btnRegister = NA.common.doc.querySelector('button#register')
-    	NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
-    	window.showDialogEntry = function(event){
+        
+        var btnRegister = NA.common.doc.querySelector('button#register')
+        if (btnRegister){
+            NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
+    	    window.showDialogEntry = function(event){
     		$('div.maindialogContent').load(url_register(), function (response, status, xhr) {
     			var dialog = document.querySelector("div.containerDialog");
     			dialog.style.top = '20px';
@@ -596,8 +625,8 @@
     				}
     			}
     		});
-
     	}
+    }
     </script>
     {%endif%}
     {%endwith%}
@@ -607,8 +636,7 @@
     <script type="text/javascript" src="{% static 'app/scripts/JsTree/jstree.min.js' %}"></script>
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
-        $(document).ready(function () {
-            
+        $(document).ready(function () {            
             $('p#change_user_picture').on({
                 'click': function(event){
                     NA.NAEvent.preventDefault(event);
@@ -661,7 +689,8 @@
                 window.location.href = '/logout/'
             });
             var inputLogEvent = NA.common.getElementID('searchLogEvent'),
-				btn_search_log = NA.common.getElementID('btnSearchLogEvent');
+                btn_search_log = NA.common.getElementID('btnSearchLogEvent'),
+                win = win||window;
             function searchLog(event){
                 NA.NAEvent.preventDefault(event);
                 var targetValue = inputLogEvent.value;
@@ -670,7 +699,9 @@
 					  function (e) {//function executed after data has been returned by server(XHR.onload)
 					      var data = JSON.parse(this.responseText);
 					      if (data) {
-					          $('#EventLogs').tree('loadData',data);
+                              //$('#EventLogs').tree('loadData',data);                              
+                              $('#EventLogs').jstree(true).settings.core.data = data;
+                              $('#EventLogs').jstree(true).refresh();
 					      }
 					  }, null, function (e) {
 					      throw new Error(this.responseText + '\nStatus code :' + this.statusText);
@@ -683,8 +714,7 @@
                 }
             });
             NA.NAEvent.addHandler(btn_search_log,'click',function(event){
-                searchLog(event);
-    		
+                searchLog(event);    		
             });
             
             //Removes jstree cached state from localStorage
@@ -756,17 +786,19 @@
                         "valid_children": ["root"]
                     },
                     "root": {
-                        "icon": "https://www.jstree.com/static/3.3.7/assets/images/tree_icon.png",
+                        "icon": "glyphicon glyphicon-calendar",
                         "valid_children": ["year"]
                     },
                     "year": {
+                        //"icon" : "glyphicon glyphicon-chevron-right",
                         "valid_children": ["month", "date"]
                     },
                     "month": {
-                        "icon": "glyphicon glyphicon-file",
+                        //"icon": "glyphicon glyphicon-menu-right",
                         "valid_children": ["date", "event"]
                     },
                     "event": {
+                        "icon":"glyphicon glyphicon-envelope",
                         "valid_children": []
                     }
                 },
@@ -774,125 +806,97 @@
                     "search", "state", "types", "wholerow"
                 ]
             });
-            // using('tree', function () {
-            // 	$("#EventLogs").tree({
-            // 		url: url_logEvent(),
-            // 		method: 'get',
-            // 		animate: false,
-            // 		loadFilter: function (data, parent) {
-            // 			function forNodes(data, callback) {
-            // 				var nodes = [];
-            // 				for (var i = 0; i < data.length; i++) {
-            // 					nodes.push(data[i]);
-            // 				}
-            // 				while (nodes.length) {
-            // 					var node = nodes.shift();
-            // 					if (callback(node) == false) { return; }
-            // 					if (node.children) {
-            // 						for (var i = node.children.length - 1; i >= 0; i--) {
-            // 							nodes.unshift(node.children[i]);
-            // 						}
-            // 					}
-            // 				}
-            // 			};
-            // 			forNodes(data, function (node) {
-            // 				if (node.children) {
-            // 					if (node.text.match(/\d+ \w+ \d+/)) {
-            // 						node.state = 'closed'
-            // 						node.iconCls = 'fa fa-calendar'
-            // 					} else if (node.text.match(/^Log/)) {
-            // 						node.iconCls = 'fa fa-indent'
-            // 					} else if (node.text.match(/^\d{4}$/) || node.text.match(/\d{4}$/)) {
-            // 						node.iconCls = 'fa fa-calendar-o'
-            // 					}
-            // 				} else {
-            // 					if (node.text.match(/Created/)) {
-            // 						node.iconCls = 'fa fa-plus';
-            // 					};
-            // 					if (node.text.match(/Updated/)) {
-            // 						node.iconCls = 'fa fa-pencil';
-            // 					};
-            // 					if (node.text.match(/Deleted/)) {
-            // 						node.iconCls = 'fa fa-trash';
-            // 					};
-            // 					if(node.text.match(/^Send/)){
-            // 						node.iconCls = 'fa fa-envelope'
-            // 					}
-            // 				};
-            // 			});
- 
-            // 			return data;
-            // 		},
-            // 		onClick: function (node) {
-            // 			if (!node.children) {
-            // 				$.ajax({
-            // 					type: 'GET',
-            // 					url: url_logDesc() + '?idapp=' + node.idapp,
-            // 					dataType: 'json',
-            // 					success: function (data) {
-            // 						BootstrapDialog.show({
-            //                             draggable: true,
-            //                             type: BootstrapDialog.TYPE_SUCCESS,
-            //                             size: BootstrapDialog.SIZE_SMALL,
-            //                             title: 'Your Log Activity Data<i class="fa fa-history" style="margin-left: 10px;"></i>',
-            //                             message: (function(){
-            //                                 var container = $('<div class="container" style="padding:0;"></div>');
-            //                                 var table = $('<table class="table table-hover logevent"></table>');
-            //                                 var text_title = 'You have ' + data.activity_type + ' this data at ' + data.created_date;
-            //                                 var table_title = '<th colspan="2" class="title-logevent">' + text_title + '</th>';
-            //                                 table.append($('<thead><tr class="active">' + table_title + '</tr></thead>'));
-            //                                 var tbody = $('<tbody></tbody>');
-            //                                 for (var key in data.data){
-            //                                     var tr = $('<tr></tr>');
-            //                                     var label = $('<td class="col-xs-4" style="font-weight:bold;">' + key + '</td>');
-            //                                     var value = $('<td class="col-xs-8">: ' + data.data[key] + '</td>');
-            //                                     tr.append(label);
-            //                                     tr.append(value);
-            //                                     tbody.append(tr);
-            //                                 }
-            //                                 table.append(tbody);
-            //                                 container.append(table);
-            //                                 return container;
-            //                             })(),
-            //                             closable: false,
-            //                             animate: true,
-            //                             closeByBackdrop: false,
-            //                             closeByKeyboard: false,
-            //                             buttons: [{
-            //                                 label: 'OK',
-            //                                 cssClass: 'btn-default',
-            //                                 action: function (dialogRef) {
-            //                                     dialogRef.close();
-            //                                 }
-            //                             }]
-            //                         })
-            // 					}
-            // 				})
-            // 			}
-            // 		}
-
-            // 	});
-            // });
         });
     </script>
-    <!--================================================= End Script Log Event =============================================== -->
+    <!--===========================End Script Log Event =============================================== -->
     <!--====================Jquery untuk menu============================ -->
-    <script>
+    <script type="text/javascript">
     	$(function () {
-    		$('.dropdown.prevent-close').on({
-    			"click": function(event) {
-    				if ($(event.target).closest('.dropdown-toggle').length) {
-    					$(this).data('closable', true);
-    				} else {
-    					$(this).data('closable', false);
-    				}
-    			},
-    			"hide.bs.dropdown": function(event) {
-    				hide = $(this).data('closable');
-    				$(this).data('closable', !$(this).hasClass('keep-open'));
-    				return hide;
-    			}
-    		});
+        var options = {
+                    absolutePaths: false, attributes: true, noMeta:true,
+                    computedStyle: false, cull: true, htmlOnly: false,deep:true, metadata: false, serialProperties: false
+                };
+            NA.SaveStatedSidebar = function () {
+
+                var savedStated = JSON.stringify(domJSON.toJSON($('#sidebarresult').get(0),options));
+                localStorage.removeItem('sss');
+                localStorage.setItem('sss',savedStated);
+                //localStorage.set("")
+            }
+            NA.RestoreStatedSidebar = function () {
+                var oriStatedSidebar = JSON.parse(localStorage.getItem('sss'));
+                if (oriStatedSidebar) {
+                    //drop child node
+                    var sideBar = NA.common.getElementID('sidebarresult');
+                  //  while (sideBar.firstChild) {
+                  //      sideBar.firstChild.remove();
+                 //   }
+                    //load sidebar
+                    var DOMDocumentFragment = domJSON.toDOM(oriStatedSidebar,options);
+                    sideBar.parentNode.replaceChild(DOMDocumentFragment,sideBar);
+                    //$('#sidebarresult').html(renderjson.set_show_to_level(0)(oriStatedSidebar));
+                    //reattach event
+                    //cek Active menu
+                     var activeMenu = localStorage.getItem("ActiveMenu");
+                     $('div.sidebar ul li a:contains(\"' + activeMenu + '\")').filter(function(index){
+                         return $(this).text() === activeMenu;
+                         }).addClass('active');;
+                     //$('div.sidebar ul li a:contains(\"' + activeMenu + '\"\)').addClass('active');
+                    NA.ProvideEventSideBar();
+                }
+            }
+            NA.ProvideEventSideBar = function () {
+                $('.dropdown.prevent-close').on({
+                    "click": function (event) {
+                        if ($(event.target).closest('.dropdown-toggle').length) {
+                            $(this).data('closable', true);
+                        } else {
+                            $(this).data('closable', false);
+                        }
+                    },
+                    "hide.bs.dropdown": function (event) {
+                        hide = $(this).data('closable');
+                        $(this).data('closable', !$(this).hasClass('keep-open'));
+                        return hide;
+                    }
+                });
+                $("div.sidebar ul li a").click(function (event) {
+                    if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
+                        $(this).find($(".fa")).removeClass('fa-angle-down');
+                        $(this).find($(".pull-right")).addClass('fa-angle-up');
+                    }
+                    else if ($(this).find($(".fa")).hasClass('fa-angle-up')) {
+                        $(this).find($(".fa")).removeClass('fa-angle-up');
+                        $(this).find($(".pull-right")).addClass('fa-angle-down');
+                    }
+                    else if ($(this).find($(".fa")).hasClass('fa-angle-left')) {
+                        $(this).find($(".fa")).removeClass('fa-angle-left');
+                        $(this).find($(".pull-right")).addClass('fa-angle-right');
+                        $('div.sidebar').css('flex', '0 1 auto');
+                        $('div.sidebar').toggleClass('fliph');
+                    }
+                    else if ($(this).find($(".fa")).hasClass('fa-angle-right')) {
+                        $(this).find($(".fa")).removeClass('fa-angle-right');
+                        $(this).find($(".pull-right")).addClass('fa-angle-left');
+                        $('.sidebar').css('flex', '0 0 173px');
+                        $('.sidebar').toggleClass('fliph');
+                    }
+                    if($(this).attr('href') !== '' && $(this).attr('href') !== '#'){  
+                        var SavedActivedMenu = localStorage.getItem('ActiveMenu');
+                        if (SavedActivedMenu){
+                            //localStorage.removeItem($(this).text());
+                           // $(this).removeClass('active');
+                            $('div.sidebar ul li a:contains(\"' + SavedActivedMenu + '\")').filter(function(index){
+                         return $(this).text() === SavedActivedMenu;
+                         }).removeClass('active');
+                        }
+                        localStorage.setItem('ActiveMenu',$(this).text());
+                        NA.SaveStatedSidebar();
+                    }
+                });
+            };
+            NA.ProvideEventSideBar();
+            //JavaScript Anchor
 
     		// ====== common ajax setup if user was logged out
     		$.ajaxSetup({
@@ -934,34 +938,9 @@
     			}
     		});
 
-
-    		$("div.sidebar ul li a").click(function (event) {
-    			if ($(this).find($(".fa")).hasClass('fa-angle-down')) {
-    				$(this).find($(".fa")).removeClass('fa-angle-down');
-    				$(this).find($(".pull-right")).addClass('fa-angle-up');
-    			}
-    			else if ($(this).find($(".fa")).hasClass('fa-angle-up')) {
-    				$(this).find($(".fa")).removeClass('fa-angle-up');
-    				$(this).find($(".pull-right")).addClass('fa-angle-down');
-    			}
-    			else if ($(this).find($(".fa")).hasClass('fa-angle-left')) {
-    				$(this).find($(".fa")).removeClass('fa-angle-left');
-    				$(this).find($(".pull-right")).addClass('fa-angle-right');
-    				$('div.sidebar').css('flex', '0 1 auto');
-    				$('div.sidebar').toggleClass('fliph');
-    			}
-    			else if ($(this).find($(".fa")).hasClass('fa-angle-right')) {
-    				$(this).find($(".fa")).removeClass('fa-angle-right');
-    				$(this).find($(".pull-right")).addClass('fa-angle-left');
-    				$('.sidebar').css('flex', '0 0 173px');
-    				$('.sidebar').toggleClass('fliph');
-    			}
-    		});
-
     		$.expr[':'].icontains = function(a, i, m) {
     			return $(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
     		};
-
     		var extend_tax_menu = document.getElementById('extend_tax_menu');
     		NA.common.dialog.initDialog(null, 'Nufarm extend taxes - Transaction', [extend_tax_menu]);
 
@@ -1059,7 +1038,6 @@
     				});
     			}
     		}
-
 
     		window.ShowDialogExtend = function(data){
     			BootstrapDialog.show({
@@ -1253,7 +1231,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'app/content/font-awesome.min.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'app/scripts/JsTree/themes/default/style.min.css' %}" />
     {% if request.session.ga_reg_notif %}
-    <script>
+    <script type="text/javascript">
     	$(document).ready(function(){
     		$.ajax({
     			url: '/Notifications/',
@@ -1518,6 +1496,14 @@
     	})
     </script>
     {% endif %}
+    <script type="text/javascript">
+        $(function(){
+            if (window.$.jgrid){//check apakah ada datagrid
+            NA.RestoreStatedSidebar();
+            }
+        });
+    </script>
+
 </body>
 
 </html>

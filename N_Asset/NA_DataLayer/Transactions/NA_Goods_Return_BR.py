@@ -1,8 +1,8 @@
 from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch, DataType, ResolveCriteria, query,
-                                 StatusForm, Data,commonFunct)
+                                 StatusForm, Data,commonFunct,Message)
 from django.db.models import Q
-
+from django.db import connection
 from NA_DataLayer.exceptions import NAError, NAErrorConstant
 class NA_BR_Goods_Return(models.Manager):
 	def PopulateQuery(self, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
@@ -97,14 +97,25 @@ class NA_BR_Goods_Return(models.Manager):
 		except Exception as e:
 			return commonFunct.response_default((Data.Empty,e))
 	def DeleteData(self, idapp,who):
-
 		#cek reference
-		hasRef = super(NA_BR_Goods_Return,self).get_queryset().filter(idapp__gt=idapp,).exists()
+		sn = super(NA_BR_Goods_Return, self).get_queryset().filter(idapp=idapp).values('serialnumber')[0]['serialnumber']
+		hasref = super(NA_BR_Goods_Return, self).get_queryset().filter(Q(idapp__gt=idapp) & Q(serialnumber=sn)).exists()
+		if hasref:
+			return(Data.HasRef,Message.HasRef_del.value)
+		hasref = super(NA_BR_Goods_Return, self).get_queryset().filter(idapp=idapp).select_related('fk_goods_outwards').exists()
+		if hasref:
+			return (Data.HasRef, Message.HasRef_del.value)
+		hasref = super(NA_BR_Goods_Return, self).get_queryset().filter(idapp=idapp).select_related('fk_goods_lost').exists()
+		if hasref:
+			return (Data.HasRef, Message.HasRef_del.value)
+		hasref = super(NA_BR_Goods_Return, self).get_queryset().filter(
+			idapp=idapp).select_related('fk_goods_lending').exists()
 		#ambil data FK_Goods and serialnumber
-
+		if hasref:
+			return (Data.HasRef, Message.HasRef_del.value)
 		data = super(NA_BR_Goods_Return,self).get_queryset().filter(idapp__exact=idapp).values('fk_goods','serialnumber')[:1]
 		data = data[0]
-		fk_goods,serialnumber = data['fkgoods'],data['serialnumber']
+		fk_goods,serialnumber = data['fk_goods'],data['serialnumber']
 		#Query = """SELECT FK_Goods,serialnumber FROM n_a_goods_return WHERE idapp=%(IDApp)s LIMIT 1"""
 		#cur.execute(Query, {'IDApp': idapp})
 		#fk_goods = None
@@ -122,9 +133,8 @@ class NA_BR_Goods_Return(models.Manager):
 		#if cur.rowcount > 0:
 		#	row = cur.fetchone()
 		#	fk_stock = row[0]
-		#fk_stock = super(NA_BR_Goods_Return,self).get_queryset().filter(fk_goods__exact=fk_goods)
-		data= super(NA_BR_Goods_Return,self).get_queryset().filter(fk_goods=fk_goods)[:1].values('idapp')
-		fk_stock = data[0]['idapp']
+		#fk_stock = super(NA_BR_Goods_Return,self).get_queryset().filter(fk_goods__exact=fk_goods)		
+		fk_stock = fk_goods
 		cur = connection.cursor()
 		with transaction.atomic():
 			Query = """DELETE FROM n_a_goods_return WHERE idapp=%(IDApp)s"""
@@ -146,7 +156,8 @@ class NA_BR_Goods_Return(models.Manager):
 					TGoods_Received=%(TGoods_Received)s,TMaintenance=%(TMaintenance)s,ModifiedDate=NOW(),ModifiedBy=%(ModifiedBy)s WHERE IDApp = %(fk_stock)s"""
 			param = {'fk_stock':fk_stock,'T_Goods_Spare':TotalSpare,'TIsUsed':totalUsed,'TIsNew':totalNew,'TIsRenew':totalRenew,'TGoods_Return':totalReturn,
 					'TGoods_Received':totalReceived,'TMaintenance':totalMaintenance,'ModifiedBy':who}
-			cur.execute(Query,param)
+			cur.execute(Query, param)
+		print(connection.queries)
 		cur.close()
 		return 'success'
 

@@ -21,5 +21,6 @@ urlpatterns = [
                                      namespace='NA_Goods_Disposal')),
     url(r'^Goods_Outwards/GA/', include('app.NA_Urls.Transactions.NA_Goods_Outwards_GA_url',
                                     namespace='NA_Goods_Outwards_GA')),
-    url(r'^GA_History/', include('app.NA_Urls.Transactions.NA_GA_History_url'))
+    url(r'^GA_History/', include('app.NA_Urls.Transactions.NA_GA_History_url',namespace='NA_GA_History')),
+    #url(r'^Goods_Deletion/', include('app.NA_Urls.Transactions.NA_Goods_Deletion_url',namespace='NA_Goods_Deletion'))
 ]

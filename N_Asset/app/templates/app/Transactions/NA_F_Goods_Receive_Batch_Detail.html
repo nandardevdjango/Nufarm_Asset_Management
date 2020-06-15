@@ -1131,7 +1131,7 @@
 										if (!AllowEdit) { NA.NAEvent.preventDefault(e); return; }
 										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-										var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === 'true' || rowData.HasRef.valueOf === "True";
+										var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === 'true' || rowData.HasRef.valueOf() === "True";
 										if (hasRef) {
 											NA.NAEvent.preventDefault(e); return false;
 										}
@@ -1182,7 +1182,7 @@
 										if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-										var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+										var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 										if (hasRef) {
 											NA.NAEvent.preventDefault(e); return;
 										}
@@ -1236,7 +1236,7 @@
 										if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
 										var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 										var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-										var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+										var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 										if (hasRef) {
 											NA.NAEvent.preventDefault(e); return;
 										}
@@ -1352,7 +1352,7 @@
 											var dtReceived = gridHeaderData[0]['datereceived'];
 											var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 											var rowData = gridTbl.jqGrid('getLocalRow', rowId);
-											var hasRef = rowData.HasRef.valueOf === true || rowData.HasRef.valueOf == 1 || rowData.HasRef.valueOf === "true" || rowData.HasRef.valueOf === "True";
+											var hasRef = rowData.HasRef.valueOf() === true || rowData.HasRef.valueOf() == 1 || rowData.HasRef.valueOf() === "true" || rowData.HasRef.valueOf() === "True";
 											if (hasRef) {
 												NA.NAEvent.preventDefault(e); return;
 											}

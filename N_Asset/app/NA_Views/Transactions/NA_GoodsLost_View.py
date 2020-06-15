@@ -11,8 +11,8 @@ from datetime import datetime
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import F, Q
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+#from rest_framework.decorators import api_view
+#from rest_framework.response import Response
 import operator
 def NA_Goods_Lost(request):
     return render(request,'app/MasterData/NA_F_GoodsLost.html')

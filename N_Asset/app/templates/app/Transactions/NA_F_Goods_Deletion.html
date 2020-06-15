@@ -1,0 +1,257 @@
+{% extends "../../app/layout.html" %}
+{% block SearchData %}
+{% for itemCombo in populateColumn %}
+<li><a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}">{{itemCombo.label}}</a></li>
+{% endfor %}
+
+{% endblock %}
+{% block javascriptAndUI %}
+<!--================================Load Script Modules NA ===========================================-->
+<script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
+<!--=======================================================================================================-->
+<script type="text/javascript">
+(function () {
+	var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+	var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
+	if (!NA.common.getElementID('CustomSearch')) {
+		var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+		lastLi = NA.common.doc.createElement('li'),
+		lastLi_a = NA.common.doc.createElement('a');
+		lastLi_a.setAttribute('id', 'custSearch');
+		lastLi_a.textContent = 'CustomSearch';
+		lastLi.appendChild(lastLi_a);
+		parentC.appendChild(lastLi);
+	}
+	//=================add Dynamic Styles=============================
+	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
+	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
+	var doc = doc || window.document;
+	var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+	(function (elm) {
+		var listElem = elm.children;
+		var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+		var numPlaceHolder = 'enter numeric type';
+		var boolPlaceHolder = 'true/false/1/0';
+		Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+			NA.NAEvent.addHandler(item, 'click', function (event) {
+				event.preventDefault();
+				if (item.firstChild.id === 'custSearch') {
+					//=========='show dialog search'==================
+					NA.common.dialog.createSearchDialog(event)
+					txtSearchMaster.setAttribute('disabled', true);
+					txtSearchMaster.setAttribute('placeholder', '');
+					txtSearchMaster.value = '';
+					btnSearchMaster.setAttribute('disabled', true)
+				}
+				else {
+					txtSearchMaster.removeAttribute('disabled');
+					btnSearchMaster.removeAttribute('disabled');
+					var textSearch = NA.common.getElementID('bySearch');
+					textSearch.firstChild.nodeValue = item.textContent;
+					var elSearch = item.firstChild;
+					switch (elSearch.dataset.tipe) {
+						case "varchar":
+						case "nchar":
+						case "char":
+						case "nvarchar": {
+							txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+							break;
+						}
+						case "boolean": {
+							txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+							break;
+						}
+						case "int":
+						case "integer":
+						case "decimal":
+						case "floatt":
+						case "bigint": {
+							txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+							break;
+						}
+						case "datetime": {
+							txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+							break;
+						}
+					}
+				}
+				//event.stopImmediatePropagation();
+			});
+		});
+
+		NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+			//get textcontent IDbySearch
+			//looping dropdown li a textContent
+			var SearchByText = NA.common.getElementID('bySearch').textContent;
+			var elSearch = null;
+			Array.prototype.forEach.call(listElem, function (item) {
+				if (item.firstChild.text == SearchByText) {
+					elSearch = item.firstChild;
+					return;
+				}
+			});
+			switch (elSearch.dataset.tipe) {
+				case "varchar":
+				case "nchar":
+				case "char":
+				case "nvarchar": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== defPlaceHolder) {
+							this.setAttribute('placeholder', defPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "boolean": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== boolPlaceHolder) {
+							this.setAttribute('placeholder', boolPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "int":
+				case "integer":
+				case "decimal":
+				case "floatt":
+				case "bigint": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== numPlaceHolder) {
+							this.setAttribute('placeholder', numPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+				case "datetime": {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== datePlaceHolder) {
+							this.setAttribute('placeholder', datePlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+					break;
+				}
+			}
+		});
+		NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+			if (this.value === '') {
+				if (this.getAttribute('placeholder') !== '') {
+					this.setAttribute('placeholder', '');
+				}
+			}
+		});
+	})(DivSearch);
+})();
+</script>
+<!--SETUP Jquery grid-->
+<!-- The jQuery library is a prerequisite for all jqSuite products -->
+<script>window.jQuery || NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/jquery\-1\.11\.1\.js\"\>\<\/script\>');</script>
+
+<!-- This is the Javascript file of jqGrid -->
+<script src="../../../static/app/scripts/jquery.jqGrid.min.js"></script>
+
+<!-- This is the localization file of the grid controlling messages, labels, etc. -->
+<!-- We support more than 40 localizations -->
+<script src="../../../static/app/scripts/grid.locale-en.js"></script>
+<!----------------------------Load Jquery UI. JS file-------------------------------->
+<script src="../../../static/app/scripts/jquery-ui.js"></script>
+<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
+{% endblock %}
+
+{% block content-0 %}
+	div#content-0 {
+		overflow: hidden;
+	}
+
+	div#gbox_jqGrid_NA_F_Goods_Outwards,
+	div#gview_jqGrid_NA_F_Goods_Outwards,
+	div#jqGrid_NA_F_Goods_Outwards_Pager,
+	div.ui-jqgrid-titlebar {
+		border-radius: 0px;
+	}
+
+	div.modal-dialog modal-lg>div.modal-content {
+		height: 620px;
+	}
+</style>
+<table id="jqGrid_NA_F_Goods_Deletion" style="overflow:auto"></table>
+<div id="jqGrid_NA_F_Goods_Deletion_Pager" class="scroll" style="text-align:center;"></div>
+<a style="visibility: hidden;" id="Export_Goods_Deletion_xls"
+	href="{% url 'Transactions:NA_Goods_Deletion:export_goods_deletion_xls' %}">Export all</a>
+{% endblock %}
+{% block DialogEntry %}
+<script type="text/javascript">
+(function(){
+    		//========================Variable Object untuk ===============================
+		var win = win || window,
+			grid = $("#jqGrid_NA_F_Goods_Deletion"),
+			txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+			btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+			csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
+			//TypeApps = [],
+			//settings btn sesuai user access
+			//anggap saja sekarang admin
+			btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
+			btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
+			btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
+			btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+			btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
+			containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+			originalData = {};
+        		$.ajaxSetup({
+			cache: false,
+			error: function (xhr, status, error) {
+				try {
+					var messageErr = xhr.responseText;
+					var contentype = xhr.getResponseHeader('Content-Type')
+					if (contentype === 'application/json') {
+						messageErr = $.parseJSON(xhr.responseText);
+					}
+					var message = xhr.responseText;
+					if (messageErr) {
+						message = messageErr.message;
+					}
+					if (message) {
+						ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
+					}
+
+				} catch (e) {
+					ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
+				}
+				window.document.body.style.cursor = 'defautl'; return false;
+			},
+			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
+			type: 'GET',
+			crossDomain: false, // obviates need for sameOrigin test                              
+		});
+
+		//===================================END AJAX SetuP===========================--> 
+        		//csrf token untuk form
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		};
+		$.ajaxPrefilter(function (options) {
+			// Always add "?debug=1" to every URL
+			options.beforeSend = function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type)) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken());
+				}
+			}
+		});
+        var searchData = NA.common.SearchData;
+        SearchData.setDefaultSearchData('goods', 'varchar', 'like');
+		var url = 'NA_Goods_Deletion_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+			'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+			'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+			'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+		//Load Data grid
+
+})()
+</script>
+{% endblock %}

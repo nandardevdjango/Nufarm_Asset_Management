@@ -414,7 +414,7 @@ class ResolveCriteria:
                 ResolveCriteria.__query = ' <> {0}'.format(
                     1 if self.valueData == 1 or self.valueData == '1' or self.valueData == True or self.valueData == 'True' or self.valueData == 'true' else 0)
         return ResolveCriteria.__query
-
+    @staticmethod
     def getDataType(strDataType):
         if strDataType == 'int':
             return DataType.Integer
@@ -442,7 +442,7 @@ class ResolveCriteria:
             return DataType.NVarChar
         else:
             return DataType.VarChar
-
+    @staticmethod
     def getCriteriaSearch(strCriteria):
         if strCriteria == 'equal':
             return CriteriaSearch.Equal
@@ -474,6 +474,7 @@ class ResolveCriteria:
 
 class decorators:
 
+    @staticmethod
     def ajax_required(func):
         """
         to ensure if request is ajax
@@ -486,7 +487,7 @@ class decorators:
             else:
                 raise PermissionDenied()
         return wrapper
-
+    @staticmethod
     def detail_request_method(arguments):
         """
         usage @detail_request_method('POST')
@@ -507,7 +508,7 @@ class decorators:
                 )
             return wrapper
         return real_decorator
-
+    @staticmethod
     def admin_required_action(arguments):
         """
         there are some actions that only the admin can do it
@@ -529,7 +530,7 @@ class decorators:
                     )
             return wrapper
         return real_decorator
-
+    @staticmethod
     def read_permission(form_name, action=None):
         """
         (backend security)
@@ -582,7 +583,7 @@ class decorators:
                 return func(request, *args, **kwargs)
             return wrapper
         return real_decorator
-
+    @staticmethod
     def ensure_authorization(func):
         """
         to ensure if user is authorize/login ..
@@ -885,7 +886,7 @@ class commonFunct:
                 status=status,
                 content_type='application/json'
             )
-
+    @staticmethod
     def multi_sort_queryset(queryset, Isidx, Isord):
         """
         param:
@@ -931,22 +932,24 @@ class commonFunct:
     @staticmethod
     def EmptyGrid():
         return {"page": "1", "total": 0, "records": 0, "rows": []}
-
+    @staticmethod
     def permision_denied(message=None):
         _message = 'You don\'t have permission for this action'
         if message:
             _message = message
         return HttpResponse(_message, status=403)
-
+    
+    @staticmethod
     def check_file_exists(file_dir):
         return path.exists(file_dir)
 
+    @staticmethod
     def check_dir_exists(dirr):
         if path.isdir(dirr):
             return path.exists(dirr)
         else:
             raise IsADirectoryError('this %s is not a directory' % dirr)
-
+    @staticmethod
     def create_dir(dirr):
         try:
             makedirs(dirr, exist_ok=True)
@@ -962,13 +965,14 @@ class commonFunct:
             remove(dir_user_image)
         # this is manually, but for good idea look at this is reference https://stackoverflow.com/questions/15885201/django-uploads-discard-uploaded-duplicates-use-existing-file-md5-based-check
 
+    @staticmethod
     def serialize_queryset(queryset):
         try:
             data = serialize('json', queryset)
         except AttributeError:
             data = [i for i in queryset]
         return data
-
+    @staticmethod
     def cache_queryset(queryset):
         return [i for i in queryset]
 

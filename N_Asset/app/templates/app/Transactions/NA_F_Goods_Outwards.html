@@ -11,58 +11,109 @@
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <!--=======================================================================================================-->
 <script type="text/javascript">
-(function () {
-	var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
-	var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
-	if (!NA.common.getElementID('CustomSearch')) {
-		var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
-		lastLi = NA.common.doc.createElement('li'),
-		lastLi_a = NA.common.doc.createElement('a');
-		lastLi_a.setAttribute('id', 'custSearch');
-		lastLi_a.textContent = 'CustomSearch';
-		lastLi.appendChild(lastLi_a);
-		parentC.appendChild(lastLi);
-	}
-	//=================add Dynamic Styles=============================
-	NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
-	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
+	(function () {
+		var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+			btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+		var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
+		if (!NA.common.getElementID('CustomSearch')) {
+			var parentC = NA.common.doc.querySelector('ul.dropdown-menu.search');
+			lastLi = NA.common.doc.createElement('li'),
+				lastLi_a = NA.common.doc.createElement('a');
+			lastLi_a.setAttribute('id', 'custSearch');
+			lastLi_a.textContent = 'CustomSearch';
+			lastLi.appendChild(lastLi_a);
+			parentC.appendChild(lastLi);
+		}
+		//=================add Dynamic Styles=============================
+		NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css", "jqueryUI");
+		NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css", "UIJqueryGrid");
 
 
-	var doc = doc || window.document;
-	var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
-	(function (elm) {
-		var listElem = elm.children;
-		var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
-		var numPlaceHolder = 'enter numeric type';
-		var boolPlaceHolder = 'true/false/1/0';
-		Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
-			NA.NAEvent.addHandler(item, 'click', function (event) {
-				event.preventDefault();
-				if (item.firstChild.id === 'custSearch') {
-					//=========='show dialog search'==================
-					NA.common.dialog.createSearchDialog(event)
-					txtSearchMaster.setAttribute('disabled', true);
-					txtSearchMaster.setAttribute('placeholder', '');
-					txtSearchMaster.value = '';
-					btnSearchMaster.setAttribute('disabled', true)
+		var doc = doc || window.document;
+		var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
+		(function (elm) {
+			var listElem = elm.children;
+			var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+			var numPlaceHolder = 'enter numeric type';
+			var boolPlaceHolder = 'true/false/1/0';
+			Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+				NA.NAEvent.addHandler(item, 'click', function (event) {
+					event.preventDefault();
+					if (item.firstChild.id === 'custSearch') {
+						//=========='show dialog search'==================
+						NA.common.dialog.createSearchDialog(event)
+						txtSearchMaster.setAttribute('disabled', true);
+						txtSearchMaster.setAttribute('placeholder', '');
+						txtSearchMaster.value = '';
+						btnSearchMaster.setAttribute('disabled', true)
+					}
+					else {
+						txtSearchMaster.removeAttribute('disabled');
+						btnSearchMaster.removeAttribute('disabled');
+						var textSearch = NA.common.getElementID('bySearch');
+						textSearch.firstChild.nodeValue = item.textContent;
+						var elSearch = item.firstChild;
+						switch (elSearch.dataset.tipe) {
+							case "varchar":
+							case "nchar":
+							case "char":
+							case "nvarchar": {
+								txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+								break;
+							}
+							case "boolean": {
+								txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+								break;
+							}
+							case "int":
+							case "integer":
+							case "decimal":
+							case "floatt":
+							case "bigint": {
+								txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+								break;
+							}
+							case "datetime": {
+								txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+								break;
+							}
+						}
+					}
+					//event.stopImmediatePropagation();
+				});
+			});
+
+			NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+				//get textcontent IDbySearch
+				//looping dropdown li a textContent
+				var SearchByText = NA.common.getElementID('bySearch').textContent;
+				var elSearch = null;
+				Array.prototype.forEach.call(listElem, function (item) {
+					if (item.firstChild.text == SearchByText) {
+						elSearch = item.firstChild;
+						return;
+					}
+				});
+				if (!elSearch) {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== defPlaceHolder) {
+							this.setAttribute('placeholder', defPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
 				}
 				else {
-					txtSearchMaster.removeAttribute('disabled');
-					btnSearchMaster.removeAttribute('disabled');
-					var textSearch = NA.common.getElementID('bySearch');
-					textSearch.firstChild.nodeValue = item.textContent;
-					var elSearch = item.firstChild;
 					switch (elSearch.dataset.tipe) {
 						case "varchar":
 						case "nchar":
 						case "char":
 						case "nvarchar": {
-							txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
-							break;
-						}
-						case "boolean": {
-							txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== defPlaceHolder) {
+									this.setAttribute('placeholder', defPlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
 							break;
 						}
 						case "int":
@@ -70,86 +121,35 @@
 						case "decimal":
 						case "floatt":
 						case "bigint": {
-							txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== numPlaceHolder) {
+									this.setAttribute('placeholder', numPlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
 							break;
 						}
 						case "datetime": {
-							txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== datePlaceHolder) {
+									this.setAttribute('placeholder', datePlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
 							break;
 						}
 					}
 				}
-				//event.stopImmediatePropagation();
 			});
-		});
-
-		NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
-			//get textcontent IDbySearch
-			//looping dropdown li a textContent
-			var SearchByText = NA.common.getElementID('bySearch').textContent;
-			var elSearch = null;
-			Array.prototype.forEach.call(listElem, function (item) {
-				if (item.firstChild.text == SearchByText) {
-					elSearch = item.firstChild;
-					return;
-				}
-			});
-			if (!elSearch) {
+			NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
 				if (this.value === '') {
-					if (this.getAttribute('placeholder') !== defPlaceHolder) {
-						this.setAttribute('placeholder', defPlaceHolder);
+					if (this.getAttribute('placeholder') !== '') {
+						this.setAttribute('placeholder', '');
 					}
 				}
-				e.stopImmediatePropagation();
-			}
-			else {
-				switch (elSearch.dataset.tipe) {
-					case "varchar":
-					case "nchar":
-					case "char":
-					case "nvarchar": {
-						if (this.value === '') {
-							if (this.getAttribute('placeholder') !== defPlaceHolder) {
-								this.setAttribute('placeholder', defPlaceHolder);
-							}
-						}
-						e.stopImmediatePropagation();
-						break;
-					}
-					case "int":
-					case "integer":
-					case "decimal":
-					case "floatt":
-					case "bigint": {
-						if (this.value === '') {
-							if (this.getAttribute('placeholder') !== numPlaceHolder) {
-								this.setAttribute('placeholder', numPlaceHolder);
-							}
-						}
-						e.stopImmediatePropagation();
-						break;
-					}
-					case "datetime": {
-						if (this.value === '') {
-							if (this.getAttribute('placeholder') !== datePlaceHolder) {
-								this.setAttribute('placeholder', datePlaceHolder);
-							}
-						}
-						e.stopImmediatePropagation();
-						break;
-					}
-				}
-			}  
-		});
-		NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
-			if (this.value === '') {
-				if (this.getAttribute('placeholder') !== '') {
-					this.setAttribute('placeholder', '');
-				}
-			}
-		});
-	})(DivSearch);
-})();
+			});
+		})(DivSearch);
+	})();
 </script>
 <!--SETUP Jquery grid-->
 <!-- The jQuery library is a prerequisite for all jqSuite products -->
@@ -173,46 +173,32 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 <script src="../../../static/app/scripts/printThis.js"></script>
 <!----------------------------Script for /Printing/Exporting to Excel -------------------------------------------------------->
 <!--<script src="../../../static/app/scripts/jszip.min.js "></script>-->
-<script type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
+<script
+	type="text/javascript">if (typeof $.fn.modal == 'undefined') { NA.common.doc.write('\<script src\=\"\.\.\/\.\.\/\.\.\/static\/app\/scripts\/bootstrap\.js\"\>\<\/script\>'); }</script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
 {% endblock %}
 
 {% block content-0 %}
 <style>
-    div#content-0 {
-        overflow: hidden;
-    }
-    div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div#jqGrid_NA_F_Goods_Outwards_Pager, div.ui-jqgrid-titlebar {
-        border-radius: 0px;
+	div#content-0 {
+		overflow: hidden;
 	}
-		div.modal-dialog modal-lg>div.modal-content{
-			height: 620px;
-		}
-	/** iframe.fullScreen { 
-    /*width: 100%;
-	/*height: 100%;
-	/*	position:absolute;
-	/*top:0;left:0;z-index:100;
+
+	div#gbox_jqGrid_NA_F_Goods_Outwards,
+	div#gview_jqGrid_NA_F_Goods_Outwards,
+	div#jqGrid_NA_F_Goods_Outwards_Pager,
+	div.ui-jqgrid-titlebar {
+		border-radius: 0px;
 	}
-	*/ 
-    /**.overlay {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      z-index: 1;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, .3);
-      display: none;
-      cursor: pointer;
+
+	div.modal-dialog modal-lg>div.modal-content {
+		height: 620px;
 	}
-	*/
 </style>
 <table id="jqGrid_NA_F_Goods_Outwards" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Outwards_Pager" class="scroll" style="text-align:center;"></div>
-<a style="visibility: hidden;" id="Export_Goods_Outwards_xls" href="{% url 'Transactions:NA_Goods_Outwards:export_goods_xls' %}">Export all</a>
+<a style="visibility: hidden;" id="Export_Goods_Outwards_xls"
+	href="{% url 'Transactions:NA_Goods_Outwards:export_goods_xls' %}">Export all</a>
 {% endblock %}
 
 {% block DialogEntry %}
@@ -220,20 +206,20 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 	(function () {
 		//========================Variable Object untuk ===============================
 		var win = win || window,
-        grid = $("#jqGrid_NA_F_Goods_Outwards"),
-        txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-        btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
-        csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
-        //TypeApps = [],
-        //settings btn sesuai user access
-        //anggap saja sekarang admin
-        btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
-        btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
-        btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
-        btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
-        btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
-        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
-        originalData = {};
+			grid = $("#jqGrid_NA_F_Goods_Outwards"),
+			txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+			btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+			csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
+			//TypeApps = [],
+			//settings btn sesuai user access
+			//anggap saja sekarang admin
+			btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
+			btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
+			btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
+			btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+			btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
+			containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+			originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
 			cache: false,
@@ -276,19 +262,19 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				}
 			}
 		});
-		
+
 		var SearchData = NA.common.SearchData;
 		SearchData.setDefaultSearchData('goods', 'varchar', 'like');
 		var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
-        '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
-        '&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
-        '&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+			'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+			'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+			'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 		//Load Data grid
 		function LoadData(page) {
 			var url = 'NA_Goods_Outwards_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
-						'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
-						'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
-						'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+				'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+				'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+				'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
 			if (arguments.length > 0) {
 				grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
 			}
@@ -300,20 +286,21 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee', 'Emp_Mobile',
-							'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From','Equipment', 'Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO','Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee', 'Emp_Mobile',
+							'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
-                            { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+							{ name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+							{ name : 'territory',width:100,index:'territory',align:'left',sortable:true,editable:false},
 							{ name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
-                            { name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
-                            { name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
+							{ name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
+							{ name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
 							{ name: 'daterequest', index: 'daterequest', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
 							{ name: 'datereleased', index: 'datereleased', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
 							{ name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
 							{ name: 'fk_employee', index: 'fk_employee', hidden: true, },
 							{ name: 'for_employee', index: 'for_employee', width: 110, sortable: true, editable: false, align: 'left', },
-							{ name: 'mobile',index:'mobile', width: 110, sortable: true, editable: false, align: 'left', },
+							{ name: 'mobile', index: 'mobile', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true, },
 							{ name: 'eks_employee', index: 'eks_employee', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_responsibleperson', index: 'fk_responsibleperson', hidden: true, },
@@ -322,10 +309,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							{ name: 'senderby', index: 'senderby', width: 110, sortable: true, editable: false, align: 'left', },
 							{ name: 'fk_stock', index: 'fk_stock', hidden: true, },
 							{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'left', },
-							{name: 'equipment_desc',index:'equipment_desc',width:150,sortable:true,editable:false,align:'left'},
+							{ name: 'equipment_desc', index: 'equipment_desc', width: 150, sortable: true, editable: false, align: 'left' },
 							{ name: 'descriptions', index: 'descriptions', width: 140, sortable: true, editable: false, align: 'left', },
-                            { name: 'createddate', index: 'createddate', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
-                            { name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
+							{ name: 'createddate', index: 'createddate', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							{ name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
 						],
 						ondblClickRow: function (rowId) {
 							var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
@@ -384,7 +371,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				myUrl += "&" + key + "=" + encodeURIComponent(value);
 			});
 			lnkUrl = myUrl.replace('NA_Goods_Outwards_Search', 'ExportToExcel')
-			linkExcel.setAttribute('href', lnkUrl);		
+			linkExcel.setAttribute('href', lnkUrl);
 		};
 
 		LoadData();
@@ -400,9 +387,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		//==========================GROUP Function Declaration================================
 		function GetServerFormatDate(parsedDate) {//dd/mm/yy value -->yyyy-mm-dd
 			var d = new Date(parsedDate),
-                month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
+				month = '' + (d.getMonth() + 1),
+				day = '' + d.getDate(),
+				year = d.getFullYear();
 
 			if (month.length < 2) month = '0' + month;
 			if (day.length < 2) day = '0' + day;
@@ -411,11 +398,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		};
 		function formatDate(theDate) {//date/month/year
 			var date = new Date(theDate),
-              year = date.getFullYear(),
-              month = (date.getMonth() + 1).toString(),
-              formatedMonth = (month.length === 1) ? ("0" + month) : month,
-              day = date.getDate().toString(),
-              formatedDay = (day.length === 1) ? ("0" + day) : day;
+				year = date.getFullYear(),
+				month = (date.getMonth() + 1).toString(),
+				formatedMonth = (month.length === 1) ? ("0" + month) : month,
+				day = date.getDate().toString(),
+				formatedDay = (day.length === 1) ? ("0" + day) : day;
 			return formatedDay + "/" + formatedMonth + "/" + year //+ " " + formatedHour + ':' + formatedMinute + ':' + formatedSecond;
 		};
 
@@ -603,49 +590,51 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						var NAAjax = NA.common.AJAX;
 						if (win.status === 'Add') {
 							NAAjax.POST('HasExists/',
-                                JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest, 'datereleased': dateReleased, 'serialnumber': elserialnumber.value, 'fk_employee': fk_employee }),
-                                'application/x-www-form-urlencoded', 'application/json',
-                                function () {
-                                	window.document.body.style.cursor = 'wait';
-                                }, null,
-                                function () {
-                                	if (this.status === 200) {
-                                		var confirmText = JSON.parse(this.responseText);
-                                		if (confirmText) {
-                                			confirmText = confirmText.message;
+								JSON.stringify({ 'idapp_fk_goods': elidapp_fk_goods.value, 'daterequest': dateRequest, 'datereleased': dateReleased, 'serialnumber': elserialnumber.value, 'fk_employee': fk_employee }),
+								'application/x-www-form-urlencoded', 'application/json',
+								function () {
+									window.document.body.style.cursor = 'wait';
+								}, null,
+								function () {
+									if (this.status === 200) {
+										var confirmText = JSON.parse(this.responseText);
+										if (confirmText) {
+											confirmText = confirmText.message;
 											if (!confirmText) {
-                                				ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
-                                			}
-                                		}
-                                		else {
-                                			win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
-                                		}
-                                		if (confirmText === 'OK') {
-                                			win.document.body.style.cursor = 'wait';
-                                			valuesForm = getValuesForm();
-                                			submitForm(valuesForm);
-                                			win.document.body.style.cursor = 'default';
-                                		}
-                                		else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
-                                			return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
-                                				win.document.body.style.cursor = 'wait';
-                                				valuesForm = getValuesForm();
-                                				submitForm(valuesForm);
-                                				win.document.body.style.cursor = 'default';
-                                			});
-                                		}
-                                	}
-                                	else {
-                                		XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
-                                	}
-                                }, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); },
-                                function () { win.document.body.style.cursor = 'default'; }
-                            );
+												ShowAlert('unknown error', 'uncaught error'); win.document.body.style.cursor = 'default'; throw Error('');
+											}
+										}
+										else {
+											win.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR); throw Error('');
+										}
+										if (confirmText === 'OK') {
+											win.document.body.style.cursor = 'wait';
+											valuesForm = getValuesForm();
+											submitForm(valuesForm);
+											win.document.body.style.cursor = 'default';
+										}
+										else {//ada confirmasi data yang mungkin sama, tapi inputan terserah user
+											return showConfirmation(confirmText, NA.common.message.confirmInfo, function () {
+												win.document.body.style.cursor = 'wait';
+												valuesForm = getValuesForm();
+												submitForm(valuesForm);
+												win.document.body.style.cursor = 'default';
+											});
+										}
+									}
+									else {
+										XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error('');
+									}
+								}, null, function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; throw new Error(''); },
+								function () { win.document.body.style.cursor = 'default'; }
+							);
 						}
 						else if (win.status == 'Edit') {
 							win.document.body.style.cursor = 'wait';
 							valuesForm = getValuesForm();
-							submitForm(valuesForm);
+							if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+								submitForm(valuesForm);
+							}							
 							win.document.body.style.cursor = 'default';
 						}
 					}
@@ -680,12 +669,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				}
 			};
 		};
-		function disabledAllEntry(){
+		function disabledAllEntry() {
 			var elements = NA.common.doc.querySelectorAll("#frm-NA-Entry-Goods-Outwards input[type='text'],textarea,button.btn.btn-success");
 			for (var i = 0, element; element = elements[i++];) {
-				if (!element.getAttribute('disabled')){
-					element.setAttribute('disabled',true);
-				}					
+				if (!element.getAttribute('disabled')) {
+					element.setAttribute('disabled', true);
+				}
 			}
 		};
 		function EnabledAllEntry() {
@@ -733,8 +722,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 								originalData = JSON.stringify(getValuesForm());
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
-								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')){
-									if(NA.common.dialog.IsPrintingPDF){
+								if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
+									if (NA.common.dialog.IsPrintingPDF) {
 										printToPDF();
 									}
 								}
@@ -752,13 +741,13 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 									}
 								}
 								if (NA.common.dialog.hasOwnProperty('mustCloseDialog')) {
-									if (NA.common.dialog.mustCloseDialog ) {
+									if (NA.common.dialog.mustCloseDialog) {
 										closeDialog();
 									}
 								}
 								grid.trigger("reloadGrid", [{ page: 1 }]);
 								win.document.body.style.cursor = 'default';
-								break;					
+								break;
 							}
 						}
 						//reloadJquery$("#jqGrid_NA_F_Goods").trigger("reloadGrid", [{ page: 1 }]);
@@ -809,12 +798,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			elfk_responsiblepersonEmpl.value = originalData.fk_responsibleperson_employee || '';
 
 			var elidapp_fk_responsibleperson = NA.common.getElementID('id_idapp_fk_responsibleperson');
-			elidapp_fk_responsibleperson.value = originalData.idapp_fk_responsibleperson||null;
+			elidapp_fk_responsibleperson.value = originalData.idapp_fk_responsibleperson || null;
 
 			var elfk_sender = NA.common.getElementID('id_fk_sender');
 			elfk_sender.value = originalData.fk_sender || '';
 			var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender');
-			elidapp_fk_sender.value = originalData.fk_sender||null;
+			elidapp_fk_sender.value = originalData.fk_sender || null;
 			var elfk_sender_employee = NA.common.getElementID('id_fk_sender_employee');
 			elfk_sender_employee.value = originalData.fk_sender_employee || '';
 
@@ -824,7 +813,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 			//equipment desc
 			var equipDesc = NA.common.getElementID('id_equipment_desc');
-			equipDesc.value = originalData.equipment_desc||'';
+			equipDesc.value = originalData.equipment_desc || '';
 			var eldescriptions = NA.common.getElementID('id_descriptions');
 			eldescriptions.value = originalData.descriptions || '';
 			var eltypeapp = NA.common.getElementID('TypeValue');
@@ -836,17 +825,17 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			elbrandvalue.textContent = '';
 
 			var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance');
-			elfk_frommaintenance.value = originalData.fk_frommaintenance||null;
+			elfk_frommaintenance.value = originalData.fk_frommaintenance || null;
 
 			var elfk_return = NA.common.getElementID('id_fk_return');
-			elfk_return.value = originalData.fk_return||null;
+			elfk_return.value = originalData.fk_return || null;
 			var elfk_lending = NA.common.getElementID('id_fk_lending');
-			elfk_lending.value = originalData.fk_lending||null;
+			elfk_lending.value = originalData.fk_lending || null;
 			var elfk_receive = NA.common.getElementID('id_fk_receive');
-			elfk_receive.value = originalData.fK_receive||null;
+			elfk_receive.value = originalData.fK_receive || null;
 
 			var ellastUsedInfo = NA.common.getElementID('lastUsedInfo'),
-			lastUsedInfo = ellastUsedInfo.textContent
+				lastUsedInfo = ellastUsedInfo.textContent
 			//var elfk_lost = NA.common.getElementID('id_fk_lost');
 			//elfk_lost.value = originalData.fk_lost;
 			var ellastinfo = NA.common.getElementID('LastInfoValue');
@@ -856,9 +845,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		};
 		function getValuesForm() {
 			var elidapp = NA.common.getElementID('id_idapp'),
-			idapp = elidapp.value;
+				idapp = elidapp.value;
 			var elfk_goods = NA.common.getElementID('fk_goodsValue'),
-                fk_goods = elfk_goods.textContent;
+				fk_goods = elfk_goods.textContent;
 			var elisnew = NA.common.getElementID('id_isnew'),
 				isnew = elisnew.value;
 			//goods tidak usah
@@ -888,27 +877,27 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			var eldescriptions = NA.common.getElementID('id_descriptions'),
 				descriptions = eldescriptions.value;
 			var eltypeapp = NA.common.getElementID('TypeValue'),
-               typeapp = eltypeapp.textContent;
+				typeapp = eltypeapp.textContent;
 			var elserialnumber = NA.common.getElementID('id_serialnumber'),
-            serialnumber = elserialnumber.value;
+				serialnumber = elserialnumber.value;
 			//brandvalue nggak usah
 			var elfk_frommaintenance = NA.common.getElementID('id_fk_frommaintenance'),
-                fk_frommaintenance = elfk_frommaintenance.value||0;
+				fk_frommaintenance = elfk_frommaintenance.value || 0;
 			var elfk_return = NA.common.getElementID('id_fk_return'),
-                fk_return = elfk_return.value||0;
+				fk_return = elfk_return.value || 0;
 			var elfk_lending = NA.common.getElementID('id_fk_lending'),
-                fk_lending = elfk_lending.value||0;
+				fk_lending = elfk_lending.value || 0;
 			var elfk_receive = NA.common.getElementID('id_fk_receive'),
-                fk_receive = elfk_receive.value||0;
+				fk_receive = elfk_receive.value || 0;
 			//var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
 			//    fk_disposal = elfk_disposal.value;
 			//var elfk_lost = NA.common.getElementID('id_fk_lost'),
 			//    fk_lost = elfk_lost.value;
 			var ellastinfo = NA.common.getElementID('LastInfoValue'),
-                lastinfo = ellastinfo.textContent
+				lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
 			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
-			var idapp_fk_usedemployee = elfk_usedemployeeValue.value||0;
+			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 			//if(UsedEmployee.length > 0){
 			//	fk_usedemployee = UsedEmployee[0];
 			//}
@@ -919,8 +908,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			return {
 				idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
 				idapp_fk_usedemployee: idapp_fk_usedemployee,
-				daterequest: daterequest, datereleased : datereleased,fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
-				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender,equipment_desc:equipDesc,descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
+				daterequest: daterequest, datereleased: datereleased, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson,
+				fk_sender: fk_sender, idapp_fk_sender: idapp_fk_sender, equipment_desc: equipDesc, descriptions: descriptions, typeapp: typeapp, serialnumber: serialnumber,
 				fk_frommaintenance: fk_frommaintenance, fk_return: fk_return, fk_lending: fk_lending, fk_receive: fk_receive, lastinfo: lastinfo,
 				status: win.status
 			}
@@ -945,20 +934,20 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		//	footerButton.style.cssText = 'padding-top:8px;';
 		//};
 		function fillGoodsInfo(rowData, serialnumber, IsFromTextBox) {
-		    var containerDialog = NA.common.doc.querySelector('div.containerDialog');
-		    var pkfrom = 'fk_return';
-		    var pkkey = '';
-		    var viewportSize = NA.common.dialog.getViewportSize();
-		    containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
-		    containerDialog.style.overflowY = 'auto';
-		    containerDialog.style.overflowX = 'hidden';
-		    //containerDialog.style.top = '0';
-			 //form.idapp_fk_goods 
-			 //form.fk_frommaintenance 
-			 //form.fk_return 
-			 //form.fk_lending 
-			 //form.fk_receive 
-			 //
+			var containerDialog = NA.common.doc.querySelector('div.containerDialog');
+			var pkfrom = 'fk_return';
+			var pkkey = '';
+			var viewportSize = NA.common.dialog.getViewportSize();
+			containerDialog.style.maxHeight = viewportSize[1].toString() + 'px';
+			containerDialog.style.overflowY = 'auto';
+			containerDialog.style.overflowX = 'hidden';
+			//containerDialog.style.top = '0';
+			//form.idapp_fk_goods 
+			//form.fk_frommaintenance 
+			//form.fk_return 
+			//form.fk_lending 
+			//form.fk_receive 
+			//
 			//form.idapp di status edit/open
 
 			//  	form.idapp_fk_goods
@@ -968,7 +957,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			//    form.fk_frommaintenance 
 			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
 			elfk_maintenance.value = rowData['fk_maintenance'] || null;
-	
+
 			//      form.fk_return 
 			var elfk_return = NA.common.getElementID('id_fk_return');
 			elfk_return.value = rowData['fk_return'] || null;
@@ -1019,7 +1008,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			elfk_usedemployeeValue.textContent = rowData['nik_usedemployee'] + '|' + rowData['usedemployee'];
 
 			var elidfk_usedemployee = NA.common.getElementID('id_idapp_fk_usedemployee');
-			elidfk_usedemployee.value =   rowData['fk_usedemployee'];
+			elidfk_usedemployee.value = rowData['fk_usedemployee'];
 			////form.serialnumber
 			//var elserialnumber = NA.common.getElementID('id_serialnumber');
 			//elserialnumber.value = rowData['serialnumber'];
@@ -1033,7 +1022,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				var elserialnumber = NA.common.getElementID('id_serialnumber');
 				elserialnumber.value = rowData['serialnumber'] || '';
 			}
-			elgoods.attributes['placeholder'] = '';			
+			elgoods.attributes['placeholder'] = '';
 			if (IsFromTextBox) {
 				NA.common.getElementID('lastUsedInfo').style.display = 'block';
 			}
@@ -1050,32 +1039,32 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				var NAAjax = NA.common.AJAX;
 				var url = 'getLastDateTrans/?' + win.encodeURIComponent('pkkey') + '=' + win.encodeURIComponent(pkkey) + '&' + win.encodeURIComponent('pkfrom') + '=' + win.encodeURIComponent(pkfrom);
 				NAAjax.GET(url,
-                        'application/json',//overrideMimeType returned by the server
-                        function () { window.document.body.style.cursor = 'wait'; },
-                        null,//nggak usah di isi bila tidak perlu
-                        function () {//function executed after data has been returned by server(XHR.onload)
-                        	var data = JSON.parse(this.responseText);
-                        	if (data && data.message) {
-                        		$('#id_datereleased').datepicker({
-                        			dateFormat: 'dd/mm/yy',
-                        			changeMonth: true,
-                        			changeYear: true,
-                        			beforeShowDay: $.datepicker.noWeekends,
-                        			minDate: (function (g) {
-                        				return new Date(data);
-                        			})(win),
-                        			//maxDate: 0,
-                        			//showOn: "button",
-                        			//showButtonPanel: true,
-                        			closeText: "Close",
-                        			currentText: 'Now',
-                        		});
-                        	}
-                        }, null, function () {//function untuk ajax error
-                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
-                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                        );
+					'application/json',//overrideMimeType returned by the server
+					function () { window.document.body.style.cursor = 'wait'; },
+					null,//nggak usah di isi bila tidak perlu
+					function () {//function executed after data has been returned by server(XHR.onload)
+						var data = JSON.parse(this.responseText);
+						if (data && data.message) {
+							$('#id_datereleased').datepicker({
+								dateFormat: 'dd/mm/yy',
+								changeMonth: true,
+								changeYear: true,
+								beforeShowDay: $.datepicker.noWeekends,
+								minDate: (function (g) {
+									return new Date(data);
+								})(win),
+								//maxDate: 0,
+								//showOn: "button",
+								//showButtonPanel: true,
+								closeText: "Close",
+								currentText: 'Now',
+							});
+						}
+					}, null, function () {//function untuk ajax error
+						window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+					}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+					null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+				);
 
 			}
 		};
@@ -1083,36 +1072,36 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			var NAAjax = NA.common.AJAX;
 			var url = 'getEmployee/?' + win.encodeURIComponent('nik') + '=' + win.encodeURIComponent(event.target.value)
 			NAAjax.GET(url,
-                        'application/json',//overrideMimeType returned by the server
-                        function () { window.document.body.style.cursor = 'wait'; },
-                        null,//nggak usah di isi bila tidak perlu
-                        function () {//function executed after data has been returned by server(XHR.onload)
-                        	var data = JSON.parse(this.responseText);
-                        	if (data) {
-                        		var mainID = elmID.substring(3);
-                        		//set employee_name
-                        		var elempname = NA.common.getElementID('id_' + mainID + '_employee');
-                        		var elidapp = NA.common.getElementID('id_idapp_' + mainID);
-                        		//var elFKEmp = NA.common.getElementID('id_' + mainID);
-                        		//elFKEmp.value = data['nik']||'';
-                        		elempname.value = data['employee_name'] || '';
-                        		elidapp.value = data['idapp'] || '';
-                        	}
-                        }, null, function () {//function untuk ajax error
-                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
-                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                        );
+				'application/json',//overrideMimeType returned by the server
+				function () { window.document.body.style.cursor = 'wait'; },
+				null,//nggak usah di isi bila tidak perlu
+				function () {//function executed after data has been returned by server(XHR.onload)
+					var data = JSON.parse(this.responseText);
+					if (data) {
+						var mainID = elmID.substring(3);
+						//set employee_name
+						var elempname = NA.common.getElementID('id_' + mainID + '_employee');
+						var elidapp = NA.common.getElementID('id_idapp_' + mainID);
+						//var elFKEmp = NA.common.getElementID('id_' + mainID);
+						//elFKEmp.value = data['nik']||'';
+						elempname.value = data['employee_name'] || '';
+						elidapp.value = data['idapp'] || '';
+					}
+				}, null, function () {//function untuk ajax error
+					window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+				}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+				null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+			);
 		};
 		//==========================End GROUP Function Declaration================================
 
 		//=======================GROUP FUNCTION EVENT=============================================
-		function AddNew(event){
+		function AddNew(event) {
 			EnabledAllEntry();
 			//disablekan text button
-			var listDisabled = NA.common.doc.querySelectorAll('input[id="id_goods"],[id="id_fk_employee_employee"],[id="id_fk_sender_employee"],[id="id_fk_responsibleperson_employee"]');			
+			var listDisabled = NA.common.doc.querySelectorAll('input[id="id_goods"],[id="id_fk_employee_employee"],[id="id_fk_sender_employee"],[id="id_fk_responsibleperson_employee"]');
 			Array.prototype.forEach.call(listDisabled, function (item) {
-				item.setAttribute('disabled',true)
+				item.setAttribute('disabled', true)
 			});
 			clearEntry();
 			originalData = JSON.stringify(getValuesForm());
@@ -1127,10 +1116,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		}
 		function handlerSearchInput(event) {
 			event = NA.NAEvent.getEvent(event);
-			if (event.keyCode === 13 || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster ) {
+			if (event.keyCode === 13 || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster) {
 				NA.NAEvent.preventDefault(event);
 				var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
-                SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
+					SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
 				if (SearchBy.trim() == 'By') {
 					SearchData.setDefaultSearchData('goods', 'varchar', 'like');
 					//var curPage = parseInt(grid.getGridParam('page'));
@@ -1163,11 +1152,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 			// print the contents of the print container.    
 			$('#prt-container').printThis({
-				removeScripts:true,
-				header:'\<img src="..\/..\/..\/static\/app\/images\/NufarmLogo.jpg" width="112.5" height="54.75"\/\>',
-				afterPrint:function(){
+				removeScripts: true,
+				header: '\<img src="..\/..\/..\/static\/app\/images\/NufarmLogo.jpg" width="112.5" height="54.75"\/\>',
+				afterPrint: function () {
 					$('head style').remove();
-					$('body #prt-container').remove();	
+					$('body #prt-container').remove();
 				}
 			});
 			// remove print container style and div from DOM after printing is done.
@@ -1175,54 +1164,54 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		function printToPDF() {
 			urlReport = 'getReportAdHoc/';
 			var elidapp = NA.common.getElementID('id_idapp'), idapp = elidapp.value;
-		        var NAAjax = NA.common.AJAX;
+			var NAAjax = NA.common.AJAX;
 
-		        NAAjax.POST(urlReport, JSON.stringify({ 'idapp': idapp }), 'application/json','application/pdf',//'arraybuffer',
-                    function () { window.document.body.style.cursor = 'wait'; },
-                        null,//nggak usah di isi bila tidak perlu
-                        function () {
-                            var contentDisposition = NAAjax.XHR.getResponseHeader('Content-Disposition');
-                            var startIndex = contentDisposition.indexOf("filename=") + 10; // Adjust '+ 10' if filename is not the right one.
-                            var endIndex = contentDisposition.length ; //Check if '- 1' is necessary
-                            var filename = contentDisposition.substring(startIndex, endIndex);            
-							var response = NAAjax.XHR.response;
-							//var downloadLink = document.createElement('a');
-							//downloadLink.target = '_blank';
-							//downloadLink.title = filename;
+			NAAjax.POST(urlReport, JSON.stringify({ 'idapp': idapp }), 'application/json', 'application/pdf',//'arraybuffer',
+				function () { window.document.body.style.cursor = 'wait'; },
+				null,//nggak usah di isi bila tidak perlu
+				function () {
+					var contentDisposition = NAAjax.XHR.getResponseHeader('Content-Disposition');
+					var startIndex = contentDisposition.indexOf("filename=") + 10; // Adjust '+ 10' if filename is not the right one.
+					var endIndex = contentDisposition.length; //Check if '- 1' is necessary
+					var filename = contentDisposition.substring(startIndex, endIndex);
+					var response = NAAjax.XHR.response;
+					//var downloadLink = document.createElement('a');
+					//downloadLink.target = '_blank';
+					//downloadLink.title = filename;
 
-							// convert downloaded data to a Blob
-							var blob = new Blob([response], { type: 'application/pdf' });
+					// convert downloaded data to a Blob
+					var blob = new Blob([response], { type: 'application/pdf' });
 
-							// create an object URL from the Blob
-							var URL = window.URL || window.webkitURL;
-							var downloadUrl = URL.createObjectURL(blob);
-							BootstrapDialog.show({
-								draggable: true,
-								title: "Printing Goods Outwards",
-								type: BootstrapDialog.TYPE_INFO,
-								size: BootstrapDialog.SIZE_WIDE,
-								message: function (dialogRef) {
-									var cFrame = NA.common.doc.createElement("iframe");
-									cFrame.setAttribute('id','CFrame');
-									cFrame.setAttribute('scrolling','auto');
-									cFrame.setAttribute('title',filename);
-									cFrame.setAttribute('height','520px');
-									cFrame.setAttribute('width','855px');
-									cFrame.setAttribute('src',downloadUrl);
-									return cFrame;
-									//return "<iframe id="fred" style="border: 1px solid #666CCC" title="PDF in an i - Frame" src="PDFData.pdf" frameborder="1" scrolling="auto" height="1100" width="850" ></iframe>";
-								},
-								closable: true,
-								animate: false,
-								closeByBackdrop: false,
-								closeByKeyboard: false								
-							});
-						},null,
-						function () {//function untuk ajax error
-                            window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
-                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                        );
+					// create an object URL from the Blob
+					var URL = window.URL || window.webkitURL;
+					var downloadUrl = URL.createObjectURL(blob);
+					BootstrapDialog.show({
+						draggable: true,
+						title: "Printing Goods Outwards",
+						type: BootstrapDialog.TYPE_INFO,
+						size: BootstrapDialog.SIZE_WIDE,
+						message: function (dialogRef) {
+							var cFrame = NA.common.doc.createElement("iframe");
+							cFrame.setAttribute('id', 'CFrame');
+							cFrame.setAttribute('scrolling', 'auto');
+							cFrame.setAttribute('title', filename);
+							cFrame.setAttribute('height', '520px');
+							cFrame.setAttribute('width', '855px');
+							cFrame.setAttribute('src', downloadUrl);
+							return cFrame;
+							//return "<iframe id="fred" style="border: 1px solid #666CCC" title="PDF in an i - Frame" src="PDFData.pdf" frameborder="1" scrolling="auto" height="1100" width="850" ></iframe>";
+						},
+						closable: true,
+						animate: false,
+						closeByBackdrop: false,
+						closeByKeyboard: false
+					});
+				}, null,
+				function () {//function untuk ajax error
+					window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+				}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+				null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+			);
 		};
 		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel, columnsHidden) {
 			//If JSONData is not an object then JSON.parse will parse the JSON string in an Object
@@ -1397,7 +1386,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 					var dialog = NA.common.doc.querySelector('div.containerDialog');
 					NA.common.getElementID('searchmodfbox').style.display = 'block';
 					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
-                    txtSearchCustom = NA.common.getElementID('jqg1');
+						txtSearchCustom = NA.common.getElementID('jqg1');
 					NA.NAEvent.addHandler(btnClose, 'click', function (event) {
 						closeDialog();
 					});
@@ -1433,9 +1422,9 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				NA.NAEvent.preventDefault(event);
 
 			var elementOption = null, columnKey = '', valueKey = '',
-            elCriteria = null,//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
-            valCriteria = '',//elCriteria.nodeValue;
-            elDataType = '';//elementOption.dataset.dataType;
+				elCriteria = null,//NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
+				valCriteria = '',//elCriteria.nodeValue;
+				elDataType = '';//elementOption.dataset.dataType;
 			criteria = 'like'
 			//get  ajax with querystring search
 			//valueKey : valueKey,
@@ -1504,7 +1493,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 					}
 				};
 			}
-			else if (event.target == txtSearchMaster || event.target == btnSearchMaster) {
+			else if (event.target == txtSearchMaster || event.target == btnSearchMaster || event.target.parentElement == btnSearchMaster) {
 				var elSearch = null;
 				valueKey = txtSearchMaster.value.trim();
 				var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
@@ -1582,11 +1571,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 								var textStatus = JSON.parse(this.responseText);
 								if (textStatus.message === 'success') {
 									var rowNum = grid.getGridParam('rowNum'),
-									allRecords = grid.getGridParam('records'),
-									totalPages = parseInt((allRecords / rowNum) + 1),
-									curPage = grid.getGridParam('page'),
-									rowId = grid.jqGrid('getGridParam', 'selrow'),
-									curRecount = grid.jqGrid('getGridParam', 'reccount');
+										allRecords = grid.getGridParam('records'),
+										totalPages = parseInt((allRecords / rowNum) + 1),
+										curPage = grid.getGridParam('page'),
+										rowId = grid.jqGrid('getGridParam', 'selrow'),
+										curRecount = grid.jqGrid('getGridParam', 'reccount');
 									mustReload = true;
 									if (parseInt(curRecount) === 1) {
 										if (totalPages > 1) {
@@ -1649,8 +1638,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
 			var hasLoadDialog = false;
 			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"),
-        	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
-			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
+				btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
+				btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			//rubah dialog top nya jadi 10px saja
 			dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
@@ -1675,7 +1664,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						}
 					} catch (e) {
 						ShowAlert(e.message);
-					}				
+					}
 					if (evt) {
 						NA.NAEvent.stopPropagation(evt);
 					}
@@ -1684,11 +1673,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				});
 			});
 			var btnPrintAddHoc = NA.common.doc.querySelector('div.dialogButtonRightOther>a:first-child');
-			NA.NAEvent.addHandler(btnPrintAddHoc, 'click', function(event){				
+			NA.NAEvent.addHandler(btnPrintAddHoc, 'click', function (event) {
 				NA.NAEvent.preventDefault(event);
-				if (win.status != 'Open'){
+				if (win.status != 'Open') {
 					var valuesForm = getValuesForm();
-					if(NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))){//jika ada perubahan
+					if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {//jika ada perubahan
 						if (win.status == "Edit") {
 							NA.common.dialog.mustCloseDialog = false;
 						}
@@ -1697,30 +1686,30 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							ExecuteHandler('OK');
 							return;
 						});
-					}else{//jika tidak ada perubahan 
+					} else {//jika tidak ada perubahan 
 						//status Edit
-						if(win.status == "Edit"){ printToPDF();return;}
+						if (win.status == "Edit") { printToPDF(); return; }
 						//status Add
-						else{
-							if(NA.common.dialog.hasOwnProperty('hasSavedAction')){
-								if(NA.common.dialog.hasSavedAction){
-									printToPDF(); 
-								}								
+						else {
+							if (NA.common.dialog.hasOwnProperty('hasSavedAction')) {
+								if (NA.common.dialog.hasSavedAction) {
+									printToPDF();
+								}
 							}
-							return;							
+							return;
 						}
 					}
-				}else{printToPDF();}								
+				} else { printToPDF(); }
 			});
 			var btnNew = NA.common.doc.querySelector('div.dialogButtonRightOther>a:nth-child(2)');
 			btnNew.classList.remove('btn-link');
 			btnNew.style.cursor = "pointer";// .cssText = "cursor:not-allowed;pointer - events: none;"
 			btnNew.style.removeProperty('pointerEvents')
 			btnNew.textContent = "Add New";
-			NA.NAEvent.addHandler(btnNew,'click',AddNew);
+			NA.NAEvent.addHandler(btnNew, 'click', AddNew);
 			//var FrameDoc = NA.common.doc.createElement('iframe')
 			//FrameDoc.setAttribute('id', 'IDFrameDoc');
-//
+			//
 			////<div id='withIframe'>	
 			////	<iframe id='if' src=''></iframe>
 			////</div>
@@ -1743,7 +1732,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						ExecuteHandler('Close');
 					} catch (e) {
 						ShowAlert(e.message);
-					}					
+					}
 				}
 				if (evt) {
 					NA.NAEvent.stopPropagation(evt);
@@ -1779,307 +1768,309 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						}
 					}
 					$('div.maindialogContent').load("ShowEntry_Outwards?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
-					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
-						if (statusTxt == "success") {
-							$(this).html(responseTxt);
-							switch (win.status.trim()) {
-								case 'Add': {
-									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
-										if (item.hasAttribute('disabled')) {
-											item.removeAttribute('disabled');
-										}//remove attribute disable untuk button OK dan cancel bila statusnya Add
-									});
-									NA.common.getElementID('difInfo').style.display = 'none';
-									break;
-								}
-								case 'Edit': {
-									var hasref = NA.common.getElementID('id_hasRefData').value
-									//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-									NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-									NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-									if (hasref.valueOf === true) {
+						function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+							if (statusTxt == "success") {
+								$(this).html(responseTxt);
+								switch (win.status.trim()) {
+									case 'Add': {
+										Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
+											if (item.hasAttribute('disabled')) {
+												item.removeAttribute('disabled');
+											}//remove attribute disable untuk button OK dan cancel bila statusnya Add
+										});
+										NA.common.getElementID('difInfo').style.display = 'none';
+										break;
+									}
+									case 'Edit': {
+										var hasref = NA.common.getElementID('id_hasRefData').value
+										//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
+										NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
+										NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+										if (hasref.valueOf() === true || hasref.valueOf() === 'True') {
+											NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+											NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
+											NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
+											NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
+											NA.common.getElementID('id_fk_sender').setAttribute('disabled',true);
+											NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
+											NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
+											NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+											NA.common.getElementID('id_equipment_desc').setAttribute('disabled', true);
+											NA.common.getElementID('lastUsedInfo').style.display = 'block';
+										}
+										break;
+									}
+									case 'Open': {
+										NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
+										NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
 										NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
+										NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
 										NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
 										NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
 										NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
 										NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
 										NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
 										NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
+										NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
+										NA.common.getElementID('id_equipment_desc').setAttribute('disabled', true);
 										NA.common.getElementID('lastUsedInfo').style.display = 'block';
+										break;
 									}
-									break;
-								}
-								case 'Open': {
-									NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-									NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
-									NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
-									NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
-									NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
-									NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
-									NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
-									NA.common.getElementID('FE_fk_responsibleperson').setAttribute('disabled', true);
-									NA.common.getElementID('id_daterequest').setAttribute('disabled', true);
-									NA.common.getElementID('id_datereleased').setAttribute('disabled', true);
-									NA.common.getElementID('id_descriptions').setAttribute('disabled', true);
-									NA.common.getElementID('id_equipment_desc').setAttribute('disabled', true);
-									NA.common.getElementID('lastUsedInfo').style.display = 'block';
-									break;
-								}
-							};
-							if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
-								Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
-									var valPlaceHolder = item.dataset.value;
-									NA.NAEvent.addHandler(item, 'focus', function (evt) {
-										if (this.value === '') {
-											if (this.getAttribute('placeholder') === valPlaceHolder) {
-												this.setAttribute('placeholder', '');
-											}
-										}
-										NA.NAEvent.stopPropagation(evt);
-									});
-									//============blur event================================
-									NA.NAEvent.addHandler(item, 'blur', function (evt) {
-										if (this.value === '') {
-											if (this.getAttribute('placeholder') === '') {
-												this.setAttribute('placeholder', valPlaceHolder);
-											}
-										}
-										NA.NAEvent.stopPropagation(evt);
-									});
-								});
-
-								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
-								Array.prototype.forEach.call(listFK, function (item) {
-									NA.NAEvent.addHandler(item, 'keydown', function (evt) {
-										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-											NA.NAEvent.preventDefault(evt);//prevent from submit
-											evt.stopImmediatePropagation();
-											return false;
-										}
-										if (evt.keyCode === 13) {//kalau menekan tombol enter
-											var NAAjax = NA.common.AJAX;
-											switch (item.id) {
-												case 'id_serialnumber': {
-													//ambil data terakhir transaksi
-													//jika tidak ada ambil di n_a_goods_receive_detail
-													//prevent default
-													NA.NAEvent.preventDefault(evt);//prevent from submit
-													NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
-                                                        'application/json',//overrideMimeType returned by the server
-                                                        function () { window.document.body.style.cursor = 'wait'; },
-                                                        null,//nggak usah di isi bila tidak perlu
-                                                        function () {//function executed after data has been returned by server(XHR.onload)
-                                                        	var data = JSON.parse(this.responseText);
-                                                        	if (data.message) {
-                                                        		window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                                                        	}
-                                                        	else {
-                                                        		//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-																var lastinfo = data['lastinfo'] // goods is able to use
-																var validInfo = ['is able to use', 'goods is new and able to use'];
-																if (lastinfo.indexOf(validInfo[0]) >= 0|| lastinfo.indexOf(validInfo[1]) >= 0) {
-																	fillGoodsInfo(data,evt.target.value,true);
-																	EnabledAllEntry();
-																}
-																else {																	
-																	ShowAlert(lastinfo, 'Please choose other one',calbackOnHide=function(){
-																		var target = evt.target;
-																		target.value = '';
-																		clearEntry();
-																		disabledAllEntry();
-																		target.removeAttribute('disabled');
-																		btnFindGoods.removeAttribute('disabled');
-
-																	} ); win.document.body.style.cursor = 'default';
-																	return false;
-																}
-                                                        	}
-                                                        }, null, function () {//function untuk ajax error
-                                                        	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
-                                                        }, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
-                                                        null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
-                                                        );
-													break;
-												}
-												case 'id_fk_employee':
-												case 'id_fk_sender':
-												case 'id_fk_responsibleperson': {
-													NA.NAEvent.preventDefault(evt);//prevent from submit
-													fillEmployeeName(evt, item.id);
-													break;
-												}
-											};//end switch
-											evt.stopImmediatePropagation();
-										}//end if (evt.keyCode === 13)
-									});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
-								});//end Array.prototype.forEach.call(listFK, function (item)
-								originalData = JSON.stringify(getValuesForm());
-
-								if (win.status !== 'Add') {
-									//==============date request=============
-									var eloriginalData = JSON.parse(originalData);
-									var valDaterequest = new Date(eloriginalData.daterequest);
-									$("#id_daterequest").datepicker("setDate", valDaterequest);
-									//format value jadi dd//mm/yyy
-									$("#id_daterequest").val(formatDate(valDaterequest));
-									//$("id_daterequest").val(valDaterequest.getDate())
-									var valDatereleased = new Date(eloriginalData.datereleased);
-									$("#id_datereleased").datepicker("setDate", valDatereleased);
-									$("#id_datereleased").val(formatDate(valDatereleased));
-								}
-								$('#id_daterequest').datepicker({
-									dateFormat: 'dd/mm/yy',
-									changeMonth: true,
-									changeYear: true,
-									beforeShowDay: $.datepicker.noWeekends,
-									minDate: (function (g) {
-										if (g.status === 'Edit') {
-											var eloriginalData = JSON.parse(originalData),
-                                                hasRef = eloriginalData['hasRefData'];
-											if (hasRef) { return 1; }
-											var valDateReq = new Date(eloriginalData.daterequest);
-											return valDateReq;
-										}
-									})(win),
-									//maxDate: 0,
-									//showOn: "button",
-									//showButtonPanel: true,
-									closeText: "Close",
-									currentText: 'Now',
-								});
-								$('#id_datereleased').datepicker({
-									dateFormat: 'dd/mm/yy',
-									changeMonth: true,
-									changeYear: true,
-									beforeShowDay: $.datepicker.noWeekends,
-									minDate: (function (g) {
-										if (g.status === 'Edit') {
-											var eloriginalData = JSON.parse(originalData),
-                                                hasRef = eloriginalData['hasRefData'];
-											if (hasRef) { return 1; }
-											var valDateRel = new Date(eloriginalData.datereleased);
-											return valDateRel;
-										}
-									})(win),
-									//maxDate: 0,
-									//showOn: "button",
-									//showButtonPanel: true,
-									closeText: "Close",
-									currentText: 'Now',
-								});
-
-								//setting Custom Validity
-								var elm = NA.common.doc.querySelector('#id_daterequest');
-								NA.NAEvent.addHandler(elm, 'input', function (event) {
-									var elpat = this.getAttribute('patern');
-									var patern = new RegExp(elpat, 'i');
-									var valuePat = this.value;
-									if (valuePat === null || valuePat === '') {
-										valuePat = this.textcontent;
-									}
-									if (!patern.test(valuePat)) {
-										this.setCustomValidity('Invalid date value');
-										this.validity.valid = false;
-									}
-									else {
-										this.setCustomValidity(''); //clearkan error custom validity
-									}
-								});
-								
-								var elm = NA.common.doc.querySelector('#id_datereleased');
-								NA.NAEvent.addHandler(elm, 'input', function (event) {
-									var elpat = this.getAttribute('patern');
-									var patern = new RegExp(elpat, 'i');
-									var valuePat = this.value;
-									if (valuePat === null || valuePat === '') {
-										valuePat = this.textcontent;
-									}
-									if (!patern.test(valuePat)) {
-										this.setCustomValidity('Invalid date value');
-										this.validity.valid = false;
-									}
-									else {
-										this.setCustomValidity(''); //clearkan error custom validity
-									}
-								});
-
-								$.datepicker._gotoToday = function (id) {
-									$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
 								};
-								originalData = JSON.stringify(getValuesForm());
+								if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
+										var valPlaceHolder = item.dataset.value;
+										NA.NAEvent.addHandler(item, 'focus', function (evt) {
+											if (this.value === '') {
+												if (this.getAttribute('placeholder') === valPlaceHolder) {
+													this.setAttribute('placeholder', '');
+												}
+											}
+											NA.NAEvent.stopPropagation(evt);
+										});
+										//============blur event================================
+										NA.NAEvent.addHandler(item, 'blur', function (evt) {
+											if (this.value === '') {
+												if (this.getAttribute('placeholder') === '') {
+													this.setAttribute('placeholder', valPlaceHolder);
+												}
+											}
+											NA.NAEvent.stopPropagation(evt);
+										});
+									});
 
-								var initializeForm = NA.common.getElementID('id_initializeForm');
-								initializeForm.value = originalData;
-							
-								//======================event handler BUTTONS Search================================================ 
-								var btnFindGoods = NA.common.getElementID('FE_fk_goods');
-								NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
-									BootstrapDialog.show({
-										draggable: true,
-										title: 'Find goods',
-										type: BootstrapDialog.TYPE_INFO,
-										size: BootstrapDialog.SIZE_WIDE,
-										message: function (dialogRef) {
-											var placeHolder = 'Enter goods name or brandname or Type of goods or serialnumber to search for';
-											containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
-											function (e) {//event for blur
-												if (this.value === '') {
-													if (this.getAttribute('placeholder') === '') {
-														this.setAttribute('placeholder', placeHolder);
+									var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
+									Array.prototype.forEach.call(listFK, function (item) {
+										NA.NAEvent.addHandler(item, 'keydown', function (evt) {
+											if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+												NA.NAEvent.preventDefault(evt);//prevent from submit
+												evt.stopImmediatePropagation();
+												return false;
+											}
+											if (evt.keyCode === 13) {//kalau menekan tombol enter
+												var NAAjax = NA.common.AJAX;
+												switch (item.id) {
+													case 'id_serialnumber': {
+														//ambil data terakhir transaksi
+														//jika tidak ada ambil di n_a_goods_receive_detail
+														//prevent default
+														NA.NAEvent.preventDefault(evt);//prevent from submit
+														NAAjax.GET('getLastTransGoods/?' + win.encodeURIComponent('serialno') + '=' + win.encodeURIComponent(evt.target.value),
+															'application/json',//overrideMimeType returned by the server
+															function () { window.document.body.style.cursor = 'wait'; },
+															null,//nggak usah di isi bila tidak perlu
+															function () {//function executed after data has been returned by server(XHR.onload)
+																var data = JSON.parse(this.responseText);
+																if (data.message) {
+																	window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+																}
+																else {
+																	//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
+																	var lastinfo = data['lastinfo'] // goods is able to use
+																	var validInfo = ['is able to use', 'goods is new and able to use'];
+																	if (lastinfo.indexOf(validInfo[0]) >= 0 || lastinfo.indexOf(validInfo[1]) >= 0) {
+																		fillGoodsInfo(data, evt.target.value, true);
+																		EnabledAllEntry();
+																	}
+																	else {
+																		ShowAlert(lastinfo, 'Please choose other one', calbackOnHide = function () {
+																			var target = evt.target;
+																			target.value = '';
+																			clearEntry();
+																			disabledAllEntry();
+																			target.removeAttribute('disabled');
+																			btnFindGoods.removeAttribute('disabled');
+
+																		}); win.document.body.style.cursor = 'default';
+																		return false;
+																	}
+																}
+															}, null, function () {//function untuk ajax error
+																window.document.body.style.cursor = 'default'; XhrError(NAAjax.XHR);
+															}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
+															null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
+														);
+														break;
 													}
-												}
+													case 'id_fk_employee':
+													case 'id_fk_sender':
+													case 'id_fk_responsibleperson': {
+														NA.NAEvent.preventDefault(evt);//prevent from submit
+														fillEmployeeName(evt, item.id);
+														break;
+													}
+												};//end switch
+												evt.stopImmediatePropagation();
+											}//end if (evt.keyCode === 13)
+										});//end NA.NAEvent.addHandler(item, 'keydown', function (evt)
+									});//end Array.prototype.forEach.call(listFK, function (item)
+									originalData = JSON.stringify(getValuesForm());
+
+									if (win.status !== 'Add') {
+										//==============date request=============
+										var eloriginalData = JSON.parse(originalData);
+										var valDaterequest = new Date(eloriginalData.daterequest);
+										$("#id_daterequest").datepicker("setDate", valDaterequest);
+										//format value jadi dd//mm/yyy
+										$("#id_daterequest").val(formatDate(valDaterequest));
+										//$("id_daterequest").val(valDaterequest.getDate())
+										var valDatereleased = new Date(eloriginalData.datereleased);
+										$("#id_datereleased").datepicker("setDate", valDatereleased);
+										$("#id_datereleased").val(formatDate(valDatereleased));
+									}
+									$('#id_daterequest').datepicker({
+										dateFormat: 'dd/mm/yy',
+										changeMonth: true,
+										changeYear: true,
+										beforeShowDay: $.datepicker.noWeekends,
+										minDate: (function (g) {
+											if (g.status === 'Edit') {
+												var eloriginalData = JSON.parse(originalData),
+													hasRef = eloriginalData['hasRefData'];
+												if (hasRef) { return 1; }
+												var valDateReq = new Date(eloriginalData.daterequest);
+												return valDateReq;
+											}
+										})(win),
+										//maxDate: 0,
+										//showOn: "button",
+										//showButtonPanel: true,
+										closeText: "Close",
+										currentText: 'Now',
+									});
+									$('#id_datereleased').datepicker({
+										dateFormat: 'dd/mm/yy',
+										changeMonth: true,
+										changeYear: true,
+										beforeShowDay: $.datepicker.noWeekends,
+										minDate: (function (g) {
+											if (g.status === 'Edit') {
+												var eloriginalData = JSON.parse(originalData),
+													hasRef = eloriginalData['hasRefData'];
+												if (hasRef) { return 1; }
+												var valDateRel = new Date(eloriginalData.datereleased);
+												return valDateRel;
+											}
+										})(win),
+										//maxDate: 0,
+										//showOn: "button",
+										//showButtonPanel: true,
+										closeText: "Close",
+										currentText: 'Now',
+									});
+
+									//setting Custom Validity
+									var elm = NA.common.doc.querySelector('#id_daterequest');
+									NA.NAEvent.addHandler(elm, 'input', function (event) {
+										var elpat = this.getAttribute('patern');
+										var patern = new RegExp(elpat, 'i');
+										var valuePat = this.value;
+										if (valuePat === null || valuePat === '') {
+											valuePat = this.textcontent;
+										}
+										if (!patern.test(valuePat)) {
+											this.setCustomValidity('Invalid date value');
+											this.validity.valid = false;
+										}
+										else {
+											this.setCustomValidity(''); //clearkan error custom validity
+										}
+									});
+
+									var elm = NA.common.doc.querySelector('#id_datereleased');
+									NA.NAEvent.addHandler(elm, 'input', function (event) {
+										var elpat = this.getAttribute('patern');
+										var patern = new RegExp(elpat, 'i');
+										var valuePat = this.value;
+										if (valuePat === null || valuePat === '') {
+											valuePat = this.textcontent;
+										}
+										if (!patern.test(valuePat)) {
+											this.setCustomValidity('Invalid date value');
+											this.validity.valid = false;
+										}
+										else {
+											this.setCustomValidity(''); //clearkan error custom validity
+										}
+									});
+
+									$.datepicker._gotoToday = function (id) {
+										$(id).datepicker('setDate', new Date()).datepicker('hide').blur();
+									};
+									originalData = JSON.stringify(getValuesForm());
+
+									var initializeForm = NA.common.getElementID('id_initializeForm');
+									initializeForm.value = originalData;
+
+									//======================event handler BUTTONS Search================================================ 
+									var btnFindGoods = NA.common.getElementID('FE_fk_goods');
+									NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
+										BootstrapDialog.show({
+											draggable: true,
+											title: 'Find goods',
+											type: BootstrapDialog.TYPE_INFO,
+											size: BootstrapDialog.SIZE_WIDE,
+											message: function (dialogRef) {
+												var placeHolder = 'Enter goods name or brandname or Type of goods or serialnumber to search for';
+												containerMessage = NA.common.dialog.createFormContainer('fk_goods', placeHolder,
+													function (e) {//event for blur
+														if (this.value === '') {
+															if (this.getAttribute('placeholder') === '') {
+																this.setAttribute('placeholder', placeHolder);
+															}
+														}
+													},
+													function (e) {//event for focus
+														if (this.value === '') {
+															if (this.getAttribute('placeholder') === placeHolder) {
+																this.setAttribute('placeholder', '');
+															}
+														}
+													},
+													function (e) {//even for keydown txtSearch													
+														if (e.keyCode === 13) {
+															NA.NAEvent.preventDefault(e);
+															win.document.body.style.cursor = 'wait';
+															//cek posisi keur dina tab mana
+															//cari data ke database
+															var url = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(e.target.value.trim());
+															if (gridTbl) {
+																jQuery(gridTbl).setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+															}
+															win.document.body.style.cursor = 'default';
+															NA.NAEvent.stopPropagation(e);
+														}
+													}, function (e) {
+														txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+														NA.common.triggerKeyboardEvent(txtSearch, 13);
+													});
+												var children = containerMessage.childNodes;
+												var mainContainer = null, txtSearch = null;
+												for (var i = 0, len = children.length; i < len; i++) {
+													if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
+														mainContainer = children[i]; break;
+													}
+												};
+												//loads Data into JqueryGrid
+												gridTbl = NA.common.doc.createElement('table');
+												gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods';
+												gridPager = NA.common.doc.createElement('div');
+												gridPager.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager';
+												mainContainer.appendChild(gridTbl);
+												mainContainer.appendChild(gridPager);
+												return containerMessage;
 											},
-											function (e) {//event for focus
-												if (this.value === '') {
-													if (this.getAttribute('placeholder') === placeHolder) {
-														this.setAttribute('placeholder', '');
-													}
-												}
-											},
-											function (e) {//even for keydown txtSearch													
-												if (e.keyCode === 13) {
-													NA.NAEvent.preventDefault(e);
-													win.document.body.style.cursor = 'wait';
-													//cek posisi keur dina tab mana
-													//cari data ke database
-													var url = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(e.target.value.trim());
-													if (gridTbl) {
-														jQuery(gridTbl).setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
-													}
-													win.document.body.style.cursor = 'default';
-													NA.NAEvent.stopPropagation(e);
-												}
-											}, function (e) {
-												txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-												NA.common.triggerKeyboardEvent(txtSearch, 13);
-											});
-											var children = containerMessage.childNodes;
-											var mainContainer = null, txtSearch = null;
-											for (var i = 0, len = children.length; i < len; i++) {
-												if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_goods') {
-													mainContainer = children[i]; break;
-												}
-											};
-											//loads Data into JqueryGrid
-											gridTbl = NA.common.doc.createElement('table');
-											gridTbl.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods';
-											gridPager = NA.common.doc.createElement('div');
-											gridPager.id = 'jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager';
-											mainContainer.appendChild(gridTbl);
-											mainContainer.appendChild(gridPager);
-											return containerMessage;
-										},
-										onshown: function (dialogRef) {
-											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-											gridTbl = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods');
-											gridPager = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager');
-											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-											gridTbl.jqGrid({
-												url: urlGoods,
-												mtype: "GET",
-												datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_lending,fk_return,fk_maintenance,
-												colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'nik_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance', ],
-												colModel: [
+											onshown: function (dialogRef) {
+												var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
+												gridTbl = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods');
+												gridPager = $('#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager');
+												var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+												gridTbl.jqGrid({
+													url: urlGoods,
+													mtype: "GET",
+													datatype: "json",//idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_lending,fk_return,fk_maintenance,
+													colNames: ['idapp', 'NO', 'fk_goods', 'Goods Name', 'Brand Name', 'Type of goods', 'Serial Number', 'fk_usedemployee', 'nik_usedemployee', 'usedemployee', 'Last Info', 'fk_receive', 'fk_outwards', 'fk_lending', 'fk_return', 'fk_maintenance',],
+													colModel: [
 														{ name: 'idapp', index: 'idapp', hidden: true, },
 														{ name: 'NO', key: true, width: 40, align: 'right', sortable: false, editable: false, },
 														{ name: 'fk_goods', index: 'fk_goods', hidden: true, },
@@ -2096,270 +2087,270 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 														{ name: 'fk_lending', index: 'fk_lending', hidden: true, },
 														{ name: 'fk_return', index: 'fk_return', hidden: true, },
 														{ name: 'fk_maintenance', index: 'fk_maintenance', hidden: true, },
-												],
-												ondblClickRow: function (rowId) {
-													//fire button OK
-													var btnOK = dialogRef.getButton('btnOKFindGoods');
-													btnOK.click();
-												},
-												gridComplete: function () {
-													document.body.style.cursor = 'default';
-												},
-												loadError: function (xhr, textStatus, errorThrown) {
-													var error_msg = xhr.responseText
-													var msg = "Some errors occurred during processing:"
-													msg += '\n\n' + error_msg
-													ShowAlert(msg)
-												},
-												cellEdit: false,
-												height: '200px',
-												rowNum: 500,
-												rowList: [20, 50, 100, 200, 300, 500],
-												sortname: "brandname",
-												sortorder: "asc",
-												multiSort: true,
-												//shrinkToFit: false,
-												iconSet: "fontAwesome",
-												//forceFit: true,
-												//toolbar: true,
-												scrollrows: true,
-												//hidegrid: true,
-												pager: "#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager"
-											});
-											gridTbl.navGrid(gridPager, {
-												search: false, // show search button on the toolbar
-												add: false,
-												edit: false,
-												del: false,
-												refresh: false
-											});
-										},
-										closable: false,
-										animate: false,
-										closeByBackdrop: false,
-										closeByKeyboard: false,
-										buttons: [{
-											label: 'Cancel',
-											icon: 'glyphicon glyphicon-remove',
-											cssClass: 'btn-success',
-											action: function (dialogRef) {
-												dialogRef.close();
-											},
-										}, {
-											label: 'OK',
-											id: 'btnOKFindGoods',
-											icon: 'glyphicon glyphicon-ok',
-											cssClass: 'btn-success',
-											action: function (dialogRef) {
-												var idapp = getGridCellValue(gridTbl, 'idapp');
-												if (idapp) {//cell di select sama user
-													//tempelkan data row di fk_goods, dan valuenya di goods_desc;
-													var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
-													var lastinfo = rowData['lastinfo'] // goods is able to use
-													var validInfo = ['goods is able to use', 'not yet used'];
-													if (validInfo.indexOf(lastinfo) >= 0) {
-														fillGoodsInfo(rowData);
-														dialogRef.close();
-													}
-													else {
-														ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
-														return false;
-													}
-
-												}
-											}
-										}]
-									});
-									$("div#gbox_jqGrid_NA_F_Goods_Outwards_FK_Goods, div#gview_jqGrid_NA_F_Goods_Outwards_FK_Goods, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
-										'width': 'inherit'
-									})
-								});
-								var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_employee"],[id="FE_fk_sender"],[id="FE_fk_responsibleperson"]');
-								Array.prototype.forEach.call(listFK, function (item) {
-									if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
-										return false;
-									}
-									else {
-										NA.NAEvent.addHandler(item, 'click', function (evt) {
-											BootstrapDialog.show({
-												draggable: true,
-												title: 'Find Employee',
-												type: BootstrapDialog.TYPE_INFO,
-												size: BootstrapDialog.SIZE_NORMAL,
-												message: function (dialogRef) {
-													var placeHolder = 'Enter Employee name to search for';
-													//var gridTbl = null, gridPager = null;
-													var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
-                                                    function (e) {//event for blur
-                                                    	if (this.value === '') {
-                                                    		if (this.getAttribute('placeholder') === '') {
-                                                    			this.setAttribute('placeholder', placeHolder);
-                                                    		}
-                                                    	}
-                                                    },
-                                                    function (e) {//event for focus
-                                                    	if (this.value === '') {
-                                                    		if (this.getAttribute('placeholder') === placeHolder) {
-                                                    			this.setAttribute('placeholder', '');
-                                                    		}
-                                                    	}
-                                                    },
-                                                    function (e) {//even for keydown txtSearch
-                                                    	if (e.keyCode === 13) {
-                                                    		win.document.body.style.cursor = 'wait';
-                                                    		//cari data ke database
-                                                    		var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
-
-                                                    		if (gridTbl) {
-                                                    			gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
-                                                    		}
-                                                    		win.document.body.style.cursor = 'default';
-                                                    	}
-                                                    }, function (e) {
-                                                    	var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-                                                    	NA.common.triggerKeyboardEvent(txtSearch, 13);
-                                                    });
-													var children = containerMessage.childNodes;
-													var mainContainer = null;
-													for (var i = 0, len = children.length; i < len; i++) {
-														if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
-															mainContainer = children[i]; break;
-														}
-													};
-													//loads Data into JqueryGrid
-													gridTbl = NA.common.doc.createElement('table');
-													gridTbl.id = 'jqGrid_NA_F_Goods_Out_fk_employee';
-													gridPager = NA.common.doc.createElement('div');
-													gridPager.id = 'jqGrid_NA_F_Goods_Out_fk_employee_Pager';
-													mainContainer.appendChild(gridTbl);
-													mainContainer.appendChild(gridPager);
-													return containerMessage;
-												},
-												onshown: function (dialogRef) {
-													var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
-													//loads Data into JqueryGrid
-													gridTbl = $('#jqGrid_NA_F_Goods_Out_fk_employee');
-													gridPager = $('#jqGrid_NA_F_Goods_Out_fk_employee_Pager');
-													var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
-													gridTbl.jqGrid({
-														url: urlPR,
-														mtype: "GET",
-														datatype: "json",
-														colNames: ['idapp', 'NO', 'NIK', 'Employee Name', ],
-														colModel: [
-                                                            { name: 'idapp', key: true, hidden: true, align: 'left' },
-                                                            { name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
-                                                            { name: 'nik', width: 130, align: 'left', sortable: true, editable: false, },
-                                                            { name: 'employee_name', index: 'employee_name', width: 290, sortable: true, editable: false, align: 'left', },
-														],
-														ondblClickRow: function (rowId) {
-															//fire button OK
-															var btnOK = dialogRef.getButton('btnOK');
-															btnOK.click();
-														},
-														gridComplete: function () {
-															document.body.style.cursor = 'default';
-														},
-														cellEdit: false,
-														height: '150px',
-														rowNum: 500,
-														rowList: [20, 50, 100, 200, 300, 500],
-														sortname: "employee_name",
-														sortorder: "asc",
-														multiSort: true,
-														//shrinkToFit: false,
-														iconSet: "fontAwesome",
-														//forceFit: true,
-														//toolbar: true,
-														scrollrows: true,
-														pager: "#jqGrid_NA_F_Goods_Out_fk_employee_Pager"
-													});
-													gridTbl.navGrid(gridPager, {
-														search: false, // show search button on the toolbar
-														add: false,
-														edit: false,
-														del: false,
-														refresh: false
-													});
-													$("div#gbox_jqGrid_NA_F_Goods_Out_fk_employee, div#gview_jqGrid_NA_F_Goods_Out_fk_employee, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
-														'width': 'inherit'
-													})
-													$("div.modal-content").css({ 'width': '511px' });
-												},
-												animate: false,
-												closable: false,
-												closeByBackdrop: false,
-												closeByKeyboard: false,
-												buttons: [{
-													label: 'Cancel',
-													icon: 'glyphicon glyphicon-remove',
-													cssClass: 'btn-success',
-													action: function (dialogRef) {
-														dialogRef.close();
+													],
+													ondblClickRow: function (rowId) {
+														//fire button OK
+														var btnOK = dialogRef.getButton('btnOKFindGoods');
+														btnOK.click();
 													},
-												}, {
-													label: 'OK',
-													id: 'btnOK',
-													icon: 'glyphicon glyphicon-ok',
-													cssClass: 'btn-success',
-													action: function (dialogRef) {
-														var nik = getGridCellValue(gridTbl, 'nik');
-														if (nik) {
-															var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
-															var rowData = gridTbl.getRowData(rowId);
-															var employeeName = rowData['employee_name'];
-															var idapp = rowData['idapp'];
-															var mainIDbtn = item.getAttribute('id').substring(3);
-															//set nik
-															var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
-															//set employee_name
-															elfk_employee.value = rowData['nik'];
-															var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
-															elempname.value = employeeName;
-															var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
-															elidapp.value = idapp;
+													gridComplete: function () {
+														document.body.style.cursor = 'default';
+													},
+													loadError: function (xhr, textStatus, errorThrown) {
+														var error_msg = xhr.responseText
+														var msg = "Some errors occurred during processing:"
+														msg += '\n\n' + error_msg
+														ShowAlert(msg)
+													},
+													cellEdit: false,
+													height: '200px',
+													rowNum: 500,
+													rowList: [20, 50, 100, 200, 300, 500],
+													sortname: "brandname",
+													sortorder: "asc",
+													multiSort: true,
+													//shrinkToFit: false,
+													iconSet: "fontAwesome",
+													//forceFit: true,
+													//toolbar: true,
+													scrollrows: true,
+													//hidegrid: true,
+													pager: "#jqGrid_NA_F_Goods_Outwards_FK_Goods_Pager"
+												});
+												gridTbl.navGrid(gridPager, {
+													search: false, // show search button on the toolbar
+													add: false,
+													edit: false,
+													del: false,
+													refresh: false
+												});
+											},
+											closable: false,
+											animate: false,
+											closeByBackdrop: false,
+											closeByKeyboard: false,
+											buttons: [{
+												label: 'Cancel',
+												icon: 'glyphicon glyphicon-remove',
+												cssClass: 'btn-success',
+												action: function (dialogRef) {
+													dialogRef.close();
+												},
+											}, {
+												label: 'OK',
+												id: 'btnOKFindGoods',
+												icon: 'glyphicon glyphicon-ok',
+												cssClass: 'btn-success',
+												action: function (dialogRef) {
+													var idapp = getGridCellValue(gridTbl, 'idapp');
+													if (idapp) {//cell di select sama user
+														//tempelkan data row di fk_goods, dan valuenya di goods_desc;
+														var rowId = gridTbl.jqGrid('getGridParam', 'selrow'), rowData = gridTbl.getRowData(rowId);
+														var lastinfo = rowData['lastinfo'] // goods is able to use
+														var validInfo = ['goods is able to use', 'not yet used'];
+														if (validInfo.indexOf(lastinfo) >= 0) {
+															fillGoodsInfo(rowData);
 															dialogRef.close();
 														}
+														else {
+															ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
+															return false;
+														}
+
 													}
-												}]
-											});
-											//restyleBoostrapDialog();
-											//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-											//gbox.style.width = '432px';
-											//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
-											//gview.style.width = '432px';
-											//var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
-											//tdInfo.style.width = '110px';
-											//var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
-											//pager.style.width = '430px';
-											evt.stopImmediatePropagation();
+												}
+											}]
 										});
-									}
+										$("div#gbox_jqGrid_NA_F_Goods_Outwards_FK_Goods, div#gview_jqGrid_NA_F_Goods_Outwards_FK_Goods, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+											'width': 'inherit'
+										})
+									});
+									var listFK = NA.common.doc.querySelectorAll('button[id="FE_fk_employee"],[id="FE_fk_sender"],[id="FE_fk_responsibleperson"]');
+									Array.prototype.forEach.call(listFK, function (item) {
+										if (item.getAttribute('readonly') || item.getAttribute('disabled')) {
+											return false;
+										}
+										else {
+											NA.NAEvent.addHandler(item, 'click', function (evt) {
+												BootstrapDialog.show({
+													draggable: true,
+													title: 'Find Employee',
+													type: BootstrapDialog.TYPE_INFO,
+													size: BootstrapDialog.SIZE_NORMAL,
+													message: function (dialogRef) {
+														var placeHolder = 'Enter Employee name to search for';
+														//var gridTbl = null, gridPager = null;
+														var containerMessage = NA.common.dialog.createFormContainer('fk_employee', placeHolder,
+															function (e) {//event for blur
+																if (this.value === '') {
+																	if (this.getAttribute('placeholder') === '') {
+																		this.setAttribute('placeholder', placeHolder);
+																	}
+																}
+															},
+															function (e) {//event for focus
+																if (this.value === '') {
+																	if (this.getAttribute('placeholder') === placeHolder) {
+																		this.setAttribute('placeholder', '');
+																	}
+																}
+															},
+															function (e) {//even for keydown txtSearch
+																if (e.keyCode === 13) {
+																	win.document.body.style.cursor = 'wait';
+																	//cari data ke database
+																	var url = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(e.target.value.trim());
 
-								});
-								hasLoadDialog = true;
-								win.onbeforeunload = function (e) {							
-									var valuesForm = getValuesForm(); var retval = false;
-									if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
-										return NA.common.message.dataHasChanged;
-									}
-									//NA.common.dialog.mustCloseDialog = true;
-									if(NA.common.dialog.hasOwnProperty('mustCloseDialog')){
-									delete NA.common.dialog.mustCloseDialog;
-									}
-									//NA.common.dialog.hasSavedAction = true;
-									if(NA.common.dialog.hasOwnProperty('hasSavedAction')){
-										delete NA.common.dialog.hasSavedAction;
-									}
-									if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
-										delete NA.common.dialog.IsPrintingPDF;
-									}									
-								}
-								//====================== End event handler BUTTONS Search================================================ 
+																	if (gridTbl) {
+																		gridTbl.setGridParam({ url: url }).trigger("reloadGrid", [{ page: 1, }]);
+																	}
+																	win.document.body.style.cursor = 'default';
+																}
+															}, function (e) {
+																var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+																NA.common.triggerKeyboardEvent(txtSearch, 13);
+															});
+														var children = containerMessage.childNodes;
+														var mainContainer = null;
+														for (var i = 0, len = children.length; i < len; i++) {
+															if (children[i].nodeType == 1 && children[i].className === 'maincontainerForm fk_employee') {
+																mainContainer = children[i]; break;
+															}
+														};
+														//loads Data into JqueryGrid
+														gridTbl = NA.common.doc.createElement('table');
+														gridTbl.id = 'jqGrid_NA_F_Goods_Out_fk_employee';
+														gridPager = NA.common.doc.createElement('div');
+														gridPager.id = 'jqGrid_NA_F_Goods_Out_fk_employee_Pager';
+														mainContainer.appendChild(gridTbl);
+														mainContainer.appendChild(gridPager);
+														return containerMessage;
+													},
+													onshown: function (dialogRef) {
+														var txtSearch = NA.common.getElementID('txtsearch_fk_employee');
+														//loads Data into JqueryGrid
+														gridTbl = $('#jqGrid_NA_F_Goods_Out_fk_employee');
+														gridPager = $('#jqGrid_NA_F_Goods_Out_fk_employee_Pager');
+														var urlPR = 'SearchEmployeebyform/?' + win.encodeURIComponent('employee_name') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
+														gridTbl.jqGrid({
+															url: urlPR,
+															mtype: "GET",
+															datatype: "json",
+															colNames: ['idapp', 'NO', 'NIK', 'Employee Name',],
+															colModel: [
+																{ name: 'idapp', key: true, hidden: true, align: 'left' },
+																{ name: 'no', width: 40, align: 'right', sortable: false, editable: false, },
+																{ name: 'nik', width: 130, align: 'left', sortable: true, editable: false, },
+																{ name: 'employee_name', index: 'employee_name', width: 290, sortable: true, editable: false, align: 'left', },
+															],
+															ondblClickRow: function (rowId) {
+																//fire button OK
+																var btnOK = dialogRef.getButton('btnOK');
+																btnOK.click();
+															},
+															gridComplete: function () {
+																document.body.style.cursor = 'default';
+															},
+															cellEdit: false,
+															height: '150px',
+															rowNum: 500,
+															rowList: [20, 50, 100, 200, 300, 500],
+															sortname: "employee_name",
+															sortorder: "asc",
+															multiSort: true,
+															//shrinkToFit: false,
+															iconSet: "fontAwesome",
+															//forceFit: true,
+															//toolbar: true,
+															scrollrows: true,
+															pager: "#jqGrid_NA_F_Goods_Out_fk_employee_Pager"
+														});
+														gridTbl.navGrid(gridPager, {
+															search: false, // show search button on the toolbar
+															add: false,
+															edit: false,
+															del: false,
+															refresh: false
+														});
+														$("div#gbox_jqGrid_NA_F_Goods_Out_fk_employee, div#gview_jqGrid_NA_F_Goods_Out_fk_employee, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+															'width': 'inherit'
+														})
+														$("div.modal-content").css({ 'width': '511px' });
+													},
+													animate: false,
+													closable: false,
+													closeByBackdrop: false,
+													closeByKeyboard: false,
+													buttons: [{
+														label: 'Cancel',
+														icon: 'glyphicon glyphicon-remove',
+														cssClass: 'btn-success',
+														action: function (dialogRef) {
+															dialogRef.close();
+														},
+													}, {
+														label: 'OK',
+														id: 'btnOK',
+														icon: 'glyphicon glyphicon-ok',
+														cssClass: 'btn-success',
+														action: function (dialogRef) {
+															var nik = getGridCellValue(gridTbl, 'nik');
+															if (nik) {
+																var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
+																var rowData = gridTbl.getRowData(rowId);
+																var employeeName = rowData['employee_name'];
+																var idapp = rowData['idapp'];
+																var mainIDbtn = item.getAttribute('id').substring(3);
+																//set nik
+																var elfk_employee = NA.common.getElementID('id_' + mainIDbtn);
+																//set employee_name
+																elfk_employee.value = rowData['nik'];
+																var elempname = NA.common.getElementID('id_' + mainIDbtn + '_employee');
+																elempname.value = employeeName;
+																var elidapp = NA.common.getElementID('id_idapp_' + mainIDbtn);
+																elidapp.value = idapp;
+																dialogRef.close();
+															}
+														}
+													}]
+												});
+												//restyleBoostrapDialog();
+												//var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+												//gbox.style.width = '432px';
+												//var gview = NA.common.doc.querySelector('div#gview_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
+												//gview.style.width = '432px';
+												//var tdInfo = NA.common.doc.getElementById('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager_right');
+												//tdInfo.style.width = '110px';
+												//var pager = NA.common.getElementID('jqGrid_NA_F_Goods_Receive_fk_p_r_by_Pager');
+												//pager.style.width = '430px';
+												evt.stopImmediatePropagation();
+											});
+										}
 
-							}//end if (win.status !== 'Open' && win.status !== '')
-						}
-					});
+									});
+									hasLoadDialog = true;
+									win.onbeforeunload = function (e) {
+										var valuesForm = getValuesForm(); var retval = false;
+										if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
+											return NA.common.message.dataHasChanged;
+										}
+										//NA.common.dialog.mustCloseDialog = true;
+										if (NA.common.dialog.hasOwnProperty('mustCloseDialog')) {
+											delete NA.common.dialog.mustCloseDialog;
+										}
+										//NA.common.dialog.hasSavedAction = true;
+										if (NA.common.dialog.hasOwnProperty('hasSavedAction')) {
+											delete NA.common.dialog.hasSavedAction;
+										}
+										if (NA.common.dialog.hasOwnProperty('IsPrintingPDF')) {
+											delete NA.common.dialog.IsPrintingPDF;
+										}
+									}
+									//====================== End event handler BUTTONS Search================================================ 
+
+								}//end if (win.status !== 'Open' && win.status !== '')
+							}
+						});
 				}
 			} catch (e) {
 				BootstrapDialog.closeAll();

@@ -829,13 +829,13 @@
             serialnumber = elserialnumber.value;
 		    //brandvalue nggak usah
 		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance'),
-                fk_maintenance = elfk_maintenance.value;
+                fk_maintenance = elfk_maintenance.value||0;
 		    var elfk_return = NA.common.getElementID('id_fk_return'),
-                fk_return = elfk_return.value;
+                fk_return = elfk_return.value||0;
 		    var elfk_currentapp = NA.common.getElementID('id_fk_currentapp'),
-                fk_currentapp = elfk_currentapp.value;
+                fk_currentapp = elfk_currentapp.value||0;
 		    var elfk_receive = NA.common.getElementID('id_fk_receive'),
-                fk_receive = elfk_receive.value;
+                fk_receive = elfk_receive.value||0;
 		    //var elfk_disposal = NA.common.getElementID('id_fk_disposal'),
             //    fk_disposal = elfk_disposal.value;
 		    //var elfk_lost = NA.common.getElementID('id_fk_lost'),
@@ -1402,7 +1402,7 @@
 							    	//NA.common.getElementID('id_fk_sender').setAttribute('disabled', true);
 							    	NA.common.getElementID('id_serialnumber').setAttribute('disabled', true);
 							    	NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
-							    	if (hasref.valueOf === true) {
+							    	if (hasref.valueOf() === true || hasref.valueOf() === 'True') {
 							    		NA.common.getElementID('id_statuslent').setAttribute('disabled',true);
 							    		NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);							    		
 							    		NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
@@ -1492,7 +1492,7 @@
                                                             }
                                                             else {
                                                             	//idapp, itemcode, goodsname, brandname, typeapp, lastInfo, fkreturn, fklending, fkoutwards, fkmaintenance, fkdisposal, fklost
-                                                                fillGoodsInfo(data, this.id);
+                                                                fillGoodsInfo(data,'id_serialnumber');
                                                             }
                                                         }, null, function (e) {//function untuk ajax error
                                                             window.document.body.style.cursor = 'default'; XhrError(this);
