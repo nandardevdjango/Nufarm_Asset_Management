@@ -30,7 +30,7 @@ def NA_Goods_Outwards(request):
 	populate_combo.append({'label':'Date Requested','columnName':'daterequest','dataType':'datetime'})
 	populate_combo.append({'label':'Date Released','columnName':'datereleased','dataType':'datetime'})
 	populate_combo.append({'label':'Sender ','columnName':'senderby','dataType':'varchar'})
-	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'varchar'})	
+	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'varchar'})
 	populate_combo.append({'label':'Goods From','columnName':'refgoodsfrom','dataType':'varchar'})
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
@@ -57,15 +57,15 @@ def ShowCustomFilter(request):
 def NA_Goods_Outwards_Search(request):
 	try:
 		IcolumnName = request.GET.get('columnName')
-		IvalueKey =  request.GET.get('valueKey')
-		IdataType =  request.GET.get('dataType')
-		Icriteria =  request.GET.get('criteria')
+		IvalueKey = request.GET.get('valueKey')
+		IdataType = request.GET.get('dataType')
+		Icriteria = request.GET.get('criteria')
 		Ilimit = request.GET.get('rows', '')
 		Isidx = request.GET.get('sidx', '')
 		Isord = request.GET.get('sord', '')
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
-		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+		if(Isord is not None and str(Isord) != '') or (Isidx is not None and str(Isidx) != ''):
 			NAData = NAGoodsOutwards.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
 			NAData = NAGoodsOutwards.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
@@ -84,7 +84,7 @@ def NA_Goods_Outwards_Search(request):
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
-		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows}
 		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 	except Exception as e :
 		result = repr(e)
@@ -93,10 +93,9 @@ def NA_Goods_Outwards_Search(request):
 def ShowEntry_Outwards(request):
 	authentication_classes = []
 	status = 'Add'
-	initializationForm={}
+	initializationForm = {}
 	statuscode = 200
 	data = None
-	hasRefData = False
 	try:
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 		if request.POST:
@@ -111,15 +110,15 @@ def ShowEntry_Outwards(request):
 				data.update(fk_frommaintenance=(None if int(data['fk_frommaintenance']) == 0 else data['fk_frommaintenance']))
 				data.update(idapp_fk_usedemployee=(None if int(data['idapp_fk_usedemployee']) == 0 else data['idapp_fk_usedemployee']))
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
-				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else  data['fk_lending']))
+				data.update(fk_lending=(None if int(data['fk_lending']) == 0 else data['fk_lending']))
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
-				if status == 'Add':	
+				if status == 'Add':
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					if NAGoodsOutwards.objects.HasReference(data['idapp']):					
-						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
+					if NAGoodsOutwards.objects.HasReference(data['idapp']):
+						return HttpResponse(json.dumps({'message':'Can not edit data data\nData has child-referenced'}),status = statuscode, content_type='application/json')
 					result = NAGoodsOutwards.objects.SaveData(data,StatusForm.Edit)
 				if result == 'success':
 					return HttpResponse(json.dumps({'message': result}), status=statuscode, content_type='application/json')
@@ -140,11 +139,11 @@ def ShowEntry_Outwards(request):
 			Ndata.update(hasRefData=commonFunct.str2bool(str(Ndata['hasRefData'])))
 			Ndata.update(initializeForm=json.dumps(Ndata,cls=DjangoJSONEncoder))
 			form = NA_Goods_Outwards_Form(data=Ndata)
-			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})  
+			return render(request, 'app/Transactions/NA_Entry_Goods_Outwards.html', {'form' : form})
 			#idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
 			#daterequest,datereleased, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
 			# fk_sender, idapp_fk_sender, fk_sender_employee,  descriptions,fk_usedemployee,idapp_fk_usedemployee,fk_usedemployee_employee, typeapp, serialnumber,
-			#brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData          
+			#brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -182,9 +181,8 @@ def getLastTransGoods(request):
 		result = NAGoodsOutwards.objects.getLastTrans(serialNO)
 		#return(idapp,itemcode,goodsname,brandname,typeapp,fk_usedemployee,nik_usedemployee,usedemployee,lastInfo,fkreceive,fkreturn,fklending,fkoutwards,fkmaintenance)
 		return HttpResponse(json.dumps({'idapp':result[0],'fk_goods':result[1],'goodsname':result[2],'brandname':result[3],'type':result[4],
-								  'fk_usedemployee':result[5],'nik_usedemployee':result[6],'usedemployee':result[7],'lastinfo':result[8],'fk_receive':result[9],'fk_return':result[10],
-                                  'fk_lending':result[11],'fk_outwards':[12],'fk_maintenance':result[13],
-								  }),status = 200, content_type='application/json')
+			'fk_usedemployee':result[5],'nik_usedemployee':result[6],'usedemployee':result[7],'lastinfo':result[8],'fk_receive':result[9],'fk_return':result[10],
+			'fk_lending':result[11],'fk_outwards':[12],'fk_maintenance':result[13],}),status = 200, content_type='application/json')
 	except Exception as e :
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -193,12 +191,12 @@ def export_to_excels(request):
 	NAData = []
 	#tentukan column
 	colNames= ['idapp', 'NO','Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee','mobile',
-                'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By']
+		'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By']
 	try:
 		IcolumnName = request.GET.get('columnName')
-		IvalueKey =  request.GET.get('valueKey')
-		IdataType =  request.GET.get('dataType')
-		Icriteria =  request.GET.get('criteria')
+		IvalueKey = request.GET.get('valueKey')
+		IdataType = request.GET.get('dataType')
+		Icriteria = request.GET.get('criteria')
 		Ilimit = request.GET.get('rows', '')
 		Isidx = request.GET.get('sidx', '')
 		Isord = request.GET.get('sord', '')
@@ -208,7 +206,7 @@ def export_to_excels(request):
 			NAData = NAGoodsOutwards.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
 			NAData = NAGoodsOutwards.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
-		totalRecord = NAData[1]
+		#totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []
 		#column IDapp 	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
@@ -222,8 +220,7 @@ def export_to_excels(request):
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
 			rows.append(datarow)
 		dataRows = list(dict(zip(colNames, row)) for row in rows)
-		column_hidden = ['idapp', 'fk_employee', 'fk_usedemployee',
-                   'fk_responsibleperson', 'fk_sender', 'fk_stock']
+		column_hidden = ['idapp', 'fk_employee', 'fk_usedemployee','fk_responsibleperson', 'fk_sender', 'fk_stock']
 		response = commonFunct.create_excel(
 			colNames, column_hidden, dataRows, 'Goods_Outwards_' + datetime.strftime(datetime.now(),"%Y_%m_%d"),'Goods_Outwards')
 		return response
@@ -241,7 +238,7 @@ def getGoodsWithHistory(request):
 		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []
-		i = 0;#idapp,itemcode,goods
+		i = 0 #idapp,itemcode,goods
 		for row in dataRows:
 			i+=1
 			#idapp,NO,fk_goods,goodsname,brandName,type,serialnumber,fk_usedemployee,usedemployee,lastinfo,fk_receive,fk_outwards,fk_lending,fk_return,fk_maintenance,
@@ -249,7 +246,7 @@ def getGoodsWithHistory(request):
 							row['serialnumber'],row['fk_usedemployee'],row['nik_usedemployee'],row['usedemployee'],row['lastinfo'],row['fk_receive'],row['fk_outwards'],row['fk_lending'],row['fk_return'],row['fk_maintenance'],]}
 			rows.append(datarow)
 		TotalPage = 1 if totalRecord < int(PageSize) else (math.ceil(float(totalRecord/int(PageSize)))) # round up to next number
-		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows }
+		results = {"page": int(PageIndex),"total": TotalPage ,"records": totalRecord,"rows": rows}
 		return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 	except Exception as e:
 		result = repr(e)
@@ -264,18 +261,18 @@ def Delete(request):
 		data = json.loads(data)
 
 		IDApp = data['idapp']
-	
+
 		#check reference data
 		if NAGoodsOutwards.objects.HasReference(IDApp):
-			return HttpResponse(json.dumps({'message':'Can not delete data\Data has child-referenced'},cls=DjangoJSONEncoder),status = 203, content_type='application/json') 
+			return HttpResponse(json.dumps({'message':'Can not delete data\nData has child-referenced'},cls=DjangoJSONEncoder),status = 203, content_type='application/json')
 		result = NAGoodsOutwards.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message': result}), status=500, content_type='application/json')
 def getReportAdHoc(request):
 	"""main_display_add_hoc = ['GoodsName', 'BrandName', 'SerialNumber', 'Type',
-                             'DateReleased', 'ToEmployee', 'Equipment', 'Descriptions', 'Conditions', 'Eks_Employee', 'Sender']"""
+	'DateReleased', 'ToEmployee', 'Equipment', 'Descriptions', 'Conditions', 'Eks_Employee', 'Sender']"""
 	try:
 		data = request.body
 		data = json.loads(data)
@@ -288,14 +285,14 @@ def getReportAdHoc(request):
 		pdfReport = NA_GO_PDF("Goods_Outwards_{goodsName}".format(goodsName=goods_name))
 		outputPDF = pdfReport.buildAddHocPDF(data)
 		response.write(outputPDF)
-		#return render_to_response('app/Transactions/NA_R_Goods_Outwards.html', {
-        #            'result': outputPDF}, context_instance=RequestContext(request))
+		#return render_to_response('app/Transactions/NA_R_Goods_Outwards.html',
+		#'result': outputPDF}, context_instance=RequestContext(request))
 		return response
 	except NAError as e:
 		result = NAErrorHandler.handle(err=e)
 		return HttpResponse(json.dumps({'message': result}), status=500, content_type='application/json')
 class NA_Goods_Outwards_Form(forms.Form):
-	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+	idapp = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
 	isnew = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False,initial=False)
 	goods = forms.CharField(max_length=100,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
@@ -324,10 +321,10 @@ class NA_Goods_Outwards_Form(forms.Form):
 	idapp_fk_sender = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_sender_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																				'placeholder': 'employee who sends','data-value':'employee who sends','tittle':'employee who sends is required'}))
-	equipment_desc =  forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'please fill with equipment',
-  																		'data-value':'please fill with equipment','title':'this is filled with what goods to be equiped','tabindex':8}),required=False)
+	equipment_desc = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'please fill with equipment',
+		'data-value':'please fill with equipment','title':'this is filled with what goods to be equiped','tabindex':8}),required=False)
 	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','style':'max-width: 520px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods outwards',
-  																		'data-value':'descriptions about goods outwards','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
+		'data-value':'descriptions about goods outwards','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	fk_stock = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 
 	#info
@@ -337,13 +334,13 @@ class NA_Goods_Outwards_Form(forms.Form):
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'display:inline-flex;flex:1;margin-right:5px;margin-bottom:2px;','tabindex':1,
-									'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)   
+									'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 
 	fk_frommaintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_lending = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)  
+	fk_receive = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 	hasRefData = forms.BooleanField(widget=forms.HiddenInput(),required=False)
 
@@ -355,6 +352,7 @@ class NA_Goods_Outwards_Form(forms.Form):
 		fk_responsibleperson = self.cleaned_data['fk_responsibleperson']
 		fk_sender = self.cleaned_data['fk_sender']
 		serialnumber = self.cleaned_data['serialnumber']
+
 	def __init__(self,*args,**kwargs):
 		super(NA_Goods_Outwards_Form,self).__init__(*args, **kwargs)
 		self.initial['goods'] = ''

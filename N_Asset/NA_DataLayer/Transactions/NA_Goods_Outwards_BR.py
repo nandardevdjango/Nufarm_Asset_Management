@@ -45,7 +45,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Outwards_Manager_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT e.territory,nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
+		Query = """ CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName + """ ENGINE=MyISAM AS (SELECT e.territory,nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
 		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,e.TelpHP AS mobile,nga.fk_usedemployee,
 		        CASE
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
@@ -85,6 +85,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		totalRecords = row[0]
 		cur.close()
 		return (result,totalRecords)
+
 	def isGoodsNew(self, serialnumber):
 		Used = NAGoodsHistory.objects(
 		).filter(serialnumber=serialnumber).select_related('fk_outwards').first()

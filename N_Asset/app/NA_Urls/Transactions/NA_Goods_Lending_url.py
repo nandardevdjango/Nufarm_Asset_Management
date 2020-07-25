@@ -16,4 +16,5 @@ urlpatterns = [
 	#url(r'^getEmployee/$', RedirectView.as_view(url='/NA_Goods_Receive/getEmployee/',permanent=False,query_string=True),name='redirect-to-getEmployee'),#ambil funtion yang sudah ada di receive view
 	url(r'^SearchEmployeebyform/$',RedirectView.as_view(url='/Transactions/Goods_Receive/IT/SearchEmployeebyform/',permanent=False,query_string=True),name='redirect-to-SearchEmployeebyform'),#ambil funtion yang sudah ada di receive view
 	url(r'^customFilter/$',NA_Goods_Lending_View.ShowCustomFilter,name='SowCustomFilter_Lending'),
+	url(r'^ExportToExcel/$',NA_Goods_Lending_View.export_to_excels,name='export_goods_Lending_xls')
 ]

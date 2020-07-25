@@ -66,10 +66,10 @@
                     //    //txtSearchMaster.setAttribute('disabled', true);
                     //    //txtSearchMaster.setAttribute('placeholder', '');
                     //    //btnSearchMaster.setAttribute('disabled', true)
-                     
+
                     //}
                     //else {
-                      
+
                     //}
                     txtSearchMaster.removeAttribute('disabled');
                     btnSearchMaster.removeAttribute('disabled');
@@ -331,7 +331,7 @@
 			},
 			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
 			type: 'GET',
-			crossDomain: false, // obviates need for sameOrigin test                              
+			crossDomain: false, // obviates need for sameOrigin test
 		});
 		//#endregion END AJAX SetuP===========================
 
@@ -353,8 +353,8 @@
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
 
-        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
-		originalData = {}, txtRefno = NA.common.getElementID('id_refno'), 
+        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
+		originalData = {}, txtRefno = NA.common.getElementID('id_refno'),
 	    filterToolbar = NA.common.qs('div#bs-example-navbar-collapse-1 > div.col-sm-8.col-md-4:nth-child(2)'),
 		errorRefNo = NA.common.getElementID('errorRefNo'), NAAjax = NA.common.AJAX;
 		var btnFindRefno = NA.common.getElementID('FE_Ref_No');
@@ -653,7 +653,7 @@
                     	editoptions: {
                     		placeholder: function () {
                     			if ($(this).val() === '') { return 'enter total received'; }
-                    		}, 
+                    		},
                     		autocomplete: 'off',
                     		class: (function () {
                     			if (!AllowEdit) { return 'not-editable-cell'; }
@@ -675,7 +675,7 @@
                     						return false;
                     					}
                     					//check apakah grid sedang di buka dan ada rowsnya
-                    					var reccount = gridTbl.jqGrid('getGridParam', 'reccount') || 0;          					
+                    					var reccount = gridTbl.jqGrid('getGridParam', 'reccount') || 0;
                     					var totalReceived = $(e.target).val();
                     					var totalPurchase = rowHeaderData.totalpurchase || 0;
                     					var regex = /[0-9]/;
@@ -838,7 +838,7 @@
 			var oriData = JSON.parse(originalData);
 			//copy array object
 			//var copyOri = oriData['detail'].slice(0), copyDetail = ParseDetail.slice(0);
-			//sort copy array 
+			//sort copy array
 			//remove field yang readonly
 			//// idapp, fkapp, 'createdby', 'createddate', 'modifiedby', 'modifieddate', 'HasRef'
 			//for (var i = 0; i < copyOri.length; i++) {
@@ -901,7 +901,7 @@
 				return false;
 			} catch (e) {
 				return true;//karena pasti udah di rubah
-			}			
+			}
 		};
 
 		function GetServerFormatDate(parsedDate) {//dd/mm/yy
@@ -963,7 +963,7 @@
 						gridTbl.editRow(rowID, true); //function edit row adalah dispatch event dari row clicked
 						$('tr#' + rowID + '>td[aria-describedby*="' + brandname + '"]').focus();
 					}); return false;
-				}				
+				}
 				if (typeapp === '' || typeapp.length <= 1) {
 					ShowAlert('Please enter type', NA.common.message.titleInfo, calbackOnHide = function () {
 						gridTbl.editRow(rowID, true);
@@ -1004,7 +1004,7 @@
 				}
 
 				var hasRef = row.HasRef.valueOf() == true || row.HasRef.valueOf() == 1 || row.HasRef.valueOf() === "true" || row.HasRef.valueOf() === "True" || row.HasRef === "True" || row.HasRef === "true";
-				
+
 				if (typeof endofwarranty == 'undefined') {
 					endofwarranty = null;
 				}
@@ -1276,7 +1276,7 @@
 									type: 'keydown',
 									fn: function (e) {
 										if (!AllowEdit) { NA.NAEvent.preventDefault(e); return false; }
-										if (e.keyCode === 9) {  //tab										
+										if (e.keyCode === 9) {  //tab
 											var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 											var rowData = gridTbl.jqGrid('getLocalRow', rowId);
 											var value = $(e.target).val();
@@ -1713,7 +1713,7 @@
 													var NDate = new Date(FDate.getFullYear(), FDate.getMonth(), FDate.getDate() + NewVal);
 													//$('#' + curRowid + '_endofwarranty').val(dtStr);
 													LastRowData.endofwarranty = NDate;
-													gridTbl.jqGrid('setRowData', curRowid, LastRowData)													
+													gridTbl.jqGrid('setRowData', curRowid, LastRowData)
 													gridTbl.jqGrid("saveRow", curRowid, {
 														url: 'clientArray',
 														restoreAfterError: true,
@@ -1771,7 +1771,7 @@
 										if (warranty) {
 											if (!isNaN(warranty)) {
 												if (parseFloat(warranty) > 0) {
-													//isi column endofwarranty														
+													//isi column endofwarranty
 													var modVal = (warranty % 1).toFixed(2);//modulus value decimal number
 													var intVal = Math.round(warranty) - Math.round(modVal);
 													var FDate = $.datepicker.parseDate('yy-mm-dd', dtReceived.substr(0, 10));
@@ -1828,7 +1828,7 @@
 					rowList: [],        // disable page size dropdown
 					pgbuttons: false,     // disable page control like next, back button
 					pgtext: null,         // disable pager text like 'Page 0 of 10'
-					viewrecords: false,    // disable current view record text like 'View 1-10 of 100' 
+					viewrecords: false,    // disable current view record text like 'View 1-10 of 100'
 					viewPagerButtons: false,
 					pager: "#jqGrid_NA_F_Goods_Receive_Batch_Detail_Pager"
 				});
@@ -1897,7 +1897,7 @@
 				//});
 					//.navButtonAdd('#jqGrid_NA_F_Goods_Receive_Batch_Detail_Pager', {
 				//	caption: "  Delete", buttonicon: "fa-window-close", onClickButton: function (e) {
-					
+
 				//	}, position: "last"
 				//});
 				var elDivF = NA.common.doc.querySelector('div#pg_jqGrid_NA_F_Goods_Receive_Batch_Detail_Pager table.ui-pg-table.navtable.ui-common-table tr td:nth-child(1) div.ui-pg-div>span');
@@ -1932,7 +1932,7 @@
 				if (AllowDelete) {
 					//assign delete key event
 					gridTbl.on("keyup", "tr", function (e) {
-						//var rowId = parseInt($(this).attr("id")); 
+						//var rowId = parseInt($(this).attr("id"));
 						var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
 						if (e.keyCode == 46) {//tombol delete
 							if ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === "0" || ($(gridTbl.jqGrid("getInd", rowId, true)).attr("editable") === undefined)) {
@@ -2014,7 +2014,7 @@
 			})
 			$('div#gview_jqGrid_NA_F_Goods_Receive_Batch_Detail>div.ui-jqgrid-bdiv').css({ 'overflow-y': 'auto' });
 		};
-		
+
 		function createDummyRowData(intLength) {
 			//check datarows di jqgrid
 			var DummyData = [];
@@ -2040,7 +2040,7 @@
 		function closeLoading() {
 			$('div.container-spinner').fadeOut(500);
 		};
-		
+
 		NA.NAEvent.addHandler(txtRefno, 'keydown', function (e) {
 			if (e.keyCode == 13) {
 				btnFindRefno.click();
@@ -2080,7 +2080,7 @@
 						        closeLoading(); setTimeout(function () { XhrError(NAAjax.XHR); win.document.body.style.cursor = 'default'; }, 500); throw new Error('');
 						    }
 							var dataRowHeader = [];
-							
+
 						    //'idapp', 'idapp_fk_goods', 'refno', 'fk_goods', 'Goods Name', 'economiclife', 'Date Received', 'fk_supplier', 'Suplier Name', 'idapp_fk_receivedby', 'fk_receivedby',
 						    //'Received By', 'idapp_fk_p_r_by','fk_p_r_by','Purchase Request By', 'Total Purchase', 'Total Receieved','descriptions'
 						    dataRowHeader.push({
@@ -2123,7 +2123,7 @@
 						        btnDelete.classList.add('disabled');
 						    }
 						    //check data
-						   
+
 						    if (dataDetail.length <= 0) {
 						        btnExport.classList.add('disabled');
 						        btnPrint.classList.add('disabled');
@@ -2173,7 +2173,7 @@
 							//disabled element must be set with tab index = 0
 							gridHeader.jqGrid('setCell', trs[0], 'totalreceived', '', { tabindex: '0' });
 							setTimeout(function () { $elmTReceived.tooltip('show'); }, 5000);
-							
+
 						}
 					}
 				},//function ajax complete
@@ -2228,7 +2228,7 @@
 			    else {
 			        var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
 			        var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-			        Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+			        Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
 			            if (item.firstChild.textContent === textToSearch) {
 			                elSearch = item.firstChild;
 			                return;
@@ -2331,7 +2331,7 @@
 		//			if (textToSearch === "CustomSearch") {
 		//				ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
 		//			}
-		//			Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+		//			Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
 		//			    if (item.firstChild.textContent === textToSearch) {
 		//			        elSearch = item.firstChild;
 		//			        return;
@@ -2440,13 +2440,13 @@
 		//		}
 		//	});
 		//};
-	
-		//=======================handler txt & button Search master keyboard event and click================================        
+
+		//=======================handler txt & button Search master keyboard event and click================================
 		NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
 		NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
 		NA.Privilege.read_privilege('n_a_goods_receive');
-		
+
 		NA.NAEvent.addHandler(btnSave, 'click', function () {
 			var allowSave = (NA.Privilege.Permissions.Allow_Add || NA.Privilege.Permissions.Allow_Delete === true || NA.Privilege.Permissions.Allow_Edit === true);
 			if (!allowSave) { NA.NAEvent.preventDefault(e); }
@@ -2611,13 +2611,9 @@
 					});
 					var curRow = gridTbl.jqGrid('getRowData', rowId), curRows = []; curRows.push(curRow);
 					if (isDataChanged(curRows)) {
-
 						return NA.common.message.dataHasChanged;
 					}
 				}
-				//check selected rows
-				//if selected saved currentRows
-				//check if Datachanged
 			}
 		};
 	})();
@@ -2644,4 +2640,3 @@
 	});
 </script>
 {% endblock %}
-

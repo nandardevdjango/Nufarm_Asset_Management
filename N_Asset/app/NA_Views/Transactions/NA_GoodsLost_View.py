@@ -1,36 +1,36 @@
-﻿from NA_Models.models import NAGoodsLost, goods, Employee, NAGoodsHistory,\
-NAGoodsOutwards, NAGoodsLending, NAMaintenance,NAGoodsReceive
-from NA_Models.NASerialize import NAGoodsLostSerializer,NAGoodsOutWordsSerializer,NAGoodLendingSerializer
+﻿from NA_Models.models import NAGoodsLost, Employee, NAGoodsHistory,NAGoodsOutwards, NAGoodsLending, NAMaintenance,NAGoodsReceive
+#from NA_Models.NASerialize import NAGoodsLostSerializer,NAGoodsOutWordsSerializer,NAGoodLendingSerializer
 from django.http import HttpResponse
 import json
-from NA_DataLayer.common import ResolveCriteria, commonFunct, StatusForm
+from NA_DataLayer.common import ResolveCriteria, StatusForm
 from django.shortcuts import render
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from datetime import datetime
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.db.models import F, Q
+from django.db.models import Q
 #from rest_framework.decorators import api_view
 #from rest_framework.response import Response
-import operator
+
+#import operator
 def NA_Goods_Lost(request):
     return render(request,'app/MasterData/NA_F_GoodsLost.html')
 
 def NA_GoodsLost_GetData(request):
     IcolumnName = request.GET.get('columnName')
-    IvalueKey =  request.GET.get('valueKey')
-    IdataType =  request.GET.get('dataType')
-    Icriteria =  request.GET.get('criteria')
+    IvalueKey = request.GET.get('valueKey')
+    IdataType = request.GET.get('dataType')
+    Icriteria = request.GET.get('criteria')
     Ilimit = request.GET.get('rows', '')
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
     Ipage = request.GET.get('page')
-    getColumn = commonFunct.retriveColumn(
-		table=[NAGoodsLost,goods],resolve=IcolumnName,
-		initial_name=['gls','g','empl1','empl2','empl3'],
-		custom_fields=[['used_by'], ['lost_by'], ['resp_person']]
-    )        
+#    getColumn = commonFunct.retriveColumn(
+#		table=[NAGoodsLost,goods],resolve=IcolumnName,
+#		initial_name=['gls','g','empl1','empl2','empl3'],
+#		custom_fields=[['used_by'], ['lost_by'], ['resp_person']]
+#    )
     criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
     dataType = ResolveCriteria.getDataType(str(IdataType))
     accData = NAGoodsLost.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType,Isidx,Isord)
@@ -151,10 +151,10 @@ def EntryGoods_Lost(request):
                 ValidNIK = Employee.objects.existByNIK(data['nik_used'])
                 if not ValidNIK:
                     return HttpResponse(json.dumps({'message': 'NIK Used by is not valid '}), status=403, content_type='application/json')
-                
+
                 ValidNIK = Employee.objects.existByNIK(data['nik_resp'])
                 if not ValidNIK:
-                    return HttpResponse(json.dumps({'message': 'NIK responsible person is not valid '}), status=403, content_type='application/json')                
+                    return HttpResponse(json.dumps({'message': 'NIK responsible person is not valid '}), status=403, content_type='application/json')
                 ValidNIK = Employee.objects.existByNIK(data['nik_lostby'])
                 if not ValidNIK:
                     return HttpResponse(json.dumps({'message': 'NIK lost by person is not valid '}), status=403, content_type='application/json')
@@ -215,7 +215,7 @@ def GetGoodsBySN(request,SN=''):
     if not sn:
         sn = request.GET.get('serialno')
     HasTrans = NAGoodsHistory.objects.filter(serialnumber__iexact=sn).exists()
-    resp = {}  
+    resp = {}
     if HasTrans:
         data = NAGoodsHistory.objects.filter(Q(serialnumber__iexact=sn) \
                 & Q(fk_return__isnull=True) & Q(fk_disposal__isnull=True) \
@@ -238,7 +238,7 @@ def GetGoodsBySN(request,SN=''):
                 #serializer =NAGoodLendingSerializer(instance=resp)
             elif data[0]['fk_maintenance']:
                 resp = NAMaintenance.objects.getDatabySN(sn)
-                #serializer = 
+                #serializer =
             #serializer = NAGoodsLostSerializer(instance=resp,many=True)
             #return Response(serializer.data)
             return HttpResponse(json.dumps(resp[0],cls=DjangoJSONEncoder),content_type='application/json')
@@ -246,12 +246,12 @@ def GetGoodsBySN(request,SN=''):
             return HttpResponse(json.dumps(resp[0],cls=DjangoJSONEncoder),content_type='application/json')
 
 def SearchGoodsbyForm(request):
-    Isidx = request.GET.get('sidx', '') 
+    Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
     goodsFilter = request.GET.get('goods_filter')
     tabs_section = request.GET.get('tab_section')
     Ilimit = request.GET.get('rows', '')
-    
+
     NAData = NAGoodsLost.objects.searchGoods_byForm({'goods_filter':goodsFilter,'tab_section':tabs_section})
     if NAData[1] == []:
         results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
@@ -260,7 +260,7 @@ def SearchGoodsbyForm(request):
                          reverse=True if Isord == 'desc' else False)
         #NAData[1].sort(key=operator.itemgetter(tuple(Isord.split(','))))
         totalRecord = len(newList)
-        paginator = Paginator(newList, int(Ilimit)) 
+        paginator = Paginator(newList, int(Ilimit))
         try:
             page = request.GET.get('page', '1')
         except ValueError:
@@ -269,7 +269,7 @@ def SearchGoodsbyForm(request):
             dataRows = paginator.page(page)
         except (EmptyPage, InvalidPage):
             dataRows = paginator.page(paginator.num_pages)
-        
+
         rows = []
         i = 0;#idapp,itemcode,goods
         if NAData[0] == 'g_maintenance':

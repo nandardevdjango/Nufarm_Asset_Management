@@ -11,8 +11,8 @@
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <!--=======================================================================================================-->
 <script type="text/javascript">
-    
-	(function(){ 
+
+	(function(){
 	    var txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
 	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
 	    var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
@@ -25,10 +25,10 @@
 	        lastLi.appendChild(lastLi_a);
 	        parentC.appendChild(lastLi);
 	    }
-	   
+
 //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
-        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");   
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
         var doc = doc||window.document;
         var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
         (function(elm){
@@ -82,7 +82,7 @@
                     //event.stopImmediatePropagation();
                 });
             });
-       
+
             NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
                 //get textcontent IDbySearch
                 //looping dropdown li a textContent
@@ -92,7 +92,7 @@
                     if (item.firstChild.text == SearchByText) {
                         elSearch = item.firstChild;
                         return;
-                    }                        
+                    }
                 });
                 switch (elSearch.dataset.tipe) {
                     case "varchar":
@@ -146,9 +146,9 @@
                         this.setAttribute('placeholder', '');
                     }
                 }
-            });            
+            });
         })(DivSearch);
-    })();   
+    })();
 </script>
 
 <!--SETUP Jquery grid-->
@@ -178,12 +178,14 @@
 </style>
 <table id="jqGrid_NA_F_Goods_Lending" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Lending_Pager" class="scroll" style="text-align:center;"></div>
+<a style="visibility: hidden;" id="export_goods_Lending_xls"
+	href="{% url 'Transactions:NA_Goods_Lending:export_goods_Lending_xls' %}">Export all</a>
 
 {% endblock %}
 
 {% block DialogEntry %}
 <script type="text/javascript">
-       
+
 	(function () {
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
@@ -210,10 +212,10 @@
 			},
 			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
 			type: 'GET',
-			crossDomain: false, // obviates need for sameOrigin test                              
+			crossDomain: false, // obviates need for sameOrigin test
 		});
 
-		//===================================END AJAX SetuP===========================--> 
+		//===================================END AJAX SetuP===========================-->
 
 		//========================Variable Object untuk ===============================
 		var win = win || window,
@@ -229,7 +231,7 @@
         btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
         btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
         btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
-        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
         originalData = {};
 
 		// ===============Remove event kalau ada yang masih menempel di textbox/btnSearch master=================
@@ -275,18 +277,19 @@
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Lent By', 'Sent By', 'Lent Date', 'Date Returned', 'Interests', 'Responsible By', 'Ref Goods From', 'IsNew', 'Status', 'Descriptions', 'Created Date', 'Created By'],
+						colNames: ['idapp', 'NO', 'Territory','Goods Name', 'Type', 'Serial Number', 'Lent By', 'Sent By', 'Lent Date', 'Date Returned', 'Interests', 'Responsible By', 'Ref Goods From', 'IsNew', 'Status', 'Descriptions', 'Created Date', 'Created By'],
 						colModel: [
                             { name: 'idapp', key: true, hidden: true, align: 'left' },
                             { name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
-							{ name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
+                            { name : 'territory',width:100,index:'territory',align:'left',sortable:true,editable:false},
+							              { name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
                             { name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
                             { name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
                             { name: 'lentby', index: 'lentby', width: 100, sortable: true, editable: false, align: 'left', },
                             //formatter : 'date', formatoptions: { srcformat : 'Y-m-d H:i:s', newformat :'ShortDate'}},
                             { name: 'sentby', index: 'sentby', width: 100, sortable: true, editable: false, align: 'left', },
                             { name: 'lentdate', index: 'lentdate', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
-							{ name: 'datereturn', index: 'datereturn', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+							              { name: 'datereturn', index: 'datereturn', sortable: true, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
                             { name: 'interests', index: 'interests', width: 140, sortable: true, editable: false, align: 'left', },
                             {
                             	name: 'responsibleby', index: 'responsibleby', width: 100, sortable: true, editable: false, align: 'right',
@@ -308,7 +311,7 @@
                                         		var idapp = tr[0].id;
                                         		url = NA.common.addURLParam(url, 'idapp', idapp);
                                         		url = NA.common.addURLParam(url, 'newVal', NewVal);
-                                        		//set data 
+                                        		//set data
                                         		$.post(url, function (data, status, xhr) {
                                         			if (parseInt(xhr.status) != 200) {
                                         				if (parseInt(xhr.status) >= 500) {
@@ -392,6 +395,18 @@
 				$("div#gbox_jqGrid_NA_F_Goods_Lending, div#gview_jqGrid_NA_F_Goods_Lending, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
 					'width': 'inherit'
 				})
+				//set href link excel
+				var linkExcel = NA.common.getElementID('export_goods_Lending_xls');
+				linkExcel.setAttribute('target', '_self')
+				lnkUrl = linkExcel.getAttribute('href');
+				var myUrl = jQuery("#jqGrid_NA_F_Goods_Lending").jqGrid('getGridParam', 'url');
+				//myUrl += "?myextraparam=something";
+				var postData = jQuery("#jqGrid_NA_F_Goods_Lending").jqGrid('getGridParam', 'postData');
+				$.each(postData, function (key, value) {
+					myUrl += "&" + key + "=" + encodeURIComponent(value);
+				});
+				lnkUrl = myUrl.replace('NA_Goods_Lending_Search', 'ExportToExcel')
+				linkExcel.setAttribute('href', lnkUrl);
 			}
 		};
 
@@ -441,7 +456,7 @@
 			}
 			return colData;
 		};
-	
+
 		function showConfirmation(message, title, callbackYess, calBackNO) {
 			BootstrapDialog.confirm({
 				title: title || NA.common.message.titleInfo,
@@ -583,7 +598,7 @@
 				                originalData = JSON.stringify(getValuesForm());
 				                var initializeForm = NA.common.getElementID('id_initializeForm');
 				                initializeForm.value = originalData;
-				                //    //focus langsung ke 				    		
+				                //    //focus langsung ke
 				                var elserialnumber = NA.common.getElementID('id_serialnumber');
 				                elserialnumber.focus();
 				                win.document.body.style.cursor = 'default';
@@ -616,7 +631,7 @@
 		    switch (textElement) {
 		        case 'OK': {
 		            if (!frmEntry.checkValidity()) {
-		                //NA.NAEvent.preventDefault(event);                                          
+		                //NA.NAEvent.preventDefault(event);
 		                var inputbtn = NA.common.getElementID('inputButton');
 		                inputbtn.click();
 		            }
@@ -679,7 +694,7 @@
 		            }
 		            break;
 		        }
-		        case 'Cancel': 
+		        case 'Cancel':
 		    	case 'Close': {
 		    		if (win.status != 'Open') {
 		    			var valuesForm = getValuesForm(); var retval = false;
@@ -703,7 +718,7 @@
 		    			}
 		    		} else {
 		    			closeDialog(); win.document.body.style.cursor = 'default';
-		    		}		           
+		    		}
 		            break;
 		        }
 		    };
@@ -813,7 +828,7 @@
                fk_sender = elfk_sender.value;
            var elidapp_fk_sender = NA.common.getElementID('id_idapp_fk_sender'),
                idapp_fk_sender = elidapp_fk_sender.value;
-		   
+
 
 		    //interests, fk_sender, idapp_fk_sender, fk_sender_employee, statuslent, descriptions, typeapp, serialnumber,
 		    //brandvalue, fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo, initializeForm, hasRefData
@@ -845,7 +860,7 @@
 		    //hasRefData nggak usah , karena apa yang sedang di di edit oleh user bisa jadi di hapus oleh user lain
 		    //idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee,
 		    //datelending,  fk_responsibleperson, idapp_fk_responsibleperson, interests, fk_sender, idapp_fk_sender,  statuslent, descriptions, typeapp, serialnumber,
-		    //fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo 
+		    //fk_maintenance, fk_return, fk_currentapp, fk_receive, fk_disposal, fk_lost, lastinfo
 		    return {
 		        idapp: idapp, fk_goods: fk_goods, isnew: isnew, idapp_fk_goods: idapp_fk_goods, fk_employee: fk_employee, idapp_fk_employee: idapp_fk_employee,
 		        datelending: datelending, fk_responsibleperson: fk_responsibleperson, idapp_fk_responsibleperson: idapp_fk_responsibleperson, interests: interests,
@@ -873,11 +888,11 @@
 		    var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 		    elidapp_fk_goods.value = rowData['idapp']||null;//idapp di grid adalah idapp_fkgoods
 
-		    //    form.fk_maintenance 
+		    //    form.fk_maintenance
 		    var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
 		    elfk_maintenance.value = rowData['fk_maintenance'] || null;
 
-		    //      form.fk_return 
+		    //      form.fk_return
 		    var elfk_return = NA.common.getElementID('id_fk_return');
 		    elfk_return.value = rowData['fk_return'] || null;
 
@@ -885,7 +900,7 @@
 		    var elfk_receive = NA.common.getElementID('id_fk_currentapp');
 		    elfk_receive.value = rowData['fk_lending'] || null;
 
-		    //     form.fk_receive 
+		    //     form.fk_receive
 		    var elfk_receive = NA.common.getElementID('id_fk_receive');
 		    elfk_receive.value = rowData['fk_receive'] || null;
 		    if (elfk_receive.value) {
@@ -894,11 +909,11 @@
 		            elisNew.value = true;
 		        }
 		    }
-		    //  	 form.fk_disposal 
+		    //  	 form.fk_disposal
 		    //var elfk_disposal = NA.common.getElementID('id_fk_disposal');
 		    //elfk_disposal.value = rowData['fk_disposal'] || null;
 
-		    //// form.fk_lost 
+		    //// form.fk_lost
 		    //var elfk_lost = NA.common.getElementID('id_fk_lost');
 		    //elfk_lost.value = rowData['fk_lost'] || null;
 
@@ -959,20 +974,13 @@
                         null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
                         );
 		};
-
-		//function ConfirmPageLeave(e) {
-		//    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
-		//    if (!dialog) {
-		//        return true;
-		//    };
-		//    var valuesForm = getValuesForm(); var retval = false;
-		//    if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
-		//        showConfirmation(NA.common.message.dataHasChanged, 'Please confirm', function () {
-		//            win.document.body.style.cursor = 'wait';retval = ExecuteHandler('OK'); win.document.body.style.cursor = 'default';
-		//        });
-		//    }
-		//    return retval;
-		//};
+		function ExporttoExcel(event) {
+			if (event) {
+				NA.NAEvent.preventDefault(event);
+				var linkExcel = NA.common.getElementID('export_goods_Lending_xls');
+				linkExcel.click();
+			}//
+		};
 		function closeDialog() {
 		    EraseElHidden();
 		    var dialog = dialog || NA.common.dialog.doc.querySelector("div.containerDialog");
@@ -1027,20 +1035,6 @@
 			}
 		};
 
-		//sumber dari http://www.guriddo.net/demo/guriddojs/export/exporttoexcel/index.html
-		function ExporttoExcel(event) {
-			if (event) {
-				NA.NAEvent.preventDefault(event);
-				grid.jqGrid("exportToExcel", {
-					includeLabels: true,
-					includeGroupHeader: true,
-					includeFooter: true,
-					fileName: "goods_Lending.xlsx",
-					maxlength: 40 // maxlength for visible string data 
-				});
-				NA.NAEvent.stopPropagation(event);
-			}
-		};
 		//function untuk Reset
 		function submitReset(event) {
 			window.document.body.style.cursor = 'wait';
@@ -1171,7 +1165,7 @@
 				if (textToSearch === "CustomSearch") {
 					ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
 				}
-				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
 					if (item.firstChild.textContent === textToSearch) {
 						elSearch = item.firstChild;
 					}
@@ -1209,7 +1203,7 @@
 		//=======================End GROUP FUNCTION EVENT=========================================
 
 
-		//=======================GROUP ASSINGED HANDLER ========================================= 
+		//=======================GROUP ASSINGED HANDLER =========================================
 		//assign delete key event
 		grid.on("keyup", "tr", function (e) {
 			//var rowid = parseInt($(this).attr("id"));
@@ -1220,7 +1214,7 @@
 				return false;
 			}
 		});
-		//handler txt & button Search master keyboard event and click       
+		//handler txt & button Search master keyboard event and click
 		NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
 		NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
@@ -1231,7 +1225,7 @@
 				NA.NAEvent.preventDefault(event);
 				showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
 					try {
-						//delete data di server 
+						//delete data di server
 						//var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
 						var NAAjax = NA.common.AJAX;
 						NAAjax.POST('Delete/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded',
@@ -1300,16 +1294,16 @@
 		NA.NAEvent.addHandler(btnExport, 'click', ExporttoExcel);
 		NA.NAEvent.addHandler(btnPrint, 'click', printToPDF);
 
-		//=======================End GROUP ASSINGED HANDLER ========================================= 
+		//=======================End GROUP ASSINGED HANDLER =========================================
 
 		//======================GROUP DIALOG ENTRY==================================================
-		window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
+		window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
 			var hasLoadDialog = false;
 			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"),
         	   btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
 			   btnClose = NA.common.dialog.doc.querySelector('button.ui-button.ui-dialog-titlebar-close');
 			//rubah dialog top nya jadi 10px saja
-	
+
 			dialog.style.top = "10px";
 			Array.prototype.forEach.call(btnOKCancel, function (item) {//buat jadi foreach mesti convert dulu ke array
 				NA.NAEvent.addHandler(item, 'click', function (event) {
@@ -1335,20 +1329,20 @@
 						win.document.body.style.cursor = 'default';
 					} catch (e) {
 						ShowAlert(e.message);
-					}					
+					}
 					return false;
 				});
 			});
 			NA.NAEvent.addHandler(btnClose, 'click', function (event) {
 			    NA.NAEvent.preventDefault(event);
 				//==============uncommment this after debugging=============
-				
+
 			    if (hasLoadDialog) {
 			    	try {
 			    		ExecuteHandler('Close');
 			    	} catch (e) {
 			    		ShowAlert(e.message);
-			    	}			    
+			    	}
 			    }
 				if (event) {
 					NA.NAEvent.stopPropagation(event);
@@ -1383,7 +1377,7 @@
 						}
 					}
 					$('div.maindialogContent').load("ShowEntry_Lending?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
-					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data
 						if (statusTxt == "success") {
 							$(this).html(responseTxt);
 							switch (win.status.trim()) {
@@ -1404,7 +1398,7 @@
 							    	NA.common.getElementID('FE_fk_goods').setAttribute('disabled', true);
 							    	if (hasref.valueOf() === true || hasref.valueOf() === 'True') {
 							    		NA.common.getElementID('id_statuslent').setAttribute('disabled',true);
-							    		NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);							    		
+							    		NA.common.getElementID('id_fk_employee').setAttribute('disabled', true);
 							    		NA.common.getElementID('id_fk_responsibleperson').setAttribute('disabled', true);
 							    		NA.common.getElementID('FE_fk_employee').setAttribute('disabled', true);
 							    		NA.common.getElementID('FE_fk_sender').setAttribute('disabled', true);
@@ -1430,7 +1424,7 @@
 									break;
 								}
 							};
-							if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+							if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit
 
 								Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
 									var valPlaceHolder = item.dataset.value;
@@ -1463,7 +1457,7 @@
 								NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
 
 								//Event untuk TextBoxt FK
-								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan 
+								//Event ini untuk mencari dan menampilkan data di tektbox berdasarkan key yang di masukan
 								//fk_goods, fk_employee, fk_sender, fk_responsibleperson_employee
 								var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_employee"],[id="id_fk_sender"],[id="id_fk_responsibleperson"]');
 								Array.prototype.forEach.call(listFK, function (item) {
@@ -1507,7 +1501,7 @@
 											        NA.NAEvent.preventDefault(event);//prevent from submit
 											        fillEmployeeName(event, this.id);
 													break;
-												}												
+												}
 											};//end switch
 											event.stopImmediatePropagation();
 										}//end if (event.keyCode === 13)
@@ -1567,7 +1561,7 @@
 
 								var initializeForm = NA.common.getElementID('id_initializeForm');
 								initializeForm.value = originalData;
-							    //======================event handler BUTTONS Search================================================ 
+							    //======================event handler BUTTONS Search================================================
 								var btnFindGoods = NA.common.getElementID('FE_fk_goods');
 								NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
 									//show dialog
@@ -1593,7 +1587,7 @@
 													}
 												}
 											},
-											function (e) {//even for keydown txtSearch													
+											function (e) {//even for keydown txtSearch
 												if (e.keyCode === 13) {
 													NA.NAEvent.preventDefault(e);
 													win.document.body.style.cursor = 'wait';
@@ -1628,7 +1622,7 @@
 										},
 										onshown: function (dialogRef) {
 											var txtSearch = NA.common.getElementID('txtsearch_fk_goods');
-											//loads Data into JqueryGrid 
+											//loads Data into JqueryGrid
 											gridTbl = $('#jqGrid_NA_F_Goods_Lending_FK_Goods');
 											gridPager = $('#jqGrid_NA_F_Goods_Lending_FK_Goods_Pager');
 											var urlGoods = 'getGoodsWithHistory/?' + win.encodeURIComponent('searchData') + '=' + win.encodeURIComponent(txtSearch.textContent.trim());
@@ -1722,7 +1716,7 @@
 												    	ShowAlert(lastinfo, 'Please choose other one'); win.document.body.style.cursor = 'default';
 												    	return false;
 												    }
-													
+
 												}
 											}
 										}]
@@ -1889,7 +1883,7 @@
 								                    }
 								                }]
 								            });
-								            //Atur tampilan                        			
+								            //Atur tampilan
 								            restyleBoostrapDialog();
 								            //var gbox = NA.common.doc.querySelector('div#gbox_jqGrid_NA_F_Goods_Receive_fk_p_r_by');
 								            //gbox.style.width = '432px';
@@ -1903,7 +1897,7 @@
 								        });
 								    }
 								});
-							    //======================End Event handler BUTTONS Search================================================ 
+							    //======================End Event handler BUTTONS Search================================================
 							    //simpan original data di initializeForm
 							}//end if status bukan open
 							hasLoadDialog = true;
@@ -1914,7 +1908,7 @@
 							        }
 							}
 							//NA.NAEvent.addHandler(win, 'beforeunload', function () { return "Do you really want to leave our brilliant application?";});
-						}//end if (statusTxt == "success") {						
+						}//end if (statusTxt == "success") {
 					});//end $('div.maindialogContent').load()
 				}// end if
 			} catch (e) {

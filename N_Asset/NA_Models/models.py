@@ -6,11 +6,8 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError, MultipleObjectsReturned
 from django.db import models
-from django.db.models import Q
 from django.utils import timezone
 from django.utils.encoding import force_text
-from django.utils.functional import cached_property
-
 from NA_DataLayer.fields import JSONField
 from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from NA_DataLayer.MasterData.NA_Goods_BR import NA_BR_Goods, CustomManager
@@ -34,6 +31,7 @@ from NA_DataLayer.Transactions.NA_Goods_Receive_GA_BR import NA_BR_Goods_Receive
 from NA_DataLayer.Transactions.NA_Goods_Receive_Other_BR import NA_BR_Goods_Receive_other
 from NA_DataLayer.Transactions.NA_Goods_Return_BR import NA_BR_Goods_Return
 from NA_DataLayer.Transactions.NA_Goods_Return_GA_BR import NA_BR_Goods_Return_GA
+#from NA_DataLayer.Transactions.
 from NA_DataLayer.file_storage import NAFileStorage
 
 
@@ -593,10 +591,11 @@ class NAGoodsDeletion(NA_BaseModel):
         max_length=100,
         related_name='acknowledged_by_employee2',
         db_constraint=False)
-    
+
     class Meta:
         db_table = 'n_a_goods_deletion'
         managed = True
+
 class goods(NA_MasterDataModel):
     itemcode = models.CharField(db_column='ItemCode', max_length=30)
     goodsname = models.CharField(db_column='GoodsName', max_length=150)
@@ -630,7 +629,6 @@ class goods(NA_MasterDataModel):
     #objectT = objects()
     def __str__(self):
         return self.goodsname
-
 
 class NAGoodsReceive(NA_GoodsReceiveModel):
 	idapp_fk_goods = models.ForeignKey(
@@ -674,6 +672,7 @@ class NA_GoodsReceive_detail(NA_BaseModel):
 		db_table = 'n_a_goods_receive_detail'
 		managed = True
 	objects = NA_BR_Goods_Receive_Detail()
+
 class NAGoodsReturn(NAGoodsReturnModel):
     fk_employee = None
     objects = NA_BR_Goods_Return()
@@ -751,7 +750,7 @@ class NAMaintenance(NA_TransactionModel):
     )
     personalname = models.CharField(
         db_column='PersonalName',
-        max_length=100, 
+        max_length=100,
         blank=True,
         null=True
     )
@@ -1417,8 +1416,8 @@ class NAPrivilege_Form(models.Model):
     Supplier_Form = 'n_a_supplier'
     Goods_Form = 'goods'
 
-    Privilege_Form = 'n_a_privilege'   
-    
+    Privilege_Form = 'n_a_privilege'
+
     Goods_Lending_Form = 'n_a_goods_lending'
     Goods_Return_Form = 'n_a_goods_return'
     Goods_Receive_Form = 'n_a_goods_receive'
@@ -1429,7 +1428,7 @@ class NAPrivilege_Form(models.Model):
     Disposal_Form = 'n_a_disposal'
     Goods_Lost_Form = 'n_a_goods_lost'
     Fix_asset_Form = 'n_a_acc_fa'
-    
+
     GA_Maintenance_Form = 'n_a_ga_maintenance'
     GA_Receive_form = 'n_a_ga_receive'
     GA_Outwards_form = 'n_a_ga_outwards'
@@ -1500,8 +1499,8 @@ class NAPrivilege_Form(models.Model):
         (GA_Receive_form, 'n_a_ga_receive_form'),
         (GA_Outwards_form, 'n_a_ga_outwards'),
         (GA_Maintenance_Form, 'n_a_ga_maintenance'),
-        
-        (Goods_History_Form, 'n_a_goods_history'),        
+
+        (Goods_History_Form, 'n_a_goods_history'),
         (Fix_asset_Form, 'n_a_acc_fa'),
         (Privilege_Form, 'n_a_privilege'),
     )

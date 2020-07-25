@@ -9,7 +9,7 @@ from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm, Data, commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
-from django.conf import settings 
+from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
@@ -24,7 +24,7 @@ from distutils.util import strtobool
 import decimal
 def NA_Goods(request):
 	assert isinstance(request,HttpRequest)
-	#buat nama-name column, key sama 
+	#buat nama-name column, key sama
 	populate_combo = []
 	populate_combo.append({'label':'ItemCode','columnName':'itemcode','dataType':'varchar'})
 	#populate_combo.append({'label':'BrandName','columnName':'brandname','dataType':'varchar'})
@@ -33,9 +33,9 @@ def NA_Goods(request):
 	populate_combo.append({'label':'unit','columnName':'economiclife','dataType':'decimal'})
 	populate_combo.append({'label':'Placement','columnName':'placement','dataType':'varchar'})
 	return render(request,'app/MasterData/NA_F_Goods.html',{'populateColumn':populate_combo})
-	
+
 #@decorators.ajax_required
-def NA_Goods_Search(request):	
+def NA_Goods_Search(request):
 	IcolumnName = request.GET.get('columnName')
 	IvalueKey =  request.GET.get('valueKey')
 	IdataType =  request.GET.get('dataType')
@@ -51,15 +51,15 @@ def NA_Goods_Search(request):
 	if(Isord is not None and str(Isord) != ''):
 		NAData = goods.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType).order_by('-' + str(Isidx))
 	else:
-		NAData = goods.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType)			
+		NAData = goods.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType)
 #		from django.db.models import F
 #cityList = City.objects.using(settings.DATABASE_CONF).filter(status=1).values(
 #    'city_name_en', 'city_id')
 ## use F expression to annotate with an alias
 #cityList = cityList.annotate(cityname=F('city_name_en'))
-	
+
 	totalRecord = NAData.count()
-	paginator = Paginator(NAData, int(Ilimit)) 
+	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')
 	except ValueError:
@@ -68,7 +68,7 @@ def NA_Goods_Search(request):
 		dataRows = paginator.page(page)
 	except (EmptyPage, InvalidPage):
 		dataRows = paginator.page(paginator.num_pages)
-		
+
 	rows = []
 	i = 0 if page == '1' else int(Ilimit);#idapp,itemcode,goods
 	for row in dataRows.object_list:
@@ -110,7 +110,7 @@ def Search_Brand(request):
 		return HttpResponse(data, content_type='application/json')
 	else:
 		return HttpResponse(content='',content_type='application/json')
-def getCurrentDataModel(request,form):	
+def getCurrentDataModel(request,form):
 	return {'itemcode':form.cleaned_data['itemcode'],'goodsname':form.cleaned_data['goodsname'],'brandname':form.cleaned_data['brandname'],
 		 'typeapp':form.cleaned_data['typeapp'],'unit':form.cleaned_data['unit'],'priceperunit':decimal.Decimal(form.cleaned_data['priceperunit']),
 		 'depreciationmethod':form.cleaned_data['depreciationmethod'],'economiclife':decimal.Decimal(form.cleaned_data['economiclife'])
@@ -126,13 +126,13 @@ def ShowEntry(request):
 		status = request.POST.get('status')
 	else:
 		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
-		itemcode = request.GET.get('itemcode')	
+		itemcode = request.GET.get('itemcode')
 		initializationForm = {'depreciationmethod':'SL','typeapp':'IT','priceperunit':0,'economiclife':5.00,'placement':'Gudang IT','inactive':False,'hasRefData':'false'}
 	#form = NA_Goods_Form(initial=initializationForm)
-	#form.fields['status'].widget.attrs = {'value':status};	
+	#form.fields['status'].widget.attrs = {'value':status};
 	#form.fields['initializeForm'].widget.attrs = json.dumps({'value':initializationForm}) if status == "Add" or status == "Edit" else None
-	if request.is_ajax():		
-		if status == 'Add':		
+	if request.is_ajax():
+		if status == 'Add':
 			if request.POST:
 				form = NA_Goods_Form(request.POST)
 				statuscode = 200
@@ -140,15 +140,13 @@ def ShowEntry(request):
 					#save data
 					#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
 					form.clean()
-					
-					data = getCurrentDataModel(request,form);					
+					data = getCurrentDataModel(request,form)
 					result = goods.objects.SaveData(StatusForm.Input,**data)
 					if result != 'success':
 						statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 					#newItem = goods(**data)
-					
-					#newItem = 
+					#newItem =
 	#					IcolumnName = request.GET.get('columnName');
 	#IvalueKey =  request.GET.get('valueKey')
 	#IdataType =  request.GET.get('dataType')
@@ -156,89 +154,77 @@ def ShowEntry(request):
 	#Ilimit = request.GET.get('rows', '')
 	#Isidx = request.GET.get('sidx', '')
 	#Isord = request.GET.get('sord', '')
-				else: 
-					#form = NA_Goods_Form(initial=initializationForm)                  
-					#return  render(request, 'app/MasterData/NA_Entry.html', {'form' : form}				
+				else:
+					#form = NA_Goods_Form(initial=initializationForm)
+					#return  render(request, 'app/MasterData/NA_Entry.html', {'form' : form}
 					return HttpResponse(json.dumps({'message':'invalid form data'}),status = 400, content_type='application/json')
-			else:				
+			else:
 				form = NA_Goods_Form(initial=initializationForm)
-				form.fields['status'].widget.attrs = {'value':status};	
+				form.fields['status'].widget.attrs = {'value':status}
 				#form.fields['initializeForm'].widget.attrs = {'value':json.dumps(initializationForm)}
 				return render(request, 'app/MasterData/NA_Entry.html', {'form' : form})
-		elif status == 'Edit' or status == "Open":		
+		elif status == 'Edit' or status == "Open":
 			hasRefData = goods.objects.hasreferenced(itemcode)
 			if request.POST:
 				form = NA_Goods_Form(request.POST)
 				if form.is_valid():
 					form.clean()
-					#save data	
-					data = getCurrentDataModel(request,form);
-					data.update(idapp=request.POST.get('idapp'))	
+					#save data
+					data = getCurrentDataModel(request,form)
+					data.update(idapp=request.POST.get('idapp'))
 					data['modifieddate'] = datetime.now()
 					data['modifiedby'] = request.user.username
 					if hasRefData:
-						return HttpResponse(json.dumps({'message':'can not edit data \nData has referenced child data'}),status = statuscode, content_type='application/json')										
+						return HttpResponse(json.dumps({'message':'can not edit data \nData has referenced child data'}),status = statuscode, content_type='application/json')
 					result = goods.objects.SaveData(StatusForm.Edit,**data)
 					if result != 'success':
 						statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 					#check itemCode
-					#if scorm.objects.filter(Header__id=qp.id).exists()				
+					#if scorm.objects.filter(Header__id=qp.id).exists()
 					#return HttpResponse('success', 'text/plain')
 			else:
-				 #get data from database
-				Ndata = goods.objects.getData(itemcode)[0]				
+				#get data from database
+				Ndata = goods.objects.getData(itemcode)[0]
 				NAData = {'itemcode':Ndata.itemcode,'goodsname':Ndata.goodsname,'brandname':Ndata.brandname,'typeapp':Ndata.typeapp,'unit':Ndata.unit,
 							'priceperunit':"{0:.2f}".format(Ndata.priceperunit),'depreciationmethod':Ndata.depreciationmethod,'economiclife':Ndata.economiclife
 							,'placement':Ndata.placement,'descriptions':Ndata.descriptions,'inactive':Ndata.inactive,'status':status,'idapp':Ndata.idapp,'hasRefData':'true' if hasRefData==True else 'false'}
-				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder)) 
+				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
 				form = NA_Goods_Form(data=NAData)
-				form.fields['status'].widget.attrs = {'value':status};	
-				#form = NA_Goods_Form(data=None)				
+				form.fields['status'].widget.attrs = {'value':status}
+				#form = NA_Goods_Form(data=None)
 				return render(request, 'app/MasterData/NA_Entry.html', {'form' : form})
 		else:
 			return render(request, 'app/MasterData/NA_Entry.html', {'form' : form})
 def setInActive(request):
 	result = ''
 	try:
-		idapp = request.GET.get('idapp');
-		inactive = request.GET.get('inactive');
+		idapp = request.GET.get('idapp')
+		inactive = request.GET.get('inactive')
 		goods.objects.setInActive(idapp,strtobool(str(inactive)))
-		return HttpResponse(json.dumps({'message':'success'}),status = 200, content_type='application/json') 
-	except Exception as e:					
+		return HttpResponse(json.dumps({'message':'success'}),status = 200, content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def deleteItem(request):
 	result=''
 	try:
 		itemcode = request.GET.get('itemCode')
-		log_goods = goods.objects.filter(itemcode=itemcode).values('itemcode','goodsname','brandname','typeapp','priceperunit',\
+		log_goods = goods.objects.filter(itemcode=itemcode).values('itemcode','goodsname','brandname','typeapp','priceperunit',
 			'depreciationmethod','unit','economiclife','placement','descriptions','inactive','createdby','createddate', 'modifieddate', 'modifiedby')[0]
 		hasref = goods.objects.hasreferenced(itemcode)
 		if hasref:
 			return HttpResponse(json.dumps({'message':'can not delete data \nData has referenced child data'}),status = 500, content_type='application/json')
 		LogEvent.objects.create(nameapp='Deleted Goods', descriptions={
-                    'deleted':[
-                        log_goods['itemcode'],
-                        log_goods['goodsname'],
-						log_goods['brandname'],
-                        #log_goods['typeapp'],
-                        str(log_goods['priceperunit']),
-                        log_goods['depreciationmethod'],
-                        log_goods['unit'],
-                        str(log_goods['economiclife']),
-                        log_goods['placement'],
-                        log_goods['descriptions'],
-                        log_goods['inactive'],
-                        log_goods['createddate'].strftime('%d %B %Y %H:%M:%S'),
-                        log_goods['createdby'],
-                        log_goods['modifieddate'],
-                        log_goods['modifiedby']
-                        ]
-                    }, createdby=str(request.user.username))
+			'deleted':[log_goods['itemcode'],log_goods['goodsname'],
+				log_goods['brandname'],str(log_goods['priceperunit']),log_goods['depreciationmethod'],log_goods['unit'],
+				str(log_goods['economiclife']),log_goods['placement'],log_goods['descriptions'],log_goods['inactive'],
+				log_goods['createddate'].strftime('%d %B %Y %H:%M:%S'),log_goods['createdby'],
+				log_goods['modifieddate'],log_goods['modifiedby']
+				]}, createdby=str(request.user.username))
 		goods.objects.Delete(itemcode)
-		return HttpResponse(json.dumps({'message':'success'}),status = 200, content_type='application/json') 
-	except Exception as e:					
+		return HttpResponse(json.dumps({'message':'success'}),status = 200, content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def ShowCustomFilter(request):
@@ -255,15 +241,15 @@ def ShowCustomFilter(request):
 		cols.append({'name':'placement','value':'placement','selected':'','dataType':'varchar','text':'placement'})
 		cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'Descriptions'})
 		cols.append({'name':'inactive','value':'inactive','selected':'','dataType':'boolean','text':'InActive'})
-		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})	
+		return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 
 class NA_Goods_Form(forms.Form):
 		#idapp = models.IntegerField(db_column='IDApp',primary_key=True)  # Field name made lowercase.
 		"""
 		There are many other types of form fields, which you will largely recognise from their similarity to the equivalent model field classes:
-	    
-		BooleanField, CharField, ChoiceField, TypedChoiceField, DateField, DateTimeField, DecimalField, DurationField, EmailField, FileField, FilePathField, 
-		FloatField, ImageField, IntegerField, GenericIPAddressField, MultipleChoiceField, TypedMultipleChoiceField, NullBooleanField, RegexField, SlugField, 
+
+		BooleanField, CharField, ChoiceField, TypedChoiceField, DateField, DateTimeField, DecimalField, DurationField, EmailField, FileField, FilePathField,
+		FloatField, ImageField, IntegerField, GenericIPAddressField, MultipleChoiceField, TypedMultipleChoiceField, NullBooleanField, RegexField, SlugField,
 		TimeField, URLField, UUIDField, ComboField, MultiValueField, SplitDateTimeField, ModelMultipleChoiceField, ModelChoiceField​​​​.
 		for
 		The arguments that are common to most fields are listed below (these have sensible default values):
@@ -281,14 +267,14 @@ class NA_Goods_Form(forms.Form):
 		idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 		itemcode = forms.CharField(max_length=30,required=True, widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:100px',
-                                   'placeholder': 'item code','data-value':'item code','tittle':'Please enter item code'})) 
+                                   'placeholder': 'item code','data-value':'item code','tittle':'Please enter item code'}))
 		goodsname = forms.CharField(max_length=150,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:150px;margin-left:3px;',
                                    'placeholder': 'enter goods name','data-value':'enter goods name','tittle':'Please enter goods name'}),required=True)  # models.CharField(db_column='GoodsName', max_length=100)  # Field name made lowercase.
 		brandname = forms.CharField(max_length=100,widget=forms.TextInput(attrs={
                                    'class': 'NA-Form-Control','style':'width:250px;margin-left:3px;','placeholder':'enter brand','data-value':'enter brand','tittle':'Please enter valid brand name'}),required=False) #models.CharField(db_column='BrandName', max_length=100, blank=True, null=True)  # Field name made lowercase.
 		typeapp = forms.ChoiceField(required=True,widget=forms.Select(attrs={
-                                   'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))  
+                                   'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))
 		priceperunit = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
 									'class':'NA-Form-Control','style':'width:150px;','placeholder':'price','data-value':'price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}),required=True)#  models.DecimalField(db_column='PricePerUnit', max_digits=20,decimal_places=4)  # Field name made lowercase.
 		depreciationmethod = forms.ChoiceField(widget=forms.Select(attrs={
@@ -327,8 +313,8 @@ def SearchGoodsbyForm(request):
 	"""get goods data for grid searching, retusn idapp,itemcode,goods criteria = icontains"""
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
-	
-			
+
+
 	searchText = request.GET.get('goods_desc')
 	Type = request.GET.get('type')
 	Ilimit = request.GET.get('rows', '')
@@ -346,7 +332,7 @@ def SearchGoodsbyForm(request):
 	else:
 		NAData = multi_sort
 	totalRecord = NAData.count()
-	paginator = Paginator(NAData, int(Ilimit)) 
+	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')
 	except ValueError:
@@ -355,7 +341,7 @@ def SearchGoodsbyForm(request):
 		dataRows = paginator.page(page)
 	except (EmptyPage, InvalidPage):
 		dataRows = paginator.page(paginator.num_pages)
-		
+
 	rows = []
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:

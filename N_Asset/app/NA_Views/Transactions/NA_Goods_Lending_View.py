@@ -8,7 +8,7 @@ from NA_DataLayer.common import ResolveCriteria
 from NA_DataLayer.common import StatusForm
 from NA_DataLayer.common import commonFunct
 #from NA_DataLayer.jqgrid import JqGrid
-from django.conf import settings 
+from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
@@ -21,7 +21,7 @@ from decimal import Decimal
 import math
 def NA_Goods_Lending(request):
 	assert isinstance(request,HttpRequest)
-	#buat nama-name column, key sama 
+	#buat nama-name column, key sama
 	populate_combo = []
 	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
 	populate_combo.append({'label':'Goods Type','columnName':'typeapp','dataType':'varchar'})
@@ -30,13 +30,13 @@ def NA_Goods_Lending(request):
 	populate_combo.append({'label':'Sent By','columnName':'sentby','dataType':'varchar'})
 	populate_combo.append({'label':'Lent Date','columnName':'lentdate','dataType':'datetime'})
 	populate_combo.append({'label':'intererest','columnName':'intererests','dataType':'varchar'})
-	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'varchar'})	
+	populate_combo.append({'label':'Responsible By','columnName':'responsibleby','dataType':'varchar'})
 	populate_combo.append({'label':'Goods From','columnName':'refgoodsfrom','dataType':'varchar'})
 	populate_combo.append({'label':'IsNew','columnName':'isnew','dataType':'boolean'})
 	populate_combo.append({'label':'Status','columnName':'status','dataType':'varchar'})
 	populate_combo.append({'label':'Created By','columnName':'createdby','dataType':'varchar'})
 	populate_combo.append({'label':'Created Date','columnName':'createddate','dataType':'datetime'})
-	populate_combo.append({'label':'Date Returned','columnName':'datereturn','dataType':'datetime'})		
+	populate_combo.append({'label':'Date Returned','columnName':'datereturn','dataType':'datetime'})
 	#populate_combo.append({'label':'Modified By','columnName':'modifiedby','dataType':'varchar'})
 	#populate_combo.append({'label':'Modified Date','columnName':'modifieddate','dataType':'datetime'})
 	return render(request,'app/Transactions/NA_F_Goods_Lending.html',{'populateColumn':populate_combo})
@@ -62,10 +62,10 @@ def ShowCustomFilter(request):
 	return render(request, 'app/UserControl/customFilter.html', {'cols': cols})
 def NA_Goods_Lending_Search(request):
 	try:
-		IcolumnName = request.GET.get('columnName');
-		IvalueKey =  request.GET.get('valueKey')
-		IdataType =  request.GET.get('dataType')
-		Icriteria =  request.GET.get('criteria')
+		IcolumnName = request.GET.get('columnName')
+		IvalueKey = request.GET.get('valueKey')
+		IdataType = request.GET.get('dataType')
+		Icriteria = request.GET.get('criteria')
 		Ilimit = request.GET.get('rows', '')
 		Isidx = request.GET.get('sidx', '')
 		Isord = request.GET.get('sord', '')
@@ -79,10 +79,10 @@ def NA_Goods_Lending_Search(request):
 		dataRows = NAData[0]
 		rows = []
 		#column idapp,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
-		i = 0;
+		i = 0
 		for row in dataRows:
 			i = i+1
-			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['datereturn'],row['interests'], \
+			datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['territory'],row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],row['sentby'],row['lentdate'],row['datereturn'],row['interests'], \
 				row['responsibleby'],row['refgoodsfrom'],row['isnew'],row['status'],row['descriptions'],datetime.date(row['createddate']),row['createdby']]}
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
 			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -115,10 +115,10 @@ def Delete(request):
 		data = json.loads(data)
 
 		IDApp = data['idapp']
-	
+
 		#check reference data
 		result = NAGoodsLending.objects.Delete(IDApp,request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -148,10 +148,10 @@ def ShowEntry_Lending(request):
 	data = None
 	hasRefData = False
 	try:
-		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
+		status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 		if request.POST:
 			data = request.body
-			data = json.loads(data)			
+			data = json.loads(data)
 			status = data['status']
 			form = NA_Goods_Lending_Form(data)
 			result = ''
@@ -162,14 +162,14 @@ def ShowEntry_Lending(request):
 				data.update(fk_return=(None if int(data['fk_return']) == 0 else data['fk_return']))
 				data.update(fk_currentapp=(None if int(data['fk_currentapp']) == 0 else  data['fk_currentapp']))
 				data.update(fk_receive=(None if int(data['fk_receive']) == 0 else data['fk_receive']))
-				if status == 'Add':	
+				if status == 'Add':
 					data.update(createdby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
 					result = NAGoodsLending.objects.SaveData(data,StatusForm.Input)
 				elif status == 'Edit':
 					data.update(modifiedby=request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin')
-					if NAGoodsLending.objects.HasReference(data['idapp']):					
-						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')                       
-					result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)				
+					if NAGoodsLending.objects.HasReference(data['idapp']):
+						return  HttpResponse(json.dumps({'message':'Can not edit data data\Data has child-referenced'}),status = statuscode, content_type='application/json')
+					result = NAGoodsLending.objects.SaveData(data,StatusForm.Edit)
 				if result != 'success':
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
@@ -249,6 +249,43 @@ def getGoodsWithHistory(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+def export_to_excels(request):
+	try:
+		NAData = []
+		IcolumnName = request.GET.get('columnName')
+		IvalueKey = request.GET.get('valueKey')
+		IdataType = request.GET.get('dataType')
+		Icriteria = request.GET.get('criteria')
+		Ilimit = request.GET.get('rows', '')
+		Isidx = request.GET.get('sidx', '')
+		Isord = request.GET.get('sord', '')
+		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
+		dataType = ResolveCriteria.getDataType(str(IdataType))
+		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+			NAData = NAGoodsLending.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		else:
+			NAData = NAGoodsLending.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
+		dataRows = NAData[0]
+		rows = []
+		#column idapp,goods,goodstype,serialnumber,lentby,sentby,lentdate,interests,responsibleby,refgoodsfrom,isnew,status,descriptions,createdby,createddate
+		colNames= ['idapp', 'NO','Territory', 'Goods Name', 'Type', 'Serial Number','Lent By', 'Lent Date', 'Return Date','Interest',
+					'Responsible By', 'Ref Goods From', 'Isnew','Status Lent','Descriptions', 'Created Date', 'Created By']
+		i = 0
+		print(dataRows)
+		for row in dataRows:
+			i = i + 1
+			datarow = tuple([row['idapp'],i,row['territory'],row['goods'],row['goodstype'],row['serialnumber'],row['lentby'],datetime.strftime(row['lentdate'], "%m/%d/%Y"),(datetime.strftime(row['datereturn'], "%m/%d/%Y")) if row['datereturn'] is not None else '',row['interests'],
+						row['responsibleby'],row['refgoodsfrom'],row['isnew'],row['status'],row['descriptions'],datetime.strftime(row['createddate'],"%m/%d/%Y"),row['createdby']])
+			#	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
+			rows.append(datarow)
+		dataRows = list(dict(zip(colNames, row)) for row in rows)
+		column_hidden = ['idapp',]
+		response = commonFunct.create_excel(
+			colNames, column_hidden, dataRows, 'Goods_Lending_' + datetime.strftime(datetime.now(),"%Y_%m_%d"),'Goods_Lending')
+		return response
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 class NA_Goods_Lending_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_goods = forms.CharField(widget=forms.HiddenInput(),required=False)
@@ -262,7 +299,7 @@ class NA_Goods_Lending_Form(forms.Form):
 	idapp_fk_employee = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																						 'placeholder': 'employee who lends','data-value':'employee who lends','tittle':'employee who lends is required'}))
-	
+
 	datelending = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
                                    'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'((((0[13578]|1[02])\/(0[1-9]|1[0-9]|2[0-9]|3[01]))|((0[469]|11)\/(0[1-9]|1[0-9]|2[0-9]|3[0]))|((02)(\/(0[1-9]|1[0-9]|2[0-8]))))\/(19([6-9][0-9])|20([0-9][0-9])))|((02)\/(29)\/(19(6[048]|7[26]|8[048]|9[26])|20(0[048]|1[26]|2[048])))'}))
 	#datereturn = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':6,
