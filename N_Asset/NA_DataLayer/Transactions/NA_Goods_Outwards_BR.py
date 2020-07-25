@@ -2,22 +2,19 @@ from django.db import models
 from dateutil.parser import parse
 from django.db import transaction
 from django.db import connection
-from decimal import Decimal
 from datetime import datetime
 from django.db.models import Q,F,Value, CharField
 from NA_DataLayer.common import (
     Data, ResolveCriteria,
-    commonFunct, decorators, Message,query,CriteriaSearch,DataType,StatusForm
+    commonFunct, Message,query,CriteriaSearch,DataType,StatusForm
 )
 from django.db.models.functions import Concat
 #from django.db.models import OuterRef, Subquery
-import NA_Models.models
+from NA_Models.models import *
 #from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
 from distutils.util import strtobool
-import math
 class NA_BR_Goods_Outwards(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
-		colkey = ''
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		if columnKey == 'goods':
 			colKey = 'g.goodsname'
@@ -50,11 +47,11 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.execute(Query)
 		Query = """  CREATE TEMPORARY TABLE T_Outwards_Manager_""" + userName  + """ ENGINE=MyISAM AS (SELECT e.territory,nga.idapp,g.goodsname AS goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.daterequest,nga.datereleased,
 		        nga.isnew,nga.fk_employee,e.employee_name as for_employee,e.TelpHP AS mobile,nga.fk_usedemployee,
-		        CASE 
+		        CASE
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM `employee` WHERE idapp = nga.fk_usedemployee LIMIT 1)
 			        END AS eks_employee,nga.fk_responsibleperson,emp1.responsible_by,nga.fk_sender,emp2.senderby,nga.fk_stock,
 		        ref.refgoodsfrom,nga.createdby,nga.createddate,nga.equipment_desc,nga.descriptions
-		        FROM n_a_goods_outwards nga INNER JOIN n_a_goods g ON g.IDApp = nga.FK_Goods 
+		        FROM n_a_goods_outwards nga INNER JOIN n_a_goods g ON g.IDApp = nga.FK_Goods
 		        INNER JOIN n_a_goods_receive ngr ON ngr.FK_goods = nga.FK_Goods
 		        INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
 		        AND nga.SerialNumber = ngd.SerialNumber
@@ -77,7 +74,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		if orderFields != '':
 			#Query = """SELECT * FROM T_Receive_Manager """ + (("ORDER BY " + ",".join(orderFields)) if len(orderFields) > 1 else " ORDER BY " + orderFields[0]) + (" DESC" if sortIndice == "" else sortIndice) + " LIMIT " + str(pageSize*(0 if PageIndex <= 1 else PageIndex)) + "," + str(pageSize)
 			Query = """SELECT * FROM T_Outwards_Manager_""" + userName + """ ORDER BY """ + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
-		else:			
+		else:
 			Query = """SELECT * FROM T_Outwards_Manager_""" + userName + """ ORDER BY IDApp LIMIT """ + strLimit + "," + str(pageSize)
 		cur.execute(Query)
 		result = query.dictfetchall(cur)
@@ -89,7 +86,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.close()
 		return (result,totalRecords)
 	def isGoodsNew(self, serialnumber):
-		Used =NAGoodsHistory.objects(
+		Used = NAGoodsHistory.objects(
 		).filter(serialnumber=serialnumber).select_related('fk_outwards').first()
 		if Used:
 			return True
@@ -101,7 +98,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_Receive_Outwards_" + userName
 		cur = connection.cursor()
 		cur.execute(Query)
-		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_Outwards_" + userName		
+		Query =  "DROP TEMPORARY TABLE IF EXISTS Temp_T_History_Outwards_" + userName
 		cur.execute(Query)
 		Query = "DROP TEMPORARY TABLE IF EXISTS Temp_F_Outwards_" + userName
 		cur.execute(Query)
@@ -110,17 +107,17 @@ class NA_BR_Goods_Outwards(models.Manager):
 					0 AS fk_outwards,0 as fk_lending,0 AS fk_return,0 AS fk_maintenance,0 AS fk_disposal,0 AS fk_lost FROM n_a_goods g INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngr.IDApp = ngd.FK_App \
 					WHERE NOT EXISTS(SELECT IDApp FROM n_a_goods_history WHERE fk_goods = ngr.fk_goods AND serialnumber = ngd.serialnumber)) """
 		cur.execute(Query)
-	    # Query get last trans in history 		
+	    # Query get last trans in history
 		Query = "CREATE TEMPORARY TABLE Temp_T_History_Outwards_" + userName  + """ ENGINE=MyISAM AS (SELECT gh.idapp,gh.fk_goods,gh.goodsname,gh.brandname,gh.type,gh.serialnumber, \
-                    CASE 
+                    CASE
                         WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.idapp FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
                         WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.idapp FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
 						END AS fk_usedemployee,
-					CASE 
+					CASE
                         WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.NIK FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return AND Conditions <= 2) \
                         WHEN (gh.fk_lending IS NOT NULL) THEN ((SELECT e.NIK FROM employee e INNER JOIN n_a_goods_lending ngl ON ngl.fk_employee = e.idapp WHERE ngl.idapp = gh.fk_lending)) \
 						END AS nik_usedemployee,
-                    CASE 
+                    CASE
                     WHEN (gh.fk_return IS NOT NULL) THEN (SELECT e.employee_name FROM employee e INNER JOIN n_a_goods_return ngn ON ngn.fk_usedemployee = e.idapp WHERE ngn.idapp = gh.fk_return) \
                     END AS usedemployee,
 					CASE \
@@ -147,7 +144,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 							n_a_goods g INNER JOIN n_a_goods_receive ngr ON g.idapp = ngr.fk_goods INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp \
 							INNER JOIN n_a_goods_history ngh ON ngh.fk_goods = g.idapp AND ngh.serialnumber = ngd.serialnumber \
 							WHERE ngh.createddate = (SELECT Max(CreatedDate) FROM n_a_goods_history WHERE fk_goods = g.idapp AND serialnumber = ngd.serialnumber))gh
-                             )				
+                             )
 				"""
 		cur.execute(Query)
 		strLimit = '300'
@@ -163,9 +160,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 				 )C WHERE (goodsname LIKE %s OR brandname LIKE %s)  OR (`Type` LIKE %s) OR (serialnumber LIKE %s))"""
 		cur.execute(Query,['%'+searchText+'%','%'+searchText+'%','%'+searchText+'%','%'+searchText+'%'])
 		if orderFields == '':
-			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)	
+			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY brandname " + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
 		else:
-			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)				
+			Query  = "SELECT * FROM Temp_F_Outwards_" + userName + " ORDER BY " + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
 		cur.execute(Query)
 		result = query.dictfetchall(cur)
 
@@ -204,7 +201,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		cur.execute(Query,[SerialNO])
 		#idapp,fk_goods,goodsname,brandName,type,serialnumber,lastinfo,fk_outwards,fk_lending,fk_return,fk_maintenance,fk_disposal,fk_lost
 		idapp = 0
-		itemcode = ''		
+		itemcode = ''
 		goodsname = ''
 		typeapp = ''
 		brandname = ''
@@ -226,9 +223,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 		Query = """SELECT EXISTS(SELECT serialnumber FROM n_a_goods_history WHERE serialnumber = %s)"""
 		cur.execute(Query,[SerialNO])
 		row = cur.fetchone()
-		
+
 		if int(row[0]) > 0:
-			#cek apakah data sudah di 
+			#cek apakah data sudah di
 			#jika ada ambil data transaksi terakhir yang mana transaksi ada 4 kelompok,lending,outwards,return,maintenance
 			Query = """SELECT FK_Lending,FK_Outwards,FK_RETURN,FK_Maintenance,FK_Disposal,fk_lost FROM n_a_goods_history WHERE serialnumber = %s ORDER BY createddate DESC LIMIT 1 """
 			cur.execute(Query,[SerialNO])
@@ -311,7 +308,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 			elif int(fkdisposal) > 0:
 				Query = """SELECT Descriptions FROM n_a_disposal WHERE IDApp = %s"""
 				cur.execute(Query,[fkdisposal])
-				lastInfo = "goods is unable to use again " 
+				lastInfo = "goods is unable to use again "
 				if cur.rowcount > 0:
 					row = cur.fetchone()
 					lastInfo = "goods is unable to use again " +  row[0]
@@ -399,7 +396,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		startDateRel = parse(daterel).strftime('%Y-%m-%d')
 		endateRel = parse(daterel).strftime('%Y-%m-%d %H:%M:%S')
 		filterdate = {'daterequest__range': [parse(startDateReq), parse(endateReq)],'datereleased__range': [parse(startDateRel), parse(endateRel)]}
-		
+
 		xdata = super(NA_BR_Goods_Outwards, self).get_queryset().filter(
 			Q(fk_goods=idapp_fk_goods) & Q(serialnumber=serialnumber) & Q(fk_employee=fk_employee))
 		exists_data = xdata.exists()
@@ -423,12 +420,12 @@ class NA_BR_Goods_Outwards(models.Manager):
 				if Status == StatusForm.Input:
 					#insert outwards
 					#insert history
-					#idapp, fk_goods:  isnew: idapp_fk_goods: idapp_fk_employee: 
-					#daterequest:  datereleased : fk_responsibleperson:  idapp_fk_responsibleperson: 
-					#fk_sender:  idapp_fk_sender: descriptions:  typeapp: serialnumber: 
+					#idapp, fk_goods:  isnew: idapp_fk_goods: idapp_fk_employee:
+					#daterequest:  datereleased : fk_responsibleperson:  idapp_fk_responsibleperson:
+					#fk_sender:  idapp_fk_sender: descriptions:  typeapp: serialnumber:
 					#fk_frommaintenance:  fk_return: fk_lending:  fk_receive:lastinfo: lastinfo,status:
 					Query = """INSERT INTO `n_a_goods_outwards`(`FK_Goods`, `IsNew`, `DateRequest`, `DateReleased`, `FK_Employee`, `FK_UsedEmployee`, `FK_FromMaintenance`, `FK_ResponsiblePerson`, `FK_Sender`, `FK_Stock`, `SerialNumber`, `TypeApp`,
-								`FK_Lending`,`equipment_desc`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `lastinfo`) 
+								`FK_Lending`,`equipment_desc`, `Descriptions`, `FK_Return`, `FK_Receive`, `CreatedDate`, `CreatedBy`, `lastinfo`)
 								VALUES (%(FK_Goods)s,%(IsNew)s,%(DateRequest)s,%(DateReleased)s,%(FK_Employee)s,%(FK_UsedEmployee)s,%(FK_FromMaintenance)s,%(FK_ResponsiblePerson)s,%(FK_Sender)s,%(FK_Stock)s,%(SerialNumber)s,%(TypeApp)s,
 								%(FK_Lending)s,%(Equipment_Desc)s, %(Descriptions)s, %(FK_Return)s, %(FK_Receive)s, NOW(), %(CreatedBy)s, %(lastinfo)s)"""
 					param = {'FK_Goods':Data['idapp_fk_goods'],'IsNew':Data['isnew'],'DateRequest':Data['daterequest'],'DateReleased':Data['datereleased'],
@@ -477,7 +474,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 			return repr(e)
 	def HasReference(self,IDApp):
 		cur = connection.cursor()
-		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Outwards = %s) 
+		Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lost WHERE FK_Goods_Outwards = %s)
 					OR EXISTS(SELECT IDApp FROM n_a_goods_return WHERE FK_Goods_Outwards = %s) """
 		cur.execute(Query,[IDApp,IDApp])
 		row = cur.fetchone()
@@ -501,7 +498,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 				serialnumber = row[2]
 				fk_outwards = row[3]
 			else:
-				Query = """SELECT ngr.fk_goods,ngd.serialnumber,ngd.idapp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = ngr.fk_goods 
+				Query = """SELECT ngr.fk_goods,ngd.serialnumber,ngd.idapp FROM n_a_goods_receive ngr INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = ngr.fk_goods
 							INNER JOIN n_a_goods_receive_detail ngd ON ngd.fk_app = ngr.idapp AND ngo.serialnumber = ngd.serialnumber WHERE ngo.idapp =  %s"""
 				cur.execute(Query,[idapp])
 				row = cur.fetchone()
@@ -533,7 +530,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 			#/idapp, fk_goods, isnew, goods, idapp_fk_goods, fk_employee, idapp_fk_employee, fk_employee_employee
 			#   //daterequest,datereleased, fk_stock, fk_responsibleperson, idapp_fk_responsibleperson, fk_responsibleperson_employee,
 			# fk_sender, idapp_fk_sender, fk_sender_employee,  descriptions,fk_usedemployee,idapp_fk_usedemployee,fk_usedemployee_employee, typeapp, serialnumber,
-			#   //brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData  
+			#   //brandvalue, fk_frommaintenance, fk_return, fk_lending, fk_receive,  lastinfo, initializeForm, hasRefData
 		Query = """SELECT g.itemcode AS fk_goods,ngo.isnew,g.goodsname AS goods,ngo.fk_goods AS idapp_fk_goods,emp.NIK AS fk_employee,\
 					ngo.fk_employee AS idapp_fk_employee,emp.employee_name AS fk_employee_employee,ngo.daterequest,ngo.datereleased,ngo.fk_stock,\
 					emp2.NIK AS fk_responsibleperson, ngo.FK_ResponsiblePerson AS idapp_fk_responsibleperson,IFNULL(ngo.lastinfo,'not yet used') AS lastinfo, \
@@ -541,16 +538,16 @@ class NA_BR_Goods_Outwards(models.Manager):
 					ngo.descriptions,emp3.NIK AS fk_usedemployee,ngo.fk_usedemployee AS idapp_fk_usedemployee,emp3.employee_name AS fk_usedemployee_employee,ngo.typeapp,ngo.serialnumber, emp2.employee_name AS fk_responsibleperson_employee,g.brandname AS brandvalue, \
 					IFNULL(ngo.fk_frommaintenance,0)AS fk_frommaintenance,IFNULL(ngo.fk_return,0) AS fk_return, \
 					IFNULL(ngo.fk_lending,0) AS fk_lending,IFNULL(fk_receive,0) AS fk_receive, \
-						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngo.fk_goods AND serialnumber = ngo.serialnumber) THEN 1 
-							 WHEN EXISTS(SELECT fk_goods_outwards FROM n_a_goods_lost WHERE fk_goods_outwards = ngo.idapp) THEN 1 
+						CASE WHEN EXISTS(SELECT fk_goods FROM n_a_disposal WHERE fk_goods = ngo.fk_goods AND serialnumber = ngo.serialnumber) THEN 1
+							 WHEN EXISTS(SELECT fk_goods_outwards FROM n_a_goods_lost WHERE fk_goods_outwards = ngo.idapp) THEN 1
 							 WHEN EXISTS(SELECT fk_goods_outwards FROM n_a_goods_return WHERE fk_goods_outwards = ngo.idapp) THEN 1
-							 ELSE 0 
-					END AS hasRefData  
+							 ELSE 0
+					END AS hasRefData
 					FROM n_a_goods g INNER JOIN n_a_goods_outwards ngo ON ngo.fk_goods = g.IDApp \
 					INNER JOIN employee emp ON emp.IDApp = ngo.fk_employee 	\
 					LEFT OUTER JOIN (SELECT IDApp, NIK,employee_name FROM employee)emp1 ON emp1.IDApp = ngo.fk_sender	\
-					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngo.FK_ResponsiblePerson 
-					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = ngo.fk_usedemployee WHERE ngo.idapp = %s""" 
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp2 ON emp2.IDApp = ngo.FK_ResponsiblePerson
+					LEFT OUTER JOIN (SELECT IDApp,NIK,employee_name FROM employee)emp3 ON emp3.IDApp = ngo.fk_usedemployee WHERE ngo.idapp = %s"""
 		cur.execute(Query,[idapp])
 		data = query.dictfetchall(cur)
 		cur.close()
@@ -582,7 +579,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 		return data
 
 	def getDatabySN(self, sn):
-		#TblGoodsOutwrds join tbl Goods join tbl GoodsOutwardsDetail join ambil data 
+		#TblGoodsOutwrds join tbl Goods join tbl GoodsOutwardsDetail join ambil data
       	#idapp,fk_goods,itemcode,CONCAT(g.goodsname, ' ',g.brandname, ' ',grd.typeapp) as goods=
             # tbl_name = GO,fk_employee=empl_used,nik_employee
 		qs = super(NA_BR_Goods_Outwards, self).get_queryset() \
