@@ -165,26 +165,27 @@
 {% endblock %}
 
 {% block content-0 %}
+
 <style>
-    div#content-0 {
-        overflow: hidden;
-    }
-    div#gbox_jqGrid_NA_F_Goods_Disposal, div#gview_jqGrid_NA_F_Goods_Disposal, div#jqGrid_NA_F_Goods_Disposal_Pager, div.ui-jqgrid-titlebar {
-        border-radius: 0px;
-    }
-    .NA-Entry-inlinve-div ul.inline {
-        list-style-type: none;
-        overflow: hidden;
-    }
-    .NA-Entry-inlinve-div ul li {
-        float: left;
-        margin-right: 0;
-        padding-right: 0;
-        padding-left: 5px;
-    }
-    label input[type='radio'], label input[type='checkbox'] {
-        vertical-align: top;
-    }
+  div#content-0 {
+    overflow: hidden;
+  }
+  div#gbox_jqGrid_NA_F_Goods_Disposal, div#gview_jqGrid_NA_F_Goods_Disposal, div#jqGrid_NA_F_Goods_Disposal_Pager, div.ui-jqgrid-titlebar {
+    border-radius: 0px;
+  }
+  .NA-Entry-inlinve-div ul.inline {
+  	list-style-type: none;
+		overflow: hidden;
+	}
+  .NA-Entry-inlinve-div ul li {
+  	float: left;
+    margin-right: 0;
+    padding-right: 0;
+    padding-left: 5px;
+  }
+  label input[type='radio'], label input[type='checkbox'] {
+    vertical-align: top;
+  }
 </style>
 <table id="jqGrid_NA_F_Goods_Disposal" style="overflow:auto"></table>
 <div id="jqGrid_NA_F_Goods_Disposal_Pager" class="scroll" style="text-align:center;"></div>
@@ -196,21 +197,33 @@
 	(function () {
 		//========================Variable Object untuk ===============================
 		var win = win || window,
-        grid = $("#jqGrid_NA_F_Goods_Disposal"),
-        txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-        btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
-        csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
-        //TypeApps = [],
-        //settings btn sesuai user access
-        //anggap saja sekarang admin
-        btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
-        btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
-        btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
-        btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
-        btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
-        containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
-		valSetCtrl = {}, isSelectingDate = true;
-        originalData = {};
+		grid = $(
+			'#jqGrid_NA_F_Goods_Disposal'
+		), txtSearchMaster = NA.common.doc.querySelector(
+			'form.navbar-form div.input-group input[name="q"]'
+		), btnSearchMaster = NA.common.doc.querySelector(
+			'form.navbar-form button[type="submit"].btn.btn-default'
+		), csrftoken = function () {
+			return NA.CookieUtil.get('csrftoken')
+		}, // TypeApps = [],
+		// settings btn sesuai user access
+		// anggap saja sekarang admin
+		btnSave = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav li:nth-child(4)'
+		), btnDelete = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav li:nth-child(5)'
+		), btnExport = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav li:nth-child(6)'
+		), btnPrint = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav li:nth-child(7)'
+		), btnHelp = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav li:nth-child(8)'
+		), containerMenu = NA.common.dialog.doc.querySelector(
+			'ul.nav.navbar-nav'
+		), // inistialisasi menu
+		valSetCtrl = {}, isSelectingDate = true
+		originalData = {}
+
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
 			cache: false,
@@ -236,10 +249,10 @@
 			},
 			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
 			type: 'GET',
-			crossDomain: false, // obviates need for sameOrigin test                              
+			crossDomain: false, // obviates need for sameOrigin test
 		});
 
-		//===================================END AJAX SetuP===========================--> 
+		//===================================END AJAX SetuP===========================-->
 		//csrf token untuk form
 		function csrfSafeMethod(method) {
 			// these HTTP methods do not require CSRF protection
@@ -265,12 +278,12 @@
 			else {
 				try {
 					//#column idapp,NO,goods,goodstype,serialnumber,    <-->
-					//idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate									
+					//idapp,goods,type,serialnumber,bookvalue,datedisposal,afterrepair,lastrepairFrom,issold,sellingprice,proposedby,acknowledgeby,approvedby,descriptions,createdby,createddate
 					grid.jqGrid({
 						url: url,
 						mtype: "GET",
 						datatype: "json",
-						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value', 'Date Removal','afterrepair', 'lastrepairfrom', 'Is Lost', 'Ref Goods From', 'Is Sold', 'Selling Price', 
+						colNames: ['idapp', 'NO', 'Goods Name', 'Type', 'Serial Number', 'Book Value', 'Date Removal','afterrepair', 'lastrepairfrom', 'Is Lost', 'Ref Goods From', 'Is Sold', 'Selling Price',
 							'Sold To','Proposed By', 'Acknowledged By', 'Approved By','Descriptions', 'Created Date', 'Created By'],
 						colModel: [
 							{ name: 'idapp', key: true, hidden: true, align: 'left' },
@@ -509,7 +522,7 @@
 			var frmEntry = NA.common.getElementID('frm-NA-Entry-Goods-Disposal');
 			switch (textElement) {
 				case 'OK': {
-					if (!frmEntry.checkValidity()) {                                   
+					if (!frmEntry.checkValidity()) {
 						var inputbtn = NA.common.getElementID('inputButton');
 						inputbtn.click();
 					}
@@ -760,7 +773,7 @@
 
 	    //	    INSERT INTO n_a_disposal
 	    //(CreatedDate, CreatedBy, TypeApp, SerialNumber, DateDisposal, IsLost, IsSold, SellingPrice, BookValue,
-	    // FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2, 
+	    // FK_Acc_FA, FK_Goods, FK_Lending, FK_Outwards, FK_Maintenance, FK_Acknowledge1, FK_Acknowledge2,
 	    // FK_ApprovedBy, Descriptions, FK_ProposedBy, FK_Return, FK_Stock, FK_UsedEmployee)
 	    //	    VALUES (NOW(), '', '', '', NOW(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 0, 0, 0)
 
@@ -771,7 +784,7 @@
 			//goods tidak usah
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods'),
 				idapp_fk_goods = elidapp_fk_goods.value;
-			
+
 			var eldatedisposal = NA.common.getElementID('id_datedisposal'),
 				datedisposal = eldatedisposal.value;
 		    ////fk_stock gak usah, fk_stock diambil bersamaan di bussinesrules query
@@ -815,7 +828,7 @@
                 fk_proposedby = elfk_proposedby.value;
 		    var elidapp_fk_proposedby = NA.common.getElementID('id_idapp_fk_proposedby'),
 		    	idapp_fk_proposedby = elidapp_fk_proposedby.value||0;
-			
+
 			var eldescriptions = NA.common.getElementID('id_descriptions'),
 				descriptions = eldescriptions.value;
 			var eltypeapp = NA.common.getElementID('TypeValue'),
@@ -837,7 +850,7 @@
 			var ellastinfo = NA.common.getElementID('lastInfoValue'),
                 lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
-			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
+			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 
 			//Sold area
@@ -845,7 +858,7 @@
 			var sold_to = ''; var sold_to_p_other = '';var idapp_fk_sold_to_employee =  0;
 			var elidsold_to_p_other = NA.common.getElementID('id_sold_to_p_other');
 			var elidapp_fk_sold_to_employee = NA.common.getElementID('id_idapp_fk_sold_to_employee');
-			var elfk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');			
+			var elfk_sold_to_employee = NA.common.getElementID('id_fk_sold_to_employee');
 			if (issold === true) {
 				var id_sold_0 = NA.common.getElementID('id_sold_to_0'), id_sold_1 = NA.common.getElementID('id_sold_to_1'), id_sold_2 = NA.common.getElementID('id_sold_to_2');
 				if (id_sold_0.checked) {
@@ -864,7 +877,7 @@
 					idapp_fk_sold_to_employee = 0;
 				}
 					//else { ShowAlert('Please define sold to', NA.common.message.titleInfo); win.document.body.style.cursor = 'default'; throw new Error(''); }
-			}			
+			}
 			return {
 				idapp: idapp, fk_goods: fk_goods, idapp_fk_goods: idapp_fk_goods, datedisposal: datedisposal, islost: islost,
 				issold: issold, sellingprice:selprice,bookvalue:bookvalue,
@@ -907,15 +920,15 @@
 			containerDialog.style.overflowX = 'hidden';
 			//containerDialog.style.top = '0';
 			// data dari server {"idapp": 4, "fk_goods": "0004", "goodsname": "HP", "brandname": "SAMSUNG", "type": "J7",
-			//"islost": false, "fk_usedemployee": "0112145678901123", "usedemployee": "Rimba Prayoga", "fk_acc_fa": 0, "bookvalue": 0, 
-			//"lastinfo": "Last used by 0112145678901123|Rimba Prayoga, date lent 11 May 2018, interests FMS TRAINING", "fk_maintenance": 0, 
+			//"islost": false, "fk_usedemployee": "0112145678901123", "usedemployee": "Rimba Prayoga", "fk_acc_fa": 0, "bookvalue": 0,
+			//"lastinfo": "Last used by 0112145678901123|Rimba Prayoga, date lent 11 May 2018, interests FMS TRAINING", "fk_maintenance": 0,
 			//"fk_return": 0, "fk_lending": 8, "fk_outwards": 0}
 
-		    //form.idapp_fk_goods 
-			//form.fk_maintenance 
-			//form.fk_return 
-			//form.fk_lending 
-			//form.fk_receive 
+		    //form.idapp_fk_goods
+			//form.fk_maintenance
+			//form.fk_return
+			//form.fk_lending
+			//form.fk_receive
 			//islost
 			//fk_acc_fa
 			//idapp_fk_usedemployee
@@ -926,19 +939,19 @@
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 			elidapp_fk_goods.value = rowData['idapp'] || null;
 
-			//   form.fk_maintenance 
+			//   form.fk_maintenance
 			var elfk_maintenance = NA.common.getElementID('id_fk_maintenance');
 			elfk_maintenance.value = rowData['fk_maintenance'] || null;
 
-			//    form.fk_return 
+			//    form.fk_return
 			var elfk_return = NA.common.getElementID('id_fk_return');
 			elfk_return.value = rowData['fk_return'] || null;
 
-			////  form.fk_lending 
+			////  form.fk_lending
 			var elfk_receive = NA.common.getElementID('id_fk_lending');
 			elfk_receive.value = rowData['fk_lending'] || null;
 
-			////  form.fk_receive 
+			////  form.fk_receive
 			//var elfk_receive = NA.common.getElementID('id_fk_receive');
 			//elfk_receive.value = rowData['fk_receive'] || null;
 
@@ -999,7 +1012,7 @@
                                     	var elfkAccFA = NA.common.getElementID('id_fk_acc_fa'), elBookValue = NA.common.getElementID('fk_bookvalueValue');
                                     	var bookvalue = data.bookvalue, fkAccFA = data.fk_acc_fa;
                                     	elfkAccFA.value = fkAccFA;
-                                    	elBookValue.value = bookvalue;                                  	
+                                    	elBookValue.value = bookvalue;
                                     }
                                     else {
                                     	XhrError(this); win.document.body.style.cursor = 'default'; throw new Error('');
@@ -1033,7 +1046,7 @@
 			    NA.common.getElementID('lastUsedInfo').style.display = 'block';
 			}
 			else {
-			    NA.common.getElementID('lastUsedInfo').style.display = 'none';			  
+			    NA.common.getElementID('lastUsedInfo').style.display = 'none';
 			}
 			NA.common.getElementID('difInfo').style.display = 'block';
 			isSelectingDate = false;
@@ -1121,7 +1134,7 @@
 					includeGroupHeader: true,
 					includeFooter: true,
 					fileName: "goods_DisposalOrRemoval.xlsx",
-					maxlength: 40 // maxlength for visible string data 
+					maxlength: 40 // maxlength for visible string data
 				});
 				NA.NAEvent.stopPropagation(event);
 			}
@@ -1256,7 +1269,7 @@
 				if (textToSearch === "CustomSearch") {
 					ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
 				}
-				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
 					if (item.firstChild.textContent === textToSearch) {
 						elSearch = item.firstChild;
 					}
@@ -1293,7 +1306,7 @@
 		};
 		//======================= END GROUP FUNCTION EVENT=============================================
 
-		//=======================GROUP ASSINGED HANDLER ========================================= 
+		//=======================GROUP ASSINGED HANDLER =========================================
 		//assign delete key event
 		grid.on("keyup", "tr", function (e) {
 			//var rowid = parseInt($(this).attr("id"));
@@ -1304,7 +1317,7 @@
 				return false;
 			}
 		});
-		//handler txt & button Search master keyboard event and click       
+		//handler txt & button Search master keyboard event and click
 		NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
 		NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 		NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
@@ -1314,7 +1327,7 @@
 				NA.NAEvent.preventDefault(event);
 				showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
 					try {
-						//delete data di server 
+						//delete data di server
 						//var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
 						var NAAjax = NA.common.AJAX;
 						NAAjax.POST('Delete/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded',
@@ -1386,7 +1399,7 @@
 		NA.NAEvent.addHandler(btnExport, 'click', ExporttoExcel);
 		NA.NAEvent.addHandler(btnPrint, 'click', printToPDF);
 
-		//=======================END GROUP ASSINGED HANDLER ========================================= 
+		//=======================END GROUP ASSINGED HANDLER =========================================
 
 		//======================GROUP DIALOG ENTRY===============================================
 		window.showDialogEntry = function (event) {
@@ -1439,7 +1452,7 @@
 			    NA.NAEvent.addHandler(item, 'click', function (evt) {
 			    	NA.NAEvent.preventDefault(evt);
 			    	//Print Preview & Export
-			    	
+
 			        //==============uncommment this after debugging=============
 			        //comment this after debugging
 			        NA.common.dialog.closeDialog(dialog);
@@ -1511,7 +1524,7 @@
 				        }
 				    }
 				    $('div.maindialogContent').load("ShowEntry_Disposal?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
-                       function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+                       function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data
                        	if (statusTxt == "success") {
                        	    $(this).html(responseTxt);
                        	    //create Element SettingsControl
@@ -1520,7 +1533,7 @@
 								 isSold = (elIsSold.value == 'true' || elIsSold.value == 'True') ? true : false;
                        	    var valSold_to = '';
                             elSetCtrl.id = 'SetCtrlDisposal';
-                            elSetCtrl.name = 'settingControl';                            
+                            elSetCtrl.name = 'settingControl';
                             valSetCtrl['btnPrintPrev'] = false;
                             valSetCtrl['btnExport'] = false;
                             var divSold = NA.common.getElementID('divSoldTo');
@@ -1553,7 +1566,7 @@
                             		var vaPrice = elSelPrice.value.valueOf();
                             		if (elSelPrice.value != '') {
                             			if (typeof elSelPrice.value === 'number' || !isNaN(elSelPrice.value)) {
-                            				//jika selling price di isi 
+                            				//jika selling price di isi
                             				//maka disabledkan chekbox IsSold
                             				elIsSold.setAttribute('disabled', true);
                             			}
@@ -1584,7 +1597,7 @@
                                						fk_sold_to_employee.setAttribute('placeholder','NIK');
                                						fk_sold_to_employee.setAttribute('data-value','NIK');
                                						fk_sold_to_employee.setAttribute('tittle', 'please enter NIK');
- 
+
                             						//enabledkan btn FE_fk_sold_employee
                             						var btnfk_sold_employee = NA.common.getElementID('FE_fk_sold_to_employee');
                             						btnfk_sold_employee.removeAttribute('disabled');
@@ -1750,7 +1763,7 @@
                        				break;
                        			}
                        		};
-                       		if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+                       		if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit
                        			Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
                        				var valPlaceHolder = item.dataset.value;
                        				NA.NAEvent.addHandler(item, 'focus', function (evt) {
@@ -1777,7 +1790,7 @@
                        						NA.NAEvent.preventDefault(evt);//prevent from submit
                        						evt.stopImmediatePropagation();
                        						return false;
-                       					}                                        
+                       					}
                        					if (elSelPrice.value == '' || NA.common.getElementID('id_sellingprice').value == '0') {
                        					    ShowAlert('Please Enter price before', NA.common.message.titleInfo, function () {
                        					      item.checked = false;   elSelPrice.focus(); elSelPrice.setSelectionRange(0, elSelPrice.value.length);
@@ -1845,7 +1858,7 @@
                        							break;
                        						}
                        					};
-                       				});                       				
+                       				});
                        			});
                        			var listFK = NA.common.doc.querySelectorAll('input[id="id_serialnumber"],[id="id_fk_proposedby"],[id="id_fk_acknowledge1"],[id="id_fk_acknowledge2"],[id="id_fk_approvedby"],[id="id_fk_sold_to_employee"]');
                        			Array.prototype.forEach.call(listFK, function (item) {
@@ -2018,7 +2031,7 @@
                        			        divPlanSold.style.display = 'none';
                        			    }
                        			});
-                       			//======================event handler BUTTONS Search================================================ 
+                       			//======================event handler BUTTONS Search================================================
                        			var btnFindGoods = NA.common.getElementID('FE_fk_goods');
                        			NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
                        				BootstrapDialog.show({
@@ -2043,7 +2056,7 @@
 													}
 												}
 											},
-											function (e) {//even for keydown txtSearch													
+											function (e) {//even for keydown txtSearch
 												if (e.keyCode === 13) {
 													NA.NAEvent.preventDefault(e);
 													win.document.body.style.cursor = 'wait';
@@ -2344,7 +2357,7 @@
                        					return NA.common.message.dataHasChanged;
                        				}
                        			}
-                       			isSelectingDate = false;                       		
+                       			isSelectingDate = false;
                        		}
                        		//if (win.status !== 'Add') {
                        		//	setTimeout(function () {

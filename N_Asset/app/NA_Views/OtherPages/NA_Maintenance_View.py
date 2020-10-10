@@ -55,9 +55,9 @@ class NA_Maintenance_Form(forms.Form):
     typeApp = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','disabled':'disabled','placeholder':'type of goods','style':'width:110px;'}))
     serialNum = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:180px;'}))
+        'class':'NA-Form-Control','disabled':'disabled','placeholder':'serial number','style':'width:225px;'}))
     minus = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:228px;'}))
+        'class':'NA-Form-Control','disabled':'disabled','placeholder':'minus','style':'width:316px;'}))
     requestdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','placeholder':'Request Date','style':'width:110px;'}))
     startdate = forms.CharField(required=True,widget=forms.TextInput(attrs={
@@ -65,17 +65,17 @@ class NA_Maintenance_Form(forms.Form):
     isstillguarantee = forms.BooleanField(required=False,widget=forms.CheckboxInput(attrs={
         'style':'margin-left:15px;position:absolute','disabled':'disabled'}))
     expense = forms.DecimalField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Expense','style':'width:180px;'}))
+        'class':'NA-Form-Control','placeholder':'0.00','style':'width:180px;','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}))
     maintenanceby = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Maintenance By','style':'width:228px;'}))
+        'class':'NA-Form-Control','placeholder':'Maintenance By','style':'width:225px;'}))
     personalname = forms.CharField(required=True,widget=forms.TextInput(attrs={
-        'class':'NA-Form-Control','placeholder':'Personal Name','style':'width:180px;'}))
+        'class':'NA-Form-Control','placeholder':'Personal Name','style':'width:320px;'}))
     issucced = forms.BooleanField(required=False,widget=forms.CheckboxInput(attrs={
         'style':'margin-left:15px;position:absolute'}))
     enddate = forms.CharField(required=True,widget=forms.TextInput(attrs={
         'class':'NA-Form-Control','placeholder':'End Date','style':'width:110px;'}))
     descriptions = forms.CharField(required=True,widget=forms.Textarea(attrs={
-        'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:415px;height:45px;max-width:415px'}))
+        'class':'NA-Form-Control','placeholder':'Descriptions','style':'width:550px;height:45px;max-width:550px'}))
     initializeForm = forms.CharField(widget=forms.HiddenInput(),required=False)
 
 def EntryMaintenance(request):
@@ -133,7 +133,7 @@ def SearchGoodsbyForm(request):
         results = {"page": "1","total": 0 ,"records": 0,"rows": [] }
     else:
         totalRecord = len(NAData)
-        paginator = Paginator(NAData, int(Ilimit)) 
+        paginator = Paginator(NAData, int(Ilimit))
         try:
             page = request.GET.get('page', '1')
         except ValueError:
@@ -142,12 +142,12 @@ def SearchGoodsbyForm(request):
             dataRows = paginator.page(page)
         except (EmptyPage, InvalidPage):
             dataRows = paginator.page(paginator.num_pages)
-        
+
         rows = []
         i = 0;#idapp,itemcode,goods
         for row in dataRows.object_list:
             i+=1
-            datarow = {"id" :str(row['idapp']) +'_fk_goods', "cell" :[row['idapp'],i,row['itemcode'],row['goods'],row['conditions'],\
+            datarow = {"id" :i, "cell" :[i,row['idapp'],row['itemcode'],row['goods'],row['conditions'],\
                 row['still_guarantee'],row['serialnumber'],row['minusdesc']]}
             rows.append(datarow)
         results = {"page": page,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }

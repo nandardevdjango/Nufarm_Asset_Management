@@ -63,7 +63,7 @@
     </header>
     <div style="height: 85.5%;position: relative;">
         <div class="fltlft">
-            {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->            
+            {% with request.resolver_match.url_name as url_name %} <!-- for getting url path, if the url path is Employee, only give class active to it .. . :D -->
             <div class="sidebar" id="NASideBar">
                 <div id="sidebarresult">
                     <ul class="list-sidebar bg-defoult" id="ulsidebar">
@@ -92,13 +92,13 @@
                                         class="active" {% endif %}><i class="fa fa-address-book-o" aria-hidden="true"></i>Supplier</a>
                                 </li>
                                 {% endif %}
-                
+
                                 {% if request.user.allow_view_employee %}
                                 <li><a href="{% url 'MasterData:NA_Employee:NA_Employee' %}" {% if url_name == 'NA_Employee' %}
                                         class="active" {% endif %}><i class="fa fa-address-card" aria-hidden="true"></i> Employee</a>
                                 </li>
                                 {% endif %}
-                
+
                                 {% if request.user.allow_view_goods %}
                                 <li><a href="{% url 'MasterData:NA_Goods:GoodMaster' %}"><i class="fa fa-dropbox"
                                             aria-hidden="true"></i>Goods</a></li>
@@ -114,7 +114,7 @@
                                 <li><a href="#">Others Menu</a></li>
                             </ul>
                         </li>
-                
+
                         {% if request.user.role != 3 %} {# 3 = Guest : Hide menu transaction from User Guest #}
                         <li>
                             <a href="#" data-toggle="collapse" data-target="#products" class="active collapsed" aria-expanded="false">
@@ -169,7 +169,7 @@
                                 </li>
                             </ul>
                         </li>
-                
+
                         <li>
                             <a href="#" data-toggle="collapse" data-target="#reports" class="active collapsed" aria-expanded="false">
                                 <i class="fa  fa-bar-chart" aria-hidden="true"></i>
@@ -179,7 +179,7 @@
                                 <li><a href="#">Report Ad Hoc</a></li>
                             </ul>
                         </li>
-                
+
                         <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
                                 <span class="nav-label">Asset Depreciation</span></a> </li>
                         <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench"
@@ -235,7 +235,7 @@
                                         col-sm-5 col-md-4-->
                                         <form class="navbar-form" role="search" style="left:0;position:relative;margin:auto;flex:1 1 auto;">
                                             <div class="input-group" style="display:inline-flex;position:relative">
-                                                <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" type="text">
+                                                <input class="NA-Form-Control" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Enter text to search for" name="q" autocomplete="off" type="text">
                                                 <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
                                                     <button style="height:30.22px;" class="btn btn-default" type="submit"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
                                                 </div>
@@ -523,7 +523,7 @@
     	NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
     	NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
     	//NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");//Load Style buat form sebelum di pakai
-        
+
         var btnRegister = NA.common.doc.querySelector('button#register')
         if (btnRegister){
             NA.common.dialog.initDialog(null,'Nufarm User - Register',[btnRegister]);//inistialisasi menu
@@ -636,7 +636,7 @@
     <script type="text/javascript" src="{% static 'app/scripts/JsTree/jstree.min.js' %}"></script>
     <!--<script src="{% static 'app/scripts/NAJS.js' %}"></script>-->
     <script type="text/javascript">
-        $(document).ready(function () {            
+        $(document).ready(function () {
             $('p#change_user_picture').on({
                 'click': function(event){
                     NA.NAEvent.preventDefault(event);
@@ -661,12 +661,12 @@
                     };
                     return false;
                 }
-            
+
                 if (this.is_correct) {
                     var formData = new FormData();
                     var file = this.files[0];
                     formData.append("picture", file);
-    		    
+
                     $.ajax({
                         url: '/MasterData/Privilege/change_picture/'
                             + window.encodeURIComponent(NA.Privilege.Email) + '/',
@@ -699,7 +699,7 @@
 					  function (e) {//function executed after data has been returned by server(XHR.onload)
 					      var data = JSON.parse(this.responseText);
 					      if (data) {
-                              //$('#EventLogs').tree('loadData',data);                              
+                              //$('#EventLogs').tree('loadData',data);
                               $('#EventLogs').jstree(true).settings.core.data = data;
                               $('#EventLogs').jstree(true).refresh();
 					      }
@@ -714,9 +714,9 @@
                 }
             });
             NA.NAEvent.addHandler(btn_search_log,'click',function(event){
-                searchLog(event);    		
+                searchLog(event);
             });
-            
+
             //Removes jstree cached state from localStorage
             localStorage.removeItem('jstree');
             $('#EventLogs').on('changed.jstree', function (e, data) {
@@ -881,7 +881,7 @@
                         $('.sidebar').css('flex', '0 0 173px');
                         $('.sidebar').toggleClass('fliph');
                     }
-                    if($(this).attr('href') !== '' && $(this).attr('href') !== '#'){  
+                    if($(this).attr('href') !== '' && $(this).attr('href') !== '#'){
                         var SavedActivedMenu = localStorage.getItem('ActiveMenu');
                         if (SavedActivedMenu){
                             //localStorage.removeItem($(this).text());

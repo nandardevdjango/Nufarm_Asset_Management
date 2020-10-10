@@ -326,7 +326,7 @@ class NA_Goods_Lending_Form(forms.Form):
 																			'data-value':'descriptions about lending goods','title':'Remark any other text to describe transactions','tabindex':7}),required=False)
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:120px;display:inline-block;margin-right:5px;margin-bottom:2px;','tabindex':2,
-                                   'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
+                                   'placeholder': 'Serial Number','data-value':'Serial Number','autocomplete':'off','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 	fk_maintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)
 	fk_return = forms.IntegerField(widget=forms.HiddenInput(),required=False)

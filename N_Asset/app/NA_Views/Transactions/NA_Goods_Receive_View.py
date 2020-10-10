@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from django.utils.dateformat import DateFormat
-from NA_Models.models import NAGoodsReceive, goods,NASupplier,Employee
+from NA_Models.models import NAGoodsReceive, goods, NASupplier, Employee
 from django.core import serializers
 from NA_DataLayer.common import CriteriaSearch
 from NA_DataLayer.common import ResolveCriteria
@@ -12,7 +12,7 @@ from NA_DataLayer.common import Data
 from NA_DataLayer.common import commonFunct
 import app.NA_Views.Transactions.NA_Goods_Receive_Detail_View
 #from NA_DataLayer.jqgrid import JqGrid
-from django.conf import settings 
+from django.conf import settings
 from NA_DataLayer.common import decorators
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 import json
@@ -27,7 +27,7 @@ from NA_DataLayer.Transactions.NA_Goods_Receive_BR import NA_BR_Goods_Receive
 import math
 def NA_Goods_Receive(request):
 	assert isinstance(request,HttpRequest)
-	#buat nama-name column, key sama 
+	#buat nama-name column, key sama
 	populate_combo = []
 	populate_combo.append({'label':'RefNO','columnName':'refno','dataType':'varchar'})
 	populate_combo.append({'label':'Goods Name','columnName':'goods','dataType':'varchar'})
@@ -46,7 +46,7 @@ def ShowCustomFilter(request):
 		cols.append({'name':'refno','value':'refno','selected':'','dataType':'varchar','text':'RefNO'})
 		cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'goods name'})
 		cols.append({'name':'datereceived','value':'datereceived','selected':'','dataType':'datetime','text':'Date Received'})
-		cols.append({'name':'suppliername','value':'suppliername','selected':'','dataType':'varchar','text':'type of brand'})
+		cols.append({'name':'suppliername','value':'suppliername','selected':'','dataType':'varchar','text':'Supplier Name'})
 		cols.append({'name':'receivedby','value':'receivedby','selected':'','dataType':'varchar','text':'Received By'})
 		cols.append({'name':'pr_by','value':'pr_by','selected':'','dataType':'varchar','text':'Purchase Request By'})
 		cols.append({'name':'totalpurchase','value':'totalpurchase','selected':'','dataType':'int','text':'Total Purchased'})
@@ -76,7 +76,7 @@ def NA_Goods_Receive_Search(request):
 			NAData = NAGoodsReceive.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		totalRecord = NAData[1]
 		dataRows = NAData[0]
-		
+
 		rows = []
 		#column IDapp 	goods 	datereceived suppliername FK_ReceivedBy 	receivedby FK_P_R_By pr_by totalpurchase totalreceived,CreatedDate, CreatedBy
 		i = 0
@@ -93,7 +93,7 @@ def NA_Goods_Receive_Search(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-	
+
 def ExistSerialNO(request):
 	authentication_classes = []
 	statuscode = 200
@@ -123,7 +123,7 @@ def getRefNO(request):
 		data = json.dumps(results,cls=DjangoJSONEncoder)
 		return HttpResponse(data, content_type='application/json')
 	else:
-		return HttpResponse(content='',content_type='application/json')	
+		return HttpResponse(content='',content_type='application/json')
 def getCurrentDataModel(request,form):	#fk_goods, datereceived, fk_supplier, totalpurchase, totalreceived,  fk_receivedby fk_p_r_by, idapp_fk_goods, idapp_fk_p_r_by, idapp_fk_receivedby,descriptions
 	return {'idapp':form.cleaned_data['idapp'],'refno':form.cleaned_data['refno'],'idapp_fk_goods':form.cleaned_data['idapp_fk_goods'],'fk_goods':form.cleaned_data['fk_goods'],'datereceived':form.cleaned_data['datereceived'],'fk_supplier':form.cleaned_data['fk_supplier'],
 		 'totalpurchase':form.cleaned_data['totalpurchase'],'totalreceived':form.cleaned_data['totalreceived'],'fk_receivedby':form.cleaned_data['fk_receivedby'],'idapp_fk_receivedby':form.cleaned_data['idapp_fk_receivedby'],'fk_p_r_by':form.cleaned_data['fk_p_r_by'],
@@ -166,9 +166,9 @@ def ShowEntry_Receive(request):
 			data = json.loads(data)
 			status = data['status']
 		else:
-			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')	
+			status = 'Add' if request.GET.get('status') == None else request.GET.get('status')
 			#set initilization
-		if status == 'Add':		
+		if status == 'Add':
 			if request.POST:
 				form = NA_Goods_Receive_Form(data)
 				statuscode = 200
@@ -176,11 +176,11 @@ def ShowEntry_Receive(request):
 					#save data
 					#ALTER TABLE n_a_goods MODIFY IDApp INT AUTO_INCREMENT PRIMARY KEY
 					form.clean()
-					dataDetail = list(json.loads(data.get('dataForGridDetail')));	
+					dataDetail = list(json.loads(data.get('dataForGridDetail')));
 					data = getCurrentDataModel(request,form)
 					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)
-					totalReceived = data['totalreceived'];	
-					desc = '('				
+					totalReceived = data['totalreceived'];
+					desc = '('
 					#dataDetail = object_list
 					if len(dataDetail) > 0:
 						detCount = len(dataDetail)
@@ -201,16 +201,16 @@ def ShowEntry_Receive(request):
 					statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 				return HttpResponse(json.dumps({'message':result}),status = 400, content_type='application/json')
-			else:				
+			else:
 				form = NA_Goods_Receive_Form(initial=initializationForm)
-				form.fields['status'].widget.attrs = {'value':status}	
+				form.fields['status'].widget.attrs = {'value':status}
 				form.fields['hasRefData'].widget.attrs = {'value': False}
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
-		elif status == 'Edit' or status == "Open":					
+		elif status == 'Edit' or status == "Open":
 			if request.POST:
 				hasRefData = NAGoodsReceive.objects.hasReference({'idapp':data['idapp'],'idapp_fk_goods':data['idapp_fk_goods'], 'datereceived':data['datereceived']},None)
 				ChangedHeader = data['hasChangedHeader']
-				ChangedDetail = data['hasChangedDetail']	
+				ChangedDetail = data['hasChangedDetail']
 				form = NA_Goods_Receive_Form(data=data)
 				if form.is_valid():
 					form.clean()
@@ -220,10 +220,10 @@ def ShowEntry_Receive(request):
 					data.update(hasRefData=hasRefData)
 					data.update(hasChangedHeader=ChangedHeader)
 					data.update(hasChangedDetail=ChangedDetail)
-					
+
 					dataForGridDetail = json.loads(form.cleaned_data['dataForGridDetail'], parse_float=Decimal)
-					dataDetail = list(dataForGridDetail)	
-					desc = '('				
+					dataDetail = list(dataForGridDetail)
+					desc = '('
 					#dataDetail = object_list
 					if len(dataDetail) > 0:
 						detCount = len(dataDetail)
@@ -245,7 +245,7 @@ def ShowEntry_Receive(request):
 						statuscode = 500
 					return HttpResponse(json.dumps({'message':result}),status = statuscode, content_type='application/json')
 					#check itemCode
-					#if scorm.objects.filter(Header__id=qp.id).exists()				
+					#if scorm.objects.filter(Header__id=qp.id).exists()
 					#return HttpResponse('success', 'text/plain')
 			else:
 				#get data from database
@@ -262,7 +262,7 @@ def ShowEntry_Receive(request):
 				NAData.update(initializeForm=json.dumps(NAData,cls=DjangoJSONEncoder))
 				NADetailRows =  NAGoodsReceive.objects.getDetailData(IDApp,Ndata['idapp_fk_goods'])
 				#NADetailRows = NA_BR_Goods_Receive.
-				rows = []			
+				rows = []
 				i = 0;
 				#idapp', 'fkapp', 'NO', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 'CreatedDate', 'ModifiedBy', 'ModifiedDate'
 				#var rowData = { 'idapp': '', 'fkapp': '', 'no': i + 1, 'brandname': '', 'priceperunit': '', 'typeapp': '', 'serialnumber': '', 'warranty': '', 'endofwarranty': '', 'createdby': '', 'createddate': new Date(), 'modifiedby': '', 'modifieddate': '','HasRef':false }
@@ -272,7 +272,7 @@ def ShowEntry_Receive(request):
 					datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
 						'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'], \
 						'createdby':row['CreatedBy'],'createddate':row['CreatedDate'],'modifiedby':row['ModifiedBy'],'modifieddate':row['ModifiedDate'],'HasRef':str2bool(str(row['HasRef'])),'isnew':'0','isdeleted':'0','isdirty':'0'}
-					rows.append(datarow)					
+					rows.append(datarow)
 				dataForGridDetail = rows #{"page": int(request.GET.get('page', '1')),"total": 1 ,"records": rows.count,"rows": rows }
 				#return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 				NAData.update(dataForGridDetail=json.dumps(dataForGridDetail,cls=DjangoJSONEncoder))
@@ -281,22 +281,22 @@ def ShowEntry_Receive(request):
 				form = NA_Goods_Receive_Form(data=NAData)
 				#form.fields['status'].widget.attrs = {'value':status}
 				if hasRefData:
-					form.fields['totalreceived'].disabled = True
-				#form.fields['hasRefData'].widget.attrs = {'value':hasRefData}
+				#	form.fields['totalreceived'].disabled = True
+					form.fields['hasRefData'].widget.attrs = {'value':hasRefData}
 				return render(request, 'app/Transactions/Goods_Receive.html', {'form' : form})
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
-	
-def HasRefDetail(request):	
+
+def HasRefDetail(request):
 	data = request.POST.get('data')
-	data = json.loads(data)	
+	data = json.loads(data)
 	result = False
 	try:
 		result = NAGoodsReceive.objects.hasRefDetail({'idapp':data['idapp_fk_goods'],
-												'datereceived':data['datereceived'], 
+												'datereceived':data['datereceived'],
 												'typeapp':data['typeapp'],
-												'serialnumber':data['serialnumber']},False)				
+												'serialnumber':data['serialnumber']},False)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
@@ -315,7 +315,7 @@ def Delete(request):
 		NAData = {'idapp':IDApp,'idapp_fk_goods':Ndata['idapp_fk_goods'],'datereceived':Ndata['datereceived'],'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
 		#check reference data
 		result = NAGoodsReceive.objects.delete(NAData)
-		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json') 
+		return HttpResponse(json.dumps({'message':result},cls=DjangoJSONEncoder),status = statuscode, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -330,7 +330,7 @@ def deleteDetail(request):
 		#get data
 		NAData = {'idapp':Iidapp,'deletedby':request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin'}
 		result = NAGoodsReceive.objects.deleteDetail(NAData)
-		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json') 
+		return HttpResponse(json.dumps({'message':result}),status = 200, content_type='application/json')
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
@@ -345,17 +345,17 @@ def getReceiveDetail(request):
 		fkgoods = NAGoodsReceive.objects.getFKGoods(fkapp)[0]['idapp_fk_goods']
 		NADataDetail = NAGoodsReceive.objects.getDetailData(fkapp,fkgoods)
 		#NADataDetail = NA_Goods_Receive_Detail_View.objects.getDetailData(FKApp,idapp_fk_goods)
-		rows = []			
+		rows = []
 		i = 0
 		for row in NADataDetail:
 			i = i+1
 			datarow = {'idapp':row['IDApp'],'fkapp':row['FK_App'], 'no':i,'brandname':row['BrandName'],'priceperunit':row['PricePerUnit'], \
 				'typeapp':row['TypeApp'],'serialnumber':row['SerialNumber'],'warranty':row['Warranty'],'endofwarranty':row['EndOfWarranty'],}
-			rows.append(datarow)					
+			rows.append(datarow)
 		#dataForGridDetail = rows
 		#NAData.update(dataForGridDetail=json.dumps(rows,cls=DjangoJSONEncoder))
 		Result = json.dumps(rows,cls=DjangoJSONEncoder)
-		return HttpResponse(Result,status = statuscode, content_type='application/json') 
+		return HttpResponse(Result,status = statuscode, content_type='application/json')
 	except Exception as e :
 		return HttpResponse(json.dumps({'message': repr(e)}),status = 500, content_type='application/json')
 
@@ -372,8 +372,8 @@ def getGoods(request):
 			result = {'goods':result.goods}
 		else:
 			result = {'goods':''}
-		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json') 
-	except Exception as e:					
+		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getSupplier(request):
@@ -387,8 +387,8 @@ def getSupplier(request):
 			result = result[0]
 		else :
 			result={}
-		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json') 
-	except Exception as e:					
+		return HttpResponse(json.dumps(result,cls=DjangoJSONEncoder),status = 200, content_type='application/json')
+	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
 def getEmployee(request):
@@ -401,7 +401,7 @@ def getEmployee(request):
 	else :
 		result={}
 	#if result.count > 0:
-	#	result = result[0]	
+	#	result = result[0]
 		#for brandrow in BrandRows:
 		#	JsonResult = {}
 		#	JsonResult['id'] = brandrow['brandname']
@@ -415,8 +415,8 @@ def SearchGoodsbyForm(request):
 	"""get goods data for grid searching, retusn idapp,itemcode,goods criteria = icontains"""
 	Isidx = request.GET.get('sidx', '')
 	Isord = request.GET.get('sord', '')
-	
-			
+
+
 	searchText = request.GET.get('goods_desc')
 	Ilimit = request.GET.get('rows', '')
 	NAData = None;
@@ -430,7 +430,7 @@ def SearchGoodsbyForm(request):
 	#if NAData == Data.Empty:
 	#	NAData = goods.objects.none()
 	totalRecord = NAData.count()#if (NAData != Data.Empty) else 0
-	paginator = Paginator(NAData, int(Ilimit)) 
+	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')
 	except ValueError:
@@ -439,7 +439,7 @@ def SearchGoodsbyForm(request):
 		dataRows = paginator.page(page)
 	except (EmptyPage, InvalidPage):
 		dataRows = paginator.page(paginator.num_pages)
-		
+
 	rows = []
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:
@@ -463,7 +463,7 @@ def SearchSupplierbyForm(request):
 	else:
 		NAData = NASupplier.customManager.getSupplierByForm(searchText)
 	totalRecord = NAData.count()
-	paginator = Paginator(NAData, int(Ilimit)) 
+	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')
 	except ValueError:
@@ -472,7 +472,7 @@ def SearchSupplierbyForm(request):
 		dataRows = paginator.page(page)
 	except (EmptyPage, InvalidPage):
 		dataRows = paginator.page(paginator.num_pages)
-		
+
 	rows = []
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:
@@ -490,11 +490,11 @@ def SearchEmployeebyform(request):
 	if (Isord is not None and Isord != '') and (Isidx is not None and Isidx != ''):
 		NAData = Employee.customManager.getEmloyeebyForm(searchText)
 		if len(NAData):
-			NAData = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)				
+			NAData = commonFunct.multi_sort_queryset(NAData,Isidx,Isord)
 	else:
 		NAData = Employee.customManager.getEmloyeebyForm(searchText)
 	totalRecord = NAData.count()
-	paginator = Paginator(NAData, int(Ilimit)) 
+	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')
 	except ValueError:
@@ -503,7 +503,7 @@ def SearchEmployeebyform(request):
 		dataRows = paginator.page(page)
 	except (EmptyPage, InvalidPage):
 		dataRows = paginator.page(paginator.num_pages)
-		
+
 	rows = []
 	i = 0;#idapp,itemcode,goods
 	for row in dataRows.object_list:
@@ -535,7 +535,7 @@ def getBrandForDetailEntry(request):
 			BrandRows = NAGoodsReceive.objects.getBrandsForDetail(idappFKGoods,IvalueKey)
 	except Exception as e :
 		return repr(e)
-	
+
 	results = []
 	for brandrow in BrandRows:
 		JsonResult = {}
@@ -545,7 +545,7 @@ def getBrandForDetailEntry(request):
 		results.append(JsonResult)
 	data = json.dumps(results,cls=DjangoJSONEncoder)
 	return HttpResponse(data, content_type='application/json')
-	
+
 def getTypeApps(request):
 	IvalueKey =  request.GET.get('term')
 	idappFKGoods = request.GET.get('fk_goods')
@@ -554,7 +554,7 @@ def getTypeApps(request):
 		TypeAppRows = NAGoodsReceive.objects.getTypesApp(idappFKGoods,IvalueKey)
 	except Exception as e :
 		return repr(e)
-	
+
 	results = []
 	for typeAppRow in TypeAppRows:
 		JsonResult = {}
@@ -566,44 +566,98 @@ def getTypeApps(request):
 	return HttpResponse(data, content_type='application/json')
 
 
-def export_to_excels(request):
-    response = HttpResponse
-    return response
-
+def export_to_excels(request,Options):
+	response = HttpResponse
+	NAData = []
+	colNames = []
+    # tentukan column
+	try:
+		IcolumnName = request.GET.get('columnName')
+		IvalueKey =  request.GET.get('valueKey')
+		IdataType =  request.GET.get('dataType')
+		Icriteria =  request.GET.get('criteria')
+		Ilimit = request.GET.get('rows', '')
+		Isidx = request.GET.get('sidx', '')
+		Isord = request.GET.get('sord', '')
+		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
+		dataType = ResolveCriteria.getDataType(str(IdataType))
+		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+			if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
+				NAData = NAGoodsReceive.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType,Options == "headeronly")#return tuples
+			else:
+				NAData = NAGoodsReceive.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),IcolumnName,IvalueKey,criteria,dataType,Options == "headeronly")#return tuples
+			dataRows = NAData[0]
+			rows = []
+		if Options == "headeronly":
+			colNames = ['IDApp','NO','Reference No','Goods Name','Date Received','Suplier Name','FK_ReceivedBy',
+				'Received By','FK_P_R_By','Purchase Request By','Total Purchase','Total Received','descriptions','Created Date','Created By']
+			#columns in data
+			#IDApp,NO,refno,goods,datereceived,supliername,FK_ReceivedBy,receivedby,FK_P_R_By,
+			#pr_by,totalpurchase,totalreceived,descriptions,CreatedDate,CreatedBy
+			i = 0
+			for row in dataRows:
+				i = i + 1
+				datarow = tuple([row['idapp'], i, row['refno'], row['goods'], datetime.strftime(row['datereceived'], "%m/%d/%Y"), row['supliername'],
+				row['FK_ReceivedBy'], row['receivedby'], row['FK_P_R_By'], row['pr_by'], row['totalpurchase'], row['totalreceived'], row['descriptions'],
+				row['CreatedDate'], row['CreatedBy']])
+				rows.append(datarow)
+			dataRows = list(dict(zip(colNames, row)) for row in rows)
+			column_hidden = ['IDApp','FK_ReceivedBy','FK_P_R_By','descriptions']
+			response = commonFunct.create_excel(
+				colNames, column_hidden, dataRows, 'Goods_Receive_Header_' + datetime.strftime(datetime.now(),"%Y_%m_%d"),'Goods Receive Header Only')
+		elif Options == "All":
+			#columns in data
+			#NO,refno,goods,datereceived,supliername,receivedby,pr_by,BrandName,TypeApp,Warranty,EndOfWarranty,SerialNumber
+			colNames = ['NO','Reference No','Goods Name','Date Received','Suplier Name',
+				'Received By','Purchase Request By','Brand Name','Goods Type','Warranty','EndOfWarranty','Serial Number','Created Date','Created By']
+			i = 0
+			for row in dataRows:
+				i = i + 1
+				datarow = tuple([i, row['refno'], row['goods'], datetime.strftime(row['datereceived'], "%m/%d/%Y"), row['supliername'],
+				row['receivedby'],row['pr_by'], row['BrandName'], row['TypeApp'], row['Warranty'],
+				row['EndOfWarranty'],row['SerialNumber'],datetime.strftime(row['CreatedDate'], "%m/%d/%Y"), row['CreatedBy']])
+				rows.append(datarow)
+			dataRows = list(dict(zip(colNames, row)) for row in rows)
+			column_hidden = []
+			response = commonFunct.create_excel(
+				colNames, column_hidden, dataRows, 'Goods_Receive_With_Detail_' + datetime.strftime(datetime.now(),"%Y_%m_%d"),'Goods Receive With Detail')
+	except Exception as e:
+		result = repr(e)
+		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+	return response
 #def ExportPDF(request):
-
 
 class NA_Goods_Receive_Form(forms.Form):
 	idapp  = forms.IntegerField(widget=forms.HiddenInput(),required=False)
-	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:100px;display:inline-block;','tabindex':1,
-																						 'placeholder': 'RefNO','data-value':'refno','tittle':'Ref NO is required'}))
-	datereceived = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
-                                   'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter Date Received','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
+	refno = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:200px;display:inline-block;margin-right:5px','tabindex':1,
+																						 'placeholder': 'RefNO','data-value':'refno','autocomplete':'off','tittle':'Ref NO is required'}))
+	datereceived = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:59%;display:inline-block;margin-right:auto;padding-left:5px','tabindex':2,
+                                   'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','autocomplete':'off','tittle':'Please enter Date Received','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
 	fk_goods = forms.CharField(widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':3,
+                                   'class': 'NA-Form-Control','style':'width:200px;display:inline-block;margin-right:5px;vertical-align:baseline','tabindex':3,
                                    'placeholder': 'goods item code','data-value':'goods item code','tittle':'Please enter item code'}),required=True)
 	goods_desc = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'goods item code','data-value':'goods item code','tittle':'goods Desc is required'}))
-	 
+
 	fk_supplier = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':4,
+                                   'class': 'NA-Form-Control','style':'width:200px;display:inline-block;margin-right:5px;vertical-align:baseline','tabindex':4,
                                    'placeholder': 'supplier code','data-value':'supplier code','tittle':'Please enter supplier code'}),required=True)
 	suppliername = forms.CharField(max_length=100,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'supplier name','data-value':'supplier name','tittle':'supplier name is required'}))
 
-	totalpurchase = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
-	totalreceived = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalpurchase = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':5,'style':'width:100px;;display:inline-block;margin-right:5px;vertical-align:baseline;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
+	totalreceived = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={'class': 'NA-Form-Control','maxlength':3, 'min':1,'tabindex':6,'style':'width:85px;;display:inline-block;margin-right:5px;vertical-align:baseline;','tittle':'Total purchased is required','patern':'[1-9]\d{1,9}','step':'any'}))
 	fk_p_r_by = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':7,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;vertical-align:baseline;','tabindex':7,
                                    'placeholder': 'P R By','data-value':'P R By','tittle':'Employee code(NIK) who PRs'}),required=True)
 	employee_pr = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'Employee who PRs','data-value':'Employee who PRs','tittle':'Employee who PRs is required'}))
 	fk_receivedby = forms.CharField(max_length=30,widget=forms.TextInput(attrs={
-                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;','tabindex':8,
+                                   'class': 'NA-Form-Control','style':'width:100px;display:inline-block;margin-right:5px;vertical-align:baseline;','tabindex':8,
                                    'placeholder': 'Who Receives','data-value':'Who Receives','tittle':'Employee code(NIK) who Receives'}),required=True)
 	employee_received = forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','readonly':True,
 																						 'placeholder': 'Employee who Receives','data-value':'Employee who Receives','tittle':'Employee who Receives is required'}))
-	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'100','rows':'2','tabindex':9,'style':'max-width: 800px;width: 444px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods received (remark)','data-value':'descriptions about goods received (remark)'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
+	descriptions = forms.CharField(max_length=250,widget=forms.Textarea(attrs={'cols':'200','rows':'2','tabindex':9,'style':'max-width: 800px;width: 600px;height: 45px;','class':'NA-Form-Control','placeholder':'descriptions about goods received (remark)','data-value':'descriptions about goods received (remark)'}),required=False) # models.CharField(db_column='Descriptions', max_length=150, blank=True, null=True)  # Field name made lowercase.
 	idapp_fk_goods = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	idapp_fk_p_r_by = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 	idapp_fk_receivedby = forms.IntegerField(widget=forms.HiddenInput(),required=True)
@@ -639,4 +693,3 @@ class NA_Goods_Receive_Form(forms.Form):
 		hasRefData = self.cleaned_data.get('hasRefData')
 		descbysystem = self.cleaned_data.get('descbysystem')
 		dataForGridDetail = self.cleaned_data.get('dataForGridDetail')
-

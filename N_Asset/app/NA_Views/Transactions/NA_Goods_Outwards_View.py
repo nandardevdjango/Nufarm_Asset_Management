@@ -305,9 +305,9 @@ class NA_Goods_Outwards_Form(forms.Form):
 	fk_employee_employee = forms.CharField(max_length=120,required=False,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'border-bottom-right-radius:0;border-top-right-radius:0;','disabled':True,
 																							'placeholder': 'employee who uses goods','data-value':'employee who uses goods','tittle':'employee who uses goods is required'}))
 	daterequest = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-flex;margin-right:auto;padding-left:5px','tabindex':5,
-									'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date request','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
+									'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','autocomplete':'off','tittle':'Please enter date request','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
 	datereleased = forms.DateField(required=True,widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'width:105px;display:inline-flex;margin-right:auto;padding-left:5px','tabindex':6,
-								'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','tittle':'Please enter date lent','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
+								'placeholder': 'dd/mm/yyyy','data-value':'dd/mm/yyyy','autocomplete':'off','tittle':'Please enter date lent','patern':'^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$'}))
 	fk_responsibleperson = forms.CharField(widget=forms.TextInput(attrs={#Employee Code
 									'class': 'NA-Form-Control','style':'flex:1;display:inline-flex;margin-right:5px;margin-bottom:2px;','tabindex':4,
 									'placeholder': 'NIK','data-value':'NIK','tittle':'Please enter NIK if exists'}),required=True)
@@ -334,7 +334,7 @@ class NA_Goods_Outwards_Form(forms.Form):
 	lastinfo = forms.CharField(widget=forms.HiddenInput(),required=False)#value ini di peroleh secara hard code dari query jika status = edit/open
 	typeapp = forms.CharField(max_length=32,widget=forms.HiddenInput(),required=False)
 	serialnumber = forms.CharField(widget=forms.TextInput(attrs={'class': 'NA-Form-Control','style':'display:inline-flex;flex:1;margin-right:5px;margin-bottom:2px;','tabindex':1,
-									'placeholder': 'Serial Number','data-value':'Serial Number','tittle':'Please enter Serial Number if exists'}),required=True)
+									'placeholder': 'Serial Number','data-value':'Serial Number','autocomplete':'off','tittle':'Please enter Serial Number if exists'}),required=True)
 	brandvalue = forms.CharField(max_length=100,widget=forms.HiddenInput(),required=False)
 
 	fk_frommaintenance = forms.IntegerField(widget=forms.HiddenInput(),required=False)

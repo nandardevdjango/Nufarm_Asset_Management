@@ -218,7 +218,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
 			btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
 			btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
-			containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+			containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu
 			originalData = {};
 		//=================================AJAX Setup pake jquery===========================-->
 		$.ajaxSetup({
@@ -245,10 +245,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			},
 			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
 			type: 'GET',
-			crossDomain: false, // obviates need for sameOrigin test                              
+			crossDomain: false, // obviates need for sameOrigin test
 		});
 
-		//===================================END AJAX SetuP===========================--> 
+		//===================================END AJAX SetuP===========================-->
 		//csrf token untuk form
 		function csrfSafeMethod(method) {
 			// these HTTP methods do not require CSRF protection
@@ -573,7 +573,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			switch (textElement) {
 				case 'OK': {
 					if (!frmEntry.checkValidity()) {
-						//NA.NAEvent.preventDefault(event); 
+						//NA.NAEvent.preventDefault(event);
 						if (validDate) {
 							var inputbtn = NA.common.getElementID('inputButton');
 							inputbtn.click();
@@ -634,7 +634,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							valuesForm = getValuesForm();
 							if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
 								submitForm(valuesForm);
-							}							
+							}
 							win.document.body.style.cursor = 'default';
 						}
 					}
@@ -896,7 +896,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			var ellastinfo = NA.common.getElementID('LastInfoValue'),
 				lastinfo = ellastinfo.textContent
 			var elfk_usedemployeeValue = NA.common.getElementID('id_idapp_fk_usedemployee')
-			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;			
+			//UsedEmployee= elfk_usedemployeeValue.textContent.split('|') ;
 			var idapp_fk_usedemployee = elfk_usedemployeeValue.value || 0;
 			//if(UsedEmployee.length > 0){
 			//	fk_usedemployee = UsedEmployee[0];
@@ -942,11 +942,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			containerDialog.style.overflowY = 'auto';
 			containerDialog.style.overflowX = 'hidden';
 			//containerDialog.style.top = '0';
-			//form.idapp_fk_goods 
-			//form.fk_frommaintenance 
-			//form.fk_return 
-			//form.fk_lending 
-			//form.fk_receive 
+			//form.idapp_fk_goods
+			//form.fk_frommaintenance
+			//form.fk_return
+			//form.fk_lending
+			//form.fk_receive
 			//
 			//form.idapp di status edit/open
 
@@ -954,11 +954,11 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			var elidapp_fk_goods = NA.common.getElementID('id_idapp_fk_goods');
 			elidapp_fk_goods.value = rowData['idapp'] || null;//idapp di grid adalah idapp_fkgoods
 
-			//    form.fk_frommaintenance 
+			//    form.fk_frommaintenance
 			var elfk_maintenance = NA.common.getElementID('id_fk_frommaintenance');
 			elfk_maintenance.value = rowData['fk_maintenance'] || null;
 
-			//      form.fk_return 
+			//      form.fk_return
 			var elfk_return = NA.common.getElementID('id_fk_return');
 			elfk_return.value = rowData['fk_return'] || null;
 
@@ -977,7 +977,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				pkfrom = 'fk_lending';
 				pkkey = elfk_return.value;
 			}
-			//     form.fk_receive 
+			//     form.fk_receive
 			var elfk_receive = NA.common.getElementID('id_fk_receive');
 			elfk_receive.value = rowData['fk_receive'] || null;
 
@@ -1107,7 +1107,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			originalData = JSON.stringify(getValuesForm());
 			var initializeForm = NA.common.getElementID('id_initializeForm');
 			initializeForm.value = originalData;
-			//    //focus langsung ke 				    		
+			//    //focus langsung ke
 			var elserialnumber = NA.common.getElementID('id_serialnumber');
 			elserialnumber.focus();
 			NA.common.dialog.hasSavedAction = false;
@@ -1150,7 +1150,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			// remove navigation divs.
 			$('#prt-container div').remove('.ui-jqgrid-toppager,.ui-jqgrid-titlebar,.ui-jqgrid-pager');
 
-			// print the contents of the print container.    
+			// print the contents of the print container.
 			$('#prt-container').printThis({
 				removeScripts: true,
 				header: '\<img src="..\/..\/..\/static\/app\/images\/NufarmLogo.jpg" width="112.5" height="54.75"\/\>',
@@ -1280,7 +1280,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			// Now the little tricky part.
 			// you can use either>> window.open(uri);
 			// but this will not work in some browsers
-			// or you will not get the correct file extension    
+			// or you will not get the correct file extension
 
 			//this trick will generate a temp <a /> tag
 			var link = document.createElement("a");
@@ -1304,7 +1304,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				//	includeGroupHeader: true,
 				//	includeFooter: true,
 				//	fileName: "goods_Outwards.xlsx",
-				//	maxlength: 40 // maxlength for visible string data 
+				//	maxlength: 40 // maxlength for visible string data
 				//});
 				//grid.jqGrid.exportToExcel({
 				//	includeLabels: true,
@@ -1501,7 +1501,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				if (textToSearch === "CustomSearch") {
 					ShowAlert("please define column to search"); win.document.body.style.cursor = "default"; return false;
 				}
-				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+				Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
 					if (item.firstChild.textContent === textToSearch) {
 						elSearch = item.firstChild;
 					}
@@ -1539,7 +1539,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		//======================= END GROUP FUNCTION EVENT=============================================
 
 
-		//=======================GROUP ASSINGED HANDLER ========================================= 
+		//=======================GROUP ASSINGED HANDLER =========================================
 		//assign delete key event
 		grid.on("keyup", "tr", function (e) {
 			//var rowid = parseInt($(this).attr("id"));
@@ -1550,7 +1550,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				return false;
 			}
 		});
-		//handler txt & button Search master keyboard event and click       
+		//handler txt & button Search master keyboard event and click
 		NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
 		NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
@@ -1561,7 +1561,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				NA.NAEvent.preventDefault(event);
 				showConfirmation(NA.common.message.confirmDelete, NA.common.message.confirmInfo, function () {
 					try {
-						//delete data di server 
+						//delete data di server
 						//var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
 						var NAAjax = NA.common.AJAX;
 						NAAjax.POST('Delete/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded',
@@ -1630,12 +1630,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		NA.NAEvent.addHandler(btnExport, 'click', ExporttoExcel);
 		NA.NAEvent.addHandler(btnPrint, 'click', PrintGrid);
 
-		//=======================END GROUP ASSINGED HANDLER ========================================= 
+		//=======================END GROUP ASSINGED HANDLER =========================================
 
 		//======================GROUP DIALOG ENTRY==================================================
 
 
-		window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
+		window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
 			var hasLoadDialog = false;
 			var dialog = NA.common.dialog.doc.querySelector("div.containerDialog"),
 				btnOKCancel = NA.NAEvent.doc.querySelectorAll('div.dialogButtonOKCancel>a.button'),
@@ -1686,7 +1686,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 							ExecuteHandler('OK');
 							return;
 						});
-					} else {//jika tidak ada perubahan 
+					} else {//jika tidak ada perubahan
 						//status Edit
 						if (win.status == "Edit") { printToPDF(); return; }
 						//status Add
@@ -1710,7 +1710,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			//var FrameDoc = NA.common.doc.createElement('iframe')
 			//FrameDoc.setAttribute('id', 'IDFrameDoc');
 			//
-			////<div id='withIframe'>	
+			////<div id='withIframe'>
 			////	<iframe id='if' src=''></iframe>
 			////</div>
 			//dialog.appendChild(FrameDoc);
@@ -1768,7 +1768,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						}
 					}
 					$('div.maindialogContent').load("ShowEntry_Outwards?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
-						function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data  
+						function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data
 							if (statusTxt == "success") {
 								$(this).html(responseTxt);
 								switch (win.status.trim()) {
@@ -1817,7 +1817,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 										break;
 									}
 								};
-								if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit   
+								if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit
 									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('input[type="text"]'), function (item) {
 										var valPlaceHolder = item.dataset.value;
 										NA.NAEvent.addHandler(item, 'focus', function (evt) {
@@ -2002,7 +2002,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 									var initializeForm = NA.common.getElementID('id_initializeForm');
 									initializeForm.value = originalData;
 
-									//======================event handler BUTTONS Search================================================ 
+									//======================event handler BUTTONS Search================================================
 									var btnFindGoods = NA.common.getElementID('FE_fk_goods');
 									NA.NAEvent.addHandler(btnFindGoods, 'click', function (e) {
 										BootstrapDialog.show({
@@ -2027,7 +2027,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 															}
 														}
 													},
-													function (e) {//even for keydown txtSearch													
+													function (e) {//even for keydown txtSearch
 														if (e.keyCode === 13) {
 															NA.NAEvent.preventDefault(e);
 															win.document.body.style.cursor = 'wait';
@@ -2346,7 +2346,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 											delete NA.common.dialog.IsPrintingPDF;
 										}
 									}
-									//====================== End event handler BUTTONS Search================================================ 
+									//====================== End event handler BUTTONS Search================================================
 
 								}//end if (win.status !== 'Open' && win.status !== '')
 							}

@@ -276,7 +276,7 @@ class NA_Goods_Form(forms.Form):
 		typeapp = forms.ChoiceField(required=True,widget=forms.Select(attrs={
                                    'class': 'NA-Form-Control','style':'width:92px','tittle':'Please enter goods category'}),choices=(('IT','IT'),('GA','GA'),('IT Accessories','IT Accessories'),('GA Accesories','GA Accesories'),('Others','Others')))
 		priceperunit = forms.DecimalField(max_digits=30,decimal_places=2,widget=forms.TextInput(attrs={
-									'class':'NA-Form-Control','style':'width:150px;','placeholder':'price','data-value':'price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}),required=True)#  models.DecimalField(db_column='PricePerUnit', max_digits=20,decimal_places=4)  # Field name made lowercase.
+									'class':'NA-Form-Control','style':'width:150px;','placeholder':'0.00','data-value':'price','patern':'^[0-9]+([\.,][0-9]+)?$','step':'any','tittle':'Please enter valid value'}),required=True)#  models.DecimalField(db_column='PricePerUnit', max_digits=20,decimal_places=4)  # Field name made lowercase.
 		depreciationmethod = forms.ChoiceField(widget=forms.Select(attrs={
                                    'class': 'NA-Form-Control select','style':'width:256px;margin-left:auto;'}),choices=(('SL', 'Straight Line Method'),
 																	  ('DDB','Double Declining Balance'),

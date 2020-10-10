@@ -11,9 +11,11 @@ from decimal import Decimal
 from NA_DataLayer.common import commonFunct
 class NA_BR_Goods_Receive(models.Manager):
 	c = None
-	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
+	searchDeepQuery = False
+	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar,isWithDetail=False):
 		#IDapp,goods,datereceived,supplier,receivedby,pr_by,totalPurchase,totalreceived
 		colKey = ''
+		searchDeepQuery = False
 		if columnKey == "goods":
 			colKey = "g.goodsname"
 		elif columnKey == 'datereceived':
@@ -29,21 +31,63 @@ class NA_BR_Goods_Receive(models.Manager):
 		elif columnKey == 'createdby':
 			colKey = "ngr.createdby"
 		elif columnKey == "totalpurchase":
-			colkey = "ngr.totalpurchase"
+			colKey = "ngr.totalpurchase"
 		elif columnKey == "totalreceived":
-			colkey = "ngr.totalreceived"
+			colKey = "ngr.totalreceived"
+		elif columnKey == "brandname":
+			colKey = "grd.BrandName"
+			searchDeepQuery = True
+		elif columnKey == "goodstype":
+			colKey = "grd.TypeApp"
+			searchDeepQuery = True
+		elif columnKey == "serialnumber":
+			colKey = "grd.SerialNumber"
+			searchDeepQuery = True
+		elif columnKey == "warranty":
+			colKey = "grd.Warranty"
+			searchDeepQuery = True
+		elif columnKey == "yearofwarranty":
+			colKey = "YEAR(grd.EndofWarranty)"
+			searchDeepQuery = True
+		#tambahan deep searching untuk column brandname,goodstype,serialnumber,warranty,year(endofwarranty)
+
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		Query = "DROP TEMPORARY TABLE IF EXISTS T_Receive_Manager"
-		cur.execute(Query)		
+		cur.execute(Query)
 		#CREATE TEMPORARY TABLE IF NOT EXISTS  temp_table ( INDEX(col_2) ) ENGINE=MyISAM AS (SELECT col_1, coll_2, coll_3  FROM mytable)
-		Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
-		ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
-		INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
-		ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
-		INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"
-		cur.execute(Query)	
+		if searchDeepQuery:
+			if isWithDetail:
+				Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.refno,g.goodsname as goods,\
+					ngr.datereceived,sp.suppliername,emp1.receivedby,Emp2.pr_by,grd.BrandName,grd.TypeApp,grd.Warranty,grd.EndOfWarranty,grd.SerialNumber,grd.CreatedDate,grd.CreatedBy FROM n_a_goods_receive AS ngr \
+					INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier INNER JOIN n_a_goods_receceive_detail grd ON grd.FK_App = ngr.IDApp \
+					LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+					ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
+					INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
+			else:
+				Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
+					ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
+					INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier INNER JOIN n_a_goods_receceive_detail grd ON grd.FK_App = ngr.IDApp \
+					LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+					ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
+					INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
+		else :
+			if isWithDetail:
+				Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.refno,g.goodsname as goods,\
+					ngr.datereceived,sp.suppliername,emp1.receivedby,Emp2.pr_by,grd.BrandName,grd.TypeApp,grd.Warranty,grd.EndOfWarranty,grd.SerialNumber,grd.CreatedDate,grd.CreatedBy FROM n_a_goods_receive AS ngr \
+					INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier INNER JOIN n_a_goods_receceive_detail grd ON grd.FK_App = ngr.IDApp \
+					LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+					ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
+					INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
+			else:
+				Query = """CREATE TEMPORARY TABLE T_Receive_Manager ENGINE=MyISAM AS (SELECT ngr.IDApp,ngr.refno,g.goodsname as goods,\
+				ngr.datereceived,sp.suppliername,ngr.FK_ReceivedBy,emp1.receivedby,ngr.FK_P_R_By ,Emp2.pr_by,ngr.totalpurchase,ngr.totalreceived,CONCAT(IFNULL(ngr.descriptions,' '),', ITEMS : ', IFNULL(ngr.DescBySystem,' ')) AS descriptions, ngr.CreatedDate,ngr.CreatedBy FROM n_a_goods_receive AS ngr \
+				INNER JOIN n_a_supplier AS sp ON sp.SupplierCode = ngr.FK_Supplier LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS receivedby FROM employee) AS Emp1 \
+				ON emp1.IDApp = ngr.FK_ReceivedBy LEFT OUTER JOIN (SELECT IDApp,Employee_Name AS pr_by FROM employee) AS Emp2 ON Emp2.IDApp = ngr.FK_P_R_By \
+				INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
+
+		cur.execute(Query)
 		strLimit = '300'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
@@ -52,7 +96,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		if orderFields != '':
 			#Query = """SELECT * FROM T_Receive_Manager """ + (("ORDER BY " + ",".join(orderFields)) if len(orderFields) > 1 else " ORDER BY " + orderFields[0]) + (" DESC" if sortIndice == "" else sortIndice) + " LIMIT " + str(pageSize*(0 if PageIndex <= 1 else PageIndex)) + "," + str(pageSize)
 			Query = """SELECT * FROM T_Receive_Manager ORDER BY """ + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
-		else:			
+		else:
 			Query = """SELECT * FROM T_Receive_Manager ORDER BY IDApp LIMIT """ + strLimit + "," + str(pageSize)
 		cur.execute(Query)
 		result = query.dictfetchall(cur)
@@ -66,8 +110,8 @@ class NA_BR_Goods_Receive(models.Manager):
 	#idapp,fk_goods, idapp_fk_goods,datereceived, fk_supplier,suppliername, totalpurchase, totalreceived, idapp_fk_received, fk_receivedby,employee_received,idapp_fk_p_r_by, fk_p_r_by,employee_pr, descriptions
 	def getRefNO(self,searchRefNO):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__istartswith=searchRefNO).values('refno').distinct()
-	
-	
+
+
 	def getData(self,IDApp):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
@@ -111,7 +155,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		return super(NA_BR_Goods_Receive,self).get_queryset().filter(refno__iexact=refno).exists()#Q(member=p1) | Q(member=p2)
 	def hasReference(self,Data,Ccur):
 		#cek transaksi dari mulai datereceived apakah ada pengeluaran barang untuk barang ini yang statusnya new
-		cur = None	
+		cur = None
 		if Ccur is None:
 			cur = connection.cursor()
 		else :
@@ -119,20 +163,21 @@ class NA_BR_Goods_Receive(models.Manager):
 		Query ="""SELECT DISTINCT(SerialNumber) AS SerialNumber FROM n_a_goods_receive_detail WHERE FK_App = %s AND SerialNumber IS NOT NULL"""
 		cur.execute(Query,[Data['idapp']])
 		hasRef = False
-		results = [item	for item in cur.fetchall()]		
+		results = [item	for item in cur.fetchall()]
 		if len(results) > 0:
-			strResult = ''
+			strResult = "'"
 			for i in range(len(results)):
 				strResult += results[i][0]
 				if i < len(results)-1:
-					strResult += ','				
+					strResult += "','"
+			strResult += "'"
 			#strResult = ','.join(results[i][0]*len(results))
-			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND  DateLending >= %s  AND SerialNumber  IN ('{0}')) \
-					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1  AND SerialNumber  IN ('{1}') )""".format(strResult,strResult)
+			Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND  DateLending >= %s  AND SerialNumber  IN ({0})) \
+					OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND IsNew = 1  AND SerialNumber  IN ({1}))""".format(strResult.replace('""',''),strResult.replace('""',''))
 			TParams =  [Data['idapp_fk_goods'], Data['datereceived'],Data['idapp_fk_goods'], Data['datereceived']]
 			cur.execute(Query,TParams)
 			row = cur.fetchone()
-			hasRef = commonFunct.str2bool(str(row[0]))		
+			hasRef = commonFunct.str2bool(str(row[0]))
 		return hasRef
 	def hasRefDetail(self,data):
 		self.__class__.c = connection.cursor()
@@ -142,7 +187,7 @@ class NA_BR_Goods_Receive(models.Manager):
 		TParams =  [data['idapp_fk_goods'], data['datereceived'],data['serialnumber'],data['idapp_fk_goods'], data['datereceived'],data['serialnumber']]
 		cur.execute(Query,TParams)
 		row = cur.fetchone()
-		hasRef = commonFunct.str2bool(str(row[0]))	
+		hasRef = commonFunct.str2bool(str(row[0]))
 		#if not hasRef:
 		#	Query = """SELECT EXISTS(SELECT IDApp FROM n_a_goods_lending WHERE FK_goods = %s AND IsNew = 1  AND DateLending >= %s  AND TypeApp = %s) \
 		#			OR  EXISTS(SELECT IDApp FROM n_a_goods_outwards WHERE FK_Goods = %s AND DateReleased >= %s AND Qty >= 1 AND TypeApp = %s)"""
@@ -155,9 +200,9 @@ class NA_BR_Goods_Receive(models.Manager):
 		self.__class__.c = connection.cursor()
 		cur = self.__class__.c
 		try:
-			hasRef = commonFunct.str2bool(str(Data['hasRefData']))		
+			hasRef = commonFunct.str2bool(str(Data['hasRefData']))
 			#totalNew, totalReceived, totalUsed, totalReturn, totalRenew, totalMaintenance, TotalSpare,totalBroken,totalDisposal,totalLost
-			#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+			#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost) = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
 			#if Status == StatusForm.Input:
 			#	totalNew = totalNew + int(Data['totalreceived'])
 			#	totalReceived = totalReceived + int(Data['totalreceived'])
@@ -173,31 +218,35 @@ class NA_BR_Goods_Receive(models.Manager):
 					#insert data transaction
 					Query = """INSERT INTO n_a_goods_receive (REFNO,FK_goods, DateReceived, FK_Supplier, TotalPurchase, TotalReceived, FK_ReceivedBy, FK_P_R_By, CreatedDate, CreatedBy,  Descriptions,descbysystem) \
 							VALUES (%(RefNO)s,%(FK_goods)s, %(DateReceived)s, %(FK_Supplier)s, %(TotalPurchase)s, %(TotalReceived)s, %(FK_ReceivedBy)s, %(FK_P_R_By)s,CURRENT_DATE, %(CreatedBy)s,  %(Descriptions)s,%(descbysystem)s)"""
-					Params.update(CreatedBy=Data['createdby']) 
+					Params.update(CreatedBy=Data['createdby'])
 					cur.execute(Query,Params)
 					#get primary key
 					cur.execute('SELECT last_insert_id()')
 					row = cur.fetchone()
 					FKApp = row[0]
 					#Insert Detail
-					
+
 					if detCount > 0:
 						#tambahkan detail pada FK_App
 						details = []
 						detail = []
 						for i in range(detCount):
-							if dataDetail['isdeleted'] == '0':
+							if dataDetail[i]['isdeleted'] == '0':
 								dataDetail[i]['fkapp'] = FKApp
-								details.append(tuple(dataDetail[i].values()))
+								detail = dataDetail[i]
+								del detail['isnew']
+								del detail['isdeleted']
+								del detail['isdirty']
+								details.append(tuple(detail.values()))
 							#details.append(Data['createdby'])
 						#details = [list(d.values()) for d in dataDetail]#hasilnya harus seperti listTuple [('RefNO', 'RefNO', 'varchar'), ('Goods Descriptions', 'goods', 'varchar'), ('Date Received', 'datereceived', 'datetime'), ('Supplier Name', 'supplier', 'varchar'), ('Received By', 'receivedby', 'varchar'), ('PR By', 'pr_by', 'varchar'), ('Total Purchased', 'totalpurchase', 'int'), ('Total Received', 'totalreceived', 'int')]
-						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy', 
+						#'fkapp', 'BrandName', 'Price/Unit', 'Type', 'Serial Number', 'warranty', 'End of Warranty', 'CreatedBy',
 						Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy)\
 									VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s)"""
 						cur.executemany(Query,details)
 				elif Status == StatusForm.Edit:
 					hasChangedHeader = commonFunct.str2bool(str(Data['hasChangedHeader']))
-					hasChangedDetail = commonFunct.str2bool(str(Data['hasChangedDetail']))				
+					hasChangedDetail = commonFunct.str2bool(str(Data['hasChangedDetail']))
 					#totalpurchase dan totalreceived bisa di edit bila hasref = 0
 					if hasChangedHeader:
 						Query = """UPDATE n_a_goods_receive SET RefNO = %(RefNO)s,DateReceived =  %(DateReceived)s,FK_Supplier = %(FK_Supplier)s,TotalPurchase = %(TotalPurchase)s, FK_ReceivedBy = %(FK_ReceivedBy)s,\
@@ -206,7 +255,7 @@ class NA_BR_Goods_Receive(models.Manager):
 							Query = Query + """,TotalReceived = %(TotalReceived)s,DescBySystem = %(descbysystem)s """
 							Params.update(Qty=Data['totalreceived'])
 						Query = Query + """ WHERE IDApp = %(IDApp)s"""
-						Params.update(ModifiedBy=Data['createdby']) 
+						Params.update(ModifiedBy=Data['createdby'])
 						Params.update(IDApp=Data['idapp'])
 						cur.execute(Query,Params)
 					if hasChangedDetail:
@@ -234,27 +283,27 @@ class NA_BR_Goods_Receive(models.Manager):
 										hasRefDetail = self.hasRefDetail(ParDetails)
 									if not hasRefDetail:
 										Query = """UPDATE n_a_goods_receive_detail SET BrandName=%(BrandName)s,PricePerUnit=%(PricePerUnit)s,TypeApp=%(TypeApp)s,SerialNumber=%(SerialNumber)s,\
-													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """			
+													warranty=%(warranty)s,EndOfWarranty=%(EndOfWarranty)s,ModifiedBy=%(ModifiedBy)s,ModifiedDate=CURRENT_DATE WHERE IDApp = %(IDApp)s """
 										cur.execute(Query,{'BrandName':dataDetail[i]['brandname'],'PricePerUnit':dataDetail[i]['priceperunit'],'TypeApp':dataDetail[i]['typeapp'],\
 														'SerialNumber':dataDetail[i]['serialnumber'],'warranty':dataDetail[i]['warranty'],'EndOfWarranty':dataDetail[i]['endofwarranty'],'ModifiedBy':dataDetail[i]['modifiedby'],'IDApp':dataDetail[i]['idapp']})
 							elif dataDetail[i]['isdeleted'] == '0' and dataDetail[i]['isnew'] == '1':
 								Query = """INSERT INTO n_a_goods_receive_detail (FK_App, BrandName, PricePerUnit, TypeApp, SerialNumber, warranty, EndOfWarranty, CreatedDate, CreatedBy) \
 										VALUES(%s,%s, %s, %s, %s, %s, %s, CURRENT_DATE, %s) """
-								cur.execute(Query,[Data['idapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],dataDetail[i]['modifiedby']])	
+								cur.execute(Query,[Data['idapp'],dataDetail[i]['brandname'],dataDetail[i]['priceperunit'],dataDetail[i]['typeapp'],dataDetail[i]['serialnumber'],dataDetail[i]['warranty'],dataDetail[i]['endofwarranty'],dataDetail[i]['modifiedby']])
 							elif dataDetail[i]['isdeleted'] == '1' and dataDetail[i]['isnew'] == '0':
 								if not commonFunct.str2bool(str(dataDetail[i]['HasRef'])):
 									Query = """DELETE FROM n_a_goods_receive_detail WHERE IDApp = %s"""
 									cur.execute(Query,[dataDetail[i]['idapp']]);
 									deletedCount += 1
 						if deletedCount > 0:
-							detCount = detCount - deletedCount;	
+							detCount = detCount - deletedCount;
 							desc = '('
 							if detCount > 0 and detCount <= 10:
 								#build descriptions
 								for i in range(detCount):
 									desc +=dataDetail[i]['brandname'] + ', Type : ' +dataDetail[i]['typeapp'] + ', SN : ' + dataDetail[i]['serialnumber']
 									if i <detCount -1:
-										desc += ', '							
+										desc += ', '
 								desc += ')'
 							elif detCount > 10:
 								desc = 'Detail data can be viewed in child grid';
@@ -268,7 +317,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				row = cur.fetchone()
 				HasRows = commonFunct.str2bool(str(row[0]))
 				#(totalNew,totalReceived,totalUsed,totalReturn,totalRenew,totalMaintenance,TotalSpare,totalBroken,totalDisposal,totalLost)
-				TStock = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
+				TStock = commonFunct.getTotalGoods(int(Data['idapp_fk_goods']),cur,Data['createdby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
 				TotalNew = TStock[0];totalReceived = TStock[1]
 				TotalSpare = TStock[6]
 				if HasRows:
@@ -284,7 +333,7 @@ class NA_BR_Goods_Receive(models.Manager):
 			return 'success'
 		except Exception as e:
 			cur.close()
-			return repr(e)	
+			return repr(e)
 		return 'success'
 	def deleteDetail(self,Data):
 		self.__class__.c = connection.cursor()
@@ -304,8 +353,8 @@ class NA_BR_Goods_Receive(models.Manager):
 				with transaction.atomic():
 					idapp_fk_goods = int(row[0])
 					FKApp = int(row[4])
-					TStock = commonFunct.getTotalGoods(idapp_fk_goods,cur,Data['deletedby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)		
-					totalNew = TStock[0];totalReceived = TStock[1]				
+					TStock = commonFunct.getTotalGoods(idapp_fk_goods,cur,Data['deletedby'])#return(totalNew,totalReceived,,totalUsed,totalReceived,totalReturn,totalRenew,totalMaintenance,TotalSpare)
+					totalNew = TStock[0];totalReceived = TStock[1]
 					Query = """DELETE FROM n_a_goods_receive_detail WHERE IDApp = %s"""
 					cur.execute(Query,[Data['idapp']]);
 					##update stock
@@ -317,16 +366,16 @@ class NA_BR_Goods_Receive(models.Manager):
 					#get datafor grid detail
 
 					NADetailRows = list(NA_BR_Goods_Receive.getDetailData(FKApp,idapp_fk_goods))
-					desc = '('				
+					desc = '('
 					#dataDetail = object_list
-					detCount = 0			
+					detCount = 0
 					if len(NADetailRows) > 0 and len(NADetailRows) <= 10:
 						detCount = len(NADetailRows)
 						#build descriptions
 						for i in range(detCount):
 							desc += NADetailRows[i]['BrandName'] + ', Type : ' + NADetailRows[i]['TypeApp'] + ', SN : ' + NADetailRows[i]['SerialNumber']
 							if i <detCount -1:
-								desc += ', '							
+								desc += ', '
 					desc += ')'
 					Query = """UPDATE n_a_goods_receive SET TotalReceived = %s,DescBySystem = %s, ModifiedBy = %s, ModifiedDate = NOW() WHERE IDApp = %s"""
 					cur.execute(Query,[detCount,desc,Data['deletedby'],FKApp])
@@ -337,13 +386,13 @@ class NA_BR_Goods_Receive(models.Manager):
 					Params = [totalNew,totalReceived,Data['deletedby'],idapp_fk_goods]
 					cur.execute(Query,Params)
 
-					cur.close()	
+					cur.close()
 					return 'success'
 			except Exception as e :
 				cur.close()
 				return repr(e)
-			cur.close()						
-			return 'success'	
+			cur.close()
+			return 'success'
 	def delete(self,Data):
 		try:
 			self.__class__.c = connection.cursor()
@@ -367,11 +416,11 @@ class NA_BR_Goods_Receive(models.Manager):
 					Query= """UPDATE n_a_stock SET TIsNew =  %s,TGoods_Received = %s,ModifiedDate = NOW(),ModifiedBy = %s WHERE FK_Goods = %s"""
 					Params = [totalNew,totalReceived,Data['deletedby'],[Data['idapp']]]
 					cur.execute(Query,Params)
-					cur.close()	
+					cur.close()
 					return 'success'
 			else:
 				cur.close()
-				return 'Can not delete data\Data has child-referenced'		
+				return 'Can not delete data\Data has child-referenced'
 		except Exception as e:
 			cur.close()
 			return repr(e)
@@ -407,7 +456,7 @@ class NA_BR_Goods_Receive(models.Manager):
 class CustomSupplierManager(models.Manager):
 	def getSupplier(self,suppliercode):
 		return super(CustomSupplierManager,self).get_queryset().filter(suppliercode__iexact=suppliercode).values('suppliername')
-		
+
 	def getSupplierByForm(self,searchText):
 		return super(CustomSupplierManager,self).get_queryset().filter(Q(suppliername__icontains=searchText) & Q(inactive__exact=0)).values('suppliercode','suppliername')
 class custEmpManager(models.Manager):
@@ -415,4 +464,3 @@ class custEmpManager(models.Manager):
 		return super(custEmpManager,self).get_queryset().filter(nik__iexact=nik).values('idapp','employee_name')
 	def getEmloyeebyForm(self,employeeName):
 		return super(custEmpManager, self).get_queryset().filter(Q(employee_name__icontains=employeeName) & Q(inactive__exact=0)).values('idapp', 'nik', 'employee_name')
-		

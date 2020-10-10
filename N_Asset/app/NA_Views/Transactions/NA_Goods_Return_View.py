@@ -77,7 +77,7 @@ class NA_Goods_Return_Form(forms.Form):
     goods = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'Goods'}))
     serialNumber = forms.CharField(required=True,widget=forms.TextInput(
-        attrs={'class':'NA-Form-Control inline-field','placeholder':'serial number','style':'width:180px;'}))
+        attrs={'class':'NA-Form-Control inline-field','placeholder':'serial number','autocomplete':'off','style':'width:180px;'}))
     fromemployee = forms.CharField(required=True,widget=forms.TextInput(
         attrs={'class':'NA-Form-Control','disabled':'disabled','placeholder':'from employee'}))
     nik_fromemployee = forms.CharField(required=True,widget=forms.TextInput(
@@ -174,7 +174,7 @@ def SearchGoodsbyForm(request):
 		dataRows = NAData[0]
 		#rows = []
 		#totalRecord = len(NAData)
-		#paginator = Paginator(NAData, int(Ilimit)) 
+		#paginator = Paginator(NAData, int(Ilimit))
 		#try:
 		#	page = request.GET.get('page', '1')
 		#except ValueError:
@@ -213,7 +213,7 @@ def getLastTrans(request):
 	try:
 		result = NAGoodsReturn.objects.getLastTrans(serialnumber)
 		if len(result) > 0:
-			return commonFunct.response_default(result)		
+			return commonFunct.response_default(result)
 		else:
 			return commonFunct.response_default((Data.Empty,))
 	except Exception as e:

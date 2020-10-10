@@ -20,5 +20,5 @@ urlpatterns = [
 	url(r'^customFilter/$',NA_Goods_Receive_View.ShowCustomFilter,name='ShowCustomFilter_Receiving'),
 	url(r'^HasExistSN/$', NA_Goods_Receive_View.ExistSerialNO),
 	url(r'^getReceiveDetail/$', NA_Goods_Receive_View.getReceiveDetail),
-	url(r'^ExportToExcel/$',NA_Goods_Receive_View.export_to_excels,name='export_goods_xls')
+	url(r'^ExportToExcel/(?P<Options>[\w.]+)/$',NA_Goods_Receive_View.export_to_excels,name='export_goods_xls')
 ]
