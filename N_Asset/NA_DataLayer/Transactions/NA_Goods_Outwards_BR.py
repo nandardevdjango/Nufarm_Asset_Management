@@ -12,7 +12,7 @@ from django.db.models.functions import Concat
 #from django.db.models import OuterRef, Subquery
 from NA_Models.models import *
 #from NA_DataLayer.MasterData.NA_Employee import NA_BR_Employee
-from distutils.util import strtobool
+# from distutils.util import strtobool
 class NA_BR_Goods_Outwards(models.Manager):
 	def PopulateQuery(self,orderFields,sortIndice,pageSize,PageIndex,userName,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
@@ -66,11 +66,11 @@ class NA_BR_Goods_Outwards(models.Manager):
 			        LEFT OUTER JOIN (SELECT idapp,employee_name AS responsible_by FROM employee) emp1 ON emp1.idapp = nga.FK_ResponsiblePerson
 			        LEFT OUTER JOIN (SELECT idapp,employee_name AS senderby FROM employee) emp2 ON emp2.idapp = nga.FK_Sender WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
-			strLimit = str(int(PageIndex)*int(pageSize))
+			strLimit = str((int(PageIndex)-1) * int(pageSize))
 		if orderFields != '':
 			#Query = """SELECT * FROM T_Receive_Manager """ + (("ORDER BY " + ",".join(orderFields)) if len(orderFields) > 1 else " ORDER BY " + orderFields[0]) + (" DESC" if sortIndice == "" else sortIndice) + " LIMIT " + str(pageSize*(0 if PageIndex <= 1 else PageIndex)) + "," + str(pageSize)
 			Query = """SELECT * FROM T_Outwards_Manager_""" + userName + """ ORDER BY """ + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
@@ -124,9 +124,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 					CASE \
 						WHEN (gh.fk_maintenance IS NOT NULL) THEN (SELECT CONCAT('Maintenance by ', IFNULL(maintenanceby,''), ' ',	IFNULL(PersonalName,''), \
 							(CASE \
-								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is able to use)')) \
-								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is unable to use)')) \
-								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %B %Y'),' (goods is still in maintenance)')) \
+								WHEN (isfinished = 1 AND issucced = 1) THEN (CONCAT(' Date Returned  ',DATE_FORMAT(enddate,'%d %M %Y'),' (goods is able to use)')) \
+								WHEN (isfinished = 1 AND issucced = 0) THEN (CONCAT(' Date Returned ',DATE_FORMAT(enddate,'%d %M %Y'),' (goods is unable to use)')) \
+								WHEN (isfinished = 0) THEN (CONCAT(' Date maintenance ',DATE_FORMAT(enddate,'%d %M %Y'),' (goods is still in maintenance)')) \
 								END)) FROM n_a_maintenance WHERE IDApp = gh.fk_maintenance) \
 						WHEN(gh.fk_lending IS NOT NULL) THEN((CASE \
 																WHEN ((SELECT `status` FROM n_a_goods_lending WHERE idapp = gh.fk_lending) = 'L') THEN 'good is still lent' \
@@ -148,11 +148,11 @@ class NA_BR_Goods_Outwards(models.Manager):
                              )
 				"""
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
-			strLimit = str(int(PageIndex)*int(pageSize))
+			strLimit = str((int(PageIndex)-1) * int(pageSize))
 		#gabungkan jadi satu
 		Query = "CREATE TEMPORARY TABLE Temp_F_Outwards_" + userName + """ ENGINE=MyISAM AS (SELECT * FROM \
 				(SELECT * FROM Temp_T_Receive_Outwards_""" + userName + """ \
@@ -271,7 +271,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 					nik_usedemployee = str(row[1])
 					usedemployee = str(row[2])
 			elif int(fkreturn) > 0:
-				Query = """SELECT e.idapp,e.nik,e.employee_name,ngt.datereturn,ngt.descriptions,conditions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
+				Query = """SELECT e.idapp,e.nik,e.employee_name,ngt.datereturn,ngt.descriptions,ngt.conditions FROM n_a_goods_return ngt INNER JOIN employee e ON e.idapp = ngt.FK_FromEmployee
 							WHERE ngt.IDApp = %s"""
 				cur.execute(Query,[fkreturn])
 				if cur.rowcount > 0:
@@ -293,9 +293,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 					row = cur.fetchone()
 					isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
 					if row[3] is not None:
-						isFinished = strtobool(row[3])
+						isFinished = commonFunct.str2bool(row[3])
 					if row[4] is not None:
-						isSucced = strtobool(row[4])
+						isSucced = commonFunct.str2bool(row[4])
 					if row[1] is not None:
 						starDate =  parse(str(row[1])).strftime('%d %B %Y')
 					if row[2] is not None:
@@ -358,9 +358,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 								row = cur.fetchone()
 								isFinished = False;isSucced = False;starDate = datetime.now();endDate = datetime.now()
 								if row[3] is not None:
-									isFinished = strtobool(row[3])
+									isFinished = commonFunct.str2bool(row[3])
 									if row[4] is not None:
-										isSucced = strtobool(row[4])
+										isSucced = commonFunct.str2bool(row[4])
 								if row[1] is not None:
 									starDate =  parse(str(row[1])).strftime('%d %B %Y')
 								if row[2] is not None:
@@ -435,9 +435,9 @@ class NA_BR_Goods_Outwards(models.Manager):
 							'TypeApp':Data['typeapp'],'FK_Lending':Data['fk_lending'],'Equipment_Desc':Data['equipment_desc'], 'Descriptions':Data['descriptions'], 'FK_Return':Data['fk_return'],
 						    'FK_Receive':Data['fk_receive'], 'CreatedBy':Data['createdby'], 'lastinfo':Data['lastinfo']}
 					cur.execute(Query,param)
-					cur.execute('SELECT last_insert_id()')
-					row = cur.fetchone()
-					FKApp = row[0]
+					# cur.execute('SELECT last_insert_id()')
+					# row = cur.fetchone()
+					FKApp = cur.lastrowid
 					#insert n_goods_history
 					Query = """INSERT INTO n_a_goods_history(FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \
 							 VALUES (%(FK_Goods)s,%(TypeApp)s, %(SerialNumber)s, NULL,%(FK_Outwards)s, NULL, NULL, NULL, NULL, NOW(), %(CreatedBy)s )"""

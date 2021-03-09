@@ -84,7 +84,7 @@ class NA_BR_Employee(models.Manager):
                 descriptions=%(Descriptions)s,
                 inactive=%(Inactive)s,
                 modifieddate=%(ModifiedDate)s,
-                modifiedby=%(ModifiedBy)s 
+                modifiedby=%(ModifiedBy)s
                 WHERE idapp = %(IDApp)s"""
         with transaction.atomic():
             cur.execute(Query, Params)
@@ -183,7 +183,7 @@ class NA_BR_Employee(models.Manager):
         telphp = kwargs.get('telphp')
         if telphp is not None:
             is_telp = super(NA_BR_Employee, self).get_queryset().filter(
-                telphp=telphp).exists()
+                Q(telphp=telphp)& Q(inactive=0)).exists()
             if is_telp:
                 return (True, Message.get_specific_exists('Employee', 'Telp/HP', telphp))
         return (False,)
@@ -192,7 +192,7 @@ class NA_BR_Employee(models.Manager):
         cur = connection.cursor()
         Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending
         WHERE fk_employee=%(IDApp)s
-        OR fk_responsibleperson=%(IDApp)s OR fk_sender=%(IDApp)s 
+        OR fk_responsibleperson=%(IDApp)s OR fk_sender=%(IDApp)s
         UNION
         SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR
         fk_responsibleperson=%(IDApp)s

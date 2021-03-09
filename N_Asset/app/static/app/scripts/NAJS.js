@@ -337,24 +337,23 @@ NA.common = {
       // numbers
       key >= 48 && key <= 57 ||
       // Numeric keypad
-      key >= 96 && key <= 105 ||
-      // Backspace and Tab and Enter
-      key == 8 || key == 9 || key == 13 ||
-      // Home and End
-      key == 35 || key == 36 ||
-      // left and right arrows
-      key == 37 || key == 39 ||
-      // Del and Ins
-      key == 46 || key == 45) {
+      key >= 96 && key <= 105){
       // input is VALID
       return true;
     } else {
       // input is INVALID
+      if(
+          // Backspace and Tab and Enter by pass
+            key == 8 || key == 9 || key == 13 ||
+            // Home and End
+            key == 35 || key == 36 ||
+            // left and right arrows
+            key == 37 || key == 39 ||
+            // Del and Ins
+            key == 46 || key == 45){return true;}
       key = String.fromCharCode(key);
       var regex = /[0-9]/;
-      if (!regex.test(key)) {
-        return false;
-      }
+      return regex.test(key);
     }
   },
   //============CROSS BROWSER Keyboard event====================

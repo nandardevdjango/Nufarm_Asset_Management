@@ -65,10 +65,11 @@ def NA_Goods_Outwards_Search(request):
 		Isord = request.GET.get('sord', '')
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
+		NAData =[]
 		if(Isord is not None and str(Isord) != '') or (Isidx is not None and str(Isidx) != ''):
-			NAData = NAGoodsOutwards.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
+			NAData = NAGoodsOutwards.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		else:
-			NAData = NAGoodsOutwards.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username if (request.user.username is not None and request.user.username != '') else 'Admin',IcolumnName,IvalueKey,criteria,dataType)#return tuples
+			NAData = NAGoodsOutwards.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
 		totalRecord = NAData[1]
 		dataRows = NAData[0]
 		rows = []

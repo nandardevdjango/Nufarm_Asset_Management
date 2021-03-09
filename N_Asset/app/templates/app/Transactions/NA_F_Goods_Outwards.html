@@ -202,6 +202,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 {% endblock %}
 
 {% block DialogEntry %}
+<script>
+    function get_csrf(){//CSRF token buat delete
+        csrf_token = '{{csrf_token}}'
+        return csrf_token
+    }
+</script>
 <script type="text/javascript">
 	(function () {
 		//========================Variable Object untuk ===============================
@@ -335,6 +341,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						sortorder: "desc",
 						multiSort: false,
 						shrinkToFit: false,
+						loadui: 'block',
 						iconSet: "fontAwesome",
 						forceFit: true,
 						toolbar: true,
@@ -376,7 +383,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 
 		LoadData();
 
-		NA.common.doc.title = 'Entry Data Goods Outwards';
+		//NA.common.doc.title = 'Entry Data Goods Outwards';
 		//disablekan save dan help karena saat ini tidak di pakai
 		btnSave.setAttribute('disable', true);
 		btnHelp.setAttribute('disable', true);
@@ -1107,9 +1114,12 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 			originalData = JSON.stringify(getValuesForm());
 			var initializeForm = NA.common.getElementID('id_initializeForm');
 			initializeForm.value = originalData;
+			var btnOK = NA.common.doc.querySelector('div.dialogButtonOKCancel>a:nth-child(1)');
+			btnOK.removeAttribute('disabled');
 			//    //focus langsung ke
 			var elserialnumber = NA.common.getElementID('id_serialnumber');
 			elserialnumber.focus();
+
 			NA.common.dialog.hasSavedAction = false;
 			NA.common.dialog.mustCloseDialog = false;
 			NA.common.dialog.IsPrintingPDF = false;
@@ -1367,7 +1377,19 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 				//	}, function () { window.document.body.style.cursor = 'default'; },//function ajax complete
 				//	null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 				//);
+				// var linkExcel = NA.common.getElementID('Export_Goods_Outwards_xls');
+				// linkExcel.click();
 				var linkExcel = NA.common.getElementID('Export_Goods_Outwards_xls');
+				linkExcel.setAttribute('target', '_self')
+				lnkUrl = linkExcel.getAttribute('href');
+				var myUrl = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'url');
+				//myUrl += "?myextraparam=something";
+				var postData = jQuery("#jqGrid_NA_F_Goods_Outwards").jqGrid('getGridParam', 'postData');
+				$.each(postData, function (key, value) {
+					myUrl += "&" + key + "=" + encodeURIComponent(value);
+				});
+				lnkUrl = myUrl.replace('NA_Goods_Outwards_Search', 'ExportToExcel')
+				linkExcel.setAttribute('href', lnkUrl);
 				linkExcel.click();
 			}//
 		};
@@ -1382,7 +1404,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 		window.showDialogCustomSearch = function (event) {
 			$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
 				if (statusTxt == "success") {
-					$(this).html(responseTxt);
+					//$(this).html(responseTxt);
 					var dialog = NA.common.doc.querySelector('div.containerDialog');
 					NA.common.getElementID('searchmodfbox').style.display = 'block';
 					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
@@ -1525,7 +1547,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						break;
 					}
 				};
-			};
+			}
 
 			SearchData.setValue(valueKey);
 			SearchData.setColumnName(columnKey);
@@ -1564,7 +1586,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						//delete data di server
 						//var url = NA.common.addURLParam('Delete/', 'idapp', idapp);
 						var NAAjax = NA.common.AJAX;
-						NAAjax.POST('Delete/', JSON.stringify({ 'idapp': idapp }), 'application/x-www-form-urlencoded',
+						NAAjax.POST('Delete/', JSON.stringify({ 'idapp': idapp, 'csrfmiddlewaretoken':get_csrf()}), 'application/x-www-form-urlencoded',
 							'application/json',
 							null, null,
 							function () {
@@ -1684,6 +1706,8 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 						showConfirmation(NA.common.message.dataHasChanged, NA.common.message.titleInfo, function () {
 							NA.common.dialog.IsPrintingPDF = true;
 							ExecuteHandler('OK');
+						var btnOK = NA.common.doc.querySelector('div.dialogButtonOKCancel>a:nth-child(1)');
+						btnOK.disabled = true;
 							return;
 						});
 					} else {//jika tidak ada perubahan
@@ -1770,7 +1794,7 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 					$('div.maindialogContent').load("ShowEntry_Outwards?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
 						function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data
 							if (statusTxt == "success") {
-								$(this).html(responseTxt);
+								//$(this).html(responseTxt);
 								switch (win.status.trim()) {
 									case 'Add': {
 										Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {
@@ -2326,11 +2350,10 @@ NA.common.loadScript('//cdn.rawgit.com/bpampuch/pdfmake/0.1.26/build/vfs_fonts.j
 												evt.stopImmediatePropagation();
 											});
 										}
-
 									});
 									hasLoadDialog = true;
 									win.onbeforeunload = function (e) {
-										var valuesForm = getValuesForm(); var retval = false;
+										var valuesForm = getValuesForm();
 										if (NA.common.detectInputChanges(valuesForm, JSON.parse(originalData))) {
 											return NA.common.message.dataHasChanged;
 										}

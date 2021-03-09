@@ -11,11 +11,11 @@ from django.db.models.functions import Concat
 class NA_BR_Goods(models.Manager):
 	def PopulateQuery(self,columnKey,ValueKey,criteria=CriteriaSearch.Like,typeofData=DataType.VarChar):
 		NAData = None
-		filterfield = columnKey + '=' 
+		filterfield = columnKey + '='
 		if criteria==CriteriaSearch.NotEqual or criteria==CriteriaSearch.NotIn:
 			if criteria==CriteriaSearch.NotIn:
 				filterfield = columnKey + '__in'
-				
+
 			else:
 				filterfield = columnKey + '__iexact'
 			NAData = super(NA_BR_Goods,self).get_queryset().exclude(**{filterfield:[ValueKey]})
@@ -25,10 +25,10 @@ class NA_BR_Goods(models.Manager):
 											When(depreciationmethod__iexact='SYD',then=Value('Sum of The Year Digit')),
 											When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 											output_field=CharField())
-										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')	
+										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')
 
 		if criteria==CriteriaSearch.Equal:
-			return super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: ValueKey}).values_list('itemcode','goodsname','brandname','typeap','priceperunit','depreciationmethod','unit','economiclife','placement','descriptions','inactive')		
+			return super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: ValueKey}).values_list('itemcode','goodsname','brandname','typeap','priceperunit','depreciationmethod','unit','economiclife','placement','descriptions','inactive')
 		elif criteria==CriteriaSearch.Greater:
 			filterfield = columnKey + '__gt'
 		elif criteria==CriteriaSearch.GreaterOrEqual:
@@ -48,16 +48,16 @@ class NA_BR_Goods(models.Manager):
 		#									When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 		#									output_field=CharField())
 		#								  ).values_list('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','depreciationmethod','unit','economiclife','placement','descriptions','inactive')
-		
+
 #		from django.db.models import F
 
 #cityList = City.objects.using(settings.DATABASE_CONF).filter(status=1).values(
 #    'city_name_en', 'city_id')
 ## use F expression to annotate with an alias
 #cityList = cityList.annotate(cityname=F('city_name_en'))
-			NAData = super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})	
+			NAData = super(NA_BR_Goods,self).get_queryset().filter(**{filterfield: [ValueKey] if filterfield == (columnKey + '__in') else ValueKey})
 		if criteria==CriteriaSearch.Beetween or criteria==CriteriaSearch.BeginWith or criteria==CriteriaSearch.EndWith:
-			rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)			
+			rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 			NAData = super(NA_BR_Goods,self).get_queryset().filter(**rs.DefaultModel())
 		NAData = NAData.annotate(
 				typeofdepreciation=Case(When(depreciationmethod__iexact='SL', then=Value('Stright Line')),
@@ -65,7 +65,7 @@ class NA_BR_Goods(models.Manager):
 											When(depreciationmethod__iexact='SYD',then=Value('Sum of The Year Digit')),
 											When(depreciationmethod__iexact='SH',then=Value('Service Hours')),
 											output_field=CharField())
-										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')						
+										).values('idapp','itemcode','goodsname','brandname','typeapp','priceperunit','typeofdepreciation','unit','economiclife','placement','descriptions','inactive','createdby','createddate')
 		return NAData
 	def SearchBrand(self,term):
 		return super(NA_BR_Goods,self).get_queryset().filter(brandname__istartswith=term).values('brandname').distinct()
@@ -110,15 +110,15 @@ class NA_BR_Goods(models.Manager):
 		try:
 			if(Status==StatusForm.Input):
 				if(self.HasExist(itemCode)):
-					raise Exception('data has exists')	
+					raise Exception('data has exists')
 				obj.save(force_insert=True, using=self.db)
 				return "success"
-			elif(Status==StatusForm.Edit):				
+			elif(Status==StatusForm.Edit):
 				if(not self.HasExist(itemCode)):
-					raise Exception('data has lost')		
+					raise Exception('data has lost')
 				obj.save(force_update=True,using=self.db)
-				return "success"	
-		except Exception as e:					
+				return "success"
+		except Exception as e:
 			return repr(e)
 		return obj
 	def Delete(self,itemCode):
@@ -141,7 +141,7 @@ class CustomManager(models.Manager):
 			.annotate(goods =F('goodsname'))\
             .values('idapp','itemcode','goods','typeapp','descriptions')\
             .filter(*Query)
-		if data.exists():
-			return data
-		else:
-			return Data.Empty
+		#if data.exists():
+		return data
+		#else:
+			#return Data.Empty

@@ -1150,7 +1150,7 @@
 		window.showDialogCustomSearch = function (event) {
 			$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
 				if (statusTxt == "success") {
-					$(this).html(responseTxt);
+					//$(this).html(responseTxt);
 					var dialog = NA.common.doc.querySelector('div.containerDialog');
 					NA.common.getElementID('searchmodfbox').style.display = 'block';
 					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),

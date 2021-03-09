@@ -88,11 +88,11 @@ class NA_BR_Goods_Receive(models.Manager):
 				INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
 
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
-			strLimit = str(int(PageIndex)*int(pageSize))
+			strLimit = str((int(PageIndex)-1) * int(pageSize))
 		if orderFields != '':
 			#Query = """SELECT * FROM T_Receive_Manager """ + (("ORDER BY " + ",".join(orderFields)) if len(orderFields) > 1 else " ORDER BY " + orderFields[0]) + (" DESC" if sortIndice == "" else sortIndice) + " LIMIT " + str(pageSize*(0 if PageIndex <= 1 else PageIndex)) + "," + str(pageSize)
 			Query = """SELECT * FROM T_Receive_Manager ORDER BY """ + orderFields + (" DESC" if sortIndice == "" else ' ' + sortIndice) + " LIMIT " + strLimit + "," + str(pageSize)
@@ -221,9 +221,9 @@ class NA_BR_Goods_Receive(models.Manager):
 					Params.update(CreatedBy=Data['createdby'])
 					cur.execute(Query,Params)
 					#get primary key
-					cur.execute('SELECT last_insert_id()')
-					row = cur.fetchone()
-					FKApp = row[0]
+					# cur.execute('SELECT last_insert_id()')
+					# row = cur.fetchone()
+					FKApp = cur.lastrowid #row[0]
 					#Insert Detail
 
 					if detCount > 0:

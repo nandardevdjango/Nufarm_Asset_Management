@@ -61,7 +61,7 @@ class NA_BR_Goods_Lending(models.Manager):
 					LEFT OUTER JOIN(SELECT IDApp,Employee_Name AS responsibleby FROM employee)R
 					ON R.IDApp = ngl.FK_ResponsiblePerson WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
@@ -325,11 +325,11 @@ class NA_BR_Goods_Lending(models.Manager):
 							WHERE ngh.createddate = (SELECT Max(CreatedDate) FROM n_a_goods_history WHERE fk_goods = g.idapp AND serialnumber = ngd.serialnumber))gh)
 				"""
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
-			strLimit = str(int(PageIndex)*int(pageSize))
+			strLimit = str((int(PageIndex)-1) * int(pageSize))
 		#gabungkan jadi satu
 		Query = "CREATE TEMPORARY TABLE Temp_F_" + userName + """ ENGINE=MyISAM AS (SELECT * FROM \
 				(SELECT * FROM Temp_T_Receive_""" + userName + """ \
@@ -369,9 +369,9 @@ class NA_BR_Goods_Lending(models.Manager):
 							'lastinfo':Data['lastinfo'],'FK_Receive':Data['fk_receive'],
 							'FK_RETURN':Data['fk_return'],'FK_CurrentApp':Data['fk_currentapp'],}
 					cur.execute(Query,param)
-					cur.execute('SELECT last_insert_id()')
-					row = cur.fetchone()
-					FKApp = row[0]
+					# cur.execute('SELECT last_insert_id()')
+					# row = cur.fetchone()
+					FKApp = cur.lastrowid
 
 					#insert n_goods_history
 					Query = """INSERT INTO n_a_goods_history(FK_Goods, TypeApp, SerialNumber, FK_Lending, FK_Outwards, FK_RETURN, FK_Maintenance, FK_Disposal, FK_LOST, CreatedDate, CreatedBy) \

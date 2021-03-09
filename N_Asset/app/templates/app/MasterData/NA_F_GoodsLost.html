@@ -51,7 +51,7 @@
                 }
             });
         })(DivSearch);
-    })();   
+    })();
 </script>
 <script src="{% static 'app/scripts/jquery-1.11.0.min.js' %}" id="jq_uery"></script>
 <script type="text/javascript" src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
@@ -135,7 +135,7 @@
                     },
                     pager: $('#NA_GoodsLost_pager'),
                     rowList: [20, 50, 100, 200, 300, 500],
-                    rowNum: 5,
+                    rowNum: 100,
                     //loadui: 'disable', // Disable Loading Text
                     cellEdit: false,
                     sortname: 'idapp',
@@ -156,6 +156,13 @@
                     }
                 });
             }
+            gLost_grid.navGrid("#NA_GoodsLost_pager", {
+              search: false, // show search button on the toolbar
+              add: false,
+              edit: false,
+              del: false,
+              refresh: true
+            });
         };
         var SearchData = NA.common.SearchData;
         SearchData.setDefaultSearchData('goodsname', 'Varchar', 'like');
@@ -183,7 +190,7 @@
             }
             window.document.body.style.cursor = '';
         }
-        //=======================handler txt & button Search master keyboard event and click================================        
+        //=======================handler txt & button Search master keyboard event and click================================
         NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
         NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
@@ -204,7 +211,7 @@
             view: true,
             cloneToTop: false
         });
-        NA.common.doc.title = 'Nufarm - Entry Goods Lost';
+        //NA.common.doc.title = 'Entry Goods Lost';
         var elGrid_lost = qsAll("div#gbox_NA_GoodsLost_grid, div#gview_NA_GoodsLost_grid, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv");
         Array.prototype.forEach.call(elGrid_lost, function (elm) {
             elm.style.width = 'inherit'
@@ -251,7 +258,7 @@
                 valueKey = txtSearchMaster.value.trim();
                 var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
                 var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-                Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+                Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
                     if (item.firstChild.textContent === textToSearch) {
                         elSearch = item.firstChild;
                     }
@@ -407,7 +414,7 @@
                 return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.confirmInfo,
                     function () {
                         try {
-                            //delete data di server                  
+                            //delete data di server
                             //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
                             $.ajax({
                                 url: 'delete/',
@@ -470,7 +477,7 @@
                     idapp = 'none';
                 }
                 var snData = NA.common.AssignObject({
-                    'csrfmiddlewaretoken': get_csrf(),
+                    'csrfmiddlewaretoken': win.document.getElementsByName("csrfmiddlewaretoken")[0].getAttribute("value"),
                     'statusForm': win.status,
                 }, valuesForm, { 'idapp': idapp });
                 return snData
@@ -479,7 +486,7 @@
                 url: 'ShowEntry/',
                 method: 'POST',
                 beforeSend: function (jqXHR) {
-                    jqXHR.setRequestHeader('X-CSRF-Token', get_csrf())
+                    jqXHR.setRequestHeader('X-CSRF-Token', NA.CookieUtil.get('csrftoken'));
                 },
                 data: sendData(),
                 success: function (data) {
@@ -503,7 +510,7 @@
                 switch (TextElement) {
                     case 'OK': {
                         if (!frmEntry.checkValidity()) {
-                            //NA.NAEvent.preventDefault(event);                                          
+                            //NA.NAEvent.preventDefault(event);
                             var inputbtn = NA.common.getElementID('gLost_submit');
                             inputbtn.click();
                         }
@@ -522,7 +529,7 @@
                             return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.confirmInfo,
                                 function () {
                                     if (!frmEntry.checkValidity()) {
-                                        //NA.NAEvent.preventDefault(event);   
+                                        //NA.NAEvent.preventDefault(event);
                                         var inputbtn = NA.common.getElementID('gLost_submit');
                                         inputbtn.click();
                                     } else {
@@ -549,7 +556,7 @@
                         if (NA.common.detectInputChanges(JSON.parse(originalData), valuesForm)) {
                             if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
                                 if (!emailForm.checkValidity()) {
-                                    //NA.NAEvent.preventDefault(event);   
+                                    //NA.NAEvent.preventDefault(event);
                                     var inputbtn = NA.common.getElementID('emailData_submit');
                                     inputbtn.click();
                                 } else {
@@ -660,7 +667,7 @@
                 }
             });
         };
-        window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
+        window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
             //add handler to btnOK untuk mengantisipasi form load gagal
             var win = window
             var target = NA.NAEvent.getTarget(event);
@@ -778,8 +785,8 @@
                                     btn_fkLostby = qs('button#fk_lostby'),
                                     fk_fromGoods = qs('input[type="hidden"]#id_fk_fromgoods');
                                 //simpan original data di initializeForm
-                                //NA.common.getElementID('id_initializeForm').value = 'initializeForm'                           
-                              
+                                //NA.common.getElementID('id_initializeForm').value = 'initializeForm'
+
                                 $('input#id_datelost').datepicker({
                                     dateFormat: 'dd/mm/yy',
                                     changeMonth: true,
@@ -797,7 +804,7 @@
                                             return valDateReq;
                                         }
                                     })(win),
-                                }); 
+                                });
                                 if (win.status !== 'Add') {
                                     var valDatelost = new Date(NA.common.getElementID('id_datelost').value);
                                     $("#id_datelost").datepicker("setDate", valDatelost);
@@ -805,7 +812,7 @@
                                     $("#id_datelost").val(formatDate(valDatelost));
                                 }
                                  originalData = JSON.stringify(getValues_Form());
-                                if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit       
+                                if (win.status !== 'Open' && win.status !== '') {//hanya untuk status Add/Edit
                                     function loadData_byForm(tab, valSearch) {
                                         var gridTbl, gridTbl_pager_id, elGrid, Caption,
                                             urlFKGoods = 'SearchGoodsByForm/?' + win.encodeURIComponent('goods_filter') + '=' + valSearch;
@@ -992,7 +999,7 @@
                                                             }
                                                         }
                                                     },
-                                                    function (e) {//even for keydown txtSearch                                                  
+                                                    function (e) {//even for keydown txtSearch
                                                         if (e.keyCode === 13) {
                                                             NA.NAEvent.preventDefault(e);
                                                             win.document.body.style.cursor = 'wait';
@@ -1276,7 +1283,7 @@
                                                             }
                                                         }
                                                     },
-                                                    function (e) {//even for keydown txtSearch                                                  
+                                                    function (e) {//even for keydown txtSearch
                                                         if (e.keyCode === 13) {
                                                             NA.NAEvent.preventDefault(e);
                                                             win.document.body.style.cursor = 'wait';

@@ -68,6 +68,7 @@ def NA_Goods_Receive_Search(request):
 		#	#del(Isidx[IndexS])
 		#	#Isindx.insert(IndexS,'suppliername')
 		#	str(Isidx).replace('supplier','suppliername')
+		NAData = []
 		criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
 		dataType = ResolveCriteria.getDataType(str(IdataType))
 		if(Isord is not None and str(Isord) != '') or(Isidx is not None and str(Isidx) != ''):
@@ -429,7 +430,7 @@ def SearchGoodsbyForm(request):
 
 	#if NAData == Data.Empty:
 	#	NAData = goods.objects.none()
-	totalRecord = NAData.count()#if (NAData != Data.Empty) else 0
+	totalRecord = NAData.count() if (NAData != Data.Empty) else 0
 	paginator = Paginator(NAData, int(Ilimit))
 	try:
 		page = request.GET.get('page', '1')

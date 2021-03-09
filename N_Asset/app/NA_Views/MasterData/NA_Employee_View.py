@@ -46,7 +46,7 @@ def NA_EmployeeGetData(request):
     else:
         emplData = Employee.objects.PopulateQuery(
             IcolumnName, IvalueKey, criteria, dataType)
-
+    emplData = commonFunct.multi_sort_queryset(emplData,Isidx,Isord)
     totalRecord = emplData.count()
     paginator = Paginator(emplData, int(Ilimit))
     try:
@@ -135,7 +135,7 @@ class NA_Employee_form(forms.Form):
 			if not idapp:
 				raise forms.ValidationError({'idapp': 'This Field is required'})
 		return super(NA_Employee_form, self).clean()
-	
+
 	@transaction.atomic
 	def save(self, user):
 		mode = self.cleaned_data.get('mode')

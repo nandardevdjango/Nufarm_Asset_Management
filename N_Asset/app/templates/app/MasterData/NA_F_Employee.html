@@ -19,13 +19,13 @@
 
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <script type="text/javascript">
-    
-    (function(){   
+
+    (function(){
         var txtSearchMaster =  NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
             btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
         window.onunload = function(){
             if (typeof txtSearchMaster.onclick == "function") {
-                NA.NAEvent.removeHandler(txtSearchMaster,'keydown',handlerSearchInput)               
+                NA.NAEvent.removeHandler(txtSearchMaster,'keydown',handlerSearchInput)
             }
             if (typeof btnSearchMaster.onclick == "function") {
                 NA.NAEvent.removeHandler(btnSearchMaster,'click',handlerSearchInput);
@@ -33,7 +33,7 @@
         };
 //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
-        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");   
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
         var doc = doc||window.document;
         var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
         (function(elm){
@@ -51,7 +51,7 @@
                 }
             });
         })(DivSearch);
-    })();   
+    })();
 </script>
 <script src="{% static 'app/scripts/jquery-1.11.1.min.js' %}" id="jq_uery"></script>
 <script src="{% static 'app/scripts/jquery.jqGrid.min.js' %}"></script>
@@ -92,7 +92,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         qsAll = NA.common.qsAll;
     $(document).ready(function () {
     	NA.Privilege.read_privilege('employee');
-    	
+
         function LoadData(page) {
             var url = 'getData/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
                           '&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
@@ -140,7 +140,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     pager: $('#NA_Employee_pager'),
                     rowList: [20, 50, 100, 200, 300, 500],
                     rowNum: 20,
-                    loadui: 'disable', // Disable Loading Text
+                    loadui: 'block', // Disable Loading Text
                     cellEdit: false,
                     sortname: 'idapp',
                     sortorder: "desc",
@@ -149,7 +149,6 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     hidegrid: true,
                     shrinkToFit: false,
                     caption: 'Master Data -- Employee',
-                    shrinkToFit: false,
                     height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
                     width: 'inherit',
                     prmNames: {
@@ -202,12 +201,12 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     }
                 });
             }
-            
 
-            
+
+
         }
-        
-        
+
+
 
 
         var SearchData = NA.common.SearchData;
@@ -236,7 +235,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             }
             window.document.body.style.cursor = '';
         }
-        //=======================handler txt & button Search master keyboard event and click================================        
+        //=======================handler txt & button Search master keyboard event and click================================
         NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
         NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
@@ -303,7 +302,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             valueKey = txtSearchMaster.value.trim();
             var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
             var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
                 if (item.firstChild.textContent === textToSearch) {
                     elSearch = item.firstChild;
                 }
@@ -396,7 +395,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
 
             //script load dialog style sebelum panggil dialog
     var containerMenu = qs('ul.nav.navbar-nav');//inistialisasi menu
-    //load Dialog Style css    
+    //load Dialog Style css
     NA.common.loadStyles("../../../static/app/content/Dialog.css", "DialogEntryStyle");//Load Style buat dialog sebelum di pakai
     NA.common.loadStyles("../../../static/app/content/NA_commonEntry.css","CommonEntry");//Load Style buat form sebelum di pakai
 
@@ -410,7 +409,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         }
     });
     NA.common.dialog.initDialog(null,'Nufarm Send Email - Master Data',elementMenus);//inistialisasi menu
-    
+
     function getGridId() {
         return $(employee_grid).jqGrid('getGridParam', 'selrow')
     }
@@ -436,7 +435,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
         }
         return data
     }
-    
+
 
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
@@ -524,7 +523,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                             setTimeout(function () {
                                 employee_grid.setSelection(data['message'], true)
                             }, 1000);
-                            reload_LogEvent();                            
+                            reload_LogEvent();
                         }
                     }
                 });
@@ -537,14 +536,14 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             switch (TextElement) {
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
-                        //NA.NAEvent.preventDefault(event);                                          
+                        //NA.NAEvent.preventDefault(event);
                         var inputbtn = NA.common.getElementID('employee_submit');
                         inputbtn.click();
                     }
                     else {
                         EmployeeSubmit();
                     }
-                    //jangan di close 
+                    //jangan di close
                     //clear kan textbox dan set initilize data, focus ke itemCode
 
                     break;
@@ -559,7 +558,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     if (NA.common.detectInputChanges(originalData, valuesForm)) {
                         return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.titleInfo, function () {
                             if (!frmEntry.checkValidity()) {
-                                //NA.NAEvent.preventDefault(event);   
+                                //NA.NAEvent.preventDefault(event);
                                 var inputbtn = NA.common.getElementID('employee_submit');
                                 inputbtn.click();
                             } else {
@@ -582,11 +581,11 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                     var initializeEmail = NA.common.getElementID('initializeEmail');
                     var originalData = initializeEmail.Value;
                     var valuesForm = getValues_emailForm();
-                    
+
                     if (NA.common.detectInputChanges(originalData, valuesForm)) {
                         if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
                             if (!emailForm.checkValidity()) {
-                                //NA.NAEvent.preventDefault(event);   
+                                //NA.NAEvent.preventDefault(event);
                                 var inputbtn = NA.common.getElementID('emailData_submit');
                                 inputbtn.click();
                             } else {
@@ -602,7 +601,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
 
             }
         }
-        
+
     };
     function dialogConfirm(message, title, callTrue, callFalse) {
         return BootstrapDialog.confirm({
@@ -665,13 +664,13 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             }
         });
     };
-    window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
+    window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
         //add handler to btnOK untuk mengantisipasi form load gagal
         var win = window
         var target = NA.NAEvent.getTarget(event);
 
         try {
-            
+
             if (target.innerText === 'Email Data') {
                 var btn_mailExport = qs('div.dialogButtonRightOther a.btn-link:nth-child(2)'),
                     btn_mailPreview = qs('div.dialogButtonRightOther a.btn-link:nth-child(1)');
@@ -731,7 +730,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                 }
 
                 $('div.maindialogContent').load("EntryEmployee/?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(getGridId()) + '&' + win.encodeURIComponent('mode')
-                    + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)                  
+                    + '=' + win.encodeURIComponent(target.innerText.trim()), function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data(ShowEntry hanya contoh nama form)
                         if (statusTxt == "success") {  //jika form sudah di load selanjutnya tinggal inisialisasi semua component dan simpang semua ke dalam variable jika perlua
                             //remove attribute disable untuk button OK dan cancel bila statusnya Add
                             switch (status) {
@@ -753,7 +752,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                                     break;
                                 }
                             };
-                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit                                   
+                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit
                                 //simpan original data di initializeForm
                                 var originalData = JSON.stringify(getValues_emplForm());
                                 //$('#id_initializeForm').val(originalData);
@@ -762,7 +761,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
                                 //setting Custom Validity
                                  $("#id_jobtype").autocomplete({source: "searchJobType/",minLength: 1,});
                                  $("#id_territory").autocomplete({source: "searchTerritories/",minLength: 1,});
-                                NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';   
+                                NA.common.doc.querySelector('ul[id*="ui-id-"]').style.backgroundColor = 'white';
                             }
 
                         } else {

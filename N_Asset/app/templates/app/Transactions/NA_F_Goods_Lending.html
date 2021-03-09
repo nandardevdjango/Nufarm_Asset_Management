@@ -1046,7 +1046,7 @@
 		window.showDialogCustomSearch = function (event) {
 			$('div.containerDialog').load("customFilter", function (responseTxt, statusTxt, xhr) {
 				if (statusTxt == "success") {
-					$(this).html(responseTxt);
+					//$(this).html(responseTxt);
 					var dialog = NA.common.doc.querySelector('div.containerDialog');
 					NA.common.getElementID('searchmodfbox').style.display = 'block';
 					var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
@@ -1379,7 +1379,7 @@
 					$('div.maindialogContent').load("ShowEntry_Lending?" + win.encodeURIComponent('idapp') + '=' + win.encodeURIComponent(idapp) + '&' + win.encodeURIComponent('status') + '=' + win.encodeURIComponent(target.innerText.trim()),
 					function (responseTxt, statusTxt, xhr) {//load /tampilkan form entry data
 						if (statusTxt == "success") {
-							$(this).html(responseTxt);
+							//$(this).html(responseTxt);
 							switch (win.status.trim()) {
 								case 'Add': {
 									Array.prototype.forEach.call(NA.common.doc.querySelectorAll('div.dialogButtonEntry>a.button'), function (item) {

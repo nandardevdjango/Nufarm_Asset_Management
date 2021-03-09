@@ -9,7 +9,7 @@ from django import forms
 from datetime import datetime
 import math
 def NA_Goods_Return(request):
-    return render(request,'app/Transactions/NA_F_Goods_Return.html')
+    return render(request,'app/Transactions/NA_F_Goods_Return.html',{'CompanyName': 'Nufarm', 'title': 'Goods Return'})
 def NA_Goods_ReturnGetData(request):
     IcolumnName = request.GET.get('columnName')
     IvalueKey =  request.GET.get('valueKey')
@@ -19,24 +19,40 @@ def NA_Goods_ReturnGetData(request):
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
     Ipage = request.GET.get('page')
-    criteria = ResolveCriteria.getCriteriaSearch(Icriteria)
-    dataType = ResolveCriteria.getDataType(IdataType)
-    getColumn = commonFunct.retriveColumn(
-        table=[NAGoodsReturn,goods],
-        resolve=IcolumnName,
-        initial_name=['ngr','g','emp1','emp2'],
-        custom_fields=[['fromemployee'],['usedemployee']]
-    )
-    returnData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
-    totalRecords = len(returnData)
-    paginator = Paginator(returnData,Ilimit)
-    try:
-        dataRows = paginator.page(Ipage)
-    except EmptyPage:
-        dataRows = paginator.page(paginator.num_pages)
+    # getColumn = commonFunct.retriveColumn(
+    #     table=[NAGoodsReturn,goods],
+    #     resolve=IcolumnName,
+    #     initial_name=['ngr','g','emp1','emp2'],
+    #     custom_fields=[['fromemployee'],['usedemployee']]
+    # )
+    criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
+    dataType = ResolveCriteria.getDataType(str(IdataType))
+    NAData = []
+    if(Isord is not None and str(Isord) != '') or (Isidx is not None and str(Isidx) != ''):
+    	NAData = NAGoodsReturn.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
+    else:
+    	NAData = NAGoodsReturn.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
+    totalRecord = NAData[1]
+    dataRows = NAData[0]
+
+    # returnData = NAGoodsReturn.objects.PopulateQuery(getColumn,IvalueKey,criteria,dataType)
+    # # returnData = commonFunct.multi_sort_queryset(returnData,)
+    # totalRecords = len(returnData)
+    # paginator = Paginator(returnData,Ilimit)
+    # try:
+    #     dataRows = paginator.page(Ipage)
+    # except EmptyPage:
+    #     dataRows = paginator.page(paginator.num_pages)
+    # rows = []
+    # i = 0
+    if NAData == []:
+        results = {"page": "1", "total": 0, "records": 0, "rows": []}
+    else:
+        totalRecord = NAData[1]
+        dataRows = NAData[0]
     rows = []
     i = 0
-    for row in dataRows.object_list:
+    for row in dataRows:#.object_list:
         i+=1
         datarow = {
             "id" :row['idapp'], "cell" :[
@@ -45,8 +61,11 @@ def NA_Goods_ReturnGetData(request):
                 ]
             }
         rows.append(datarow)
-    results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecords,"rows": rows }
-    return HttpResponse(json.dumps(results,cls=DjangoJSONEncoder),content_type='application/json')
+    # results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecords,"rows": rows }
+    # return HttpResponse(json.dumps(results,cls=DjangoJSONEncoder),content_type='application/json')
+    TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+    results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows}
+    return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 #def getLastTransGoods(request):
 
 def getFormData(request,form):
@@ -62,6 +81,8 @@ def getFormData(request,form):
     if fk_goods_outwards == '' or fk_goods_outwards is None:
         fk_goods_outwards = 'NULL'
     fk_goods_lend = clData.get('idapp_fk_goods_lend')
+
+
     if fk_goods_lend == '' or fk_goods_lend is None:
         fk_goods_lend = 'NULL'
     data['fk_goods_outwards'] = fk_goods_outwards
@@ -154,10 +175,17 @@ def Entry_GoodsReturn(request):
 @decorators.ajax_required
 @decorators.detail_request_method('POST')
 def Delete_data(request):
-	if request.user.is_authenticated():
-		idapp = request.POST['idapp']
-		result = NAGoodsReturn.objects.DeleteData(idapp,request.user.username)
-		return HttpResponse('success')
+    if request.user.is_authenticated():
+        idapp = request.POST['idapp']
+        try:
+            result = NAGoodsReturn.objects.DeleteData(idapp,request.user.username)
+        except Exception as e:
+            return HttpResponse(e)
+        if isinstance(result,tuple):
+            return HttpResponse(result[0])
+        else:
+            return HasReference(result)
+
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
 def SearchGoodsbyForm(request):

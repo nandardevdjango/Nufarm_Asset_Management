@@ -381,7 +381,7 @@ class Employee(NA_MasterDataModel):
         max_length=20,
         blank=True,
         null=True,
-        unique=True
+        unique=False
     )
     territory = models.CharField(
         db_column='Territory', max_length=50, blank=True, null=True)
@@ -561,7 +561,7 @@ class NAGoodsDeletion(NA_BaseModel):
     bookvalue = models.DecimalField(
     db_column='bookvalue', max_digits=30, decimal_places=4
     )
-    submission_date = models.DateField(db_column='submission_date')
+    submission_date = models.DateField(db_column='submission_date',auto_now_add=True)
     submission_value = models.DecimalField (db_column='submission_value', max_digits=30, decimal_places=4)
     is_value_to_all = models.BooleanField(db_column='is_value_to_all')
     approval_value = models.DecimalField(

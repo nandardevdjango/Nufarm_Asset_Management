@@ -123,7 +123,7 @@ class Message(Enum):
     @classmethod
     def get_lost_info(cls, model, pk=None, **kwargs):
         """
-        get lost info, 
+        get lost info,
         param:
         pk(Primary Key):idapp or suppliercode
         table:table_name
@@ -618,7 +618,7 @@ class query:
         return [
             dict(zip(columns, row))
             for row in fetchall
-        ]    
+        ]
     #def like(query_param, fields):
     #    query_string = ' LIKE {query_param} OR '.join(fields)
     #    query_string += ' LIKE {query_param}'
@@ -631,12 +631,15 @@ class query:
 class commonFunct:
     @classmethod
     def str2bool(cls,v):
+        strv = ''
         if isinstance(v, int):
-            v = str(v)
-        v = v.lower()
-        if v in ("yes", "true","t", "1"):
+            strv = str(v)
+        else:
+            strv = v
+        strv = strv.lower()
+        if strv in ("yes", "true","t", "1","True"):
             return True
-        elif v in ("no", "false","f", "0",""):
+        elif strv in ("no", "false","False","f", "0",""):
             return False
         else:
             raise ValueError("Please enter correct value")
@@ -692,19 +695,19 @@ class commonFunct:
 
         if GoodCat == "IT":
             Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
-                        (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+                        (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS
                         (SELECT FK_goods,TypeApp,SerialNumber FROM n_a_goods_outwards WHERE FK_goods = %(FK_Goods)s)
-                        UNION 	
-                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)		
-                        UNION 	
+                        UNION
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_Lending WHERE FK_goods = %(FK_Goods)s)
+                        UNION
                         (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_goods = %(FK_Goods)s)
-                        UNION 	
-                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)	
-                        UNION 	
+                        UNION
+                        (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_goods = %(FK_Goods)s)
+                        UNION
                         (SELECT FK_Goods,TypeApp,SerialNumber FROM n_a_disposal WHERE FK_goods = %(FK_Goods)s ) """
         elif GoodCat == "GA":
             Query = """CREATE TEMPORARY TABLE Temp_Goods_Used_""" + username + """
-                    (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS 
+                    (INDEX cmpd_key (SerialNumber, FK_Goods))ENGINE=MyISAM AS
                     (SELECT gr.FK_Goods,gr.TypeApp,gr.Machine_No FROM n_a_ga_receive gr INNER JOIN n_a_ga_outwards go ON gr.IDApp = go.FK_Receive WHERE gr.FK_Goods = %(FK_Goods)s)"""
         elif GoodCat == "O":
             raise Exception('Can di gawean')
@@ -712,12 +715,12 @@ class commonFunct:
 
         # get totalused and totalReceived
         if GoodCat == "IT":
-            Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd 
-                        ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used 
+            Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT ngr.FK_Goods,COUNT(ngr.FK_goods) AS Total FROM n_a_goods_receive ngr INNER JOIN n_a_goods_receive_detail ngd
+                        ON ngr.IDApp = ngd.FK_App WHERE ngr.FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY  FK_Goods)T_Used
                         ON Rec.FK_Goods = T_Used.FK_Goods """
         elif(GoodCat == "GA"):
             Query = """SELECT Rec.Total AS TotalReceived,Rec.Total - IFNULL(T_Used.Total,0) AS TotalNew,IFNULL(T_Used.Total,0) AS TotalUsed FROM (SELECT FK_Goods,COUNT(FK_goods) AS Total FROM n_a_ga_receive WHERE FK_goods = %(FK_Goods)s GROUP BY ngr.FK_Goods)Rec
-            LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY FK_Goods)T_Used 
+            LEFT OUTER JOIN (SELECT FK_Goods,COUNT(FK_Goods) AS Total FROM Temp_Goods_Used_""" + username + """ GROUP BY FK_Goods)T_Used
                 ON Rec.FK_Goods = T_Used.FK_Goods """
         elif(GoodCat == "O"):
             raise Exception('Can di gawean')
@@ -743,12 +746,12 @@ class commonFunct:
 
         if GoodsCat == "IT":
             Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_goods_return WHERE FK_Goods = %(FK_Goods)s AND `Conditions` = 'B' \
-                                                    UNION 
+                                                    UNION
                                                     SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_maintenance WHERE FK_Goods = %(FK_Goods)s AND IsSucced = 0 AND IsFinished = 1 \
                                                     )C """
         elif GoodCat == "GA":
             Query = """SELECT COUNT(FK_Goods) FROM (SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_return WHERE FK_Goods = %(FK_Goods)s AND `Conditions` = 'B' \
-                                                    UNION 
+                                                    UNION
                                                     SELECT DISTINCT FK_Goods,TypeApp,SerialNumber FROM n_a_ga_maintenance WHERE FK_Goods = %(FK_Goods)s AND IsSucced = 0 AND IsFinished = 1 \
                                                     )C """
         elif(GoodCat == "O"):
@@ -851,7 +854,7 @@ class commonFunct:
         if result:
             return result
         raise ValueError('cannot resolve \'%s\' column' % resolve)
-    
+
     @classmethod
     def response_default(cls,data):
         """
@@ -882,7 +885,7 @@ class commonFunct:
                     message = Message.Empty.value
 
             return HttpResponse(
-                json.dumps({'message': message}),
+                json.dumps({'message': str(message) if type(message) is Exception else message }),
                 status=status,
                 content_type='application/json'
             )
@@ -923,8 +926,7 @@ class commonFunct:
                 sort = str(Isidx)
                 if Isord == 'desc':
                     sort = '-' + sort
-                    return queryset.order_by(sort)
-                return queryset
+                return queryset.order_by(sort)
         else:
             raise ValueError(
                 'Cannot assign "None" type object \n make sure if arguments/parameter is not None')
@@ -938,7 +940,7 @@ class commonFunct:
         if message:
             _message = message
         return HttpResponse(_message, status=403)
-    
+
     @staticmethod
     def check_file_exists(file_dir):
         return path.exists(file_dir)
@@ -1058,7 +1060,7 @@ class commonFunct:
         col_num = 0
         for i in range(len(columns)):
             if columns[i] in columns_hidden:
-                continue      
+                continue
             ws.write(row_num, col_num, columns[i], font_style)
             col_num += 1
         # Sheet body, remaining rows
@@ -1066,13 +1068,13 @@ class commonFunct:
 
         #rows = User.objects.all().values_list(
         #    'username', 'first_name', 'last_name', 'email')
-        
+
         for row in rows_dict:
             row_num += 1
             col_num = 0
             for k, v in row.items():
-                if k in columns_hidden:                  
-                  continue                
+                if k in columns_hidden:
+                  continue
                 ws.write(row_num, col_num, v, font_style)
                 col_num += 1
         wb.save(response)

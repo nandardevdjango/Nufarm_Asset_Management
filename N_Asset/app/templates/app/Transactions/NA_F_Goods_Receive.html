@@ -42,6 +42,7 @@
           NA.common.dialog.createSearchDialog(event)
           txtSearchMaster.setAttribute('disabled', true);
           txtSearchMaster.setAttribute('placeholder', '');
+          txtSearchMaster.value = '';
           btnSearchMaster.setAttribute('disabled', true)
         } else {
           txtSearchMaster.removeAttribute('disabled');
@@ -414,7 +415,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
             {
               name: 'descriptions',
               index: 'descriptions',
-              width: 120,
+              width: 250,
               sortable: true,
               editable: false,
               align: 'left',
@@ -1664,7 +1665,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
             tittle: 'Please enter valid value',
             placeholder: function() {
               if ($(this).val() <= 0 || $(this).val() === '' || $(this).val() <= 0) {
-                return NA.common.FormatNumber(0, 2, '.');
+                return NA.common.FormatNumber(0, 2, '.',',');
               }
             },
             dataEvents: [{
@@ -1684,7 +1685,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                   NA.NAEvent.preventDefault(e);
                   return false;
                 }
-                if (NA.common.numberInput(e)) {
+                if (!NA.common.numberInput(e)) {
                   if (e.keyCode === 9) { // tab
                     value = $(e.target).val();
                     if (isNaN(value)) {
@@ -1909,13 +1910,20 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
             tittle: 'Year warranty',
             placeholder: function() {
               if ($(this).val() <= 0 || $(this).val() === '') {
-                return NA.common.FormatNumber(0, 2, '.');
+                return NA.common.FormatNumber(0, 2, ',','.');
               }
             },
             dataEvents: [{
               type: 'keydown',
               fn: function(e) {
                 if (!AllowEdit) {
+                  NA.NAEvent.preventDefault(e);
+                  return false;
+                }
+                if (!NA.common.numberInput(e)) {
+                  ShowAlert('Please enter number', NA.common.message.titleInfo, function() {
+                    $(this).focus();
+                  });
                   NA.NAEvent.preventDefault(e);
                   return false;
                 }
@@ -1930,15 +1938,15 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                     NA.NAEvent.preventDefault(e);
                     return;
                   }
-                  if (!NA.common.numberInput(e)) {
+                  value = $(e.target).val();
+                  if (isNaN(value)) {
                     ShowAlert('Please enter number', NA.common.message.titleInfo, function() {
                       $(this).focus();
                     });
                     return false;
                   }
-                  value = $(e.target).val();
-                  if (isNaN(value)) {
-                    ShowAlert('Please enter number', NA.common.message.titleInfo, function() {
+                  if (!value.match(/^\d+(.|,)?\d+$/)) {
+                    ShowAlert('please enter correct number', NA.common.message.titleInfo, function() {
                       $(this).focus();
                     });
                     return false;
@@ -1979,7 +1987,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                   return true;
                 }
               }
-							}]
+						}]
           },
           defaultValue: '',
           formatter: 'number',
@@ -3730,7 +3738,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                 var elRefNO = NA.common.getElementID('id_refno');
                 elRefNO.setAttribute('readonly', true);
                 btnFindGoods.setAttribute('disabled', hasDetail);
-                var txtgoodsDesc = NA.common.getElementID('id_goods_desc');
+                var txtDesc = NA.common.getElementID('id_descriptions');
                 var txtid_fk_goods = NA.common.getElementID('id_fk_goods');
                 var txtTPurchase = NA.common.getElementID('id_totalpurchase');
                 var dtReceived = NA.common.getElementID('id_datereceived');
@@ -3743,7 +3751,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                 }
                 if (hasDetail) {
                   txtid_fk_goods.setAttribute('readonly', true);
-                  txtgoodsDesc.setAttribute('readonly', true);
+                  //txtgoodsDesc.setAttribute('readonly', true);
                   txtTPurchase.setAttribute('readonly', true);
                   dtReceived.setAttribute('disabled', true);
                   CreateGridDetail()
@@ -3760,6 +3768,20 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                     setDisabledHeader();
                   }
                 }
+                var btnFindSupplier = NA.common.getElementID('FE_fk_supplier'),
+                  btnFindPRBy = NA.common.getElementID('FE_fk_pr_by'),
+                  btnFindReceivedBy = NA.common.getElementID('FE_fk_receivedby'),
+                  elfk_supplier = NA.common.getElementID('id_fk_supplier'),
+                  elfk_p_r_by = NA.common.getElementID('id_fk_p_r_by'),
+                  elfk_receivedby = NA.common.getElementID('id_fk_receivedby');
+                elfk_supplier.removeAttribute('readonly');
+                elfk_p_r_by.removeAttribute('readonly');
+                elfk_receivedby.removeAttribute('readonly');
+
+                btnFindReceivedBy.removeAttribute('disabled');
+                btnFindSupplier.removeAttribute('disabled');
+                btnFindPRBy.removeAttribute('disabled');
+                txtDesc.removeAttribute('readonly');
                 break;
               }
               case 'Open': {
@@ -4226,7 +4248,7 @@ td#jqGrid_NA_F_Goods_Receive_Detail_Pager_left td.ui-pg-button ui-corner-all {
                       height: '150px',
                       rowNum: 500,
                       rowList: [20, 50, 100, 200, 300, 500],
-                      sortname: "itemcode",
+                      sortname: "goods",
                       sortorder: "asc",
                       multiSort: true,
                       //shrinkToFit: false,

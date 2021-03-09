@@ -12,10 +12,11 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q
 #from rest_framework.decorators import api_view
 #from rest_framework.response import Response
-
+import math
 #import operator
+@ensure_csrf_cookie
 def NA_Goods_Lost(request):
-    return render(request,'app/MasterData/NA_F_GoodsLost.html')
+    return render(request,'app/MasterData/NA_F_GoodsLost.html',{'CompanyName': 'Nufarm', 'title': 'Goods Lost'})
 
 def NA_GoodsLost_GetData(request):
     IcolumnName = request.GET.get('columnName')
@@ -25,7 +26,6 @@ def NA_GoodsLost_GetData(request):
     Ilimit = request.GET.get('rows', '')
     Isidx = request.GET.get('sidx', '')
     Isord = request.GET.get('sord', '')
-    Ipage = request.GET.get('page')
 #    getColumn = commonFunct.retriveColumn(
 #		table=[NAGoodsLost,goods],resolve=IcolumnName,
 #		initial_name=['gls','g','empl1','empl2','empl3'],
@@ -33,21 +33,34 @@ def NA_GoodsLost_GetData(request):
 #    )
     criteria = ResolveCriteria.getCriteriaSearch(str(Icriteria))
     dataType = ResolveCriteria.getDataType(str(IdataType))
-    accData = NAGoodsLost.objects.PopulateQuery(IcolumnName,IvalueKey,criteria,dataType,Isidx,Isord)
-    paginator = Paginator(accData,Ilimit)
-    try:
-        dataRows = paginator.page(Ipage)
-    except EmptyPage:
-        dataRows = paginator.page(paginator.num_pages)
-    totalRecord = len(accData)
+    NAData = []
+    if(Isord is not None and str(Isord) != '') or (Isidx is not None and str(Isidx) != ''):
+    	NAData = NAGoodsLost.objects.PopulateQuery(str(Isidx),Isord,Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
+    else:
+    	NAData = NAGoodsLost.objects.PopulateQuery('','DESC',Ilimit, request.GET.get('page', '1'),request.user.username,IcolumnName,IvalueKey,criteria,dataType)#return tuples
+    totalRecord = NAData[1]
+    dataRows = NAData[0]
+    # paginator = Paginator(accData,Ilimit)
+    # try:
+    #     dataRows = paginator.page(Ipage)
+    # except EmptyPage:
+    #     dataRows = paginator.page(paginator.num_pages)
+    # totalRecord = len(accData)
+    if NAData == []:
+        results = {"page": "1", "total": 0, "records": 0, "rows": []}
+    else:
+        totalRecord = NAData[1]
+        dataRows = NAData[0]
     rows = []
     i = 0
-    for row in dataRows.object_list:
+    for row in dataRows:
         i +=1
         datarow = {"id" :row['idapp'], "cell" :[row['idapp'],i,row['goods'],row['itemcode'],row['serialnumber'],row['fromgoods'],row['used_by'],\
             row['lost_by'],row['resp_person'],row['reason'],row['descriptions'],row['createddate'],row['createdby']]}
         rows.append(datarow)
-    results = {"page": Ipage,"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+    # results = {"page": Iparequest.GET.get('page', '1'),"total": paginator.num_pages ,"records": totalRecord,"rows": rows }
+    TotalPage = 1 if totalRecord < int(Ilimit) else (math.ceil(float(totalRecord/int(Ilimit)))) # round up to next number
+    results = {"page": int(request.GET.get('page', '1')),"total": TotalPage ,"records": totalRecord,"rows": rows}
     return HttpResponse(json.dumps(results, indent=4,cls=DjangoJSONEncoder),content_type='application/json')
 
 def ShowCustomFilter(request):

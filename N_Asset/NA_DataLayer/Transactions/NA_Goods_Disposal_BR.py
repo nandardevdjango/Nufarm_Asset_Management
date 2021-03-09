@@ -75,7 +75,7 @@ class NA_BR_Goods_Disposal(models.Manager):
 				LEFT OUTER JOIN(SELECT idapp,employee_name FROM employee) emp4 ON emp4.idapp = ngds.fk_sold_to_employee
 		        WHERE """ + colKey + rs.Sql() + ")"
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
@@ -219,11 +219,11 @@ class NA_BR_Goods_Disposal(models.Manager):
                       )
 				"""
 		cur.execute(Query)
-		strLimit = '300'
+		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'
 		else:
-			strLimit = str(int(PageIndex)*int(pageSize))
+			strLimit = str((int(PageIndex)-1) * int(pageSize))
 		#gabungkan jadi satu
 		Query = "CREATE TEMPORARY TABLE Temp_F_Disposal_" + userName + """ ENGINE=MyISAM AS (
 				 SELECT * FROM Temp_T_History_Disposal_""" + userName + """\
@@ -512,9 +512,9 @@ class NA_BR_Goods_Disposal(models.Manager):
 								'Descriptions':Data['descriptions'], 'FK_ProposedBy':Data['idapp_fk_proposedby'], 'FK_Return':Data['fk_return'], 'FK_Lost':Data['fk_lost'],'FK_Stock':fk_stock, 'FK_UsedEmployee':Data['idapp_fk_usedemployee'],
 								'CreatedBy':Data['createdby']}
 					cur.execute(Query,params)
-					cur.execute('SELECT last_insert_id()')
-					row = cur.fetchone()
-					FKApp = row[0]
+					# cur.execute('SELECT last_insert_id()')
+					# row = cur.lastrowid
+					FKApp = cur.lastrowid
 					Query = """INSERT INTO n_a_goods_history
 								( SerialNumber,TypeApp,  FK_Disposal, FK_Goods, FK_Lending, FK_Lost, FK_Maintenance, FK_Outwards, FK_Return,CreatedDate, CreatedBy)
 								VALUES (%(SerialNumber)s, %(TypeApp)s,%(FK_Disposal)s, %(FK_Goods)s, NULL, %(FK_Lost)s, %(FK_Maintenance)s, %(FK_Outwards)s, %(FK_Return)s, NOW(),%(Createdby)s)"""

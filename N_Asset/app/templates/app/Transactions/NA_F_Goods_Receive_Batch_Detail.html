@@ -336,6 +336,7 @@
 	    gridPager = $('#jqGrid_NA_F_Goods_Receive_Batch_Detail_Pager'),
 	    txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
 	    btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+      originalDetailMaster = {};
 	    csrftoken = function() {
 	      return NA.CookieUtil.get('csrftoken');
 	    },
@@ -1498,6 +1499,9 @@
 	                        return;
 	                      }
 	                      //gridTbl.jqGrid('getLocalRow', rowId).endofwarranty
+                        if(win.status == 'edit'){
+
+                        }
 	                      NAAjax.POST('HasExistSN/', JSON.stringify({
 	                          'SN': value
 	                        }), 'application/x-www-form-urlencoded', 'application/json', function() {
@@ -1593,6 +1597,13 @@
 	                    NA.NAEvent.preventDefault(e);
 	                    return false;
 	                  }
+                    if (!NA.common.numberInput(e)) {
+                      ShowAlert('Please enter number', NA.common.message.titleInfo, calbackOnHide = function() {
+                        $(e.target).focus();
+                        $(e.target).select();
+                      });
+                      return false;
+                    }
 	                  if (e.keyCode === 9) { // tab
 	                    var dtReceived = gridHeaderData[0]['datereceived'];
 	                    var rowId = gridTbl.jqGrid('getGridParam', 'selrow');
@@ -1602,13 +1613,7 @@
 	                      NA.NAEvent.preventDefault(e);
 	                      return;
 	                    }
-	                    if (!NA.common.numberInput(e)) {
-	                      ShowAlert('Please enter number', NA.common.message.titleInfo, calbackOnHide = function() {
-	                        $(e.target).focus();
-	                        $(e.target).select();
-	                      });
-	                      return false;
-	                    }
+
 	                    value = $(e.target).val();
 	                    if (isNaN(value)) {
 	                      ShowAlert('Please enter number', NA.common.message.titleInfo, calbackOnHide = function() {
@@ -2468,6 +2473,15 @@
 	            BindGridHeader(dataRowHeader);
 	            //bind grid
 	            var dataDetail = JSON.parse(data['dataForGridDetail']);
+              //simpan data detail di element
+              var dataDetailEl = NA.common.getElementID('id_dataDetail');
+              if(!dataDetailEl){
+                dataDetailEl= NA.common.doc.createElement('input');
+                dataDetailEl.type = 'hidden'
+                dataDetailEl.setAttribute('id','id_dataDetail');
+              }
+              dataDetailEl.value = JSON.stringify(dataDetail);
+              originalDetailMaster = dataDetail.value;
 	            var totalReceived = parseInt(data['totalreceived']);
 	            BindGrid(1, dataDetail, totalReceived);
 	            //set original data

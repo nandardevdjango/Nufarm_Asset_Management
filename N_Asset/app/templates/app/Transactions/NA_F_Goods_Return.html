@@ -19,13 +19,14 @@
 
 <script type="text/javascript" src="../../../static/app/scripts/NAJS.js"></script>
 <script type="text/javascript">
-    
-    (function(){   
+
+    (function(){
         var txtSearchMaster =  NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
             btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default');
+        var defPlaceHolder = txtSearchMaster.getAttribute('placeholder');
         window.onunload = function(){
             if (typeof txtSearchMaster.onclick == "function") {
-                NA.NAEvent.removeHandler(txtSearchMaster,'keydown',handlerSearchInput)               
+                NA.NAEvent.removeHandler(txtSearchMaster,'keydown',handlerSearchInput)
             }
             if (typeof btnSearchMaster.onclick == "function") {
                 NA.NAEvent.removeHandler(btnSearchMaster,'click',handlerSearchInput);
@@ -33,25 +34,63 @@
         };
 //=================add Dynamic Styles=============================
         NA.common.loadStyles("../../../static/app/content/jquery-ui.min.css","jqueryUI");
-        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");   
+        NA.common.loadStyles("../../../static/app/content/ui.jqgrid.css","UIJqueryGrid");
         var doc = doc||window.document;
         var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
         (function(elm){
             var listElem = elm.children;
+            var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+            var numPlaceHolder = 'enter numeric type';
+            var boolPlaceHolder = 'true/false/1/0';
             Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
                 if(item.firstChild.nodeValue != 'CustomSearch'){
                     NA.NAEvent.addHandler(item,'click',function(event){
                         event.preventDefault();
                         if(item.firstChild.id === 'custSearch'){
                             //=========='show dialog search'==================
-                            NA.common.dialog.createSearchDialog(event)
+                            NA.common.dialog.createSearchDialog(event);
+                            txtSearchMaster.setAttribute('disabled', true);
+                            txtSearchMaster.setAttribute('placeholder', '');
+                            txtSearchMaster.value = '';
+                            btnSearchMaster.setAttribute('disabled', true)
                         }
-                        NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent;
+                        else {
+              						txtSearchMaster.removeAttribute('disabled');
+              						btnSearchMaster.removeAttribute('disabled');
+              						var textSearch = NA.common.getElementID('bySearch');
+              						textSearch.firstChild.nodeValue = item.textContent;
+              						var elSearch = item.firstChild;
+              						switch (elSearch.dataset.tipe) {
+              							case "varchar":
+              							case "nchar":
+              							case "char":
+              							case "nvarchar": {
+              								txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+              								break;
+              							}
+              							case "boolean": {
+              								txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+              								break;
+              							}
+              							case "int":
+              							case "integer":
+              							case "decimal":
+              							case "floatt":
+              							case "bigint": {
+              								txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+              								break;
+              							}
+              							case "datetime": {
+              								txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+              								break;
+              							}
+              						}
+              					}
                     });
                 }
             });
         })(DivSearch);
-    })();   
+    })();
 </script>
 <script src="{% static 'app/scripts/jquery-1.11.0.min.js' %}" id="jq_uery"></script>
 <script type="text/javascript" src="{% static 'app/scripts/grid.locale-en.js' %}"></script>
@@ -219,6 +258,13 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     }
                 });
             }
+            goods_return_grid.navGrid("#NA_Goods_Return_pager", {
+              search: false, // show search button on the toolbar
+              add: false,
+              edit: false,
+              del: false,
+              refresh: true
+            });
         };
         var SearchData = NA.common.SearchData;
         SearchData.setDefaultSearchData('goodsname', 'Varchar', 'like');
@@ -227,14 +273,15 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         function handlerSearchInput(event) {
             event = NA.NAEvent.getEvent(event);
             if (event.keyCode === 13 || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster) {
-                var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
-                SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
-                SearchInput = qs('input[name=q]');
+                var SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
+                //SearchInput = qs('input[name=q]');
                 if (SearchBy.trim() == 'By') {
                     NA.common.SearchData.setDefaultSearchData('goodsname', 'Varchar', 'like');
                     //var curPage = parseInt(goods_return_grid.getGridParam('page'));
                     window.document.body.style.cursor = 'wait';
-                    NA.common.SearchData.setValue(SearchInput.value);
+                    if (event.target.value !== '') {
+                      NA.common.SearchData.setValue(event.target.value);
+                    }
                     LoadData(1);
                 }
                 else {
@@ -245,7 +292,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             }
             window.document.body.style.cursor = '';
         }
-        //=======================handler txt & button Search master keyboard event and click================================        
+        //=======================handler txt & button Search master keyboard event and click================================
         NA.NAEvent.addHandler(txtSearchMaster, 'keydown', handlerSearchInput);
         NA.NAEvent.addHandler(btnSearchMaster, 'click', handlerSearchInput);
 
@@ -314,7 +361,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             valueKey = txtSearchMaster.value.trim();
             var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
             var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
-            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array                   
+            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
                 if (item.firstChild.textContent === textToSearch) {
                     elSearch = item.firstChild;
                 }
@@ -348,7 +395,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         window.document.body.style.cursor = 'wait';
         LoadData(1);
         document.body.style.cursor = 'default';
-        goods_return_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
+        //goods_return_grid.jqGrid('setGridParam').trigger("reloadGrid", [{ page: 1 }]);//karena searching harus di set ke page 1
     };
 
         //function untuk Reset
@@ -367,11 +414,14 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
     window.showDialogCustomSearch = function (event) {
         $('div.containerDialog').load("customFilter/", function (responseTxt, statusTxt, xhr) {
             if (statusTxt == "success") {
-                $(this).html(responseTxt);
+                //$(this).html(responseTxt);
                 var dialog = NA.common.doc.querySelector('div.containerDialog');
                 NA.common.getElementID('searchmodfbox').style.display = 'block';
                 var btnClose = NA.common.doc.querySelector('div#searchhdfbo a.ui-jqdialog-titlebar-close.ui-corner-all'),
                 txtSearchCustom = NA.common.getElementID('jqg1');
+                var searchColDialog = NA.common.qs('td.columns select.NA-Form-Control');
+                //perbaiki columns width search textnya
+                searchColDialog.style.width = '130px';
                 NA.NAEvent.addHandler(btnClose, 'click', function (event) {
                     NA.common.dialog.closeDialog(dialog);
                 });
@@ -416,7 +466,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         }
     });
     NA.common.dialog.initDialog(null,'Nufarm Send Email - Master Data',elementMenus);
-    
+
     function getGridId() {
         return $(goods_return_grid).jqGrid('getGridParam', 'selrow')
     }
@@ -450,7 +500,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         };
         return data
     };
-    
+
 
     var btnDelete = qs('ul.nav.navbar-nav li:nth-child(5)');
     NA.NAEvent.addHandler(btnDelete, 'click', function (event) {
@@ -466,7 +516,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             return dialogConfirm(NA.common.message.confirmDelete, NA.common.message.confirmInfo,
                 function () {
                     try {
-                        //delete data di server                  
+                        //delete data di server
                         //$(selector).post(URL,data,function(data,status,xhr),dataType)-->return data type
                         $.ajax({
                             url: 'delete/',
@@ -476,28 +526,36 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 'idapp': get_idapp,
                             },
                             success: function (data) {
-                                
-                                mustReload = true;
-                                if (parseInt(curRecount) === 1) {
-                                    if (totalPages > 1) {
-                                        curPage--;
-                                    }
-                                    else {
-                                        mustReload = false;
-                                        goods_return_grid.delRowData(rowId);
-                                    }
+                                if(data.message && data.message === 'success'){
+                                  mustReload = true;
+                                  if (parseInt(curRecount) === 1) {
+                                      if (totalPages > 1) {
+                                          curPage--;
+                                      }
+                                      else {
+                                          mustReload = false;
+                                          goods_return_grid.delRowData(rowId);
+                                      }
+                                  }
+                                  else if (parseInt(totalPages) === 1) {
+                                      mustReload = false;
+                                      goods_return_grid.delRowData(rowId);
+                                  }
+                                  else if (parseInt(curRecount) > 1) {
+                                      mustReload = false;
+                                      goods_return_grid.delRowData(rowId);
+                                  }
+                                  if (mustReload) {
+                                      goods_return_grid.trigger("reloadGrid", [{ page: curPage }]);
+                                  };
                                 }
-                                else if (parseInt(totalPages) === 1) {
-                                    mustReload = false;
-                                    goods_return_grid.delRowData(rowId);
+                                else if(data.message === '__hasref_del'){
+                                  dialogAlert(NA.common.message.canNotDelete);
+                                  return;
                                 }
-                                else if (parseInt(curRecount) > 1) {
-                                    mustReload = false;
-                                    goods_return_grid.delRowData(rowId);
+                                else{
+                                  dialogAlert((data.message==undefined||data.message=='')?((data==''||data==undefined)?'unknown error':data):data.message);return;
                                 }
-                                if (mustReload) {
-                                    goods_return_grid.trigger("reloadGrid", [{ page: curPage }]);
-                                };
                             }
                         })
                     } catch (e) {
@@ -577,7 +635,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
             switch (TextElement) {
                 case 'OK': {
                     if (!frmEntry.checkValidity()) {
-                        //NA.NAEvent.preventDefault(event);                                          
+                        //NA.NAEvent.preventDefault(event);
                         var inputbtn = NA.common.getElementID('gReturn_submit');
                         inputbtn.click();
                     }
@@ -597,7 +655,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                         return dialogConfirm(NA.common.message.dataHasChanged, NA.common.message.confirmInfo,
                                 function () {
                                     if (!frmEntry.checkValidity()) {
-                                        //NA.NAEvent.preventDefault(event);   
+                                        //NA.NAEvent.preventDefault(event);
                                         var inputbtn = NA.common.getElementID('gReturn_submit');
                                         inputbtn.click();
                                     } else {
@@ -608,7 +666,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                     NA.common.dialog.closeDialog(dialog);
                                 }
                             );
-                            
+
                     } else {
                         NA.common.dialog.closeDialog(dialog);
                     }
@@ -622,11 +680,11 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                     var initializeEmail = NA.common.getElementID('initializeEmail');
                     var originalData = initializeEmail.Value;
                     var valuesForm = getValues_emailForm();
-                    
+
                     if (NA.common.detectInputChanges(originalData, valuesForm)) {
                         if (confirm('Data has changed, \nAre you sure to Send mail ?')) {
                             if (!emailForm.checkValidity()) {
-                                //NA.NAEvent.preventDefault(event);   
+                                //NA.NAEvent.preventDefault(event);
                                 var inputbtn = NA.common.getElementID('emailData_submit');
                                 inputbtn.click();
                             } else {
@@ -642,7 +700,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
 
             }
         }
-        
+
     };
     function restyleBoostrapDialog() {
         var BSDialogContent = NA.common.doc.querySelector('div.modal-dialog.modal-sm >.modal-content');
@@ -771,7 +829,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
 					null//(parameter tambahan)nggak usah di isi bila tidak perlu(bila mau di isi isi dengan object javascript {key:value}
 					);
     };
-    window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik 
+    window.showDialogEntry = function (event) {//function ini akan di panggil oleh NAJS.common.dialog,setiap menu add/edit/delete,etc di clik
     	//add handler to btnOK untuk mengantisipasi form load gagal
     	var dialog = qs('div.containerDialog');
     	dialog.style.top = '10px';
@@ -779,7 +837,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
         var target = NA.NAEvent.getTarget(event);
 
         try {
-            
+
             if (target.innerText === 'Email Data') {
                 var btn_mailExport = qs('div.dialogButtonRightOther a.btn-link:nth-child(2)'),
                     btn_mailPreview = qs('div.dialogButtonRightOther a.btn-link:nth-child(1)');
@@ -864,7 +922,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                     break;
                                 }
                             };
-                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit     
+                            if (status !== 'Open' && status !== '') {//hanya untuk status Add/Edit
                             	var originalData = JSON.stringify(getValues_Form());
                                 $('input#id_datereturn').datepicker({
                                 	dateFormat: 'dd/mm/yy',
@@ -877,9 +935,9 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 	closeText: "Close",
                                 	currentText: 'Now',
                                 });
-                                
+
                                 //simpan original data di initializeForm
-                                
+
                             	var fk_goods = qs('input#id_fk_goods'),
 									typeApp = qs('input#id_typeApp'),
                                     itemcode = qs('input#id_itemcode'),
@@ -920,7 +978,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                                     }
                                                 }
                                             },
-                                            function (e) {//even for keydown txtSearch                                                  
+                                            function (e) {//even for keydown txtSearch
                                                 if (e.keyCode === 13) {
                                                     NA.NAEvent.preventDefault(e);
                                                     win.document.body.style.cursor = 'wait';
@@ -1111,7 +1169,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                             		}
                                             	}
                                             },
-                                            function (e) {//even for keydown txtSearch                                                  
+                                            function (e) {//even for keydown txtSearch
                                             	if (e.keyCode === 13) {
                                             		NA.NAEvent.preventDefault(e);
                                             		win.document.body.style.cursor = 'wait';
@@ -1240,7 +1298,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
                                 		NA_Ajax.GET(url, 'application/json',//overrideMimeType returned by the server
 										function () { window.document.body.style.cursor = 'wait'; },
 										null,//nggak usah di isi bila tidak perlu
-										function () {//function executed after data has been returned by server(XHR.onload)				
+										function () {//function executed after data has been returned by server(XHR.onload)
 
 											if (this.status === 200) {
 												var data = JSON.parse(this.responseText);
@@ -1269,7 +1327,7 @@ div#gbox_NA_Goods_Return_grid,div#gview_NA_Goods_Return_grid,div#NA_Goods_Return
 													var data = JSON.parse(this.responseText);
 												} catch (e) {
 													window.document.body.style.cursor = 'default'; XhrError(this); return false;
-												}												
+												}
 												if (data) {
 													if (data.message !== '__empty') {
 														window.document.body.style.cursor = 'default'; XhrError(this)
