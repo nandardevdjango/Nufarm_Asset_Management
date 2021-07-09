@@ -10,7 +10,7 @@ from django.shortcuts import render
 
 from NA_DataLayer.common import (
     Data, ResolveCriteria,
-    commonFunct, decorators, Message
+    commonFunct, decorators, Message, StatusForm
 )
 from NA_DataLayer.exceptions import NAError, NAErrorConstant, NAErrorHandler
 from NA_DataLayer.logging import LogActivity
@@ -46,7 +46,7 @@ def NA_EmployeeGetData(request):
     else:
         emplData = Employee.objects.PopulateQuery(
             IcolumnName, IvalueKey, criteria, dataType)
-    emplData = commonFunct.multi_sort_queryset(emplData,Isidx,Isord)
+    emplData = commonFunct.multi_sort_queryset(emplData, Isidx, Isord)
     totalRecord = emplData.count()
     paginator = Paginator(emplData, int(Ilimit))
     try:
@@ -88,116 +88,118 @@ def NA_EmployeeGetData(request):
 
 
 class NA_Employee_form(forms.Form):
-	idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
-	nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
-		attrs={
-			'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'
-		}
-	))
-	employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(
-		attrs={
-			'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
-		}
-	))
-	typeapp = forms.ChoiceField(required=True, widget=forms.Select(
-		attrs={
-			'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
-		}),choices=(('','--choose--'),('K','Contract'),('P','Permanent'),('C','Casual')) )
-	jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
-		'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
-	gender = forms.CharField(required=True, widget=forms.RadioSelect(
-		choices=[('M', 'Male'), ('F', 'Female')]))
-	status = forms.CharField(required=True, widget=forms.RadioSelect(
-		choices=[('S', 'Single'), ('M', 'Married')]))
-	telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
-		'class': 'NA-Form-Control', 'placeholder': 'Phone Number'}))
-	territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(
-		attrs={
-			'class': 'NA-Form-Control', 'placeholder': 'Territory'
-		}
-	))
-	descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(
-		attrs={
-			'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee',
-			'cols': '100', 'rows': '2',
-			'style': 'height: 50px;clear:left;width:500px;max-width:600px'
-		}
-	))
-	inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-	mode = forms.CharField(widget=forms.HiddenInput(), required=False)
-	initializeForm = forms.CharField(
-		widget=forms.HiddenInput(), required=False)
+    idapp = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    nik = forms.CharField(max_length=30, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Enter Nik'
+        }
+    ))
+    employee_name = forms.CharField(max_length=40, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Enter Employee Name'
+        }
+    ))
+    typeapp = forms.ChoiceField(required=True, widget=forms.Select(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Type of Employee'
+        }), choices=(('', '--choose--'), ('K', 'Contract'), ('P', 'Permanent'), ('C', 'Casual')))
+    jobtype = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={
+        'class': 'NA-Form-Control', 'placeholder': 'Jobtype'}))
+    gender = forms.CharField(required=True, widget=forms.RadioSelect(
+        choices=[('M', 'Male'), ('F', 'Female')]))
+    status = forms.CharField(required=True, widget=forms.RadioSelect(
+        choices=[('S', 'Single'), ('M', 'Married')]))
+    telphp = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={
+        'class': 'NA-Form-Control', 'placeholder': 'Phone Number'}))
+    territory = forms.CharField(max_length=150, required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Territory'
+        }
+    ))
+    descriptions = forms.CharField(max_length=250, required=True, widget=forms.Textarea(
+        attrs={
+            'class': 'NA-Form-Control', 'placeholder': 'Descriptions of Employee',
+            'cols': '100', 'rows': '2',
+                    'style': 'height: 50px;clear:left;width:500px;max-width:600px'
+        }
+    ))
+    inactive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+    mode = forms.CharField(widget=forms.HiddenInput(), required=False)
+    initializeForm = forms.CharField(
+        widget=forms.HiddenInput(), required=False)
 
-	def clean(self):
-		mode = self.cleaned_data.get('mode')
-		if mode == 'Edit':
-			idapp = self.cleaned_data.get('idapp')
-			if not idapp:
-				raise forms.ValidationError({'idapp': 'This Field is required'})
-		return super(NA_Employee_form, self).clean()
+    def clean(self):
+        mode = self.cleaned_data.get('mode')
+        if mode == 'Edit':
+            idapp = self.cleaned_data.get('idapp')
+            if not idapp:
+                raise forms.ValidationError(
+                    {'idapp': 'This Field is required'})
+        return super(NA_Employee_form, self).clean()
 
-	@transaction.atomic
-	def save(self, user):
-		mode = self.cleaned_data.get('mode')
-		employee = Employee()
-		initial_data = {}
-		if mode == 'Edit':
-			idapp = self.cleaned_data.get('idapp')
-			try:
-				employee = Employee.objects.get(idapp=idapp)
-				initial_data.update({
-					'employee_name': employee.employee_name,
-					'employee_phone': employee.telphp,
-					'employee_inactive': employee.inactive
-				})
-			except Employee.DoesNotExist:
-				raise NAError(
-					error_code=NAErrorConstant.DATA_LOST,
-					model=Employee,
-					pk=idapp
-				)
-		form_data = self.cleaned_data
-		del(form_data['mode'], form_data['initializeForm'])
+    @transaction.atomic
+    def save(self, user):
+        mode = self.cleaned_data.get('mode')
+        employee = Employee()
+        initial_data = {}
+        if mode == 'Edit':
+            idapp = self.cleaned_data.get('idapp')
+            try:
+                employee = Employee.objects.get(idapp=idapp)
+                initial_data.update({
+                    'employee_name': employee.employee_name,
+                    'employee_phone': employee.telphp,
+                    'employee_inactive': employee.inactive
+                })
+            except employee.DoesNotExist:
+                raise NAError(
+                    error_code=NAErrorConstant.DATA_LOST,
+                    model=Employee,
+                    pk=idapp
+                )
+        form_data = self.cleaned_data
+        del(form_data['mode'], form_data['initializeForm'])
 
-		for key, value in form_data.items():
-			setattr(employee, key, value)
+        for key, value in form_data.items():
+            setattr(employee, key, value)
 
-		activity = LogActivity.CREATED
-		if mode == 'Add':
-			employee.createddate = datetime.datetime.now()
-			employee.createdby = user
-		elif mode == 'Edit':
-			activity = LogActivity.UPDATED
-			employee.modifieddate = datetime.datetime.now()
-			employee.modifiedby = user
-		try:
-			employee.save()
-		except IntegrityError as e:
-			raise NAError(
-				error_code=NAErrorConstant.DATA_EXISTS,
-				message=e,
-				instance=employee
-			)
-		changed_data = {
-			'employee_name': employee.employee_name,
-			'employee_phone': employee.telphp,
-			'employee_inactive': employee.inactive
-		}
-		diff = commonFunct.get_difference_dict_values(initial_data, changed_data)
-		if diff:
-			worker = NATaskWorker(
-				func=NATask.task_update_notifications,
-				args=[initial_data, diff]
-			)
-			worker.run()
-		log = LogActivity(
-			models=Employee,
-			activity=activity,
-			user=user,
-			data=employee
-		)
-		log.record_activity()
-		return Data.Success,
+        #activity = LogActivity.CREATED
+        status = StatusForm.Input
+        if mode == 'Add':
+            employee.createddate = datetime.datetime.now()
+            employee.createdby = user
+            form_data.update(createddate=employee.createddate)
+            form_data.update(createdby=employee.createddate)
+        elif mode == 'Edit':
+            #activity = LogActivity.UPDATED
+            employee.modifieddate = datetime.datetime.now()
+            employee.modifiedby = user
+            form_data.update(modifieddate=employee.modifieddate)
+            form_data.update(modifiedby=employee.modifieddate)
+            status = StatusForm.Input
+        try:
+            Employee.objects.SaveData(status, **form_data)
+            # employee.save()
+        except IntegrityError as e:
+            raise NAError(
+                error_code=NAErrorConstant.DATA_EXISTS,
+                message=e,
+                instance=employee
+            )
+        changed_data = {
+            'employee_name': employee.employee_name,
+            'employee_phone': employee.telphp,
+            'employee_inactive': employee.inactive
+        }
+        diff = commonFunct.get_difference_dict_values(
+            initial_data, changed_data)
+        if diff:
+            worker = NATaskWorker(
+                func=NATask.task_update_notifications,
+                args=[initial_data, diff]
+            )
+            worker.run()
+        return Data.Success,
 
 
 @decorators.ajax_required
@@ -208,6 +210,7 @@ def Set_InActive(request):
     result = Employee.objects.setInActive(
         idapp, commonFunct.str2bool(inactive))
     return commonFunct.response_default(result)
+
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')
@@ -223,6 +226,8 @@ def getJobType(request):
         results.append(JsonResult)
     data = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(data, content_type='application/json')
+
+
 def getTerritories(request):
     IvalueKey = request.GET.get('term')
     TypesRows = Employee.objects.getTerritories(IvalueKey)
@@ -235,6 +240,8 @@ def getTerritories(request):
         results.append(JsonResult)
     data = json.dumps(results, cls=DjangoJSONEncoder)
     return HttpResponse(data, content_type='application/json')
+
+
 @decorators.ensure_authorization
 @decorators.read_permission(form_name=Employee.FORM_NAME_ORI)
 def EntryEmployee(request):
@@ -244,18 +251,21 @@ def EntryEmployee(request):
             try:
                 result = form.save(user=request.user.username)
             except NAError as e:
-                result = NAErrorHandler.handle(err=e)#error kalau user salah input, ada form yang tidak di isi
+                # error kalau user salah input, ada form yang tidak di isi
+                result = NAErrorHandler.handle(err=e)
         else:
             result = NAErrorHandler.handle_form_error(form_error=form.errors)
         return commonFunct.response_default(result)
     elif request.method == 'GET':
         idapp = request.GET['idapp']
         mode = request.GET['mode']
+        employee = Employee()
         if mode == 'Edit' or mode == 'Open':
             try:
                 result = Employee.objects.get(idapp=idapp)
-            except Employee.DoesNotExist:
-                result = NAErrorHandler.handle_data_lost(model=Employee, pk=idapp)
+            except employee.DoesNotExist:
+                result = NAErrorHandler.handle_data_lost(
+                    model=Employee, pk=idapp)
                 return commonFunct.response_default(result)
             else:
                 form = NA_Employee_form(initial=forms.model_to_dict(result))
@@ -301,7 +311,7 @@ def NA_Employee_delete(request):
     idapp = request.POST.get('idapp')
     try:
         employee = Employee.objects.get(idapp=idapp)
-    except Employee.DoesNotExist:
+    except employee.DoesNotExist:
         result = NAErrorHandler.handle_data_lost(
             pk=idapp,
             model=Employee
@@ -309,7 +319,7 @@ def NA_Employee_delete(request):
     else:
         if Employee.objects.hasRef(idapp=idapp):
             message = Message.HasRef_del.value
-            return commonFunct.response_default((Data.HasRef,message))
+            return commonFunct.response_default((Data.HasRef, message))
         with transaction.atomic():
             log = LogActivity(
                 models=Employee,

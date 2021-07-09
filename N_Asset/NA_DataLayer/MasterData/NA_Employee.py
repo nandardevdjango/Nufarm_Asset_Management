@@ -2,7 +2,7 @@
 from django.db.models import Q
 from django.db import models, connection, transaction
 from NA_DataLayer.common import (CriteriaSearch, DataType, StatusForm,
-                                 Data, Message, commonFunct,ResolveCriteria)
+                                 Data, Message, commonFunct, ResolveCriteria)
 from ..logging import LogActivity
 
 
@@ -63,8 +63,8 @@ class NA_BR_Employee(models.Manager):
             Params['CreatedDate'] = data['createddate']
             Params['CreatedBy'] = data['createdby']
             Query = """INSERT INTO employee(nik, employee_name, typeapp, jobtype, gender,
-            status, telphp, territory, inactive, descriptions,createddate, createdby)
-            VALUES({})""".format(','.join('%(' + i + ')s' for i in Params))
+			status, telphp, territory, inactive, descriptions,createddate, createdby)
+			VALUES({})""".format(','.join('%(' + i + ')s' for i in Params))
         elif statusForm == StatusForm.Edit:
             if self.hasRef(data['idapp']):
                 return (Data.HasRef, Message.HasRef_edit.value)
@@ -73,21 +73,21 @@ class NA_BR_Employee(models.Manager):
                 Params['ModifiedBy'] = data['modifiedby']
                 Params['IDApp'] = data['idapp']
                 Query = """UPDATE employee SET
-                nik=%(Nik)s,
-                employee_name=%(Employee_Name)s,
-                typeapp=%(TypeApp)s,
-                jobtype=%(JobType)s,
-                gender=%(Gender)s,
-                status=%(Status)s,
-                telphp=%(Telphp)s,
-                territory=%(Territory)s,
-                descriptions=%(Descriptions)s,
-                inactive=%(Inactive)s,
-                modifieddate=%(ModifiedDate)s,
-                modifiedby=%(ModifiedBy)s
-                WHERE idapp = %(IDApp)s"""
-        with transaction.atomic():
-            cur.execute(Query, Params)
+				nik=%(Nik)s,
+				employee_name=%(Employee_Name)s,
+				typeapp=%(TypeApp)s,
+				jobtype=%(JobType)s,
+				gender=%(Gender)s,
+				status=%(Status)s,
+				telphp=%(Telphp)s,
+				territory=%(Territory)s,
+				descriptions=%(Descriptions)s,
+				inactive=%(Inactive)s,
+				modifieddate=%(ModifiedDate)s,
+				modifiedby=%(ModifiedBy)s
+				WHERE idapp = %(IDApp)s"""
+        cur.execute(Query, Params)
+        if statusForm == StatusForm.Edit:
             logging = LogActivity(
                 models=self.model,
                 activity='Updated',
@@ -96,9 +96,18 @@ class NA_BR_Employee(models.Manager):
                     'Nik': data['nik']
                 }
             )
-            logging.record_activity()
-            row = cur.fetchone()
-            connection.close()
+        else:
+            logging = LogActivity(
+                models=self.model,
+                activity='Created',
+                user=data['createdby'],
+                data={
+                    'Nik': data['nik']
+                }
+            )
+        logging.record_activity()
+        row = cur.fetchone()
+        # connection.close()
         return (Data.Success, row)
 
     def delete_employee(self, **kwargs):
@@ -134,8 +143,8 @@ class NA_BR_Employee(models.Manager):
                     dataPrms['ModifiedBy'] = data['modifiedby']
 
                 Query = """INSERT INTO logevent (nameapp,descriptions,createddate,createdby)
-                VALUES(\'Deleted Employee\',
-                JSON_OBJECT(\'deleted\',JSON_ARRAY({})),NOW(),""".format(
+				VALUES(\'Deleted Employee\',
+				JSON_OBJECT(\'deleted\',JSON_ARRAY({})),NOW(),""".format(
                     ','.join('%(' + i + ')s' for i in dataPrms)
                 )
                 dataPrms['NA_User'] = NA_User
@@ -167,11 +176,13 @@ class NA_BR_Employee(models.Manager):
                 return (Data.Lost, Message.get_lost_info(pk=get_idapp, table='employee'))
         else:
             return (Data.Success, get_data()[0])
+
     def existByNIK(self, NIK):
         return super(NA_BR_Employee, self).get_queryset().filter(nik=NIK).exists()
+
     def dataExist(self, **kwargs):
         idapp = kwargs.get('idapp')
-        status_form = kwargs.get('status_form')
+        #status_form = kwargs.get('status_form')
         if idapp is not None:
             return super(NA_BR_Employee, self).get_queryset().filter(idapp=idapp).exists()
         nik = kwargs.get('nik')
@@ -183,7 +194,7 @@ class NA_BR_Employee(models.Manager):
         telphp = kwargs.get('telphp')
         if telphp is not None:
             is_telp = super(NA_BR_Employee, self).get_queryset().filter(
-                Q(telphp=telphp)& Q(inactive=0)).exists()
+                Q(telphp=telphp) & Q(inactive=0)).exists()
             if is_telp:
                 return (True, Message.get_specific_exists('Employee', 'Telp/HP', telphp))
         return (False,)
@@ -191,12 +202,12 @@ class NA_BR_Employee(models.Manager):
     def hasRef(self, idapp):
         cur = connection.cursor()
         Query = """SELECT EXISTS(SELECT idapp FROM n_a_goods_lending
-        WHERE fk_employee=%(IDApp)s
-        OR fk_responsibleperson=%(IDApp)s OR fk_sender=%(IDApp)s
-        UNION
-        SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR
-        fk_responsibleperson=%(IDApp)s
-        OR fk_sender=%(IDApp)s OR fk_usedemployee=%(IDApp)s)"""
+		WHERE fk_employee=%(IDApp)s
+		OR fk_responsibleperson=%(IDApp)s OR fk_sender=%(IDApp)s
+		UNION
+		SELECT idapp FROM n_a_goods_outwards WHERE fk_employee=%(IDApp)s OR
+		fk_responsibleperson=%(IDApp)s
+		OR fk_sender=%(IDApp)s OR fk_usedemployee=%(IDApp)s)"""
         cur.execute(Query, {'IDApp': idapp})
         if cur.fetchone()[0] > 0:
             cur.close()
@@ -207,7 +218,8 @@ class NA_BR_Employee(models.Manager):
 
     def setInActive(self, idapp, inactive):
         if self.dataExist(idapp=idapp):
-            data = super(NA_BR_Employee, self).get_queryset().values('inactive').filter(idapp=idapp)
+            data = super(NA_BR_Employee, self).get_queryset().values(
+                'inactive').filter(idapp=idapp)
             if commonFunct.str2bool(data[0]['inactive']) == inactive:
                 return (Data.Changed, Message.has_update_by_other(pk=idapp, table='employee'))
             else:
@@ -220,14 +232,16 @@ class NA_BR_Employee(models.Manager):
         data = self.active()\
             .values('idapp', 'nik', 'employee_name')\
             .filter(
-                Q(nik__icontains=q) |
-                Q(employee_name__icontains=q)
+            Q(nik__icontains=q) |
+            Q(employee_name__icontains=q)
         )
         if data.exists():
             return data
         else:
             return Data.Empty
+
     def getJobType(self, search):
         return super(NA_BR_Employee, self).get_queryset().filter(jobtype__icontains=search).values('jobtype').distinct()
+
     def getTerritories(self, search):
-        return super(NA_BR_Employee,self).get_queryset().filter(territory__icontains=search).values('territory').distinct()
+        return super(NA_BR_Employee, self).get_queryset().filter(territory__icontains=search).values('territory').distinct()

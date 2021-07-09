@@ -188,70 +188,157 @@
 <script type="text/javascript">
 (function(){
     		//========================Variable Object untuk ===============================
-		var win = win || window,
-			grid = $("#jqGrid_NA_F_Goods_Deletion"),
-			txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
-			btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
-			csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
-			//TypeApps = [],
-			//settings btn sesuai user access
-			//anggap saja sekarang admin
-			btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
-			btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
-			btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
-			btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
-			btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
-			containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
-			originalData = {};
-        		$.ajaxSetup({
-			cache: false,
-			error: function (xhr, status, error) {
-				try {
-					var messageErr = xhr.responseText;
-					var contentype = xhr.getResponseHeader('Content-Type')
-					if (contentype === 'application/json') {
-						messageErr = $.parseJSON(xhr.responseText);
-					}
-					var message = xhr.responseText;
-					if (messageErr) {
-						message = messageErr.message;
-					}
-					if (message) {
-						ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
-					}
-
-				} catch (e) {
-					ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
+	var win = win || window,
+		grid = $("#jqGrid_NA_F_Goods_Deletion"),
+		txtSearchMaster = NA.common.doc.querySelector('form.navbar-form div.input-group input[name="q"]'),
+		btnSearchMaster = NA.common.doc.querySelector('form.navbar-form button[type="submit"].btn.btn-default'),
+		csrftoken = function () { return NA.CookieUtil.get('csrftoken'); },
+		//TypeApps = [],
+		//settings btn sesuai user access
+		//anggap saja sekarang admin
+		btnSave = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(4)'),
+		btnDelete = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(5)'),
+		btnExport = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(6)'),
+		btnHelp = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(8)'),
+		btnPrint = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav li:nth-child(7)'),
+		containerMenu = NA.common.dialog.doc.querySelector('ul.nav.navbar-nav'),//inistialisasi menu 
+		originalData = {};
+			$.ajaxSetup({
+		cache: false,
+		error: function (xhr, status, error) {
+			try {
+				var messageErr = xhr.responseText;
+				var contentype = xhr.getResponseHeader('Content-Type')
+				if (contentype === 'application/json') {
+					messageErr = $.parseJSON(xhr.responseText);
 				}
-				window.document.body.style.cursor = 'defautl'; return false;
-			},
-			timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
-			type: 'GET',
-			crossDomain: false, // obviates need for sameOrigin test                              
-		});
-
-		//===================================END AJAX SetuP===========================--> 
-        		//csrf token untuk form
-		function csrfSafeMethod(method) {
-			// these HTTP methods do not require CSRF protection
-			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-		};
-		$.ajaxPrefilter(function (options) {
-			// Always add "?debug=1" to every URL
-			options.beforeSend = function (xhr, settings) {
-				if (!csrfSafeMethod(settings.type)) {
-					xhr.setRequestHeader("X-CSRFToken", csrftoken());
+				var message = xhr.responseText;
+				if (messageErr) {
+					message = messageErr.message;
 				}
+				if (message) {
+					ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + message);
+				}
+
+			} catch (e) {
+				ShowAlert('An error occurred: ' + error + '\n' + xhr.status + ": " + e.message);
 			}
-		});
-        var searchData = NA.common.SearchData;
-        SearchData.setDefaultSearchData('goods', 'varchar', 'like');
-		var url = 'NA_Goods_Deletion_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
-			'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
-			'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
-			'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
-		//Load Data grid
+			window.document.body.style.cursor = 'defautl'; return false;
+		},
+		timeout: 2000000, // Timeout// nanti kalau sudah selesai system timeout ini harus di rubah, jadi maximal 20 detik
+		type: 'GET',
+		crossDomain: false, // obviates need for sameOrigin test                              
+	});
 
+	//===================================END AJAX SetuP===========================--> 
+			//csrf token untuk form
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	};
+	$.ajaxPrefilter(function (options) {
+		// Always add "?debug=1" to every URL
+		options.beforeSend = function (xhr, settings) {
+			if (!csrfSafeMethod(settings.type)) {
+				xhr.setRequestHeader("X-CSRFToken", csrftoken());
+			}
+		}
+	});
+	var searchData = NA.common.SearchData;
+	SearchData.setDefaultSearchData('goods', 'varchar', 'like');
+	var url = 'NA_Goods_Deletion_Search/?' + win.encodeURIComponent('columnName') + '=' + win.encodeURIComponent(NA.common.SearchData.getColumnKey()) +
+		'&' + win.encodeURIComponent('valueKey') + '=' + win.encodeURIComponent(NA.common.SearchData.getValueKey()) +
+		'&' + win.encodeURIComponent('dataType') + '=' + win.encodeURIComponent(NA.common.SearchData.getDataType()) +
+		'&' + win.encodeURIComponent('criteria') + '=' + win.encodeURIComponent(NA.common.SearchData.getCriteria());
+	//Load Data grid
+	function LoadData(page){
+		if (arguments.length > 0) {
+			grid.setGridParam({ url: url }).trigger("reloadGrid", [{ page: page, }]);
+		}
+		else{
+			try {
+			//			#column idapp,NO,goods,goodstype,serialnumber,daterequest,datereleased,isnew,fk_employee,for_employee,fk_usedemployee,eks_employee,
+			//#fk_responsibleperson,responsible_by,fk_sender,senderby,fk_stock,refgoodsfrom,descriptions,createdby,createddate
+				grid.jqGrid({
+					url: url,
+					mtype: "GET",
+					datatype: "json",
+					colNames: ['idapp', 'NO','Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Request', 'Date Released', 'Is New', 'fk_employee', 'For Employee', 'Emp_Mobile',
+						'fk_usedemployee', 'Eks Employee', 'fk_responsibleperson', 'Responsible By', 'fk_sender', 'Employee Sender', 'fk_stock', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By'],
+					colModel: [
+						{ name: 'idapp', key: true, hidden: true, align: 'left' },
+						{ name: 'NO', width: 40, align: 'right', sortable: false, editable: false, },
+						{ name : 'territory',width:100,index:'territory',align:'left',sortable:true,editable:false},
+						{ name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
+						{ name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
+						{ name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
+						{ name: 'daterequest', index: 'daterequest', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+						{ name: 'datereleased', index: 'datereleased', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+						{ name: 'isnew', index: 'isnew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
+						{ name: 'fk_employee', index: 'fk_employee', hidden: true, },
+						{ name: 'for_employee', index: 'for_employee', width: 110, sortable: true, editable: false, align: 'left', },
+						{ name: 'mobile', index: 'mobile', width: 110, sortable: true, editable: false, align: 'left', },
+						{ name: 'fk_usedemployee', index: 'fk_usedemployee', hidden: true, },
+						{ name: 'eks_employee', index: 'eks_employee', width: 110, sortable: true, editable: false, align: 'left', },
+						{ name: 'fk_responsibleperson', index: 'fk_responsibleperson', hidden: true, },
+						{ name: 'responsible_by', index: 'responsible_by', width: 110, sortable: true, editable: false, align: 'left', },
+						{ name: 'fk_sender', index: 'fk_sender', hidden: true, },
+						{ name: 'senderby', index: 'senderby', width: 110, sortable: true, editable: false, align: 'left', },
+						{ name: 'fk_stock', index: 'fk_stock', hidden: true, },
+						{ name: 'refgoodsfrom', index: 'refgoodsfrom', width: 130, sortable: true, editable: false, align: 'left', },
+						{ name: 'equipment_desc', index: 'equipment_desc', width: 150, sortable: true, editable: false, align: 'left' },
+						{ name: 'descriptions', index: 'descriptions', width: 140, sortable: true, editable: false, align: 'left', },
+						{ name: 'createddate', index: 'createddate', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
+						{ name: 'createdby', index: 'createdby', sortable: true, width: 110, editable: false, },
+					],
+					ondblClickRow: function (rowId) {
+						var btnOpen = NA.common.doc.querySelector('ul.nav.navbar-nav>li:nth-child(2)>button');
+						if (btnOpen) {
+							btnOpen.click();
+						}
+					},
+					gridComplete: function () {
+						document.body.style.cursor = 'default';
+					},
+					loadError: function (xhr, st, err) {
+						win.document.body.style.cursor = 'default'; XhrError(xhr);
+					},
+
+					//cellEdit: false,
+					height: $('div.fltlft').height() - ($('div.fltlft').height() * 0.173),
+					rowNum: 300,
+					rowList: [20, 50, 100, 200, 300, 500],
+					sortname: "idapp",
+					sortorder: "desc",
+					multiSort: false,
+					shrinkToFit: false,
+					loadui: 'block',
+					iconSet: "fontAwesome",
+					forceFit: true,
+					toolbar: true,
+					gridview: true,
+					scrollrows: true,
+					hidegrid: true,
+					caption: "Transactions ---Goods Outwards",
+					pager: "#jqGrid_NA_F_Goods_Outwards_Pager"
+				});
+				grid.navGrid("#jqGrid_NA_F_Goods_Outwards_Pager", {
+					search: false, // show search button on the toolbar
+					add: false,
+					edit: false,
+					del: false,
+					refresh: true
+				});
+			} catch (e) {
+				ShowAlert(e.message);
+				console.log(e);
+				win.document.body.style.cursor = 'default';
+			}
+			$("div#gbox_jqGrid_NA_F_Goods_Outwards, div#gview_jqGrid_NA_F_Goods_Outwards, div.ui-jqgrid-bdiv, div.ui-jqgrid-hdiv").css({
+				'width': 'inherit'
+			})
+		}
+	};
 })()
 </script>
 {% endblock %}

@@ -68,6 +68,7 @@ class NAUpdateNotificationService(object):
             notification = NANotifications.objects.get(**filter_kwargs)
             notification.data.update(self.data)
             notification.save()
+            print(nofification.query)
         except NANotifications.MultipleObjectsReturned:
             notification = NANotifications.objects.filter(**filter_kwargs)
             for notif in notification:

@@ -4,11 +4,23 @@
         "baseUrl": "."
     },
     "include": [
-        "src/**/*"
+        "./app/static/app/autocomplete.js",
+        "./app/static/app/domJSON.js",
+        "./app/static/app/scripts/bootstrap-dialog.js",
+        "./app/static/app/scripts/jquery-1.10.2.js",
+        "./app/static/app/scripts/jquery-ui.js",
+        "./app/static/app/scripts/jquery.jqGrid.js",
+        "./app/static/app/scripts/modernizr-2.6.2.js",
+        "./app/static/app/scripts/jquery.validate.js",
+        "./app/static/app/scripts/jquery.validate.unobtrusive.js",
+        "./app/static/app/scripts/NAJS.js",
+        "./app/static/app/scripts/bootstrap.js",
+        "./app/static/app/NA_Bootstrap.js",
+        "./app/static/app/NAJQuery.js,",
     ],
     "exclude": [
         "node_modules",
-        "**/node_modules/*"
+        "**/node_modules/*"   
     ],
     "typeAcquisition": {
         "include": [

@@ -250,7 +250,7 @@ class NA_BR_Goods_Outwards(models.Manager):
 				cur.execute(Query,[fklending])
 				if cur.rowcount > 0:
 					row = cur.fetchone()
-					status_lent = str[row[5]]
+					status_lent = row[5]
 					if status_lent == 'L':
 						lastInfo = 'Last used by ' + str(row[1]) + '|' + str(row[2]) + ', date lent ' + parse(
 							str(row[3])).strftime('%d %B %Y') + ', interests ' + str(row[4]) + ' (goods is still lent)'
