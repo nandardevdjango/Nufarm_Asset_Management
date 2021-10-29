@@ -67,6 +67,8 @@ class NAUpdateNotificationService(object):
         try:
             notification = NANotifications.objects.get(**filter_kwargs)
             notification.data.update(self.data)
+            from celery.contrib import rdb
+            rdb.set_trace()
             notification.save()
             print(nofification.query)
         except NANotifications.MultipleObjectsReturned:

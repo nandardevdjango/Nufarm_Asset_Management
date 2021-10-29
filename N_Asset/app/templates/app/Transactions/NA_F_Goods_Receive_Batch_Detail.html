@@ -1097,7 +1097,7 @@
 	      //}
 	      //check brandname harus ada
 	      //type sama serialnumber harus ada
-	      var hasData = (brandname != '') || (typeapp != '') || (serialnumber.length > 3) || (parseFloat(priceperunit) > 0) || (parseFloat(warranty) > 0) || (endofwarranty != '')
+	      var hasData = (brandname != '') || (typeapp != '') || (serialnumber.length > 3) || (parseFloat(priceperunit) > 0) || (parseFloat(warranty) > 0) || (endofwarranty != '') || (endofwarranty == '&#160;')
 	      if (!hasData) {
 	        continue;
 	      }

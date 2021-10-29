@@ -16,7 +16,6 @@ from NA_Notifications.services.notifications_service import (
     NAClearNotificationService
 )
 
-
 def _push_notification(reg_id=None):
     reg_expire = NAGaVnHistory.get_expired_regs(reg_id)
     if reg_expire:

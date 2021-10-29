@@ -98,7 +98,7 @@ class NA_BR_Maintenance(models.Manager):
                     Params['ModifiedDate'] = data['modifieddate']
                     Params['ModifiedBy'] = data['modifiedby']
                     Query = """UPDATE n_a_maintenance SET requestdate=%(RequestDate)s, startdate=%(StartDate)s, isstillguarantee=%(IsStillGuarantee)s,
-                    expense=%(Expense)s,maintenanceby=%(MaintenanceBy)s, personalname=%(PersonalName)s,enddate=%(EndDate)s,issucced=%(IsSucced)s,
+                    expense=%(Expense)s,maintenanceby=%(MaintenanceBy)s, personalname=%(PersonalName)s,enddate=%(EndDate)s,issucced=%(IsSucced)s,isfinished=%(isFinished)s,
                     descriptions=%(Descriptions)s,modifieddate=%(ModifiedDate)s,modifiedby=%(ModifiedBy)s WHERE idapp=%(IDApp)s"""
                 cur.execute(Query, Params)
                 cur.close()
@@ -271,7 +271,7 @@ class NA_BR_Maintenance(models.Manager):
 
     def getMaintenanceBy(self, maintenance_by):
         data = super(NA_BR_Maintenance, self).get_queryset().values(
-            'maintenanceby').filter(maintenanceby=maintenance_by).distinct()
+            'maintenanceby').filter(maintenanceby__icontains(maintenance_by)).distinct()
         if data:
             return data[0]
         else:

@@ -176,7 +176,7 @@ class NA_Employee_form(forms.Form):
             employee.modifiedby = user
             form_data.update(modifieddate=employee.modifieddate)
             form_data.update(modifiedby=employee.modifieddate)
-            status = StatusForm.Input
+            status = StatusForm.Edit
         try:
             Employee.objects.SaveData(status, **form_data)
             # employee.save()

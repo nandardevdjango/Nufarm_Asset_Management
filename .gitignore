@@ -264,3 +264,5 @@ N_Asset/N_Asset/local_settings.py
 .vscode
 N_Asset/.idea
 /N_Asset/app/static/app/scripts/jqGridversion3_8.js
+/N_Asset/app/static/app/scripts/jquery.ba-throttle-debounce.js
+N_Asset/celerybeat-schedule.*

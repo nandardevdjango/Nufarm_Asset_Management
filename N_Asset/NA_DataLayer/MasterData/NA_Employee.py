@@ -66,26 +66,23 @@ class NA_BR_Employee(models.Manager):
 			status, telphp, territory, inactive, descriptions,createddate, createdby)
 			VALUES({})""".format(','.join('%(' + i + ')s' for i in Params))
         elif statusForm == StatusForm.Edit:
-            if self.hasRef(data['idapp']):
-                return (Data.HasRef, Message.HasRef_edit.value)
-            else:
-                Params['ModifiedDate'] = data['modifieddate']
-                Params['ModifiedBy'] = data['modifiedby']
-                Params['IDApp'] = data['idapp']
-                Query = """UPDATE employee SET
-				nik=%(Nik)s,
-				employee_name=%(Employee_Name)s,
-				typeapp=%(TypeApp)s,
-				jobtype=%(JobType)s,
-				gender=%(Gender)s,
-				status=%(Status)s,
-				telphp=%(Telphp)s,
-				territory=%(Territory)s,
-				descriptions=%(Descriptions)s,
-				inactive=%(Inactive)s,
-				modifieddate=%(ModifiedDate)s,
-				modifiedby=%(ModifiedBy)s
-				WHERE idapp = %(IDApp)s"""
+            Params['ModifiedDate'] = data['modifieddate']
+            Params['ModifiedBy'] = data['modifiedby']
+            Params['IDApp'] = data['idapp']
+            Query = """UPDATE employee SET
+            nik=%(Nik)s,
+            employee_name=%(Employee_Name)s,
+            typeapp=%(TypeApp)s,
+            jobtype=%(JobType)s,
+            gender=%(Gender)s,
+            status=%(Status)s,
+            telphp=%(Telphp)s,
+            territory=%(Territory)s,
+            descriptions=%(Descriptions)s,
+            inactive=%(Inactive)s,
+            modifieddate=%(ModifiedDate)s,
+            modifiedby=%(ModifiedBy)s
+            WHERE idapp = %(IDApp)s"""
         cur.execute(Query, Params)
         if statusForm == StatusForm.Edit:
             logging = LogActivity(

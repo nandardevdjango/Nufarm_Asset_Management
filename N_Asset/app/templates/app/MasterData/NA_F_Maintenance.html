@@ -1354,6 +1354,7 @@
         (expense = qs("input#id_expense")),
         (isfinished = qs("input#id_isfinished")),
         (divInfo = qs("div#difInfo"));
+      minus.disabled = !isDisabled;
       startdate.disabled = !isDisabled;
       enddate.disabled = !isDisabled;
       requestdate.disabled = !isDisabled;
@@ -1384,7 +1385,7 @@
       still_guarantee.value = data["still_guarantee"].valueOf();
       still_guarantee.checked = data["still_guarantee"].toLowerCase() == "true";
       lastUsedInfo.value = data["lastUsedInfo"];
-      minus.value = data["minusdesc"];
+      minus.value = data["minusdesc"]||"-";
     }
 
     function EraseElHidden() {
@@ -1746,7 +1747,7 @@
                   $("#id_maintenanceby").autocomplete({
                     source: "getMaintenanceBy/",
                     minLength: 2,
-                    delay: 100,
+                    delay: 0,
                   });
                   NA.NAEvent.addHandler(
                     maintenance_by,

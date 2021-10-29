@@ -1,14 +1,12 @@
-﻿{% extends "../../app/layout.html" %} {% block SearchData %} {% for itemCombo in
-populateColumn %}
-<li>
-  <a
-    href="#"
-    data-tipe="{{itemCombo.dataType}}"
-    data-column="{{itemCombo.columnName}}"
-    >{{itemCombo.label}}</a
-  >
-</li>
-{% endfor %} {% endblock %} {% block javascriptAndUI %}
+﻿{% extends "../../app/layout.html" %}
+ {% block SearchData %}
+  {% for itemCombo in populateColumn %}
+  <li>
+    <a href="#" data-tipe="{{itemCombo.dataType}}" data-column="{{itemCombo.columnName}}"> {{itemCombo.label}} </a>
+  </li>
+  {% endfor %}
+ {% endblock %}
+{% block javascriptAndUI %}
 <!--================================Load Script Modules NA ===========================================-->
 <script
   type="text/javascript"
@@ -186,7 +184,8 @@ populateColumn %}
   }
 </script>
 <script src="../../../static/app/scripts/bootstrap-dialog.js"></script>
-{% endblock %} {% block content-0 %}
+{% endblock %}
+{% block content-0 %}
 
 <style>
   table.ui-pg-table.navtable.ui-common-table {
@@ -281,19 +280,13 @@ populateColumn %}
   class="scroll"
   style="text-align: center"
 ></div>
-<a
-  style="visibility: hidden"
+<a style="visibility: hidden"
   id="Export_Goods_Receive_All_xls"
-  href="{% url 'Transactions:NA_Goods_Receive:export_goods_xls' Options='all' %}"
-  >Export all</a
->
-<a
-  style="visibility: hidden"
-  id="Export_Goods_Receive_HeaderOnly_xls"
-  href="{% url 'Transactions:NA_Goods_Receive:export_goods_xls' Options='headeronly' %}"
-  >Export Header Only</a
->
-{%endblock%} {% block DialogEntry %}
+  href="{% url 'Transactions:NA_Goods_Receive:export_goods_xls' Options='all' %}">Export all</a>
+<a style="visibility: hidden" id="Export_Goods_Receive_HeaderOnly_xls"
+  href="{% url 'Transactions:NA_Goods_Receive:export_goods_xls' Options='headeronly' %}">Export Header Only</a>
+{% endblock %}
+{% block DialogEntry %}
 
 <script type="text/javascript">
   //=================================AJAX Setup===========================-->
