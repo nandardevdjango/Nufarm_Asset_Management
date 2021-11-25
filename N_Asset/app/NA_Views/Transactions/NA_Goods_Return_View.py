@@ -184,7 +184,7 @@ def Delete_data(request):
         if isinstance(result,tuple):
             return HttpResponse(result[0])
         else:
-            return HasReference(result)
+            return HttpResponse(result)
 
 @decorators.ajax_required
 @decorators.detail_request_method('GET')

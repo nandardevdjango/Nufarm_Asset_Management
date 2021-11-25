@@ -12,7 +12,7 @@ class NA_BR_Goods_Lending(models.Manager):
 		rs = ResolveCriteria(criteria,typeofData,columnKey,ValueKey)
 		if columnKey == 'goods':
 			colKey = 'g.goodsname'
-		elif columnKey == 'goodstype':
+		elif columnKey == 'typeapp':
 			colKey = 'ngd.TypeApp'
 		elif columnKey == 'serialnumber':
 			colKey = 'ngd.serialnumber'

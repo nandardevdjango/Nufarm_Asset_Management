@@ -90,7 +90,7 @@
               btnSearchMaster.removeAttribute("disabled");
               var textSearch = NA.common.getElementID("bySearch");
               textSearch.firstChild.nodeValue = item.textContent;
-              var elSearch = item.firstChild;
+              var elSearch = item.firstElementChild;
               switch (elSearch.dataset.tipe) {
                 case "varchar":
                 case "nchar":

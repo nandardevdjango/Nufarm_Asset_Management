@@ -8,6 +8,7 @@ from django.db.models import Q
 class NA_BR_Maintenance(models.Manager):
     def PopulateQuery(self, orderFields, sortIndice, pageSize, PageIndex, userName, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
         rs = ResolveCriteria(criteria, typeofData, columnKey, ValueKey)
+        colKey = 'g.goodsname'
         if columnKey == 'goods':
             colKey = 'g.goodsname'
         elif columnKey == 'typeapp':
@@ -45,7 +46,7 @@ class NA_BR_Maintenance(models.Manager):
         Query = "CREATE TEMPORARY TABLE T_Maintenance_Manager_" + userName + """ ENGINE=MyISAM AS(SELECT m.idapp, m.requestdate, m.startdate, m.isstillguarantee, m.expense, m.maintenanceby, m.personalname,m.enddate,
         g.itemcode,CONCAT(g.goodsname, ' ',ngd.brandname, ' ',m.typeapp) AS goods,m.serialnumber, m.issucced,m.isfinished, m.descriptions, m.createddate,
         m.createdby FROM n_a_maintenance m INNER JOIN n_a_goods g ON m.fk_goods = g.idapp
-        INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp AND m.serialnumber = ngd.serialnumber WHERE """ + columnKey + rs.Sql() + ")"
+        INNER JOIN n_a_goods_receive ngr ON ngr.fk_goods = g.IDApp INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp AND m.serialnumber = ngd.serialnumber WHERE """ + colKey + rs.Sql() + ")"
         cur.execute(Query)
         strLimit = '20'  # ambil yang paling kecil di grid
         if int(PageIndex) <= 1:

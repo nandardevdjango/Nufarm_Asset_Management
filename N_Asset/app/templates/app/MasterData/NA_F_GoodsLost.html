@@ -170,7 +170,7 @@
 
         function handlerSearchInput(event) {
             event = NA.NAEvent.getEvent(event);
-            if (event.target == txtSearchMaster || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster ) {
+          	if (event.keyCode === 13 || event.target == btnSearchMaster || event.target.parentNode == btnSearchMaster)  {
                 NA.NAEvent.preventDefault(event);
                 var elSearch = NA.common.doc.querySelector('li.dropdown>a#bySearch'),
                     SearchBy = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim(),
