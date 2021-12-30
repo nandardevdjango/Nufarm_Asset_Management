@@ -188,7 +188,7 @@ class NAGoodsOutwardsModel(NA_TransactionModel):
         db_constraint=False
     )
     lastinfo = models.CharField(
-        db_column='lastinfo', max_length=150, blank=True, null=True)
+        db_column='lastinfo', max_length=250, blank=True, null=True)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=250,
@@ -697,7 +697,7 @@ class NAGAMaintenance(NA_TransactionModel):
     isstillguarantee = models.BooleanField(db_column='IsStillGuarantee')
     expense = models.DecimalField(
         db_column='Expense',
-        max_digits=10,
+        max_digits=14,
         decimal_places=4
     )
     maintenanceby = models.CharField(
@@ -741,7 +741,7 @@ class NAMaintenance(NA_TransactionModel):
     isstillguarantee = models.TextField(db_column='IsStillGuarantee')
     expense = models.DecimalField(
         db_column='Expense',
-        max_digits=10,
+        max_digits=14,
         decimal_places=4
     )
     maintenanceby = models.CharField(
@@ -861,7 +861,7 @@ class NAGoodsLending(NA_TransactionModel):
         db_constraint=False
     )
     lastinfo = models.CharField(
-        db_column='lastinfo', max_length=150, blank=True, null=True)
+        db_column='lastinfo', max_length=250, blank=True, null=True)
     descriptions = models.CharField(
         db_column='Descriptions',
         max_length=200,

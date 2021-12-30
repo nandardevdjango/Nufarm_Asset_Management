@@ -88,6 +88,7 @@ class NA_BR_Goods_Receive(models.Manager):
 				INNER JOIN n_a_goods as g ON g.IDApp = ngr.FK_goods  WHERE """  + colKey + rs.Sql() + ")"""
 
 		cur.execute(Query)
+		print(connection.queries)
 		strLimit = '20'
 		if int(PageIndex) <= 1:
 			strLimit = '0'

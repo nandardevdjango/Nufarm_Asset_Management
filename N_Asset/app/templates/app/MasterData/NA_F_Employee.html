@@ -39,14 +39,14 @@
         (function(elm){
             var listElem = elm.children;
             Array.prototype.forEach.call(listElem,function(item){//buat jadi foreach mesti convert dulu ke array
-                if(item.firstChild.nodeValue != 'CustomSearch'){
+                if(item.firstChild.innerText.trim() != 'CustomSearch'){
                     NA.NAEvent.addHandler(item,'click',function(event){
                         event.preventDefault();
                         if(item.firstChild.id === 'custSearch'){
                             //=========='show dialog search'==================
                             NA.common.dialog.createSearchDialog(event)
                         }
-                        NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent;
+                        NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent.trim();
                     });
                 }
             });
@@ -301,7 +301,7 @@ div#gbox_NA_Employee_grid,div#gview_NA_Employee_grid,div#NA_Employee_pager,div.u
             elSearch = null;
             valueKey = txtSearchMaster.value.trim();
             var listElem = NA.common.doc.querySelector('ul.dropdown-menu.search').children;//return list Element
-            var textToSearch = NA.common.getElementID('bySearch').firstChild.nodeValue;
+            var textToSearch = NA.common.getElementID('bySearch').innerText.trim();
             Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
                 if (item.firstChild.textContent === textToSearch) {
                     elSearch = item.firstChild;

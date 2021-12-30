@@ -75,7 +75,7 @@
       var listElem = elm.children;
       Array.prototype.forEach.call(listElem, function (item) {
         //buat jadi foreach mesti convert dulu ke array
-        if (item.firstChild.nodeValue != "CustomSearch") {
+        if (item.firstChild.nodeValue.trim() != "CustomSearch") {
           NA.NAEvent.addHandler(item, "click", function (event) {
             event.preventDefault();
             if (item.firstChild.id === "custSearch") {
@@ -89,7 +89,7 @@
               txtSearchMaster.removeAttribute("disabled");
               btnSearchMaster.removeAttribute("disabled");
               var textSearch = NA.common.getElementID("bySearch");
-              textSearch.firstChild.nodeValue = item.textContent;
+              textSearch.firstChild.nodeValue = item.textContent.trim();
               var elSearch = item.firstElementChild;
               switch (elSearch.dataset.tipe) {
                 case "varchar":
@@ -801,7 +801,7 @@
           "ul.dropdown-menu.search"
         ).children; //return list Element
         var textToSearch =
-          NA.common.getElementID("bySearch").firstChild.nodeValue;
+          NA.common.getElementID("bySearch").firstChild.nodeValue.trim();
         if (textToSearch === "CustomSearch") {
           dialogAlert("please define column to search");
           win.document.body.style.cursor = "default";
@@ -2451,6 +2451,11 @@
             }
           );
         }
+        if (!hasLoadDialog) {
+              closeDialog();
+              win.document.body.style.cursor = "default";
+              return false;
+            }
         var btnOkCancel = qsAll("div.dialogButtonOKCancel>a.button"),
           btnClose = qs("button.ui-button.ui-dialog-titlebar-close");
         Array.prototype.forEach.call(btnOkCancel, function (elem) {

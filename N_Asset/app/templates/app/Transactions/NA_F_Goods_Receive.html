@@ -62,9 +62,9 @@
             txtSearchMaster.removeAttribute("disabled");
             btnSearchMaster.removeAttribute("disabled");
             var textSearch = NA.common.getElementID("bySearch");
-            textSearch.firstChild.nodeValue = item.textContent;
-            var elSearch = item.firstChild;
-            switch (elSearch.dataset.tipe) {
+            textSearch.firstChild.nodeValue = item.textContent.trim();
+            var elSearch = item;
+            switch (elSearch.children[0].dataset.tipe) {
               case "varchar":
               case "nchar":
               case "char":
@@ -4075,7 +4075,7 @@
           "ul.dropdown-menu.search"
         ).children; //return list Element
         var textToSearch =
-          NA.common.getElementID("bySearch").firstChild.nodeValue;
+          NA.common.getElementID("bySearch").firstChild.textContent;
         if (textToSearch === "CustomSearch") {
           ShowAlert("please define column to search");
           win.document.body.style.cursor = "default";
@@ -4083,12 +4083,12 @@
         }
         Array.prototype.forEach.call(listElem, function (item) {
           //buat jadi foreach mesti convert dulu ke array
-          if (item.firstChild.textContent === textToSearch) {
-            elSearch = item.firstChild;
+          if (item.textContent.trim() === textToSearch) {
+            elSearch = item;
           }
         });
-        columnKey = elSearch.dataset.column;
-        elDataType = elSearch.dataset.tipe;
+        columnKey = elSearch.children[0].dataset.column;
+        elDataType = elSearch.children[0].dataset.tipe;
         switch (elDataType) {
           case "bigint":
           case "integer":

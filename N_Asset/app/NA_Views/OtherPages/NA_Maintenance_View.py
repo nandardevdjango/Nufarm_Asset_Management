@@ -179,6 +179,8 @@ def EntryMaintenance(request):
         if statusForm == 'Edit' or statusForm == 'Open':
             idapp = request.GET['idapp']
             data = NAMaintenance.objects.retriveData(idapp)  # tuple data
+            if len(data[1]) <= 0:
+                return HttpResponse('please enter good return first', status=404)
             statusResp = 200
             if data[0] == Data.Lost:
                 statusResp = 404
