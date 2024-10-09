@@ -1,7 +1,7 @@
 if (typeof NA == "undefined") window.NA = {}
 NA.NAEvent = {
   doc: window.document,
-  addHandler: function(element, type, handler) {
+  addHandler: function (element, type, handler) {
     if (element.addEventListener) {
       element.addEventListener(type, handler, false);
     } else if (element.attachEvent) {
@@ -10,7 +10,22 @@ NA.NAEvent = {
       element["on" + type] = handler;
     }
   },
-  getButton: function(event) {
+  // events and args should be of type Array
+  addMultipleListeners: function (element, events, handler, useCapture, args) {
+    if (!(events instanceof Array)) {
+      throw 'addMultipleListeners: ' +
+      'please supply an array of eventstrings ' +
+      '(like ["click","mouseover"])';
+    }
+    //create a wrapper to be able to use additional arguments
+    var handlerFn = function (e) {
+      handler.apply(this, args && args instanceof Array ? args : []);
+    }
+    for (var i = 0; i < events.length; i += 1) {
+      element.addEventListener(events[i], handlerFn, useCapture);
+    }
+  },
+  getButton: function (event) {
     if (this.doc.implementation.hasFeature("MouseEvents", "2.0")) {
       return event.button;
     } else {
@@ -29,21 +44,21 @@ NA.NAEvent = {
       }
     }
   },
-  getCharCode: function(event) {
+  getCharCode: function (event) {
     if (typeof event.charCode == "number") {
       return event.charCode;
     } else {
       return event.keyCode;
     }
   },
-  getClipboardText: function(event) {
+  getClipboardText: function (event) {
     var clipboardData = (event.clipboardData || window.clipboardData);
     return clipboardData.getData("text");
   },
-  getEvent: function(event) {
+  getEvent: function (event) {
     return event ? event : window.event;
   },
-  getRelatedTarget: function(event) {
+  getRelatedTarget: function (event) {
     if (event.relatedTarget) {
       return event.relatedTarget;
     } else if (event.toElement) {
@@ -54,24 +69,24 @@ NA.NAEvent = {
       return null;
     }
   },
-  getTarget: function(event) {
+  getTarget: function (event) {
     return event.target || event.srcElement;
   },
-  getWheelDelta: function(event) {
+  getWheelDelta: function (event) {
     if (event.wheelDelta) {
       return (client.engine.opera && client.engine.opera < 9.5 ? -event.wheelDelta : event.wheelDelta);
     } else {
       return -event.detail * 40;
     }
   },
-  preventDefault: function(event) {
+  preventDefault: function (event) {
     if (event.preventDefault) {
       event.preventDefault();
     } else {
       event.returnValue = false;
     }
   },
-  removeHandler: function(element, type, handler) {
+  removeHandler: function (element, type, handler) {
     if (element.removeEventListener) {
       element.removeEventListener(type, handler, false);
     } else if (element.detachEvent) {
@@ -80,14 +95,14 @@ NA.NAEvent = {
       element["on" + type] = null;
     }
   },
-  setClipboardText: function(event, value) {
+  setClipboardText: function (event, value) {
     if (event.clipboardData) {
       event.clipboardData.setData("text/plain", value);
     } else if (window.clipboardData) {
       window.clipboardData.setData("text", value);
     }
   },
-  stopPropagation: function(event) {
+  stopPropagation: function (event) {
     if (event.stopPropagation) {
       event.stopPropagation();
     } else {
@@ -98,7 +113,7 @@ NA.NAEvent = {
 //=====================COOKIE Utility==========================
 NA.CookieUtil = {
   doc: window.document,
-  get: function(name) {
+  get: function (name) {
     var cookieName = encodeURIComponent(name) + "=",
       cookieStart = this.doc.cookie.indexOf(cookieName),
       cookieValue = null,
@@ -112,7 +127,7 @@ NA.CookieUtil = {
     }
     return cookieValue;
   },
-  set: function(name, value, expires, path, domain, secure) {
+  set: function (name, value, expires, path, domain, secure) {
     var cookieText = encodeURIComponent(name) + "=" + encodeURIComponent(value);
     if (expires instanceof Date) {
       cookieText += "; expires=" + expires.toGMTString();
@@ -128,12 +143,12 @@ NA.CookieUtil = {
     }
     this.doc.cookie = cookieText;
   },
-  unset: function(name, path, domain, secure) {
+  unset: function (name, path, domain, secure) {
     this.set(name, "", new Date(0), path, domain, secure);
   }
 };
 //====================Client Utility===========================================
-NA.client = function() {
+NA.client = function () {
   //rendering engines
   var engine = {
     ie: 0,
@@ -174,7 +189,7 @@ NA.client = function() {
     ps: false
   };
   var url = {
-    login_next: (function() {
+    login_next: (function () {
       var current_url = window.location.href.replace(window.location.origin, '')
       return "/login/?next=" + current_url
     })()
@@ -293,7 +308,7 @@ NA.client = function() {
   return {
     engine: engine,
     browser: browser,
-    browserName: (function() {
+    browserName: (function () {
       if (navigator.userAgent.indexOf("Edge") > -1 && navigator.appVersion.indexOf('Edge') > -1) {
         return 'Edge';
       } else if (navigator.userAgent.indexOf("Opera") != -1 || navigator.userAgent.indexOf('OPR') != -1) {
@@ -317,7 +332,7 @@ NA.client = function() {
 }();
 NA.common = {
   //assign Object cross browser
-  AssignObject: function() {
+  AssignObject: function () {
     var resObj = {};
     for (var i = 0; i < arguments.length; i++) {
       var obj = arguments[i],
@@ -330,34 +345,34 @@ NA.common = {
   },
   doc: window.document,
   //============Validate Input Number========================
-  numberInput: function(evt) {
+  numberInput: function (evt) {
     var e = NA.NAEvent.getEvent(evt);
     var key = e.keyCode || e.which;
     if (!e.shiftKey && !e.altKey && !e.ctrlKey &&
       // numbers
       key >= 48 && key <= 57 ||
       // Numeric keypad
-      key >= 96 && key <= 105){
+      key >= 96 && key <= 105) {
       // input is VALID
       return true;
     } else {
       // input is INVALID
-      if(
-          // Backspace and Tab and Enter by pass
-            key == 8 || key == 9 || key == 13 ||
-            // Home and End
-            key == 35 || key == 36 ||
-            // left and right arrows
-            key == 37 || key == 39 ||
-            // Del and Ins
-            key == 46 || key == 45){return true;}
+      if (
+        // Backspace and Tab and Enter by pass
+        key == 8 || key == 9 || key == 13 ||
+        // Home and End
+        key == 35 || key == 36 ||
+        // left and right arrows
+        key == 37 || key == 39 ||
+        // Del and Ins
+        key == 46 || key == 45) { return true; }
       key = String.fromCharCode(key);
       var regex = /[0-9]/;
       return regex.test(key);
     }
   },
   //============CROSS BROWSER Keyboard event====================
-  triggerKeyboardEvent: function(el, keyCode) {
+  triggerKeyboardEvent: function (el, keyCode) {
     if (NA.client.browserName == "Chrome") {
       var event = document.createEvent('Event');
       event.initEvent('keydown', true, true);
@@ -379,7 +394,7 @@ NA.common = {
     }
   },
   //===========cross browser get Element ByID =====================
-  getElementID: function(id) {
+  getElementID: function (id) {
     if (this.doc.getElementById) {
       return this.doc.getElementById(id);
     } else if (this.doc.all) {
@@ -389,7 +404,7 @@ NA.common = {
     }
   },
   //============cross browser getquerystring arguments==============
-  getQueryStringArgs: function() {
+  getQueryStringArgs: function () {
     //get query string without the initial ?
     var qs = (location.search.length > 0 ? location.search.substring(1) : ""),
       //object to hold data
@@ -414,21 +429,21 @@ NA.common = {
     return args;
   },
   //==============Load Dinamic Script============================
-  loadScript: function(url, Elem, id) {
+  loadScript: function (url, Elem, id) {
     var script = this.doc.createElement("script");
     script.type = "text/javascript";
     script.src = url;
     script.setAttribute('id', id)
     if (id) {
       if (this.doc.querySelector(id) != 'undefined') {
-        if (typeof(Elem) == 'undefined') {
+        if (typeof (Elem) == 'undefined') {
           this.doc.body.appendChild(script)
         } else {
           Elem.appendChild(script)
         }
       }
     } else {
-      if (typeof(Elem) == 'undefined') {
+      if (typeof (Elem) == 'undefined') {
         this.doc.body.appendChild(script)
       } else {
         Elem.appendChild(script)
@@ -436,7 +451,7 @@ NA.common = {
     }
   },
   //=============Load Dynamic Style=======================
-  loadStyles: function(url, id) {
+  loadStyles: function (url, id) {
     var link = this.doc.createElement("link");
     link.rel = "stylesheet";
     link.type = "text/css";
@@ -453,7 +468,7 @@ NA.common = {
     }
   },
   //==================Retrieving Selected Text======================
-  getSelectedText: function(textbox, startIndex, stopIndex) {
+  getSelectedText: function (textbox, startIndex, stopIndex) {
     if (textbox.setSelectionRange) {
       textbox.setSelectionRange(startIndex, stopIndex);
     } else if (textbox.createTextRange) {
@@ -466,14 +481,14 @@ NA.common = {
     textbox.focus();
   },
   //===============ENCODE URL=================================
-  addURLParam: function(url, name, value) {
+  addURLParam: function (url, name, value) {
     url += (url.indexOf("?") == -1 ? "?" : "&");
     url += encodeURIComponent(name) + "=" + encodeURIComponent(value);
     return url;
   },
   //================== CONVERT Object to Array ====================
   //================== CONVERT Object to Array ====================
-  objectToArray: function(obj) {
+  objectToArray: function (obj) {
     var _arr = [];
     for (var key in obj) {
       _arr.push([key, obj[key]]);
@@ -481,17 +496,17 @@ NA.common = {
     return _arr;
   },
   //function ini untuk mengecek apakah object bernilai {}, jika object ada key/method/isinya maka return false
-  isObjectEmpty: function(obj) {
+  isObjectEmpty: function (obj) {
     for (var x in obj) {
       if (obj.hasOwnProperty(x)) return false;
     }
     return true;
   },
-  removeQuotes: function(str) {
+  removeQuotes: function (str) {
     return str.replace(/["]+/g, '')
   },
   //=================calculate months with date ============================
-  addMonths: function(date, months) {
+  addMonths: function (date, months) {
     var result = new Date(date);
     var expectedMonth = ((result.getMonth() + months) % 12 + 12) % 12;
     result.setMonth(result.getMonth() + months);
@@ -500,7 +515,7 @@ NA.common = {
     }
     return result;
   },
-  GetServerFormatDate: function(parsedDate) { //dd/mm/yy value -->yyyy-mm-dd
+  GetServerFormatDate: function (parsedDate) { //dd/mm/yy value -->yyyy-mm-dd
     var d = new Date(parsedDate),
       month = '' + (d.getMonth() + 1),
       day = '' + d.getDate(),
@@ -518,7 +533,7 @@ NA.common = {
   //    }
   //    return result;
   //},
-  FormatNumber: function(num, decimals, dec_point, thousands_sep) {
+  FormatNumber: function (num, decimals, dec_point, thousands_sep) {
     NNum = 0;
     if (typeof num === 'string') {
       NNum = Number(num.trim());
@@ -535,7 +550,7 @@ NA.common = {
     return parts.join(dec_point);
   },
   //=======================FORM SERIALIZATION==========================
-  serializeForm: function(form) {
+  serializeForm: function (form) {
     var parts = [],
       field = null,
       i,
@@ -575,18 +590,18 @@ NA.common = {
           if (!field.checked) {
             break;
           }
-          /* falls through */
-          default:
-            //don’t include form fields without names
-            if (field.name.length) {
-              parts.push(encodeURIComponent(field.name) + "=" + encodeURIComponent(field.value));
-            }
+        /* falls through */
+        default:
+          //don’t include form fields without names
+          if (field.name.length) {
+            parts.push(encodeURIComponent(field.name) + "=" + encodeURIComponent(field.value));
+          }
       }
     }
     return parts.join("&");
   },
   //sebelum di compare objForm mesti di trim spacenya
-  detectInputChanges: function(JsonObjInitialize, JsonObjSerializeForm) {
+  detectInputChanges: function (JsonObjInitialize, JsonObjSerializeForm) {
     var a = JSON.stringify(JsonObjInitialize),
       b = JSON.stringify(JsonObjSerializeForm);
     return (a.split('').sort().join('') !== b.split('').sort().join(''));
@@ -594,7 +609,7 @@ NA.common = {
   //function untuk mendisable kan element form
   //parameter form = document.form[0]/form_id
   //parameter typeofElements = type element apa saja yang akan di disabledkan
-  disableForm: function(form, typeofElements) {
+  disableForm: function (form, typeofElements) {
     var length = form.elements.length,
       i;
     for (i = 0; i < length; i++) {
@@ -611,7 +626,7 @@ NA.common = {
       }
     }
   },
-  SearchData: function() {
+  SearchData: function () {
     var elSearch = elSearch || window.document.querySelector('li.dropdown>a#bySearch');
     //valueKey   = NA.common.doc.querySelector('li.dropdown>a#bySearch').textContent.trim();
     var valueKey = ''; //valueKey === 'By'?'':valueKey;
@@ -620,53 +635,53 @@ NA.common = {
     var criteria = 'like';
     return {
       //==========setDefault value=================================
-      setDefaultSearchData: function(defaultColumn, defaultDataType, defaultCriteria) {
+      setDefaultSearchData: function (defaultColumn, defaultDataType, defaultCriteria) {
         this.columnKey = defaultColumn;
         this.dataType = defaultDataType;
         this.criteria = defaultCriteria;
         this.valueKey = '';
       },
       //==========getter===============
-      getValueKey: function() {
+      getValueKey: function () {
         return this.valueKey;
       },
-      getColumnKey: function() {
+      getColumnKey: function () {
         return this.columnKey;
       },
-      getDataType: function() {
+      getDataType: function () {
         return this.dataType;
       },
-      getCriteria: function() {
+      getCriteria: function () {
         return this.criteria;
       },
       //==========setter=================
-      setValue: function(nValue) {
+      setValue: function (nValue) {
         this.valueKey = nValue;
       },
-      setColumnName: function(ncolKey) {
+      setColumnName: function (ncolKey) {
         this.columnKey = ncolKey;
       },
-      setDataType: function(nDataType) {
+      setDataType: function (nDataType) {
         this.dataType = nDataType;
       },
-      setCriteria: function(nCriteria) {
+      setCriteria: function (nCriteria) {
         this.criteria = nCriteria;
       },
     }
   }(),
-  NA_setAttr: function(el, attrs) {
+  NA_setAttr: function (el, attrs) {
     for (var key in attrs) {
       el.setAttribute(key, attrs[key]);
     }
   },
-  qs: function(el) {
+  qs: function (el) {
     if (typeof NA.common.doc.querySelector !== "undefined") {
       return NA.common.doc.querySelector(el);
     } else {
       throw new Error("No way to retrieve element!");
     }
   },
-  qsAll: function(el) {
+  qsAll: function (el) {
     if (typeof NA.common.doc.querySelectorAll !== "undefined") {
       return NA.common.doc.querySelectorAll(el);
     } else {
@@ -676,7 +691,7 @@ NA.common = {
 };
 NA.common.dialog = {
   doc: window.document,
-  getPageDimensions: function() {
+  getPageDimensions: function () {
     var body = this.doc.getElementsByTagName("body")[0];
     var bodyOffsetWidth = 0;
     var bodyOffsetHeight = 0;
@@ -705,47 +720,47 @@ NA.common.dialog = {
     }
     return pageDimensions;
   },
-  getViewportSize: function() {
+  getViewportSize: function () {
     var size = [0, 0];
     if (typeof window.innerWidth != 'undefined') {
       size = [
-                window.innerWidth,
-                window.innerHeight
-            ];
+        window.innerWidth,
+        window.innerHeight
+      ];
     } else if (typeof this.doc.documentElement != 'undefined' && typeof this.doc.documentElement.clientWidth != 'undefined' && this.doc.documentElement.clientWidth != 0) {
       size = [
-                this.doc.documentElement.clientWidth,
-                this.doc.documentElement.clientHeight
-            ];
+        this.doc.documentElement.clientWidth,
+        this.doc.documentElement.clientHeight
+      ];
     } else {
       size = [
-                this.doc.getElementsByTagName('body')[0].clientWidth,
-                this.doc.getElementsByTagName('body')[0].clientHeight
-            ];
+        this.doc.getElementsByTagName('body')[0].clientWidth,
+        this.doc.getElementsByTagName('body')[0].clientHeight
+      ];
     }
     return size;
   },
-  getScrollingPosition: function() {
+  getScrollingPosition: function () {
     var position = [0, 0];
     if (typeof window.pageYOffset != 'undefined') {
       position = [
-                window.pageXOffset,
-                window.pageYOffset
-            ];
+        window.pageXOffset,
+        window.pageYOffset
+      ];
     } else if (typeof this.doc.documentElement.scrollTop != 'undefined' && this.doc.documentElement.scrollTop > 0) {
       position = [
-                this.doc.documentElement.scrollLeft,
-                this.doc.documentElement.scrollTop
-            ];
+        this.doc.documentElement.scrollLeft,
+        this.doc.documentElement.scrollTop
+      ];
     } else if (typeof this.doc.body.scrollTop != 'undefined') {
       position = [
-                this.doc.body.scrollLeft,
-                this.doc.body.scrollTop
-            ];
+        this.doc.body.scrollLeft,
+        this.doc.body.scrollTop
+      ];
     }
     return position;
   },
-  createFormContainer: function(IDForControl, placeHolderForSearch, handlerForBlurSearch, HandlerForFocusSearch, HandlerForKeyDown, handlerbtnSearch) {
+  createFormContainer: function (IDForControl, placeHolderForSearch, handlerForBlurSearch, HandlerForFocusSearch, HandlerForKeyDown, handlerbtnSearch) {
     var containerForm = this.doc.createElement("div");
     containerForm.className = 'containerForm';
     containerForm.classList.add(IDForControl);
@@ -802,7 +817,7 @@ NA.common.dialog = {
     containerForm.appendChild(mainContainer);
     return containerForm;
   },
-  createSearchDialog: function(event, args) {
+  createSearchDialog: function (event, args) {
     var body = this.doc.body;
     var pageDimensions = this.getPageDimensions();
     var viewportSize = this.getViewportSize();
@@ -842,7 +857,7 @@ NA.common.dialog = {
     //===============Enabled kan Dragdrop=================================
     NA.common.dialog.DragDrop.enable();
   },
-  createDialog: function(event, args) {
+  createDialog: function (event, args) {
     var body = this.doc.body;
     var pageDimensions = this.getPageDimensions();
     var viewportSize = this.getViewportSize();
@@ -1007,7 +1022,7 @@ NA.common.dialog = {
     dialog.style.visibility = 'visible';
     return false;
   },
-  closeDialog: function(dialog) {
+  closeDialog: function (dialog) {
     var dropSheet = NA.common.getElementID("dropSheet");
     if (dropSheet) {
       dropSheet.parentNode.removeChild(dropSheet);
@@ -1028,16 +1043,16 @@ NA.common.dialog = {
   //titleHeader = Header dialog title
   //elementMenus = array component yang akan di pakai untuk click menu di side bar
   // SideMenuContainerClick = custom event handler yang akan mengeksekusi bila click event dalam array menu di click, default tidak usah di isi saja
-  initDialog: function(Entrycontnr, titleHead, elementMenus, SideMenuContainerClick) {
+  initDialog: function (Entrycontnr, titleHead, elementMenus, SideMenuContainerClick) {
     // init dialog untuk Open,  Edit,  Save,  Delete,  Export,  Print,  Help
-    (function(elem, currentObj, titleHead, elements, otherHandler) {
+    (function (elem, currentObj, titleHead, elements, otherHandler) {
       var settingsEditAdd = {
-          btnOK: true,
-          btnCancel: true,
-          btnPrintPreview: true,
-          btnExport: false,
-          dialogTitle: titleHead
-        },
+        btnOK: true,
+        btnCancel: true,
+        btnPrintPreview: true,
+        btnExport: false,
+        dialogTitle: titleHead
+      },
         settingsOpen = {
           btnOK: false,
           btnCancel: false,
@@ -1053,7 +1068,7 @@ NA.common.dialog = {
         dialogTitle: titleHead
       };
       //menu atas
-      var ClickHandlerElem = function(event) {
+      var ClickHandlerElem = function (event) {
         NA.NAEvent.preventDefault(event);
         var target = NA.NAEvent.getTarget(event);
         switch (target.innerText) {
@@ -1084,13 +1099,13 @@ NA.common.dialog = {
         NA.NAEvent.addHandler(elem, 'click', ClickHandlerElem);
       }
       //menu side
-      var ClickHandlerElementMenu = function(event) {
+      var ClickHandlerElementMenu = function (event) {
         NA.NAEvent.preventDefault(event);
         currentObj.createDialog(event, settingsOther);
         window.status = "";
       };
       if (elements) {
-        Array.prototype.forEach.call(elements, function(item) { //buat jadi foreach mesti convert dulu ke array
+        Array.prototype.forEach.call(elements, function (item) { //buat jadi foreach mesti convert dulu ke array
           if (SideMenuContainerClick && item) {
             if (!item.getAttribute('disabled')) {
               NA.NAEvent.addHandler(item, 'click', SideMenuContainerClick);
@@ -1105,7 +1120,7 @@ NA.common.dialog = {
     })(Entrycontnr, this, titleHead, elementMenus, SideMenuContainerClick);
   }, // Save,  Delete,  Export,  Print,  Help
   //=================================Enabbled DragDrop Dialog==============================================================================
-  DragDrop: function() {
+  DragDrop: function () {
     var dragging = null;
 
     function handleEvent(event) {
@@ -1135,13 +1150,13 @@ NA.common.dialog = {
     };
     //public interface
     return {
-      enable: function() {
+      enable: function () {
         //var dialog = NA.common.dialog.doc.querySelector("div.containerDialog");
         NA.NAEvent.addHandler(window.document, "mousedown", handleEvent);
         NA.NAEvent.addHandler(window.document, "mousemove", handleEvent);
         NA.NAEvent.addHandler(window.document, "mouseup", handleEvent);
       },
-      disable: function() {
+      disable: function () {
         NA.NAEvent.removeHandler(window.document, "mousedown", handleEvent);
         NA.NAEvent.removeHandler(window.document, "mousemove", handleEvent);
         NA.NAEvent.removeHandler(window.document, "mouseup", handleEvent);
@@ -1170,87 +1185,87 @@ NA.common.message = {
 //mang misalkan user1 teh aya di posisi kieu, user1 keur nga update data .. ehh ai pek teh data eta karek bieu dihapus ku user2 ... terus nga handle na bere pesan(message) bahwa data eta teh geus dihapus ku user lain terus bere keterangan waktu jeng user anu ngahapus na ???
 Object.defineProperties(NA.common.message, {
   confirmDelete: {
-    get: function() {
+    get: function () {
       return this._confirmDelete;
     }
   },
   canNotDelete: {
-    get: function() {
+    get: function () {
       return this._canNotDelete;
     }
   },
   canNotEdit: {
-    get: function() {
+    get: function () {
       return this._canNotEdit;
     }
   },
   canNotFindData: {
-    get: function() {
+    get: function () {
       return this._canNotFindData;
     }
   },
   clearData: {
-    get: function() {
+    get: function () {
       return this._clearData;
     }
   },
   savingSucces: {
-    get: function() {
+    get: function () {
       return this._savingSucces;
     }
   },
   dataHasChanged: {
-    get: function() {
+    get: function () {
       return this._dataHasChanged;
     }
   },
   refreshData: {
-    get: function() {
+    get: function () {
       return this._refreshData;
     }
   },
   existsData: {
-    get: function() {
+    get: function () {
       return this._existsData;
     }
   },
   titleInfo: {
-    get: function() {
+    get: function () {
       return this._titleInfo;
     }
   },
   titleError: {
-    get: function() {
+    get: function () {
       return this._titleError;
     }
   },
   confirmInfo: {
-    get: function() {
+    get: function () {
       return this._confirmInfo;
     }
   },
   dataHasLost: {
-    get: function() {
+    get: function () {
       return this._dataHasLost;
     }
   },
   unsupportedCriteria: {
-    get: function() {
+    get: function () {
       return this._unsupportedCriteria;
     }
   },
   canNotAddOtherPermsForGuest: {
-    get: function() {
+    get: function () {
       return this._canNotAddOtherPermsForGuest;
     }
   },
   unAuthorized: {
-    get: function() {
+    get: function () {
       return this._unAuthorized
     }
   }
 });
-NA.common.message.server = function(message) {
+NA.common.message.server = function (message) {
   var result;
   switch (message) {
     case '__hasref_edit':
@@ -1282,13 +1297,13 @@ NA.common.AJAX = {
     timeOut: 2000000
   },
 };
-NA.common.AJAX.createXHR = function() {
+NA.common.AJAX.createXHR = function () {
   if (typeof XMLHttpRequest != "undefined") {
     this.XHR = new XMLHttpRequest();
   } else if (typeof ActiveXObject != "undefined") {
     if (typeof arguments.callee.activeXString != "string") {
       var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0",
-                "MSXML2.XMLHttp"],
+        "MSXML2.XMLHttp"],
         i, len;
       for (i = 0, len = versions.length; i < len; i++) {
         try {
@@ -1307,14 +1322,14 @@ NA.common.AJAX.createXHR = function() {
   return this.XHR;
 };
 Object.defineProperty(NA.common.AJAX, 'settings', {
-  get: function() {
+  get: function () {
     return this.Xsettings || {}
   },
-  set: function(newSettings) {
+  set: function (newSettings) {
     this.Xsettings = newSettings;
   }
 });
-NA.common.AJAX.POST = function(url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+NA.common.AJAX.POST = function (url, data, dataType, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
   if (NA.common.isObjectEmpty(this.XHR)) {
     this.createXHR();
   }
@@ -1336,7 +1351,7 @@ NA.common.AJAX.POST = function(url, data, dataType, MIMEType, OnAJAXStart, OnBef
   }
   if (OnError) {
     if (this.XHR.status == 401) {
-      return NA.common.dialog.dialogAlert(NA.common.message.unAuthorized, NA.common.message.titleInfo, function() {
+      return NA.common.dialog.dialogAlert(NA.common.message.unAuthorized, NA.common.message.titleInfo, function () {
         window.location.href = NA.client.url.login_next
       })
     }
@@ -1366,7 +1381,7 @@ NA.common.AJAX.POST = function(url, data, dataType, MIMEType, OnAJAXStart, OnBef
   }
   return true;
 };
-NA.common.AJAX.GET = function(url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+NA.common.AJAX.GET = function (url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
   if (NA.common.isObjectEmpty(this.XHR)) {
     this.createXHR();
   }
@@ -1387,7 +1402,7 @@ NA.common.AJAX.GET = function(url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, 
   }
   if (OnError) {
     if (this.XHR.status == 401) {
-      return NA.common.dialog.dialogAlert(NA.common.message.unAuthorized, NA.common.message.titleInfo, function() {
+      return NA.common.dialog.dialogAlert(NA.common.message.unAuthorized, NA.common.message.titleInfo, function () {
         window.location.href = NA.client.url.login_next
       })
     }
@@ -1413,7 +1428,7 @@ NA.common.AJAX.GET = function(url, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, 
   this.XHR.send(null);
   return true;
 };
-NA.common.AJAX.SubmitForm = function(url, FormElement, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
+NA.common.AJAX.SubmitForm = function (url, FormElement, MIMEType, OnAJAXStart, OnBeforeSend, OnLoad, OnProgress, OnError, OnLoadEnd, customRequestHeader) {
   if (NA.common.isObjectEmpty(this.XHR)) {
     this.createXHR();
   }
@@ -1468,106 +1483,106 @@ NA.Privilege = {
 }
 Object.defineProperties(NA.Privilege, {
   RoleName: {
-    get: function() {
+    get: function () {
       return this._roleName;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       return this._roleName = newValue;
     }
   },
   RolCode: {
-    get: function() {
+    get: function () {
       return this._rolCode;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._rolCode = newValue;
     },
   },
   Email: {
-    get: function() {
+    get: function () {
       return this._email;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._email = newValue;
     },
   },
   password: {
-    get: function() {
+    get: function () {
       return this._password;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._password = newValue;
     },
   },
   IsAdmin: {
-    get: function() {
+    get: function () {
       return this._isAdmin;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._isAdmin = newValue;
     },
   },
   Permissions: {
-    get: function() {
+    get: function () {
       return this._permissions
     }
   }
 });
 Object.defineProperties(NA.Privilege.Permissions, {
   Allow_View: {
-    get: function() {
+    get: function () {
       return this._allow_view;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._allow_view = newValue;
     }
   },
   Allow_Add: {
-    get: function() {
+    get: function () {
       return this._allow_add;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._allow_add = newValue;
     }
   },
   Allow_Edit: {
-    get: function() {
+    get: function () {
       return this._allow_edit;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._allow_edit = newValue;
     }
   },
   Allow_Delete: {
-    get: function() {
+    get: function () {
       return this._allow_delete;
     },
-    set: function(newValue) {
+    set: function (newValue) {
       this._allow_delete = newValue;
     }
   }
 })
-NA.Privilege.get_server_permissions = function(kwargs) {
+NA.Privilege.get_server_permissions = function (kwargs) {
   var form = kwargs['form_name'],
     email = kwargs['email'],
     success = kwargs['success'],
     done = kwargs['done'];
   var NAAjax = NA.common.AJAX;
   var url = '/MasterData/Privilege/permission/' + email + '/get_permission/?form_name=' + form;
-  NAAjax.GET(url, 'application/json', null, null, function() {
+  NAAjax.GET(url, 'application/json', null, null, function () {
     if (this.status == 200) {
       var response = JSON.parse(this.responseText)['message']
       success(response);
     };
-  }, null, null, function() {
+  }, null, null, function () {
     done();
   });
 };
-NA.Privilege.read_privilege = function(form_name) {
+NA.Privilege.read_privilege = function (form_name) {
   return NA.Privilege.get_server_permissions({
     form_name: form_name,
     email: NA.Privilege.Email, // this is has declared in layout.html
-    success: function(permission) {
+    success: function (permission) {
       for (var i = 0; i < permission.length; i++) {
         if (permission[i]['permission'] == 'Allow View') {
           NA.Privilege.Permissions.Allow_View = true;
@@ -1580,15 +1595,18 @@ NA.Privilege.read_privilege = function(form_name) {
         }
       }
     },
-    done: function() {
+    done: function () {
       Object.freeze(NA.Privilege);
       var qs = qs || NA.common.qs
       var btn_add = qs('button#addData'),
         btn_edit = qs('button#editData'),
         btn_delete = qs('button#delData');
+        btn_add.classList.remove('disabled');
+        btn_delete.classList.remove('disabled');
+        btn_edit.classList.remove('disabled');
       if (!NA.Privilege.Permissions.Allow_Add) {
-        btn_add.setAttribute('disabled', '');
-        NA.NAEvent.addHandler(btn_add, 'click', function(event) {
+        btn_add.setAttribute('class', 'active disabled');
+        NA.NAEvent.addHandler(btn_add, 'click', function (event) {
           NA.NAEvent.preventDefault(event);
           NA.NAEvent.stopPropagation(event);
           event.stopImmediatePropagation();
@@ -1597,8 +1615,8 @@ NA.Privilege.read_privilege = function(form_name) {
         btn_add.style.cursor = 'not-allowed';
       };
       if (!NA.Privilege.Permissions.Allow_Edit) {
-        btn_edit.setAttribute('disabled', '');
-        NA.NAEvent.addHandler(btn_edit, 'click', function(event) {
+        btn_edit.setAttribute('class','active disabled');
+        NA.NAEvent.addHandler(btn_edit, 'click', function (event) {
           NA.NAEvent.preventDefault(event);
           NA.NAEvent.stopPropagation(event);
           event.stopImmediatePropagation();
@@ -1607,8 +1625,8 @@ NA.Privilege.read_privilege = function(form_name) {
         btn_edit.style.cursor = 'not-allowed';
       };
       if (!NA.Privilege.Permissions.Allow_Delete) {
-        btn_delete.setAttribute('disabled', '');
-        NA.NAEvent.addHandler(btn_delete, 'click', function(event) {
+        btn_delete.setAttribute('class','active disabled');
+        NA.NAEvent.addHandler(btn_delete, 'click', function (event) {
           NA.NAEvent.preventDefault(event);
           NA.NAEvent.stopPropagation(event);
           event.stopImmediatePropagation();

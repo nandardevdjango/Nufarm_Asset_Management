@@ -140,11 +140,11 @@ def HasExists(request):
 		totalpurchase = data['totalpurchase']
 		datereceived = data['datereceived']
 		refno = data['refno']
-		statuscode = 200;
+		statuscode = 200
 		if NAGoodsReceive.objects.hasExists(idapp_fk_goods,datereceived,totalpurchase):
 			statuscode = 200
 			return HttpResponse(json.dumps({'message':'Data has exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
-		elif NAGoodsReceive.objects.hasExistsRefNo('refno'):
+		elif NAGoodsReceive.objects.hasExistsRefNo(refno):
 			return HttpResponse(json.dumps({'message':'ref no exists\nAre you sure you want to add the same data ?'}),status = statuscode, content_type='application/json')
 		return HttpResponse(json.dumps({'message':'OK'}),status = statuscode, content_type='application/json')
 	except Exception as e :

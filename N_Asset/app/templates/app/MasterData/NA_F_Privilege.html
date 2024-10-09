@@ -300,8 +300,13 @@
                                     return privilege_grid.trigger('reloadGrid');
                                 });
                             };
+
                             qs('.ui-dialog-title').textContent += email;
                             qs('input#id_user_id').value = parentRowKey;
+                            var selectForm = qs('#id_fk_form');
+                            NA.NAEvent.addHandler(id_fk_form,'focus',function(event){this.size=6;});
+                            NA.NAEvent.addHandler(id_fk_form,'blur',function(event){this.size=1;});
+                            NA.NAEvent.addHandler(id_fk_form,'change',function(event){this.size=1;});
                             NA.NAEvent.addHandler(btnClose, 'click', function (event) {
                                 executeHandler_permission('Close');
                             });

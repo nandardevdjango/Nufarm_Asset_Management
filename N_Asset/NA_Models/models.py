@@ -1432,8 +1432,10 @@ class NAPrivilege_Form(models.Model):
     GA_Maintenance_Form = 'n_a_ga_maintenance'
     GA_Receive_form = 'n_a_ga_receive'
     GA_Outwards_form = 'n_a_ga_outwards'
-    GA_Return_Form = 'n_a_ga_return'
-
+    GA_Return_Form = 'n_a_ga_return',
+    Report_By_Recipient = 'ByRecipient',
+    Report_By_RefNumber = 'ByRefNumber',
+    Report_by_SerialNumber = 'BySerialNumber'
     MASTER_DATA_FORM = [
         Employee_Form,
         Supplier_Form,
@@ -1456,10 +1458,15 @@ class NAPrivilege_Form(models.Model):
 
     OTHER_FORM = [
         Fix_asset_Form,
-        Goods_History_Form
-    ]
+        Goods_History_Form,
 
-    ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM + OTHER_FORM
+    ]
+    REPORT_FORM = [
+        Report_By_Recipient,
+        Report_By_RefNumber,
+        Report_by_SerialNumber
+    ]
+    ALL_FORM = MASTER_DATA_FORM + TRANSACTION_FORM + OTHER_FORM+REPORT_FORM
 
     IT_FORM = [
         Goods_Receive_Form,
@@ -1494,7 +1501,7 @@ class NAPrivilege_Form(models.Model):
         (Goods_Return_Form, 'n_a_goods_return'),
         (Maintenance_Form, 'n_a_maintenance'),
         (Disposal_Form, 'n_a_disposal'),
-        (Goods_Lost_Form, 'n_a_disposal'),
+        (Goods_Lost_Form, 'n_a_goods_lost'),
         #satu lagi asset deletion
         (GA_Receive_form, 'n_a_ga_receive_form'),
         (GA_Outwards_form, 'n_a_ga_outwards'),
@@ -1503,6 +1510,9 @@ class NAPrivilege_Form(models.Model):
         (Goods_History_Form, 'n_a_goods_history'),
         (Fix_asset_Form, 'n_a_acc_fa'),
         (Privilege_Form, 'n_a_privilege'),
+        (Report_By_Recipient, 'ByRecipient'),
+        (Report_By_RefNumber, 'ByRefNumber'),
+        (Report_by_SerialNumber, 'BySerialNumber'),
     )
 
     idapp = models.AutoField(primary_key=True, db_column='IDApp')

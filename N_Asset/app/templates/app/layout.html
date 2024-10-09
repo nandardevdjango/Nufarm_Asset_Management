@@ -175,11 +175,13 @@
                                 <i class="fa  fa-bar-chart" aria-hidden="true"></i>
                                 <span class="nav-label"> Reports </span> <span class="fa fa-angle-down pull-right"></span>
                             </a>
+                        </li>
+                        <li>
                             <ul class="sub-menu collapse" id="reports" aria-expanded="false">
-                                <li><a href="#">Report Ad Hoc</a></li>
+                                <li><a href="{% url 'Report:ReportByRecipient:Report_ByRecipient' %}">By Recipient</span></a></li>
+                                <li><a href="{% url 'Report:ReportByRefNumber:Report_ByRefNumber' %}">By Ref Number</span></a></li>
                             </ul>
                         </li>
-
                         <li> <a href="{% url 'OtherPages:NA_Acc_FA:NA_Acc' %}"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
                                 <span class="nav-label">Asset Depreciation</span></a> </li>
                         <li> <a href="{% url 'OtherPages:NA_Maintenance:NA_Maintenance' %}"><i class="fa fa-wrench"
@@ -248,7 +250,10 @@
                     </div>
                 </div>
                 <div class="nfsitemap">
-
+                    <a href="#" translate="yes" draggable="true" aria-controls="AslogArea AsmainArea" spellcheck="true"
+                        class="active collapsed" aria-expanded="false" data-toggle="collapse" data-target=".collapse multi-collapse"
+                        style="position:relative;display:block;height:25px;"><span translate="yes" draggable="false" spellcheck="true"
+                            tabindex="-1" class="fa fa-angle-right pull-right"></span></a>
                 </div>
                 <div id="content-0">
                     <script>
@@ -313,177 +318,191 @@
             </div>
         </div>
         <aside>
-            <div class="AsideLoginArea">
-                <ul class="nav navbar-nav navbar-right" style="display: flex;flex-flow: row nowrap;">
-                    <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
-                    {%block ImgUserLogin %}
-                    {% if request.user.is_authenticated %}
-                    <li class="dropdown prevent-close notifications" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
-                        <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
-                            <div class="profile-circle shadow">
-                                <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
-                                    <span id="notification-count" class="badge badge-success pull-right"></span>
-                                </i>
+                            <div class="AsideLoginArea" id="AslogArea">
+                                <ul class="nav navbar-nav navbar-right" style="display: flex;flex-flow: row nowrap;">
+                                    <!--when user log in this must be replaced with user pic and when clicked will go directly to user account management-->
+                                    {%block ImgUserLogin %}
+                                    {% if request.user.is_authenticated %}
+                        <li class="dropdown prevent-close notifications"
+                            style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;padding-right: 60px;">
+                            <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px;width: 43px;height: 43px;/*! padding: 9px; */">
+                                <div class="profile-circle shadow">
+                                    <i class="fa fa-bell notifications-dropdown-icon" style="color: #fff;">
+                                        <span id="notification-count" class="badge badge-success pull-right"></span>
+                                    </i>
+                                </div>
                             </div>
-                        </div>
-                        <ul class="dropdown-menu triangle triangle-bell-notif pull-right shadow"
-                            style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px">
-                            <li style="background: #f5f5f5;padding:10px;color:forestgreen;font-weight:bold;">
-                                Notifications <span id="notification-count" class="badge badge-success pull-right"></span>
-                            </li>
-                            <li class="divider" style="margin:0px;"></li>
-                            <li>
-                                <ul id="notification-content" data-pull="false">
-                                    <div style="color:#999;"><i class="fa fa-bell fa-4x"></i></div>
-                                    <p class="no-notification">There's no notifications here</p>
-                                </ul>
-                            </li>
-                            <li class="divider" style="margin:0px;"></li>
-                            <li class="see-all-notification">See all notifications</li>
-                        </ul>
-                    </li>
-                    <li class="dropdown prevent-close" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
-                        <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
-                            <div class="profile-circle shadow" style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})"></div>
-                        </div>
-                        <ul class="dropdown-menu triangle triange-profile-dropdown pull-right shadow" style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
-                            <li>
-                                <div class="row" style="margin:15px;height:110px;">
-                                    <div class="col-md-5" style="padding:0px;">
-                                        <div class="profile-circle medium" style="border:none-
-                                             ;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
-                                        </div>
-                                        <form id="form_change_user_picture" enctype="multipart/form-data" method="post" action="">
-                                            <input id="user_picture" type="file" style="display:none;" accept="image/*" />
-                                            <input type="submit" style="display:none" />
-                                        </form>
-                                        <p class="profile-text-green" id="change_user_picture" style="text-align:center;width:105px">Change Picture</p>
-                                    </div>
-                                    <div class="col-md-7" style="font-size:13px;padding:5px;">
-                                        <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                                        <div class="email">{{ request.user.email }}</div>
-                                        <div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
-                                        <div><p id="edit_profile" class="profile-text-green" style="padding:0;font-size:15px;">Profile</p></div>
-                                    </div>
+                            <ul class="dropdown-menu triangle triangle-bell-notif pull-right shadow"
+                                style="min-width: 320px;min-height:370px;max-height:370px;padding:0px;border-radius:2px">
+                                <li style="background: #f5f5f5;padding:10px;color:forestgreen;font-weight:bold;">
+                                    Notifications <span id="notification-count" class="badge badge-success pull-right"></span>
+                                </li>
+                                <li class="divider" style="margin:0px;"></li>
+                                <li>
+                                    <ul id="notification-content" data-pull="false">
+                                        <div style="color:#999;"><i class="fa fa-bell fa-4x"></i></div>
+                                        <p class="no-notification">There's no notifications here</p>
+                                    </ul>
+                                </li>
+                                <li class="divider" style="margin:0px;"></li>
+                                <li class="see-all-notification">See all notifications</li>
+                            </ul>
+                        </li>
+                        <li class="dropdown prevent-close" style="position: absolute;right: 20px;top: 8px;height:auto;padding-bottom:10px;">
+                            <div class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
+                                <div class="profile-circle shadow"
+                                    style="background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
                                 </div>
-                            </li>
-                            <li class="divider" style="margin-bottom:0px;"></li>
-                            <li style="height:47px;background:#f5f5f5;">
-                                <!--<a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>-->
-                                <button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign out</button>
-                            </li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li style="background-color:transparent;margin-top:7px; display:inline-flex;flex :0 0 auto;top:10px; ">
-                        <i class="fa fa-user"></i>
-                    </li>
-                    {% endif %}
-                    {% endblock %}
-                    <!--When user has sign in this text must be changed with the name sign out and removed li control-->
-                    <!-- ============================ User Login =================================== -->
-                    {%if not request.user.is_authenticated%}
-                    <li class="dropdown prevent-close keep-open open" style="flex: 0 1 65px;">
-                        <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
-                            Sign in
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu" style="padding: 10px;min-width: 170px;">
-                            <li>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <form class="form" role="form" method="post" action="/login/" accept-charset="UTF-8" id="login-nav">
-                                            {% csrf_token %}
-                                            <div class="form-group">
-                                                <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                                                <input class="form-control" name="email" id="id_email" required="" type="email" placeholder="Email address">
+                            </div>
+                            <ul class="dropdown-menu triangle triange-profile-dropdown pull-right shadow"
+                                style="min-width: 320px;height:190px;padding:0px;border-radius:2px">
+                                <li>
+                                    <div class="row" style="margin:15px;height:110px;">
+                                        <div class="col-md-5" style="padding:0px;">
+                                            <div class="profile-circle medium"
+                                                style="border:none-
+                                                                                                                                                                                                                                                                                                                                                                                                                                        ;background-image:url({% if request.user.picture %}{% static 'NA_User_Image/UploadImg/' %}{{ request.user.get_picture_name }}{% else %}{% static 'NA_User_Image/Img/default.png' %}{% endif %})">
                                             </div>
-                                            <div class="form-group">
-                                                <label class="sr-only" for="exampleInputPassword2">Password</label>
-                                                <input class="form-control" name="password" id="id_password" required="" type="password" placeholder="Password">
+                                            <form id="form_change_user_picture" enctype="multipart/form-data" method="post" action="">
+                                                <input id="user_picture" type="file" style="display:none;" accept="image/*" />
+                                                <input type="submit" style="display:none" />
+                                            </form>
+                                            <p class="profile-text-green" id="change_user_picture" style="text-align:center;width:105px">Change Picture</p>
                                             </div>
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox"> Remember me
-                                                </label>
+                                            <div class="col-md-7" style="font-size:13px;padding:5px;">
+                                                <div class="username">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                                                <div class="email">{{ request.user.email }}</div>
+                                                <div>{{ request.user.divisi }} - <b>{{ request.user.get_role_display }}</b></div>
+                                            <div>
+                                                <p id="edit_profile" class="profile-text-green" style="padding:0;font-size:15px;">
+                                                    Profile</p>
                                             </div>
-
-                                            <div class="form-group">
-                                                <button type="submit" class="btn btn-success btn-block">Sign in</button>
                                             </div>
-
-                                        </form>
-                                        <div class="form-group">
-                                            <button class="btn btn-primary btn-block" id="register">Sign up</button>
-                                        </div>
+                                            </div>
+                                            </li>
+                                            <li class="divider" style="margin-bottom:0px;"></li>
+                                            <li style="height:47px;background:#f5f5f5;">
+                                                <!--<a class="btn btn-default pull-right" href="{% url 'logout' %}" style="margin-right:10px">Sign out</a>-->
+                                    <button id="btn_sign_out" class="btn btn-default pull-right" style="margin:7px;padding:4px 10px;border-radius:3px;">Sign
+                                        out</button>
+                                    </li>
+                                    </ul>
+                                    </li>
+                                    {% else %}
+                                    <li style="background-color:transparent;margin-top:7px; display:inline-flex;flex :0 0 auto;top:10px; ">
+                                        <i class="fa fa-user"></i>
+                                    </li>
+                                    {% endif %}
+                                    {% endblock %}
+                                    <!--When user has sign in this text must be changed with the name sign out and removed li control-->
+                                    <!-- ============================ User Login =================================== -->
+                                    {%if not request.user.is_authenticated%}
+                                    <li class="dropdown prevent-close keep-open open" style="flex: 0 1 65px;">
+                                        <a href="http://www.jquery2dotnet.com" class="dropdown-toggle" data-toggle="dropdown" style="top:10px">
+                                            Sign in
+                                            <b class="caret"></b>
+                                        </a>
+                                        <ul class="dropdown-menu" style="padding: 10px;min-width: 170px;">
+                                            <li>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <form class="form" role="form" method="post" action="/login/" accept-charset="UTF-8" id="login-nav">
+                                                            {% csrf_token %}
+                                                            <div class="form-group">
+                                                                <label class="sr-only" for="exampleInputEmail2">Email address</label>
+                                                                <input class="form-control" name="email" id="id_email" required="" type="email"
+                                                                    placeholder="Email address">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                                                                <input class="form-control" name="password" id="id_password" required="" type="password"
+                                                                    placeholder="Password">
+                                                            </div>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox"> Remember me
+                                                                </label>
+                                                            </div>
+                                    
+                                                            <div class="form-group">
+                                                                <button type="submit" class="btn btn-success btn-block">Sign in</button>
+                                                            </div>
+                                    
+                                                        </form>
+                                                        <div class="form-group">
+                                                            <button class="btn btn-primary btn-block" id="register">Sign up</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li>
+                                    <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-primary btn-block">Login with
+                                        Facebook</a>
+                                    </li>
+                                    </ul>
+                                    </li>
+                                    {% endif %}
+                                    <!-- ============================ End User Login =============================== -->
+                                    </ul>
                                     </div>
-                                </div>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-primary btn-block">Login with Facebook</a>
-                            </li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                    <!-- ============================ End User Login =============================== -->
-                </ul>
-            </div>
-            <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
-            <script>
-            	$(document).ready(function(){
-            		$('form#login-nav').submit(function(event){
-            			event.preventDefault();
-            			if (this.checkValidity()){
-            				event.stopPropagation();
-            				event.stopImmediatePropagation();
-            				$.ajax({
-            					url: this.action,
-            					method: 'POST',
-            					beforeSend: function(xhr){
-            						xhr.setRequestHeader(
-										'X-CSRFToken',
-										$('input[name="csrfmiddlewaretoken"]').val()
-									)
-            					},
-            					data: {
-            						email: $(this).find('input[type="email"]').val(),
-            						password: $(this).find('input[type="password"]').val()
-            					},
-            					success: function(data){
-            						// TODO: Handle it, in layout.html --> don't use tag session
-            						setTimeout(function(){
-            							window.location.href = data.redirect;
-            						}, 500);
+                                    <script>window.jQuery || document.write('<script src="../../static/app/scripts/jquery-1.11.1.js"><\/script>')</script>
+                                    <script>
+                                                    $(document).ready(function () {
+                                                        $('form#login-nav').submit(function (event) {
+                                                            event.preventDefault();
+                                                        if (this.checkValidity()) {
+                                                            event.stopPropagation();
+                                                            event.stopImmediatePropagation();
+                                                            $.ajax({
+                                                                url: this.action,
+                                                                method: 'POST',
+                                                            beforeSend: function (xhr) {
+                                                                xhr.setRequestHeader(
+                                                                    'X-CSRFToken',
+                                                                    $('input[name="csrfmiddlewaretoken"]').val()
+                                                                )
+                                                            },
+                                                            data: {
+                                                                email: $(this).find('input[type="email"]').val(),
+                                                                password: $(this).find('input[type="password"]').val()
+                                                            },
+                                                            success: function (data) {
+                                        // TODO: Handle it, in layout.html --> don't use tag session
+                                                            setTimeout(function () {
+                                                                window.location.href = data.redirect;
+                                                            }, 500);
 
-            					},
-            					error: function(data){
-            						data = data.responseJSON
-            						for (var key in data){
-            							var input = $('input[name="'+ key +'"]').get(0);
-            							input.setCustomValidity(data[key]);
-            							$('form#login-nav').find('button[type="submit"]').click();
-            						}
-            					}
-            				})
-            				return false;
-            			}
-            		});
-            		$('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function(){
-            			this.setCustomValidity('');
-            		});
-            	});
-            </script>
-            <div class="AsideMainArea">
+                                                            },
+                                                            error: function (data) {
+                                                                data = data.responseJSON
+                                                                for (var key in data) {
+                                                                    var input = $('input[name="' + key + '"]').get(0);
+                                                                    input.setCustomValidity(data[key]);
+                                                                    $('form#login-nav').find('button[type="submit"]').click();
+                                                                }
+                                                            }
+                                                        })
+                                                            return false;
+                                                        }
+                                                    });
+                                                    $('form#login-nav').find('input[type="password"], input[type="email"]').on('change', function () {
+                                                        this.setCustomValidity('');
+                                                    });
+                                                });
+                                              </script>
+                <div class="AsideMainArea" id="AsmainArea">
+                    <div id="EventLogs" class="LogEvent"></div>
+                    <div class="input-group" style="display:inline-flex;position:relative">
+                        <input class="NA-Form-Control" id="searchLogEvent" style="display:flex;flex-flow:row nowrap;height:30.22px;"
+                            placeholder="Search Actions" type="text">
+                        <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
+                            <button style="height:30.22px;" class="btn btn-default" type="submit" id="btnSearchLogEvent"><i
+                                    class="fa fa-search-minus" aria-hidden="true"></i></button>
+                            </div>
+                            </div>
+                            </div>
 
-                <div id="EventLogs" class="LogEvent"></div>
-                <div class="input-group" style="display:inline-flex;position:relative">
-                    <input class="NA-Form-Control" id="searchLogEvent" style="display:flex;flex-flow:row nowrap;height:30.22px;" placeholder="Search Actions" type="text">
-                    <div class="input-group-btn" style="padding-bottom:0;display:flex;flex-flow:row nowrap;width:auto;">
-                        <button style="height:30.22px;" class="btn btn-default" type="submit" id="btnSearchLogEvent"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
-                    </div>
-                </div>
-            </div>
         </aside>
         <div class="clearfloat"></div>
 

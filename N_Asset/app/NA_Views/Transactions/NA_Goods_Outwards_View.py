@@ -41,13 +41,13 @@ def ShowCustomFilter(request):
 	#fk_responsibleperson,responsible_by,fk_sender,senderby,fk_stock,refgoodsfrom,descriptions,createdby,createddate
 	cols = []
 	cols.append({'name':'goods','value':'goods','selected':'True','dataType':'varchar','text':'Goods name'})
-	cols.append({'name':'goodstype','value':'goodstype','selected':'','dataType':'varchar','text':'Goods type'})
+	cols.append({'name':'typeapp','value':'typeapp','selected':'','dataType':'varchar','text':'Goods type'})
 	cols.append({'name':'serialnumber','value':'serialnumber','selected':'','dataType':'varchar','text':'Serial Number'})
 	cols.append({'name':'daterequest','value':'daterequest','selected':'','dataType':'datetime','text':'Date Requested'})
 	cols.append({'name':'datereleased','value':'datereleased','selected':'','dataType':'datetime','text':'Date Released'})
 	#cols.append({'name':'for_employee','value':'for_employee','selected':'','dataType':'varchar','text':'For Employee'})
 	cols.append({'name':'responsibleby','value':'responsibleby','selected':'','dataType':'varchar','text':'Responsible by'})
-	cols.append({'name':'sentby','value':'sentby','selected':'','dataType':'varchar','text':'Sent  By'})
+	cols.append({'name':'senderby','value':'senderby','selected':'','dataType':'varchar','text':'Sent  By'})
 	cols.append({'name':'isnew','value':'isnew','selected':'','dataType':'boolean','text':'Is New'})
 	cols.append({'name':'refgoodsfrom','value':'refgoodsfrom','selected':'','dataType':'varchar','text':'Reference goods from'})
 	cols.append({'name':'descriptions','value':'descriptions','selected':'','dataType':'varchar','text':'descriptions/Remark'})
@@ -228,6 +228,7 @@ def export_to_excels(request):
 	except Exception as e:
 		result = repr(e)
 		return HttpResponse(json.dumps({'message':result}),status = 500, content_type='application/json')
+
 def getGoodsWithHistory(request):
 	try:
 		searchText = request.GET.get('searchData')

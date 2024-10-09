@@ -454,6 +454,96 @@ class NA_BR_Goods_Receive(models.Manager):
 		return data
 	def getFKGoods(self, fkapp):
 		return super(NA_BR_Goods_Receive, self).get_queryset().filter(idapp__iexact=fkapp).values('idapp_fk_goods')
+
+	def getreport_byrecipient(self, orderFields, sortIndice, pageSize, PageIndex, userName, columnKey, ValueKey, criteria=CriteriaSearch.Like, typeofData=DataType.VarChar):
+			colKey = 'g.goodsname'
+			if columnKey == 'goods':
+				colKey = 'g.goodsname'
+			if columnKey == 'REFNO':
+				colKey = 'ngr.REFNO'
+			elif columnKey == 'mobile':
+				colKey = "e.TelpHP"
+			elif columnKey == 'typeapp':
+				colKey = 'ngd.TypeApp'
+			elif columnKey == 'serialnumber':
+				colKey = 'ngd.serialnumber'
+			elif columnKey == 'datereleased':
+				colKey = 'nga.datereleased'
+			elif columnKey == 'for_employee':
+				colKey = 'e.employee_name'
+			elif columnKey == 'refgoodsfrom':
+				colKey = 'ref.refgoodsfrom'
+			elif columnKey == 'suppliername':
+				colKey = 's.suppliername'
+			elif columnKey == 'territory':
+				colKey = 'e.territory'
+			rs = ResolveCriteria(criteria, typeofData, colKey, ValueKey)
+			Query = "DROP TEMPORARY TABLE IF EXISTS T_RepByRefNo_Manager_" + userName
+			cur = connection.cursor()
+			cur.execute(Query)
+			Query = """ CREATE TEMPORARY TABLE T_RepByRefNo_Manager_""" + userName + """ ENGINE=MyISAM AS (
+					SELECT ngr.REFNO,g.goodsname as goods,CONCAT('Date Received  ',DATE_FORMAT(ngr.DateReceived,'%d %M %Y'),' From ', S.SupplierName,' Total ',CAST(ngr.TotalPurchase as VARCHAR(50)),' Item(s)') AS descr_purchase,
+     				e.territory,e.employee_name as for_employee,e.TelpHP AS mobile,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.datereleased,
+					ref.refgoodsfrom,
+     				CASE
+						WHEN DATEDIFF(ngh.MaxDate,nga.CreatedDate) > 1 
+      					THEN( CASE WHEN EXISTS(SELECT FK_Disposal FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) = ngh.MaxDate AND FK_Disposal IS NOT NULL )
+							            THEN 'Broken'
+								   WHEN EXISTS(SELECT FK_Lending FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) = ngh.MaxDate AND FK_Disposal IS NOT NULL)
+										THEN CONCAT('lent by ',(SELECT e1.employee_name FROM employee e1 INNER JOIN n_a_goods_lending ngl ON ngl.FK_Employee = e1.IDApp WHERE ngl.SerialNumber = nga.serialNumber ORDER BY ngl.CreatedDate DESC LIMIT 1))
+          						   WHEN EXISTS(SELECT FK_Lost FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) = ngh.MaxDate AND FK_Lost IS NOT NULL)
+										THEN 'Lost'
+								   WHEN EXISTS(SELECT ngh1.FK_Maintenance FROM n_a_goods_history ngh1 INNER JOIN n_a_maintenance NM ON NM.SerialNumber = ngh1.SerialNumber WHERE NM.IsSucced = 0 AND Date(NM.CreatedDate)= ngh.MaxDate AND ngh1.FK_Maintenance IS NOT NULL)
+										THEN 'Broken/lost'
+                          		   WHEN EXISTS(SELECT ngh1.FK_Maintenance FROM n_a_goods_history ngh1 INNER JOIN n_a_maintenance NM ON NM.SerialNumber = ngh1.SerialNumber WHERE NM.IsSucced = 1  AND Date(NM.CreatedDate)= ngh.MaxDate AND ngh1.FK_Maintenance IS NOT NULL)
+										THEN 'Broken/Lost'
+								   WHEN EXISTS(SELECT FK_Return FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) = ngh.MaxDate AND FK_Return IS NOT NULL)
+										THEN 'Returned'  
+                                 ELSE 'uncategorized ' 
+							   END
+          					)
+						ELSE 'Held By User' 
+      				END AS last_possition
+					FROM n_a_goods_receive ngr INNER JOIN n_a_supplier s ON ngr.FK_Supplier = S.SupplierCode
+					INNER JOIN n_a_goods_receive_detail ngd ON ngd.FK_App = ngr.IDApp
+					INNER JOIN n_a_goods g on ngr.FK_Goods = g.IDApp
+					INNER JOIN n_a_goods_outwards nga ON nga.SerialNumber = ngd.SerialNumber
+					INNER JOIN (SELECT ng.IDApp,CASE
+											WHEN (ng.FK_Receive IS NOT NULL) THEN 'Receive PR (New)'
+											WHEN (ng.FK_RETURN IS NOT NULL) THEN 'RETURN Eks Employee'
+											WHEN (ng.FK_FromMaintenance IS NOT NULL) THEN 'After Service(Maintenance)'
+											WHEN (ng.FK_Lending IS NOT NULL) THEN 'RETURN (After being Lent)'
+											ELSE 'Other (Uncategorized)'
+											END AS refgoodsfrom FROM n_a_goods_Outwards ng)ref ON Ref.IDApp = nga.IDApp
+					INNER JOIN employee e on e.IDApp = nga.FK_Employee
+					INNER JOIN(SELECT SerialNumber,MAX(DATE(CreatedDate)) AS MaxDate FROM n_a_goods_history GROUP BY SerialNumber)ngh
+					ON nga.SerialNumber = ngh.SerialNumber
+					LEFT OUTER JOIN n_a_goods_return ngt ON ngt.FK_Goods_Outwards = nga.IDApp
+					WHERE """ + colKey + rs.Sql() + " AND ngt.FK_Goods_Outwards IS NULL)"
+			cur.execute(Query)
+
+			strLimit = '20'
+			if int(PageIndex) <= 1:
+				strLimit = '0'
+			else:
+				strLimit = str((int(PageIndex)-1) * int(pageSize))
+			if orderFields != '':
+				#Query = """SELECT * FROM T_Receive_Manager """ + (("ORDER BY " + ",".join(orderFields)) if len(orderFields) > 1 else " ORDER BY " + orderFields[0]) + (" DESC" if sortIndice == "" else sortIndice) + " LIMIT " + str(pageSize*(0 if PageIndex <= 1 else PageIndex)) + "," + str(pageSize)
+				Query = """SELECT * FROM T_RepByRefNo_Manager_""" + userName + """ ORDER BY """ + orderFields + \
+					(" DESC" if sortIndice == "" else ' ' + sortIndice) + \
+					" LIMIT " + strLimit + "," + str(pageSize)
+			else:
+				Query = """SELECT * FROM T_RepByRefNo_Manager_""" + userName + \
+					""" ORDER BY IDApp LIMIT """ + strLimit + "," + str(pageSize)
+			cur.execute(Query)
+			result = query.dictfetchall(cur)
+			# get countRows
+			Query = """SELECT COUNT(*) FROM T_RepByRefNo_Manager_""" + userName
+			cur.execute(Query)
+			row = cur.fetchone()
+			totalRecords = row[0]
+			cur.close()
+			return (result, totalRecords)
 class CustomSupplierManager(models.Manager):
 	def getSupplier(self,suppliercode):
 		return super(CustomSupplierManager,self).get_queryset().filter(suppliercode__iexact=suppliercode).values('suppliername')

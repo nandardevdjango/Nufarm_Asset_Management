@@ -113,7 +113,7 @@ div > aside:nth-child(2) {
     height: 116%;
     position: absolute;
     right: 0;
-    border: 1px solid #4CAF50;
+/* border: 1px solid #4CAF50;*/
     top: -16%;
     background-color: transparent;
     padding: 2px 2px 0;
@@ -221,6 +221,8 @@ div > aside:nth-child(2) > .AsideLoginArea, div > aside:nth-child(2) > .AsideMai
     /*border: 1px solid #4CAF50;*/
     border-right: 0;
     border-left: 0;
+    border-left: 1px solid #4CAF50;
+        border-top: 1px solid #4CAF50;
 }
 
 aside h2 {
@@ -441,4 +443,27 @@ ul, menu, dir {
 /*override bootstrap*/
 .dropdown-menu.search{
     font-size: 0.88em;
+}
+.slider {
+    z-index: 999999;
+    display: block;
+    position: absolute;
+    width: 5px;
+    background-color: #4CAF50;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow: visible;
+    user-select: none;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    left: 0.25rem;
+    top: 50%;
+    height: 1.5rem;
+    width: 0.5rem;
+    background-color: #4CAF50;
+    cursor: col-resize;
 }

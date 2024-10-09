@@ -2,37 +2,21 @@
 <li><a href="#" data-tipe="varchar" data-column="goodsname">Goods name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="itemcode">Item code</a></li>
 <li><a href="#" data-tipe="varchar" data-column="brandname">Brand name</a></li>
-<li>
-  <a href="#" data-tipe="varchar" data-column="serialnumber">Serial number</a>
-</li>
-<li>
-  <a href="#" data-tipe="datetime" data-column="requestdate">Request Date</a>
-</li>
+<li><a href="#" data-tipe="varchar" data-column="serialnumber">Serial number</a></li>
+<li><a href="#" data-tipe="datetime" data-column="requestdate">Request Date</a></li>
 <li><a href="#" data-tipe="datetime" data-column="startdate">Start Date</a></li>
 <li><a href="#" data-tipe="datetime" data-column="enddate">End Date</a></li>
-<li>
-  <a href="#" data-tipe="boolean" data-column="isstillguarante"
-    >Still Warranty</a
-  >
-</li>
-<li>
-  <a href="#" data-tipe="varchar" data-column="maintenanceby">Maintenance By</a>
-</li>
-<li>
-  <a href="#" data-tipe="varchar" data-column="personalname">Personal Name</a>
-</li>
+<li><a href="#" data-tipe="boolean" data-column="isstillguarante">Still Warranty</a></li>
+<li><a href="#" data-tipe="varchar" data-column="maintenanceby">Maintenance By</a></li>
+<li><a href="#" data-tipe="varchar" data-column="personalname">Personal Name</a></li>
 <li><a href="#" data-tipe="decimal" data-column="expense">Expense</a></li>
 <li><a href="#" data-tipe="boolean" data-column="issucced">Succed</a></li>
 <li><a href="#" data-tipe="boolean" data-column="isfinished">isfinished</a></li>
-<li>
-  <a href="#" data-tipe="varchar" data-column="descriptions">Personal Name</a>
-</li>
-<!--<li class="divider"></li>-->
+<li><a href="#" data-tipe="varchar" data-column="descriptions">Personal Name</a></li>
 <li><a href="#" data-tipe="varchar" data-column="inactive">InActive</a></li>
 <li><a id="custSearch" href="#">Custom Search</a></li>
-<!--<li class="divider"></li>-->
-{% endblock %} {% block javascriptAndUI %} {% load static %}
 
+{% endblock %} {% block javascriptAndUI %} {% load static %}
 <script
   type="text/javascript"
   src="../../../static/app/scripts/NAJS.js"
@@ -71,54 +55,55 @@
     var numPlaceHolder = "enter numeric type";
     var boolPlaceHolder = "true/false/1/0";
     var DivSearch = doc.querySelector("ul.dropdown-menu.search"); //return list Element
+
+
     (function (elm) {
       var listElem = elm.children;
       Array.prototype.forEach.call(listElem, function (item) {
-        //buat jadi foreach mesti convert dulu ke array
-        if (item.firstChild.nodeValue.trim() != "CustomSearch") {
-          NA.NAEvent.addHandler(item, "click", function (event) {
-            event.preventDefault();
-            if (item.firstChild.id === "custSearch") {
-              //=========='show dialog search'==================
-              NA.common.dialog.createSearchDialog(event);
-              txtSearchMaster.setAttribute("disabled", true);
-              txtSearchMaster.setAttribute("placeholder", "");
-              txtSearchMaster.value = "";
-              btnSearchMaster.setAttribute("disabled", true);
-            } else {
-              txtSearchMaster.removeAttribute("disabled");
-              btnSearchMaster.removeAttribute("disabled");
-              var textSearch = NA.common.getElementID("bySearch");
-              textSearch.firstChild.nodeValue = item.textContent.trim();
-              var elSearch = item.firstElementChild;
-              switch (elSearch.dataset.tipe) {
-                case "varchar":
-                case "nchar":
-                case "char":
-                case "nvarchar": {
-                  txtSearchMaster.setAttribute("placeholder", defPlaceHolder);
-                  break;
-                }
-                case "boolean": {
-                  txtSearchMaster.setAttribute("placeholder", boolPlaceHolder);
-                  break;
-                }
-                case "int":
-                case "integer":
-                case "decimal":
-                case "floatt":
-                case "bigint": {
-                  txtSearchMaster.setAttribute("placeholder", numPlaceHolder);
-                  break;
-                }
-                case "datetime": {
-                  txtSearchMaster.setAttribute("placeholder", datePlaceHolder);
-                  break;
-                }
-              }
-            }
-          });
-        }
+        NA.NAEvent.addHandler(item, 'click', function (event) {
+					event.preventDefault();
+					if (item.firstChild.id === 'custSearch') {
+						//=========='show dialog search'==================
+						NA.common.dialog.createSearchDialog(event)
+						txtSearchMaster.setAttribute('disabled', true);
+						txtSearchMaster.setAttribute('placeholder', '');
+						txtSearchMaster.value = '';
+						btnSearchMaster.setAttribute('disabled', true)
+					}
+					else {
+						txtSearchMaster.removeAttribute('disabled');
+						btnSearchMaster.removeAttribute('disabled');
+						var textSearch = NA.common.getElementID('bySearch');
+						textSearch.firstChild.nodeValue = item.textContent;
+						var elSearch = item.firstChild;
+						switch (elSearch.dataset.tipe) {
+							case "varchar":
+							case "nchar":
+							case "char":
+							case "nvarchar": {
+								txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+								break;
+							}
+							case "boolean": {
+								txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+								break;
+							}
+							case "int":
+							case "integer":
+							case "decimal":
+							case "floatt":
+							case "bigint": {
+								txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+								break;
+							}
+							case "datetime": {
+								txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+								break;
+							}
+						}
+					}
+					//event.stopImmediatePropagation();
+				});
       });
     })(DivSearch);
   })();
@@ -670,13 +655,14 @@
     //================================= End Search by ======================================//
     function submitSearch(event) {
       win.document.body.style.cursor = "wait";
-      if (event) NA.NAEvent.preventDefault(event);
+      if (event) {NA.NAEvent.preventDefault(event);}
       var elementOption = null,
         columnKey = "",
         valueKey = "",
         elCriteria = null, //NA.common.doc.querySelector('td.columns select.selectopts.NA-Form-Control option:checked');
         valCriteria = "", //elCriteria.nodeValue;
         elDataType = ""; //elementOption.dataset.dataType;
+        criteria = 'like'
       if (
         event.target.getAttribute("id") === "fbox_jqGrid_search" ||
         event.target.getAttribute("id") === "jqg1" ||
@@ -2451,11 +2437,13 @@
             }
           );
         }
-        if (!hasLoadDialog) {
+        win.setTimeout(function(){
+          if (!hasLoadDialog) {
               closeDialog();
               win.document.body.style.cursor = "default";
               return false;
             }
+        },1000);
         var btnOkCancel = qsAll("div.dialogButtonOKCancel>a.button"),
           btnClose = qs("button.ui-button.ui-dialog-titlebar-close");
         Array.prototype.forEach.call(btnOkCancel, function (elem) {

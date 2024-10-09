@@ -4,7 +4,7 @@ from decimal import Decimal
 from celery.schedules import crontab
 from celery.task import task, periodic_task
 from django.db import transaction
-
+from celery.contrib import rdb
 from NA_Models.models import (
     NAGaVnHistory,
     NAPrivilege
@@ -74,7 +74,6 @@ class NATask(object):
                 if opt['depr_method'] == 'SYD':
                     settings['depr_acc'] = opt['depr_acc']
                 return settings
-
             if depr_method == 'SL' or depr_method == 'DDB':
                 depr_expense = price / (economiclife * 12)
                 for i in range(int(economiclife * 12) + 1):
