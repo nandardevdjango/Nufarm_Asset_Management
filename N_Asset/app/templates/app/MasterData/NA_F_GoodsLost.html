@@ -37,20 +37,123 @@
         var doc = doc || window.document;
         var DivSearch = doc.querySelector('ul.dropdown-menu.search');//return list Element
         (function (elm) {
-            var listElem = elm.children;
-            Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
-                if (item.firstChild.nodeValue.trim() != 'CustomSearch') {
-                    NA.NAEvent.addHandler(item, 'click', function (event) {
-                        event.preventDefault();
-                        if (item.firstChild.id === 'custSearch') {
-                            //=========='show dialog search'==================
-                            NA.common.dialog.createSearchDialog(event)
-                        }
-                        NA.common.getElementID('bySearch').firstChild.nodeValue = item.textContent.trim();
-                    });
-                }
-            });
-        })(DivSearch);
+			var listElem = elm.children;
+			var datePlaceHolder = 'yyyy-mm-dd or mm/dd/yyyy';
+			var numPlaceHolder = 'enter numeric type';
+			var boolPlaceHolder = 'true/false/1/0';
+			Array.prototype.forEach.call(listElem, function (item) {//buat jadi foreach mesti convert dulu ke array
+				NA.NAEvent.addHandler(item, 'click', function (event) {
+					event.preventDefault();
+					if (item.firstChild.id === 'custSearch') {
+						//=========='show dialog search'==================
+						NA.common.dialog.createSearchDialog(event)
+						txtSearchMaster.setAttribute('disabled', true);
+						txtSearchMaster.setAttribute('placeholder', '');
+						txtSearchMaster.value = '';
+						btnSearchMaster.setAttribute('disabled', true)
+					}
+					else {
+						txtSearchMaster.removeAttribute('disabled');
+						btnSearchMaster.removeAttribute('disabled');
+						var textSearch = NA.common.getElementID('bySearch');
+						textSearch.firstChild.nodeValue = item.textContent;
+						var elSearch = item.firstChild;
+						switch (elSearch.dataset.tipe) {
+							case "varchar":
+							case "nchar":
+							case "char":
+							case "nvarchar": {
+								txtSearchMaster.setAttribute('placeholder', defPlaceHolder);
+								break;
+							}
+							case "boolean": {
+								txtSearchMaster.setAttribute('placeholder', boolPlaceHolder);
+								break;
+							}
+							case "int":
+							case "integer":
+							case "decimal":
+							case "floatt":
+							case "bigint": {
+								txtSearchMaster.setAttribute('placeholder', numPlaceHolder);
+								break;
+							}
+							case "datetime": {
+								txtSearchMaster.setAttribute('placeholder', datePlaceHolder);
+								break;
+							}
+						}
+					}
+					//event.stopImmediatePropagation();
+				});
+			});
+
+			NA.NAEvent.addHandler(txtSearchMaster, 'blur', function (e) {
+				//get textcontent IDbySearch
+				//looping dropdown li a textContent
+				var SearchByText = NA.common.getElementID('bySearch').textContent;
+				var elSearch = null;
+				Array.prototype.forEach.call(listElem, function (item) {
+					if (item.firstChild.text == SearchByText) {
+						elSearch = item.firstChild;
+						return;
+					}
+				});
+				if (!elSearch) {
+					if (this.value === '') {
+						if (this.getAttribute('placeholder') !== defPlaceHolder) {
+							this.setAttribute('placeholder', defPlaceHolder);
+						}
+					}
+					e.stopImmediatePropagation();
+				}
+				else {
+					switch (elSearch.dataset.tipe) {
+						case "varchar":
+						case "nchar":
+						case "char":
+						case "nvarchar": {
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== defPlaceHolder) {
+									this.setAttribute('placeholder', defPlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
+							break;
+						}
+						case "int":
+						case "integer":
+						case "decimal":
+						case "floatt":
+						case "bigint": {
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== numPlaceHolder) {
+									this.setAttribute('placeholder', numPlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
+							break;
+						}
+						case "datetime": {
+							if (this.value === '') {
+								if (this.getAttribute('placeholder') !== datePlaceHolder) {
+									this.setAttribute('placeholder', datePlaceHolder);
+								}
+							}
+							e.stopImmediatePropagation();
+							break;
+						}
+					}
+				}
+			});
+			NA.NAEvent.addHandler(txtSearchMaster, 'focus', function (e) {
+				if (this.value === '') {
+					if (this.getAttribute('placeholder') !== '') {
+						this.setAttribute('placeholder', '');
+					}
+				}
+			});
+		})(DivSearch);
     })();
 </script>
 <script src="{% static 'app/scripts/jquery-1.11.0.min.js' %}" id="jq_uery"></script>
