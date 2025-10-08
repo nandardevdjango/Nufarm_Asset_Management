@@ -497,7 +497,7 @@ class NA_BR_Goods_Receive(models.Manager):
 										THEN 'Broken/lost'
                           		   WHEN EXISTS(SELECT ngh1.FK_Maintenance FROM n_a_goods_history ngh1 INNER JOIN n_a_maintenance NM ON NM.SerialNumber = ngh1.SerialNumber WHERE NM.IsSucced = 1  AND Date(NM.CreatedDate)= ngh.MaxDate AND ngh1.FK_Maintenance IS NOT NULL)
 										THEN 'Broken/Lost'
-								   WHEN EXISTS(SELECT FK_Return FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) = ngh.MaxDate AND FK_Return IS NOT NULL)
+								   WHEN EXISTS(SELECT FK_Return FROM n_a_goods_history WHERE SerialNumber = ngh.SerialNumber AND Date(CreatedDate) >= ngh.MaxDate AND FK_Return IS NOT NULL)
 										THEN 'Returned'  
                                  ELSE 'uncategorized ' 
 							   END

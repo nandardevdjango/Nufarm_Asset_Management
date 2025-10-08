@@ -30,6 +30,8 @@ def NA_Report_ByRecipient(request):
         {'label': 'Territory', 'columnName': 'territory', 'dataType': 'varchar'})
     populate_combo.append(
         {'label': 'Date Released', 'columnName': 'datereleased', 'dataType': 'datetime'})
+    populate_combo.append({'label': 'PO_REF', 'columnName': 'PO_REF', 'dataType': 'varchar'})
+    populate_combo.append({'label': 'YEAR', 'columnName': 'YEAR','dataType': 'int'})
     populate_combo.append(
         {'label': 'Sender ', 'columnName': 'senderby', 'dataType': 'varchar'})
     populate_combo.append(
@@ -53,6 +55,10 @@ def ShowCustomFilter(request):
                  'selected': '', 'dataType': 'varchar', 'text': 'Serial Number'})
     cols.append({'name': 'daterequest', 'value': 'daterequest',
                  'selected': '', 'dataType': 'datetime', 'text': 'Date Requested'})
+    cols.append({'name': 'PO_REF', 'value': 'PO_REF',
+                 'selected': '', 'dataType': 'varchar', 'text': 'PO REF NO'})
+    cols.append({'name': 'YEAR', 'value': 'YEAR',
+                 'selected': '', 'dataType': 'int', 'text': 'YEAR received'})
     cols.append({'name': 'datereleased', 'value': 'datereleased',
                  'selected': '', 'dataType': 'datetime', 'text': 'Date Released'})
     cols.append({'name': 'for_employee', 'value': 'for_employee',
@@ -106,7 +112,7 @@ def NA_Report_ByRecipient_Search(request):
         i = 0
         for row in dataRows:
             i = i+1
-            datarow = {"id": i, 'cell': [i, row['territory'], row['goods'], row['goodstype'], row['serialnumber'], row['datereleased'],
+            datarow = {"id": i, 'cell': [i, row['territory'], row['goods'], row['goodstype'], row['serialnumber'],row['PO_REF'],row['YEAR'], row['datereleased'],
                                          1 if row['isGoodNew'] == 'YESS' else 0, row['for_employee'], row['mobile'], row['eks_employee'],  row['refgoodsfrom'], row['equipment_desc'], row['descriptions'], row['createddate'], row['createdby']]}
             #datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \
             #	row.placement,row.depreciationmethod,row.economiclife,row.createddate,row.createdby]}
@@ -125,7 +131,7 @@ def export_to_excels(request):
     	#get qryset
 	NAData = []
 	#tentukan column
-	colNames = ['NO', 'Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Released', 'Is New', 'For Employee', 'mobile',
+	colNames = ['NO', 'Territory', 'Goods Name', 'Type', 'Serial Number','PO_REF', 'YEAR', 'Date Released', 'Is New', 'For Employee', 'mobile',
              'Eks Employee', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By']
 	try:
 		IcolumnName = request.GET.get('columnName')
@@ -151,7 +157,7 @@ def export_to_excels(request):
 		i = 0
 		for row in dataRows:
 			i = i + 1
-			datarow = tuple([i, row['territory'], row['goods'], row['goodstype'], row['serialnumber'], datetime.strftime(row['datereleased'], "%m/%d/%Y"),
+			datarow = tuple([i, row['territory'], row['goods'], row['goodstype'], row['serialnumber'], row['PO_REF'], row['YEAR'],datetime.strftime(row['datereleased'], "%m/%d/%Y"),
                             row['isGoodNew'], row['for_employee'], row['mobile'], row['eks_employee'],
                             row['refgoodsfrom'], row['equipment_desc'], row['descriptions'], datetime.strftime(row['createddate'], "%m/%d/%Y"), row['createdby']])
 			#datarow = {"id" :row.idapp, "cell" :[row.idapp,row.itemcode,row.goodsname,row.brandname,row.unit,row.priceperunit, \

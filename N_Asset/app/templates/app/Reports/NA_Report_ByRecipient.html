@@ -293,7 +293,7 @@
             url: url,
             mtype: "GET",
             datatype: "json",
-            colNames: ['NO', 'Territory', 'Goods Name', 'Type', 'Serial Number', 'Date Released', 'Is New', 'For Employee', 'Emp_Mobile',
+            colNames: ['NO', 'Territory', 'Goods Name', 'Type', 'Serial Number','PO_REF','YEAR Received', 'Date Released', 'Is New', 'For Employee', 'Emp_Mobile',
               'Eks Employee', 'Ref Goods From', 'Equipment', 'Descriptions', 'Created Date', 'Created By'],
             colModel: [
               { name: 'NO', width: 40, key: true, align: 'right', sortable: false, editable: false, },
@@ -301,6 +301,8 @@
               { name: 'goods', width: 100, index: 'goods', align: 'left', sortable: true, editable: false, },
               { name: 'goodstype', index: 'goodstype', width: 80, sortable: true, editable: false, align: 'left', },
               { name: 'serialnumber', index: 'serialnumber', sortable: true, editable: false, align: 'left', },
+              { name: 'PO_REF', index: 'PO_REF', sortable: true, editable: false, align: 'left', width:70,},
+              { name: 'YEAR', index: 'Year', sortable: true, editable: false, align: 'left', width:70, },
               { name: 'datereleased', index: 'datereleased', sortable: true, editable: false, width: 110, formatter: 'date', formatoptions: { srcformat: 'Y-m-d', newformat: 'd F Y' } },
               { name: 'isGoodNew', index: 'isGoodNew', sortable: true, width: 50, align: 'center', editable: false, formatter: 'checkbox', formatoptions: { readonly: true } },
               { name: 'for_employee', index: 'for_employee', width: 110, sortable: true, editable: false, align: 'left', },

@@ -693,12 +693,14 @@ class NA_BR_Goods_Outwards(models.Manager):
             colKey = 'nga.descriptions'
         elif columnKey == 'territory':
             colKey = 'e.territory'
+        elif columnKey == "YEAR":
+            colKey = 'ngr.DateReceived'
         rs = ResolveCriteria(criteria, typeofData, colKey, valKey)
         Query = "DROP TEMPORARY TABLE IF EXISTS T_RepByRecipient_Manager_" + userName
         cur = connection.cursor()
         cur.execute(Query)
         Query = """ CREATE TEMPORARY TABLE T_RepByRecipient_Manager_""" + userName + """ ENGINE=MyISAM AS (
-                SELECT e.territory,g.goodsname AS goods,nga.IDApp AS FK_Goods_Outwards,nga.FK_goods,ngd.TypeApp AS goodstype,ngd.serialnumber,nga.datereleased,
+                SELECT e.territory,g.goodsname AS goods,nga.IDApp AS FK_Goods_Outwards,nga.FK_goods,ngd.TypeApp AS goodstype,ngd.serialnumber,ngr.REFNO as PO_REF,YEAR(ngr.DateReceived)AS YEAR,nga.datereleased,
                 CASE nga.isnew WHEN 1 THEN 'YESS' WHEN 0 THEN 'NO' ELSE '' END AS isGoodNew,nga.fk_employee,e.employee_name as for_employee,e.TelpHP AS mobile,
 		        CASE
 			        WHEN(nga.fk_usedemployee IS NOT NUll) THEN(SELECT employee_name FROM employee WHERE idapp = nga.fk_usedemployee LIMIT 1)
